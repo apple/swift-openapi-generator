@@ -1,0 +1,34 @@
+@Tutorials(name: "Swift OpenAPI Generator") {
+    @Intro(title: "Working with Swift OpenAPI Generator") {
+        Learn how to use *Swift OpenAPI Generator* to build and maintain great HTTP services and clients that your adopters will love.
+        
+        Spec-driven development eliminates the ambiguity of how your service behaves, and code-generation removes the margin for implementation error. 
+        
+        OpenAPI is an industry standard for declaring the functionality of your HTTP server and Swift OpenAPI Generator works seamlessly with Swift Package Manager (and Xcode) to make it easier than ever to build compliant servers and clients.
+    }
+    
+    @Chapter(name: "Swift OpenAPI Generator Essentials") {
+        
+        @Image(source: "image.png")
+        
+        This tutorial guides you through building _GreetingService_—an API server for a fictitious service that returns a personalized greeting.
+
+        ```console
+        % curl 'localhost:8080/api/greet?name=Jane'
+        {
+          "message" : "Hello, Jane"
+        }
+        ```
+
+        The API for the service is defined using OpenAPI and you'll implement a Swift server that implements this API, from scratch!
+
+        Your Swift package will use the Swift OpenAPI Generator plugin to generate the code you'll use to implement this API.
+        
+        Then you'll use the same plugin to create a Swift client for this service so you can print some personalized greetings!
+        
+        @TutorialReference(tutorial: "doc:ExploreOpenAPI")
+        @TutorialReference(tutorial: "doc:ServerSwiftPM")
+        @TutorialReference(tutorial: "doc:ClientSwiftPM")
+        @TutorialReference(tutorial: "doc:ClientXcode")
+    }
+}

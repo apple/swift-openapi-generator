@@ -1,0 +1,5 @@
+% mkdir GreetingServiceClient
+
+% swift package --package-path GreetingServiceClient init --type executable
+
+% open GreetingServiceClient/Package.swift

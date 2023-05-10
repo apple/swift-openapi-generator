@@ -1,0 +1,286 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the SwiftOpenAPIGenerator open source project
+//
+// Copyright (c) 2023 Apple Inc. and the SwiftOpenAPIGenerator project authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+// See CONTRIBUTORS.txt for the list of SwiftOpenAPIGenerator project authors
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+import OpenAPIKit30
+
+/// A wrapper of an OpenAPI operation that includes the information
+/// about the parent containers of the operation, such as its path
+/// item.
+struct OperationDescription {
+
+    /// The OpenAPI path of the operation.
+    var path: OpenAPI.Path
+
+    /// The OpenAPI endpoint of the operation.
+    var endpoint: OpenAPI.PathItem.Endpoint
+
+    /// The path parameters at the operation level.
+    var pathParameters: OpenAPI.Parameter.Array
+
+    /// The OpenAPI components, used to resolve JSON references.
+    var components: OpenAPI.Components
+
+    /// The OpenAPI operation object.
+    var operation: OpenAPI.Operation {
+        endpoint.operation
+    }
+
+    /// The HTTP method of the operation.
+    var httpMethod: OpenAPI.HttpMethod {
+        endpoint.method
+    }
+
+    /// Returns a lowercased string for the HTTP method.
+    var httpMethodLowercased: String {
+        httpMethod.rawValue.lowercased()
+    }
+}
+
+extension OperationDescription {
+
+    /// Returns operation descriptions for all the operations discovered
+    /// in the specified paths dictionary.
+    /// - Parameters:
+    ///   - map: The paths from the OpenAPI document.
+    ///   - components: The components from the OpenAPI document.
+    static func all(
+        from map: OpenAPI.PathItem.Map,
+        in components: OpenAPI.Components
+    ) -> [OperationDescription] {
+        map.flatMap { path, value in
+            value.endpoints.map { endpoint in
+                OperationDescription(
+                    path: path,
+                    endpoint: endpoint,
+                    pathParameters: value.parameters,
+                    components: components
+                )
+            }
+        }
+    }
+
+    /// Returns a Swift-safe function name for the operation.
+    ///
+    /// Uses the `operationID` value in the OpenAPI operation, if one was
+    /// specified. Otherwise, computes a unique name from the operation's
+    /// path and HTTP method.
+    var methodName: String {
+        operationID.asSwiftSafeName
+    }
+
+    /// Returns the identifier for the operation.
+    ///
+    /// If none was provided in the OpenAPI document, synthesizes one from
+    /// the path and HTTP method.
+    var operationID: String {
+        if let operationID = operation.operationId {
+            return operationID
+        }
+        return "\(httpMethod.rawValue.lowercased())\(path.rawValue)"
+    }
+
+    /// Returns a documentation comment for the method implementing
+    /// the OpenAPI operation.
+    var comment: Comment {
+        .operation(
+            operationID: operation.operationId,
+            method: httpMethod,
+            path: path
+        )
+    }
+
+    /// Returns the type name of the namespace unique to the operation.
+    var operationNamespace: TypeName {
+        return .init(
+            components: [
+                .root,
+                .init(swift: Constants.Operations.namespace, json: "paths"),
+            ] + path.components.map { .init(swift: nil, json: $0) } + [
+                .init(swift: methodName, json: httpMethod.rawValue)
+            ]
+        )
+    }
+
+    /// Returns the name of the Input type.
+    var inputTypeName: TypeName {
+        operationNamespace.appending(
+            swiftComponent: Constants.Operation.Input.typeName,
+
+            // intentionally nil, we'll append the specific params etc
+            // with their valid JSON key path when nested inside Input
+            jsonComponent: nil
+        )
+    }
+
+    /// Returns the name of the Output type.
+    var outputTypeName: TypeName {
+        operationNamespace.appending(
+            swiftComponent: Constants.Operation.Output.typeName,
+
+            // intentionally nil, we'll append the specific params etc
+            // with their valid JSON key path when nested inside Output
+            jsonComponent: nil
+        )
+    }
+
+    /// Returns parameters from both the path item level
+    /// and the operation level.
+    var allParameters: [UnresolvedParameter] {
+        pathParameters + operation.parameters
+    }
+
+    /// Returns all parameters by resolving any parameter references first.
+    ///
+    /// - Throws: When an invalid JSON reference is found.
+    var allResolvedParameters: [ResolvedParameter] {
+        get throws {
+            try allParameters.map { try $0.resolve(in: components) }
+        }
+    }
+
+    /// Returns the path parameters from both the path item level and the
+    /// operation level.
+    var allPathParameters: [UnresolvedParameter] {
+        get throws {
+            try allParameters.filter { (try $0.resolve(in: components).location) == .path }
+        }
+    }
+
+    /// Returns the query parameters from both the path item level and the
+    /// operation level.
+    var allQueryParameters: [UnresolvedParameter] {
+        get throws {
+            try allParameters.filter { (try $0.resolve(in: components).location) == .query }
+        }
+    }
+
+    /// Returns the header parameters from both the path item level and the
+    /// operation level.
+    var allHeaderParameters: [UnresolvedParameter] {
+        get throws {
+            try allParameters.filter { (try $0.resolve(in: components).location) == .header }
+        }
+    }
+
+    /// Returns the cookie parameters from both the path item level and the
+    /// operation level.
+    var allCookieParameters: [UnresolvedParameter] {
+        get throws {
+            try allParameters.filter { (try $0.resolve(in: components).location) == .cookie }
+        }
+    }
+
+    /// Returns a string representing the JSON path to the operation object.
+    var jsonPathComponent: String {
+        [
+            "#",
+            "paths",
+            path.rawValue,
+            endpoint.method.rawValue.lowercased() + (operation.operationId.flatMap { "(\($0))" } ?? ""),
+        ]
+        .joined(separator: "/")
+    }
+
+    /// Returns the type name of the response struct for the specified kind.
+    func responseStructTypeName(for responseKind: ResponseKind) -> TypeName {
+        responseKind.typeName(in: outputTypeName)
+    }
+
+    /// Returns the signature of the function representing the OpenAPI operation
+    /// in the API protocol.
+    var protocolSignatureDescription: FunctionSignatureDescription {
+        .init(
+            // Do not respect the access modifier here, as this is a protocol
+            // declaration, so we don't put `public` on methods, only on the
+            // protocol itself.
+            accessModifier: nil,
+            kind: .function(name: methodName),
+            parameters: [
+                .init(
+                    name: Constants.Operation.Input.variableName,
+                    type: inputTypeName.fullyQualifiedSwiftName
+                )
+            ],
+            keywords: [.async, .throws],
+            returnType: outputTypeName.fullyQualifiedSwiftName
+        )
+    }
+
+    /// Returns the signature of the function representing the OpenAPI operation
+    /// in the generated server stubs.
+    var serverImplSignatureDescription: FunctionSignatureDescription {
+        .init(
+            accessModifier: nil,
+            kind: .function(name: methodName),
+            parameters: [
+                .init(label: "request", type: "Request"),
+                .init(label: "metadata", type: "ServerRequestMetadata"),
+            ],
+            keywords: [.async, .throws],
+            returnType: "Response"
+        )
+    }
+
+    /// Returns a string that contains the template to be generated for
+    /// the client that fills in path parameters.
+    ///
+    /// For example, `/cats/\(input.catId)`.
+    var templatedPathForClient: String {
+        get throws {
+            let path = self.path.rawValue
+            let pathParameters = try allResolvedParameters.filter { $0.location == .path }
+            guard !pathParameters.isEmpty else {
+                return path
+            }
+            // replace "{foo}" with "\(input.foo)" for each parameter
+            return pathParameters.reduce(into: path) { partialResult, parameter in
+                partialResult = partialResult.replacingOccurrences(
+                    of: "{\(parameter.name)}",
+                    with: "\\(input.path.\(parameter.name.asSwiftSafeName))"
+                )
+            }
+        }
+    }
+
+    /// Returns an array that contains the template to be generated for
+    /// the server that translates the URL template variable syntax to
+    /// the Runtime syntax.
+    ///
+    /// For example, `"/pets/{petId}"` -> `["pets", ":petId"]`.
+    var templatedPathForServer: [String] {
+        path.components.filter({ !$0.isEmpty })
+            .map { component in
+                guard component.hasPrefix("{") && component.hasSuffix("}") else {
+                    // FYI: Some components could also be "{foo}.zip", which we don't
+                    // currently support.
+                    return component
+                }
+                return ":\(component.dropFirst().dropLast())"
+            }
+    }
+
+    /// Returns the list of all names of query parameters.
+    var queryParameterNames: [String] {
+        get throws {
+            try allResolvedParameters
+                .filter { $0.location == .query }
+                .map(\.name)
+        }
+    }
+
+    /// A Boolean value that indicates whether the operation defines
+    /// a default response.
+    var containsDefaultResponse: Bool {
+        operation.responses.contains(key: .default)
+    }
+}

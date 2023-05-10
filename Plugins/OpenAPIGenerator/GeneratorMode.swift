@@ -1,0 +1,1 @@
+../../Sources/_OpenAPIGeneratorCore/GeneratorMode.swift

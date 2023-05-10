@@ -1,0 +1,4 @@
+% curl 'http://localhost:8080/api/greet?name=Jane'
+{
+  "message" : "Hello, Jane!"
+}

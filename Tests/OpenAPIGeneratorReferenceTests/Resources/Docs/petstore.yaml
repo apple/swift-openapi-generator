@@ -1,0 +1,395 @@
+openapi: "3.0.3"
+info:
+  version: 1.0.0
+  title: Petstore
+  description: |-
+    Service for managing pet metadata.
+
+    Because why not.
+servers:
+  - url: https://example.com/api
+    description: Example Petstore implementation service
+  - url: /api
+paths:
+  /pets:
+    summary: Work with pets
+    description: "Even more information about working with pets"
+    get:
+      summary: List all pets
+      description: "You can fetch all the pets here"
+      operationId: listPets
+      tags:
+        - pets
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: habitat
+          in: query
+          schema:
+            enum:
+            - water
+            - land
+            - air
+            type: string
+        - name: feeds
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - omnivore
+                - carnivore
+                - herbivore
+        - name: My-Request-UUID
+          in: header
+          description: Request identifier
+          schema:
+            format: uuid
+            type: string
+        - $ref: '#/components/parameters/query.born-since'
+      responses:
+        '200':
+          description: A paged array of pets
+          headers:
+            My-Response-UUID:
+              description: Response identifier
+              required: true
+              schema:
+                type: string
+            My-Tracing-Header:
+              $ref: '#/components/headers/TracingHeader'
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Pets"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Create a pet
+      operationId: createPet
+      tags:
+        - pets
+      parameters:
+        - name: X-Extra-Arguments
+          in: header
+          required: false
+          description: "A description here."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeError'
+      requestBody:
+        required: true
+        description: "Create a pet with these properties"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePetRequest'
+      responses:
+        '201':
+          description: Successfully created pet
+          headers:
+            X-Extra-Arguments: 
+              required: false
+              description: "A description here."
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/CodeError'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '400':
+          $ref: '#/components/responses/ErrorBadRequest'
+  /probe:
+    post:
+      operationId: probe
+      responses:
+        '204':
+          description: Ack
+  /pets/{petId}:
+    parameters:
+      - name: petId
+        in: path
+        required: true
+        description: Id of the pet
+        schema:
+          type: integer
+          format: int64
+    patch:
+      operationId: updatePet
+      description: Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
+      requestBody:
+        $ref: '#/components/requestBodies/UpdatePetRequest'
+      responses:
+        '204':
+          description: Successfully updated
+        '400':
+          description: Update input error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
+  /pets/{petId}/avatar:
+    parameters:
+      - $ref: '#/components/parameters/path.petId'
+    put:
+      summary: Upload an avatar
+      operationId: uploadAvatarForPet
+      requestBody:
+        required: true
+        description: Image contents
+        content:
+          application/octet-stream:
+            schema:
+              format: binary
+              type: string
+      responses:
+        '200':
+          description: Echoes avatar back
+          content:
+            application/octet-stream:
+              schema:
+                format: binary
+                type: string
+        '412':
+          description: Avatar is not acceptable
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  headers:
+    TracingHeader:
+      required: false
+      schema:
+        type: string
+  parameters:
+    query.born-since:
+      description: Supply this parameter to filter pets born since the provided date.
+      in: query
+      name: since
+      schema:
+        $ref: '#/components/schemas/DOB'
+    path.petId:
+      name: petId
+      in: path
+      required: true
+      description: The id of the pet to retrieve
+      schema:
+        type: integer
+        format: int64
+  schemas:
+    Pet:
+      type: object
+      title: "Pet title"
+      description: "Pet metadata"
+      required:
+        - id
+        - name
+      properties:
+        id:
+          description: "Pet id"
+          type: integer
+          format: int64
+        name:
+          description: "Pet name"
+          type: string
+        tag:
+          type: string
+        kind:
+          $ref: '#/components/schemas/PetKind'
+    PetKind:
+      type: string
+      description: "Kind of pet"
+      deprecated: true
+      enum:
+        - cat
+        - dog
+        - ELEPHANT
+        - BIG_ELEPHANT_1
+        # Test Swift identifier-unsafe characters and keyword clashes here
+        - $nake
+        - public
+    CreatePetRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        kind:
+          $ref: '#/components/schemas/PetKind'
+        tag:
+          type: string
+    Pets:
+      type: array
+      items:
+        $ref: "#/components/schemas/Pet"
+    Error:
+      type: object
+      required:
+        - code
+        - me$sage
+      properties:
+        code:
+          type: integer
+          format: int32
+        # Use a Swift identifier-unsafe character in the name
+        # to test escaping and serialization.
+        me$sage:
+          type: string
+        extraInfo:
+          description: Extra information about the error.
+          allOf:
+            - $ref: '#/components/schemas/ExtraInfo'
+        userData:
+          description: Custom user-provided key-value pairs.
+          type: object
+    PetFeeding:
+      type: object
+      properties:
+        schedule:
+          type: string
+          enum:
+            - hourly
+            - daily
+            - weekly
+    DOB:
+      type: string
+      format: date-time
+    ExtraInfo:
+      type: string
+    NoAdditionalProperties:
+      type: object
+      properties:
+        foo:
+          type: string
+      additionalProperties: false
+    AnyAdditionalProperties:
+      type: object
+      properties:
+        foo:
+          type: string
+      additionalProperties: true
+    TypedAdditionalProperties:
+      type: object
+      properties:
+        foo:
+          type: string
+      additionalProperties:
+        type: integer
+    CodeError:
+      type: object
+      properties:
+        code:
+          type: integer
+      required:
+        - code
+    AllOfObjects:
+      allOf:
+        - type: object
+          properties:
+            message:
+              type: string
+          required:
+            - message
+        - $ref: '#/components/schemas/CodeError'
+    AnyOfObjects:
+      anyOf:
+        - type: object
+          properties:
+            message:
+              type: string
+          required:
+            - message
+        - $ref: '#/components/schemas/CodeError'
+    OneOfAny:
+      oneOf:
+        - type: string
+        - type: integer
+        - $ref: '#/components/schemas/CodeError'
+        - type: object
+          properties:
+            message:
+              type: string
+          required:
+            - message
+    PetExercise:
+      type: object
+      properties:
+        kind:
+          type: string
+      required:
+        - kind
+    Walk:
+      type: object
+      properties:
+        kind:
+          type: string
+        length:
+          type: integer
+      required:
+        - kind
+        - length
+    MessagedExercise:
+      allOf:
+        - $ref: '#/components/schemas/PetExercise'
+        - type: object
+          properties:
+            message:
+              type: string
+          required:
+            - message
+    OneOfObjectsWithDiscriminator:
+      oneOf:
+        - $ref: '#/components/schemas/Walk'
+        - $ref: '#/components/schemas/MessagedExercise'
+      discriminator:
+        propertyName: kind
+  responses:
+    ErrorBadRequest:
+      description: Bad request
+      headers:
+        X-Reason:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+            required:
+              - code
+  requestBodies:
+    UpdatePetRequest:
+      required: false
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              kind:
+                $ref: '#/components/schemas/PetKind'
+              tag:
+                type: string

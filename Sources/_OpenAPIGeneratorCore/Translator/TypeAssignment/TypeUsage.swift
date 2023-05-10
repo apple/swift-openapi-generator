@@ -1,0 +1,204 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the SwiftOpenAPIGenerator open source project
+//
+// Copyright (c) 2023 Apple Inc. and the SwiftOpenAPIGenerator project authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+// See CONTRIBUTORS.txt for the list of SwiftOpenAPIGenerator project authors
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
+/// A reference to a Swift type, including modifiers such as whether the
+/// type is wrapped in an optional, an array, or a dictionary.
+///
+/// Whenever unsure whether to use `TypeUsage` or `TypeName` in a new API,
+/// consider whether you need to define a type or refer to a type.
+///
+/// To define a type, use `TypeName`, and to refer to a type, use `TypeUsage`.
+///
+/// This type is not meant to represent all the various ways types can be
+/// wrapped in Swift, only the ways we wrap things in this project. For example,
+/// double optionals (`String??`) are automatically collapsed into a single
+/// optional, and so on.
+struct TypeUsage {
+
+    /// Describes either a type name or a type usage.
+    fileprivate indirect enum Wrapped {
+
+        /// A type name, used to define a type.
+        case name(TypeName)
+
+        /// A type usage, used to refer to a type.
+        case usage(TypeUsage)
+    }
+
+    /// The underlying type.
+    fileprivate var wrapped: Wrapped
+
+    /// Describes the usage of the wrapped type.
+    fileprivate enum Usage {
+
+        /// An unchanged underlying type.
+        ///
+        /// For example: `Wrapped` stays `Wrapped`.
+        case identity
+
+        /// An optional wrapper for the underlying type.
+        ///
+        /// For example: `Wrapped` becomes `Wrapped?`.
+        case optional
+
+        /// An array wrapped for the underlying type.
+        ///
+        /// For example: `Wrapped` becomes `[Wrapped]`.
+        case array
+
+        /// A dictionary value wrapper for the underlying type.
+        ///
+        /// For examplle: `Wrapped` becomes `[String: Wrapped]`.
+        case dictionaryValue
+    }
+
+    /// The type usage applied to the underlying type.
+    fileprivate var usage: Usage
+}
+
+extension TypeUsage: CustomStringConvertible {
+    var description: String {
+        fullyQualifiedSwiftName
+    }
+}
+
+extension TypeUsage {
+
+    /// A Boolean value that indicates whether the type is optional.
+    var isOptional: Bool {
+        guard case .optional = usage else {
+            return false
+        }
+        return true
+    }
+
+    /// A string representation of the last component of the Swift type name.
+    ///
+    /// For example: `Int`.
+    var shortSwiftName: String {
+        let component: String
+        switch wrapped {
+        case let .name(typeName):
+            component = typeName.shortSwiftName
+        case let .usage(usage):
+            component = usage.shortSwiftName
+        }
+        return applied(to: component)
+    }
+
+    /// A string representation of the fully qualified Swift type name.
+    ///
+    /// For example: `Swift.Int`.
+    var fullyQualifiedSwiftName: String {
+        let component: String
+        switch wrapped {
+        case let .name(typeName):
+            component = typeName.fullyQualifiedSwiftName
+        case let .usage(usage):
+            component = usage.fullyQualifiedSwiftName
+        }
+        return applied(to: component)
+    }
+
+    /// A string representation of the fully qualified Swift type name, with
+    /// any optional wrapping removed.
+    ///
+    /// For example: `Swift.Int`.
+    var fullyQualifiedNonOptionalSwiftName: String {
+        withOptional(false).fullyQualifiedSwiftName
+    }
+
+    /// Returns a string representation of the type usage applied to the
+    /// specified Swift path component.
+    /// - Parameter component: A Swift path component.
+    private func applied(to component: String) -> String {
+        switch usage {
+        case .identity:
+            return component
+        case .optional:
+            return component + "?"
+        case .array:
+            return "[" + component + "]"
+        case .dictionaryValue:
+            return "[String: " + component + "]"
+        }
+    }
+
+    /// The type name wrapped by the current type usage.
+    var typeName: TypeName {
+        switch wrapped {
+        case .name(let typeName):
+            return typeName
+        case .usage(let typeUsage):
+            return typeUsage.typeName
+        }
+    }
+
+    /// A type usage created by treating the current type usage as an optional
+    /// type.
+    var asOptional: Self {
+        // Don't double wrap optionals
+        guard !isOptional else {
+            return self
+        }
+        return TypeUsage(wrapped: .usage(self), usage: .optional)
+    }
+
+    /// A type usage created by removing the outer type usage wrapper.
+    private var unwrappedOneLevel: Self {
+        switch wrapped {
+        case let .usage(usage):
+            return usage
+        case let .name(typeName):
+            return typeName.asUsage
+        }
+    }
+
+    /// Returns a type usage created by adding or removing an optional wrapper,
+    /// controlled by the specified parameter.
+    /// - Parameter isOptional: If `true`, wraps the current type usage in
+    /// an optional. If `false`, removes a potential optional wrapper from the
+    /// top level.
+    func withOptional(_ isOptional: Bool) -> Self {
+        if (isOptional && self.isOptional) || (!isOptional && !self.isOptional) {
+            return self
+        }
+        guard isOptional else {
+            return unwrappedOneLevel
+        }
+        return asOptional
+    }
+
+    /// A type usage created by treating the current type usage as the element
+    /// type of an array.
+    /// - Returns: A type usage for the array.
+    var asArray: Self {
+        TypeUsage(wrapped: .usage(self), usage: .array)
+    }
+
+    /// A type usage created by treating the current type usage as the value
+    /// type of a dictionary.
+    /// - Returns: A type usage for the dictionary.
+    var asDictionaryValue: Self {
+        TypeUsage(wrapped: .usage(self), usage: .dictionaryValue)
+    }
+}
+
+extension TypeName {
+
+    /// A type usage that wraps the current type name without changing it.
+    var asUsage: TypeUsage {
+        TypeUsage(wrapped: .name(self), usage: .identity)
+    }
+}

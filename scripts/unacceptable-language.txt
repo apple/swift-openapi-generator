@@ -1,0 +1,15 @@
+blacklist
+whitelist
+slave
+master
+sane
+sanity
+insane
+insanity
+kill
+killed
+killing
+hang
+hung
+hanged
+hanging

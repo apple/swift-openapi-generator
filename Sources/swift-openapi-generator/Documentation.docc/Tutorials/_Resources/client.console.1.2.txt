@@ -1,0 +1,12 @@
+% git clone https://github.com/apple/swift-openapi-generator
+% cd swift-openapi-generator/Examples/GreetingService
+
+% swift run GreetingService
+..
+Build complete! (37.91s)
+2023-06-01T10:36:58+0200 notice codes.vapor.application : [Vapor] Server starting on http://127.0.0.1:8080
+
+% curl 'localhost:8080/api/greet?name=Jane'
+{
+  "message" : "Hello, Jane"
+}

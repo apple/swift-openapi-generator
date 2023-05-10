@@ -1,0 +1,37 @@
+# NOTE: This file is not designed to be run independently.
+#
+# Instead, use it with a file for a specific OS and Swift version, for example:
+#
+# % docker-compose \
+#   -f docker/docker-compose.yaml \
+#   -f docker/docker-compose.2204.58.yaml \
+#   run test
+#
+version: "3"
+
+services:
+  runtime-setup:
+    image: &image swift-openapi-generator:default
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  common: &common
+    image: *image
+    depends_on: [runtime-setup]
+    volumes:
+      - ~/.ssh:/root/.ssh
+      - ..:/code:z
+    working_dir: /code
+
+  soundness:
+    <<: *common
+    command: /bin/bash -xcl "swift -version && uname -a && ./scripts/soundness.sh"
+
+  test:
+    <<: *common
+    command: /bin/bash -xcl "swift $${SWIFT_TEST_VERB-test} $${WARN_AS_ERROR_ARG-} $${SANITIZER_ARG-} $${IMPORT_CHECK_ARG-}"
+
+  shell:
+    <<: *common
+    entrypoint: /bin/bash

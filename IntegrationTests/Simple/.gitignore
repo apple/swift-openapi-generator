@@ -1,0 +1,13 @@
+# From running `swift package init`:
+.DS_Store
+/.build
+/Packages
+/*.xcodeproj
+xcuserdata/
+DerivedData/
+.swiftpm/config/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.netrc
+
+# We explicitly _don't_ want to pin the versions of the dependencies
+/Package.resolved

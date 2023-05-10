@@ -1,0 +1,167 @@
+@Tutorial(time: 20) {
+    @XcodeRequirement(title: "Swift 5.8 ", destination: "https://developer.apple.com/download/")
+
+    @Intro(title: "Generating a client in a Swift package") {
+        This tutorial guides you through building _GreetingServiceClient_—an API client for a fictitious service that returns a personalized greeting.
+
+        ```console
+        % curl 'localhost:8080/api/greet?name=Jane'
+        {
+          "message" : "Hello, Jane"
+        }
+        ```
+
+        The API for the service is defined using OpenAPI and you'll create a Swift client for this service, from scratch!
+
+        Your Swift package will make use of the Swift OpenAPI Generator plugin to generate the code you'll use to call this API.
+    }
+    
+    @Section(title: "(Optional) Downloading and running the server locally for testing") {
+
+        In the next section of the guide we will create a client for this service. In order to execute requests, you can download the example server implementation and run it locally.
+
+        @Steps {
+            @Step {
+                Clone the Git repository and change the current working directory to the nested example package.
+                @Code(name: "console", file: client.console.1.0.txt, reset: true)
+            }
+            @Step {
+                Build and run the service.
+                @Code(name: "console", file: client.console.1.1.txt)
+            }
+            @Step {
+                While keeping the server running, in a separate Terminal window, test that the server is working by using `curl` from the command line.
+                @Code(name: "console", file: client.console.1.2.txt)
+            }
+        }
+    }
+    
+    @Section(title: "Creating a new Swift package") {
+        Create a brand-new Swift package for the client.
+        @Steps {
+            @Step {
+                Create a new directory.
+                @Code(name: "console", file: client.console.2.0.txt, reset: true)
+            }
+            @Step {
+                Create a new package using the Swift Package Manager CLI.
+                @Code(name: "console", file: client.console.2.1.txt)
+            }
+            @Step {
+                Open the new package in Xcode using the `open` command.
+                @Code(name: "console", file: client.console.2.2.txt)
+            }
+        }
+    }
+    
+    @Section(title: "Configuring your project to use Swift OpenAPI Generator") {
+        Let's extend this sample package to call our `GreetingService` API.
+        @Steps {
+            @Step {
+               Copy in the OpenAPI document into the `Sources` directory.
+               @Code(name: "Sources/openapi.yaml", file: client.openapi.yaml)
+            }
+            @Step {
+               If you launched a local server in the previous section, add a localhost server entry to the OpenAPI document.
+               
+               This will make it easy to call the local server from generated code in the next section.
+               @Code(name: "Sources/openapi.yaml", file: client.openapi.2.yaml)
+            }
+            @Step {
+                We also need a config file that controls the behavior of the Swift
+                OpenAPI Generator plugin. Create a file in the same directory called `openapi-generator-config.yaml`, with the following contents.
+                
+                @Code(name: "Sources/openapi-generator-config.yaml", file: client.openapi-generator-config.yaml)
+            }
+            @Step {
+                Update the `Package.swift` by specifying the minimum platforms the package supports.
+                @Code(name: "Package.swift", file: client.Package.1.swift, previousFile: client.Package.0.swift)
+            }
+            @Step {
+                Then, we'll add the package dependencies.
+                
+                We added dependencies on the generator package plugin, which generates code at build time; the runtime package, which allows us to make use of the generated code; and, because Swift OpenAPI Generator has been built with an extensible transport abstraction, a concrete transport implementation library. Here we've selected the transport implementation that uses Foundation's URLSession.
+
+                @Code(name: "Package.swift", file: client.Package.2.swift)
+            }
+            @Step {
+                Now we can update our target to make use of the Swift OpenAPI Generator plugin.
+                @Code(name: "Package.swift", file: client.Package.3.swift)
+            }
+            @Step {
+                Finally, we need to declare the runtime dependencies for our target.
+                @Code(name: "Package.swift", file: client.Package.4.swift)
+            }
+            @Step {
+                Build the project now to ensure it's configured correctly.
+                
+                The Swift OpenAPI Generator build plugin gets built and generates a client for the `GreetingService` behind the scenes, making it available to use in the next section.
+                @Code(name: "Package.swift", file: client.Package.5.swift)
+            }
+        }
+    }
+    
+    @Section(title: "Using the generated code in your target") {
+
+        Now we're ready to use the code that the plugin generated behind the scenes to
+        fetch some personalized greetings!
+        
+        @Steps {
+            @Step {
+                Navigate to `Sources/main.swift` which is the entry point for our program.
+                
+                Currently it just prints "Hello, world!" to the console. We'll make changes to this file to make use of the code that was generated by the plugin to call the `GreetingService` API.
+                @Code(name: "main.swift", file: client.main.0.swift)
+            }
+            @Step {
+                First we'll need to import our two runtime dependencies.
+                @Code(name: "main.swift", file: client.main.1.swift)
+            }
+            @Step {
+                Next we'll create an instance of our client.
+
+                Note: `Servers.server2()` is the localhost service, defined in the OpenAPI document.
+                @Code(name: "main.swift", file: client.main.2.swift)
+            }
+            @Step {
+                Finally, we can use the client to make a request and print the response.
+                @Code(name: "main.swift", file: client.main.3.swift)
+            }
+            @Step {
+                If you have the example server running locally, you can now compile and run this executable and see the response in the console.
+                @Code(name: "console", file: client.console.3.0.txt)
+            }
+        }
+    }
+
+    @Section(title: "Pattern matching on the response") {
+        Often we'd want to do a bit more than just print the high-level response
+        value. For example, we might like to branch our code based on the response we
+        received from the server.
+        
+        @Steps {
+            @Step {
+                Add a `switch` statement to handle the different possible responses from the server.
+                
+                Something's missing here, and if you recompile your package you'll see that the compiler helpfully tells you that your `switch` statement didn't cover all scenarios.
+                @Code(name: "main.swift", file: client.main.4.swift, previousFile: client.main.3.swift)
+            }
+            @Step {
+                In the event the server provides a response that doesn't conform to the API specification, you still have an opportunity as a client to handle it gracefully. We'll do so by printing a helpful message, indicating that our client doesn't know what to do with this because it hasn't been updated to handle this kind of response.
+                
+                Everything should now compile again.
+                @Code(name: "main.swift", file: client.main.5.swift)
+            }
+            @Step {
+                Finally, let's extract and print the content from the response body.
+                
+                The `switch` statement over the body allows you to handle the different content types that are specified for the API operation.
+                @Code(name: "main.swift", file: client.main.6.swift)
+            }
+            @Step {
+                You can now compile and run the executable again and see the response in the console.
+                @Code(name: "console", file: client.console.4.0.txt)
+            }
+        }
+    }
+}

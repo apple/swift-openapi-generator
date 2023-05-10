@@ -1,0 +1,63 @@
+@Tutorial(time: 5) {
+    @Intro(title: "Exploring an OpenAPI document") {
+
+        This tutorial covers the basics of the OpenAPI specification and guides you through writing an OpenAPI document that describes a service API. We'll use a fictitious service that returns a personalized greeting.
+
+        ```console
+        % curl 'localhost:8080/api/greet?name=Jane'
+        {
+          "message" : "Hello, Jane"
+        }
+        ```
+    }
+
+    @Section(title: "Explore the GreetingService OpenAPI document") {
+        The OpenAPI document in `openapi.yaml` provides a structured declaration of the service.
+
+        @Steps {
+            @Step {
+                Every OpenAPI document needs to declare its format version using the `openapi` key. Use the version `3.0.3` for this document.
+                @Code(name: "openapi.yaml", file: exploring-openapi.openapi.0.yaml, reset: true)
+            }
+            @Step {
+                The `info` section contains the service name, `GreetingService`, and declares the API version.
+                @Code(name: "openapi.yaml", file: exploring-openapi.openapi.1.yaml)
+            }
+            @Step {
+                The `servers` section declares a list of existing service URLs.
+                
+                @Code(name: "openapi.yaml", file: exploring-openapi.openapi.2.yaml)
+            }
+            @Step {
+                The `paths` section contains the list of paths and HTTP operations that make up the API.
+                
+                There is a single path `/greet` on which the server will handle HTTP `GET`
+                requests. Provide an `operationId` to give code generators a useful hint of what to call the generated method.
+                
+                @Code(name: "openapi.yaml", file: exploring-openapi.openapi.3.yaml)
+            }
+            @Step {
+                Document the optional query parameter that provides the name of the person to be greeted in the `parameters` section.
+                
+                @Code(name: "openapi.yaml", file: exploring-openapi.openapi.4.yaml)
+            }
+            @Step {
+                The different responses are also documented. In this case, the server will always return the HTTP status code `200`.
+                
+                @Code(name: "openapi.yaml", file: exploring-openapi.openapi.5.yaml)
+            }
+            @Step {
+                In the response, describe the structure of the JSON body using JSON Schema.
+                
+                Define the reusable type in the `#/components/schemas` section, give it the name `Greeting`, and refer to it from the response definition of the JSON response body.
+                
+                @Code(name: "openapi.yaml", file: exploring-openapi.openapi.6.yaml)
+            }
+            @Step {
+                There you go! This is a simple, yet complete, example of an OpenAPI document that describes the API of `GreetingService`.
+                
+                @Code(name: "openapi.yaml", file: exploring-openapi.openapi.7.yaml)
+            }
+        }
+    }
+}

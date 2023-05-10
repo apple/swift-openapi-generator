@@ -1,0 +1,4 @@
+openapi: '3.0.3'
+info:
+  title: GreetingService
+  version: 1.0.0

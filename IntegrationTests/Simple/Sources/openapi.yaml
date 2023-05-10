@@ -1,0 +1,35 @@
+openapi: "3.0.3"
+info:
+  title: "GreetingService"
+  version: "1.0.0"
+servers:
+  - url: "https://example.com/api"
+    description: "Example"
+paths:
+  /greet:
+    get:
+      tags: ["Greetings"]
+      operationId: "getGreeting"
+      parameters:
+      - name: "name"
+        required: false
+        in: "query"
+        description: "name"
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "Returns a greeting"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greeting"
+components:
+  schemas:
+    Greeting:
+      type: "object"
+      properties:
+        message:
+          type: string
+      required:
+        - message
