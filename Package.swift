@@ -61,7 +61,9 @@ let package = Package(
         ),
 
         // Tests-only: Runtime library linked by generated code
-        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.1.0")),
+        // swift-openapi-runtime is private, so we can't access it anonymously yet
+        //.package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.1.0")),
+        .package(url: "git@github.com:apple/swift-openapi-runtime.git", .upToNextMinor(from: "0.1.0")),
 
         // Build and preview docs
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
