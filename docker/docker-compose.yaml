@@ -15,6 +15,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    # Note: This temporary step creates a gitconfig to use SSH for a dependency
+    # that is not yet public. This can be removed once it is public.
+    command: git config --global url."git@github.com:apple/swift-openapi-runtime".insteadOf "https://github.com/apple/swift-openapi-runtime"
+    volumes:
+      - ci-gitconfig:/ci-gitconfig
+    environment:
+      - GIT_CONFIG_GLOBAL=/ci-gitconfig/gitconfig
 
   common: &common
     image: *image
@@ -22,7 +29,10 @@ services:
     volumes:
       - ~/.ssh:/root/.ssh
       - ..:/code:z
+      - ci-gitconfig:/ci-gitconfig
     working_dir: /code
+    environment:
+      - GIT_CONFIG_GLOBAL=/ci-gitconfig/gitconfig
 
   soundness:
     <<: *common
@@ -35,3 +45,6 @@ services:
   shell:
     <<: *common
     entrypoint: /bin/bash
+
+volumes:
+  ci-gitconfig:
