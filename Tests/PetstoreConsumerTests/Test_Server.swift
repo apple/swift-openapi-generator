@@ -410,7 +410,7 @@ final class Test_Server: XCTestCase {
                     throw TestError.unexpectedValue(input.body)
                 }
                 XCTAssertEqualStringifiedData(avatar, Data.abcdString)
-                return .preconditionFailed(.init(body: .json(Data.efghString)))
+                return .preconditionFailed(.init(body: .text(Data.efghString)))
             }
         )
         let response = try await server.uploadAvatarForPet(
@@ -418,7 +418,7 @@ final class Test_Server: XCTestCase {
                 path: "/api/pets/1/avatar",
                 method: .put,
                 headerFields: [
-                    .init(name: "accept", value: "application/octet-stream, application/json"),
+                    .init(name: "accept", value: "application/octet-stream, text/plain"),
                     .init(name: "content-type", value: "application/octet-stream"),
                 ],
                 encodedBody: Data.abcdString
@@ -433,12 +433,12 @@ final class Test_Server: XCTestCase {
         XCTAssertEqual(
             response.headerFields,
             [
-                .init(name: "content-type", value: "application/json; charset=utf-8")
+                .init(name: "content-type", value: "text/plain")
             ]
         )
         XCTAssertEqualStringifiedData(
             response.body,
-            Data.quotedEfghString
+            Data.efghString
         )
     }
 }

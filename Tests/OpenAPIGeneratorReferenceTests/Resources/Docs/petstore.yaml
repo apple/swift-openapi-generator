@@ -171,7 +171,7 @@ paths:
         '412':
           description: Avatar is not acceptable
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
 components:

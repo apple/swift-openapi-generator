@@ -111,10 +111,6 @@ extension Data {
         "efgh"
     }
 
-    static var quotedEfghString: String {
-        #""efgh""#
-    }
-
     static var efgh: Data {
         efghString.data(using: .utf8)!
     }

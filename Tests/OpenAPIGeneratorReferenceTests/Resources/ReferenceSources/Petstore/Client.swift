@@ -282,7 +282,7 @@ public struct Client: APIProtocol {
                 try converter.headerFieldAdd(
                     in: &request.headerFields,
                     name: "accept",
-                    value: "application/octet-stream, application/json"
+                    value: "application/octet-stream, text/plain"
                 )
                 request.body = try converter.bodyAddRequired(
                     input.body,
@@ -315,13 +315,13 @@ public struct Client: APIProtocol {
                         .init()
                     try converter.validateContentTypeIfPresent(
                         in: response.headerFields,
-                        substring: "application/json"
+                        substring: "text/plain"
                     )
                     let body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body =
                         try converter.bodyGet(
                             Swift.String.self,
                             from: response.body,
-                            transforming: { value in .json(value) }
+                            transforming: { value in .text(value) }
                         )
                     return .preconditionFailed(.init(headers: headers, body: body))
                 default: return .undocumented(statusCode: response.statusCode, .init())

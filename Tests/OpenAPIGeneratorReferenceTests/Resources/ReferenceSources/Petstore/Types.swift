@@ -1300,7 +1300,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.uploadAvatarForPet.Output.PreconditionFailed.Headers
-                public enum Body: Sendable, Equatable, Hashable { case json(Swift.String) }
+                public enum Body: Sendable, Equatable, Hashable { case text(Swift.String) }
                 /// Received HTTP response body
                 public var body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body
                 /// Creates a new `PreconditionFailed`.

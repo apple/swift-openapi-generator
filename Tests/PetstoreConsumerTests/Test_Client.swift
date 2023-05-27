@@ -381,7 +381,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(
                 request.headerFields,
                 [
-                    .init(name: "accept", value: "application/octet-stream, application/json"),
+                    .init(name: "accept", value: "application/octet-stream, text/plain"),
                     .init(name: "content-type", value: "application/octet-stream"),
                 ]
             )
@@ -420,7 +420,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(
                 request.headerFields,
                 [
-                    .init(name: "accept", value: "application/octet-stream, application/json"),
+                    .init(name: "accept", value: "application/octet-stream, text/plain"),
                     .init(name: "content-type", value: "application/octet-stream"),
                 ]
             )
@@ -428,9 +428,9 @@ final class Test_Client: XCTestCase {
             return .init(
                 statusCode: 412,
                 headers: [
-                    .init(name: "content-type", value: "application/json")
+                    .init(name: "content-type", value: "text/plain")
                 ],
-                encodedBody: Data.quotedEfghString
+                encodedBody: Data.efghString
             )
         }
         let response = try await client.uploadAvatarForPet(
@@ -444,7 +444,7 @@ final class Test_Client: XCTestCase {
             return
         }
         switch value.body {
-        case .json(let json):
+        case .text(let json):
             XCTAssertEqual(json, Data.efghString)
         }
     }

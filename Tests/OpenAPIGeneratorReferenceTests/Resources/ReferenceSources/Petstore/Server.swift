@@ -422,20 +422,14 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressUnusedWarning(value)
                     var response: Response = .init(statusCode: 412)
                     suppressMutabilityWarning(&response)
-                    try converter.validateAcceptIfPresent(
-                        "application/json",
-                        in: request.headerFields
-                    )
+                    try converter.validateAcceptIfPresent("text/plain", in: request.headerFields)
                     response.body = try converter.bodyAdd(
                         value.body,
                         headerFields: &response.headerFields,
                         transforming: { wrapped in
                             switch wrapped {
-                            case let .json(value):
-                                return .init(
-                                    value: value,
-                                    contentType: "application/json; charset=utf-8"
-                                )
+                            case let .text(value):
+                                return .init(value: value, contentType: "text/plain")
                             }
                         }
                     )
