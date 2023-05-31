@@ -93,6 +93,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let headers: Operations.listPets.Input.Headers = .init(
                     My_Request_UUID: try converter.headerFieldGetOptional(
                         in: request.headerFields,
+                        strategy: .deferredToType,
                         name: "My-Request-UUID",
                         as: Swift.String.self
                     )
@@ -115,11 +116,13 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     try converter.headerFieldAdd(
                         in: &response.headerFields,
+                        strategy: .deferredToType,
                         name: "My-Response-UUID",
                         value: value.headers.My_Response_UUID
                     )
                     try converter.headerFieldAdd(
                         in: &response.headerFields,
+                        strategy: .deferredToType,
                         name: "My-Tracing-Header",
                         value: value.headers.My_Tracing_Header
                     )
@@ -135,7 +138,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             case let .json(value):
                                 return .init(
                                     value: value,
-                                    contentType: "application/json; charset=utf-8"
+                                    contentType: "application/json; charset=utf-8",
+                                    strategy: .codable
                                 )
                             }
                         }
@@ -157,7 +161,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             case let .json(value):
                                 return .init(
                                     value: value,
-                                    contentType: "application/json; charset=utf-8"
+                                    contentType: "application/json; charset=utf-8",
+                                    strategy: .codable
                                 )
                             }
                         }
@@ -181,6 +186,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let headers: Operations.createPet.Input.Headers = .init(
                     X_Extra_Arguments: try converter.headerFieldGetOptional(
                         in: request.headerFields,
+                        strategy: .codable,
                         name: "X-Extra-Arguments",
                         as: Components.Schemas.CodeError.self
                     )
@@ -189,6 +195,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let body: Operations.createPet.Input.Body = try converter.bodyGetRequired(
                     Components.Schemas.CreatePetRequest.self,
                     from: request.body,
+                    strategy: .codable,
                     transforming: { value in .json(value) }
                 )
                 return Operations.createPet.Input(
@@ -207,6 +214,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     try converter.headerFieldAdd(
                         in: &response.headerFields,
+                        strategy: .codable,
                         name: "X-Extra-Arguments",
                         value: value.headers.X_Extra_Arguments
                     )
@@ -222,7 +230,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             case let .json(value):
                                 return .init(
                                     value: value,
-                                    contentType: "application/json; charset=utf-8"
+                                    contentType: "application/json; charset=utf-8",
+                                    strategy: .codable
                                 )
                             }
                         }
@@ -234,6 +243,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     try converter.headerFieldAdd(
                         in: &response.headerFields,
+                        strategy: .deferredToType,
                         name: "X-Reason",
                         value: value.headers.X_Reason
                     )
@@ -249,7 +259,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             case let .json(value):
                                 return .init(
                                     value: value,
-                                    contentType: "application/json; charset=utf-8"
+                                    contentType: "application/json; charset=utf-8",
+                                    strategy: .codable
                                 )
                             }
                         }
@@ -318,6 +329,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     try converter.bodyGetOptional(
                         Components.RequestBodies.UpdatePetRequest.jsonPayload.self,
                         from: request.body,
+                        strategy: .codable,
                         transforming: { value in .json(value) }
                     )
                 return Operations.updatePet.Input(
@@ -351,7 +363,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             case let .json(value):
                                 return .init(
                                     value: value,
-                                    contentType: "application/json; charset=utf-8"
+                                    contentType: "application/json; charset=utf-8",
+                                    strategy: .codable
                                 )
                             }
                         }
@@ -387,6 +400,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let body: Operations.uploadAvatarForPet.Input.Body = try converter.bodyGetRequired(
                     Foundation.Data.self,
                     from: request.body,
+                    strategy: .deferredToType,
                     transforming: { value in .binary(value) }
                 )
                 return Operations.uploadAvatarForPet.Input(
@@ -413,7 +427,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         transforming: { wrapped in
                             switch wrapped {
                             case let .binary(value):
-                                return .init(value: value, contentType: "application/octet-stream")
+                                return .init(
+                                    value: value,
+                                    contentType: "application/octet-stream",
+                                    strategy: .deferredToType
+                                )
                             }
                         }
                     )
@@ -434,7 +452,28 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             case let .json(value):
                                 return .init(
                                     value: value,
-                                    contentType: "application/json; charset=utf-8"
+                                    contentType: "application/json; charset=utf-8",
+                                    strategy: .codable
+                                )
+                            }
+                        }
+                    )
+                    return response
+                case let .internalServerError(value):
+                    suppressUnusedWarning(value)
+                    var response: Response = .init(statusCode: 500)
+                    suppressMutabilityWarning(&response)
+                    try converter.validateAcceptIfPresent("text/plain", in: request.headerFields)
+                    response.body = try converter.bodyAdd(
+                        value.body,
+                        headerFields: &response.headerFields,
+                        transforming: { wrapped in
+                            switch wrapped {
+                            case let .text(value):
+                                return .init(
+                                    value: value,
+                                    contentType: "text/plain",
+                                    strategy: .string
                                 )
                             }
                         }

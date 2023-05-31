@@ -68,6 +68,7 @@ extension ClientFileTranslator {
                 .identifier("converter").dot("headerFieldAdd")
                     .call([
                         .init(label: "in", expression: .inOut(.identifier("request").dot("headerFields"))),
+                        .init(label: "strategy", expression: .dot(Constants.CodingStrategy.string)),
                         .init(label: "name", expression: "accept"),
                         .init(label: "value", expression: .literal(acceptValue)),
                     ])

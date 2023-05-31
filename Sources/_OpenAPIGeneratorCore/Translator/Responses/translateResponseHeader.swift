@@ -101,6 +101,10 @@ extension ClientFileTranslator {
                             label: "in",
                             expression: .identifier(responseVariableName).dot("headerFields")
                         ),
+                        .init(
+                            label: "strategy",
+                            expression: .dot(header.codingStrategy.runtimeName)
+                        ),
                         .init(label: "name", expression: .literal(header.name)),
                         .init(
                             label: "as",
@@ -139,6 +143,10 @@ extension ServerFileTranslator {
                             .identifier(responseVariableName)
                                 .dot("headerFields")
                         )
+                    ),
+                    .init(
+                        label: "strategy",
+                        expression: .dot(header.codingStrategy.runtimeName)
                     ),
                     .init(label: "name", expression: .literal(header.name)),
                     .init(

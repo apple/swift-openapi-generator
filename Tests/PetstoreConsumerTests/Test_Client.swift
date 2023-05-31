@@ -381,7 +381,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(
                 request.headerFields,
                 [
-                    .init(name: "accept", value: "application/octet-stream, application/json"),
+                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
                     .init(name: "content-type", value: "application/octet-stream"),
                 ]
             )
@@ -420,7 +420,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(
                 request.headerFields,
                 [
-                    .init(name: "accept", value: "application/octet-stream, application/json"),
+                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
                     .init(name: "content-type", value: "application/octet-stream"),
                 ]
             )
@@ -446,6 +446,32 @@ final class Test_Client: XCTestCase {
         switch value.body {
         case .json(let json):
             XCTAssertEqual(json, Data.efghString)
+        }
+    }
+
+    func testUploadAvatarForPet_500() async throws {
+        transport = .init { request, baseURL, operationID in
+            return .init(
+                statusCode: 500,
+                headers: [
+                    .init(name: "content-type", value: "text/plain")
+                ],
+                encodedBody: Data.efghString
+            )
+        }
+        let response = try await client.uploadAvatarForPet(
+            .init(
+                path: .init(petId: 1),
+                body: .binary(.abcd)
+            )
+        )
+        guard case let .internalServerError(value) = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+        switch value.body {
+        case .text(let text):
+            XCTAssertEqual(text, Data.efghString)
         }
     }
 }

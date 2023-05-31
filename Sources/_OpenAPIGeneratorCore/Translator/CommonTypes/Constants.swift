@@ -336,6 +336,19 @@ enum Constants {
         ]
     }
 
+    /// Constants related to the coding strategy.
+    enum CodingStrategy {
+
+        /// Matches `OpenAPIRuntime.CodingStrategy.deferredToType`.
+        static let deferredToType: String = "deferredToType"
+
+        /// Matches `OpenAPIRuntime.CodingStrategy.string`.
+        static let string: String = "string"
+
+        /// Matches `OpenAPIRuntime.CodingStrategy.codable`.
+        static let codable: String = "codable"
+    }
+
     /// Constants related to types used in many components.
     enum Global {
 

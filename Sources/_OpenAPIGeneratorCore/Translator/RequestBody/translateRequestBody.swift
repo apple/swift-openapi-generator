@@ -183,8 +183,18 @@ extension ClientFileTranslator {
         let transformReturnExpr: Expression = .return(
             .dot("init")
                 .call([
-                    .init(label: "value", expression: .identifier("value")),
-                    .init(label: "contentType", expression: .literal(contentTypeHeaderValue)),
+                    .init(
+                        label: "value",
+                        expression: .identifier("value")
+                    ),
+                    .init(
+                        label: "contentType",
+                        expression: .literal(contentTypeHeaderValue)
+                    ),
+                    .init(
+                        label: "strategy",
+                        expression: .dot(contentType.codingStrategy.runtimeName)
+                    ),
                 ])
         )
         let caseDecl: SwitchCaseDescription = .init(
@@ -260,7 +270,9 @@ extension ServerFileTranslator {
         let typedContent = requestBody.content
         let contentTypeUsage = typedContent.resolvedTypeUsage
         let content = typedContent.content
-        let contentTypeIdentifier = content.contentType.identifier
+        let contentType = content.contentType
+        let contentTypeIdentifier = contentType.identifier
+        let codingStrategyName = contentType.codingStrategy.runtimeName
         let isOptional = !requestBody.request.required
 
         let transformExpr: Expression = .closureInvocation(
@@ -290,6 +302,10 @@ extension ServerFileTranslator {
                     .init(
                         label: "from",
                         expression: .identifier(requestVariableName).dot("body")
+                    ),
+                    .init(
+                        label: "strategy",
+                        expression: .dot(codingStrategyName)
                     ),
                     .init(label: "transforming", expression: transformExpr),
                 ])

@@ -1323,6 +1323,36 @@ public enum Operations {
             ///
             /// HTTP response code: `412 preconditionFailed`.
             case preconditionFailed(Operations.uploadAvatarForPet.Output.PreconditionFailed)
+            public struct InternalServerError: Sendable, Equatable, Hashable {
+                public struct Headers: Sendable, Equatable, Hashable {
+                    /// Creates a new `Headers`.
+                    public init() {}
+                }
+                /// Received HTTP response headers
+                public var headers: Operations.uploadAvatarForPet.Output.InternalServerError.Headers
+                public enum Body: Sendable, Equatable, Hashable { case text(Swift.String) }
+                /// Received HTTP response body
+                public var body: Operations.uploadAvatarForPet.Output.InternalServerError.Body
+                /// Creates a new `InternalServerError`.
+                ///
+                /// - Parameters:
+                ///   - headers: Received HTTP response headers
+                ///   - body: Received HTTP response body
+                public init(
+                    headers: Operations.uploadAvatarForPet.Output.InternalServerError.Headers =
+                        .init(),
+                    body: Operations.uploadAvatarForPet.Output.InternalServerError.Body
+                ) {
+                    self.headers = headers
+                    self.body = body
+                }
+            }
+            /// Server error
+            ///
+            /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)/responses/500`.
+            ///
+            /// HTTP response code: `500 internalServerError`.
+            case internalServerError(Operations.uploadAvatarForPet.Output.InternalServerError)
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.

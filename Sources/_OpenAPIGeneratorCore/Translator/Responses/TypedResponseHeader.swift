@@ -28,6 +28,9 @@ struct TypedResponseHeader {
 
     /// The Swift type representing the response header.
     var typeUsage: TypeUsage
+
+    /// The coding strategy appropriate for this parameter.
+    var codingStrategy: CodingStrategy
 }
 
 extension TypedResponseHeader {
@@ -101,10 +104,12 @@ extension FileTranslator {
         let foundIn = "\(parent.description)/\(name)"
 
         let schema: Either<JSONReference<JSONSchema>, JSONSchema>
+        let codingStrategy: CodingStrategy
 
         switch header.schemaOrContent {
         case let .a(schemaContext):
             schema = schemaContext.schema
+            codingStrategy = .deferredToType
         case let .b(contentMap):
             guard
                 let typedContent = try bestSingleTypedContent(
@@ -116,6 +121,7 @@ extension FileTranslator {
                 return nil
             }
             schema = typedContent.content.schema ?? .b(.fragment)
+            codingStrategy = typedContent.content.contentType.codingStrategy
         }
 
         // Check if schema is supported
@@ -149,7 +155,8 @@ extension FileTranslator {
             header: header,
             name: name,
             schema: schema,
-            typeUsage: usage
+            typeUsage: usage,
+            codingStrategy: codingStrategy
         )
     }
 }

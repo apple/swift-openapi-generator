@@ -113,13 +113,21 @@ extension ClientFileTranslator {
     ) throws -> Expression? {
         let methodPrefix: String
         let containerExpr: Expression
+        let extraArguments: [FunctionArgumentDescription]
         switch parameter.location {
         case .header:
             methodPrefix = "headerField"
             containerExpr = .identifier(requestVariableName).dot("headerFields")
+            extraArguments = [
+                .init(
+                    label: "strategy",
+                    expression: .dot(parameter.codingStrategy.runtimeName)
+                )
+            ]
         case .query:
             methodPrefix = "query"
             containerExpr = .identifier(requestVariableName)
+            extraArguments = []
         default:
             diagnostics.emitUnsupported(
                 "Parameter of type \(parameter.location.rawValue)",
@@ -130,19 +138,22 @@ extension ClientFileTranslator {
         return .try(
             .identifier("converter")
                 .dot("\(methodPrefix)Add")
-                .call([
-                    .init(
-                        label: "in",
-                        expression: .inOut(containerExpr)
-                    ),
-                    .init(label: "name", expression: .literal(parameter.name)),
-                    .init(
-                        label: "value",
-                        expression: .identifier(inputVariableName)
-                            .dot(parameter.location.shortVariableName)
-                            .dot(parameter.variableName)
-                    ),
-                ])
+                .call(
+                    [
+                        .init(
+                            label: "in",
+                            expression: .inOut(containerExpr)
+                        )
+                    ] + extraArguments + [
+                        .init(label: "name", expression: .literal(parameter.name)),
+                        .init(
+                            label: "value",
+                            expression: .identifier(inputVariableName)
+                                .dot(parameter.location.shortVariableName)
+                                .dot(parameter.variableName)
+                        ),
+                    ]
+                )
         )
     }
 }
@@ -210,6 +221,10 @@ extension ServerFileTranslator {
                     .dot(methodName)
                     .call([
                         .init(label: "in", expression: .identifier("request").dot("headerFields")),
+                        .init(
+                            label: "strategy",
+                            expression: .dot(typedParameter.codingStrategy.runtimeName)
+                        ),
                         .init(label: "name", expression: .literal(parameter.name)),
                         .init(
                             label: "as",

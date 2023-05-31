@@ -82,6 +82,18 @@ enum ContentType: Hashable {
         }
     }
 
+    /// The coding strategy appropriate for this content type.
+    var codingStrategy: CodingStrategy {
+        switch self {
+        case .json:
+            return .codable
+        case .text:
+            return .string
+        default:
+            return .deferredToType
+        }
+    }
+
     /// A Boolean value that indicates whether the content type
     /// is a type of JSON.
     var isJSON: Bool {

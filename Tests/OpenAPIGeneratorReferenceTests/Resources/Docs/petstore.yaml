@@ -174,6 +174,10 @@ paths:
             application/json:
               schema:
                 type: string
+        '500':
+          description: Server error
+          content:
+            text/plain: {}
 components:
   headers:
     TracingHeader:

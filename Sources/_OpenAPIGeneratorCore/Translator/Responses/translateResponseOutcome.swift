@@ -190,6 +190,12 @@ extension ClientFileTranslator {
                             ),
                             .init(label: "from", expression: .identifier("response").dot("body")),
                             .init(
+                                label: "strategy",
+                                expression: .dot(
+                                    typedContent.content.contentType.codingStrategy.runtimeName
+                                )
+                            ),
+                            .init(
                                 label: "transforming",
                                 expression: transformExpr
                             ),
@@ -329,10 +335,17 @@ extension ServerFileTranslator {
                             .return(
                                 .dot("init")
                                     .call([
-                                        .init(label: "value", expression: .identifier("value")),
+                                        .init(
+                                            label: "value",
+                                            expression: .identifier("value")
+                                        ),
                                         .init(
                                             label: "contentType",
                                             expression: .literal(contentType.headerValueForSending)
+                                        ),
+                                        .init(
+                                            label: "strategy",
+                                            expression: .dot(contentType.codingStrategy.runtimeName)
                                         ),
                                     ])
                             )
