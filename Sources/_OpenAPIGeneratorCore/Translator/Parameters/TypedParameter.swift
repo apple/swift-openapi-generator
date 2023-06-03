@@ -26,7 +26,7 @@ struct TypedParameter {
     var typeUsage: TypeUsage
 
     /// The coding strategy appropriate for this parameter.
-    var codingStrategy: CodingStrategy
+    var codingStrategy: ParameterCodingStrategy
 }
 
 extension TypedParameter: CustomStringConvertible {
@@ -129,7 +129,7 @@ extension FileTranslator {
         let foundIn = "\(locationTypeName.description)/\(parameter.name)"
 
         let schema: Either<JSONReference<JSONSchema>, JSONSchema>
-        let codingStrategy: CodingStrategy
+        let codingStrategy: ParameterCodingStrategy
         switch parameter.schemaOrContent {
         case let .a(schemaContext):
             schema = schemaContext.schema
@@ -180,7 +180,10 @@ extension FileTranslator {
                 return nil
             }
             schema = typedContent.content.schema ?? .b(.fragment)
-            codingStrategy = typedContent.content.contentType.codingStrategy
+            codingStrategy = typedContent
+                .content
+                .contentType
+                .parameterCodingStrategy
         }
 
         // Check if the underlying schema is supported

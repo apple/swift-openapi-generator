@@ -30,7 +30,7 @@ struct TypedResponseHeader {
     var typeUsage: TypeUsage
 
     /// The coding strategy appropriate for this parameter.
-    var codingStrategy: CodingStrategy
+    var codingStrategy: ParameterCodingStrategy
 }
 
 extension TypedResponseHeader {
@@ -104,7 +104,7 @@ extension FileTranslator {
         let foundIn = "\(parent.description)/\(name)"
 
         let schema: Either<JSONReference<JSONSchema>, JSONSchema>
-        let codingStrategy: CodingStrategy
+        let codingStrategy: ParameterCodingStrategy
 
         switch header.schemaOrContent {
         case let .a(schemaContext):
@@ -121,7 +121,10 @@ extension FileTranslator {
                 return nil
             }
             schema = typedContent.content.schema ?? .b(.fragment)
-            codingStrategy = typedContent.content.contentType.codingStrategy
+            codingStrategy = typedContent
+                .content
+                .contentType
+                .parameterCodingStrategy
         }
 
         // Check if schema is supported

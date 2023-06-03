@@ -400,7 +400,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let body: Operations.uploadAvatarForPet.Input.Body = try converter.bodyGetRequired(
                     Foundation.Data.self,
                     from: request.body,
-                    strategy: .deferredToType,
+                    strategy: .data,
                     transforming: { value in .binary(value) }
                 )
                 return Operations.uploadAvatarForPet.Input(
@@ -430,7 +430,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                                 return .init(
                                     value: value,
                                     contentType: "application/octet-stream",
-                                    strategy: .deferredToType
+                                    strategy: .data
                                 )
                             }
                         }

@@ -192,7 +192,7 @@ extension ClientFileTranslator {
                             .init(
                                 label: "strategy",
                                 expression: .dot(
-                                    typedContent.content.contentType.codingStrategy.runtimeName
+                                    typedContent.content.contentType.bodyCodingStrategy.runtimeName
                                 )
                             ),
                             .init(
@@ -345,7 +345,7 @@ extension ServerFileTranslator {
                                         ),
                                         .init(
                                             label: "strategy",
-                                            expression: .dot(contentType.codingStrategy.runtimeName)
+                                            expression: .dot(contentType.bodyCodingStrategy.runtimeName)
                                         ),
                                     ])
                             )

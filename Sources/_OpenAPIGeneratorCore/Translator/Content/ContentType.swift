@@ -83,7 +83,7 @@ enum ContentType: Hashable {
     }
 
     /// The coding strategy appropriate for this content type.
-    var codingStrategy: CodingStrategy {
+    var parameterCodingStrategy: ParameterCodingStrategy {
         switch self {
         case .json:
             return .codable
@@ -91,6 +91,18 @@ enum ContentType: Hashable {
             return .string
         default:
             return .deferredToType
+        }
+    }
+
+    /// The coding strategy appropriate for this content type.
+    var bodyCodingStrategy: BodyCodingStrategy {
+        switch self {
+        case .json:
+            return .codable
+        case .text:
+            return .string
+        default:
+            return .data
         }
     }
 

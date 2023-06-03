@@ -193,7 +193,7 @@ extension ClientFileTranslator {
                     ),
                     .init(
                         label: "strategy",
-                        expression: .dot(contentType.codingStrategy.runtimeName)
+                        expression: .dot(contentType.bodyCodingStrategy.runtimeName)
                     ),
                 ])
         )
@@ -272,7 +272,7 @@ extension ServerFileTranslator {
         let content = typedContent.content
         let contentType = content.contentType
         let contentTypeIdentifier = contentType.identifier
-        let codingStrategyName = contentType.codingStrategy.runtimeName
+        let codingStrategyName = contentType.bodyCodingStrategy.runtimeName
         let isOptional = !requestBody.request.required
 
         let transformExpr: Expression = .closureInvocation(

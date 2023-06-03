@@ -12,8 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-/// Describes the underlying coding strategy.
-enum CodingStrategy: String, Equatable, Hashable, Sendable {
+/// Describes the underlying parameter coding strategy.
+enum ParameterCodingStrategy: String, Equatable, Hashable, Sendable {
 
     /// A strategy using JSONEncoder/JSONDecoder.
     case codable
@@ -28,11 +28,36 @@ enum CodingStrategy: String, Equatable, Hashable, Sendable {
     var runtimeName: String {
         switch self {
         case .codable:
-            return Constants.CodingStrategy.codable
+            return Constants.CodingStrategy.Parameter.codable
         case .string:
-            return Constants.CodingStrategy.string
+            return Constants.CodingStrategy.Parameter.string
         default:
-            return Constants.CodingStrategy.deferredToType
+            return Constants.CodingStrategy.Parameter.deferredToType
+        }
+    }
+}
+
+/// Describes the underlying body coding strategy.
+enum BodyCodingStrategy: String, Equatable, Hashable, Sendable {
+
+    /// A strategy using JSONEncoder/JSONDecoder.
+    case codable
+
+    /// A strategy using LosslessStringConvertible.
+    case string
+
+    /// A strategy passing through the unmodified data.
+    case data
+
+    /// The name of the coding strategy in the runtime library.
+    var runtimeName: String {
+        switch self {
+        case .codable:
+            return Constants.CodingStrategy.Body.codable
+        case .string:
+            return Constants.CodingStrategy.Body.string
+        case .data:
+            return Constants.CodingStrategy.Body.data
         }
     }
 }

@@ -310,7 +310,7 @@ public struct Client: APIProtocol {
                             return .init(
                                 value: value,
                                 contentType: "application/octet-stream",
-                                strategy: .deferredToType
+                                strategy: .data
                             )
                         }
                     }
@@ -328,7 +328,7 @@ public struct Client: APIProtocol {
                     let body: Operations.uploadAvatarForPet.Output.Ok.Body = try converter.bodyGet(
                         Foundation.Data.self,
                         from: response.body,
-                        strategy: .deferredToType,
+                        strategy: .data,
                         transforming: { value in .binary(value) }
                     )
                     return .ok(.init(headers: headers, body: body))
