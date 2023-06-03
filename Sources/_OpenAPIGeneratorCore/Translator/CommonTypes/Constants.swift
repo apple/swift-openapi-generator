@@ -338,7 +338,7 @@ enum Constants {
 
     /// Constants related to the coding strategy.
     enum CodingStrategy {
-        
+
         /// Constants related to ParameterCodingStrategy
         enum Parameter {
             /// Matches `OpenAPIRuntime.CodingStrategy.string`.

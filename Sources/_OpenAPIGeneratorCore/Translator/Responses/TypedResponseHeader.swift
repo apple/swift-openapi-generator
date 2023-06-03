@@ -121,7 +121,8 @@ extension FileTranslator {
                 return nil
             }
             schema = typedContent.content.schema ?? .b(.fragment)
-            codingStrategy = typedContent
+            codingStrategy =
+                typedContent
                 .content
                 .contentType
                 .parameterCodingStrategy
