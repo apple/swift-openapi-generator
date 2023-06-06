@@ -19,7 +19,7 @@ Some helper methods can be reused between client and server code, such as header
 
 As outlined in <doc:Project-scope-and-goals>, we aim to minimize the complexity of the generator and rely on the Swift compiler to help ensure that if generated code compiles, it's likely to work correctly.
 
-To that end, if the input OpenAPI document contains an input that Swift OpenAPI Generator doesn't support, our first preference is to catch it in the generator and emit a descriptive error. However, there are cases where that is prohibitively complex, and we let the Swift compiler ensure that, for example, an array of strings cannot be used as a path parameter. In this example case, the generator emits code with the path parameter being of Swift type `[String]`, but since there doesn't exist a converter method for it, it will fail to build. This is considered expected behavior.
+To that end, if the input OpenAPI document contains an input that Swift OpenAPI Generator doesn't support, our first preference is to catch it in the generator and emit a descriptive diagnostic. However, there are cases where that is prohibitively complex, and we let the Swift compiler ensure that, for example, an array of strings cannot be used as a path parameter. In this example case, the generator emits code with the path parameter being of Swift type `[String]`, but since there doesn't exist a converter method for it, it will fail to build. This is considered expected behavior.
 
 In the case of the converter, it contains helper methods for all the supported combinations of an HTTP location, a "content type family" and a Swift type.
 
@@ -58,7 +58,7 @@ func headerFieldGetTextRequired( // <<< 1.
 ) throws -> Date
 ```
 
-In `1.`, notice that the method name contains which schema location, content type family, and optionality; whilie in `2.` it contains the Swift type.
+In `1.`, notice that the method name contains which schema location, content type family, and optionality; while in `2.` it contains the Swift type.
 
 ### Helper method variants
 
