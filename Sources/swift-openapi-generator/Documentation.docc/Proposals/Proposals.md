@@ -6,7 +6,7 @@ Collaborate on API changes to Swift OpenAPI Generator by writing a proposal.
 
 For non-trivial changes that affect the public API, the Swift OpenAPI Generator project adopts a ligthweight version of the [Swift Evolution](https://github.com/apple/swift-evolution/blob/main/process.md) process.
 
-Writing a proposal first helps discuss multiple possible solutions early, apply useful feedback from other contributors, and avoid re-implementing the same feature multiple times.
+Writing a proposal first helps discuss multiple possible solutions early, apply useful feedback from other contributors, and avoid reimplementing the same feature multiple times.
 
 While it's encouraged to get feedback by opening a pull request with a proposal early in the process, it's also important to consider the complexity of the implementation when evaluating different solutions (as per <doc:Project-scope-and-goals>). For example, this might mean including a prototype implementation of the feature in the same PR as the proposal document.
 
