@@ -24,6 +24,8 @@ The generated Swift code depends on the runtime library, so some features might 
 
 Similarly, any changes to the transport and middleware protocols in the runtime library must consider the impact on existing existing transport and middleware implementation packages.
 
+> Tip: For non-trivial changes affecting the API, consider writing a proposal. For more, check out <doc:Proposals>.
+
 ### Testing the generator
 
 The generator relies on a mix of unit and integration tests.
