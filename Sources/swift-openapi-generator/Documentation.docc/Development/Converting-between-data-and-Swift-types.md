@@ -1,10 +1,10 @@
 # Converting between data and Swift types
 
-Learn about the type responsible for convertering between raw data and Swift types.
+Learn about the type responsible for convertering between binary data and Swift types.
 
 ## Overview
 
-The [`Converter`](https://github.com/apple/swift-openapi-runtime/blob/main/Sources/OpenAPIRuntime/Conversion/Converter.swift) type is a structure defined in the runtime library and is used by both the client and server generated code to perform conversions between raw data and Swift types.
+The [`Converter`](https://github.com/apple/swift-openapi-runtime/blob/main/Sources/OpenAPIRuntime/Conversion/Converter.swift) type is a structure defined in the runtime library and is used by both the client and server generated code to perform conversions between binary data and Swift types.
 
 > Note: `Converter` is one of the SPI types, not considered part of the public API of the runtime library. However, because generated code relies on it, SPI stability needs to be considered when making changes to it and to the generator.
 
@@ -21,214 +21,107 @@ As outlined in <doc:Project-scope-and-goals>, we aim to minimize the complexity 
 
 To that end, if the input OpenAPI document contains an input that Swift OpenAPI Generator doesn't support, our first preference is to catch it in the generator and emit a descriptive diagnostic. However, there are cases where that is prohibitively complex, and we let the Swift compiler ensure that, for example, an array of strings cannot be used as a path parameter. In this example case, the generator emits code with the path parameter being of Swift type `[String]`, but since there doesn't exist a converter method for it, it will fail to build. This is considered expected behavior.
 
-In the case of the converter, it contains helper methods for all the supported combinations of an HTTP location, a "content type family" and a Swift type.
+In the case of the converter, it contains helper methods for all the supported combinations of an schema location, a "coding strategy" and a Swift type.
 
-First, a _schema location_ refers to one of the several places where schemas can be used in OpenAPI documents. For example:
-- request path parameters
-- request headers
-- response bodies
-- and more
+### Dimensions of helper methods
 
-Second, a _content type family_ can be one of:
-- `structured`
-    - example: `application/json`
-    - uses the type's `Codable` implementation
-- `text`
-    - example: `text/plain`
-    - uses the type's `LosslessStringConvertible` implementation, except for `Foundation.Date`, which uses a system date formatter
-- `raw`
-    - example: `application/octet-stream`
-    - doesn't transform the raw data, just passes it through
+Below is a list of the "dimensions" across which the helper methods differ:
 
-The content type family is derived from the `content` map in the OpenAPI document, if provided. If none is provided, such as in case of parameters, `text` is used.
-
-And third, a Swift type is calculated from the JSON schema provided in the OpenAPI document.
-
-For example, a `string` schema is generated as `Swift.String`, an `object` schema is generated as a Swift structure, and an array schema is generated as a `Swift.Array` generic over the element type.
-
-Together, the schema location, the content type family, and the Swift type is enough to unambiguously decide which helper method on the converter should be used.
-
-For example, to use the converter to get a required response header of type `Foundation.Date` using the `text` content type family, look for a method (exact spelling is subject to change) that looks like:
-
-```swift
-func headerFieldGetTextRequired( // <<< 1.
-    in headerFields: [HeaderField],
-    name: String,
-    as type: Date.Type // <<< 2.
-) throws -> Date
-```
-
-In `1.`, notice that the method name contains which schema location, content type family, and optionality; while in `2.` it contains the Swift type.
+- **Client/server** represents whether the code is needed by the client, server, or both ("common").
+- **Set/get** represents whether the generated code sets or gets the value.
+- **Schema location** refers to one of the several places where schemas can be used in OpenAPI documents. Values:
+    - request path parameters
+    - request query items
+    - request header fields
+    - request body
+    - response header fields
+    - response body
+- **Coding strategy** represents the chosen encoder/decoder to convert the Swift type to/from data. Values:
+    - `JSON`
+        - example: `application/json`
+        - uses the type's `Codable` implementation and `JSONEncoder`/`JSONDecoder`
+    - `text`
+        - example: `text/plain`
+        - uses the type's `LosslessStringConvertible` implementation, except for `Foundation.Date`, which uses a system date formatter
+    - `binary`
+        - example: `application/octet-stream`
+        - doesn't transform the binary data, just passes it through
+        - serves as the fallback for content types that don't have more specific handling
+- **Swift type** represents the generated type in Swift that best represents the JSON schema defined in the OpenAPI document. For example, a `string` schema is generated as `Swift.String`, an `object` schema is generated as a Swift structure, and an `array` schema is generated as a `Swift.Array` generic over the element type. For the helper methods, it's important which protocol they conform to, as those are used for serialization. Values:
+    - _string-convertible_ refers to types that conform to `LosslessStringConvertible`
+    - _array of string-convertibles_ refers to an array of types that conform to `LosslessStringConvertible`
+    - _date_ is represented by `Foundation.Date`
+    - _array of dates_ refers to an array of `Foundation.Date`
+    - _codable_ refers to types that conform to `Codable`
+    - _data_ is represented by `Foundation.Data`
+- **Optional/required** represents whether the method works with optional values. Values:
+    - _required_ represents a special overload only for required values
+    - _optional_ represents a special overload only for optional values
+    - _both_ represents a special overload that works for optional values without negatively impacting passed-in required values (for example, setters)
 
 ### Helper method variants
 
-In the nested list below, each leaf is one helper method.
+Together, the dimensions are enough to deterministically decide which helper method on the converter should be used.
 
-"string-convertible" refers to types that conform to `LosslessStringConvertible` (but not `Foundation.Date`, which is handled separately).
+In the list below, each row represents one helper method.
 
-
-#### Required by client code
-
-- request
-   - set request path [client-only]
-       - text
-           - string-convertible
-               - optional/required
-           - date
-               - optional/required
-   - set request query [client-only]
-       - text
-           - string-convertible
-               - optional/required
-           - array of string-convertibles
-               - optional/required
-           - date
-               - optional/required
-           - array of dates
-               - optional/required
-   - set request headers [common]
-       - text
-           - string-convertible
-               - optional/required
-           - array of string-convertibles
-               - optional/required
-           - date
-               - optional/required
-           - array of dates
-               - optional/required
-       - structured
-           - codable
-               - optional/required
-   - set request body [client-only]
-       - text
-           - string-convertible
-               - optional
-               - required
-           - date
-               - optional
-               - required
-       - structured
-           - codable
-               - optional
-               - required
-       - raw
-           - data
-               - optional
-               - required
-- response
-   - get response headers [common]
-       - text
-           - string-convertible
-               - optional
-               - required
-           - array of string-convertibles
-               - optional
-               - required
-           - date
-               - optional
-               - required
-           - array of dates
-               - optional
-               - required
-       - structured
-           - codable
-               - optional
-               - required
-   - get response body [client-only]
-       - text
-           - string-convertible
-               - required
-           - date
-               - required
-       - structured
-           - codable
-               - required
-       - raw
-           - data
-               - required
-
-#### Required by server code
-
-- request
-   - get request path [server-only]
-       - text
-           - string-convertible
-               - optional
-               - required
-           - date
-               - optional
-               - required
-   - get request query [server-only]
-       - text
-           - string-convertible
-               - optional
-               - required
-           - array of string-convertibles
-               - optional
-               - required
-           - date
-               - optional
-               - required
-           - array of dates
-               - optional
-               - required
-   - get request headers [common]
-       - text
-           - string-convertible
-               - optional
-               - required
-           - array of string-convertibles
-               - optional
-               - required
-           - date
-               - optional
-               - required
-           - array of dates
-               - optional
-               - required
-       - structured
-           - codable
-               - optional
-               - required
-   - get request body [server-only]
-       - text
-           - string-convertible
-               - optional
-               - required
-           - date
-               - optional
-               - required
-       - structured
-           - codable
-               - optional
-               - required
-       - raw
-           - data
-               - optional
-               - required
-- response
-   - set response headers [common]
-       - text
-           - string-convertible
-               - optional/required
-           - array of string-convertibles
-               - optional/required
-           - date
-               - optional/required
-           - array of dates
-               - optional/required
-       - structured
-           - codable
-               - optional/required
-   - set response body [server-only]
-       - text
-           - string-convertible
-               - required
-           - date
-               - required
-       - structured
-           - codable
-               - required
-       - raw
-           - data
-               - required
+| Client/server | Set/get | Schema location | Coding strategy | Swift type | Optional/required | Method name |
+| --------------| ------- | --------------- | --------------- | ---------- | ------------------| ----------- |
+| common | set | header field | text | string-convertible | both | TODO |
+| common | set | header field | text | array of string-convertibles | both | TODO |
+| common | set | header field | text | date | both | TODO |
+| common | set | header field | text | array of dates | both | TODO |
+| common | set | header field | JSON | codable | both | TODO |
+| common | get | header field | text | string-convertible | optional | TODO |
+| common | get | header field | text | string-convertible | required | TODO |
+| common | get | header field | text | array of string-convertibles | optional | TODO |
+| common | get | header field | text | array of string-convertibles | required | TODO |
+| common | get | header field | text | date | optional | TODO |
+| common | get | header field | text | date | required | TODO |
+| common | get | header field | text | array of dates | optional | TODO |
+| common | get | header field | text | array of dates | required | TODO |
+| common | get | header field | JSON | codable | optional | TODO |
+| common | get | header field | JSON | codable | required | TODO |
+| client | set | request path | text | string-convertible | both | TODO |
+| client | set | request path | text | date | both | TODO |
+| client | set | request query | text | string-convertible | both | TODO |
+| client | set | request query | text | array of string-convertibles | both | TODO |
+| client | set | request query | text | date | both | TODO |
+| client | set | request query | text | array of dates | both | TODO |
+| client | set | request query | text | array of dates | both | TODO |
+| client | set | request body | text | string-convertible | optional | TODO |
+| client | set | request body | text | string-convertible | required | TODO |
+| client | set | request body | text | date | optional | TODO |
+| client | set | request body | text | date | required | TODO |
+| client | set | request body | JSON | codable | optional | TODO |
+| client | set | request body | JSON | codable | required | TODO |
+| client | set | request body | binary | data | optional | TODO |
+| client | set | request body | binary | data | required | TODO |
+| client | get | response body | text | string-convertible | required | TODO |
+| client | get | response body | text | date | required | TODO |
+| client | get | response body | JSON | codable | required | TODO |
+| client | get | response body | binary | data | required | TODO |
+| server | get | request path | text | string-convertible | optional | TODO |
+| server | get | request path | text | string-convertible | required | TODO |
+| server | get | request path | text | date | optional | TODO |
+| server | get | request path | text | date | required | TODO |
+| server | get | request query | text | string-convertible | optional | TODO |
+| server | get | request query | text | string-convertible | required | TODO |
+| server | get | request query | text | array of string-convertibles | optional | TODO |
+| server | get | request query | text | array of string-convertibles | required | TODO |
+| server | get | request query | text | date | optional | TODO |
+| server | get | request query | text | date | required | TODO |
+| server | get | request query | text | array of dates | optional | TODO |
+| server | get | request query | text | array of dates | required | TODO |
+| server | get | request body | text | string-convertible | optional | TODO |
+| server | get | request body | text | string-convertible | required | TODO |
+| server | get | request body | text | date | optional | TODO |
+| server | get | request body | text | date | required | TODO |
+| server | get | request body | JSON | codable | optional | TODO |
+| server | get | request body | JSON | codable | required | TODO |
+| server | get | request body | binary | data | optional | TODO |
+| server | get | request body | binary | data | required | TODO |
+| server | set | response body | text | string-convertible | required | TODO |
+| server | set | response body | text | date | required | TODO |
+| server | set | response body | JSON | codable | required | TODO |
+| server | set | response body | binary | data | required | TODO |
