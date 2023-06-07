@@ -67,8 +67,8 @@ In the list below, each row represents one helper method.
 
 | Client/server | Set/get | Schema location | Coding strategy | Swift type | Optional/required | Method name |
 | --------------| ------- | --------------- | --------------- | ---------- | ------------------| ----------- |
-| common | set | header field | text | string-convertible | both | TODO |
-| common | set | header field | text | array of string-convertibles | both | TODO |
+| common | set | header field | text | string-convertible | both | setHeaderFieldAsText |
+| common | set | header field | text | array of string-convertibles | both | setHeaderFieldAsText |
 | common | set | header field | text | date | both | TODO |
 | common | set | header field | text | array of dates | both | TODO |
 | common | set | header field | JSON | codable | both | TODO |
