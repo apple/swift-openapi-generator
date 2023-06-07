@@ -75,6 +75,8 @@ The generated code, runtime library, and transports are supported on more platfo
 ### Getting involved
 - <doc:Project-scope-and-goals>
 - <doc:Contributing-to-Swift-OpenAPI-Generator>
+- <doc:Proposals>
+- <doc:Documentation-for-maintainers>
 
 [openapi]: https://openapis.org
 [tools]: https://openapi.tools
