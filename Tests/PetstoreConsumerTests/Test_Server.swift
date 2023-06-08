@@ -77,7 +77,7 @@ final class Test_Server: XCTestCase {
                 .init(name: "content-type", value: "application/json; charset=utf-8"),
             ]
         )
-        let bodyString = try XCTUnwrap(String(data: response.body, encoding: .utf8))
+        let bodyString = String(decoding: response.body, as: UTF8.self)
         XCTAssertEqual(
             bodyString,
             #"""
@@ -114,7 +114,7 @@ final class Test_Server: XCTestCase {
                 .init(name: "content-type", value: "application/json; charset=utf-8")
             ]
         )
-        let bodyString = try XCTUnwrap(String(data: response.body, encoding: .utf8))
+        let bodyString = String(decoding: response.body, as: UTF8.self)
         XCTAssertEqual(
             bodyString,
             #"""
@@ -170,7 +170,7 @@ final class Test_Server: XCTestCase {
                 .init(name: "content-type", value: "application/json; charset=utf-8"),
             ]
         )
-        let bodyString = try XCTUnwrap(String(data: response.body, encoding: .utf8))
+        let bodyString = String(decoding: response.body, as: UTF8.self)
         XCTAssertEqual(
             bodyString,
             #"""
@@ -220,7 +220,7 @@ final class Test_Server: XCTestCase {
                 .init(name: "content-type", value: "application/json; charset=utf-8"),
             ]
         )
-        let bodyString = try XCTUnwrap(String(data: response.body, encoding: .utf8))
+        let bodyString = String(decoding: response.body, as: UTF8.self)
         XCTAssertEqual(
             bodyString,
             #"""

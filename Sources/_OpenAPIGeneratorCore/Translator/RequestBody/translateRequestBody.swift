@@ -191,10 +191,6 @@ extension ClientFileTranslator {
                         label: "contentType",
                         expression: .literal(contentTypeHeaderValue)
                     ),
-                    .init(
-                        label: "strategy",
-                        expression: .dot(contentType.bodyCodingStrategy.runtimeName)
-                    ),
                 ])
         )
         let caseDecl: SwitchCaseDescription = .init(
@@ -220,7 +216,7 @@ extension ClientFileTranslator {
             left: .identifier(requestVariableName).dot("body"),
             right: .try(
                 .identifier("converter")
-                    .dot("bodyAdd\(requestBody.request.required ? "Required" : "Optional")")
+                    .dot("set\(requestBody.request.required ? "Required" : "Optional")RequestBodyAs\(contentType.codingStrategy.runtimeName)")
                     .call([
                         .init(label: nil, expression: .identifier(inputVariableName).dot("body")),
                         .init(
@@ -272,7 +268,7 @@ extension ServerFileTranslator {
         let content = typedContent.content
         let contentType = content.contentType
         let contentTypeIdentifier = contentType.identifier
-        let codingStrategyName = contentType.bodyCodingStrategy.runtimeName
+        let codingStrategyName = contentType.codingStrategy.runtimeName
         let isOptional = !requestBody.request.required
 
         let transformExpr: Expression = .closureInvocation(
@@ -288,7 +284,7 @@ extension ServerFileTranslator {
         )
         let initExpr: Expression = .try(
             .identifier("converter")
-                .dot("bodyGet\(isOptional ? "Optional" : "Required")")
+                .dot("get\(isOptional ? "Optional" : "Required")RequestBodyAs\(codingStrategyName)")
                 .call([
                     .init(
                         label: nil,
@@ -302,10 +298,6 @@ extension ServerFileTranslator {
                     .init(
                         label: "from",
                         expression: .identifier(requestVariableName).dot("body")
-                    ),
-                    .init(
-                        label: "strategy",
-                        expression: .dot(codingStrategyName)
                     ),
                     .init(label: "transforming", expression: transformExpr),
                 ])

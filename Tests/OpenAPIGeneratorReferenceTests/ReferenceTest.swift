@@ -274,7 +274,7 @@ extension ReferenceTests {
             \(process.executableURL!.path) \(process.arguments!.joined(separator: " "))
             """
         )
-        return try XCTUnwrap(String(data: pipeData, encoding: .utf8))
+        return String(decoding: pipeData, as: UTF8.self)
     }
 
     func heading(_ message: String, paddingCharacter: Character, lineLength: Int) -> String {

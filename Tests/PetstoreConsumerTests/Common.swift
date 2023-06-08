@@ -17,7 +17,6 @@ import Foundation
 enum TestError: Swift.Error, LocalizedError, CustomStringConvertible {
     case noHandlerFound(method: HTTPMethod, path: [RouterPathComponent])
     case invalidURLString(String)
-    case invalidJSONBody(String)
     case unexpectedValue(Any)
     case unexpectedMissingRequestBody
 
@@ -27,8 +26,6 @@ enum TestError: Swift.Error, LocalizedError, CustomStringConvertible {
             return "No handler found for method \(method.name) and path \(path.stringPath)"
         case .invalidURLString(let string):
             return "Invalid URL string: \(string)"
-        case .invalidJSONBody(let body):
-            return "Invalid JSON body: \(body)"
         case .unexpectedValue(let value):
             return "Unexpected value: \(value)"
         case .unexpectedMissingRequestBody:
@@ -66,7 +63,7 @@ extension Response {
         self.init(
             statusCode: statusCode,
             headerFields: headers,
-            body: encodedBody.data(using: .utf8)!
+            body: Data(encodedBody.utf8)
         )
     }
 
@@ -96,7 +93,7 @@ extension Operations.listPets.Output {
 
 extension Data {
     var pretty: String {
-        String(data: self, encoding: .utf8) ?? String(data: self, encoding: .ascii) ?? String(describing: self)
+        String(decoding: self, as: UTF8.self)
     }
 
     static var abcdString: String {
@@ -104,7 +101,7 @@ extension Data {
     }
 
     static var abcd: Data {
-        abcdString.data(using: .utf8)!
+        Data(abcdString.utf8)
     }
 
     static var efghString: String {
@@ -116,7 +113,7 @@ extension Data {
     }
 
     static var efgh: Data {
-        efghString.data(using: .utf8)!
+        Data(efghString.utf8)
     }
 }
 
@@ -128,9 +125,7 @@ extension Request {
         headerFields: [HeaderField] = [],
         encodedBody: String
     ) throws {
-        guard let body = encodedBody.data(using: .utf8) else {
-            throw TestError.invalidJSONBody(encodedBody)
-        }
+        let body = Data(encodedBody.utf8)
         self.init(
             path: path,
             query: query,

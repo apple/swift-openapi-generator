@@ -339,29 +339,14 @@ enum Constants {
     /// Constants related to the coding strategy.
     enum CodingStrategy {
 
-        /// Constants related to ParameterCodingStrategy
-        enum Parameter {
-            /// Matches `OpenAPIRuntime.CodingStrategy.string`.
-            static let string: String = "string"
+        /// The substring used in method names for the JSON coding strategy.
+        static let json: String = "JSON"
 
-            /// Matches `OpenAPIRuntime.CodingStrategy.codable`.
-            static let codable: String = "codable"
+        /// The substring used in method names for the text coding strategy.
+        static let text: String = "Text"
 
-            /// Matches `OpenAPIRuntime.CodingStrategy.deferredToType`.
-            static let deferredToType: String = "deferredToType"
-        }
-
-        /// Constants related to BodyCodingStrategy
-        enum Body {
-            /// Matches `OpenAPIRuntime.CodingStrategy.string`.
-            static let string: String = "string"
-
-            /// Matches `OpenAPIRuntime.CodingStrategy.codable`.
-            static let codable: String = "codable"
-
-            /// Matches `OpenAPIRuntime.CodingStrategy.data`.
-            static let data: String = "data"
-        }
+        /// The substring used in method names for the binary coding strategy.
+        static let binary: String = "Binary"
     }
 
     /// Constants related to types used in many components.

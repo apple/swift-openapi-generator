@@ -91,11 +91,12 @@ extension TypesFileTranslator {
 extension ClientFileTranslator {
 
     /// Returns a templated string that includes all path parameters in
-    /// the specified operation.
+    /// the specified operation, and an expression of an array literal
+    /// with all those parameters.
     /// - Parameter description: The OpenAPI operation.
     func translatePathParameterInClient(
         description: OperationDescription
-    ) throws -> String {
+    ) throws -> (String, Expression) {
         try description.templatedPathForClient
     }
 
@@ -113,21 +114,13 @@ extension ClientFileTranslator {
     ) throws -> Expression? {
         let methodPrefix: String
         let containerExpr: Expression
-        let extraArguments: [FunctionArgumentDescription]
         switch parameter.location {
         case .header:
-            methodPrefix = "headerField"
+            methodPrefix = "HeaderField"
             containerExpr = .identifier(requestVariableName).dot("headerFields")
-            extraArguments = [
-                .init(
-                    label: "strategy",
-                    expression: .dot(parameter.codingStrategy.runtimeName)
-                )
-            ]
         case .query:
-            methodPrefix = "query"
+            methodPrefix = "QueryItem"
             containerExpr = .identifier(requestVariableName)
-            extraArguments = []
         default:
             diagnostics.emitUnsupported(
                 "Parameter of type \(parameter.location.rawValue)",
@@ -137,14 +130,13 @@ extension ClientFileTranslator {
         }
         return .try(
             .identifier("converter")
-                .dot("\(methodPrefix)Add")
+                .dot("set\(methodPrefix)As\(parameter.codingStrategy.runtimeName)")
                 .call(
                     [
                         .init(
                             label: "in",
                             expression: .inOut(containerExpr)
-                        )
-                    ] + extraArguments + [
+                        ),
                         .init(label: "name", expression: .literal(parameter.name)),
                         .init(
                             label: "value",
@@ -170,18 +162,22 @@ extension ServerFileTranslator {
         let parameterTypeName = typedParameter
             .typeUsage
             .fullyQualifiedNonOptionalSwiftName
-
+        
+        func methodName(_ parameterLocationName: String, _ requiresOptionality: Bool = true) -> String {
+            let optionality: String
+            if requiresOptionality {
+                optionality = parameter.required ? "Required" : "Optional"
+            } else {
+                optionality = ""
+            }
+            return "get\(optionality)\(parameterLocationName)As\(typedParameter.codingStrategy.runtimeName)"
+        }
+        
         let convertExpr: Expression
         switch parameter.location {
         case .path:
-            let methodName: String
-            if parameter.required {
-                methodName = "pathGetRequired"
-            } else {
-                methodName = "pathGetOptional"
-            }
             convertExpr = .try(
-                .identifier("converter").dot(methodName)
+                .identifier("converter").dot(methodName("PathParameter", false))
                     .call([
                         .init(label: "in", expression: .identifier("metadata").dot("pathParameters")),
                         .init(label: "name", expression: .literal(parameter.name)),
@@ -192,14 +188,8 @@ extension ServerFileTranslator {
                     ])
             )
         case .query:
-            let methodName: String
-            if parameter.required {
-                methodName = "queryGetRequired"
-            } else {
-                methodName = "queryGetOptional"
-            }
             convertExpr = .try(
-                .identifier("converter").dot(methodName)
+                .identifier("converter").dot(methodName("QueryItem"))
                     .call([
                         .init(label: "in", expression: .identifier("metadata").dot("queryParameters")),
                         .init(label: "name", expression: .literal(parameter.name)),
@@ -210,21 +200,11 @@ extension ServerFileTranslator {
                     ])
             )
         case .header:
-            let methodName: String
-            if parameter.required {
-                methodName = "headerFieldGetRequired"
-            } else {
-                methodName = "headerFieldGetOptional"
-            }
             convertExpr = .try(
                 .identifier("converter")
-                    .dot(methodName)
+                    .dot(methodName("HeaderField"))
                     .call([
                         .init(label: "in", expression: .identifier("request").dot("headerFields")),
-                        .init(
-                            label: "strategy",
-                            expression: .dot(typedParameter.codingStrategy.runtimeName)
-                        ),
                         .init(label: "name", expression: .literal(parameter.name)),
                         .init(
                             label: "as",

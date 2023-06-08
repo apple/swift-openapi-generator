@@ -182,19 +182,13 @@ extension ClientFileTranslator {
                 type: bodyTypeName.fullyQualifiedSwiftName,
                 right: .try(
                     .identifier("converter")
-                        .dot("bodyGet")
+                        .dot("getResponseBodyAs\(typedContent.content.contentType.codingStrategy.runtimeName)")
                         .call([
                             .init(
                                 label: nil,
                                 expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
                             ),
                             .init(label: "from", expression: .identifier("response").dot("body")),
-                            .init(
-                                label: "strategy",
-                                expression: .dot(
-                                    typedContent.content.contentType.bodyCodingStrategy.runtimeName
-                                )
-                            ),
                             .init(
                                 label: "transforming",
                                 expression: transformExpr
@@ -343,10 +337,6 @@ extension ServerFileTranslator {
                                             label: "contentType",
                                             expression: .literal(contentType.headerValueForSending)
                                         ),
-                                        .init(
-                                            label: "strategy",
-                                            expression: .dot(contentType.bodyCodingStrategy.runtimeName)
-                                        ),
                                     ])
                             )
                         )
@@ -369,7 +359,7 @@ extension ServerFileTranslator {
                 left: .identifier("response").dot("body"),
                 right: .try(
                     .identifier("converter")
-                        .dot("bodyAdd")
+                        .dot("setResponseBodyAs\(contentType.codingStrategy.runtimeName)")
                         .call([
                             .init(label: nil, expression: .identifier("value").dot("body")),
                             .init(

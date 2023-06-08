@@ -95,15 +95,11 @@ extension ClientFileTranslator {
             label: header.variableName,
             expression: .try(
                 .identifier("converter")
-                    .dot("headerFieldGet\(header.isOptional ? "Optional" : "Required")")
+                .dot("get\(header.isOptional ? "Optional" : "Required")HeaderFieldAs\(header.codingStrategy.runtimeName)")
                     .call([
                         .init(
                             label: "in",
                             expression: .identifier(responseVariableName).dot("headerFields")
-                        ),
-                        .init(
-                            label: "strategy",
-                            expression: .dot(header.codingStrategy.runtimeName)
                         ),
                         .init(label: "name", expression: .literal(header.name)),
                         .init(
@@ -135,7 +131,7 @@ extension ServerFileTranslator {
     ) throws -> Expression {
         return .try(
             .identifier("converter")
-                .dot("headerFieldAdd")
+                .dot("setHeaderFieldAs\(header.codingStrategy.runtimeName)")
                 .call([
                     .init(
                         label: "in",
@@ -143,10 +139,6 @@ extension ServerFileTranslator {
                             .identifier(responseVariableName)
                                 .dot("headerFields")
                         )
-                    ),
-                    .init(
-                        label: "strategy",
-                        expression: .dot(header.codingStrategy.runtimeName)
                     ),
                     .init(label: "name", expression: .literal(header.name)),
                     .init(

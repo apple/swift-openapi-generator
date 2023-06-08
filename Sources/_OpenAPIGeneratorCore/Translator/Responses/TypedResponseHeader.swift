@@ -30,7 +30,7 @@ struct TypedResponseHeader {
     var typeUsage: TypeUsage
 
     /// The coding strategy appropriate for this parameter.
-    var codingStrategy: ParameterCodingStrategy
+    var codingStrategy: CodingStrategy
 }
 
 extension TypedResponseHeader {
@@ -104,12 +104,12 @@ extension FileTranslator {
         let foundIn = "\(parent.description)/\(name)"
 
         let schema: Either<JSONReference<JSONSchema>, JSONSchema>
-        let codingStrategy: ParameterCodingStrategy
+        let codingStrategy: CodingStrategy
 
         switch header.schemaOrContent {
         case let .a(schemaContext):
             schema = schemaContext.schema
-            codingStrategy = .deferredToType
+            codingStrategy = .text
         case let .b(contentMap):
             guard
                 let typedContent = try bestSingleTypedContent(
@@ -125,7 +125,7 @@ extension FileTranslator {
                 typedContent
                 .content
                 .contentType
-                .parameterCodingStrategy
+                .codingStrategy
         }
 
         // Check if schema is supported

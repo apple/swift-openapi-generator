@@ -33,7 +33,7 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders the specified Swift file.
     func renderFile(_ description: FileDescription) -> Data {
-        renderedFile(description).data(using: .utf8)!
+        Data(renderedFile(description).utf8)
     }
 
     /// Renders the specified comment.
