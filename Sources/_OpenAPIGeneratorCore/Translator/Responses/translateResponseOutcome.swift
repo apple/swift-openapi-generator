@@ -182,7 +182,7 @@ extension ClientFileTranslator {
                 type: bodyTypeName.fullyQualifiedSwiftName,
                 right: .try(
                     .identifier("converter")
-                        .dot("bodyGet")
+                        .dot("getResponseBodyAs\(typedContent.content.contentType.codingStrategy.runtimeName)")
                         .call([
                             .init(
                                 label: nil,
@@ -329,7 +329,10 @@ extension ServerFileTranslator {
                             .return(
                                 .dot("init")
                                     .call([
-                                        .init(label: "value", expression: .identifier("value")),
+                                        .init(
+                                            label: "value",
+                                            expression: .identifier("value")
+                                        ),
                                         .init(
                                             label: "contentType",
                                             expression: .literal(contentType.headerValueForSending)
@@ -356,7 +359,7 @@ extension ServerFileTranslator {
                 left: .identifier("response").dot("body"),
                 right: .try(
                     .identifier("converter")
-                        .dot("bodyAdd")
+                        .dot("setResponseBodyAs\(contentType.codingStrategy.runtimeName)")
                         .call([
                             .init(label: nil, expression: .identifier("value").dot("body")),
                             .init(

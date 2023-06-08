@@ -183,8 +183,14 @@ extension ClientFileTranslator {
         let transformReturnExpr: Expression = .return(
             .dot("init")
                 .call([
-                    .init(label: "value", expression: .identifier("value")),
-                    .init(label: "contentType", expression: .literal(contentTypeHeaderValue)),
+                    .init(
+                        label: "value",
+                        expression: .identifier("value")
+                    ),
+                    .init(
+                        label: "contentType",
+                        expression: .literal(contentTypeHeaderValue)
+                    ),
                 ])
         )
         let caseDecl: SwitchCaseDescription = .init(
@@ -210,7 +216,9 @@ extension ClientFileTranslator {
             left: .identifier(requestVariableName).dot("body"),
             right: .try(
                 .identifier("converter")
-                    .dot("bodyAdd\(requestBody.request.required ? "Required" : "Optional")")
+                    .dot(
+                        "set\(requestBody.request.required ? "Required" : "Optional")RequestBodyAs\(contentType.codingStrategy.runtimeName)"
+                    )
                     .call([
                         .init(label: nil, expression: .identifier(inputVariableName).dot("body")),
                         .init(
@@ -260,7 +268,9 @@ extension ServerFileTranslator {
         let typedContent = requestBody.content
         let contentTypeUsage = typedContent.resolvedTypeUsage
         let content = typedContent.content
-        let contentTypeIdentifier = content.contentType.identifier
+        let contentType = content.contentType
+        let contentTypeIdentifier = contentType.identifier
+        let codingStrategyName = contentType.codingStrategy.runtimeName
         let isOptional = !requestBody.request.required
 
         let transformExpr: Expression = .closureInvocation(
@@ -276,7 +286,7 @@ extension ServerFileTranslator {
         )
         let initExpr: Expression = .try(
             .identifier("converter")
-                .dot("bodyGet\(isOptional ? "Optional" : "Required")")
+                .dot("get\(isOptional ? "Optional" : "Required")RequestBodyAs\(codingStrategyName)")
                 .call([
                     .init(
                         label: nil,

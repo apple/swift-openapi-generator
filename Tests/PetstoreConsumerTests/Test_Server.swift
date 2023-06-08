@@ -77,7 +77,7 @@ final class Test_Server: XCTestCase {
                 .init(name: "content-type", value: "application/json; charset=utf-8"),
             ]
         )
-        let bodyString = try XCTUnwrap(String(data: response.body, encoding: .utf8))
+        let bodyString = String(decoding: response.body, as: UTF8.self)
         XCTAssertEqual(
             bodyString,
             #"""
@@ -114,7 +114,7 @@ final class Test_Server: XCTestCase {
                 .init(name: "content-type", value: "application/json; charset=utf-8")
             ]
         )
-        let bodyString = try XCTUnwrap(String(data: response.body, encoding: .utf8))
+        let bodyString = String(decoding: response.body, as: UTF8.self)
         XCTAssertEqual(
             bodyString,
             #"""
@@ -170,7 +170,7 @@ final class Test_Server: XCTestCase {
                 .init(name: "content-type", value: "application/json; charset=utf-8"),
             ]
         )
-        let bodyString = try XCTUnwrap(String(data: response.body, encoding: .utf8))
+        let bodyString = String(decoding: response.body, as: UTF8.self)
         XCTAssertEqual(
             bodyString,
             #"""
@@ -220,7 +220,7 @@ final class Test_Server: XCTestCase {
                 .init(name: "content-type", value: "application/json; charset=utf-8"),
             ]
         )
-        let bodyString = try XCTUnwrap(String(data: response.body, encoding: .utf8))
+        let bodyString = String(decoding: response.body, as: UTF8.self)
         XCTAssertEqual(
             bodyString,
             #"""
@@ -379,7 +379,7 @@ final class Test_Server: XCTestCase {
                 path: "/api/pets/1/avatar",
                 method: .put,
                 headerFields: [
-                    .init(name: "accept", value: "application/octet-stream, application/json"),
+                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
                     .init(name: "content-type", value: "application/octet-stream"),
                 ],
                 encodedBody: Data.abcdString
@@ -403,7 +403,7 @@ final class Test_Server: XCTestCase {
         )
     }
 
-    func testUploadAvatarForPet_201() async throws {
+    func testUploadAvatarForPet_412() async throws {
         client = .init(
             uploadAvatarForPetBlock: { input in
                 guard case let .binary(avatar) = input.body else {
@@ -418,7 +418,7 @@ final class Test_Server: XCTestCase {
                 path: "/api/pets/1/avatar",
                 method: .put,
                 headerFields: [
-                    .init(name: "accept", value: "application/octet-stream, application/json"),
+                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
                     .init(name: "content-type", value: "application/octet-stream"),
                 ],
                 encodedBody: Data.abcdString
@@ -441,4 +441,44 @@ final class Test_Server: XCTestCase {
             Data.quotedEfghString
         )
     }
+
+    func testUploadAvatarForPet_500() async throws {
+        client = .init(
+            uploadAvatarForPetBlock: { input in
+                guard case let .binary(avatar) = input.body else {
+                    throw TestError.unexpectedValue(input.body)
+                }
+                XCTAssertEqualStringifiedData(avatar, Data.abcdString)
+                return .internalServerError(.init(body: .text(Data.efghString)))
+            }
+        )
+        let response = try await server.uploadAvatarForPet(
+            .init(
+                path: "/api/pets/1/avatar",
+                method: .put,
+                headerFields: [
+                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
+                    .init(name: "content-type", value: "application/octet-stream"),
+                ],
+                encodedBody: Data.abcdString
+            ),
+            .init(
+                pathParameters: [
+                    "petId": "1"
+                ]
+            )
+        )
+        XCTAssertEqual(response.statusCode, 500)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .init(name: "content-type", value: "text/plain")
+            ]
+        )
+        XCTAssertEqualStringifiedData(
+            response.body,
+            Data.efghString
+        )
+    }
+
 }
