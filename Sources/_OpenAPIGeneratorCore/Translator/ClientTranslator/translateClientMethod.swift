@@ -30,10 +30,11 @@ extension ClientFileTranslator {
             left: "path",
             right: .try(
                 .identifier("converter")
-                .dot("renderedRequestPath").call([
-                    .init(label: "template", expression: .literal(pathTemplate)),
-                    .init(label: "parameters", expression: pathParamsArrayExpr)
-                ])
+                    .dot("renderedRequestPath")
+                    .call([
+                        .init(label: "template", expression: .literal(pathTemplate)),
+                        .init(label: "parameters", expression: pathParamsArrayExpr),
+                    ])
             )
         )
         let requestDecl: Declaration = .variable(

@@ -95,7 +95,9 @@ extension ClientFileTranslator {
             label: header.variableName,
             expression: .try(
                 .identifier("converter")
-                .dot("get\(header.isOptional ? "Optional" : "Required")HeaderFieldAs\(header.codingStrategy.runtimeName)")
+                    .dot(
+                        "get\(header.isOptional ? "Optional" : "Required")HeaderFieldAs\(header.codingStrategy.runtimeName)"
+                    )
                     .call([
                         .init(
                             label: "in",

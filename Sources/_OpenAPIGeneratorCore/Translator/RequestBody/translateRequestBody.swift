@@ -216,7 +216,9 @@ extension ClientFileTranslator {
             left: .identifier(requestVariableName).dot("body"),
             right: .try(
                 .identifier("converter")
-                    .dot("set\(requestBody.request.required ? "Required" : "Optional")RequestBodyAs\(contentType.codingStrategy.runtimeName)")
+                    .dot(
+                        "set\(requestBody.request.required ? "Required" : "Optional")RequestBodyAs\(contentType.codingStrategy.runtimeName)"
+                    )
                     .call([
                         .init(label: nil, expression: .identifier(inputVariableName).dot("body")),
                         .init(

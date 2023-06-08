@@ -247,7 +247,8 @@ extension OperationDescription {
                     with: "{}"
                 )
             }
-            let names: [Expression] = pathParameters
+            let names: [Expression] =
+                pathParameters
                 .map { param in
                     .identifier("input.path.\(param.name.asSwiftSafeName)")
                 }

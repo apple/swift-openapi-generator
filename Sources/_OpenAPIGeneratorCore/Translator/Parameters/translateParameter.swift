@@ -162,7 +162,7 @@ extension ServerFileTranslator {
         let parameterTypeName = typedParameter
             .typeUsage
             .fullyQualifiedNonOptionalSwiftName
-        
+
         func methodName(_ parameterLocationName: String, _ requiresOptionality: Bool = true) -> String {
             let optionality: String
             if requiresOptionality {
@@ -172,7 +172,7 @@ extension ServerFileTranslator {
             }
             return "get\(optionality)\(parameterLocationName)As\(typedParameter.codingStrategy.runtimeName)"
         }
-        
+
         let convertExpr: Expression
         switch parameter.location {
         case .path:
