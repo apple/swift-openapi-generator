@@ -336,6 +336,19 @@ enum Constants {
         ]
     }
 
+    /// Constants related to the coding strategy.
+    enum CodingStrategy {
+
+        /// The substring used in method names for the JSON coding strategy.
+        static let json: String = "JSON"
+
+        /// The substring used in method names for the text coding strategy.
+        static let text: String = "Text"
+
+        /// The substring used in method names for the binary coding strategy.
+        static let binary: String = "Binary"
+    }
+
     /// Constants related to types used in many components.
     enum Global {
 

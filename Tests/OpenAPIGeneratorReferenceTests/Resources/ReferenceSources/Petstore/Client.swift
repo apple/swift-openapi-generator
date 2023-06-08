@@ -43,18 +43,35 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.listPets.id,
             serializer: { input in
-                var request: OpenAPIRuntime.Request = .init(path: "/pets", method: .get)
+                let path = try converter.renderedRequestPath(template: "/pets", parameters: [])
+                var request: OpenAPIRuntime.Request = .init(path: path, method: .get)
                 suppressMutabilityWarning(&request)
-                try converter.queryAdd(in: &request, name: "limit", value: input.query.limit)
-                try converter.queryAdd(in: &request, name: "habitat", value: input.query.habitat)
-                try converter.queryAdd(in: &request, name: "feeds", value: input.query.feeds)
-                try converter.headerFieldAdd(
+                try converter.setQueryItemAsText(
+                    in: &request,
+                    name: "limit",
+                    value: input.query.limit
+                )
+                try converter.setQueryItemAsText(
+                    in: &request,
+                    name: "habitat",
+                    value: input.query.habitat
+                )
+                try converter.setQueryItemAsText(
+                    in: &request,
+                    name: "feeds",
+                    value: input.query.feeds
+                )
+                try converter.setHeaderFieldAsText(
                     in: &request.headerFields,
                     name: "My-Request-UUID",
                     value: input.headers.My_Request_UUID
                 )
-                try converter.queryAdd(in: &request, name: "since", value: input.query.since)
-                try converter.headerFieldAdd(
+                try converter.setQueryItemAsText(
+                    in: &request,
+                    name: "since",
+                    value: input.query.since
+                )
+                try converter.setHeaderFieldAsText(
                     in: &request.headerFields,
                     name: "accept",
                     value: "application/json"
@@ -65,12 +82,12 @@ public struct Client: APIProtocol {
                 switch response.statusCode {
                 case 200:
                     let headers: Operations.listPets.Output.Ok.Headers = .init(
-                        My_Response_UUID: try converter.headerFieldGetRequired(
+                        My_Response_UUID: try converter.getRequiredHeaderFieldAsText(
                             in: response.headerFields,
                             name: "My-Response-UUID",
                             as: Swift.String.self
                         ),
-                        My_Tracing_Header: try converter.headerFieldGetOptional(
+                        My_Tracing_Header: try converter.getOptionalHeaderFieldAsText(
                             in: response.headerFields,
                             name: "My-Tracing-Header",
                             as: Components.Headers.TracingHeader.self
@@ -80,11 +97,12 @@ public struct Client: APIProtocol {
                         in: response.headerFields,
                         substring: "application/json"
                     )
-                    let body: Operations.listPets.Output.Ok.Body = try converter.bodyGet(
-                        Components.Schemas.Pets.self,
-                        from: response.body,
-                        transforming: { value in .json(value) }
-                    )
+                    let body: Operations.listPets.Output.Ok.Body =
+                        try converter.getResponseBodyAsJSON(
+                            Components.Schemas.Pets.self,
+                            from: response.body,
+                            transforming: { value in .json(value) }
+                        )
                     return .ok(.init(headers: headers, body: body))
                 default:
                     let headers: Operations.listPets.Output.Default.Headers = .init()
@@ -92,11 +110,12 @@ public struct Client: APIProtocol {
                         in: response.headerFields,
                         substring: "application/json"
                     )
-                    let body: Operations.listPets.Output.Default.Body = try converter.bodyGet(
-                        Components.Schemas._Error.self,
-                        from: response.body,
-                        transforming: { value in .json(value) }
-                    )
+                    let body: Operations.listPets.Output.Default.Body =
+                        try converter.getResponseBodyAsJSON(
+                            Components.Schemas._Error.self,
+                            from: response.body,
+                            transforming: { value in .json(value) }
+                        )
                     return .`default`(
                         statusCode: response.statusCode,
                         .init(headers: headers, body: body)
@@ -115,19 +134,20 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.createPet.id,
             serializer: { input in
-                var request: OpenAPIRuntime.Request = .init(path: "/pets", method: .post)
+                let path = try converter.renderedRequestPath(template: "/pets", parameters: [])
+                var request: OpenAPIRuntime.Request = .init(path: path, method: .post)
                 suppressMutabilityWarning(&request)
-                try converter.headerFieldAdd(
+                try converter.setHeaderFieldAsJSON(
                     in: &request.headerFields,
                     name: "X-Extra-Arguments",
                     value: input.headers.X_Extra_Arguments
                 )
-                try converter.headerFieldAdd(
+                try converter.setHeaderFieldAsText(
                     in: &request.headerFields,
                     name: "accept",
                     value: "application/json"
                 )
-                request.body = try converter.bodyAddRequired(
+                request.body = try converter.setRequiredRequestBodyAsJSON(
                     input.body,
                     headerFields: &request.headerFields,
                     transforming: { wrapped in
@@ -146,7 +166,7 @@ public struct Client: APIProtocol {
                 switch response.statusCode {
                 case 201:
                     let headers: Operations.createPet.Output.Created.Headers = .init(
-                        X_Extra_Arguments: try converter.headerFieldGetOptional(
+                        X_Extra_Arguments: try converter.getOptionalHeaderFieldAsJSON(
                             in: response.headerFields,
                             name: "X-Extra-Arguments",
                             as: Components.Schemas.CodeError.self
@@ -156,15 +176,16 @@ public struct Client: APIProtocol {
                         in: response.headerFields,
                         substring: "application/json"
                     )
-                    let body: Operations.createPet.Output.Created.Body = try converter.bodyGet(
-                        Components.Schemas.Pet.self,
-                        from: response.body,
-                        transforming: { value in .json(value) }
-                    )
+                    let body: Operations.createPet.Output.Created.Body =
+                        try converter.getResponseBodyAsJSON(
+                            Components.Schemas.Pet.self,
+                            from: response.body,
+                            transforming: { value in .json(value) }
+                        )
                     return .created(.init(headers: headers, body: body))
                 case 400:
                     let headers: Components.Responses.ErrorBadRequest.Headers = .init(
-                        X_Reason: try converter.headerFieldGetOptional(
+                        X_Reason: try converter.getOptionalHeaderFieldAsText(
                             in: response.headerFields,
                             name: "X-Reason",
                             as: Swift.String.self
@@ -174,11 +195,12 @@ public struct Client: APIProtocol {
                         in: response.headerFields,
                         substring: "application/json"
                     )
-                    let body: Components.Responses.ErrorBadRequest.Body = try converter.bodyGet(
-                        Components.Responses.ErrorBadRequest.Body.jsonPayload.self,
-                        from: response.body,
-                        transforming: { value in .json(value) }
-                    )
+                    let body: Components.Responses.ErrorBadRequest.Body =
+                        try converter.getResponseBodyAsJSON(
+                            Components.Responses.ErrorBadRequest.Body.jsonPayload.self,
+                            from: response.body,
+                            transforming: { value in .json(value) }
+                        )
                     return .badRequest(.init(headers: headers, body: body))
                 default: return .undocumented(statusCode: response.statusCode, .init())
                 }
@@ -193,7 +215,8 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.probe.id,
             serializer: { input in
-                var request: OpenAPIRuntime.Request = .init(path: "/probe", method: .post)
+                let path = try converter.renderedRequestPath(template: "/probe", parameters: [])
+                var request: OpenAPIRuntime.Request = .init(path: path, method: .post)
                 suppressMutabilityWarning(&request)
                 return request
             },
@@ -217,17 +240,18 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.updatePet.id,
             serializer: { input in
-                var request: OpenAPIRuntime.Request = .init(
-                    path: "/pets/\(input.path.petId)",
-                    method: .patch
+                let path = try converter.renderedRequestPath(
+                    template: "/pets/{}",
+                    parameters: [input.path.petId]
                 )
+                var request: OpenAPIRuntime.Request = .init(path: path, method: .patch)
                 suppressMutabilityWarning(&request)
-                try converter.headerFieldAdd(
+                try converter.setHeaderFieldAsText(
                     in: &request.headerFields,
                     name: "accept",
                     value: "application/json"
                 )
-                request.body = try converter.bodyAddOptional(
+                request.body = try converter.setOptionalRequestBodyAsJSON(
                     input.body,
                     headerFields: &request.headerFields,
                     transforming: { wrapped in
@@ -253,11 +277,12 @@ public struct Client: APIProtocol {
                         in: response.headerFields,
                         substring: "application/json"
                     )
-                    let body: Operations.updatePet.Output.BadRequest.Body = try converter.bodyGet(
-                        Operations.updatePet.Output.BadRequest.Body.jsonPayload.self,
-                        from: response.body,
-                        transforming: { value in .json(value) }
-                    )
+                    let body: Operations.updatePet.Output.BadRequest.Body =
+                        try converter.getResponseBodyAsJSON(
+                            Operations.updatePet.Output.BadRequest.Body.jsonPayload.self,
+                            from: response.body,
+                            transforming: { value in .json(value) }
+                        )
                     return .badRequest(.init(headers: headers, body: body))
                 default: return .undocumented(statusCode: response.statusCode, .init())
                 }
@@ -274,17 +299,18 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.uploadAvatarForPet.id,
             serializer: { input in
-                var request: OpenAPIRuntime.Request = .init(
-                    path: "/pets/\(input.path.petId)/avatar",
-                    method: .put
+                let path = try converter.renderedRequestPath(
+                    template: "/pets/{}/avatar",
+                    parameters: [input.path.petId]
                 )
+                var request: OpenAPIRuntime.Request = .init(path: path, method: .put)
                 suppressMutabilityWarning(&request)
-                try converter.headerFieldAdd(
+                try converter.setHeaderFieldAsText(
                     in: &request.headerFields,
                     name: "accept",
-                    value: "application/octet-stream, application/json"
+                    value: "application/octet-stream, application/json, text/plain"
                 )
-                request.body = try converter.bodyAddRequired(
+                request.body = try converter.setRequiredRequestBodyAsBinary(
                     input.body,
                     headerFields: &request.headerFields,
                     transforming: { wrapped in
@@ -304,11 +330,12 @@ public struct Client: APIProtocol {
                         in: response.headerFields,
                         substring: "application/octet-stream"
                     )
-                    let body: Operations.uploadAvatarForPet.Output.Ok.Body = try converter.bodyGet(
-                        Foundation.Data.self,
-                        from: response.body,
-                        transforming: { value in .binary(value) }
-                    )
+                    let body: Operations.uploadAvatarForPet.Output.Ok.Body =
+                        try converter.getResponseBodyAsBinary(
+                            Foundation.Data.self,
+                            from: response.body,
+                            transforming: { value in .binary(value) }
+                        )
                     return .ok(.init(headers: headers, body: body))
                 case 412:
                     let headers: Operations.uploadAvatarForPet.Output.PreconditionFailed.Headers =
@@ -318,12 +345,26 @@ public struct Client: APIProtocol {
                         substring: "application/json"
                     )
                     let body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body =
-                        try converter.bodyGet(
+                        try converter.getResponseBodyAsJSON(
                             Swift.String.self,
                             from: response.body,
                             transforming: { value in .json(value) }
                         )
                     return .preconditionFailed(.init(headers: headers, body: body))
+                case 500:
+                    let headers: Operations.uploadAvatarForPet.Output.InternalServerError.Headers =
+                        .init()
+                    try converter.validateContentTypeIfPresent(
+                        in: response.headerFields,
+                        substring: "text/plain"
+                    )
+                    let body: Operations.uploadAvatarForPet.Output.InternalServerError.Body =
+                        try converter.getResponseBodyAsText(
+                            Swift.String.self,
+                            from: response.body,
+                            transforming: { value in .text(value) }
+                        )
+                    return .internalServerError(.init(headers: headers, body: body))
                 default: return .undocumented(statusCode: response.statusCode, .init())
                 }
             }

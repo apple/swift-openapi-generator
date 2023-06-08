@@ -69,7 +69,7 @@ final class Test_Types: XCTestCase {
         XCTAssertThrowsError(
             try testDecoder.decode(
                 Components.Schemas.NoAdditionalProperties.self,
-                from: #"{"foo":"hi","hello":1}"#.data(using: .utf8)!
+                from: Data(#"{"foo":"hi","hello":1}"#.utf8)
             )
         )
     }
@@ -127,19 +127,19 @@ final class Test_Types: XCTestCase {
         XCTAssertThrowsError(
             try testDecoder.decode(
                 Components.Schemas.AllOfObjects.self,
-                from: #"{}"#.data(using: .utf8)!
+                from: Data(#"{}"#.utf8)
             )
         )
         XCTAssertThrowsError(
             try testDecoder.decode(
                 Components.Schemas.AllOfObjects.self,
-                from: #"{"message":"hi"}"#.data(using: .utf8)!
+                from: Data(#"{"message":"hi"}"#.utf8)
             )
         )
         XCTAssertThrowsError(
             try testDecoder.decode(
                 Components.Schemas.AllOfObjects.self,
-                from: #"{"code":1}"#.data(using: .utf8)!
+                from: Data(#"{"code":1}"#.utf8)
             )
         )
     }
@@ -169,7 +169,7 @@ final class Test_Types: XCTestCase {
         XCTAssertThrowsError(
             try testDecoder.decode(
                 Components.Schemas.AnyOfObjects.self,
-                from: #"{}"#.data(using: .utf8)!
+                from: Data(#"{}"#.utf8)
             )
         )
     }
@@ -225,7 +225,7 @@ final class Test_Types: XCTestCase {
         XCTAssertThrowsError(
             try testDecoder.decode(
                 Components.Schemas.OneOfObjectsWithDiscriminator.self,
-                from: #"{}"#.data(using: .utf8)!
+                from: Data(#"{}"#.utf8)
             )
         )
     }

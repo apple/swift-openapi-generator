@@ -30,14 +30,16 @@ final class Test_YamsParser: Test_Core {
             .parseOpenAPI(
                 .init(
                     absolutePath: URL(fileURLWithPath: "/foo.yaml"),
-                    contents: """
+                    contents: Data(
+                        """
                         openapi: "\(openAPIVersionString)"
                         info:
                           title: "Test"
                           version: "1.0.0"
                         paths: {}
                         """
-                        .data(using: .utf8)!
+                        .utf8
+                    )
                 ),
                 config: .init(mode: .types),
                 diagnostics: PrintingDiagnosticCollector()

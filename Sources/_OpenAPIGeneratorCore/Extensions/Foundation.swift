@@ -21,17 +21,7 @@ extension Data {
     /// - Throws: When data is not valid UTF-8.
     var swiftFormatted: Data {
         get throws {
-            struct FormattingError: Error, LocalizedError, CustomStringConvertible {
-                var description: String {
-                    "Invalid UTF-8 data"
-                }
-                var errorDescription: String? {
-                    description
-                }
-            }
-            guard let string = String(data: self, encoding: .utf8) else {
-                throw FormattingError()
-            }
+            let string = String(decoding: self, as: UTF8.self)
             return try Self(string.swiftFormatted.utf8)
         }
     }

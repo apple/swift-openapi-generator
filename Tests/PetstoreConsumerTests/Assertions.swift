@@ -22,10 +22,7 @@ public func XCTAssertEqualStringifiedData(
     line: UInt = #line
 ) {
     do {
-        guard let actualString = String(data: try expression1(), encoding: .utf8) else {
-            XCTFail("Data is not a valid UTF-8 string", file: file, line: line)
-            return
-        }
+        let actualString = String(decoding: try expression1(), as: UTF8.self)
         XCTAssertEqual(actualString, try expression2(), file: file, line: line)
     } catch {
         XCTFail(error.localizedDescription, file: file, line: line)

@@ -65,63 +65,65 @@ Together, the dimensions are enough to deterministically decide which helper met
 
 In the list below, each row represents one helper method.
 
+The helper method naming convention can be described as:
+
+```
+method name: {set,get}{required/optional/omit if both}{location}As{strategy}
+method parameters: value or type of value
+```
+
 | Client/server | Set/get | Schema location | Coding strategy | Swift type | Optional/required | Method name |
 | --------------| ------- | --------------- | --------------- | ---------- | ------------------| ----------- |
-| common | set | header field | text | string-convertible | both | TODO |
-| common | set | header field | text | array of string-convertibles | both | TODO |
-| common | set | header field | text | date | both | TODO |
-| common | set | header field | text | array of dates | both | TODO |
-| common | set | header field | JSON | codable | both | TODO |
-| common | get | header field | text | string-convertible | optional | TODO |
-| common | get | header field | text | string-convertible | required | TODO |
-| common | get | header field | text | array of string-convertibles | optional | TODO |
-| common | get | header field | text | array of string-convertibles | required | TODO |
-| common | get | header field | text | date | optional | TODO |
-| common | get | header field | text | date | required | TODO |
-| common | get | header field | text | array of dates | optional | TODO |
-| common | get | header field | text | array of dates | required | TODO |
-| common | get | header field | JSON | codable | optional | TODO |
-| common | get | header field | JSON | codable | required | TODO |
-| client | set | request path | text | string-convertible | both | TODO |
-| client | set | request path | text | date | both | TODO |
-| client | set | request query | text | string-convertible | both | TODO |
-| client | set | request query | text | array of string-convertibles | both | TODO |
-| client | set | request query | text | date | both | TODO |
-| client | set | request query | text | array of dates | both | TODO |
-| client | set | request query | text | array of dates | both | TODO |
-| client | set | request body | text | string-convertible | optional | TODO |
-| client | set | request body | text | string-convertible | required | TODO |
-| client | set | request body | text | date | optional | TODO |
-| client | set | request body | text | date | required | TODO |
-| client | set | request body | JSON | codable | optional | TODO |
-| client | set | request body | JSON | codable | required | TODO |
-| client | set | request body | binary | data | optional | TODO |
-| client | set | request body | binary | data | required | TODO |
-| client | get | response body | text | string-convertible | required | TODO |
-| client | get | response body | text | date | required | TODO |
-| client | get | response body | JSON | codable | required | TODO |
-| client | get | response body | binary | data | required | TODO |
-| server | get | request path | text | string-convertible | optional | TODO |
-| server | get | request path | text | string-convertible | required | TODO |
-| server | get | request path | text | date | optional | TODO |
-| server | get | request path | text | date | required | TODO |
-| server | get | request query | text | string-convertible | optional | TODO |
-| server | get | request query | text | string-convertible | required | TODO |
-| server | get | request query | text | array of string-convertibles | optional | TODO |
-| server | get | request query | text | array of string-convertibles | required | TODO |
-| server | get | request query | text | date | optional | TODO |
-| server | get | request query | text | date | required | TODO |
-| server | get | request query | text | array of dates | optional | TODO |
-| server | get | request query | text | array of dates | required | TODO |
-| server | get | request body | text | string-convertible | optional | TODO |
-| server | get | request body | text | string-convertible | required | TODO |
-| server | get | request body | text | date | optional | TODO |
-| server | get | request body | text | date | required | TODO |
-| server | get | request body | JSON | codable | optional | TODO |
-| server | get | request body | JSON | codable | required | TODO |
-| server | get | request body | binary | data | optional | TODO |
-| server | get | request body | binary | data | required | TODO |
-| server | set | response body | text | string-convertible | required | TODO |
-| server | set | response body | text | date | required | TODO |
-| server | set | response body | JSON | codable | required | TODO |
-| server | set | response body | binary | data | required | TODO |
+| common | set | header field | text | string-convertible | both | setHeaderFieldAsText |
+| common | set | header field | text | array of string-convertibles | both | setHeaderFieldAsText |
+| common | set | header field | text | date | both | setHeaderFieldAsText |
+| common | set | header field | text | array of dates | both | setHeaderFieldAsText |
+| common | set | header field | JSON | codable | both | setHeaderFieldAsJSON |
+| common | get | header field | text | string-convertible | optional | getOptionalHeaderFieldAsText |
+| common | get | header field | text | string-convertible | required | getRequiredHeaderFieldAsText |
+| common | get | header field | text | array of string-convertibles | optional | getOptionalHeaderFieldAsText |
+| common | get | header field | text | array of string-convertibles | required | getRequiredHeaderFieldAsText |
+| common | get | header field | text | date | optional | getOptionalHeaderFieldAsText |
+| common | get | header field | text | date | required | getRequiredHeaderFieldAsText |
+| common | get | header field | text | array of dates | optional | getOptionalHeaderFieldAsText |
+| common | get | header field | text | array of dates | required | getRequiredHeaderFieldAsText |
+| common | get | header field | JSON | codable | optional | getOptionalHeaderFieldAsJSON |
+| common | get | header field | JSON | codable | required | getRequiredHeaderFieldAsJSON |
+| client | set | request path | text | string-convertible | required | renderedRequestPath |
+| client | set | request query | text | string-convertible | both | setQueryItemAsText |
+| client | set | request query | text | array of string-convertibles | both | setQueryItemAsText |
+| client | set | request query | text | date | both | setQueryItemAsText |
+| client | set | request query | text | array of dates | both | setQueryItemAsText |
+| client | set | request body | text | string-convertible | optional | setOptionalRequestBodyAsText |
+| client | set | request body | text | string-convertible | required | setRequiredRequestBodyAsText |
+| client | set | request body | text | date | optional | setOptionalRequestBodyAsText |
+| client | set | request body | text | date | required | setRequiredRequestBodyAsText |
+| client | set | request body | JSON | codable | optional | setOptionalRequestBodyAsJSON |
+| client | set | request body | JSON | codable | required | setRequiredRequestBodyAsJSON |
+| client | set | request body | binary | data | optional | setOptionalRequestBodyAsBinary |
+| client | set | request body | binary | data | required | setRequiredRequestBodyAsBinary |
+| client | get | response body | text | string-convertible | required | getResponseBodyAsText |
+| client | get | response body | text | date | required | getResponseBodyAsText |
+| client | get | response body | JSON | codable | required | getResponseBodyAsJSON |
+| client | get | response body | binary | data | required | getResponseBodyAsBinary |
+| server | get | request path | text | string-convertible | required | getPathParameterAsText |
+| server | get | request query | text | string-convertible | optional | getOptionalQueryItemAsText |
+| server | get | request query | text | string-convertible | required | getRequiredQueryItemAsText |
+| server | get | request query | text | array of string-convertibles | optional | getOptionalQueryItemAsText |
+| server | get | request query | text | array of string-convertibles | required | getRequiredQueryItemAsText |
+| server | get | request query | text | date | optional | getOptionalQueryItemAsText |
+| server | get | request query | text | date | required | getRequiredQueryItemAsText |
+| server | get | request query | text | array of dates | optional | getOptionalQueryItemAsText |
+| server | get | request query | text | array of dates | required | getRequiredQueryItemAsText |
+| server | get | request body | text | string-convertible | optional | getOptionalRequestBodyAsText |
+| server | get | request body | text | string-convertible | required | getRequiredRequestBodyAsText |
+| server | get | request body | text | date | optional | getOptionalRequestBodyAsText |
+| server | get | request body | text | date | required | getRequiredRequestBodyAsText |
+| server | get | request body | JSON | codable | optional | getOptionalRequestBodyAsJSON |
+| server | get | request body | JSON | codable | required | getRequiredRequestBodyAsJSON |
+| server | get | request body | binary | data | optional | getOptionalRequestBodyAsBinary |
+| server | get | request body | binary | data | required | getRequiredRequestBodyAsBinary |
+| server | set | response body | text | string-convertible | required | setResponseBodyAsText |
+| server | set | response body | text | date | required | setResponseBodyAsText |
+| server | set | response body | JSON | codable | required | setResponseBodyAsJSON |
+| server | set | response body | binary | data | required | setResponseBodyAsBinary |

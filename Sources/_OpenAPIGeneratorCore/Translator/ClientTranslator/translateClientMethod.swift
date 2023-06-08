@@ -22,8 +22,20 @@ extension ClientFileTranslator {
         _ description: OperationDescription
     ) throws -> Expression {
 
-        let clientPathTemplate = try translatePathParameterInClient(
+        let (pathTemplate, pathParamsArrayExpr) = try translatePathParameterInClient(
             description: description
+        )
+        let pathDecl: Declaration = .variable(
+            kind: .let,
+            left: "path",
+            right: .try(
+                .identifier("converter")
+                    .dot("renderedRequestPath")
+                    .call([
+                        .init(label: "template", expression: .literal(pathTemplate)),
+                        .init(label: "parameters", expression: pathParamsArrayExpr),
+                    ])
+            )
         )
         let requestDecl: Declaration = .variable(
             kind: .var,
@@ -31,7 +43,7 @@ extension ClientFileTranslator {
             type: TypeName.request.fullyQualifiedSwiftName,
             right: .dot("init")
                 .call([
-                    .init(label: "path", expression: .literal(clientPathTemplate)),
+                    .init(label: "path", expression: .identifier("path")),
                     .init(label: "method", expression: .dot(description.httpMethodLowercased)),
                 ])
         )
@@ -65,9 +77,12 @@ extension ClientFileTranslator {
                 .map(\.headerValueForValidation)
                 .joined(separator: ", ")
             let addAcceptHeaderExpr: Expression = .try(
-                .identifier("converter").dot("headerFieldAdd")
+                .identifier("converter").dot("setHeaderFieldAsText")
                     .call([
-                        .init(label: "in", expression: .inOut(.identifier("request").dot("headerFields"))),
+                        .init(
+                            label: "in",
+                            expression: .inOut(.identifier("request").dot("headerFields"))
+                        ),
                         .init(label: "name", expression: "accept"),
                         .init(label: "value", expression: .literal(acceptValue)),
                     ])
@@ -91,6 +106,7 @@ extension ClientFileTranslator {
                 "input"
             ],
             body: [
+                .declaration(pathDecl),
                 .declaration(requestDecl),
                 .expression(requestDecl.suppressMutabilityWarningExpr),
             ] + requestExprs.map { .expression($0) } + [

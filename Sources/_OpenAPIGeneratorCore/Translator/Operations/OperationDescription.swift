@@ -232,23 +232,28 @@ extension OperationDescription {
     }
 
     /// Returns a string that contains the template to be generated for
-    /// the client that fills in path parameters.
+    /// the client that fills in path parameters, and an array expression
+    /// with the parameter values.
     ///
-    /// For example, `/cats/\(input.catId)`.
-    var templatedPathForClient: String {
+    /// For example, `/cats/{}` and `[input.catId]`.
+    var templatedPathForClient: (String, Expression) {
         get throws {
             let path = self.path.rawValue
             let pathParameters = try allResolvedParameters.filter { $0.location == .path }
-            guard !pathParameters.isEmpty else {
-                return path
-            }
-            // replace "{foo}" with "\(input.foo)" for each parameter
-            return pathParameters.reduce(into: path) { partialResult, parameter in
+            // replace "{foo}" with "{}" for each parameter
+            let template = pathParameters.reduce(into: path) { partialResult, parameter in
                 partialResult = partialResult.replacingOccurrences(
                     of: "{\(parameter.name)}",
-                    with: "\\(input.path.\(parameter.name.asSwiftSafeName))"
+                    with: "{}"
                 )
             }
+            let names: [Expression] =
+                pathParameters
+                .map { param in
+                    .identifier("input.path.\(param.name.asSwiftSafeName)")
+                }
+            let arrayExpr: Expression = .literal(.array(names))
+            return (template, arrayExpr)
         }
     }
 
