@@ -177,7 +177,9 @@ paths:
         '500':
           description: Server error
           content:
-            text/plain: {}
+            text/plain:
+              schema:
+                type: string
 components:
   headers:
     TracingHeader:
