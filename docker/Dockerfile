@@ -21,3 +21,6 @@ ARG swiftformat_version=508.0.0
 RUN git clone --branch $swiftformat_version --depth 1 https://github.com/apple/swift-format $HOME/.tools/swift-format-source
 RUN cd $HOME/.tools/swift-format-source && swift build -c release
 RUN ln -s $HOME/.tools/swift-format-source/.build/release/swift-format $HOME/.tools/swift-format
+
+# jq
+RUN apt-get install -y jq
