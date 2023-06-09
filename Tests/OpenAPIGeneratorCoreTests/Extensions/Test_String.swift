@@ -29,6 +29,9 @@ final class Test_String: Test_Core {
 
             // Reserved name
             ("Type", "_Type"),
+
+            // Empty string
+            ("", "_empty")
         ]
         for (input, sanitized) in cases {
             XCTAssertEqual(input.asSwiftSafeName, sanitized)
