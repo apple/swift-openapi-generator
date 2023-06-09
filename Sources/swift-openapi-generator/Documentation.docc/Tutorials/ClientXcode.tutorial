@@ -101,7 +101,7 @@
             @Step {
                 Repeat the same steps two more times, with the packages `https://github.com/apple/swift-openapi-runtime` and `https://github.com/apple/swift-openapi-urlsession`.
                 
-                This time do check the library products to be added to the GeneratedClient target.
+                This time, do check the library products to be added to the **GeneratedClient target**. Note, this might not be the default target Xcode offers to add the libraries to.
             }
             @Step {
                 To finish configuring the build plugin in your target, navigate to the Build Phases tab of the GeneratedClient in the Project Editor, and expand the Run Build Tool Plug-ins section.
