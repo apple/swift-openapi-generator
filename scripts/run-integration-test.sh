@@ -36,7 +36,7 @@ log "Cloning ${SWIFT_OPENAPI_GENERATOR_REPO_URL} to ${SWIFT_OPENAPI_GENERATOR_RE
 git clone --depth=1 "${SWIFT_OPENAPI_GENERATOR_REPO_URL}" "${SWIFT_OPENAPI_GENERATOR_REPO_CLONE_DIR}"
 
 log "Extracting name for Swift package: ${PACKAGE_PATH}"
-PACKAGE_NAME=$(swift package --package-path "${PACKAGE_PATH}" describe --type json | jq -r .name)
+PACKAGE_NAME=$(swift package --package-path "${PACKAGE_PATH}" describe --type json | "${JQ_BIN}" -r .name)
 
 log "Overriding dependency in ${INTEGRATION_TEST_PACKAGE_PATH} on ${PACKAGE_NAME} to use ${PACKAGE_PATH}"
 swift package --package-path "${INTEGRATION_TEST_PACKAGE_PATH}" \
