@@ -15,7 +15,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "Simple",
+    name: "swift-openapi-integration-test",
     platforms: [
         .macOS(.v13)
     ],

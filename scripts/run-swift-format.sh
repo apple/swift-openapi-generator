@@ -26,7 +26,7 @@ SWIFTFORMAT_BIN=${SWIFTFORMAT_BIN:-$(command -v swift-format)} || fatal "❌ SWI
 "${SWIFTFORMAT_BIN}" lint \
   --parallel --recursive --strict \
   "${REPO_ROOT}/Examples" \
-  "${REPO_ROOT}/IntegrationTests" \
+  "${REPO_ROOT}/IntegrationTest" \
   "${REPO_ROOT}/Plugins" \
   "${REPO_ROOT}/Sources" \
   "${REPO_ROOT}/Tests" \
