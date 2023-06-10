@@ -16,6 +16,8 @@ The Swift OpenAPI Generator project is split across multiple repositories to ena
 
 **swift-openapi-runtime** ([source][repo-runtime], [docs][docs-runtime]) provides a library with common types and abstractions used by the generated code.
 
+> See the generator in action in [Meet Swift OpenAPI Generator](https://developer.apple.com/wwdc23/10171) from WWDC23.
+
 Choose one of the transports listed below, or create your own by adopting the `ClientTransport` or `ServerTransport` protocol:
 
 | Repository | Type | Description |
