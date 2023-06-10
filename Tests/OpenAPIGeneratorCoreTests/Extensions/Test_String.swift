@@ -31,7 +31,7 @@ final class Test_String: Test_Core {
             ("Type", "_Type"),
 
             // Empty string
-            ("", "_empty")
+            ("", "_empty"),
         ]
         for (input, sanitized) in cases {
             XCTAssertEqual(input.asSwiftSafeName, sanitized)
