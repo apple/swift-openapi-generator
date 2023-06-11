@@ -35,6 +35,7 @@ paths:
             - water
             - land
             - air
+            - ""
             type: string
         - name: feeds
           in: query

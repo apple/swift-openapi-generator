@@ -63,7 +63,7 @@ fileprivate extension String {
     /// ensures that the identifier starts with a letter and not a number.
     var sanitizedForSwiftCode: String {
         guard !isEmpty else {
-            return self
+            return "_empty"
         }
 
         // Only allow [a-zA-Z][a-zA-Z0-9_]*

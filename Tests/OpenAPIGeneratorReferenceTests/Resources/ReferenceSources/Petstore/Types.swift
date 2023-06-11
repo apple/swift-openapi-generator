@@ -691,6 +691,7 @@ public enum Operations {
                     case water
                     case land
                     case air
+                    case _empty
                     /// Parsed a raw value that was not defined in the OpenAPI document.
                     case undocumented(String)
                     public init?(rawValue: String) {
@@ -698,6 +699,7 @@ public enum Operations {
                         case "water": self = .water
                         case "land": self = .land
                         case "air": self = .air
+                        case "": self = ._empty
                         default: self = .undocumented(rawValue)
                         }
                     }
@@ -707,9 +709,10 @@ public enum Operations {
                         case .water: return "water"
                         case .land: return "land"
                         case .air: return "air"
+                        case ._empty: return ""
                         }
                     }
-                    public static var allCases: [habitatPayload] { [.water, .land, .air] }
+                    public static var allCases: [habitatPayload] { [.water, .land, .air, ._empty] }
                 }
                 public var habitat: Operations.listPets.Input.Query.habitatPayload?
                 /// - Remark: Generated from `#/paths/pets/GET/query/feedsPayload`.
