@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "GreetingService",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v10_15)
     ],
     targets: [
         .executableTarget(
