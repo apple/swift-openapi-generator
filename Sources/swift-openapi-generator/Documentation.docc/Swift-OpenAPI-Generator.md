@@ -53,7 +53,7 @@ The generated code, runtime library, and transports are supported on more platfo
 | Component | macOS | Linux | iOS | tvOS | watchOS |
 | -: | :-: | :-: | :-: | :-: | :-: |
 | Generator plugin and CLI            | ✅ 13+  | ✅     | ❌     | ❌     | ❌    |
-| Generated code, runtime, transports | ✅ 13+  | ✅     | ✅ 16+ | ✅ 16+ | ✅ 9+ |
+| Generated code, runtime, transports | ✅ 10.15+  | ✅     | ✅ 13+ | ✅ 13+ | ✅ 6+ |
 
 ## Topics
 

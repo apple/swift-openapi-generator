@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "GreetingServiceClient",
     platforms: [
-        .macOS(.v13), .iOS(.v16), .tvOS(.v16), .watchOS(.v9),
+        .macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6),
     ],
     targets: [
         .executableTarget(
