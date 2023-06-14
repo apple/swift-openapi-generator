@@ -92,11 +92,7 @@ extension OperationDescription {
     /// Returns a documentation comment for the method implementing
     /// the OpenAPI operation.
     var comment: Comment {
-        .operation(
-            operationID: operation.operationId,
-            method: httpMethod,
-            path: path
-        )
+        .init(from: self)
     }
 
     /// Returns the type name of the namespace unique to the operation.

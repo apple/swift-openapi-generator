@@ -33,9 +33,12 @@ public struct Client: APIProtocol {
         )
     }
     private var converter: Converter { client.converter }
-    /// Operation `listPets` performs `GET` on `/pets`
+    /// List all pets
     ///
-    /// - Remark: Generated from the `listPets` operation.
+    /// You can fetch all the pets here
+    ///
+    /// - Remark: Makes a HTTP `GET` request on `/pets`.
+    /// - Remark: Generated from `#/paths//pets/get(listPets)`.
     public func listPets(_ input: Operations.listPets.Input) async throws
         -> Operations.listPets.Output
     {
@@ -124,9 +127,10 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// Operation `createPet` performs `POST` on `/pets`
+    /// Create a pet
     ///
-    /// - Remark: Generated from the `createPet` operation.
+    /// - Remark: Makes a HTTP `POST` request on `/pets`.
+    /// - Remark: Generated from `#/paths//pets/post(createPet)`.
     public func createPet(_ input: Operations.createPet.Input) async throws
         -> Operations.createPet.Output
     {
@@ -207,9 +211,8 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// Operation `probe` performs `POST` on `/probe`
-    ///
-    /// - Remark: Generated from the `probe` operation.
+    /// - Remark: Makes a HTTP `POST` request on `/probe`.
+    /// - Remark: Generated from `#/paths//probe/post(probe)`.
     public func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output {
         try await client.send(
             input: input,
@@ -230,9 +233,10 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// Operation `updatePet` performs `PATCH` on `/pets/{petId}`
+    /// Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
     ///
-    /// - Remark: Generated from the `updatePet` operation.
+    /// - Remark: Makes a HTTP `PATCH` request on `/pets/{petId}`.
+    /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)`.
     public func updatePet(_ input: Operations.updatePet.Input) async throws
         -> Operations.updatePet.Output
     {
@@ -289,9 +293,10 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// Operation `uploadAvatarForPet` performs `PUT` on `/pets/{petId}/avatar`
+    /// Upload an avatar
     ///
-    /// - Remark: Generated from the `uploadAvatarForPet` operation.
+    /// - Remark: Makes a HTTP `PUT` request on `/pets/{petId}/avatar`.
+    /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
     public func uploadAvatarForPet(_ input: Operations.uploadAvatarForPet.Input) async throws
         -> Operations.uploadAvatarForPet.Output
     {
