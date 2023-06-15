@@ -17,7 +17,7 @@ import PackageDescription
 let package = Package(
     name: "swift-openapi-generator",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v10_15)
     ],
     products: [
         .executable(name: "swift-openapi-generator", targets: ["swift-openapi-generator"]),
@@ -61,7 +61,7 @@ let package = Package(
         ),
 
         // Tests-only: Runtime library linked by generated code
-        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.1.1")),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.1.3")),
 
         // Build and preview docs
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
