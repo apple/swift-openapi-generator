@@ -134,24 +134,44 @@ extension ResponseKind {
 extension Comment {
 
     /// Returns a reference documentation string to attach to the generated function for an operation.
+    init(from operationDescription: OperationDescription) {
+        self.init(
+            summary: operationDescription.operation.summary,
+            description: operationDescription.operation.description,
+            httpMethod: operationDescription.httpMethod,
+            path: operationDescription.path,
+            openAPIDocumentPath: operationDescription.jsonPathComponent
+        )
+    }
+
+    /// Returns a reference documentation string to attach to the generated function for an operation.
     ///
     /// - Parameters:
-    ///   - operationDescription: The OpenAPI operation description.
-    init(from operationDescription: OperationDescription) {
-        let operation = operationDescription.operation
+    ///   - summary: A short summary of what the operation does.
+    ///   - description: A verbose explanation of the operation behavior.
+    ///   - path: The path associated with this operation.
+    ///   - httpMethod: The HTTP method associated with this operation.
+    ///   - openAPIDocumentPath: JSONPath to the operation element in the OpenAPI document.
+    init(
+        summary: String?,
+        description: String?,
+        httpMethod: OpenAPI.HttpMethod,
+        path: OpenAPI.Path,
+        openAPIDocumentPath: String
+    ) {
         var lines: [String] = []
-        if let summary = operation.summary {
+        if let summary {
             lines.append(summary)
             lines.append("")
         }
-        if let description = operation.description {
+        if let description {
             lines.append(description)
             lines.append("")
         }
-        lines.append(
-            "- Remark: Makes a HTTP `\(operationDescription.httpMethod.rawValue.uppercased())` request on `\(operationDescription.path.rawValue)`."
-        )
-        lines.append("- Remark: Generated from `\(operationDescription.jsonPathComponent)`.")
+        lines.append(contentsOf: [
+            "- Remark: HTTP `\(httpMethod.rawValue.uppercased())` `\(path.rawValue)`.",
+            "- Remark: Generated from `\(openAPIDocumentPath)`.",
+        ])
         self = .doc(lines.joined(separator: "\n"))
     }
 
