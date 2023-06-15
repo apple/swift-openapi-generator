@@ -11,25 +11,25 @@ public protocol APIProtocol: Sendable {
     ///
     /// You can fetch all the pets here
     ///
-    /// - Remark: Makes a HTTP `GET` request on `/pets`.
+    /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
     func listPets(_ input: Operations.listPets.Input) async throws -> Operations.listPets.Output
     /// Create a pet
     ///
-    /// - Remark: Makes a HTTP `POST` request on `/pets`.
+    /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
     func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output
-    /// - Remark: Makes a HTTP `POST` request on `/probe`.
+    /// - Remark: HTTP `POST /probe`.
     /// - Remark: Generated from `#/paths//probe/post(probe)`.
     func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output
     /// Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
     ///
-    /// - Remark: Makes a HTTP `PATCH` request on `/pets/{petId}`.
+    /// - Remark: HTTP `PATCH /pets/{petId}`.
     /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)`.
     func updatePet(_ input: Operations.updatePet.Input) async throws -> Operations.updatePet.Output
     /// Upload an avatar
     ///
-    /// - Remark: Makes a HTTP `PUT` request on `/pets/{petId}/avatar`.
+    /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
     func uploadAvatarForPet(_ input: Operations.uploadAvatarForPet.Input) async throws
         -> Operations.uploadAvatarForPet.Output
@@ -679,7 +679,7 @@ public enum Operations {
     ///
     /// You can fetch all the pets here
     ///
-    /// - Remark: Makes a HTTP `GET` request on `/pets`.
+    /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
     public enum listPets {
         public static let id: String = "listPets"
@@ -897,7 +897,7 @@ public enum Operations {
     }
     /// Create a pet
     ///
-    /// - Remark: Makes a HTTP `POST` request on `/pets`.
+    /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
     public enum createPet {
         public static let id: String = "createPet"
@@ -1004,7 +1004,7 @@ public enum Operations {
             case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
         }
     }
-    /// - Remark: Makes a HTTP `POST` request on `/probe`.
+    /// - Remark: HTTP `POST /probe`.
     /// - Remark: Generated from `#/paths//probe/post(probe)`.
     public enum probe {
         public static let id: String = "probe"
@@ -1091,7 +1091,7 @@ public enum Operations {
     }
     /// Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
     ///
-    /// - Remark: Makes a HTTP `PATCH` request on `/pets/{petId}`.
+    /// - Remark: HTTP `PATCH /pets/{petId}`.
     /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)`.
     public enum updatePet {
         public static let id: String = "updatePet"
@@ -1223,7 +1223,7 @@ public enum Operations {
     }
     /// Upload an avatar
     ///
-    /// - Remark: Makes a HTTP `PUT` request on `/pets/{petId}/avatar`.
+    /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
     public enum uploadAvatarForPet {
         public static let id: String = "uploadAvatarForPet"

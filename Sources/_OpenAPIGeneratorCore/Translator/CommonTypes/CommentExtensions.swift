@@ -169,7 +169,7 @@ extension Comment {
             lines.append("")
         }
         lines.append(contentsOf: [
-            "- Remark: HTTP `\(httpMethod.rawValue.uppercased())` `\(path.rawValue)`.",
+            "- Remark: HTTP `\(httpMethod.rawValue.uppercased()) \(path.rawValue)`.",
             "- Remark: Generated from `\(openAPIDocumentPath)`.",
         ])
         self = .doc(lines.joined(separator: "\n"))

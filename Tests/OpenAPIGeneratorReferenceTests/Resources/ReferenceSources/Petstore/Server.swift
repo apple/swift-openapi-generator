@@ -62,7 +62,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// You can fetch all the pets here
     ///
-    /// - Remark: Makes a HTTP `GET` request on `/pets`.
+    /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
     func listPets(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
         try await handle(
@@ -172,7 +172,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     }
     /// Create a pet
     ///
-    /// - Remark: Makes a HTTP `POST` request on `/pets`.
+    /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
     func createPet(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
         try await handle(
@@ -265,7 +265,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             }
         )
     }
-    /// - Remark: Makes a HTTP `POST` request on `/probe`.
+    /// - Remark: HTTP `POST /probe`.
     /// - Remark: Generated from `#/paths//probe/post(probe)`.
     func probe(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
         try await handle(
@@ -300,7 +300,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     }
     /// Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
     ///
-    /// - Remark: Makes a HTTP `PATCH` request on `/pets/{petId}`.
+    /// - Remark: HTTP `PATCH /pets/{petId}`.
     /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)`.
     func updatePet(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
         try await handle(
@@ -369,7 +369,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     }
     /// Upload an avatar
     ///
-    /// - Remark: Makes a HTTP `PUT` request on `/pets/{petId}/avatar`.
+    /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
     func uploadAvatarForPet(request: Request, metadata: ServerRequestMetadata) async throws
         -> Response

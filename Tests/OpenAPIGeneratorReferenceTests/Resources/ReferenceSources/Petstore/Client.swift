@@ -37,7 +37,7 @@ public struct Client: APIProtocol {
     ///
     /// You can fetch all the pets here
     ///
-    /// - Remark: Makes a HTTP `GET` request on `/pets`.
+    /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
     public func listPets(_ input: Operations.listPets.Input) async throws
         -> Operations.listPets.Output
@@ -129,7 +129,7 @@ public struct Client: APIProtocol {
     }
     /// Create a pet
     ///
-    /// - Remark: Makes a HTTP `POST` request on `/pets`.
+    /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
     public func createPet(_ input: Operations.createPet.Input) async throws
         -> Operations.createPet.Output
@@ -211,7 +211,7 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// - Remark: Makes a HTTP `POST` request on `/probe`.
+    /// - Remark: HTTP `POST /probe`.
     /// - Remark: Generated from `#/paths//probe/post(probe)`.
     public func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output {
         try await client.send(
@@ -235,7 +235,7 @@ public struct Client: APIProtocol {
     }
     /// Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
     ///
-    /// - Remark: Makes a HTTP `PATCH` request on `/pets/{petId}`.
+    /// - Remark: HTTP `PATCH /pets/{petId}`.
     /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)`.
     public func updatePet(_ input: Operations.updatePet.Input) async throws
         -> Operations.updatePet.Output
@@ -295,7 +295,7 @@ public struct Client: APIProtocol {
     }
     /// Upload an avatar
     ///
-    /// - Remark: Makes a HTTP `PUT` request on `/pets/{petId}/avatar`.
+    /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
     public func uploadAvatarForPet(_ input: Operations.uploadAvatarForPet.Input) async throws
         -> Operations.uploadAvatarForPet.Output
