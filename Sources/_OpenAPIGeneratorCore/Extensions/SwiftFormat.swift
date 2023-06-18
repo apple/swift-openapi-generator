@@ -11,27 +11,27 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+import Foundation
 import SwiftFormat
 import SwiftFormatConfiguration
 
 extension String {
+    private static let configurationURL = {
+        let configurationFilePath = #file
+            .components(separatedBy: "/")
+            .prefix(while: { $0 != "Sources" })
+            .joined(separator: "/")
+            .appending("/.swift-format")
+        guard #available(macOS 13.0, *) else {
+            return URL(fileURLWithPath: configurationFilePath)
+        }
+        return URL(filePath: configurationFilePath)
+    }()
     /// A copy of the string formatted using swift-format.
     var swiftFormatted: Self {
         get throws {
             var formattedString = ""
-            // TODO: Should be loaded from a swift-format file that we also use to format our own code.
-            var configuration = Configuration()
-            configuration.rules["OrderedImports"] = false
-            configuration.rules["NoAccessLevelOnExtensionDeclaration"] = false
-            configuration.rules["UseLetInEveryBoundCaseVariable"] = false
-            configuration.indentation = .spaces(4)
-            configuration.respectsExistingLineBreaks = false
-            configuration.lineBreakBeforeEachArgument = true
-            configuration.lineBreakBeforeControlFlowKeywords = false
-            configuration.lineBreakBeforeEachGenericRequirement = true
-            configuration.lineBreakAroundMultilineExpressionChainComponents = true
-            configuration.indentConditionalCompilationBlocks = false
-            configuration.maximumBlankLines = 0
+            let configuration = try Configuration(contentsOf: Self.configurationURL)
             let formatter = SwiftFormatter(configuration: configuration)
             try formatter.format(
                 source: self,
