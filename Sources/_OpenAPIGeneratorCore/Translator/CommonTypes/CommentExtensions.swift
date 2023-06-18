@@ -133,31 +133,46 @@ extension ResponseKind {
 
 extension Comment {
 
-    /// Returns a documentation comment for an OpenAPI operation.
+    /// Returns a reference documentation string to attach to the generated function for an operation.
+    init(from operationDescription: OperationDescription) {
+        self.init(
+            summary: operationDescription.operation.summary,
+            description: operationDescription.operation.description,
+            httpMethod: operationDescription.httpMethod,
+            path: operationDescription.path,
+            openAPIDocumentPath: operationDescription.jsonPathComponent
+        )
+    }
+
+    /// Returns a reference documentation string to attach to the generated function for an operation.
     ///
-    /// For example: "Operation `getPet` performs `GET` on `/pets/{petId}`".
     /// - Parameters:
-    ///   - operationID: The identifier of the OpenAPI operation.
-    ///   - method: The HTTP method of the OpenAPI operation.
-    ///   - path: The URL path of the OpenAPI operation.
-    static func operation(
-        operationID: String?,
-        method: OpenAPI.HttpMethod,
-        path: OpenAPI.Path
-    ) -> Self {
-        let operationName: String
-        if let operationID {
-            operationName = "`\(operationID)` "
-        } else {
-            operationName = ""
-        }
+    ///   - summary: A short summary of what the operation does.
+    ///   - description: A verbose explanation of the operation behavior.
+    ///   - path: The path associated with this operation.
+    ///   - httpMethod: The HTTP method associated with this operation.
+    ///   - openAPIDocumentPath: JSONPath to the operation element in the OpenAPI document.
+    init(
+        summary: String?,
+        description: String?,
+        httpMethod: OpenAPI.HttpMethod,
+        path: OpenAPI.Path,
+        openAPIDocumentPath: String
+    ) {
         var lines: [String] = []
-        lines.append("Operation \(operationName)performs `\(method.rawValue.uppercased())` on `\(path.rawValue)`")
-        if let operationID {
+        if let summary {
+            lines.append(summary)
             lines.append("")
-            lines.append("- Remark: Generated from the `\(operationID)` operation.")
         }
-        return .doc(lines.joined(separator: "\n"))
+        if let description {
+            lines.append(description)
+            lines.append("")
+        }
+        lines.append(contentsOf: [
+            "- Remark: HTTP `\(httpMethod.rawValue.uppercased()) \(path.rawValue)`.",
+            "- Remark: Generated from `\(openAPIDocumentPath)`.",
+        ])
+        self = .doc(lines.joined(separator: "\n"))
     }
 
     /// Returns a documentation comment for the Operations namespace.
