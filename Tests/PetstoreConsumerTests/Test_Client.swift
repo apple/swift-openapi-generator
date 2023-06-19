@@ -344,7 +344,7 @@ final class Test_Client: XCTestCase {
     func testProbe_204() async throws {
         transport = .init { request, baseURL, operationID in
             XCTAssertEqual(operationID, "probe")
-            XCTAssertEqual(request.path, "/probe")
+            XCTAssertEqual(request.path, "/probe/")
             XCTAssertNil(request.query)
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
