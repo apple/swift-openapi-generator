@@ -28,10 +28,10 @@ struct SwiftOpenAPIGeneratorPlugin {
                     "Incompatible target called '\(targetName)'. Only Swift source targets can be used with the Swift OpenAPI generator plugin."
             case .noConfigFound(let targetName):
                 return
-                    "No config found in the target named '\(targetName)'. Add a file called 'openapi-generator-config.yaml' to the target's source directory. See documentation for details."
+                    "No config found in the target named '\(targetName)'. Add a file called 'openapi-generator-config.yaml' or 'openapi-generator-config.yml' to the target's source directory. See documentation for details."
             case .noDocumentFound(let targetName):
                 return
-                    "No OpenAPI document found in the target named '\(targetName)'. Add a file called 'openapi.yaml' or 'openapi.json' (can also be a symlink) to the target's source directory. See documentation for details."
+                    "No OpenAPI document found in the target named '\(targetName)'. Add a file called 'openapi.yaml', 'openapi.yml' or 'openapi.json' (can also be a symlink) to the target's source directory. See documentation for details."
             }
         }
 
@@ -40,6 +40,9 @@ struct SwiftOpenAPIGeneratorPlugin {
         }
     }
 
+    private var supportedConfigFiles: Set<String> { Set(["yaml", "yml"].map { "openapi-generator-config." + $0 }) }
+    private var supportedDocFiles: Set<String> { Set(["yaml", "yml", "json"].map { "openapi." + $0 }) }
+
     func createBuildCommands(
         pluginWorkDirectory: PackagePlugin.Path,
         tool: (String) throws -> PackagePlugin.PluginContext.Tool,
@@ -47,21 +50,14 @@ struct SwiftOpenAPIGeneratorPlugin {
         targetName: String
     ) throws -> [Command] {
         let inputFiles = sourceFiles
-        guard let config = inputFiles.first(where: { $0.path.lastComponent == "openapi-generator-config.yaml" })?.path
-        else {
+        guard let config = inputFiles.first(where: {
+            supportedConfigFiles.contains($0.path.lastComponent)
+        })?.path else {
             throw Error.noConfigFound(targetName: targetName)
         }
-        guard
-            let doc = inputFiles.first(where: {
-                switch $0.path.lastComponent {
-                case "openapi.yaml", "openapi.json":
-                    return true
-                default:
-                    return false
-                }
-            })?
-            .path
-        else {
+        guard let doc = inputFiles.first(where: {
+            supportedDocFiles.contains($0.path.lastComponent)
+        })?.path else {
             throw Error.noDocumentFound(targetName: targetName)
         }
         let genSourcesDir = pluginWorkDirectory.appending("GeneratedSources")
