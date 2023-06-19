@@ -62,8 +62,10 @@ read -ra PATHS_TO_CHECK_FOR_LICENSE <<< "$( \
   ":(exclude)**/Package.resolved" \
   ":(exclude)**/README.md" \
   ":(exclude)**/openapi.yaml" \
+  ":(exclude)**/openapi.yml" \
   ":(exclude)**/petstore.yaml" \
   ":(exclude)**/openapi-generator-config.yaml" \
+  ":(exclude)**/openapi-generator-config.yml" \
   | xargs -0 \
 )"
 
