@@ -21,7 +21,7 @@ If you need to commit the generated code to your source repository (for example,
 To generate Swift code to a specific directory, clone the generator repository and run the following command from the checkout directory:
 
 ```console
-% swift run swift-openapi-generator \
+% swift run swift-openapi-generator generate \
     --mode types --mode client \
     --output-directory path/to/desired/output-dir \
     path/to/openapi.yaml
