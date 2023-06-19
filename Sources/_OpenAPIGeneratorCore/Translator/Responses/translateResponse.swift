@@ -128,7 +128,7 @@ extension TypesFileTranslator {
     ) throws -> Declaration {
         let typeName = TypeAssigner.typeName(
             for: componentKey,
-            of: OpenAPI.Response.self
+            of: ResolvedResponse.self
         )
         return try translateResponseInTypes(
             typeName: typeName,

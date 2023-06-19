@@ -65,7 +65,7 @@ extension FileTranslator {
     /// headers are specified in the OpenAPI document, or if all headers are
     /// unsupported.
     func typedResponseHeaders(
-        from response: OpenAPI.Response,
+        from response: ResolvedResponse,
         inParent parent: TypeName
     ) throws -> [TypedResponseHeader] {
         guard let headers = response.headers else {

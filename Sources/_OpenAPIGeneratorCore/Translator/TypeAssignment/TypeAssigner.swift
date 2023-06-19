@@ -381,7 +381,7 @@ struct TypeAssigner {
     ///
     /// # Mapping
     /// - `#/components/schemas` -> `JSONSchema`
-    /// - `#/components/responses` -> `OpenAPI.Response`
+    /// - `#/components/responses` -> `ResolvedResponse`
     /// - `#/components/callbacks` -> `OpenAPI.Callbacks`
     /// - `#/components/parameters` -> `ResolvedParameter`
     /// (includes request headers)
