@@ -41,7 +41,7 @@ class Test_TypeAssigner: Test_Core {
 
         )
         try XCTAssertEqual(
-            TypeAssigner.typeName(for: JSONReference<OpenAPI.Request>.component(named: "mumble")),
+            TypeAssigner.typeName(for: JSONReference<ResolvedRequestBody>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.RequestBodies.mumble",
                 jsonFQName: "#/components/requestBodies/mumble"
