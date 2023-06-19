@@ -138,7 +138,7 @@ extension OperationDescription {
     /// Returns all parameters by resolving any parameter references first.
     ///
     /// - Throws: When an invalid JSON reference is found.
-    var allResolvedParameters: [ResolvedParameter] {
+    var allResolvedParameters: [OpenAPI.Parameter] {
         get throws {
             try allParameters.map { try $0.resolve(in: components) }
         }
