@@ -20,7 +20,7 @@ extension TypesFileTranslator {
     /// - Parameter parameters: The reusable request parameters.
     /// - Returns: An enum declaration representing the parameters namespace.
     func translateComponentParameters(
-        _ parameters: OpenAPI.ComponentDictionary<OpenAPI.Parameter>
+        _ parameters: OpenAPI.ComponentDictionary<ResolvedParameter>
     ) throws -> Declaration {
 
         let typedParameters: [(OpenAPI.ComponentKey, TypedParameter)] =
@@ -28,7 +28,7 @@ extension TypesFileTranslator {
             .compactMap { key, parameter in
                 let parent = TypeAssigner.typeName(
                     for: key,
-                    of: OpenAPI.Parameter.self
+                    of: ResolvedParameter.self
                 )
                 guard
                     let value = try parseAsTypedParameter(
@@ -50,7 +50,7 @@ extension TypesFileTranslator {
             }
 
         let componentsParametersEnum = Declaration.commentable(
-            OpenAPI.Parameter.sectionComment(),
+            ResolvedParameter.sectionComment(),
             .enum(
                 accessModifier: config.access,
                 name: Constants.Components.Parameters.namespace,

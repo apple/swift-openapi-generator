@@ -25,7 +25,7 @@ extension TypesFileTranslator {
         let inputTypeName = description.inputTypeName
 
         func propertyBlueprintForNamespacedStruct(
-            locatedIn location: OpenAPI.Parameter.Context.Location,
+            locatedIn location: ResolvedParameter.Context.Location,
             withPropertiesFrom parameters: [UnresolvedParameter]
         ) throws -> PropertyBlueprint {
             let inputTypeName = description.inputTypeName

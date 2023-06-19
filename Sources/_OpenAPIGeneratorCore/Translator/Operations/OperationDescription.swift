@@ -25,7 +25,7 @@ struct OperationDescription {
     var endpoint: OpenAPI.PathItem.Endpoint
 
     /// The path parameters at the operation level.
-    var pathParameters: OpenAPI.Parameter.Array
+    var pathParameters: ResolvedParameter.Array
 
     /// The OpenAPI components, used to resolve JSON references.
     var components: OpenAPI.Components

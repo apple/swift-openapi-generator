@@ -26,7 +26,7 @@ class Test_TypeAssigner: Test_Core {
             )
         )
         try XCTAssertEqual(
-            TypeAssigner.typeName(for: JSONReference<OpenAPI.Parameter>.component(named: "mumble")),
+            TypeAssigner.typeName(for: JSONReference<ResolvedParameter>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.Parameters.mumble",
                 jsonFQName: "#/components/parameters/mumble"
