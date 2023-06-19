@@ -387,7 +387,7 @@ struct TypeAssigner {
     /// (includes request headers)
     /// - `#/components/examples` -> `OpenAPI.Example`
     /// - `#/components/requestBodies` -> `ResolvedRequestBody`
-    /// - `#/components/headers` -> `OpenAPI.Header` (response headers)
+    /// - `#/components/headers` -> `ResolvedResponseHeader` (response headers)
     /// - `#/components/securitySchemes` -> `OpenAPI.SecurityScheme`
     /// - `#/components/links` -> `OpenAPI.Link`
     ///

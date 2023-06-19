@@ -18,7 +18,7 @@ import OpenAPIKit30
 struct TypedResponseHeader {
 
     /// The OpenAPI response header.
-    var header: OpenAPI.Header
+    var header: ResolvedResponseHeader
 
     /// The name of the header.
     var name: String
@@ -87,13 +87,13 @@ extension FileTranslator {
     ///   - parent: The Swift type name of the parent type of the headers.
     /// - Returns: Typed response header if supported, nil otherwise.
     func typedResponseHeader(
-        from unresolvedHeader: Either<JSONReference<OpenAPI.Header>, OpenAPI.Header>,
+        from unresolvedHeader: UnresolvedResponseHeader,
         named name: String,
         inParent parent: TypeName
     ) throws -> TypedResponseHeader? {
 
         // Collect the header
-        let header: OpenAPI.Header
+        let header: ResolvedResponseHeader
         switch unresolvedHeader {
         case let .a(ref):
             header = try components.lookup(ref)
@@ -164,3 +164,11 @@ extension FileTranslator {
         )
     }
 }
+
+/// An unresolved OpenAPI response header.
+///
+/// Can be either a reference or an inline response header.
+typealias UnresolvedResponseHeader = Either<JSONReference<OpenAPI.Header>, OpenAPI.Header>
+
+/// A resolved OpenAPI response header.
+typealias ResolvedResponseHeader = OpenAPI.Header
