@@ -17,7 +17,7 @@ import OpenAPIKit30
 struct TypedRequestBody {
 
     /// The OpenAPI request body.
-    var request: ResolvedRequestBody
+    var request: ResolvedRequest
 
     /// The computed type usage.
     var typeUsage: TypeUsage
@@ -55,7 +55,7 @@ extension FileTranslator {
     /// - Returns: Typed request content; nil if the request body is
     /// unsupported.
     func typedRequestBody(
-        from unresolvedRequest: UnresolvedRequestBody,
+        from unresolvedRequest: UnresolvedRequest,
         inParent parent: TypeName
     ) throws -> TypedRequestBody? {
         let type: TypeName
@@ -81,10 +81,10 @@ extension FileTranslator {
     /// unsupported.
     func typedRequestBody(
         typeName: TypeName,
-        from unresolvedRequest: UnresolvedRequestBody
+        from unresolvedRequest: UnresolvedRequest
     ) throws -> TypedRequestBody? {
 
-        let request: ResolvedRequestBody
+        let request: ResolvedRequest
         let isInlined: Bool
         switch unresolvedRequest {
         case .a(let reference):
@@ -114,10 +114,10 @@ extension FileTranslator {
     }
 }
 
-/// An unresolved OpenAPI request body.
+/// An unresolved OpenAPI request.
 ///
-/// Can be either a reference or an inline request body.
-typealias UnresolvedRequestBody = Either<JSONReference<OpenAPI.Request>, OpenAPI.Request>
+/// Can be either a reference or an inline request.
+typealias UnresolvedRequest = Either<JSONReference<OpenAPI.Request>, OpenAPI.Request>
 
-/// A resolved OpenAPI request body.
-typealias ResolvedRequestBody = OpenAPI.Request
+/// A resolved OpenAPI request.
+typealias ResolvedRequest = OpenAPI.Request
