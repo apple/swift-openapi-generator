@@ -17,7 +17,7 @@ import OpenAPIKit30
 struct TypedParameter {
 
     /// The OpenAPI parameter.
-    var parameter: ResolvedParameter
+    var parameter: OpenAPI.Parameter
 
     /// The underlying schema.
     var schema: UnresolvedSchema
@@ -54,7 +54,7 @@ extension TypedParameter {
     }
 
     /// The location of the parameter in the HTTP request.
-    var location: ResolvedParameter.Context.Location {
+    var location: OpenAPI.Parameter.Context.Location {
         parameter.location
     }
 
@@ -117,7 +117,7 @@ extension FileTranslator {
     ) throws -> TypedParameter? {
 
         // Collect the parameter
-        let parameter: ResolvedParameter
+        let parameter: OpenAPI.Parameter
         switch unresolvedParameter {
         case let .a(ref):
             parameter = try components.lookup(ref)
@@ -228,10 +228,7 @@ extension FileTranslator {
 /// Can be either a reference or an inline parameter.
 typealias UnresolvedParameter = Either<JSONReference<OpenAPI.Parameter>, OpenAPI.Parameter>
 
-/// A resolved OpenAPI parameter.
-typealias ResolvedParameter = OpenAPI.Parameter
-
-extension ResolvedParameter.Context.Location {
+extension OpenAPI.Parameter.Context.Location {
 
     /// A name of the location usable as a Swift type name.
     var shortTypeName: String {

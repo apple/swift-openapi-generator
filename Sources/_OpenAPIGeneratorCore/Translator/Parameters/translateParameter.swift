@@ -60,7 +60,7 @@ extension TypesFileTranslator {
         componentKey: OpenAPI.ComponentKey,
         parameter: TypedParameter
     ) throws -> [Declaration] {
-        let typeName = TypeAssigner.typeName(for: componentKey, of: ResolvedParameter.self)
+        let typeName = TypeAssigner.typeName(for: componentKey, of: OpenAPI.Parameter.self)
         return try translateParameterInTypes(
             typeName: typeName,
             parameter: parameter

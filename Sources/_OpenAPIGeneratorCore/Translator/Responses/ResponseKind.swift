@@ -45,7 +45,7 @@ enum ResponseKind {
         case _5XX
 
         /// Creates a new range that matches the specified OpenAPI range.
-        init(_ range: ResolvedResponse.StatusCode.Range) {
+        init(_ range: OpenAPI.Response.StatusCode.Range) {
             switch range {
             case .information:
                 self = ._1XX
@@ -191,7 +191,7 @@ extension ResponseKind: CustomStringConvertible {
     }
 }
 
-extension ResolvedResponse.StatusCode.Code {
+extension OpenAPI.Response.StatusCode.Code {
 
     /// Returns the matching OpenAPI response kind.
     var asKind: ResponseKind {

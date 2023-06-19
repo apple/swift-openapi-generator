@@ -24,7 +24,7 @@ extension ServerFileTranslator {
         let inputTypeName = operation.inputTypeName
 
         func locationSpecificInputDecl(
-            locatedIn location: ResolvedParameter.Context.Location,
+            locatedIn location: OpenAPI.Parameter.Context.Location,
             fromParameters parameters: [UnresolvedParameter]
         ) throws -> Declaration {
             let variableName = location.shortVariableName
@@ -75,7 +75,7 @@ extension ServerFileTranslator {
         inputMemberDecls.append(bodyDecl)
 
         func functionArgumentForLocation(
-            _ location: ResolvedParameter.Context.Location
+            _ location: OpenAPI.Parameter.Context.Location
         ) -> FunctionArgumentDescription {
             .init(
                 label: location.shortVariableName,

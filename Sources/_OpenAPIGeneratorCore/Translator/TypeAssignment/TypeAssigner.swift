@@ -381,13 +381,13 @@ struct TypeAssigner {
     ///
     /// # Mapping
     /// - `#/components/schemas` -> `JSONSchema`
-    /// - `#/components/responses` -> `ResolvedResponse`
+    /// - `#/components/responses` -> `OpenAPI.Response`
     /// - `#/components/callbacks` -> `OpenAPI.Callbacks`
-    /// - `#/components/parameters` -> `ResolvedParameter`
+    /// - `#/components/parameters` -> `OpenAPI.Parameter`
     /// (includes request headers)
     /// - `#/components/examples` -> `OpenAPI.Example`
-    /// - `#/components/requestBodies` -> `ResolvedRequest`
-    /// - `#/components/headers` -> `ResolvedHeader` (response headers)
+    /// - `#/components/requestBodies` -> `OpenAPI.Request`
+    /// - `#/components/headers` -> `OpenAPI.Header` (response headers)
     /// - `#/components/securitySchemes` -> `OpenAPI.SecurityScheme`
     /// - `#/components/links` -> `OpenAPI.Link`
     ///
@@ -460,7 +460,7 @@ fileprivate extension TypeLocation {
         case .schemas:
             return TypeAssigner.typeName(for: JSONSchema.self)
         case .parameters:
-            return TypeAssigner.typeName(for: ResolvedParameter.self)
+            return TypeAssigner.typeName(for: OpenAPI.Parameter.self)
         }
     }
 }

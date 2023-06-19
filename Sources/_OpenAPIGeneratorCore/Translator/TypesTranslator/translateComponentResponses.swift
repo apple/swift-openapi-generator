@@ -20,7 +20,7 @@ extension TypesFileTranslator {
     /// - Parameter responses: The reusable responses.
     /// - Returns: An enum declaration representing the responses namespace.
     func translateComponentResponses(
-        _ responses: OpenAPI.ComponentDictionary<ResolvedResponse>
+        _ responses: OpenAPI.ComponentDictionary<OpenAPI.Response>
     ) throws -> Declaration {
 
         let typedResponses: [TypedResponse] =
@@ -28,7 +28,7 @@ extension TypesFileTranslator {
             .map { key, response in
                 let typeName = TypeAssigner.typeName(
                     for: key,
-                    of: ResolvedResponse.self
+                    of: OpenAPI.Response.self
                 )
                 let value = TypedResponse(
                     response: response,
@@ -47,7 +47,7 @@ extension TypesFileTranslator {
             }
 
         let componentsResponsesEnum = Declaration.commentable(
-            ResolvedResponse.sectionComment(),
+            OpenAPI.Response.sectionComment(),
             .enum(
                 accessModifier: config.access,
                 name: Constants.Components.Responses.namespace,

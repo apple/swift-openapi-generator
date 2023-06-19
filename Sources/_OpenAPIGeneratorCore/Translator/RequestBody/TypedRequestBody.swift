@@ -17,7 +17,7 @@ import OpenAPIKit30
 struct TypedRequestBody {
 
     /// The OpenAPI request body.
-    var request: ResolvedRequest
+    var request: OpenAPI.Request
 
     /// The computed type usage.
     var typeUsage: TypeUsage
@@ -84,7 +84,7 @@ extension FileTranslator {
         from unresolvedRequest: UnresolvedRequest
     ) throws -> TypedRequestBody? {
 
-        let request: ResolvedRequest
+        let request: OpenAPI.Request
         let isInlined: Bool
         switch unresolvedRequest {
         case .a(let reference):
@@ -118,6 +118,3 @@ extension FileTranslator {
 ///
 /// Can be either a reference or an inline request.
 typealias UnresolvedRequest = Either<JSONReference<OpenAPI.Request>, OpenAPI.Request>
-
-/// A resolved OpenAPI request.
-typealias ResolvedRequest = OpenAPI.Request

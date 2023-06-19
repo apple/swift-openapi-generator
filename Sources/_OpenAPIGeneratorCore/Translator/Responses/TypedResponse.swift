@@ -17,7 +17,7 @@ import OpenAPIKit30
 struct TypedResponse {
 
     /// The OpenAPI response.
-    var response: ResolvedResponse
+    var response: OpenAPI.Response
 
     /// The computed type usage.
     var typeUsage: TypeUsage
@@ -39,7 +39,7 @@ extension FileTranslator {
     ) throws -> TypedResponse {
         let unresolvedResponse = outcome.response
         let typeName: TypeName
-        let response: ResolvedResponse
+        let response: OpenAPI.Response
         let isInlined: Bool
         switch unresolvedResponse {
         case .a(let reference):
@@ -64,6 +64,3 @@ extension FileTranslator {
 ///
 /// Can be either a reference or an inline response.
 typealias UnresolvedResponse = Either<JSONReference<OpenAPI.Response>, OpenAPI.Response>
-
-/// A resolved OpenAPI response.
-typealias ResolvedResponse = OpenAPI.Response

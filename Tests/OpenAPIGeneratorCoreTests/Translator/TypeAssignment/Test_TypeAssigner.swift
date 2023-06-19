@@ -26,14 +26,14 @@ class Test_TypeAssigner: Test_Core {
             )
         )
         try XCTAssertEqual(
-            TypeAssigner.typeName(for: JSONReference<ResolvedParameter>.component(named: "mumble")),
+            TypeAssigner.typeName(for: JSONReference<OpenAPI.Parameter>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.Parameters.mumble",
                 jsonFQName: "#/components/parameters/mumble"
             )
         )
         try XCTAssertEqual(
-            TypeAssigner.typeName(for: JSONReference<ResolvedHeader>.component(named: "mumble")),
+            TypeAssigner.typeName(for: JSONReference<OpenAPI.Header>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.Headers.mumble",
                 jsonFQName: "#/components/headers/mumble"
@@ -41,7 +41,7 @@ class Test_TypeAssigner: Test_Core {
 
         )
         try XCTAssertEqual(
-            TypeAssigner.typeName(for: JSONReference<ResolvedRequest>.component(named: "mumble")),
+            TypeAssigner.typeName(for: JSONReference<OpenAPI.Request>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.RequestBodies.mumble",
                 jsonFQName: "#/components/requestBodies/mumble"
@@ -49,7 +49,7 @@ class Test_TypeAssigner: Test_Core {
 
         )
         try XCTAssertEqual(
-            TypeAssigner.typeName(for: JSONReference<ResolvedResponse>.component(named: "mumble")),
+            TypeAssigner.typeName(for: JSONReference<OpenAPI.Response>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.Responses.mumble",
                 jsonFQName: "#/components/responses/mumble"

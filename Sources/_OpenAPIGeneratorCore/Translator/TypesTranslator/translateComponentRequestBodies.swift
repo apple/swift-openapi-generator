@@ -20,7 +20,7 @@ extension TypesFileTranslator {
     /// - Parameter requestBodies: The reusable request bodies.
     /// - Returns: An enum declaration representing the requestBodies namespace.
     func translateComponentRequestBodies(
-        _ items: OpenAPI.ComponentDictionary<ResolvedRequest>
+        _ items: OpenAPI.ComponentDictionary<OpenAPI.Request>
     ) throws -> Declaration {
 
         let typedItems: [TypedRequestBody] =
@@ -28,7 +28,7 @@ extension TypesFileTranslator {
             .compactMap { key, item in
                 let typeName = TypeAssigner.typeName(
                     for: key,
-                    of: ResolvedRequest.self
+                    of: OpenAPI.Request.self
                 )
                 return try typedRequestBody(
                     typeName: typeName,
@@ -44,7 +44,7 @@ extension TypesFileTranslator {
             }
 
         let componentsEnum = Declaration.commentable(
-            ResolvedRequest.sectionComment(),
+            OpenAPI.Request.sectionComment(),
             .enum(
                 accessModifier: config.access,
                 name: Constants.Components.RequestBodies.namespace,
