@@ -20,7 +20,7 @@ extension TypesFileTranslator {
     /// - Parameter headers: The reusable response headers.
     /// - Returns: An enum declaration representing the headers namespace.
     func translateComponentHeaders(
-        _ headers: OpenAPI.ComponentDictionary<ResolvedResponseHeader>
+        _ headers: OpenAPI.ComponentDictionary<ResolvedHeader>
     ) throws -> Declaration {
 
         let typedHeaders: [(OpenAPI.ComponentKey, TypedResponseHeader)] =
@@ -28,7 +28,7 @@ extension TypesFileTranslator {
             .compactMap { key, header in
                 let parent = TypeAssigner.typeName(
                     for: key,
-                    of: ResolvedResponseHeader.self
+                    of: ResolvedHeader.self
                 )
                 guard
                     let value = try typedResponseHeader(
@@ -51,7 +51,7 @@ extension TypesFileTranslator {
             }
 
         let componentsParametersEnum = Declaration.commentable(
-            ResolvedResponseHeader.sectionComment(),
+            ResolvedHeader.sectionComment(),
             .enum(
                 accessModifier: config.access,
                 name: Constants.Components.Headers.namespace,

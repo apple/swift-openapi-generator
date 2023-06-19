@@ -33,7 +33,7 @@ class Test_TypeAssigner: Test_Core {
             )
         )
         try XCTAssertEqual(
-            TypeAssigner.typeName(for: JSONReference<ResolvedResponseHeader>.component(named: "mumble")),
+            TypeAssigner.typeName(for: JSONReference<ResolvedHeader>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.Headers.mumble",
                 jsonFQName: "#/components/headers/mumble"
