@@ -24,7 +24,7 @@ struct SchemaContent {
     ///
     /// Can be nil for unstructured JSON payloads, or for unstructured
     /// content types such as binary data.
-    var schema: Either<JSONReference<JSONSchema>, JSONSchema>?
+    var schema: UnresolvedSchema?
 }
 
 /// A type grouping schema content and its computed Swift type usage.
@@ -44,3 +44,8 @@ struct TypedSchemaContent {
         typeUsage ?? TypeName.valueContainer.asUsage
     }
 }
+
+/// An unresolved OpenAPI schema.
+///
+/// Can be either a reference or an inline schema.
+typealias UnresolvedSchema = Either<JSONReference<JSONSchema>, JSONSchema>

@@ -24,7 +24,7 @@ struct TypedResponseHeader {
     var name: String
 
     /// The underlying schema.
-    var schema: Either<JSONReference<JSONSchema>, JSONSchema>
+    var schema: UnresolvedSchema
 
     /// The Swift type representing the response header.
     var typeUsage: TypeUsage
@@ -103,7 +103,7 @@ extension FileTranslator {
 
         let foundIn = "\(parent.description)/\(name)"
 
-        let schema: Either<JSONReference<JSONSchema>, JSONSchema>
+        let schema: UnresolvedSchema
         let codingStrategy: CodingStrategy
 
         switch header.schemaOrContent {

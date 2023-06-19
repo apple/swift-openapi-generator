@@ -41,7 +41,7 @@ extension FileTranslator {
     ///   - foundIn: A description of the schema's context.
     /// - Returns: `true` if the schema is supported; `false` otherwise.
     func validateSchemaIsSupported(
-        _ schema: Either<JSONReference<JSONSchema>, JSONSchema>?,
+        _ schema: UnresolvedSchema?,
         foundIn: String
     ) throws -> Bool {
         guard try isSchemaSupported(schema) else {
@@ -116,7 +116,7 @@ extension FileTranslator {
     ///   - schema: The schema to validate.
     /// - Returns: `true` if the schema is supported; `false` otherwise.
     func isSchemaSupported(
-        _ schema: Either<JSONReference<JSONSchema>, JSONSchema>?
+        _ schema: UnresolvedSchema?
     ) throws -> Bool {
         guard let schema else {
             // fragment type is supported

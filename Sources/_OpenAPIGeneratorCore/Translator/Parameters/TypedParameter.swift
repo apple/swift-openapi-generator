@@ -20,7 +20,7 @@ struct TypedParameter {
     var parameter: ResolvedParameter
 
     /// The underlying schema.
-    var schema: Either<JSONReference<JSONSchema>, JSONSchema>
+    var schema: UnresolvedSchema
 
     /// The computed type usage.
     var typeUsage: TypeUsage
@@ -66,7 +66,7 @@ extension TypedParameter {
     }
 }
 
-extension Either where A == JSONReference<JSONSchema>, B == JSONSchema {
+extension UnresolvedSchema {
 
     /// A schema to be inlined.
     ///
@@ -128,7 +128,7 @@ extension FileTranslator {
         let locationTypeName = parameter.location.typeName(in: parent)
         let foundIn = "\(locationTypeName.description)/\(parameter.name)"
 
-        let schema: Either<JSONReference<JSONSchema>, JSONSchema>
+        let schema: UnresolvedSchema
         let codingStrategy: CodingStrategy
         switch parameter.schemaOrContent {
         case let .a(schemaContext):

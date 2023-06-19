@@ -73,7 +73,7 @@ struct TypeAssigner {
     /// - Returns: A type usage; or nil if the schema is nil or unsupported.
     static func typeUsage(
         usingNamingHint hint: String,
-        withSchema schema: Either<JSONReference<JSONSchema>, JSONSchema>?,
+        withSchema schema: UnresolvedSchema?,
         inParent parent: TypeName
     ) throws -> TypeUsage? {
         let associatedType: TypeUsage?
