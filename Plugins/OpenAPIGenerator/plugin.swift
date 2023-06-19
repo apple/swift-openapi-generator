@@ -20,6 +20,8 @@ struct SwiftOpenAPIGeneratorPlugin {
         case incompatibleTarget(targetName: String)
         case noConfigFound(targetName: String)
         case noDocumentFound(targetName: String)
+        case multiConfigFound(targetName: String, files: [Path])
+        case multiDocumentFound(targetName: String, files: [Path])
 
         var description: String {
             switch self {
@@ -28,10 +30,16 @@ struct SwiftOpenAPIGeneratorPlugin {
                     "Incompatible target called '\(targetName)'. Only Swift source targets can be used with the Swift OpenAPI generator plugin."
             case .noConfigFound(let targetName):
                 return
-                    "No config found in the target named '\(targetName)'. Add a file called 'openapi-generator-config.yaml' to the target's source directory. See documentation for details."
+                    "No config file found in the target named '\(targetName)'. Add a file called 'openapi-generator-config.yaml' or 'openapi-generator-config.yml' to the target's source directory. See documentation for details."
             case .noDocumentFound(let targetName):
                 return
-                    "No OpenAPI document found in the target named '\(targetName)'. Add a file called 'openapi.yaml' or 'openapi.json' (can also be a symlink) to the target's source directory. See documentation for details."
+                    "No OpenAPI document found in the target named '\(targetName)'. Add a file called 'openapi.yaml', 'openapi.yml' or 'openapi.json' (can also be a symlink) to the target's source directory. See documentation for details."
+            case .multiConfigFound(let targetName, let files):
+                return
+                    "Multiple config files found in the target named '\(targetName)', but exactly one is required. Found \(files.map(\.description).joined(separator: " "))."
+            case .multiDocumentFound(let targetName, let files):
+                return
+                    "Multiple OpenAPI documents found in the target named '\(targetName)', but exactly one is required. Found \(files.map(\.description).joined(separator: " "))."
             }
         }
 
@@ -40,6 +48,9 @@ struct SwiftOpenAPIGeneratorPlugin {
         }
     }
 
+    private var supportedConfigFiles: Set<String> { Set(["yaml", "yml"].map { "openapi-generator-config." + $0 }) }
+    private var supportedDocFiles: Set<String> { Set(["yaml", "yml", "json"].map { "openapi." + $0 }) }
+
     func createBuildCommands(
         pluginWorkDirectory: PackagePlugin.Path,
         tool: (String) throws -> PackagePlugin.PluginContext.Tool,
@@ -47,23 +58,23 @@ struct SwiftOpenAPIGeneratorPlugin {
         targetName: String
     ) throws -> [Command] {
         let inputFiles = sourceFiles
-        guard let config = inputFiles.first(where: { $0.path.lastComponent == "openapi-generator-config.yaml" })?.path
-        else {
+        let matchedConfigs = inputFiles.filter { supportedConfigFiles.contains($0.path.lastComponent) }.map(\.path)
+        guard matchedConfigs.count > 0 else {
             throw Error.noConfigFound(targetName: targetName)
         }
-        guard
-            let doc = inputFiles.first(where: {
-                switch $0.path.lastComponent {
-                case "openapi.yaml", "openapi.json":
-                    return true
-                default:
-                    return false
-                }
-            })?
-            .path
-        else {
+        guard matchedConfigs.count == 1 else {
+            throw Error.multiConfigFound(targetName: targetName, files: matchedConfigs)
+        }
+        let config = matchedConfigs[0]
+
+        let matchedDocs = inputFiles.filter { supportedDocFiles.contains($0.path.lastComponent) }.map(\.path)
+        guard matchedDocs.count > 0 else {
             throw Error.noDocumentFound(targetName: targetName)
         }
+        guard matchedDocs.count == 1 else {
+            throw Error.multiDocumentFound(targetName: targetName, files: matchedDocs)
+        }
+        let doc = matchedDocs[0]
         let genSourcesDir = pluginWorkDirectory.appending("GeneratedSources")
         let outputFiles: [Path] = GeneratorMode.allCases.map { genSourcesDir.appending($0.outputFileName) }
         return [

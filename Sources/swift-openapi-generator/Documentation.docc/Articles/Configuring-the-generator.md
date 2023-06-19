@@ -10,7 +10,9 @@ The command-line tool also uses the same configuration file.
 
 ### Create a configuration file
 
-The configuration file is named `openapi-generator-config.yaml` and must exist in the target source directory.
+The configuration file is named `openapi-generator-config.yaml` or `openapi-generator-config.yml` and must exist in the target source directory.
+
+> In the following tutorial, we will use `openapi-generator-config.yaml` as an example.
 
 ```
 .
