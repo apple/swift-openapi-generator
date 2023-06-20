@@ -37,6 +37,12 @@ public struct Diagnostic: Error, Codable {
     /// A user-friendly description of the diagnostic.
     public var message: String
 
+    /// The absolute path to a specific source file that triggered the diagnostic.
+    public var absoluteFilePath: URL?
+
+    /// The line number within the specific source file that triggered the diagnostic.
+    public var lineNumber: Int?
+
     /// Additional information about where the issue occurred.
     public var context: [String: String] = [:]
 
@@ -101,8 +107,20 @@ extension Diagnostic.Severity: CustomStringConvertible {
 
 extension Diagnostic: CustomStringConvertible {
     public var description: String {
+        var prefix = ""
+        if let filePath = absoluteFilePath {
+            if #available(macOS 13.0, *) {
+                prefix = "\(filePath.path(percentEncoded: false)):"
+            } else {
+                prefix = "\(filePath.path):"
+            }
+            if let line = lineNumber {
+                prefix += "\(line):"
+            }
+            prefix += " "
+        }
         let contextString = context.map { "\($0)=\($1)" }.sorted().joined(separator: ", ")
-        return "\(severity): \(message) [\(contextString.isEmpty ? "" : "context: \(contextString)")]"
+        return "\(prefix)\(severity): \(message)\(contextString.isEmpty ? "" : " [context: \(contextString)]")"
     }
 }
 

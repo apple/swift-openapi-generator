@@ -78,6 +78,7 @@ let package = Package(
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
                 .product(name: "SwiftFormat", package: "swift-format"),
                 .product(name: "SwiftFormatConfiguration", package: "swift-format"),
+				.product(name: "ArgumentParser", package: "swift-argument-parser"),
             ]
         ),
 
@@ -116,8 +117,7 @@ let package = Package(
         .executableTarget(
             name: "swift-openapi-generator",
             dependencies: [
-                "_OpenAPIGeneratorCore",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                "_OpenAPIGeneratorCore"
             ]
         ),
 
