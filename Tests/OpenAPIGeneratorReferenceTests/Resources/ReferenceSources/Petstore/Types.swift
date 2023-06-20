@@ -19,8 +19,8 @@ public protocol APIProtocol: Sendable {
     /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
     func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output
-    /// - Remark: HTTP `POST /probe`.
-    /// - Remark: Generated from `#/paths//probe/post(probe)`.
+    /// - Remark: HTTP `POST /probe/`.
+    /// - Remark: Generated from `#/paths//probe//post(probe)`.
     func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output
     /// Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
     ///
@@ -1004,8 +1004,8 @@ public enum Operations {
             case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
         }
     }
-    /// - Remark: HTTP `POST /probe`.
-    /// - Remark: Generated from `#/paths//probe/post(probe)`.
+    /// - Remark: HTTP `POST /probe/`.
+    /// - Remark: Generated from `#/paths//probe//post(probe)`.
     public enum probe {
         public static let id: String = "probe"
         public struct Input: Sendable, Equatable, Hashable {
@@ -1079,7 +1079,7 @@ public enum Operations {
             }
             /// Ack
             ///
-            /// - Remark: Generated from `#/paths//probe/post(probe)/responses/204`.
+            /// - Remark: Generated from `#/paths//probe//post(probe)/responses/204`.
             ///
             /// HTTP response code: `204 noContent`.
             case noContent(Operations.probe.Output.NoContent)

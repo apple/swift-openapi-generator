@@ -211,14 +211,14 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// - Remark: HTTP `POST /probe`.
-    /// - Remark: Generated from `#/paths//probe/post(probe)`.
+    /// - Remark: HTTP `POST /probe/`.
+    /// - Remark: Generated from `#/paths//probe//post(probe)`.
     public func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output {
         try await client.send(
             input: input,
             forOperation: Operations.probe.id,
             serializer: { input in
-                let path = try converter.renderedRequestPath(template: "/probe", parameters: [])
+                let path = try converter.renderedRequestPath(template: "/probe/", parameters: [])
                 var request: OpenAPIRuntime.Request = .init(path: path, method: .post)
                 suppressMutabilityWarning(&request)
                 return request

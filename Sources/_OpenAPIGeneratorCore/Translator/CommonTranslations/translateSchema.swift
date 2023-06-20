@@ -30,7 +30,7 @@ extension FileTranslator {
     ///   instead of extracted from the schema.
     func translateSchema(
         typeName: TypeName,
-        schema: Either<JSONReference<JSONSchema>, JSONSchema>?,
+        schema: UnresolvedSchema?,
         overrides: SchemaOverrides
     ) throws -> [Declaration] {
         let unwrappedSchema: JSONSchema

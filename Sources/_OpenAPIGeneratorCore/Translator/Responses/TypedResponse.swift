@@ -59,3 +59,8 @@ extension FileTranslator {
         )
     }
 }
+
+/// An unresolved OpenAPI response.
+///
+/// Can be either a reference or an inline response.
+typealias UnresolvedResponse = Either<JSONReference<OpenAPI.Response>, OpenAPI.Response>

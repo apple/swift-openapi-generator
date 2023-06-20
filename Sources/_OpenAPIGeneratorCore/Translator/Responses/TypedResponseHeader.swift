@@ -24,7 +24,7 @@ struct TypedResponseHeader {
     var name: String
 
     /// The underlying schema.
-    var schema: Either<JSONReference<JSONSchema>, JSONSchema>
+    var schema: UnresolvedSchema
 
     /// The Swift type representing the response header.
     var typeUsage: TypeUsage
@@ -87,7 +87,7 @@ extension FileTranslator {
     ///   - parent: The Swift type name of the parent type of the headers.
     /// - Returns: Typed response header if supported, nil otherwise.
     func typedResponseHeader(
-        from unresolvedHeader: Either<JSONReference<OpenAPI.Header>, OpenAPI.Header>,
+        from unresolvedHeader: UnresolvedHeader,
         named name: String,
         inParent parent: TypeName
     ) throws -> TypedResponseHeader? {
@@ -103,7 +103,7 @@ extension FileTranslator {
 
         let foundIn = "\(parent.description)/\(name)"
 
-        let schema: Either<JSONReference<JSONSchema>, JSONSchema>
+        let schema: UnresolvedSchema
         let codingStrategy: CodingStrategy
 
         switch header.schemaOrContent {
@@ -164,3 +164,8 @@ extension FileTranslator {
         )
     }
 }
+
+/// An unresolved OpenAPI response header.
+///
+/// Can be either a reference or an inline response header.
+typealias UnresolvedHeader = Either<JSONReference<OpenAPI.Header>, OpenAPI.Header>

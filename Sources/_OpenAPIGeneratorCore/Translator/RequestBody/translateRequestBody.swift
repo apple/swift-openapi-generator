@@ -76,7 +76,7 @@ extension TypesFileTranslator {
     ///   - unresolvedRequestBody: An unresolved request body.
     ///   - parent: The type name of the parent structure.
     func parseRequestBodyAsProperty(
-        for unresolvedRequestBody: Either<JSONReference<OpenAPI.Request>, OpenAPI.Request>?,
+        for unresolvedRequestBody: UnresolvedRequest?,
         inParent parent: TypeName
     ) throws -> PropertyBlueprint {
         let bodyEnumTypeName: TypeName

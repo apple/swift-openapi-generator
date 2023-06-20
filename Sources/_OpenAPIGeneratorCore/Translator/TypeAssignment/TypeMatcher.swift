@@ -125,7 +125,7 @@ struct TypeMatcher {
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: `true` if the schema is referenceable; `false` otherwise.
     static func isReferenceable(
-        _ schema: Either<JSONReference<JSONSchema>, JSONSchema>?
+        _ schema: UnresolvedSchema?
     ) -> Bool {
         guard let schema else {
             // fragment type is referenceable
@@ -163,7 +163,7 @@ struct TypeMatcher {
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: `true` if the schema is inlinable; `false` otherwise.
     static func isInlinable(
-        _ schema: Either<JSONReference<JSONSchema>, JSONSchema>?
+        _ schema: UnresolvedSchema?
     ) -> Bool {
         !isReferenceable(schema)
     }
