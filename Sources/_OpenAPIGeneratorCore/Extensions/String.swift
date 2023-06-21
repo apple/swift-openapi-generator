@@ -67,8 +67,6 @@ fileprivate extension String {
         }
 
         // Only allow [a-zA-Z][a-zA-Z0-9_]*
-        // This is bad, is there something like percent encoding functionality but for general "allowed chars only"?
-
         let firstCharSet: CharacterSet = .letters
         let numbers: CharacterSet = .decimalDigits
         let otherCharSet: CharacterSet = .alphanumerics.union(.init(charactersIn: "_"))
@@ -83,7 +81,16 @@ fileprivate extension String {
                 sanitizedScalars.append("_")
                 outScalar = scalar
             } else {
-                outScalar = "_"
+                var hexString = String(scalar.value, radix: 16, uppercase: true)
+                if index == 0,
+                   let firstChar = hexString.unicodeScalars.first,
+                   !firstCharSet.contains(firstChar) {
+                    hexString = "_\(hexString)"
+                }
+                for char in hexString.unicodeScalars {
+                    sanitizedScalars.append(char)
+                }
+                continue
             }
             sanitizedScalars.append(outScalar)
         }
@@ -153,62 +160,6 @@ fileprivate extension String {
         "true",
         "try",
         "throws",
-        "__FILE__",
-        "__LINE__",
-        "__COLUMN__",
-        "__FUNCTION__",
-        "__DSO_HANDLE__",
-        "_",
-        "(",
-        ")",
-        "{",
-        "}",
-        "[",
-        "]",
-        "<",
-        ">",
-        ".",
-        ".",
-        ",",
-        "...",
-        ":",
-        ";",
-        "=",
-        "@",
-        "#",
-        "&",
-        "->",
-        "`",
-        "\\",
-        "!",
-        "?",
-        "?",
-        "\"",
-        "\'",
-        "\"\"\"",
-        "#keyPath",
-        "#line",
-        "#selector",
-        "#file",
-        "#fileID",
-        "#filePath",
-        "#column",
-        "#function",
-        "#dsohandle",
-        "#assert",
-        "#sourceLocation",
-        "#warning",
-        "#error",
-        "#if",
-        "#else",
-        "#elseif",
-        "#endif",
-        "#available",
-        "#unavailable",
-        "#fileLiteral",
-        "#imageLiteral",
-        "#colorLiteral",
-        ")",
         "yield",
         "String",
         "Error",
