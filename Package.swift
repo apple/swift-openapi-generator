@@ -17,7 +17,13 @@ import PackageDescription
 let package = Package(
     name: "swift-openapi-generator",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v10_15),
+
+        // The platforms below are not currently supported for running the
+        // generator itself (only the generated code), they are here
+        // to allow the generator to emit a more descriptive error,
+        // see the file PlatformChecks.swift for details.
+        .iOS(.v13), .tvOS(.v13), .watchOS(.v6),
     ],
     products: [
         .executable(name: "swift-openapi-generator", targets: ["swift-openapi-generator"]),
