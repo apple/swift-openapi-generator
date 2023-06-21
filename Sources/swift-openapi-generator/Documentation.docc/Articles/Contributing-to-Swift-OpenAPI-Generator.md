@@ -38,7 +38,7 @@ The generated code relies on functionality in the runtime library that is not pa
 
 To use this functionality, use an SPI import:
 
-```swift
+```
 @_spi(Generated) import OpenAPIRuntime
 ```
 
