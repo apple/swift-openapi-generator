@@ -13,20 +13,36 @@
 //===----------------------------------------------------------------------===//
 import XCTest
 @testable import _OpenAPIGeneratorCore
-import ArgumentParser
 
 final class Test_YamsParser: Test_Core {
 
     func testVersionValidation() throws {
-        XCTAssertNoThrow(try _test("3.0.0"))
-        XCTAssertNoThrow(try _test("3.0.1"))
-        XCTAssertNoThrow(try _test("3.0.2"))
-        XCTAssertNoThrow(try _test("3.0.3"))
-        XCTAssertThrowsError(try _test("3.1.0"))
-        XCTAssertThrowsError(try _test("2.0"))
+        XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.0"))
+        XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.1"))
+        XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.2"))
+        XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.3"))
+
+        XCTAssertThrowsError(try _test(openAPIVersionString: "3.1.0")) { error in
+            if let exitError = error as? Diagnostic {
+                let expectedDiagnostic =
+                    "/foo.yaml: error: Unsupported document version: openapi: 3.1.0. Please provide a document with OpenAPI versions in the 3.0.x set."
+                XCTAssertEqual(exitError.localizedDescription, expectedDiagnostic)
+            } else {
+                XCTFail("Thrown error is \(type(of: error)) but should be Diagnostic")
+            }
+        }
+        XCTAssertThrowsError(try _test(openAPIVersionString: "2.0")) { error in
+            if let exitError = error as? Diagnostic {
+                let expectedDiagnostic =
+                    "/foo.yaml: error: Unsupported document version: openapi: 2.0. Please provide a document with OpenAPI versions in the 3.0.x set."
+                XCTAssertEqual(exitError.localizedDescription, expectedDiagnostic)
+            } else {
+                XCTFail("Thrown error is \(type(of: error)) but should be Diagnostic")
+            }
+        }
     }
 
-    private func _test(_ openAPIVersionString: String) throws -> ParsedOpenAPIRepresentation {
+    private func _test(openAPIVersionString: String) throws -> ParsedOpenAPIRepresentation {
         try _test(
             """
             openapi: "\(openAPIVersionString)"
@@ -34,13 +50,31 @@ final class Test_YamsParser: Test_Core {
               title: "Test"
               version: "1.0.0"
             paths: {}
-            """,
-            diagnostics: PrintingDiagnosticCollector()
+            """
         )
     }
 
+    func testMissingOpenAPIVersionError() throws {
+        // No `openapi` key in the YAML
+        let yaml = """
+            info:
+              title: "Test"
+              version: "1.0.0"
+            paths: {}
+            """
+
+        XCTAssertThrowsError(try _test(yaml)) { error in
+            if let exitError = error as? Diagnostic {
+                let expectedDiagnostic =
+                    "/foo.yaml: error: No openapi key found, please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x set."
+                XCTAssertEqual(exitError.localizedDescription, expectedDiagnostic)
+            } else {
+                XCTFail("Thrown error is \(type(of: error)) but should be Diagnostic")
+            }
+        }
+    }
+
     func testEmitsYamsParsingError() throws {
-        let collector = TestingDiagnosticsCollector()
         // The `title: "Test"` line is indented the wrong amount to make the YAML invalid for the parser
         let yaml = """
             openapi: "3.0.0"
@@ -50,24 +84,18 @@ final class Test_YamsParser: Test_Core {
             paths: {}
             """
 
-        XCTAssertThrowsError(try _test(yaml, diagnostics: collector)) { error in
-            if let exitError = error as? ExitCode {
-                XCTAssertEqual(exitError, ExitCode.failure)
-            } else {
-                XCTFail("Thrown error is \(type(of: error)) but should be ExitCode.failure")
-            }
-
-            XCTAssertEqual(collector.allOutput.count, 1)
-            if let actualDiagnostic = collector.allOutput.first {
+        XCTAssertThrowsError(try _test(yaml)) { error in
+            if let exitError = error as? Diagnostic {
                 let expectedDiagnostic =
                     "/foo.yaml:3: error: did not find expected key while parsing a block mapping in line 3, column 2\n"
-                XCTAssertEqual(actualDiagnostic, expectedDiagnostic)
+                XCTAssertEqual(exitError.localizedDescription, expectedDiagnostic)
+            } else {
+                XCTFail("Thrown error is \(type(of: error)) but should be Diagnostic")
             }
         }
     }
 
     func testEmitsYamsScanningError() throws {
-        let collector = TestingDiagnosticsCollector()
         // The `version:"1.0.0"` line is missing a space after the colon to make it invalid YAML for the scanner
         let yaml = """
             openapi: "3.0.0"
@@ -77,24 +105,18 @@ final class Test_YamsParser: Test_Core {
             paths: {}
             """
 
-        XCTAssertThrowsError(try _test(yaml, diagnostics: collector)) { error in
-            if let exitError = error as? ExitCode {
-                XCTAssertEqual(exitError, ExitCode.failure)
-            } else {
-                XCTFail("Thrown error is \(type(of: error)) but should be ExitCode.failure")
-            }
-
-            XCTAssertEqual(collector.allOutput.count, 1)
-            if let actualDiagnostic = collector.allOutput.first {
+        XCTAssertThrowsError(try _test(yaml)) { error in
+            if let exitError = error as? Diagnostic {
                 let expectedDiagnostic =
                     "/foo.yaml:4: error: could not find expected ':' while scanning a simple key in line 4, column 3\n"
-                XCTAssertEqual(actualDiagnostic, expectedDiagnostic)
+                XCTAssertEqual(exitError.localizedDescription, expectedDiagnostic)
+            } else {
+                XCTFail("Thrown error is \(type(of: error)) but should be Diagnostic")
             }
         }
     }
 
     func testEmitsMissingInfoKeyOpenAPIParsingError() throws {
-        let collector = TestingDiagnosticsCollector()
         // The `smurf` line should be `info` in a real OpenAPI document.
         let yaml = """
             openapi: "3.0.0"
@@ -104,24 +126,18 @@ final class Test_YamsParser: Test_Core {
             paths: {}
             """
 
-        XCTAssertThrowsError(try _test(yaml, diagnostics: collector)) { error in
-            if let exitError = error as? ExitCode {
-                XCTAssertEqual(exitError, ExitCode.failure)
-            } else {
-                XCTFail("Thrown error is \(type(of: error)) but should be ExitCode.failure")
-            }
-
-            XCTAssertEqual(collector.allOutput.count, 1)
-            if let actualDiagnostic = collector.allOutput.first {
+        XCTAssertThrowsError(try _test(yaml)) { error in
+            if let exitError = error as? Diagnostic {
                 let expectedDiagnostic =
                     "/foo.yaml: error: Expected to find `info` key in the root Document object but it is missing."
-                XCTAssertEqual(actualDiagnostic, expectedDiagnostic)
+                XCTAssertEqual(exitError.localizedDescription, expectedDiagnostic)
+            } else {
+                XCTFail("Thrown error is \(type(of: error)) but should be Diagnostic")
             }
         }
     }
 
     func testEmitsComplexOpenAPIParsingError() throws {
-        let collector = TestingDiagnosticsCollector()
         // The `resonance` line should be `response` in a real OpenAPI document.
         let yaml = """
             openapi: "3.0.0"
@@ -137,23 +153,18 @@ final class Test_YamsParser: Test_Core {
                       description: Success
             """
 
-        XCTAssertThrowsError(try _test(yaml, diagnostics: collector)) { error in
-            if let exitError = error as? ExitCode {
-                XCTAssertEqual(exitError, ExitCode.failure)
-            } else {
-                XCTFail("Thrown error is \(type(of: error)) but should be ExitCode.failure")
-            }
-
-            XCTAssertEqual(collector.allOutput.count, 1)
-            if let actualDiagnostic = collector.allOutput.first {
+        XCTAssertThrowsError(try _test(yaml)) { error in
+            if let exitError = error as? Diagnostic {
                 let expectedDiagnostic =
                     "/foo.yaml: error: Expected to find `responses` key for the **GET** endpoint under `/system` but it is missing."
-                XCTAssertEqual(actualDiagnostic, expectedDiagnostic)
+                XCTAssertEqual(exitError.localizedDescription, expectedDiagnostic)
+            } else {
+                XCTFail("Thrown error is \(type(of: error)) but should be Diagnostic")
             }
         }
     }
 
-    private func _test(_ yaml: String, diagnostics: DiagnosticCollector) throws -> ParsedOpenAPIRepresentation {
+    private func _test(_ yaml: String) throws -> ParsedOpenAPIRepresentation {
         try YamsParser()
             .parseOpenAPI(
                 .init(
@@ -161,16 +172,7 @@ final class Test_YamsParser: Test_Core {
                     contents: Data(yaml.utf8)
                 ),
                 config: .init(mode: .types),
-                diagnostics: diagnostics
+                diagnostics: PrintingDiagnosticCollector()
             )
-    }
-}
-
-/// Collect all of the diagnostic descriptions for later assertion checks.
-class TestingDiagnosticsCollector: DiagnosticCollector {
-    var allOutput: [String] = []
-
-    func emit(_ diagnostic: Diagnostic) {
-        allOutput.append(diagnostic.description)
     }
 }

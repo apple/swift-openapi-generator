@@ -37,18 +37,19 @@ public struct Diagnostic: Error, Codable {
     /// A user-friendly description of the diagnostic.
     public var message: String
 
-    /// The absolute path to a specific source file that triggered the diagnostic.
-    public var absoluteFilePath: URL?
-
-    /// The line number within the specific source file that triggered the diagnostic.
-    public var lineNumber: Int?
+    /// The absolute path to a specific source file and optional line number within that file that triggered the diagnostic.
+    public struct Location: Codable {
+        public var filePath: String
+        public var lineNumber: Int?
+    }
+    public var location: Location?
 
     /// Additional information about where the issue occurred.
     public var context: [String: String] = [:]
 
     /// Creates an informative message, which doesn't represent an issue.
-    public static func note(message: String, context: [String: String] = [:]) -> Diagnostic {
-        .init(severity: .note, message: message, context: context)
+    public static func note(message: String, location: Location? = nil, context: [String: String] = [:]) -> Diagnostic {
+        .init(severity: .note, message: message, location: location, context: context)
     }
 
     /// Creates a recoverable issue, which doesn't prevent the generator
@@ -60,9 +61,10 @@ public struct Diagnostic: Error, Codable {
     /// - Returns: A warning diagnostic.
     public static func warning(
         message: String,
+        location: Location? = nil,
         context: [String: String] = [:]
     ) -> Diagnostic {
-        .init(severity: .warning, message: message, context: context)
+        .init(severity: .warning, message: message, location: location, context: context)
     }
 
     /// Creates a non-recoverable issue, which leads the generator to stop.
@@ -73,9 +75,10 @@ public struct Diagnostic: Error, Codable {
     /// - Returns: An error diagnostic.
     public static func error(
         message: String,
+        location: Location? = nil,
         context: [String: String] = [:]
     ) -> Diagnostic {
-        .init(severity: .error, message: message, context: context)
+        .init(severity: .error, message: message, location: location, context: context)
     }
 
     /// Creates a diagnostic for an unsupported feature.
@@ -91,11 +94,16 @@ public struct Diagnostic: Error, Codable {
     public static func unsupported(
         _ feature: String,
         foundIn: String,
+        location: Location? = nil,
         context: [String: String] = [:]
     ) -> Diagnostic {
         var context = context
         context["foundIn"] = foundIn
-        return warning(message: "Feature \"\(feature)\" is not supported, skipping", context: context)
+        return warning(
+            message: "Feature \"\(feature)\" is not supported, skipping",
+            location: location,
+            context: context
+        )
     }
 }
 
@@ -108,13 +116,9 @@ extension Diagnostic.Severity: CustomStringConvertible {
 extension Diagnostic: CustomStringConvertible {
     public var description: String {
         var prefix = ""
-        if let filePath = absoluteFilePath {
-            if #available(macOS 13.0, *) {
-                prefix = "\(filePath.path(percentEncoded: false)):"
-            } else {
-                prefix = "\(filePath.path):"
-            }
-            if let line = lineNumber {
+        if let location = location {
+            prefix = "\(location.filePath):"
+            if let line = location.lineNumber {
                 prefix += "\(line):"
             }
             prefix += " "

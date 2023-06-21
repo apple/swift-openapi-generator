@@ -11,7 +11,6 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import ArgumentParser
 import Foundation
 import OpenAPIKit30
 import Yams
@@ -31,19 +30,6 @@ struct YamsParser: ParserProtocol {
             var openapi: String?
         }
 
-        struct OpenAPIVersionError: Error, CustomStringConvertible, LocalizedError {
-            var versionString: String
-            var description: String {
-                "Unsupported document version: \(versionString). Please provide a document with OpenAPI versions in the 3.0.x set."
-            }
-        }
-
-        struct OpenAPIMissingVersionError: Error, CustomStringConvertible, LocalizedError {
-            var description: String {
-                "No openapi key found, please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x set."
-            }
-        }
-
         let versionedDocument: OpenAPIVersionedDocument
         do {
             versionedDocument = try decoder.decode(
@@ -51,18 +37,21 @@ struct YamsParser: ParserProtocol {
                 from: openapiData
             )
         } catch DecodingError.dataCorrupted(let errorContext) {
-            try possibly_throw_parsing_error(context: errorContext, input: input, diagnostics: diagnostics)
+            try checkParsingError(context: errorContext, input: input, diagnostics: diagnostics)
             throw DecodingError.dataCorrupted(errorContext)
         }
 
         guard let openAPIVersion = versionedDocument.openapi else {
-            throw OpenAPIMissingVersionError()
+            throw Diagnostic.openAPIMissingVersionError(location: .init(filePath: input.absolutePath.path))
         }
         switch openAPIVersion {
         case "3.0.0", "3.0.1", "3.0.2", "3.0.3":
             break
         default:
-            throw OpenAPIVersionError(versionString: "openapi: \(openAPIVersion)")
+            throw Diagnostic.openAPIVersionError(
+                versionString: "openapi: \(openAPIVersion)",
+                location: .init(filePath: input.absolutePath.path)
+            )
         }
 
         do {
@@ -71,57 +60,54 @@ struct YamsParser: ParserProtocol {
                 from: input.contents
             )
         } catch DecodingError.dataCorrupted(let errorContext) {
-            try possibly_throw_parsing_error(context: errorContext, input: input, diagnostics: diagnostics)
+            try checkParsingError(context: errorContext, input: input, diagnostics: diagnostics)
             throw DecodingError.dataCorrupted(errorContext)
         }
     }
 
-    /// Detect specific YAML parsing errors to emit nicely formatted errors for IDEs
-    private func possibly_throw_parsing_error(
+    /// Detect specific YAML parsing errors to throw nicely formatted diagnostics for IDEs
+    private func checkParsingError(
         context: DecodingError.Context,
         input: InMemoryInputFile,
         diagnostics: DiagnosticCollector
     ) throws {
         if let yamlError = context.underlyingError as? YamlError {
             if case .parser(let yamlContext, let yamlProblem, let yamlMark, _) = yamlError {
-                try throw_parsing_error(
-                    context: yamlContext,
-                    problem: yamlProblem,
-                    lineNumber: yamlMark.line - 1,
-                    input: input,
-                    diagnostics
+                throw Diagnostic.error(
+                    message: "\(yamlProblem) \(yamlContext?.description ?? "")",
+                    location: .init(filePath: input.absolutePath.path, lineNumber: yamlMark.line - 1)
                 )
             } else if case .scanner(let yamlContext, let yamlProblem, let yamlMark, _) = yamlError {
-                try throw_parsing_error(
-                    context: yamlContext,
-                    problem: yamlProblem,
-                    lineNumber: yamlMark.line - 1,
-                    input: input,
-                    diagnostics
+                throw Diagnostic.error(
+                    message: "\(yamlProblem) \(yamlContext?.description ?? "")",
+                    location: .init(filePath: input.absolutePath.path, lineNumber: yamlMark.line - 1)
                 )
             }
         } else if let openAPIError = context.underlyingError as? OpenAPIError {
-            var problem = Diagnostic.error(message: openAPIError.localizedDescription)
-            problem.absoluteFilePath = input.absolutePath
-            diagnostics.emit(problem)
-            throw ExitCode.failure
+            throw Diagnostic.error(
+                message: openAPIError.localizedDescription,
+                location: .init(filePath: input.absolutePath.path)
+            )
         }
     }
+}
 
-    private func throw_parsing_error(
-        context: YamlError.Context?,
-        problem: String,
-        lineNumber: Int,
-        input: InMemoryInputFile,
-        _ diagnostics: DiagnosticCollector
-    ) throws {
-        let text = "\(problem) \(context?.description ?? "")"
+extension Diagnostic {
+    /// Use when the document is an unsupported version.
+    static func openAPIVersionError(versionString: String, location: Location) -> Diagnostic {
+        return error(
+            message:
+                "Unsupported document version: \(versionString). Please provide a document with OpenAPI versions in the 3.0.x set.",
+            location: location
+        )
+    }
 
-        var problem = Diagnostic.error(message: text)
-        problem.absoluteFilePath = input.absolutePath
-        problem.lineNumber = lineNumber
-        diagnostics.emit(problem)
-
-        throw ExitCode.failure
+    // Use when the YAML document is completely missing the `openapi` version key.
+    static func openAPIMissingVersionError(location: Location) -> Diagnostic {
+        return error(
+            message:
+                "No openapi key found, please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x set.",
+            location: location
+        )
     }
 }
