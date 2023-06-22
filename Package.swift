@@ -19,11 +19,9 @@ let package = Package(
     platforms: [
         .macOS(.v10_15),
 
-        // The platforms below are not currently supported for running the
-        // generator itself (only the generated code), they are here
-        // to allow the generator to emit a more descriptive error,
-        // see the file PlatformChecks.swift for details.
-        .iOS(.v13), .tvOS(.v13), .watchOS(.v6),
+        // The platforms below are not currently supported for running the generator itself.
+        // We include them here to allow the us to emit a more descriptive compiler error.
+        .iOS("99"), .tvOS("99"), .watchOS("99"),
     ],
     products: [
         .executable(name: "swift-openapi-generator", targets: ["swift-openapi-generator"]),
