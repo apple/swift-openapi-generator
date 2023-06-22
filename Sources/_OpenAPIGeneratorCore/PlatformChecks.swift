@@ -12,7 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-// Details: https://github.com/apple/swift-openapi-generator/issues/86
+// Emit a compiler error if this library is linked with a target in an adopter
+// project.
 #if !(os(macOS) || os(Linux))
-#error("Running the generator tool itself is not supported on iOS, tvOS, and watchOS. Check that your app is not linking the generator directly. For details, check out: https://github.com/apple/swift-openapi-generator/issues/86")
+#error("_OpenAPIGeneratorCore is only to be used by swift-openapi-generator itself—your target should not link this library or the command line tool directly.")
 #endif
