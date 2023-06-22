@@ -37,7 +37,7 @@ struct YamsParser: ParserProtocol {
                 from: openapiData
             )
         } catch DecodingError.dataCorrupted(let errorContext) {
-            try checkParsingError(context: errorContext, input: input, diagnostics: diagnostics)
+            try checkParsingError(context: errorContext, input: input)
             throw DecodingError.dataCorrupted(errorContext)
         }
 
@@ -60,16 +60,19 @@ struct YamsParser: ParserProtocol {
                 from: input.contents
             )
         } catch DecodingError.dataCorrupted(let errorContext) {
-            try checkParsingError(context: errorContext, input: input, diagnostics: diagnostics)
+            try checkParsingError(context: errorContext, input: input)
             throw DecodingError.dataCorrupted(errorContext)
         }
     }
 
     /// Detect specific YAML parsing errors to throw nicely formatted diagnostics for IDEs
+    /// - Parameters:
+    ///   - context: The error context that triggered the `DecodingError`.
+    ///   - input: The input file that was being worked on when the error was triggered.
+    /// - Throws: Will throw a `Diagnostic` if the decoding error is a common parsing error.
     private func checkParsingError(
         context: DecodingError.Context,
-        input: InMemoryInputFile,
-        diagnostics: DiagnosticCollector
+        input: InMemoryInputFile
     ) throws {
         if let yamlError = context.underlyingError as? YamlError {
             if case .parser(let yamlContext, let yamlProblem, let yamlMark, _) = yamlError {
@@ -94,6 +97,10 @@ struct YamsParser: ParserProtocol {
 
 extension Diagnostic {
     /// Use when the document is an unsupported version.
+    /// - Parameters:
+    ///   - versionString: The OpenAPI version number that was parsed from the document.
+    ///   - location: Describes the input file being worked on when the error occurred.
+    /// - Returns: An error diagnostic.
     static func openAPIVersionError(versionString: String, location: Location) -> Diagnostic {
         return error(
             message:
@@ -102,7 +109,9 @@ extension Diagnostic {
         )
     }
 
-    // Use when the YAML document is completely missing the `openapi` version key.
+    /// Use when the YAML document is completely missing the `openapi` version key.
+    /// - Parameter location: Describes the input file being worked on when the error occurred
+    /// - Returns: An error diagnostic.
     static func openAPIMissingVersionError(location: Location) -> Diagnostic {
         return error(
             message:

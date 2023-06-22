@@ -37,11 +37,16 @@ public struct Diagnostic: Error, Codable {
     /// A user-friendly description of the diagnostic.
     public var message: String
 
-    /// The absolute path to a specific source file and optional line number within that file that triggered the diagnostic.
+    /// Describes the source file that triggered a diagnostic.
     public struct Location: Codable {
+        /// The absolute path to a specific source file that triggered the diagnostic.
         public var filePath: String
+
+        /// The line number (if known) of the line within the source file that triggered the diagnostic.
         public var lineNumber: Int?
     }
+
+    /// The source file that triggered the diagnostic.
     public var location: Location?
 
     /// Additional information about where the issue occurred.
@@ -56,6 +61,7 @@ public struct Diagnostic: Error, Codable {
     /// from continuing.
     /// - Parameters:
     ///   - message: The message that describes the warning.
+    ///   - location: Describe the source file that triggered the diagnostic (if known).
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
     /// - Returns: A warning diagnostic.
@@ -70,6 +76,7 @@ public struct Diagnostic: Error, Codable {
     /// Creates a non-recoverable issue, which leads the generator to stop.
     /// - Parameters:
     ///   - message: The message that describes the error.
+    ///   - location: Describe the source file that triggered the diagnostic (if known).
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
     /// - Returns: An error diagnostic.
@@ -88,6 +95,7 @@ public struct Diagnostic: Error, Codable {
     ///   - feature: A human-readable name of the feature.
     ///   - foundIn: A description of the location in which the unsupported
     ///   feature was detected.
+    ///   - location: Describe the source file that triggered the diagnostic (if known).
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
     /// - Returns: A warning diagnostic.
