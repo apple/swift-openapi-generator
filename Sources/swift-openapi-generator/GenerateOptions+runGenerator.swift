@@ -12,6 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import _OpenAPIGeneratorCore
+import ArgumentParser
 import Foundation
 
 extension _GenerateOptions {
@@ -65,13 +66,19 @@ extension _GenerateOptions {
             - Additional imports: \(resolvedAdditionalImports.isEmpty ? "<none>" : resolvedAdditionalImports.joined(separator: ", "))
             """
         )
-        try _Tool.runGenerator(
-            doc: doc,
-            configs: configs,
-            isPluginInvocation: isPluginInvocation,
-            outputDirectory: outputDirectory,
-            diagnostics: diagnostics
-        )
+        do {
+            try _Tool.runGenerator(
+                doc: doc,
+                configs: configs,
+                isPluginInvocation: isPluginInvocation,
+                outputDirectory: outputDirectory,
+                diagnostics: diagnostics
+            )
+        } catch let error as Diagnostic {
+            // Emit our nice Diagnostics message instead of relying on ArgumentParser output.
+            diagnostics.emit(error)
+            throw ExitCode.failure
+        }
         try finalizeDiagnostics()
     }
 }
