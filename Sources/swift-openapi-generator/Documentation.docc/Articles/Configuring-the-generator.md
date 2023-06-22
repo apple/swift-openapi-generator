@@ -14,7 +14,7 @@ The configuration file is named `openapi-generator-config.yaml` or `openapi-gene
 
 > In the following tutorial, we will use `openapi-generator-config.yaml` as an example.
 
-```
+```text
 .
 ├── Package.swift
 └── Sources
