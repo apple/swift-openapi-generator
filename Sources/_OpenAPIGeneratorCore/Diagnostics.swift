@@ -37,39 +37,55 @@ public struct Diagnostic: Error, Codable {
     /// A user-friendly description of the diagnostic.
     public var message: String
 
+    /// Describes the source file that triggered a diagnostic.
+    public struct Location: Codable {
+        /// The absolute path to a specific source file that triggered the diagnostic.
+        public var filePath: String
+
+        /// The line number (if known) of the line within the source file that triggered the diagnostic.
+        public var lineNumber: Int?
+    }
+
+    /// The source file that triggered the diagnostic.
+    public var location: Location?
+
     /// Additional information about where the issue occurred.
     public var context: [String: String] = [:]
 
     /// Creates an informative message, which doesn't represent an issue.
-    public static func note(message: String, context: [String: String] = [:]) -> Diagnostic {
-        .init(severity: .note, message: message, context: context)
+    public static func note(message: String, location: Location? = nil, context: [String: String] = [:]) -> Diagnostic {
+        .init(severity: .note, message: message, location: location, context: context)
     }
 
     /// Creates a recoverable issue, which doesn't prevent the generator
     /// from continuing.
     /// - Parameters:
     ///   - message: The message that describes the warning.
+    ///   - location: Describe the source file that triggered the diagnostic (if known).
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
     /// - Returns: A warning diagnostic.
     public static func warning(
         message: String,
+        location: Location? = nil,
         context: [String: String] = [:]
     ) -> Diagnostic {
-        .init(severity: .warning, message: message, context: context)
+        .init(severity: .warning, message: message, location: location, context: context)
     }
 
     /// Creates a non-recoverable issue, which leads the generator to stop.
     /// - Parameters:
     ///   - message: The message that describes the error.
+    ///   - location: Describe the source file that triggered the diagnostic (if known).
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
     /// - Returns: An error diagnostic.
     public static func error(
         message: String,
+        location: Location? = nil,
         context: [String: String] = [:]
     ) -> Diagnostic {
-        .init(severity: .error, message: message, context: context)
+        .init(severity: .error, message: message, location: location, context: context)
     }
 
     /// Creates a diagnostic for an unsupported feature.
@@ -79,17 +95,23 @@ public struct Diagnostic: Error, Codable {
     ///   - feature: A human-readable name of the feature.
     ///   - foundIn: A description of the location in which the unsupported
     ///   feature was detected.
+    ///   - location: Describe the source file that triggered the diagnostic (if known).
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
     /// - Returns: A warning diagnostic.
     public static func unsupported(
         _ feature: String,
         foundIn: String,
+        location: Location? = nil,
         context: [String: String] = [:]
     ) -> Diagnostic {
         var context = context
         context["foundIn"] = foundIn
-        return warning(message: "Feature \"\(feature)\" is not supported, skipping", context: context)
+        return warning(
+            message: "Feature \"\(feature)\" is not supported, skipping",
+            location: location,
+            context: context
+        )
     }
 }
 
@@ -101,8 +123,16 @@ extension Diagnostic.Severity: CustomStringConvertible {
 
 extension Diagnostic: CustomStringConvertible {
     public var description: String {
+        var prefix = ""
+        if let location = location {
+            prefix = "\(location.filePath):"
+            if let line = location.lineNumber {
+                prefix += "\(line):"
+            }
+            prefix += " "
+        }
         let contextString = context.map { "\($0)=\($1)" }.sorted().joined(separator: ", ")
-        return "\(severity): \(message) [\(contextString.isEmpty ? "" : "context: \(contextString)")]"
+        return "\(prefix)\(severity): \(message)\(contextString.isEmpty ? "" : " [context: \(contextString)]")"
     }
 }
 
