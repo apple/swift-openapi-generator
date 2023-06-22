@@ -217,5 +217,7 @@ fileprivate extension String {
         "Array",
         "Type",
         "type",
+        "Protocol",
+        "await",
     ]
 }
