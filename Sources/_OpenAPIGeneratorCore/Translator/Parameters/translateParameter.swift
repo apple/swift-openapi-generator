@@ -44,6 +44,7 @@ extension TypesFileTranslator {
             associatedDeclarations = []
         }
         return .init(
+            isDeprecated: parameter.parameter.deprecated,
             originalName: parameter.name,
             typeUsage: parameter.typeUsage,
             associatedDeclarations: associatedDeclarations

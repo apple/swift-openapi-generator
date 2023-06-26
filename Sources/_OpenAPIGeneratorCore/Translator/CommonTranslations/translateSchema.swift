@@ -90,7 +90,8 @@ extension FileTranslator {
             let objectDecl = try translateObjectStruct(
                 typeName: typeName,
                 openAPIDescription: overrides.userDescription ?? coreContext.description,
-                objectContext: objectContext
+                objectContext: objectContext,
+                isDeprecated: coreContext.deprecated
             )
             return [objectDecl]
         case let .string(coreContext, _):

@@ -69,7 +69,7 @@ extension FileTranslator {
         guard let comment = blueprint.comment else {
             return structDecl
         }
-        return .commentable(comment, structDecl)
+        return .commentable(comment, structDecl.deprecate(if: blueprint.isDeprecated))
     }
 
     /// Returns a declaration of an initializer declared in a structure.
@@ -144,6 +144,7 @@ extension FileTranslator {
                     type: propertyTypeName
                 )
             )
+            .deprecate(if: property.isDeprecated)
         )
         return property.associatedDeclarations + [propertyDecl]
     }

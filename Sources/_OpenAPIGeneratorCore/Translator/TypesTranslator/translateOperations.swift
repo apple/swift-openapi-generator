@@ -208,6 +208,7 @@ extension TypesFileTranslator {
                     ]
                 )
             )
+            .deprecate(if: operation.endpoint.operation.deprecated)
         )
         return operationEnumDecl
     }

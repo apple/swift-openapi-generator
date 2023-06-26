@@ -20,6 +20,9 @@ struct StructBlueprint {
     /// A documentation comment for the structure.
     var comment: Comment?
 
+    /// Whether the type should be annotated as deprecated.
+    var isDeprecated: Bool = false
+
     /// An access modifier.
     var access: AccessModifier?
 
@@ -102,6 +105,9 @@ struct PropertyBlueprint {
 
     /// A documentation comment for the property.
     var comment: Comment? = nil
+
+    /// Whether the type should be annotated as deprecated.
+    var isDeprecated: Bool = false
 
     /// The original name of the property specified in the OpenAPI document.
     var originalName: String

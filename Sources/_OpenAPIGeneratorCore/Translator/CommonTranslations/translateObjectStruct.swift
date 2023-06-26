@@ -26,7 +26,8 @@ extension FileTranslator {
     func translateObjectStruct(
         typeName: TypeName,
         openAPIDescription: String?,
-        objectContext: JSONSchema.ObjectContext
+        objectContext: JSONSchema.ObjectContext,
+        isDeprecated: Bool
     ) throws -> Declaration {
 
         let documentedProperties: [PropertyBlueprint] =
@@ -61,6 +62,7 @@ extension FileTranslator {
                 }
                 return PropertyBlueprint(
                     comment: comment,
+                    isDeprecated: value.deprecated,
                     originalName: key,
                     typeUsage: propertyType,
                     associatedDeclarations: associatedDeclarations
@@ -86,6 +88,7 @@ extension FileTranslator {
         return translateStructBlueprint(
             StructBlueprint(
                 comment: comment,
+                isDeprecated: isDeprecated,
                 access: config.access,
                 typeName: typeName,
                 conformances: Constants.ObjectStruct.conformances,

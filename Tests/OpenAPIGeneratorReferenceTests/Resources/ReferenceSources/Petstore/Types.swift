@@ -21,7 +21,8 @@ public protocol APIProtocol: Sendable {
     func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output
+    @available(*, deprecated) func probe(_ input: Operations.probe.Input) async throws
+        -> Operations.probe.Output
     /// Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
     ///
     /// - Remark: HTTP `PATCH /pets/{petId}`.
@@ -577,6 +578,26 @@ public enum Components {
                 }
             }
         }
+        /// - Remark: Generated from `#/components/schemas/DeprecatedObject`.
+        @available(*, deprecated)
+        public struct DeprecatedObject: Codable, Equatable, Hashable, Sendable {
+            /// Creates a new `DeprecatedObject`.
+            public init() {}
+            public init(from decoder: Decoder) throws {
+                try decoder.ensureNoAdditionalProperties(knownKeys: [])
+            }
+        }
+        /// - Remark: Generated from `#/components/schemas/ObjectWithDeprecatedProperty`.
+        public struct ObjectWithDeprecatedProperty: Codable, Equatable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/ObjectWithDeprecatedProperty/message`.
+            @available(*, deprecated) public var message: Swift.String?
+            /// Creates a new `ObjectWithDeprecatedProperty`.
+            ///
+            /// - Parameters:
+            ///   - message:
+            public init(message: Swift.String? = nil) { self.message = message }
+            public enum CodingKeys: String, CodingKey { case message }
+        }
     }
     /// Types generated from the `#/components/parameters` section of the OpenAPI document.
     public enum Parameters {
@@ -779,7 +800,7 @@ public enum Operations {
             }
             public var query: Operations.listPets.Input.Query
             public struct Headers: Sendable, Equatable, Hashable {
-                public var My_Request_UUID: Swift.String?
+                @available(*, deprecated) public var My_Request_UUID: Swift.String?
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
@@ -1006,7 +1027,7 @@ public enum Operations {
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    public enum probe {
+    @available(*, deprecated) public enum probe {
         public static let id: String = "probe"
         public struct Input: Sendable, Equatable, Hashable {
             public struct Path: Sendable, Equatable, Hashable {

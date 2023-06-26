@@ -50,6 +50,7 @@ paths:
         - name: My-Request-UUID
           in: header
           description: Request identifier
+          deprecated: true
           schema:
             format: uuid
             type: string
@@ -116,6 +117,7 @@ paths:
   /probe/:
     post:
       operationId: probe
+      deprecated: true
       responses:
         '204':
           description: Ack
@@ -370,6 +372,17 @@ components:
         - $ref: '#/components/schemas/MessagedExercise'
       discriminator:
         propertyName: kind
+    DeprecatedObject:
+      deprecated: true
+      type: object
+      properties: {}
+      additionalProperties: false
+    ObjectWithDeprecatedProperty:
+      type: object
+      properties:
+        message:
+          type: string
+          deprecated: true
   responses:
     ErrorBadRequest:
       description: Bad request

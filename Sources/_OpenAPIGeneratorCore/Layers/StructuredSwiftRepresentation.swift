@@ -1451,3 +1451,13 @@ extension KeywordKind {
         .try(hasPostfixQuestionMark: false)
     }
 }
+
+extension Declaration {
+    /// Returns a new deprecated variant of the declaration if `shouldDeprecate` is true.
+    func deprecate(if shouldDeprecate: Bool) -> Self {
+        if shouldDeprecate {
+            return .deprecated(.init(), self)
+        }
+        return self
+    }
+}
