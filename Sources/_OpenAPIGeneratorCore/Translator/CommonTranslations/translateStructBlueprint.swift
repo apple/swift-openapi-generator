@@ -64,12 +64,8 @@ extension FileTranslator {
             conformances: blueprint.conformances,
             members: members
         )
-        let structDecl: Declaration = .struct(structDesc)
 
-        guard let comment = blueprint.comment else {
-            return structDecl
-        }
-        return .commentable(comment, structDecl.deprecate(if: blueprint.isDeprecated))
+        return .commentable(blueprint.comment, .struct(structDesc).deprecate(if: blueprint.isDeprecated))
     }
 
     /// Returns a declaration of an initializer declared in a structure.
