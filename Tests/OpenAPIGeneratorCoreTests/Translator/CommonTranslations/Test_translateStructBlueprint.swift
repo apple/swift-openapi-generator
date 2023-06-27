@@ -53,6 +53,12 @@ final class Test_translateStructBlueprint: Test_Core {
         )
     }
 
+    func testDeprecatedStruct() throws {
+        let blueprint = StructBlueprint(isDeprecated: true, typeName: Self.testTypeName, properties: [])
+        let decl = makeTypesTranslator().translateStructBlueprint(blueprint)
+        XCTAssertEqual(decl.strippingTopComment.info.kind, .deprecated)
+    }
+
     func _testStruct(_ blueprint: StructBlueprint) throws -> [DeclInfo] {
         let translator = makeTypesTranslator()
         let decl = translator.translateStructBlueprint(blueprint)
