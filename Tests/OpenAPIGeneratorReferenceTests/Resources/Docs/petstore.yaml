@@ -50,7 +50,6 @@ paths:
         - name: My-Request-UUID
           in: header
           description: Request identifier
-          deprecated: true
           schema:
             format: uuid
             type: string
@@ -204,6 +203,13 @@ components:
       schema:
         type: integer
         format: int64
+    header.deprecatedHeader:
+      name: deprecatedHeader
+      in: header
+      deprecated: true
+      description: A deprecated header parameter
+      schema:
+        type: string
   schemas:
     Pet:
       type: object

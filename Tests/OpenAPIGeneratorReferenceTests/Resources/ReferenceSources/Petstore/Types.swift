@@ -609,6 +609,10 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/parameters/path.petId`.
         public typealias path_petId = Swift.Int64
+        /// A deprecated header parameter
+        ///
+        /// - Remark: Generated from `#/components/parameters/header.deprecatedHeader`.
+        public typealias header_deprecatedHeader = Swift.String
     }
     /// Types generated from the `#/components/requestBodies` section of the OpenAPI document.
     public enum RequestBodies {
@@ -800,7 +804,7 @@ public enum Operations {
             }
             public var query: Operations.listPets.Input.Query
             public struct Headers: Sendable, Equatable, Hashable {
-                @available(*, deprecated) public var My_Request_UUID: Swift.String?
+                public var My_Request_UUID: Swift.String?
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
