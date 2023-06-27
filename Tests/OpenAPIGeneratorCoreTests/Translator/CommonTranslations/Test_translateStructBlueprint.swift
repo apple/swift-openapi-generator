@@ -56,7 +56,7 @@ final class Test_translateStructBlueprint: Test_Core {
     func _testStruct(_ blueprint: StructBlueprint) throws -> [DeclInfo] {
         let translator = makeTypesTranslator()
         let decl = translator.translateStructBlueprint(blueprint)
-        guard case .struct(let structDecl) = decl else {
+        guard case .struct(let structDecl) = decl.strippingTopComment else {
             throw UnexpectedDeclError(actual: decl.info.kind, expected: .struct)
         }
         XCTAssertEqual(structDecl.name, "Foo")
