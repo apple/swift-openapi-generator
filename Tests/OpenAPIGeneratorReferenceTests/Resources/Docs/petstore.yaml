@@ -116,6 +116,7 @@ paths:
   /probe/:
     post:
       operationId: probe
+      deprecated: true
       responses:
         '204':
           description: Ack
@@ -202,6 +203,13 @@ components:
       schema:
         type: integer
         format: int64
+    header.deprecatedHeader:
+      name: deprecatedHeader
+      in: header
+      deprecated: true
+      description: A deprecated header parameter
+      schema:
+        type: string
   schemas:
     Pet:
       type: object
@@ -370,6 +378,17 @@ components:
         - $ref: '#/components/schemas/MessagedExercise'
       discriminator:
         propertyName: kind
+    DeprecatedObject:
+      deprecated: true
+      type: object
+      properties: {}
+      additionalProperties: false
+    ObjectWithDeprecatedProperty:
+      type: object
+      properties:
+        message:
+          type: string
+          deprecated: true
   responses:
     ErrorBadRequest:
       description: Bad request

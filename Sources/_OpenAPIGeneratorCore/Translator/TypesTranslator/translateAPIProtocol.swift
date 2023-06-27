@@ -57,7 +57,7 @@ extension TypesFileTranslator {
         let function = FunctionDescription(signature: signature)
         return .commentable(
             operationComment,
-            .function(function)
+            .function(function).deprecate(if: description.operation.deprecated)
         )
     }
 }
