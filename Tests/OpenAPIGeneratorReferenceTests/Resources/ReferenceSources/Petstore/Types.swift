@@ -1031,7 +1031,7 @@ public enum Operations {
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    @available(*, deprecated) public enum probe {
+    public enum probe {
         public static let id: String = "probe"
         public struct Input: Sendable, Equatable, Hashable {
             public struct Path: Sendable, Equatable, Hashable {
