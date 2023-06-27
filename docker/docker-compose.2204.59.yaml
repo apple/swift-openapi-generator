@@ -10,7 +10,14 @@ services:
   test:
     image: *image
     environment:
-      - WARN_AS_ERROR_ARG=-Xswiftc -warnings-as-errors
+      # Because OpenAPI supports deprecation, the generated code could include
+      # deprecated symbols, which will produce warnings.
+      #
+      # We'll desable -warnings-as-errors for now and revisit this when we
+      # refactor the compilation of the generated code into a separate
+      # pipeline.
+      #
+      # - WARN_AS_ERROR_ARG=-Xswiftc -warnings-as-errors
       - IMPORT_CHECK_ARG=--explicit-target-dependency-import-check error
 
   shell:
