@@ -106,7 +106,7 @@ struct PropertyBlueprint {
     /// A documentation comment for the property.
     var comment: Comment? = nil
 
-    /// Whether the type should be annotated as deprecated.
+    /// Whether the property should be annotated as deprecated.
     var isDeprecated: Bool = false
 
     /// The original name of the property specified in the OpenAPI document.
