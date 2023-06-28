@@ -256,10 +256,10 @@ extension ReferenceTests {
             "--no-index",
             "-U5",
             // The following arguments are useful for development.
-            //            "--ignore-space-change",
-            //            "--ignore-all-space",
-            //            "--ignore-blank-lines",
-            //            "--ignore-space-at-eol",
+            "--ignore-space-change",
+            "--ignore-all-space",
+            "--ignore-blank-lines",
+            "--ignore-space-at-eol",
             reference.relativePath,
             actual.path,
         ]

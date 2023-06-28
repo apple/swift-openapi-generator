@@ -35,13 +35,13 @@ final class Test_Server: XCTestCase {
                 XCTAssertEqual(input.query.habitat, .water)
                 XCTAssertEqual(input.query.since, .test)
                 XCTAssertEqual(input.query.feeds, [.carnivore, .herbivore])
-                XCTAssertEqual(input.headers.My_Request_UUID, "abcd-1234")
+                XCTAssertEqual(input.headers.My_hyphen_Request_hyphen_UUID, "abcd-1234")
                 XCTAssertNil(input.body)
                 return .ok(
                     .init(
                         headers: .init(
-                            My_Response_UUID: "abcd",
-                            My_Tracing_Header: "1234"
+                            My_hyphen_Response_hyphen_UUID: "abcd",
+                            My_hyphen_Tracing_hyphen_Header: "1234"
                         ),
                         body: .json([
                             .init(id: 1, name: "Fluffz")
@@ -96,7 +96,7 @@ final class Test_Server: XCTestCase {
             listPetsBlock: { input in
                 return .default(
                     statusCode: 400,
-                    .init(body: .json(.init(code: 1, me_sage: "Oh no!")))
+                    .init(body: .json(.init(code: 1, me_dollar_sage: "Oh no!")))
                 )
             }
         )
@@ -129,7 +129,7 @@ final class Test_Server: XCTestCase {
     func testCreatePet_201() async throws {
         client = .init(
             createPetBlock: { input in
-                XCTAssertEqual(input.headers.X_Extra_Arguments, .init(code: 1))
+                XCTAssertEqual(input.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
                 guard case let .json(createPet) = input.body else {
                     throw TestError.unexpectedValue(input.body)
                 }
@@ -137,7 +137,7 @@ final class Test_Server: XCTestCase {
                 return .created(
                     .init(
                         headers: .init(
-                            X_Extra_Arguments: .init(code: 1)
+                            X_hyphen_Extra_hyphen_Arguments: .init(code: 1)
                         ),
                         body: .json(
                             .init(id: 1, name: "Fluffz")
@@ -188,7 +188,7 @@ final class Test_Server: XCTestCase {
                 .badRequest(
                     .init(
                         headers: .init(
-                            X_Reason: "bad luck"
+                            X_hyphen_Reason: "bad luck"
                         ),
                         body: .json(
                             .init(code: 1)

@@ -87,7 +87,7 @@ extension Response {
 
 extension Operations.listPets.Output {
     static var success: Self {
-        .ok(.init(headers: .init(My_Response_UUID: "abcd"), body: .json([])))
+        .ok(.init(headers: .init(My_hyphen_Response_hyphen_UUID: "abcd"), body: .json([])))
     }
 }
 

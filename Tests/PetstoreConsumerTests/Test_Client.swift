@@ -75,7 +75,7 @@ final class Test_Client: XCTestCase {
                     since: .test
                 ),
                 headers: .init(
-                    My_Request_UUID: "abcd-1234"
+                    My_hyphen_Request_hyphen_UUID: "abcd-1234"
                 )
             )
         )
@@ -83,8 +83,8 @@ final class Test_Client: XCTestCase {
             XCTFail("Unexpected response: \(response)")
             return
         }
-        XCTAssertEqual(value.headers.My_Response_UUID, "abcd")
-        XCTAssertEqual(value.headers.My_Tracing_Header, "1234")
+        XCTAssertEqual(value.headers.My_hyphen_Response_hyphen_UUID, "abcd")
+        XCTAssertEqual(value.headers.My_hyphen_Tracing_hyphen_Header, "1234")
         switch value.body {
         case .json(let pets):
             XCTAssertEqual(pets, [.init(id: 1, name: "Fluffz")])
@@ -135,7 +135,7 @@ final class Test_Client: XCTestCase {
                 error,
                 .init(
                     code: 1,
-                    me_sage: "Oh no!",
+                    me_dollar_sage: "Oh no!",
                     userData: try .init(unvalidatedValue: ["one": 1])
                 )
             )
@@ -182,7 +182,7 @@ final class Test_Client: XCTestCase {
         let response = try await client.createPet(
             .init(
                 headers: .init(
-                    X_Extra_Arguments: .init(code: 1)
+                    X_hyphen_Extra_hyphen_Arguments: .init(code: 1)
                 ),
                 body: .json(.init(name: "Fluffz"))
             )
@@ -191,7 +191,7 @@ final class Test_Client: XCTestCase {
             XCTFail("Unexpected response: \(response)")
             return
         }
-        XCTAssertEqual(value.headers.X_Extra_Arguments, .init(code: 1))
+        XCTAssertEqual(value.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
         switch value.body {
         case .json(let pets):
             XCTAssertEqual(pets, .init(id: 1, name: "Fluffz"))
@@ -220,7 +220,7 @@ final class Test_Client: XCTestCase {
             XCTFail("Unexpected response: \(response)")
             return
         }
-        XCTAssertEqual(value.headers.X_Reason, "bad luck")
+        XCTAssertEqual(value.headers.X_hyphen_Reason, "bad luck")
         switch value.body {
         case .json(let body):
             XCTAssertEqual(body, .init(code: 1))

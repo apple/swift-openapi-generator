@@ -70,8 +70,8 @@ class Test_TypeAssigner: Test_Core {
             "__custom__type": "__custom__type",
             // sanitization
             "1customtype": "_1customtype",
-            "custom.type": "custom_type",
-            ".custom$type": "_custom_type",
+            "custom.type": "custom_period_type",
+            ".custom$type": "_period_custom_dollar_type",
             // keywords
             "enum": "_enum",
         ]

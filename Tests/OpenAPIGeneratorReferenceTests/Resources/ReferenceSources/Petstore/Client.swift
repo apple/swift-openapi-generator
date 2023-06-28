@@ -67,7 +67,7 @@ public struct Client: APIProtocol {
                 try converter.setHeaderFieldAsText(
                     in: &request.headerFields,
                     name: "My-Request-UUID",
-                    value: input.headers.My_Request_UUID
+                    value: input.headers.My_hyphen_Request_hyphen_UUID
                 )
                 try converter.setQueryItemAsText(
                     in: &request,
@@ -85,12 +85,12 @@ public struct Client: APIProtocol {
                 switch response.statusCode {
                 case 200:
                     let headers: Operations.listPets.Output.Ok.Headers = .init(
-                        My_Response_UUID: try converter.getRequiredHeaderFieldAsText(
+                        My_hyphen_Response_hyphen_UUID: try converter.getRequiredHeaderFieldAsText(
                             in: response.headerFields,
                             name: "My-Response-UUID",
                             as: Swift.String.self
                         ),
-                        My_Tracing_Header: try converter.getOptionalHeaderFieldAsText(
+                        My_hyphen_Tracing_hyphen_Header: try converter.getOptionalHeaderFieldAsText(
                             in: response.headerFields,
                             name: "My-Tracing-Header",
                             as: Components.Headers.TracingHeader.self
@@ -144,7 +144,7 @@ public struct Client: APIProtocol {
                 try converter.setHeaderFieldAsJSON(
                     in: &request.headerFields,
                     name: "X-Extra-Arguments",
-                    value: input.headers.X_Extra_Arguments
+                    value: input.headers.X_hyphen_Extra_hyphen_Arguments
                 )
                 try converter.setHeaderFieldAsText(
                     in: &request.headerFields,
@@ -170,7 +170,7 @@ public struct Client: APIProtocol {
                 switch response.statusCode {
                 case 201:
                     let headers: Operations.createPet.Output.Created.Headers = .init(
-                        X_Extra_Arguments: try converter.getOptionalHeaderFieldAsJSON(
+                        X_hyphen_Extra_hyphen_Arguments: try converter.getOptionalHeaderFieldAsJSON(
                             in: response.headerFields,
                             name: "X-Extra-Arguments",
                             as: Components.Schemas.CodeError.self
@@ -189,7 +189,7 @@ public struct Client: APIProtocol {
                     return .created(.init(headers: headers, body: body))
                 case 400:
                     let headers: Components.Responses.ErrorBadRequest.Headers = .init(
-                        X_Reason: try converter.getOptionalHeaderFieldAsText(
+                        X_hyphen_Reason: try converter.getOptionalHeaderFieldAsText(
                             in: response.headerFields,
                             name: "X-Reason",
                             as: Swift.String.self

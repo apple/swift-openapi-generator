@@ -182,7 +182,7 @@ fileprivate extension String {
         "Protocol",
         "await",
     ]
-    
+
     /// A map of ASCII printable characters to their HTML entity names.
     private static let specialCharsMap: [Unicode.Scalar: String] = [
         " ": "space",
