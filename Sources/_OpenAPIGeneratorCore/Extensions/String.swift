@@ -58,8 +58,8 @@ fileprivate extension String {
     ///
     /// For example, the string `$nake…` would be returned as `_dollar_nake_x2026_`, because
     /// both the dollar and ellipsis sign are not valid characters in a Swift identifier.
-    /// So, it replaces such characters with their html enity equivalents or unicode hex representation,
-    /// in case its not present in the `specialCharsMap`. It marks this replacement with `_` as a delimiter.
+    /// So, it replaces such characters with their html entity equivalents or unicode hex representation,
+    /// in case it's not present in the `specialCharsMap`. It marks this replacement with `_` as a delimiter.
     ///
     /// In addition to replacing illegal characters, it also
     /// ensures that the identifier starts with a letter and not a number.
