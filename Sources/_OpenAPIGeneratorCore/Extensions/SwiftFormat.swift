@@ -11,8 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import SwiftFormat
-import SwiftFormatConfiguration
+//import SwiftFormat
+//import SwiftFormatConfiguration
 
 extension String {
     /// A copy of the string formatted using swift-format.
