@@ -177,11 +177,6 @@ extension ReferenceTests {
             parser: parser,
             translator: translator,
             renderer: renderer,
-            formatter: { file in
-                var newFile = file
-                newFile.contents = try newFile.contents.swiftFormatted
-                return newFile
-            },
             config: config,
             diagnostics: diagnostics
         )

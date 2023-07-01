@@ -133,8 +133,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 public
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .internal,
@@ -142,8 +141,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 internal
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .fileprivate,
@@ -151,8 +149,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 fileprivate
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .private,
@@ -160,8 +157,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 private
-                """#,
-            normalizing: false
+                """#
         )
     }
 
@@ -340,8 +336,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 init
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .function(name: "funky"),
@@ -349,8 +344,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 func funky
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .function(name: "funky", isStatic: true),
@@ -358,8 +352,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 static func funky
-                """#,
-            normalizing: false
+                """#
         )
     }
 
@@ -370,8 +363,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 throws
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .async,
@@ -379,8 +371,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 async
-                """#,
-            normalizing: false
+                """#
         )
     }
 
@@ -396,8 +387,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 l n : T = nil
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .init(
@@ -410,8 +400,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 _ n : T = nil
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .init(
@@ -424,8 +413,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 l : T = nil
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .init(
@@ -438,8 +426,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 _ : T = nil
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .init(
@@ -452,8 +439,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 _ : T
-                """#,
-            normalizing: false
+                """#
         )
     }
 
@@ -572,8 +558,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 foo: bar
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .init(
@@ -671,8 +656,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 @available(*, deprecated)
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .init(message: "some message"),
@@ -680,8 +664,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 @available(*, deprecated, message: "some message")
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .init(renamed: "newSymbol(param:)"),
@@ -689,8 +672,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 @available(*, deprecated, renamed: "newSymbol(param:)")
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .init(message: "some message", renamed: "newSymbol(param:)"),
@@ -698,8 +680,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 @available(*, deprecated, message: "some message", renamed: "newSymbol(param:)")
-                """#,
-            normalizing: false
+                """#
         )
     }
 
@@ -710,8 +691,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 var
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .let,
@@ -719,8 +699,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 let
-                """#,
-            normalizing: false
+                """#
         )
     }
 
@@ -738,8 +717,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 public static let foo: String = "bar"
-                """#,
-            normalizing: false
+                """#
         )
         try _test(
             .init(
@@ -754,8 +732,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             rendersAs:
                 #"""
                 internal var foo
-                """#,
-            normalizing: false
+                """#
         )
     }
 
@@ -924,24 +901,14 @@ extension Test_TextBasedRenderer {
         _ input: Input,
         renderedBy renderer: (Input) -> String,
         rendersAs output: String,
-        normalizing: Bool = true,
         file: StaticString = #file,
         line: UInt = #line
     ) throws {
-        if normalizing {
-            XCTAssertEqual(
-                try renderer(input).swiftFormatted,
-                try output.swiftFormatted,
-                file: file,
-                line: line
-            )
-        } else {
-            XCTAssertEqual(
-                renderer(input),
-                output,
-                file: file,
-                line: line
-            )
-        }
+        XCTAssertEqual(
+            renderer(input),
+            output,
+            file: file,
+            line: line
+        )
     }
 }

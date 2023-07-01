@@ -108,7 +108,7 @@ func makeGeneratorPipeline(
     parser: ParserProtocol = YamsParser(),
     translator: TranslatorProtocol = MultiplexTranslator(),
     renderer: RendererProtocol = TextBasedRenderer(),
-    formatter: @escaping (InMemoryOutputFile) throws -> InMemoryOutputFile = { try $0.swiftFormatted },
+    formatter: @escaping (InMemoryOutputFile) throws -> InMemoryOutputFile = { $0 },
     config: Config,
     diagnostics: DiagnosticCollector
 ) -> GeneratorPipeline {
