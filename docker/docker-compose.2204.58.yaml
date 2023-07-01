@@ -14,7 +14,7 @@ services:
       # Because OpenAPI supports deprecation, the generated code could include
       # deprecated symbols, which will produce warnings.
       #
-      # We'll desable -warnings-as-errors for now and revisit this when we
+      # We'll disable -warnings-as-errors for now and revisit this when we
       # refactor the compilation of the generated code into a separate
       # pipeline.
       #
