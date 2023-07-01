@@ -32,16 +32,16 @@ let package = Package(
     dependencies: [
 
         // Generate Swift code
-        .package(
-            url: "https://github.com/apple/swift-syntax.git",
-            from: "508.0.1"
-        ),
+//        .package(
+//            url: "https://github.com/apple/swift-syntax.git",
+//            from: "508.0.1"
+//        ),
 
         // Format Swift code
-        .package(
-            url: "https://github.com/apple/swift-format.git",
-            from: "508.0.1"
-        ),
+//        .package(
+//            url: "https://github.com/apple/swift-format.git",
+//            from: "508.0.1"
+//        ),
 
         // General algorithms
         .package(
@@ -79,10 +79,10 @@ let package = Package(
                 .product(name: "OpenAPIKit30", package: "OpenAPIKit"),
                 .product(name: "Algorithms", package: "swift-algorithms"),
                 .product(name: "Yams", package: "Yams"),
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
-                .product(name: "SwiftFormat", package: "swift-format"),
-                .product(name: "SwiftFormatConfiguration", package: "swift-format"),
+//                .product(name: "SwiftSyntax", package: "swift-syntax"),
+//                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
+//                .product(name: "SwiftFormat", package: "swift-format"),
+//                .product(name: "SwiftFormatConfiguration", package: "swift-format"),
             ]
         ),
 
@@ -99,8 +99,8 @@ let package = Package(
             name: "OpenAPIGeneratorReferenceTests",
             dependencies: [
                 "_OpenAPIGeneratorCore",
-                .product(name: "SwiftFormat", package: "swift-format"),
-                .product(name: "SwiftFormatConfiguration", package: "swift-format"),
+//                .product(name: "SwiftFormat", package: "swift-format"),
+//                .product(name: "SwiftFormatConfiguration", package: "swift-format"),
             ],
             resources: [
                 .copy("Resources"),
