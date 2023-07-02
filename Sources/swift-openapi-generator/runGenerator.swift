@@ -155,7 +155,25 @@ extension _Tool {
 
     static func runCommandPluginCleanup(outputDirectory: URL) throws {
         let fm = FileManager.default
-        if fm.fileExists(atPath: outputDirectory.path) {
+        guard fm.fileExists(atPath: outputDirectory.path) else {
+            return
+        }
+
+        // Remove each file
+        for mode in GeneratorMode.allCases {
+            let fileName = fullFileName(mode, invocationKind: .CommandPlugin)
+            let path = outputDirectory.appendingPathComponent(fileName)
+            if fm.fileExists(atPath: path.path) {
+                try fm.removeItem(at: path)
+            }
+        }
+
+        // If the output directory is empty, remove it.
+        let outputDirectoryContents = try? fm.contentsOfDirectory(
+            at: outputDirectory,
+            includingPropertiesForKeys: nil
+        )
+        if (outputDirectoryContents ?? []).isEmpty {
             try fm.removeItem(at: outputDirectory)
         }
     }
