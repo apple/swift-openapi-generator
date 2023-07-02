@@ -18,7 +18,7 @@ import Foundation
 struct SwiftOpenAPIGeneratorPlugin {
     enum Error: Swift.Error, CustomStringConvertible, LocalizedError {
         case incompatibleTarget(targetName: String)
-        case multiTargetFound
+        case multiTargetFound(targetNames: [String])
         case noConfigFound(targetName: String)
         case noDocumentFound(targetName: String)
         case multiConfigFound(targetName: String, files: [Path])
@@ -29,8 +29,8 @@ struct SwiftOpenAPIGeneratorPlugin {
             case .incompatibleTarget(let targetName):
                 return
                     "Incompatible target called '\(targetName)'. Only Swift source targets can be used with the Swift OpenAPI generator plugin."
-            case .multiTargetFound:
-                return "Please choose a specific target for the OpenAPI Generator Command plugin. This Command plugin can't run on multiple targets at the same time."
+            case .multiTargetFound(let targetNames):
+                return "Please choose a specific target for the OpenAPI Generator Command plugin. This Command plugin can't run on multiple targets at the same time. The current target names are: \(targetNames)"
             case .noConfigFound(let targetName):
                 return
                     "No config file found in the target named '\(targetName)'. Add a file called 'openapi-generator-config.yaml' or 'openapi-generator-config.yml' to the target's source directory. See documentation for details."
@@ -79,7 +79,6 @@ struct SwiftOpenAPIGeneratorPlugin {
         }
         let doc = matchedDocs[0]
         let genSourcesDir = pluginWorkDirectory.appending("GeneratedSources")
-//        let outputFiles: [Path] = GeneratorMode.allCases.map { genSourcesDir.appending($0.outputFileName) }
 
         let tool = try tool("swift-openapi-generator")
         let toolUrl = URL(fileURLWithPath: tool.path.string)
@@ -101,10 +100,14 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
         arguments: [String]
     ) async throws {
         guard context.package.targets.count == 1 else {
-            throw Error.multiTargetFound
+            print("Error with context:", context)
+            print("Args:", arguments)
+            throw Error.multiTargetFound(targetNames: context.package.targets.map(\.name))
         }
         let target = context.package.targets[0]
         guard let swiftTarget = target as? SwiftSourceModuleTarget else {
+            print("Error with context:", context)
+            print("Args:", arguments)
             throw Error.incompatibleTarget(targetName: target.name)
         }
         return try runCommand(
@@ -125,7 +128,9 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
         arguments: [String]
     ) throws {
         guard context.xcodeProject.targets.count == 1 else {
-            throw Error.multiTargetFound
+            throw Error.multiTargetFound(
+                targetNames: context.xcodeProject.targets.map(\.displayName)
+            )
         }
         let target = context.xcodeProject.targets[0]
         return try runCommand(
