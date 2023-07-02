@@ -27,6 +27,7 @@ let package = Package(
     products: [
         .executable(name: "swift-openapi-generator", targets: ["swift-openapi-generator"]),
         .plugin(name: "OpenAPIGenerator", targets: ["OpenAPIGenerator"]),
+        .plugin(name: "OpenAPIGeneratorCommandPlugin", targets: ["OpenAPIGeneratorCommandPlugin"]),
         .library(name: "_OpenAPIGeneratorCore", targets: ["_OpenAPIGeneratorCore"]),
     ],
     dependencies: [
