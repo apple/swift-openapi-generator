@@ -128,4 +128,11 @@ extension _Tool {
             return fm.createFile(atPath: path.path, contents: data)
         }
     }
+
+    static func runCleanup(outputDirectory: URL) throws {
+        let fm = FileManager.default
+        if fm.fileExists(atPath: outputDirectory.path) {
+            try fm.removeItem(at: outputDirectory)
+        }
+    }
 }
