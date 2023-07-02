@@ -100,13 +100,13 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
         arguments: [String]
     ) async throws {
         guard context.package.targets.count == 1 else {
-            print("Error with context:", context)
+            print("PWD:", context.pluginWorkDirectory)
             print("Args:", arguments)
             throw Error.multiTargetFound(targetNames: context.package.targets.map(\.name))
         }
         let target = context.package.targets[0]
         guard let swiftTarget = target as? SwiftSourceModuleTarget else {
-            print("Error with context:", context)
+            print("PWD:", context.pluginWorkDirectory)
             print("Args:", arguments)
             throw Error.incompatibleTarget(targetName: target.name)
         }
@@ -128,6 +128,8 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
         arguments: [String]
     ) throws {
         guard context.xcodeProject.targets.count == 1 else {
+            print("PWD:", context.pluginWorkDirectory)
+            print("Args:", arguments)
             throw Error.multiTargetFound(
                 targetNames: context.xcodeProject.targets.map(\.displayName)
             )
