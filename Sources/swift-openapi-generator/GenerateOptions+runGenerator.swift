@@ -34,7 +34,7 @@ extension _GenerateOptions {
         let config = try loadedConfig()
         if invocationKind == .BuildTool && config?.disabledAsBuildToolPlugin == true {
             print("Plugin disabled for BuildTools. Will clean up files if there are any leftovers from previous builds.")
-            try _Tool.runCleanup(outputDirectory: outputDirectory)
+            try _Tool.runBuildToolCleanup(outputDirectory: outputDirectory)
             return
         }
         let sortedModes = try resolvedModes(config)

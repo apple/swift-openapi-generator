@@ -49,6 +49,9 @@ extension _Tool {
                 diagnostics: diagnostics
             )
         }
+
+        // Swift expects us to always create these files in BuildTool plugins,
+        // so we create the unused files, but empty.
         if invocationKind == .BuildTool {
             let nonGeneratedModes = Set(GeneratorMode.allCases).subtracting(configs.map(\.mode))
             for mode in nonGeneratedModes.sorted() {
@@ -129,8 +132,9 @@ extension _Tool {
         }
     }
 
-    static func runCleanup(outputDirectory: URL) throws {
+    static func runBuildToolCleanup(outputDirectory: URL) throws {
         for mode in GeneratorMode.allCases {
+            // Swift expects us to always create these files, so we create them but empty.
             try replaceFileContents(
                 inDirectory: outputDirectory,
                 fileName: mode.outputFileName,
