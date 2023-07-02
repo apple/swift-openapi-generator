@@ -40,12 +40,17 @@ extension _Tool {
             throw ValidationError("Failed to load the OpenAPI document at path \(doc.path), error: \(error)")
         }
         for config in configs {
+            // BuildTool plugins guarantee the compiler that they will create some files
+            // with specific names (the same as `config.mode.outputFileNameSuffix`, for us)
+            // To make sure the BuildTool plugin and the Command plugin don't create files with
+            // the same names, we add a prefix to the names.
+            let outputFileNamePrefix = invocationKind == .BuildTool ? "" : "Generated_"
             try runGenerator(
                 doc: doc,
                 docData: docData,
                 config: config,
                 outputDirectory: outputDirectory,
-                outputFileName: config.mode.outputFileName,
+                outputFileName: outputFileNamePrefix + config.mode.outputFileNameSuffix,
                 diagnostics: diagnostics
             )
         }
@@ -57,7 +62,7 @@ extension _Tool {
             for mode in nonGeneratedModes.sorted() {
                 try replaceFileContents(
                     inDirectory: outputDirectory,
-                    fileName: mode.outputFileName,
+                    fileName: mode.outputFileNameSuffix,
                     with: { Data() }
                 )
             }
@@ -137,7 +142,7 @@ extension _Tool {
             // Swift expects us to always create these files, so we create them but empty.
             try replaceFileContents(
                 inDirectory: outputDirectory,
-                fileName: mode.outputFileName,
+                fileName: mode.outputFileNameSuffix,
                 with: { Data() }
             )
         }

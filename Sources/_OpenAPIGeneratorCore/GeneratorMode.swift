@@ -37,7 +37,7 @@ public enum GeneratorMode: String, Codable, CaseIterable {
 extension GeneratorMode {
 
     /// The Swift file name including its file extension.
-    public var outputFileName: String {
+    public var outputFileNameSuffix: String {
         switch self {
         case .types:
             return "Types.swift"
@@ -49,8 +49,8 @@ extension GeneratorMode {
     }
 
     /// The Swift file names for all supported generator mode values.
-    public static var allOutputFileNames: [String] {
-        GeneratorMode.allCases.map(\.outputFileName)
+    public static var allOutputFileNameSuffixes: [String] {
+        GeneratorMode.allCases.map(\.outputFileNameSuffix)
     }
 
     /// Defines an order in which generators should be run.

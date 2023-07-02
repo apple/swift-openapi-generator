@@ -76,7 +76,7 @@ struct SwiftOpenAPIGeneratorPlugin {
         }
         let doc = matchedDocs[0]
         let genSourcesDir = pluginWorkDirectory.appending("GeneratedSources")
-        let outputFiles: [Path] = GeneratorMode.allCases.map { genSourcesDir.appending($0.outputFileName) }
+        let outputFiles: [Path] = GeneratorMode.allCases.map { genSourcesDir.appending($0.outputFileNameSuffix) }
         return [
             .buildCommand(
                 displayName: "Running swift-openapi-generator",
