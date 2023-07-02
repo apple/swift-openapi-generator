@@ -21,6 +21,7 @@ struct SwiftOpenAPIGeneratorPlugin {
         case badArguments(arguments: [String])
         // The description is only suitable for Xcode, as it's only thrown in Xcode plugins.
         case noTargetsMatchingTargetName(targetName: String)
+        // The description is not suitable for Xcode, as it's not thrown in Xcode plugins.
         case tooManyTargetsMatchingTargetName(targetNames: [String])
         case noConfigFound(targetName: String)
         case noDocumentFound(targetName: String)
@@ -62,7 +63,7 @@ struct SwiftOpenAPIGeneratorPlugin {
     private var supportedDocFiles: Set<String> { Set(["yaml", "yml", "json"].map { "openapi." + $0 }) }
 
     func runCommand(
-        pluginWorkDirectory: PackagePlugin.Path,
+        targetWorkingDirectory: PackagePlugin.Path,
         tool: (String) throws -> PackagePlugin.PluginContext.Tool,
         sourceFiles: FileList,
         targetName: String
@@ -85,7 +86,7 @@ struct SwiftOpenAPIGeneratorPlugin {
             throw Error.multiDocumentFound(targetName: targetName, files: matchedDocs)
         }
         let doc = matchedDocs[0]
-        let genSourcesDir = pluginWorkDirectory.appending("GeneratedSources")
+        let genSourcesDir = targetWorkingDirectory.appending("GeneratedSources")
 
         let tool = try tool("swift-openapi-generator")
         let toolUrl = URL(fileURLWithPath: tool.path.string)
@@ -121,7 +122,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
             throw Error.incompatibleTarget(targetName: target.name)
         }
         return try runCommand(
-            pluginWorkDirectory: context.pluginWorkDirectory,
+            targetWorkingDirectory: target.directory,
             tool: context.tool,
             sourceFiles: swiftTarget.sourceFiles,
             targetName: target.name
@@ -141,16 +142,19 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
             throw Error.badArguments(arguments: arguments)
         }
         let targetName = arguments[1]
-        guard let target = context.xcodeProject.targets.first(where: {
+        guard let xcodeTarget = context.xcodeProject.targets.first(where: {
             $0.displayName == targetName
         }) else {
             throw Error.noTargetsMatchingTargetName(targetName: targetName)
         }
+        guard let target = xcodeTarget as? SourceModuleTarget else {
+            throw Error.incompatibleTarget(targetName: targetName)
+        }
         return try runCommand(
-            pluginWorkDirectory: context.pluginWorkDirectory,
+            targetWorkingDirectory: target.directory,
             tool: context.tool,
-            sourceFiles: target.inputFiles,
-            targetName: target.displayName
+            sourceFiles: xcodeTarget.inputFiles,
+            targetName: xcodeTarget.displayName
         )
     }
 }
