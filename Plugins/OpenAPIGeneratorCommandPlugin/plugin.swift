@@ -18,7 +18,10 @@ import Foundation
 struct SwiftOpenAPIGeneratorPlugin {
     enum Error: Swift.Error, CustomStringConvertible, LocalizedError {
         case incompatibleTarget(targetName: String)
-        case multiTargetFound(targetNames: [String])
+        case badArguments(arguments: [String])
+        // The description is only suitable for Xcode, as it's only thrown in Xcode plugins.
+        case noTargetsMatchingTargetName(targetName: String)
+        case tooManyTargetsMatchingTargetName(targetNames: [String])
         case noConfigFound(targetName: String)
         case noDocumentFound(targetName: String)
         case multiConfigFound(targetName: String, files: [Path])
@@ -29,8 +32,12 @@ struct SwiftOpenAPIGeneratorPlugin {
             case .incompatibleTarget(let targetName):
                 return
                     "Incompatible target called '\(targetName)'. Only Swift source targets can be used with the Swift OpenAPI generator plugin."
-            case .multiTargetFound(let targetNames):
-                return "Please choose a specific target for the OpenAPI Generator Command plugin. This Command plugin can't run on multiple targets at the same time. The current target names are: \(targetNames)"
+            case .badArguments(let arguments):
+                return "Bad arguments provided: \(arguments). On Xcode, use Xcode's run plugin UI to choose a specific target. On CLI, pass a specific target's name to the command like so: '--target TARGET_NAME'"
+            case .noTargetsMatchingTargetName(let targetName):
+                return "No target called '\(targetName)' were found. Use Xcode's UI to choose a single specific target before triggering the command plugin."
+            case .tooManyTargetsMatchingTargetName(let targetNames):
+                return "Too many targets found matching the provided target name: '\(targetNames)'. Target name must be specific enough for the plugin to only find a single target."
             case .noConfigFound(let targetName):
                 return
                     "No config file found in the target named '\(targetName)'. Add a file called 'openapi-generator-config.yaml' or 'openapi-generator-config.yml' to the target's source directory. See documentation for details."
@@ -99,15 +106,18 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
         context: PluginContext,
         arguments: [String]
     ) async throws {
-        guard context.package.targets.count == 1 else {
-            print("PWD:", context.pluginWorkDirectory)
-            print("Args:", arguments)
-            throw Error.multiTargetFound(targetNames: context.package.targets.map(\.name))
+        guard arguments.count == 2, arguments[0] == "--target" else {
+            throw Error.badArguments(arguments: arguments)
         }
-        let target = context.package.targets[0]
+        let targetName = arguments[1]
+        let matchingTargets = try context.package.targets(named: [targetName])
+        // `matchingTargets.count` can't be 0 because
+        // `targets(named:)` would throw an error for that.
+        guard matchingTargets.count == 1 else {
+            throw Error.tooManyTargetsMatchingTargetName(targetNames: matchingTargets.map(\.name))
+        }
+        let target = matchingTargets[0]
         guard let swiftTarget = target as? SwiftSourceModuleTarget else {
-            print("PWD:", context.pluginWorkDirectory)
-            print("Args:", arguments)
             throw Error.incompatibleTarget(targetName: target.name)
         }
         return try runCommand(
@@ -127,14 +137,15 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
         context: XcodePluginContext,
         arguments: [String]
     ) throws {
-        guard context.xcodeProject.targets.count == 1 else {
-            print("PWD:", context.pluginWorkDirectory)
-            print("Args:", arguments)
-            throw Error.multiTargetFound(
-                targetNames: context.xcodeProject.targets.map(\.displayName)
-            )
+        guard arguments.count == 2, arguments[0] == "--target" else {
+            throw Error.badArguments(arguments: arguments)
         }
-        let target = context.xcodeProject.targets[0]
+        let targetName = arguments[1]
+        guard let target = context.xcodeProject.targets.first(where: {
+            $0.displayName == targetName
+        }) else {
+            throw Error.noTargetsMatchingTargetName(targetName: targetName)
+        }
         return try runCommand(
             pluginWorkDirectory: context.pluginWorkDirectory,
             tool: context.tool,
