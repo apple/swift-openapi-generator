@@ -85,7 +85,7 @@ struct SwiftOpenAPIGeneratorPlugin {
                     "generate", "\(doc)",
                     "--config", "\(config)",
                     "--output-directory", "\(genSourcesDir)",
-                    "--invocation-kind", "BuildTool"
+                    "--invocation-kind", "BuildToolPlugin"
                 ],
                 environment: [:],
                 inputFiles: [

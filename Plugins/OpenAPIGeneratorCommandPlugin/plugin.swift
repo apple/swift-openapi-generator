@@ -98,7 +98,7 @@ struct SwiftOpenAPIGeneratorPlugin {
             "generate", "\(doc)",
             "--config", "\(config)",
             "--output-directory", "\(genSourcesDir)",
-            "--invocation-kind", "Command"
+            "--invocation-kind", "CommandPlugin"
         ]
         try process.run()
     }
