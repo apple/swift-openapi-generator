@@ -49,7 +49,7 @@ extension _Tool {
                 diagnostics: diagnostics
             )
         }
-        if invocationKind.isPluginInvocation {
+        if invocationKind == .BuildTool {
             let nonGeneratedModes = Set(GeneratorMode.allCases).subtracting(configs.map(\.mode))
             for mode in nonGeneratedModes.sorted() {
                 try replaceFileContents(
