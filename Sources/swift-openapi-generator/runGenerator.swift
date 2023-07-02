@@ -96,16 +96,16 @@ extension _Tool {
     @discardableResult
     static func replaceFileContents(at path: URL, with contents: () throws -> Data) throws -> Bool {
         let data = try contents()
-        let didChange: Bool
         if FileManager.default.fileExists(atPath: path.path) {
             let existingData = try? Data(contentsOf: path)
-            didChange = existingData != data
+            if existingData == data {
+                return false
+            } else {
+                try data.write(to: path)
+                return true
+            }
         } else {
-            didChange = true
+            return FileManager.default.createFile(atPath: path.path, contents: data)
         }
-        if didChange {
-            try data.write(to: path)
-        }
-        return didChange
     }
 }
