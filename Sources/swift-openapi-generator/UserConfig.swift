@@ -26,4 +26,6 @@ struct _UserConfig: Codable {
     /// A list of names of additional imports that are added to every
     /// generated Swift file.
     var additionalImports: [String]?
+
+    var disabledAsBuildToolPlugin: Bool?
 }

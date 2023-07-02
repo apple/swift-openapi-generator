@@ -18,6 +18,7 @@ import Foundation
 struct SwiftOpenAPIGeneratorPlugin {
     enum Error: Swift.Error, CustomStringConvertible, LocalizedError {
         case incompatibleTarget(targetName: String)
+        case multiTargetFound
         case noConfigFound(targetName: String)
         case noDocumentFound(targetName: String)
         case multiConfigFound(targetName: String, files: [Path])
@@ -28,6 +29,8 @@ struct SwiftOpenAPIGeneratorPlugin {
             case .incompatibleTarget(let targetName):
                 return
                     "Incompatible target called '\(targetName)'. Only Swift source targets can be used with the Swift OpenAPI generator plugin."
+            case .multiTargetFound:
+                return "Please choose a specific target for the OpenAPI Generator Command plugin. This Command plugin can't run on multiple targets at the same time."
             case .noConfigFound(let targetName):
                 return
                     "No config file found in the target named '\(targetName)'. Add a file called 'openapi-generator-config.yaml' or 'openapi-generator-config.yml' to the target's source directory. See documentation for details."
@@ -51,12 +54,12 @@ struct SwiftOpenAPIGeneratorPlugin {
     private var supportedConfigFiles: Set<String> { Set(["yaml", "yml"].map { "openapi-generator-config." + $0 }) }
     private var supportedDocFiles: Set<String> { Set(["yaml", "yml", "json"].map { "openapi." + $0 }) }
 
-    func createBuildCommands(
+    func runCommand(
         pluginWorkDirectory: PackagePlugin.Path,
         tool: (String) throws -> PackagePlugin.PluginContext.Tool,
         sourceFiles: FileList,
         targetName: String
-    ) throws -> [Command] {
+    ) throws {
         let inputFiles = sourceFiles
         let matchedConfigs = inputFiles.filter { supportedConfigFiles.contains($0.path.lastComponent) }.map(\.path)
         guard matchedConfigs.count > 0 else {
@@ -76,37 +79,35 @@ struct SwiftOpenAPIGeneratorPlugin {
         }
         let doc = matchedDocs[0]
         let genSourcesDir = pluginWorkDirectory.appending("GeneratedSources")
-        let outputFiles: [Path] = GeneratorMode.allCases.map { genSourcesDir.appending($0.outputFileName) }
-        return [
-            .buildCommand(
-                displayName: "Running swift-openapi-generator",
-                executable: try tool("swift-openapi-generator").path,
-                arguments: [
-                    "generate", "\(doc)",
-                    "--config", "\(config)",
-                    "--output-directory", "\(genSourcesDir)",
-                    "--invocation-kind", "BuildTool"
-                ],
-                environment: [:],
-                inputFiles: [
-                    config,
-                    doc,
-                ],
-                outputFiles: outputFiles
-            )
+//        let outputFiles: [Path] = GeneratorMode.allCases.map { genSourcesDir.appending($0.outputFileName) }
+
+        let tool = try tool("swift-openapi-generator")
+        let toolUrl = URL(fileURLWithPath: tool.path.string)
+        let process = Process()
+        process.executableURL = toolUrl
+        process.arguments = [
+            "generate", "\(doc)",
+            "--config", "\(config)",
+            "--output-directory", "\(genSourcesDir)",
+            "--invocation-kind", "Command"
         ]
+        try process.run()
     }
 }
 
-extension SwiftOpenAPIGeneratorPlugin: BuildToolPlugin {
-    func createBuildCommands(
+extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
+    func performCommand(
         context: PluginContext,
-        target: Target
-    ) async throws -> [Command] {
+        arguments: [String]
+    ) async throws {
+        guard context.package.targets.count == 1 else {
+            throw Error.multiTargetFound
+        }
+        let target = context.package.targets[0]
         guard let swiftTarget = target as? SwiftSourceModuleTarget else {
             throw Error.incompatibleTarget(targetName: target.name)
         }
-        return try createBuildCommands(
+        return try runCommand(
             pluginWorkDirectory: context.pluginWorkDirectory,
             tool: context.tool,
             sourceFiles: swiftTarget.sourceFiles,
@@ -118,12 +119,16 @@ extension SwiftOpenAPIGeneratorPlugin: BuildToolPlugin {
 #if canImport(XcodeProjectPlugin)
 import XcodeProjectPlugin
 
-extension SwiftOpenAPIGeneratorPlugin: XcodeBuildToolPlugin {
-    func createBuildCommands(
+extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
+    func performCommand(
         context: XcodePluginContext,
-        target: XcodeTarget
-    ) throws -> [Command] {
-        return try createBuildCommands(
+        arguments: [String]
+    ) throws {
+        guard context.xcodeProject.targets.count == 1 else {
+            throw Error.multiTargetFound
+        }
+        let target = context.xcodeProject.targets[0]
+        return try runCommand(
             pluginWorkDirectory: context.pluginWorkDirectory,
             tool: context.tool,
             sourceFiles: target.inputFiles,

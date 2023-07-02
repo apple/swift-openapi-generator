@@ -29,7 +29,7 @@ extension _Tool {
     static func runGenerator(
         doc: URL,
         configs: [Config],
-        isPluginInvocation: Bool,
+        invocationKind: InvocationKind,
         outputDirectory: URL,
         diagnostics: DiagnosticCollector
     ) throws {
@@ -51,7 +51,7 @@ extension _Tool {
                 diagnostics: diagnostics
             )
         }
-        if isPluginInvocation {
+        if invocationKind.isPluginInvocation {
             let nonGeneratedModes = Set(GeneratorMode.allCases).subtracting(configs.map(\.mode))
             for mode in nonGeneratedModes.sorted() {
                 let path = filePathForMode(mode)

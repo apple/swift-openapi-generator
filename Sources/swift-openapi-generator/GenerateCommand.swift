@@ -42,16 +42,18 @@ struct _GenerateCommand: AsyncParsableCommand {
     )
     var outputDirectory: URL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
 
-    @Flag(
+    @Option(
         help:
             "Whether this invocation is from the SwiftPM plugin. We always need to produce all files when invoked from the plugin. Non-requested modes produce empty files."
     )
-    var isPluginInvocation: Bool = false
+    var invocationKind: InvocationKind = .CLI
 
     func run() async throws {
         try generate.runGenerator(
             outputDirectory: outputDirectory,
-            isPluginInvocation: isPluginInvocation
+            invocationKind: invocationKind
         )
     }
 }
+
+extension InvocationKind: ExpressibleByArgument { }

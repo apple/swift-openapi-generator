@@ -134,5 +134,19 @@ let package = Package(
                 "swift-openapi-generator",
             ]
         ),
+
+        .plugin(
+            name: "OpenAPIGeneratorCommandPlugin",
+            capability: Target.PluginCapability.command(
+                intent: .custom(
+                    verb: "generate-openapi-code",
+                    description: "Generates OpenAPI code"
+                ),
+                permissions: [.writeToPackageDirectory(reason: "To generate OpenAPI code")]
+            ),
+            dependencies: [
+                "swift-openapi-generator",
+            ]
+        )
     ]
 )
