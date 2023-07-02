@@ -37,19 +37,13 @@ extension _GenerateOptions {
         case .BuildToolPlugin:
             guard (config?.pluginMode ?? .BuildTool) == .BuildTool else {
                 print("Plugin disabled for BuildTool plugins. Will clean up files if there are any leftovers from previous builds.")
-                try _Tool.runCleanup(
-                    outputDirectory: outputDirectory,
-                    forInvocationKind: invocationKind
-                )
+                try _Tool.runBuildToolPluginCleanup(outputDirectory: outputDirectory)
                 return
             }
         case .CommandPlugin:
             guard (config?.pluginMode ?? .BuildTool) == .Command else {
                 print("Plugin disabled for Command plugins. Will clean up files if there are any leftovers from previous builds.")
-                try _Tool.runCleanup(
-                    outputDirectory: outputDirectory,
-                    forInvocationKind: invocationKind
-                )
+                try _Tool.runCommandPluginCleanup(outputDirectory: outputDirectory)
                 return
             }
         default: break

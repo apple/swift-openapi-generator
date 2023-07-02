@@ -141,18 +141,22 @@ extension _Tool {
         return outputFileNamePrefix + mode.outputFileNameSuffix
     }
 
-    static func runCleanup(
-        outputDirectory: URL,
-        forInvocationKind invocationKind: InvocationKind
-    ) throws {
+    static func runBuildToolPluginCleanup(outputDirectory: URL) throws {
         for mode in GeneratorMode.allCases {
-            let fileName = fullFileName(mode, invocationKind: invocationKind)
+            let fileName = fullFileName(mode, invocationKind: .BuildToolPlugin)
             // Swift expects us to always create these files, so we create them but empty.
             try replaceFileContents(
                 inDirectory: outputDirectory,
                 fileName: fileName,
                 with: { Data() }
             )
+        }
+    }
+
+    static func runCommandPluginCleanup(outputDirectory: URL) throws {
+        let fm = FileManager.default
+        if fm.fileExists(atPath: outputDirectory.path) {
+            try fm.removeItem(at: outputDirectory)
         }
     }
 }
