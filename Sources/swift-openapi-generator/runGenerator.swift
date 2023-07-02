@@ -44,20 +44,19 @@ extension _Tool {
             // with specific names (the same as `config.mode.outputFileNameSuffix`, for us)
             // To make sure the BuildTool plugin and the Command plugin don't create files with
             // the same names, we add a prefix to the names.
-            let outputFileNamePrefix = invocationKind == .BuildTool ? "" : "Generated_"
             try runGenerator(
                 doc: doc,
                 docData: docData,
                 config: config,
                 outputDirectory: outputDirectory,
-                outputFileName: outputFileNamePrefix + config.mode.outputFileNameSuffix,
+                outputFileName: fullFileName(config.mode, invocationKind: invocationKind),
                 diagnostics: diagnostics
             )
         }
 
         // Swift expects us to always create these files in BuildTool plugins,
         // so we create the unused files, but empty.
-        if invocationKind == .BuildTool {
+        if invocationKind == .BuildToolPlugin {
             let nonGeneratedModes = Set(GeneratorMode.allCases).subtracting(configs.map(\.mode))
             for mode in nonGeneratedModes.sorted() {
                 try replaceFileContents(
@@ -137,12 +136,21 @@ extension _Tool {
         }
     }
 
-    static func runBuildToolCleanup(outputDirectory: URL) throws {
+    static func fullFileName(_ mode: GeneratorMode, invocationKind: InvocationKind) -> String {
+        let outputFileNamePrefix = invocationKind == .BuildToolPlugin ? "" : "Generated_"
+        return outputFileNamePrefix + mode.outputFileNameSuffix
+    }
+
+    static func runCleanup(
+        outputDirectory: URL,
+        forInvocationKind invocationKind: InvocationKind
+    ) throws {
         for mode in GeneratorMode.allCases {
+            let fileName = fullFileName(mode, invocationKind: invocationKind)
             // Swift expects us to always create these files, so we create them but empty.
             try replaceFileContents(
                 inDirectory: outputDirectory,
-                fileName: mode.outputFileNameSuffix,
+                fileName: fileName,
                 with: { Data() }
             )
         }

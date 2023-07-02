@@ -20,6 +20,11 @@ import _OpenAPIGeneratorCore
 /// Client.swift in one invocation of the command-line tool.
 struct _UserConfig: Codable {
 
+    enum PluginMode: String, Codable {
+        case BuildTool
+        case Command
+    }
+
     /// A list of modes to use, in other words, which Swift files to generate.
     var generate: [GeneratorMode]
 
@@ -27,5 +32,5 @@ struct _UserConfig: Codable {
     /// generated Swift file.
     var additionalImports: [String]?
 
-    var disabledAsBuildToolPlugin: Bool?
+    var pluginMode: PluginMode?
 }
