@@ -86,7 +86,9 @@ struct SwiftOpenAPIGeneratorPlugin {
             throw Error.multiDocumentFound(targetName: targetName, files: matchedDocs)
         }
         let doc = matchedDocs[0]
-        let genSourcesDir = targetWorkingDirectory.appending("GeneratedSources")
+        // Can't use `GeneratedSources` because the BuildTool plugin uses that
+        // And Xcode might throw "Filename used twice" errors.
+        let genSourcesDir = targetWorkingDirectory.appending("OpenAPIGeneratedSources")
 
         let tool = try tool("swift-openapi-generator")
         let toolUrl = URL(fileURLWithPath: tool.path.string)
