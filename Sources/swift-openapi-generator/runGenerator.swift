@@ -130,9 +130,12 @@ extension _Tool {
     }
 
     static func runCleanup(outputDirectory: URL) throws {
-        let fm = FileManager.default
-        if fm.fileExists(atPath: outputDirectory.path) {
-            try fm.removeItem(at: outputDirectory)
+        for mode in GeneratorMode.allCases {
+            try replaceFileContents(
+                inDirectory: outputDirectory,
+                fileName: mode.outputFileName,
+                with: { Data() }
+            )
         }
     }
 }
