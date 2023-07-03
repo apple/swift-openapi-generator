@@ -1,6 +1,8 @@
 import PackagePlugin
 
 enum PluginUtils {
+    private static var supportedConfigFiles: Set<String> { Set(["yaml", "yml"].map { "openapi-generator-config." + $0 }) }
+    private static var supportedDocFiles: Set<String> { Set(["yaml", "yml", "json"].map { "openapi." + $0 }) }
 
     struct ValidatedInputs {
         let doc: Path
@@ -9,9 +11,6 @@ enum PluginUtils {
         let arguments: [String]
         let tool: PluginContext.Tool
     }
-
-    private static var supportedConfigFiles: Set<String> { Set(["yaml", "yml"].map { "openapi-generator-config." + $0 }) }
-    private static var supportedDocFiles: Set<String> { Set(["yaml", "yml", "json"].map { "openapi." + $0 }) }
 
     static func validateInputs(
         workingDirectory: Path,
@@ -49,12 +48,16 @@ enum PluginUtils {
 
         let tool = try tool("swift-openapi-generator")
 
-        return ValidatedInputs(
+        let inputs = ValidatedInputs(
             doc: doc,
             config: config,
             genSourcesDir: genSourcesDir,
             arguments: arguments,
             tool: tool
         )
+
+        print("INPUTS for \(invocationSource)", inputs)
+
+        return inputs
     }
 }

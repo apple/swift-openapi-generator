@@ -128,7 +128,7 @@ struct ServerFileTranslator: FileTranslator {
 
         return StructuredSwiftRepresentation(
             file: .init(
-                name: GeneratorMode.server.fileName(for: config.invocationSource),
+                name: GeneratorMode.server.outputFileName,
                 contents: .init(
                     topComment: topComment,
                     imports: imports,

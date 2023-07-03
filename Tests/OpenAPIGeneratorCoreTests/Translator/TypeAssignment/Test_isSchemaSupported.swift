@@ -19,7 +19,7 @@ class Test_isSchemaSupported: XCTestCase {
 
     var translator: FileTranslator {
         TypesFileTranslator(
-            config: .init(mode: .types, invocationSource: .BuildToolPlugin),
+            config: .init(mode: .types),
             diagnostics: PrintingDiagnosticCollector(),
             components: .init(schemas: [
                 "Foo": .string,

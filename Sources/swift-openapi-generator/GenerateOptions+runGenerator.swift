@@ -54,8 +54,7 @@ extension _GenerateOptions {
         let configs: [Config] = sortedModes.map {
             .init(
                 mode: $0,
-                additionalImports: resolvedAdditionalImports,
-                invocationSource: invocationSource
+                additionalImports: resolvedAdditionalImports
             )
         }
         let diagnostics: DiagnosticCollector
@@ -76,7 +75,7 @@ extension _GenerateOptions {
             - OpenAPI document path: \(doc.path)
             - Configuration path: \(self.config?.path ?? "<none>")
             - Generator modes: \(sortedModes.map(\.rawValue).joined(separator: ", "))
-            - Output file name suffixes: \(sortedModes.outputFileNameSuffixes.joined(separator: ", "))
+            - Output file names: \(sortedModes.map(\.outputFileName).joined(separator: ", "))
             - Output directory: \(outputDirectory.path)
             - Diagnostics output path: \(diagnosticsOutputPath?.path ?? "<none - logs to stderr>")
             - Current directory: \(FileManager.default.currentDirectoryPath)

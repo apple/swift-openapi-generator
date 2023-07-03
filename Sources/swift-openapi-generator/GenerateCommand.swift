@@ -38,7 +38,7 @@ struct _GenerateCommand: AsyncParsableCommand {
 
     @Option(
         help:
-            "Output directory where the generated files are written. Warning: Replaces any existing files with the same filename. Reserved filename suffixes: \(GeneratorMode.allCases.outputFileNameSuffixes.joined(separator: ", "))"
+            "Output directory where the generated files are written. Warning: Replaces any existing files with the same filename. Reserved filenames: \(GeneratorMode.allOutputFileNames.joined(separator: ", "))"
     )
     var outputDirectory: URL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
 

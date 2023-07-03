@@ -49,7 +49,7 @@ extension _Tool {
                 docData: docData,
                 config: config,
                 outputDirectory: outputDirectory,
-                outputFileName: config.mode.fileName(for: invocationSource),
+                outputFileName: config.mode.outputFileName,
                 diagnostics: diagnostics
             )
         }
@@ -61,7 +61,7 @@ extension _Tool {
             for mode in nonGeneratedModes.sorted() {
                 try replaceFileContents(
                     inDirectory: outputDirectory,
-                    fileName: mode.fileName(for: .BuildToolPlugin),
+                    fileName: mode.outputFileName,
                     with: { Data() }
                 )
             }
@@ -138,7 +138,7 @@ extension _Tool {
 
     static func runBuildToolPluginCleanup(outputDirectory: URL) throws {
         for mode in GeneratorMode.allCases {
-            let fileName = mode.fileName(for: .BuildToolPlugin)
+            let fileName = mode.outputFileName
             // Swift expects us to always create these files, so we create them but empty.
             try replaceFileContents(
                 inDirectory: outputDirectory,
@@ -156,7 +156,7 @@ extension _Tool {
 
         // Remove each file
         for mode in GeneratorMode.allCases {
-            let fileName = mode.fileName(for: .CommandPlugin)
+            let fileName = mode.outputFileName
             let path = outputDirectory.appendingPathComponent(fileName)
             if fm.fileExists(atPath: path.path) {
                 try fm.removeItem(at: path)

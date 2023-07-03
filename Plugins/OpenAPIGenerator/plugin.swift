@@ -16,9 +16,6 @@ import Foundation
 
 @main
 struct SwiftOpenAPIGeneratorPlugin {
-    private var supportedConfigFiles: Set<String> { Set(["yaml", "yml"].map { "openapi-generator-config." + $0 }) }
-    private var supportedDocFiles: Set<String> { Set(["yaml", "yml", "json"].map { "openapi." + $0 }) }
-
     func createBuildCommands(
         pluginWorkDirectory: Path,
         tool: (String) throws -> PluginContext.Tool,
@@ -33,7 +30,7 @@ struct SwiftOpenAPIGeneratorPlugin {
             invocationSource: .BuildToolPlugin
         )
 
-        let outputFiles: [Path] = GeneratorMode.allCases.map { inputs.genSourcesDir.appending($0.fileName(for: .BuildToolPlugin)) }
+        let outputFiles: [Path] = GeneratorMode.allCases.map { inputs.genSourcesDir.appending($0.outputFileName) }
         return [
             .buildCommand(
                 displayName: "Running swift-openapi-generator",
