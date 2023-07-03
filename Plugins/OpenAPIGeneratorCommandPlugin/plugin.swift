@@ -26,7 +26,8 @@ struct SwiftOpenAPIGeneratorPlugin {
             workingDirectory: targetWorkingDirectory,
             tool: tool,
             sourceFiles: sourceFiles,
-            targetName: targetName
+            targetName: targetName,
+            invokedFrom: "CommandPlugin"
         )
 
         let toolUrl = URL(fileURLWithPath: inputs.tool.path.string)

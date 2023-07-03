@@ -46,14 +46,14 @@ struct _GenerateCommand: AsyncParsableCommand {
         help:
             "Whether this invocation is from the SwiftPM plugin. We always need to produce all files when invoked from the plugin. Non-requested modes produce empty files."
     )
-    var invocationKind: InvocationKind = .CLI
+    var invokedFrom: InvocationSource = .CLI
 
     func run() async throws {
         try generate.runGenerator(
             outputDirectory: outputDirectory,
-            invocationKind: invocationKind
+            invokedFrom: invokedFrom
         )
     }
 }
 
-extension InvocationKind: ExpressibleByArgument { }
+extension InvocationSource: ExpressibleByArgument { }

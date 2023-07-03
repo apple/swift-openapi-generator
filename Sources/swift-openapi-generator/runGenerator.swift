@@ -29,7 +29,7 @@ extension _Tool {
     static func runGenerator(
         doc: URL,
         configs: [Config],
-        invocationKind: InvocationKind,
+        invokedFrom: InvocationSource,
         outputDirectory: URL,
         diagnostics: DiagnosticCollector
     ) throws {
@@ -49,14 +49,14 @@ extension _Tool {
                 docData: docData,
                 config: config,
                 outputDirectory: outputDirectory,
-                outputFileName: fullFileName(config.mode, invocationKind: invocationKind),
+                outputFileName: fullFileName(config.mode, invokedFrom: invokedFrom),
                 diagnostics: diagnostics
             )
         }
 
         // Swift expects us to always create these files in BuildTool plugins,
         // so we create the unused files, but empty.
-        if invocationKind == .BuildToolPlugin {
+        if invokedFrom == .BuildToolPlugin {
             let nonGeneratedModes = Set(GeneratorMode.allCases).subtracting(configs.map(\.mode))
             for mode in nonGeneratedModes.sorted() {
                 try replaceFileContents(
@@ -136,14 +136,14 @@ extension _Tool {
         }
     }
 
-    static func fullFileName(_ mode: GeneratorMode, invocationKind: InvocationKind) -> String {
-        let outputFileNamePrefix = invocationKind == .BuildToolPlugin ? "" : "Generated_"
+    static func fullFileName(_ mode: GeneratorMode, invokedFrom: InvocationSource) -> String {
+        let outputFileNamePrefix = invokedFrom == .BuildToolPlugin ? "" : "Generated_"
         return outputFileNamePrefix + mode.outputFileNameSuffix
     }
 
     static func runBuildToolPluginCleanup(outputDirectory: URL) throws {
         for mode in GeneratorMode.allCases {
-            let fileName = fullFileName(mode, invocationKind: .BuildToolPlugin)
+            let fileName = fullFileName(mode, invokedFrom: .BuildToolPlugin)
             // Swift expects us to always create these files, so we create them but empty.
             try replaceFileContents(
                 inDirectory: outputDirectory,
@@ -161,7 +161,7 @@ extension _Tool {
 
         // Remove each file
         for mode in GeneratorMode.allCases {
-            let fileName = fullFileName(mode, invocationKind: .CommandPlugin)
+            let fileName = fullFileName(mode, invokedFrom: .CommandPlugin)
             let path = outputDirectory.appendingPathComponent(fileName)
             if fm.fileExists(atPath: path.path) {
                 try fm.removeItem(at: path)
