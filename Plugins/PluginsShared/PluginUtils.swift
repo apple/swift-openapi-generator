@@ -18,7 +18,7 @@ enum PluginUtils {
         tool: (String) throws -> PluginContext.Tool,
         sourceFiles: FileList,
         targetName: String,
-        invokedFrom: String
+        invocationSource: InvocationSource
     ) throws -> ValidatedInputs {
         let inputFiles = sourceFiles
         let matchedConfigs = inputFiles.filter { supportedConfigFiles.contains($0.path.lastComponent) }.map(\.path)
@@ -44,7 +44,7 @@ enum PluginUtils {
             "generate", "\(doc)",
             "--config", "\(config)",
             "--output-directory", "\(genSourcesDir)",
-            "--invoked-from", invokedFrom
+            "--invoked-from", "\(invocationSource)"
         ]
 
         let tool = try tool("swift-openapi-generator")

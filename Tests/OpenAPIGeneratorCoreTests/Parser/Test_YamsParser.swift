@@ -130,7 +130,7 @@ final class Test_YamsParser: Test_Core {
                     absolutePath: URL(fileURLWithPath: "/foo.yaml"),
                     contents: Data(yaml.utf8)
                 ),
-                config: .init(mode: .types),
+                config: .init(mode: .types, invocationSource: .BuildToolPlugin),
                 diagnostics: PrintingDiagnosticCollector()
             )
     }

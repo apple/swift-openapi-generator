@@ -29,11 +29,11 @@ extension _GenerateOptions {
     ///   a limitation of the build system used by SwiftPM under the hood.
     func runGenerator(
         outputDirectory: URL,
-        invokedFrom: InvocationSource
+        invocationSource: InvocationSource
     ) throws {
         let config = try loadedConfig()
 
-        switch invokedFrom {
+        switch invocationSource {
         case .BuildToolPlugin:
             guard (config?.pluginMode ?? .BuildTool) == .BuildTool else {
                 print("Plugin disabled for BuildTool plugins. Will clean up files if there are any leftovers from previous builds.")
@@ -54,7 +54,8 @@ extension _GenerateOptions {
         let configs: [Config] = sortedModes.map {
             .init(
                 mode: $0,
-                additionalImports: resolvedAdditionalImports
+                additionalImports: resolvedAdditionalImports,
+                invocationSource: invocationSource
             )
         }
         let diagnostics: DiagnosticCollector
@@ -75,11 +76,11 @@ extension _GenerateOptions {
             - OpenAPI document path: \(doc.path)
             - Configuration path: \(self.config?.path ?? "<none>")
             - Generator modes: \(sortedModes.map(\.rawValue).joined(separator: ", "))
-            - Output file name suffixes: \(sortedModes.map(\.outputFileNameSuffix).joined(separator: ", "))
+            - Output file name suffixes: \(sortedModes.outputFileNameSuffixes.joined(separator: ", "))
             - Output directory: \(outputDirectory.path)
             - Diagnostics output path: \(diagnosticsOutputPath?.path ?? "<none - logs to stderr>")
             - Current directory: \(FileManager.default.currentDirectoryPath)
-            - Invocation kind: \(invokedFrom.rawValue)
+            - Invocation kind: \(invocationSource.rawValue)
             - Additional imports: \(resolvedAdditionalImports.isEmpty ? "<none>" : resolvedAdditionalImports.joined(separator: ", "))
             """
         )
@@ -87,7 +88,7 @@ extension _GenerateOptions {
             try _Tool.runGenerator(
                 doc: doc,
                 configs: configs,
-                invokedFrom: invokedFrom,
+                invocationSource: invocationSource,
                 outputDirectory: outputDirectory,
                 diagnostics: diagnostics
             )

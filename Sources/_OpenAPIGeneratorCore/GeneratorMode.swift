@@ -35,9 +35,7 @@ public enum GeneratorMode: String, Codable, CaseIterable {
 }
 
 extension GeneratorMode {
-
-    /// The Swift file name including its file extension.
-    public var outputFileNameSuffix: String {
+    fileprivate var fileNameSuffix: String {
         switch self {
         case .types:
             return "Types.swift"
@@ -48,9 +46,14 @@ extension GeneratorMode {
         }
     }
 
-    /// The Swift file names for all supported generator mode values.
-    public static var allOutputFileNameSuffixes: [String] {
-        GeneratorMode.allCases.map(\.outputFileNameSuffix)
+    /// The Swift file name including its file extension.
+    public func fileName(for invocationSource: InvocationSource) -> String {
+        switch invocationSource {
+        case .BuildToolPlugin, .CLI:
+            return self.fileNameSuffix
+        case .CommandPlugin:
+            return "Generated_\(self.fileNameSuffix)"
+        }
     }
 
     /// Defines an order in which generators should be run.
@@ -63,6 +66,12 @@ extension GeneratorMode {
         case .server:
             return 3
         }
+    }
+}
+
+extension Array where Element == GeneratorMode {
+    public var outputFileNameSuffixes: [String] {
+        self.map(\.fileNameSuffix)
     }
 }
 

@@ -38,7 +38,7 @@ struct _GenerateCommand: AsyncParsableCommand {
 
     @Option(
         help:
-            "Output directory where the generated files are written. Warning: Replaces any existing files with the same filename. Reserved filename suffixes: \(GeneratorMode.allOutputFileNameSuffixes.joined(separator: ", "))"
+            "Output directory where the generated files are written. Warning: Replaces any existing files with the same filename. Reserved filename suffixes: \(GeneratorMode.allCases.outputFileNameSuffixes.joined(separator: ", "))"
     )
     var outputDirectory: URL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
 
@@ -51,7 +51,7 @@ struct _GenerateCommand: AsyncParsableCommand {
     func run() async throws {
         try generate.runGenerator(
             outputDirectory: outputDirectory,
-            invokedFrom: invokedFrom
+            invocationSource: invokedFrom
         )
     }
 }

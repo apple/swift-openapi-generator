@@ -29,7 +29,7 @@ extension _Tool {
     static func runGenerator(
         doc: URL,
         configs: [Config],
-        invokedFrom: InvocationSource,
+        invocationSource: InvocationSource,
         outputDirectory: URL,
         diagnostics: DiagnosticCollector
     ) throws {
@@ -49,19 +49,19 @@ extension _Tool {
                 docData: docData,
                 config: config,
                 outputDirectory: outputDirectory,
-                outputFileName: fullFileName(config.mode, invokedFrom: invokedFrom),
+                outputFileName: config.mode.fileName(for: invocationSource),
                 diagnostics: diagnostics
             )
         }
 
         // Swift expects us to always create these files in BuildTool plugins,
         // so we create the unused files, but empty.
-        if invokedFrom == .BuildToolPlugin {
+        if invocationSource == .BuildToolPlugin {
             let nonGeneratedModes = Set(GeneratorMode.allCases).subtracting(configs.map(\.mode))
             for mode in nonGeneratedModes.sorted() {
                 try replaceFileContents(
                     inDirectory: outputDirectory,
-                    fileName: mode.outputFileNameSuffix,
+                    fileName: mode.fileName(for: .BuildToolPlugin),
                     with: { Data() }
                 )
             }
@@ -136,14 +136,9 @@ extension _Tool {
         }
     }
 
-    static func fullFileName(_ mode: GeneratorMode, invokedFrom: InvocationSource) -> String {
-        let outputFileNamePrefix = invokedFrom == .BuildToolPlugin ? "" : "Generated_"
-        return outputFileNamePrefix + mode.outputFileNameSuffix
-    }
-
     static func runBuildToolPluginCleanup(outputDirectory: URL) throws {
         for mode in GeneratorMode.allCases {
-            let fileName = fullFileName(mode, invokedFrom: .BuildToolPlugin)
+            let fileName = mode.fileName(for: .BuildToolPlugin)
             // Swift expects us to always create these files, so we create them but empty.
             try replaceFileContents(
                 inDirectory: outputDirectory,
@@ -161,7 +156,7 @@ extension _Tool {
 
         // Remove each file
         for mode in GeneratorMode.allCases {
-            let fileName = fullFileName(mode, invokedFrom: .CommandPlugin)
+            let fileName = mode.fileName(for: .CommandPlugin)
             let path = outputDirectory.appendingPathComponent(fileName)
             if fm.fileExists(atPath: path.path) {
                 try fm.removeItem(at: path)

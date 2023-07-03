@@ -65,7 +65,7 @@ struct TypesFileTranslator: FileTranslator {
 
         return StructuredSwiftRepresentation(
             file: .init(
-                name: GeneratorMode.types.outputFileNameSuffix,
+                name: GeneratorMode.types.fileName(for: config.invocationSource),
                 contents: typesFile
             )
         )

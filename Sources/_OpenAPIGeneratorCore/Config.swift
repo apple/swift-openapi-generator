@@ -28,14 +28,18 @@ public struct Config {
     /// Additional imports to add to each generated file.
     public var additionalImports: [String]
 
+    /// Where this command has been triggered from.
+    public var invocationSource: InvocationSource
+
     /// Creates a configuration with the specified generator mode and imports.
     /// - Parameters:
     ///   - mode: The mode to use for generation.
     ///   - additionalImports:  Additional imports to add to each generated
     ///   file.
-    public init(mode: GeneratorMode, additionalImports: [String] = []) {
+    public init(mode: GeneratorMode, additionalImports: [String] = [], invocationSource: InvocationSource) {
         self.mode = mode
         self.additionalImports = additionalImports
+        self.invocationSource = invocationSource
     }
 }
 

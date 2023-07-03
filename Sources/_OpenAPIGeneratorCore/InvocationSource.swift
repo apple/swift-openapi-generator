@@ -1,5 +1,5 @@
 
-enum InvocationSource: String, Codable {
+public enum InvocationSource: String, Codable {
     case BuildToolPlugin
     case CommandPlugin
     case CLI

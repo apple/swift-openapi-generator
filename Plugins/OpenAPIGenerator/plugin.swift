@@ -30,10 +30,10 @@ struct SwiftOpenAPIGeneratorPlugin {
             tool: tool,
             sourceFiles: sourceFiles,
             targetName: targetName,
-            invokedFrom: "BuildToolPlugin"
+            invocationSource: .BuildToolPlugin
         )
 
-        let outputFiles: [Path] = GeneratorMode.allCases.map { inputs.genSourcesDir.appending($0.outputFileNameSuffix) }
+        let outputFiles: [Path] = GeneratorMode.allCases.map { inputs.genSourcesDir.appending($0.fileName(for: .BuildToolPlugin)) }
         return [
             .buildCommand(
                 displayName: "Running swift-openapi-generator",
