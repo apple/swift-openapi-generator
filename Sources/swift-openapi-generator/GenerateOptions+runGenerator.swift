@@ -79,7 +79,7 @@ extension _GenerateOptions {
             - Output directory: \(outputDirectory.path)
             - Diagnostics output path: \(diagnosticsOutputPath?.path ?? "<none - logs to stderr>")
             - Current directory: \(FileManager.default.currentDirectoryPath)
-            - Invoked from: \(invocationSource)
+            - Invoked from: \(invocationSource.rawValue)
             - Additional imports: \(resolvedAdditionalImports.isEmpty ? "<none>" : resolvedAdditionalImports.joined(separator: ", "))
             """
         )
