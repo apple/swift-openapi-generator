@@ -79,10 +79,14 @@ struct ClientFileTranslator: FileTranslator {
                         type: Constants.Configuration.typeName,
                         defaultValue: .dot("init").call([])
                     ),
-                    .init(label: "transport", type: Constants.Client.Transport.typeName),
+                    .init(
+                        label: "transport",
+                        anyKeyword: true,
+                        type: Constants.Client.Transport.typeName
+                    ),
                     .init(
                         label: "middlewares",
-                        type: "[\(Constants.Client.Middleware.typeName)]",
+                        type: "[any \(Constants.Client.Middleware.typeName)]",
                         defaultValue: .literal(.array([]))
                     ),
                 ],
