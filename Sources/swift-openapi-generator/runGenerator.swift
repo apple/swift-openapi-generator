@@ -135,41 +135,4 @@ extension _Tool {
             return fm.createFile(atPath: path.path, contents: data)
         }
     }
-
-    static func runBuildToolPluginCleanup(outputDirectory: URL) throws {
-        for mode in GeneratorMode.allCases {
-            let fileName = mode.outputFileName
-            // Swift expects us to always create these files, so we create them but empty.
-            try replaceFileContents(
-                inDirectory: outputDirectory,
-                fileName: fileName,
-                with: { Data() }
-            )
-        }
-    }
-
-    static func runCommandPluginCleanup(outputDirectory: URL) throws {
-        let fm = FileManager.default
-        guard fm.fileExists(atPath: outputDirectory.path) else {
-            return
-        }
-
-        // Remove each file
-        for mode in GeneratorMode.allCases {
-            let fileName = mode.outputFileName
-            let path = outputDirectory.appendingPathComponent(fileName)
-            if fm.fileExists(atPath: path.path) {
-                try fm.removeItem(at: path)
-            }
-        }
-
-        // If the output directory is empty, remove it.
-        let outputDirectoryContents = try? fm.contentsOfDirectory(
-            at: outputDirectory,
-            includingPropertiesForKeys: nil
-        )
-        if (outputDirectoryContents ?? []).isEmpty {
-            try fm.removeItem(at: outputDirectory)
-        }
-    }
 }
