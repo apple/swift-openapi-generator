@@ -95,7 +95,7 @@ extension _Tool {
             )
             return output.contents
         }
-        print("File with name '\(outputFileName)' in directory '\(outputDirectory.path)': \(didChange ? "changed" : "unchanged")")
+        print("File \(outputFileName): \(didChange ? "changed" : "unchanged")")
     }
 
     /// Evaluates a closure to generate file data and writes the data to disk
