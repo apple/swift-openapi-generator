@@ -48,16 +48,12 @@ enum PluginUtils {
 
         let tool = try tool("swift-openapi-generator")
 
-        let inputs = ValidatedInputs(
+        return ValidatedInputs(
             doc: doc,
             config: config,
             genSourcesDir: genSourcesDir,
             arguments: arguments,
             tool: tool
         )
-
-        print("INPUTS for \(invocationSource)", inputs)
-
-        return inputs
     }
 }
