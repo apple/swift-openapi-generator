@@ -82,10 +82,8 @@ class ReferenceTests: XCTestCase {
         )
 
         // Run the requested generator invocation
-        let diagnostics: DiagnosticCollector = strictDiagnosticsCollector
         let generatorPipeline = self.makeGeneratorPipeline(
-            config: referenceTest.asConfig,
-            diagnostics: diagnostics
+            config: referenceTest.asConfig
         )
         let generatedOutputSource = try generatorPipeline.run(input)
 
@@ -143,31 +141,8 @@ class ReferenceTests: XCTestCase {
     }
 }
 
-struct StrictDiagnosticsCollector: DiagnosticCollector {
-    var test: XCTestCase
-
-    func emit(_ diagnostic: Diagnostic) {
-        print("Test emitted diagnostic: \(diagnostic.description)")
-        switch diagnostic.severity {
-        case .note:
-            // no need to fail, just print
-            break
-        case .warning, .error:
-            XCTFail("Failing with a diagnostic: \(diagnostic.description)")
-        }
-    }
-}
-
 extension ReferenceTests {
-
-    var strictDiagnosticsCollector: DiagnosticCollector {
-        StrictDiagnosticsCollector(test: self)
-    }
-
-    private func makeGeneratorPipeline(
-        config: Config,
-        diagnostics: DiagnosticCollector
-    ) -> GeneratorPipeline {
+    private func makeGeneratorPipeline(config: Config) -> GeneratorPipeline {
 
         let parser = YamsParser()
         let translator = MultiplexTranslator()
@@ -183,7 +158,7 @@ extension ReferenceTests {
                 return newFile
             },
             config: config,
-            diagnostics: diagnostics
+            diagnostics: XCTestDiagnosticCollector(test: self)
         )
     }
 
