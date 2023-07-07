@@ -21,16 +21,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsHeadersInline() throws {
         try self.assertHeadersTranslation(
             """
-            openapi: "3.0.3"
-            info:
-              title: "Test"
-              version: "0.0.0"
-            paths: {}
-            components:
-              headers:
-                MyHeader:
-                  schema:
-                    type: string
+            headers:
+              MyHeader:
+                schema:
+                  type: string
             """,
             """
             public enum Headers {
@@ -43,16 +37,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsHeadersReference() throws {
         try self.assertHeadersTranslation(
             """
-            openapi: "3.0.3"
-            info:
-              title: "Test"
-              version: "0.0.0"
-            paths: {}
-            components:
-              headers:
-                MyHeader:
-                  schema:
-                    $ref: "#/components/schemas/MySchema"
+            headers:
+              MyHeader:
+                schema:
+                  $ref: "#/components/schemas/MySchema"
             """,
             """
             public enum Headers {
@@ -65,18 +53,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsParametersInline() throws {
         try self.assertParametersTranslation(
             """
-            openapi: "3.0.3"
-            info:
-              title: "Test"
-              version: "0.0.0"
-            paths: {}
-            components:
-              parameters:
-                MyParam:
-                  in: query
-                  name: my_param
-                  schema:
-                    type: string
+            parameters:
+              MyParam:
+                in: query
+                name: my_param
+                schema:
+                  type: string
             """,
             """
             public enum Parameters {
@@ -89,18 +71,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsParametersReference() throws {
         try self.assertParametersTranslation(
             """
-            openapi: "3.0.3"
-            info:
-              title: "Test"
-              version: "0.0.0"
-            paths: {}
-            components:
-              parameters:
-                MyParam:
-                  in: query
-                  name: my_param
-                  schema:
-                    $ref: "#/components/schemas/MySchema"
+            parameters:
+              MyParam:
+                in: query
+                name: my_param
+                schema:
+                  $ref: "#/components/schemas/MySchema"
             """,
             """
             public enum Parameters {
@@ -111,109 +87,94 @@ final class SnippetBasedReferenceTests: XCTestCase {
     }
 
     func testComponentsSchemasObject() throws {
-        let openAPIDocument = """
-                openapi: "3.0.3"
-                info:
-                  title: "Test"
-                  version: "0.0.0"
-                paths: {}
-                components:
-                  schemas:
-                    MyObject:
-                      type: object
-                      title: My object
-                      properties:
-                        id:
-                          type: integer
-                          format: int64
-                        alias:
-                          type: string
-                      required:
-                        - id
-            """
+        let componentsYAML = """
+            schemas:
+              MyObject:
+                type: object
+                title: My object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  alias:
+                    type: string
+                required:
+                  - id
+        """
         let expectedSwift = """
-                public enum Schemas {
-                  public struct MyObject: Codable, Equatable, Hashable, Sendable {
-                    public var id: Swift.Int64
-                    public var alias: Swift.String?
-                    public init(id: Swift.Int64, alias: Swift.String? = nil) {
-                        self.id = id
-                        self.alias = alias
-                    }
-                    public enum CodingKeys: String, CodingKey {
-                        case id
-                        case alias
-                    }
-                  }
+            public enum Schemas {
+              public struct MyObject: Codable, Equatable, Hashable, Sendable {
+                public var id: Swift.Int64
+                public var alias: Swift.String?
+                public init(id: Swift.Int64, alias: Swift.String? = nil) {
+                    self.id = id
+                    self.alias = alias
                 }
-            """
-        let translator = try makeTypesTranslator(openAPIDocument)
+                public enum CodingKeys: String, CodingKey {
+                    case id
+                    case alias
+                }
+              }
+            }
+        """
+        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
         let translation = try translator.translateSchemas(translator.components.schemas)
         try XCTAssertSwiftEquivalent(translation, expectedSwift)
     }
 
     func testComponentsSchemasEnum() throws {
-        let openAPIDocument = """
-                openapi: "3.0.3"
-                info:
-                  title: "Test"
-                  version: "0.0.0"
-                paths: {}
-                components:
-                  schemas:
-                    MyEnum:
-                      type: string
-                      enum:
-                        - one
-                        # empty
-                        -
-                        # illegal character
-                        - $tart
-                        # keyword
-                        - public
-            """
+        let componentsYAML = """
+          schemas:
+            MyEnum:
+              type: string
+              enum:
+                - one
+                -
+                - $tart
+                - public
+        """
         let expectedSwift = """
-                public enum Schemas {
-                    @frozen
-                    public enum MyEnum: RawRepresentable, Codable, Equatable, Hashable, Sendable,
-                        _AutoLosslessStringConvertible, CaseIterable
-                    {
-                        case one
-                        case _empty
-                        case _tart
-                        case _public
-                        case undocumented(String)
-                        public init?(rawValue: String) {
-                            switch rawValue {
-                                case "one": self = .one
-                                case "": self = ._empty
-                                case "$tart": self = ._tart
-                                case "public": self = ._public
-                                default: self = .undocumented(rawValue)
-                            }
+            public enum Schemas {
+                @frozen
+                public enum MyEnum: RawRepresentable, Codable, Equatable, Hashable, Sendable,
+                    _AutoLosslessStringConvertible, CaseIterable
+                {
+                    case one
+                    case _empty
+                    case _tart
+                    case _public
+                    case undocumented(String)
+                    public init?(rawValue: String) {
+                        switch rawValue {
+                            case "one": self = .one
+                            case "": self = ._empty
+                            case "$tart": self = ._tart
+                            case "public": self = ._public
+                            default: self = .undocumented(rawValue)
                         }
-                        public var rawValue: String {
-                            switch self {
-                                case let .undocumented(string): return string
-                                case .one: return "one"
-                                case ._empty: return ""
-                                case ._tart: return "$tart"
-                                case ._public: return "public"
-                            }
-                        }
-                        public static var allCases: [MyEnum] { [.one, ._empty, ._tart, ._public] }
                     }
+                    public var rawValue: String {
+                        switch self {
+                            case let .undocumented(string): return string
+                            case .one: return "one"
+                            case ._empty: return ""
+                            case ._tart: return "$tart"
+                            case ._public: return "public"
+                        }
+                    }
+                    public static var allCases: [MyEnum] { [.one, ._empty, ._tart, ._public] }
                 }
-            """
-        let translator = try makeTypesTranslator(openAPIDocument)
+            }
+        """
+        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
         let translation = try translator.translateSchemas(translator.components.schemas)
         try XCTAssertSwiftEquivalent(translation, expectedSwift)
     }
 }
 
 extension SnippetBasedReferenceTests {
-    func makeTypesTranslator(_ openAPIDocument: String) throws -> TypesFileTranslator {
-        let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: openAPIDocument)
+    func makeTypesTranslator(openAPIDocumentYAML: String) throws -> TypesFileTranslator {
+        let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: openAPIDocumentYAML)
         return TypesFileTranslator(
             config: Config(mode: .types),
             diagnostics: XCTestDiagnosticCollector(test: self),
@@ -221,24 +182,33 @@ extension SnippetBasedReferenceTests {
         )
     }
 
+    func makeTypesTranslator(componentsYAML: String) throws -> TypesFileTranslator {
+        let components = try YAMLDecoder().decode(OpenAPI.Components.self, from: componentsYAML)
+        return TypesFileTranslator(
+            config: Config(mode: .types),
+            diagnostics: XCTestDiagnosticCollector(test: self),
+            components: components
+        )
+    }
+
     func assertHeadersTranslation(
-        _ openAPIDocument: String,
+        _ componentsYAML: String,
         _ expectedSwift: String,
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
-        let translator = try makeTypesTranslator(openAPIDocument)
+        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
         let translation = try translator.translateComponentHeaders(translator.components.headers)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 
     func assertParametersTranslation(
-        _ openAPIDocument: String,
+        _ componentsYAML: String,
         _ expectedSwift: String,
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
-        let translator = try makeTypesTranslator(openAPIDocument)
+        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
         let translation = try translator.translateComponentParameters(translator.components.parameters)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
