@@ -33,7 +33,7 @@ extension TestConfig {
 }
 
 /// Tests that the generator produces Swift files that match a reference.
-class ReferenceTests: XCTestCase {
+class FileBasedReferenceTests: XCTestCase {
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
@@ -141,7 +141,7 @@ class ReferenceTests: XCTestCase {
     }
 }
 
-extension ReferenceTests {
+extension FileBasedReferenceTests {
     private func makeGeneratorPipeline(config: Config) -> GeneratorPipeline {
 
         let parser = YamsParser()
