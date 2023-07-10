@@ -88,35 +88,35 @@ final class SnippetBasedReferenceTests: XCTestCase {
 
     func testComponentsSchemasObject() throws {
         let componentsYAML = """
-            schemas:
-              MyObject:
-                type: object
-                title: My object
-                properties:
-                  id:
-                    type: integer
-                    format: int64
-                  alias:
-                    type: string
-                required:
-                  - id
-        """
+                schemas:
+                  MyObject:
+                    type: object
+                    title: My object
+                    properties:
+                      id:
+                        type: integer
+                        format: int64
+                      alias:
+                        type: string
+                    required:
+                      - id
+            """
         let expectedSwift = """
-            public enum Schemas {
-              public struct MyObject: Codable, Equatable, Hashable, Sendable {
-                public var id: Swift.Int64
-                public var alias: Swift.String?
-                public init(id: Swift.Int64, alias: Swift.String? = nil) {
-                    self.id = id
-                    self.alias = alias
+                public enum Schemas {
+                  public struct MyObject: Codable, Equatable, Hashable, Sendable {
+                    public var id: Swift.Int64
+                    public var alias: Swift.String?
+                    public init(id: Swift.Int64, alias: Swift.String? = nil) {
+                        self.id = id
+                        self.alias = alias
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case id
+                        case alias
+                    }
+                  }
                 }
-                public enum CodingKeys: String, CodingKey {
-                    case id
-                    case alias
-                }
-              }
-            }
-        """
+            """
         let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
         let translation = try translator.translateSchemas(translator.components.schemas)
         try XCTAssertSwiftEquivalent(translation, expectedSwift)
@@ -124,48 +124,48 @@ final class SnippetBasedReferenceTests: XCTestCase {
 
     func testComponentsSchemasEnum() throws {
         let componentsYAML = """
-          schemas:
-            MyEnum:
-              type: string
-              enum:
-                - one
-                -
-                - $tart
-                - public
-        """
+              schemas:
+                MyEnum:
+                  type: string
+                  enum:
+                    - one
+                    -
+                    - $tart
+                    - public
+            """
         let expectedSwift = """
-            public enum Schemas {
-                @frozen
-                public enum MyEnum: RawRepresentable, Codable, Equatable, Hashable, Sendable,
-                    _AutoLosslessStringConvertible, CaseIterable
-                {
-                    case one
-                    case _empty
-                    case _tart
-                    case _public
-                    case undocumented(String)
-                    public init?(rawValue: String) {
-                        switch rawValue {
-                            case "one": self = .one
-                            case "": self = ._empty
-                            case "$tart": self = ._tart
-                            case "public": self = ._public
-                            default: self = .undocumented(rawValue)
+                public enum Schemas {
+                    @frozen
+                    public enum MyEnum: RawRepresentable, Codable, Equatable, Hashable, Sendable,
+                        _AutoLosslessStringConvertible, CaseIterable
+                    {
+                        case one
+                        case _empty
+                        case _tart
+                        case _public
+                        case undocumented(String)
+                        public init?(rawValue: String) {
+                            switch rawValue {
+                                case "one": self = .one
+                                case "": self = ._empty
+                                case "$tart": self = ._tart
+                                case "public": self = ._public
+                                default: self = .undocumented(rawValue)
+                            }
                         }
-                    }
-                    public var rawValue: String {
-                        switch self {
-                            case let .undocumented(string): return string
-                            case .one: return "one"
-                            case ._empty: return ""
-                            case ._tart: return "$tart"
-                            case ._public: return "public"
+                        public var rawValue: String {
+                            switch self {
+                                case let .undocumented(string): return string
+                                case .one: return "one"
+                                case ._empty: return ""
+                                case ._tart: return "$tart"
+                                case ._public: return "public"
+                            }
                         }
+                        public static var allCases: [MyEnum] { [.one, ._empty, ._tart, ._public] }
                     }
-                    public static var allCases: [MyEnum] { [.one, ._empty, ._tart, ._public] }
                 }
-            }
-        """
+            """
         let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
         let translation = try translator.translateSchemas(translator.components.schemas)
         try XCTAssertSwiftEquivalent(translation, expectedSwift)
