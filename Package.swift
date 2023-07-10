@@ -90,7 +90,7 @@ let package = Package(
         .testTarget(
             name: "OpenAPIGeneratorCoreTests",
             dependencies: [
-                "_OpenAPIGeneratorCore",
+                "_OpenAPIGeneratorCore"
             ]
         ),
 
@@ -103,7 +103,7 @@ let package = Package(
                 .product(name: "SwiftFormatConfiguration", package: "swift-format"),
             ],
             resources: [
-                .copy("Resources"),
+                .copy("Resources")
             ]
         ),
 
@@ -113,7 +113,7 @@ let package = Package(
         .testTarget(
             name: "PetstoreConsumerTests",
             dependencies: [
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")
             ]
         ),
 
@@ -131,7 +131,7 @@ let package = Package(
             name: "OpenAPIGenerator",
             capability: .buildTool(),
             dependencies: [
-                "swift-openapi-generator",
+                "swift-openapi-generator"
             ]
         ),
     ]
