@@ -18,7 +18,7 @@ import PackageDescription
 let swiftSettings: [SwiftSetting] = [
     // https://github.com/apple/swift-evolution/blob/main/proposals/0335-existential-any.md
     // Require `any` for existential types.
-    .enableUpcomingFeature("ExistentialAny"),
+    .enableUpcomingFeature("ExistentialAny")
 ]
 
 let package = Package(
@@ -124,7 +124,7 @@ let package = Package(
         .testTarget(
             name: "PetstoreConsumerTests",
             dependencies: [
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")
             ],
             swiftSettings: swiftSettings
         ),
