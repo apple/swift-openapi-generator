@@ -81,12 +81,11 @@ struct ClientFileTranslator: FileTranslator {
                     ),
                     .init(
                         label: "transport",
-                        anyKeyword: true,
                         type: Constants.Client.Transport.typeName
                     ),
                     .init(
                         label: "middlewares",
-                        type: "[any \(Constants.Client.Middleware.typeName)]",
+                        type: "[\(Constants.Client.Middleware.typeName)]",
                         defaultValue: .literal(.array([]))
                     ),
                 ],

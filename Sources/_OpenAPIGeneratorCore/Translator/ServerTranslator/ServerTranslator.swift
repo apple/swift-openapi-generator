@@ -79,7 +79,6 @@ struct ServerFileTranslator: FileTranslator {
                     .init(
                         label: "on",
                         name: "transport",
-                        anyKeyword: true,
                         type: Constants.Server.Transport.typeName
                     ),
                     .init(
@@ -94,7 +93,7 @@ struct ServerFileTranslator: FileTranslator {
                     ),
                     .init(
                         label: "middlewares",
-                        type: "[any \(Constants.Server.Middleware.typeName)]",
+                        type: "[\(Constants.Server.Middleware.typeName)]",
                         defaultValue: .literal(.array([]))
                     ),
                 ],

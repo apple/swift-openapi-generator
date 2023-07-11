@@ -377,11 +377,6 @@ struct ParameterDescription: Equatable, Codable {
     /// For example, in `bar baz: String = "hi"`, `name` is `baz`.
     var name: String? = nil
 
-    /// The existential any keyword.
-    ///
-    /// For example, in `bar baz: any Client = ...`, `any` is the keyword referred to here.
-    var anyKeyword: Bool = false
-
     /// The type name of the parameter.
     ///
     /// For example, in `bar baz: String = "hi"`, `type` is `String`.
