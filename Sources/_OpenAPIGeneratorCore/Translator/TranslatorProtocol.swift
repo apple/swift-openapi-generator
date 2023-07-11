@@ -28,6 +28,6 @@ protocol TranslatorProtocol {
     func translate(
         parsedOpenAPI: ParsedOpenAPIRepresentation,
         config: Config,
-        diagnostics: DiagnosticCollector
+        diagnostics: any DiagnosticCollector
     ) throws -> StructuredSwiftRepresentation
 }
