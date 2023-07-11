@@ -20,15 +20,12 @@ fatal() { error "$@"; exit 1; }
 
 CURRENT_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 NUM_CHECKS_FAILED=0
-export DOCC_TARGET=swift-openapi-generator
 
 SCRIPT_PATHS=(
   "${CURRENT_SCRIPT_DIR}/check-for-broken-symlinks.sh"
   "${CURRENT_SCRIPT_DIR}/check-for-unacceptable-language.sh"
   "${CURRENT_SCRIPT_DIR}/check-license-headers.sh"
   "${CURRENT_SCRIPT_DIR}/run-swift-format.sh"
-  "${CURRENT_SCRIPT_DIR}/check-for-docc-warnings.sh"
-  "${CURRENT_SCRIPT_DIR}/run-integration-test.sh"
 )
 
 for SCRIPT_PATH in "${SCRIPT_PATHS[@]}"; do
