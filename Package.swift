@@ -79,6 +79,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
     ],
     targets: [
+
         // Generator Core
         .target(
             name: "_OpenAPIGeneratorCore",
@@ -98,7 +99,7 @@ let package = Package(
         .testTarget(
             name: "OpenAPIGeneratorCoreTests",
             dependencies: [
-                "_OpenAPIGeneratorCore",
+                "_OpenAPIGeneratorCore"
             ],
             swiftSettings: swiftSettings
         ),
@@ -112,7 +113,7 @@ let package = Package(
                 .product(name: "SwiftFormatConfiguration", package: "swift-format"),
             ],
             resources: [
-                .copy("Resources"),
+                .copy("Resources")
             ],
             swiftSettings: swiftSettings
         ),
@@ -143,7 +144,7 @@ let package = Package(
             name: "OpenAPIGenerator",
             capability: .buildTool(),
             dependencies: [
-                "swift-openapi-generator",
+                "swift-openapi-generator"
             ]
         ),
     ]
