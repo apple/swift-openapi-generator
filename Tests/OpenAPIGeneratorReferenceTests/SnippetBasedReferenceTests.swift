@@ -310,6 +310,46 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
+
+    func testComponentsRequestBodiesInline() throws {
+        try self.assertRequestBodiesTranslation(
+            """
+            requestBodies:
+              MyResponseBody:
+                content:
+                  application/json:
+                    schema:
+                      type: string
+            """,
+            """
+            public enum RequestBodies {
+                public enum MyResponseBody: Sendable, Equatable, Hashable {
+                    case json(Swift.String)
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsRequestBodiesReference() throws {
+        try self.assertRequestBodiesTranslation(
+            """
+            requestBodies:
+              MyResponseBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/MyBody'
+            """,
+            """
+            public enum RequestBodies {
+                public enum MyResponseBody: Sendable, Equatable, Hashable {
+                    case json(Components.Schemas.MyBody)
+                }
+            }
+            """
+        )
+    }
 }
 
 extension SnippetBasedReferenceTests {
@@ -372,6 +412,17 @@ extension SnippetBasedReferenceTests {
     ) throws {
         let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
         let translation = try translator.translateComponentResponses(translator.components.responses)
+        try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
+    }
+
+    func assertRequestBodiesTranslation(
+        _ componentsYAML: String,
+        _ expectedSwift: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
+        let translation = try translator.translateComponentRequestBodies(translator.components.requestBodies)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 }
