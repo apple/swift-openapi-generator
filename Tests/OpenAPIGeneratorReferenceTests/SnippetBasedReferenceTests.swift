@@ -87,21 +87,22 @@ final class SnippetBasedReferenceTests: XCTestCase {
     }
 
     func testComponentsSchemasObject() throws {
-        let componentsYAML = """
-                schemas:
-                  MyObject:
-                    type: object
-                    title: My object
-                    properties:
-                      id:
-                        type: integer
-                        format: int64
-                      alias:
-                        type: string
-                    required:
-                      - id
+        try self.assertSchemasTranslation(
             """
-        let expectedSwift = """
+            schemas:
+              MyObject:
+                type: object
+                title: My object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  alias:
+                    type: string
+                required:
+                  - id
+            """,
+            """
                 public enum Schemas {
                   public struct MyObject: Codable, Equatable, Hashable, Sendable {
                     public var id: Swift.Int64
@@ -117,58 +118,55 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   }
                 }
             """
-        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
-        let translation = try translator.translateSchemas(translator.components.schemas)
-        try XCTAssertSwiftEquivalent(translation, expectedSwift)
+        )
     }
 
     func testComponentsSchemasEnum() throws {
-        let componentsYAML = """
-              schemas:
-                MyEnum:
-                  type: string
-                  enum:
-                    - one
-                    -
-                    - $tart
-                    - public
+        try self.assertSchemasTranslation(
             """
-        let expectedSwift = """
-                public enum Schemas {
-                    @frozen
-                    public enum MyEnum: RawRepresentable, Codable, Equatable, Hashable, Sendable,
-                        _AutoLosslessStringConvertible, CaseIterable
-                    {
-                        case one
-                        case _empty
-                        case _tart
-                        case _public
-                        case undocumented(String)
-                        public init?(rawValue: String) {
-                            switch rawValue {
-                                case "one": self = .one
-                                case "": self = ._empty
-                                case "$tart": self = ._tart
-                                case "public": self = ._public
-                                default: self = .undocumented(rawValue)
-                            }
+            schemas:
+              MyEnum:
+                type: string
+                enum:
+                  - one
+                  -
+                  - $tart
+                  - public
+            """,
+            """
+            public enum Schemas {
+                @frozen
+                public enum MyEnum: RawRepresentable, Codable, Equatable, Hashable, Sendable,
+                    _AutoLosslessStringConvertible, CaseIterable
+                {
+                    case one
+                    case _empty
+                    case _tart
+                    case _public
+                    case undocumented(String)
+                    public init?(rawValue: String) {
+                        switch rawValue {
+                            case "one": self = .one
+                            case "": self = ._empty
+                            case "$tart": self = ._tart
+                            case "public": self = ._public
+                            default: self = .undocumented(rawValue)
                         }
-                        public var rawValue: String {
-                            switch self {
-                                case let .undocumented(string): return string
-                                case .one: return "one"
-                                case ._empty: return ""
-                                case ._tart: return "$tart"
-                                case ._public: return "public"
-                            }
-                        }
-                        public static var allCases: [MyEnum] { [.one, ._empty, ._tart, ._public] }
                     }
+                    public var rawValue: String {
+                        switch self {
+                            case let .undocumented(string): return string
+                            case .one: return "one"
+                            case ._empty: return ""
+                            case ._tart: return "$tart"
+                            case ._public: return "public"
+                        }
+                    }
+                    public static var allCases: [MyEnum] { [.one, ._empty, ._tart, ._public] }
                 }
+            }
             """
-        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
-        let translation = try translator.translateSchemas(translator.components.schemas)
-        try XCTAssertSwiftEquivalent(translation, expectedSwift)
+        )
     }
 }
 
@@ -210,6 +208,17 @@ extension SnippetBasedReferenceTests {
     ) throws {
         let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
         let translation = try translator.translateComponentParameters(translator.components.parameters)
+        try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
+    }
+
+    func assertSchemasTranslation(
+        _ componentsYAML: String,
+        _ expectedSwift: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
+        let translation = try translator.translateSchemas(translator.components.schemas)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 }
