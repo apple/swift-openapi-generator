@@ -25,8 +25,8 @@ class Test_Core: XCTestCase {
 
     func makeTranslator(
         components: OpenAPI.Components = .noComponents,
-        diagnostics: DiagnosticCollector = PrintingDiagnosticCollector()
-    ) -> FileTranslator {
+        diagnostics: any DiagnosticCollector = PrintingDiagnosticCollector()
+    ) -> any FileTranslator {
         makeTypesTranslator(
             components: components,
             diagnostics: diagnostics
@@ -35,7 +35,7 @@ class Test_Core: XCTestCase {
 
     func makeTypesTranslator(
         components: OpenAPI.Components = .noComponents,
-        diagnostics: DiagnosticCollector = PrintingDiagnosticCollector()
+        diagnostics: any DiagnosticCollector = PrintingDiagnosticCollector()
     ) -> TypesFileTranslator {
         TypesFileTranslator(
             config: .init(mode: .types),

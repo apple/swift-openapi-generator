@@ -14,10 +14,10 @@ extension APIProtocol {
     ///   - configuration: A set of configuration values for the server.
     ///   - middlewares: A list of middlewares to call before the handler.
     public func registerHandlers(
-        on transport: ServerTransport,
+        on transport: any ServerTransport,
         serverURL: URL = .defaultOpenAPIServerURL,
         configuration: Configuration = .init(),
-        middlewares: [ServerMiddleware] = []
+        middlewares: [any ServerMiddleware] = []
     ) throws {
         let server = UniversalServer(
             serverURL: serverURL,

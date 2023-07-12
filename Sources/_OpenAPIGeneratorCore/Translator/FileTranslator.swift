@@ -29,7 +29,7 @@ protocol FileTranslator {
 
     /// The collector receives diagnostics from the translator, which should
     /// be surfaced to the user in some way.
-    var diagnostics: DiagnosticCollector { get }
+    var diagnostics: any DiagnosticCollector { get }
 
     /// The components section of the OpenAPI document is required by the
     /// translator logic to follow JSON references to schemas, parameters,

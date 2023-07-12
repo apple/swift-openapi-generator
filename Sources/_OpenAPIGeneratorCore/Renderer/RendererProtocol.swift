@@ -27,6 +27,6 @@ protocol RendererProtocol {
     func render(
         structured code: StructuredSwiftRepresentation,
         config: Config,
-        diagnostics: DiagnosticCollector
+        diagnostics: any DiagnosticCollector
     ) throws -> InMemoryOutputFile
 }

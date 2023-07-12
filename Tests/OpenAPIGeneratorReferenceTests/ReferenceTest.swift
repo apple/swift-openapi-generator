@@ -82,7 +82,7 @@ class ReferenceTests: XCTestCase {
         )
 
         // Run the requested generator invocation
-        let diagnostics: DiagnosticCollector = strictDiagnosticsCollector
+        let diagnostics: any DiagnosticCollector = strictDiagnosticsCollector
         let generatorPipeline = self.makeGeneratorPipeline(
             config: referenceTest.asConfig,
             diagnostics: diagnostics
@@ -160,13 +160,13 @@ struct StrictDiagnosticsCollector: DiagnosticCollector {
 
 extension ReferenceTests {
 
-    var strictDiagnosticsCollector: DiagnosticCollector {
+    var strictDiagnosticsCollector: any DiagnosticCollector {
         StrictDiagnosticsCollector(test: self)
     }
 
     private func makeGeneratorPipeline(
         config: Config,
-        diagnostics: DiagnosticCollector
+        diagnostics: any DiagnosticCollector
     ) -> GeneratorPipeline {
 
         let parser = YamsParser()

@@ -17,7 +17,7 @@ import OpenAPIKit30
 
 class Test_isSchemaSupported: XCTestCase {
 
-    var translator: FileTranslator {
+    var translator: any FileTranslator {
         TypesFileTranslator(
             config: .init(mode: .types),
             diagnostics: PrintingDiagnosticCollector(),
