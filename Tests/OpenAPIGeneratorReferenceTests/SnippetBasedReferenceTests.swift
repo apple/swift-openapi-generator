@@ -168,6 +168,56 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
+
+    func testComponentsSchemasDeprecatedObject() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyObject:
+                type: object
+                title: My object
+                properties: {}
+                additionalProperties: false
+                deprecated: true
+            """,
+            """
+            public enum Schemas {
+                @available(*, deprecated)
+                public struct MyObject: Codable, Equatable, Hashable, Sendable {
+                    public init() {}
+                    public init(from decoder: Decoder) throws {
+                        try decoder.ensureNoAdditionalProperties(knownKeys: [])
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasObjectWithDeprecatedProperty() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyObject:
+                type: object
+                title: My object
+                properties:
+                  id:
+                    type: string
+                    deprecated: true
+            """,
+            """
+            public enum Schemas {
+                public struct MyObject: Codable, Equatable, Hashable, Sendable {
+                    @available(*, deprecated)
+                    public var id: Swift.String?
+                    public init(id: Swift.String? = nil) { self.id = id }
+                    public enum CodingKeys: String, CodingKey { case id }
+                }
+            }
+            """
+        )
+    }
 }
 
 extension SnippetBasedReferenceTests {
