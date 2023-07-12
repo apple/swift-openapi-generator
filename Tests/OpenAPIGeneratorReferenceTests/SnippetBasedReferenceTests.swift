@@ -215,6 +215,101 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
+
+    func testComponentsResponsesResponseNoBody() throws {
+        try self.assertResponsesTranslation(
+            """
+            responses:
+              BadRequest:
+                description: Bad request
+            """,
+            """
+            public enum Responses {
+                public struct BadRequest: Sendable, Equatable, Hashable {
+                    public struct Headers: Sendable, Equatable, Hashable { public init() {} }
+                    public var headers: Components.Responses.BadRequest.Headers
+                    public enum Body: Sendable, Equatable, Hashable {}
+                    public var body: Components.Responses.BadRequest.Body?
+                    public init(
+                        headers: Components.Responses.BadRequest.Headers = .init(),
+                        body: Components.Responses.BadRequest.Body? = nil
+                    ) {
+                        self.headers = headers
+                        self.body = body
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsResponsesResponseWithBody() throws {
+        try self.assertResponsesTranslation(
+            """
+            responses:
+              BadRequest:
+                description: Bad request
+                content:
+                  application/json:
+                    schema:
+                      type: string
+            """,
+            """
+            public enum Responses {
+                public struct BadRequest: Sendable, Equatable, Hashable {
+                    public struct Headers: Sendable, Equatable, Hashable { public init() {} }
+                    public var headers: Components.Responses.BadRequest.Headers
+                    public enum Body: Sendable, Equatable, Hashable {
+                        case json(Swift.String)
+                    }
+                    public var body: Components.Responses.BadRequest.Body
+                    public init(
+                        headers: Components.Responses.BadRequest.Headers = .init(),
+                        body: Components.Responses.BadRequest.Body
+                    ) {
+                        self.headers = headers
+                        self.body = body
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsResponsesResponseWithHeader() throws {
+        try self.assertResponsesTranslation(
+            """
+            responses:
+              BadRequest:
+                description: Bad request
+                headers:
+                  X-Reason:
+                    schema:
+                      type: string
+            """,
+            """
+            public enum Responses {
+                public struct BadRequest: Sendable, Equatable, Hashable {
+                    public struct Headers: Sendable, Equatable, Hashable {
+                        public var X_Reason: Swift.String?
+                        public init(X_Reason: Swift.String? = nil) {
+                            self.X_Reason = X_Reason }
+                    }
+                    public var headers: Components.Responses.BadRequest.Headers
+                    public enum Body: Sendable, Equatable, Hashable {}
+                    public var body: Components.Responses.BadRequest.Body?
+                    public init(
+                        headers: Components.Responses.BadRequest.Headers,
+                        body: Components.Responses.BadRequest.Body? = nil
+                    ) {
+                        self.headers = headers
+                        self.body = body
+                    }
+                }
+            }
+            """
+        )
+    }
 }
 
 extension SnippetBasedReferenceTests {
@@ -266,6 +361,17 @@ extension SnippetBasedReferenceTests {
     ) throws {
         let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
         let translation = try translator.translateSchemas(translator.components.schemas)
+        try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
+    }
+
+    func assertResponsesTranslation(
+        _ componentsYAML: String,
+        _ expectedSwift: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
+        let translation = try translator.translateComponentResponses(translator.components.responses)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 }
