@@ -92,7 +92,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
             schemas:
               MyObject:
                 type: object
-                title: My object
                 properties:
                   id:
                     type: integer
@@ -175,7 +174,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
             schemas:
               MyObject:
                 type: object
-                title: My object
                 properties: {}
                 additionalProperties: false
                 deprecated: true
@@ -200,7 +198,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
             schemas:
               MyObject:
                 type: object
-                title: My object
                 properties:
                   id:
                     type: string
