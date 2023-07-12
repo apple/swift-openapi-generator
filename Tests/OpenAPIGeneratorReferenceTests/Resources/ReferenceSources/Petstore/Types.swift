@@ -618,7 +618,7 @@ public enum Components {
     }
     /// Types generated from the `#/components/requestBodies` section of the OpenAPI document.
     public enum RequestBodies {
-        public enum UpdatePetRequest: Sendable, Equatable, Hashable {
+        @frozen public enum UpdatePetRequest: Sendable, Equatable, Hashable {
             /// - Remark: Generated from `#/components/requestBodies/UpdatePetRequest/json`.
             public struct jsonPayload: Codable, Equatable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/requestBodies/UpdatePetRequest/json/name`.
@@ -664,7 +664,7 @@ public enum Components {
             }
             /// Received HTTP response headers
             public var headers: Components.Responses.ErrorBadRequest.Headers
-            public enum Body: Sendable, Equatable, Hashable {
+            @frozen public enum Body: Sendable, Equatable, Hashable {
                 /// - Remark: Generated from `#/components/responses/ErrorBadRequest/json`.
                 public struct jsonPayload: Codable, Equatable, Hashable, Sendable {
                     /// - Remark: Generated from `#/components/responses/ErrorBadRequest/json/code`.
@@ -821,7 +821,7 @@ public enum Operations {
                 public init() {}
             }
             public var cookies: Operations.listPets.Input.Cookies
-            public enum Body: Sendable, Equatable, Hashable {}
+            @frozen public enum Body: Sendable, Equatable, Hashable {}
             public var body: Operations.listPets.Input.Body?
             /// Creates a new `Input`.
             ///
@@ -845,7 +845,7 @@ public enum Operations {
                 self.body = body
             }
         }
-        public enum Output: Sendable, Equatable, Hashable {
+        @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct Ok: Sendable, Equatable, Hashable {
                 public struct Headers: Sendable, Equatable, Hashable {
                     public var My_Response_UUID: Swift.String
@@ -865,7 +865,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.listPets.Output.Ok.Headers
-                public enum Body: Sendable, Equatable, Hashable {
+                @frozen public enum Body: Sendable, Equatable, Hashable {
                     case json(Components.Schemas.Pets)
                 }
                 /// Received HTTP response body
@@ -896,7 +896,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.listPets.Output.Default.Headers
-                public enum Body: Sendable, Equatable, Hashable {
+                @frozen public enum Body: Sendable, Equatable, Hashable {
                     case json(Components.Schemas._Error)
                 }
                 /// Received HTTP response body
@@ -955,7 +955,7 @@ public enum Operations {
                 public init() {}
             }
             public var cookies: Operations.createPet.Input.Cookies
-            public enum Body: Sendable, Equatable, Hashable {
+            @frozen public enum Body: Sendable, Equatable, Hashable {
                 case json(Components.Schemas.CreatePetRequest)
             }
             public var body: Operations.createPet.Input.Body
@@ -981,7 +981,7 @@ public enum Operations {
                 self.body = body
             }
         }
-        public enum Output: Sendable, Equatable, Hashable {
+        @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct Created: Sendable, Equatable, Hashable {
                 public struct Headers: Sendable, Equatable, Hashable {
                     public var X_Extra_Arguments: Components.Schemas.CodeError?
@@ -995,7 +995,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.createPet.Output.Created.Headers
-                public enum Body: Sendable, Equatable, Hashable {
+                @frozen public enum Body: Sendable, Equatable, Hashable {
                     case json(Components.Schemas.Pet)
                 }
                 /// Received HTTP response body
@@ -1056,7 +1056,7 @@ public enum Operations {
                 public init() {}
             }
             public var cookies: Operations.probe.Input.Cookies
-            public enum Body: Sendable, Equatable, Hashable {}
+            @frozen public enum Body: Sendable, Equatable, Hashable {}
             public var body: Operations.probe.Input.Body?
             /// Creates a new `Input`.
             ///
@@ -1080,7 +1080,7 @@ public enum Operations {
                 self.body = body
             }
         }
-        public enum Output: Sendable, Equatable, Hashable {
+        @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct NoContent: Sendable, Equatable, Hashable {
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
@@ -1088,7 +1088,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.probe.Output.NoContent.Headers
-                public enum Body: Sendable, Equatable, Hashable {}
+                @frozen public enum Body: Sendable, Equatable, Hashable {}
                 /// Received HTTP response body
                 public var body: Operations.probe.Output.NoContent.Body?
                 /// Creates a new `NoContent`.
@@ -1170,7 +1170,7 @@ public enum Operations {
                 self.body = body
             }
         }
-        public enum Output: Sendable, Equatable, Hashable {
+        @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct NoContent: Sendable, Equatable, Hashable {
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
@@ -1178,7 +1178,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.updatePet.Output.NoContent.Headers
-                public enum Body: Sendable, Equatable, Hashable {}
+                @frozen public enum Body: Sendable, Equatable, Hashable {}
                 /// Received HTTP response body
                 public var body: Operations.updatePet.Output.NoContent.Body?
                 /// Creates a new `NoContent`.
@@ -1207,7 +1207,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.updatePet.Output.BadRequest.Headers
-                public enum Body: Sendable, Equatable, Hashable {
+                @frozen public enum Body: Sendable, Equatable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/json`.
                     public struct jsonPayload: Codable, Equatable, Hashable, Sendable {
                         /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/json/message`.
@@ -1279,7 +1279,7 @@ public enum Operations {
                 public init() {}
             }
             public var cookies: Operations.uploadAvatarForPet.Input.Cookies
-            public enum Body: Sendable, Equatable, Hashable { case binary(Foundation.Data) }
+            @frozen public enum Body: Sendable, Equatable, Hashable { case binary(Foundation.Data) }
             public var body: Operations.uploadAvatarForPet.Input.Body
             /// Creates a new `Input`.
             ///
@@ -1303,7 +1303,7 @@ public enum Operations {
                 self.body = body
             }
         }
-        public enum Output: Sendable, Equatable, Hashable {
+        @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct Ok: Sendable, Equatable, Hashable {
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
@@ -1311,7 +1311,9 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.uploadAvatarForPet.Output.Ok.Headers
-                public enum Body: Sendable, Equatable, Hashable { case binary(Foundation.Data) }
+                @frozen public enum Body: Sendable, Equatable, Hashable {
+                    case binary(Foundation.Data)
+                }
                 /// Received HTTP response body
                 public var body: Operations.uploadAvatarForPet.Output.Ok.Body
                 /// Creates a new `Ok`.
@@ -1340,7 +1342,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.uploadAvatarForPet.Output.PreconditionFailed.Headers
-                public enum Body: Sendable, Equatable, Hashable { case json(Swift.String) }
+                @frozen public enum Body: Sendable, Equatable, Hashable { case json(Swift.String) }
                 /// Received HTTP response body
                 public var body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body
                 /// Creates a new `PreconditionFailed`.
@@ -1370,7 +1372,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.uploadAvatarForPet.Output.InternalServerError.Headers
-                public enum Body: Sendable, Equatable, Hashable { case text(Swift.String) }
+                @frozen public enum Body: Sendable, Equatable, Hashable { case text(Swift.String) }
                 /// Received HTTP response body
                 public var body: Operations.uploadAvatarForPet.Output.InternalServerError.Body
                 /// Creates a new `InternalServerError`.
