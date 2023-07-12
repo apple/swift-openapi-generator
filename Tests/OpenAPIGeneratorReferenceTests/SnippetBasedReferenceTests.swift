@@ -86,7 +86,101 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-    func testComponentsSchemasObject() throws {
+    func testComponentsSchemasString() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyString:
+                type: string
+            """,
+            """
+            public enum Schemas {
+                public typealias MyString = Swift.String
+            }
+            """
+        )
+    }
+
+    func testComponentsObjectNoAdditionalProperties() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyObject:
+                type: object
+                properties: {}
+                additionalProperties: false
+            """,
+            """
+            public enum Schemas {
+                public struct MyObject: Codable, Equatable, Hashable, Sendable {
+                    public init() {}
+                    public init(from decoder: Decoder) throws {
+                        try decoder.ensureNoAdditionalProperties(knownKeys: [])
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsObjectExplicitUntypedAdditionalProperties() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyObject:
+                type: object
+                properties: {}
+                additionalProperties: true
+            """,
+            """
+            public enum Schemas {
+                public struct MyObject: Codable, Equatable, Hashable, Sendable {
+                    public var additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer
+                    public init(additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer = .init()) {
+                        self.additionalProperties = additionalProperties
+                    }
+                    public init(from decoder: Decoder) throws {
+                        additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [])
+                    }
+                    public func encode(to encoder: Encoder) throws {
+                        try encoder.encodeAdditionalProperties(additionalProperties)
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsObjectExplicitTypedAdditionalProperties() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyObject:
+                type: object
+                properties: {}
+                additionalProperties:
+                  type: integer
+            """,
+            """
+            public enum Schemas {
+                public struct MyObject: Codable, Equatable, Hashable, Sendable {
+                    public var additionalProperties: [String: Swift.Int]
+                    public init(additionalProperties: [String: Swift.Int] = .init()) {
+                        self.additionalProperties = additionalProperties
+                    }
+                    public init(from decoder: Decoder) throws {
+                        additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [])
+                    }
+                    public func encode(to encoder: Encoder) throws {
+                        try encoder.encodeAdditionalProperties(additionalProperties)
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasObjectWithProperties() throws {
         try self.assertSchemasTranslation(
             """
             schemas:
@@ -116,6 +210,139 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                   }
                 }
+            """
+        )
+    }
+
+    func testComponentsSchemasAllOf() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              A: {}
+              B: {}
+              MyAllOf:
+                allOf:
+                  - $ref: '#/components/schemas/A'
+                  - $ref: '#/components/schemas/B'
+            """,
+            """
+            public enum Schemas {
+                public typealias A = OpenAPIRuntime.OpenAPIValueContainer
+                public typealias B = OpenAPIRuntime.OpenAPIValueContainer
+                public struct MyAllOf: Codable, Equatable, Hashable, Sendable {
+                    public var value1: Components.Schemas.A
+                    public var value2: Components.Schemas.B
+                    public init(
+                        value1: Components.Schemas.A,
+                        value2: Components.Schemas.B
+                    ) {
+                        self.value1 = value1
+                        self.value2 = value2
+                    }
+                    public init(from decoder: Decoder) throws {
+                        value1 = try .init(from: decoder)
+                        value2 = try .init(from: decoder)
+                    }
+                    public func encode(to encoder: Encoder) throws {
+                        try value1.encode(to: encoder)
+                        try value2.encode(to: encoder)
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasAnyOf() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              A: {}
+              B: {}
+              MyAnyOf:
+                anyOf:
+                  - $ref: '#/components/schemas/A'
+                  - $ref: '#/components/schemas/B'
+            """,
+            """
+            public enum Schemas {
+                public typealias A = OpenAPIRuntime.OpenAPIValueContainer
+                public typealias B = OpenAPIRuntime.OpenAPIValueContainer
+                public struct MyAnyOf: Codable, Equatable, Hashable, Sendable {
+                    public var value1: Components.Schemas.A?
+                    public var value2: Components.Schemas.B?
+                    public init(
+                        value1: Components.Schemas.A? = nil,
+                        value2: Components.Schemas.B? = nil
+                    ) {
+                        self.value1 = value1
+                        self.value2 = value2
+                    }
+                    public init(from decoder: Decoder) throws {
+                        value1 = try? .init(from: decoder)
+                        value2 = try? .init(from: decoder)
+                        try DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                            [value1, value2],
+                            type: Self.self,
+                            codingPath: decoder.codingPath
+                        )
+                    }
+                    public func encode(to encoder: Encoder) throws {
+                        try value1?.encode(to: encoder)
+                        try value2?.encode(to: encoder)
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasOneOf() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              A: {}
+              MyOneOf:
+                oneOf:
+                  - type: string
+                  - type: integer
+                  - $ref: '#/components/schemas/A'
+            """,
+            """
+            public enum Schemas {
+                public typealias A = OpenAPIRuntime.OpenAPIValueContainer
+                @frozen public enum MyOneOf: Codable, Equatable, Hashable, Sendable {
+                    case case1(Swift.String)
+                    case case2(Swift.Int)
+                    case A(Components.Schemas.A)
+                    case undocumented(OpenAPIRuntime.OpenAPIValueContainer)
+                    public init(from decoder: Decoder) throws {
+                        do {
+                            self = .case1(try .init(from: decoder))
+                            return
+                        } catch {}
+                        do {
+                            self = .case2(try .init(from: decoder))
+                            return
+                        } catch {}
+                        do {
+                            self = .A(try .init(from: decoder))
+                            return
+                        } catch {}
+                        let container = try decoder.singleValueContainer()
+                        let value = try container.decode(OpenAPIRuntime.OpenAPIValueContainer.self)
+                        self = .undocumented(value)
+                    }
+                    public func encode(to encoder: Encoder) throws {
+                        switch self {
+                        case let .case1(value): try value.encode(to: encoder)
+                        case let .case2(value): try value.encode(to: encoder)
+                        case let .A(value): try value.encode(to: encoder)
+                        case let .undocumented(value): try value.encode(to: encoder)
+                        }
+                    }
+                }
+            }
             """
         )
     }
@@ -211,6 +438,22 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(id: Swift.String? = nil) { self.id = id }
                     public enum CodingKeys: String, CodingKey { case id }
                 }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasDateTime() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyDate:
+                type: string
+                format: date-time
+            """,
+            """
+            public enum Schemas {
+                public typealias MyDate = Foundation.Date
             }
             """
         )
