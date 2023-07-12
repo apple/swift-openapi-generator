@@ -471,7 +471,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct BadRequest: Sendable, Equatable, Hashable {
                     public struct Headers: Sendable, Equatable, Hashable { public init() {} }
                     public var headers: Components.Responses.BadRequest.Headers
-                    public enum Body: Sendable, Equatable, Hashable {}
+                    @frozen public enum Body: Sendable, Equatable, Hashable {}
                     public var body: Components.Responses.BadRequest.Body?
                     public init(
                         headers: Components.Responses.BadRequest.Headers = .init(),
@@ -502,7 +502,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct BadRequest: Sendable, Equatable, Hashable {
                     public struct Headers: Sendable, Equatable, Hashable { public init() {} }
                     public var headers: Components.Responses.BadRequest.Headers
-                    public enum Body: Sendable, Equatable, Hashable {
+                    @frozen public enum Body: Sendable, Equatable, Hashable {
                         case json(Swift.String)
                     }
                     public var body: Components.Responses.BadRequest.Body
@@ -539,7 +539,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self.X_Reason = X_Reason }
                     }
                     public var headers: Components.Responses.BadRequest.Headers
-                    public enum Body: Sendable, Equatable, Hashable {}
+                    @frozen public enum Body: Sendable, Equatable, Hashable {}
                     public var body: Components.Responses.BadRequest.Body?
                     public init(
                         headers: Components.Responses.BadRequest.Headers,
@@ -566,7 +566,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum RequestBodies {
-                public enum MyResponseBody: Sendable, Equatable, Hashable {
+                @frozen public enum MyResponseBody: Sendable, Equatable, Hashable {
                     case json(Swift.String)
                 }
             }
@@ -586,7 +586,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum RequestBodies {
-                public enum MyResponseBody: Sendable, Equatable, Hashable {
+                @frozen public enum MyResponseBody: Sendable, Equatable, Hashable {
                     case json(Components.Schemas.MyBody)
                 }
             }
