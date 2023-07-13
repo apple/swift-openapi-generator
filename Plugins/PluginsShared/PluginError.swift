@@ -4,6 +4,7 @@ import Foundation
 enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     case incompatibleTarget(targetName: String)
     case badArguments(arguments: [String])
+    case noTargetsFoundForCommandPlugin
     // The description is only suitable for Xcode, as it's only thrown in Xcode plugins.
     case noTargetsMatchingTargetName(targetName: String)
     // The description is not suitable for Xcode, as it's not thrown in Xcode plugins.
@@ -20,6 +21,8 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
             "Incompatible target called '\(targetName)'. Only Swift source targets can be used with the Swift OpenAPI generator plugin."
         case .badArguments(let arguments):
             return "Bad arguments provided: \(arguments). On Xcode, use Xcode's run plugin UI to choose a specific target. On CLI, pass a specific target's name to the command like so: '--target TARGET_NAME'"
+        case .noTargetsFoundForCommandPlugin:
+            return "None of the targets include valid OpenAPI spec files. Please make sure at least one of your targets has valid OpenAPI spec files before triggering this command plugin. Read the documentation to correctly set up your targets: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation."
         case .noTargetsMatchingTargetName(let targetName):
             return "No target called '\(targetName)' were found. Use Xcode's UI to choose a single specific target before triggering the command plugin."
         case .tooManyTargetsMatchingTargetName(let targetNames):
