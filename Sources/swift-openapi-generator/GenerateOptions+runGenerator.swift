@@ -29,7 +29,7 @@ extension _GenerateOptions {
     ///   a limitation of the build system used by SwiftPM under the hood.
     func runGenerator(
         outputDirectory: URL,
-        isPluginInvocation: Bool
+        invocationSource: InvocationSource
     ) throws {
         let config = try loadedConfig()
         let sortedModes = try resolvedModes(config)
@@ -62,7 +62,7 @@ extension _GenerateOptions {
             - Output directory: \(outputDirectory.path)
             - Diagnostics output path: \(diagnosticsOutputPath?.path ?? "<none - logs to stderr>")
             - Current directory: \(FileManager.default.currentDirectoryPath)
-            - Is plugin invocation: \(isPluginInvocation)
+            - Invoked from: \(invocationSource.rawValue)
             - Additional imports: \(resolvedAdditionalImports.isEmpty ? "<none>" : resolvedAdditionalImports.joined(separator: ", "))
             """
         )
@@ -70,7 +70,7 @@ extension _GenerateOptions {
             try _Tool.runGenerator(
                 doc: doc,
                 configs: configs,
-                isPluginInvocation: isPluginInvocation,
+                invocationSource: invocationSource,
                 outputDirectory: outputDirectory,
                 diagnostics: diagnostics
             )

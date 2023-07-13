@@ -29,7 +29,7 @@ extension _Tool {
     static func runGenerator(
         doc: URL,
         configs: [Config],
-        isPluginInvocation: Bool,
+        invocationSource: InvocationSource,
         outputDirectory: URL,
         diagnostics: any DiagnosticCollector
     ) throws {
@@ -39,23 +39,31 @@ extension _Tool {
         } catch {
             throw ValidationError("Failed to load the OpenAPI document at path \(doc.path), error: \(error)")
         }
-        let filePathForMode: (GeneratorMode) -> URL = { mode in
-            outputDirectory.appendingPathComponent(mode.outputFileName)
-        }
         for config in configs {
+            // BuildTool plugins guarantee the compiler that they will create some files
+            // with specific names (the same as `config.mode.outputFileNameSuffix`, for us)
+            // To make sure the BuildTool plugin and the Command plugin don't create files with
+            // the same names, we add a prefix to the names.
             try runGenerator(
                 doc: doc,
                 docData: docData,
                 config: config,
-                outputFilePath: filePathForMode(config.mode),
+                outputDirectory: outputDirectory,
+                outputFileName: config.mode.outputFileName,
                 diagnostics: diagnostics
             )
         }
-        if isPluginInvocation {
+
+        // Swift expects us to always create these files in BuildTool plugins,
+        // so we create the unused files, but empty.
+        if invocationSource == .BuildToolPlugin {
             let nonGeneratedModes = Set(GeneratorMode.allCases).subtracting(configs.map(\.mode))
             for mode in nonGeneratedModes.sorted() {
-                let path = filePathForMode(mode)
-                try replaceFileContents(at: path, with: { Data() })
+                try replaceFileContents(
+                    inDirectory: outputDirectory,
+                    fileName: mode.outputFileName,
+                    with: { Data() }
+                )
             }
         }
     }
@@ -72,10 +80,14 @@ extension _Tool {
         doc: URL,
         docData: Data,
         config: Config,
-        outputFilePath: URL,
+        outputDirectory: URL,
+        outputFileName: String,
         diagnostics: any DiagnosticCollector
     ) throws {
-        let didChange = try replaceFileContents(at: outputFilePath) {
+        let didChange = try replaceFileContents(
+            inDirectory: outputDirectory,
+            fileName: outputFileName
+        ) {
             let output = try _OpenAPIGeneratorCore.runGenerator(
                 input: .init(absolutePath: doc, contents: docData),
                 config: config,
@@ -83,7 +95,7 @@ extension _Tool {
             )
             return output.contents
         }
-        print("File \(outputFilePath.lastPathComponent): \(didChange ? "changed" : "unchanged")")
+        print("File \(outputFileName): \(didChange ? "changed" : "unchanged")")
     }
 
     /// Evaluates a closure to generate file data and writes the data to disk
@@ -94,18 +106,33 @@ extension _Tool {
     /// - Throws: When writing to disk fails.
     /// - Returns: `true` if the generated contents changed, otherwise `false`.
     @discardableResult
-    static func replaceFileContents(at path: URL, with contents: () throws -> Data) throws -> Bool {
+    static func replaceFileContents(
+        inDirectory outputDirectory: URL,
+        fileName: String,
+        with contents: () throws -> Data
+    ) throws -> Bool {
+        let fm = FileManager.default
+
+        // Create directory if doesn't exist
+        if !fm.fileExists(atPath: outputDirectory.path) {
+            try fm.createDirectory(
+                at: outputDirectory,
+                withIntermediateDirectories: true
+            )
+        }
+
+        let path = outputDirectory.appendingPathComponent(fileName)
         let data = try contents()
-        let didChange: Bool
-        if FileManager.default.fileExists(atPath: path.path) {
+        if fm.fileExists(atPath: path.path) {
             let existingData = try? Data(contentsOf: path)
-            didChange = existingData != data
+            if existingData == data {
+                return false
+            } else {
+                try data.write(to: path)
+                return true
+            }
         } else {
-            didChange = true
+            return fm.createFile(atPath: path.path, contents: data)
         }
-        if didChange {
-            try data.write(to: path)
-        }
-        return didChange
     }
 }

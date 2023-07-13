@@ -34,6 +34,7 @@ let package = Package(
     products: [
         .executable(name: "swift-openapi-generator", targets: ["swift-openapi-generator"]),
         .plugin(name: "OpenAPIGenerator", targets: ["OpenAPIGenerator"]),
+        .plugin(name: "OpenAPIGeneratorCommand", targets: ["OpenAPIGeneratorCommand"]),
         .library(name: "_OpenAPIGeneratorCore", targets: ["_OpenAPIGeneratorCore"]),
     ],
     dependencies: [
@@ -147,5 +148,20 @@ let package = Package(
                 "swift-openapi-generator"
             ]
         ),
+
+        // Command Plugin
+        .plugin(
+            name: "OpenAPIGeneratorCommand",
+            capability: Target.PluginCapability.command(
+                intent: .custom(
+                    verb: "generate-openapi-code",
+                    description: "Generates OpenAPI code"
+                ),
+                permissions: [.writeToPackageDirectory(reason: "To write the generated Swift files back into the source directory of the package.")]
+            ),
+            dependencies: [
+                "swift-openapi-generator",
+            ]
+        )
     ]
 )
