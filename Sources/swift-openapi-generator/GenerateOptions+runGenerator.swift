@@ -40,7 +40,7 @@ extension _GenerateOptions {
                 additionalImports: resolvedAdditionalImports
             )
         }
-        let diagnostics: DiagnosticCollector
+        let diagnostics: any DiagnosticCollector
         let finalizeDiagnostics: () throws -> Void
         if let diagnosticsOutputPath {
             let _diagnostics = _YamlFileDiagnosticsCollector(url: diagnosticsOutputPath)

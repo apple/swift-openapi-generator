@@ -89,7 +89,7 @@ struct GeneratorPipeline {
 public func runGenerator(
     input: InMemoryInputFile,
     config: Config,
-    diagnostics: DiagnosticCollector
+    diagnostics: any DiagnosticCollector
 ) throws -> InMemoryOutputFile {
     try makeGeneratorPipeline(config: config, diagnostics: diagnostics).run(input)
 }
@@ -105,12 +105,12 @@ public func runGenerator(
 /// - Returns: A configured generator pipeline that can be executed with
 /// ``GeneratorPipeline/run(_:)``.
 func makeGeneratorPipeline(
-    parser: ParserProtocol = YamsParser(),
-    translator: TranslatorProtocol = MultiplexTranslator(),
-    renderer: RendererProtocol = TextBasedRenderer(),
+    parser: any ParserProtocol = YamsParser(),
+    translator: any TranslatorProtocol = MultiplexTranslator(),
+    renderer: any RendererProtocol = TextBasedRenderer(),
     formatter: @escaping (InMemoryOutputFile) throws -> InMemoryOutputFile = { $0 },
     config: Config,
-    diagnostics: DiagnosticCollector
+    diagnostics: any DiagnosticCollector
 ) -> GeneratorPipeline {
     return .init(
         parseOpenAPIFileStage: .init(

@@ -23,13 +23,8 @@ REPO_ROOT="$(git -C "${CURRENT_SCRIPT_DIR}" rev-parse --show-toplevel)"
 
 SWIFTFORMAT_BIN=${SWIFTFORMAT_BIN:-$(command -v swift-format)} || fatal "❌ SWIFTFORMAT_BIN unset and no swift-format on PATH"
 
-"${SWIFTFORMAT_BIN}" lint \
-  --parallel --recursive --strict \
-  "${REPO_ROOT}/Examples" \
-  "${REPO_ROOT}/IntegrationTest" \
-  "${REPO_ROOT}/Plugins" \
-  "${REPO_ROOT}/Sources" \
-  "${REPO_ROOT}/Tests" \
+git -C "${REPO_ROOT}" ls-files -z '*.swift' \
+  | xargs -0 "${SWIFTFORMAT_BIN}" lint --parallel --strict \
   && SWIFT_FORMAT_RC=$? || SWIFT_FORMAT_RC=$?
 
 if [ "${SWIFT_FORMAT_RC}" -ne 0 ]; then
@@ -37,7 +32,7 @@ if [ "${SWIFT_FORMAT_RC}" -ne 0 ]; then
 
   To fix, run the following command:
 
-    % swift-format format --parallel --recursive --in-place Examples IntegrationTest Plugins Sources Tests
+    % git ls-files -z '*.swift' | xargs -0 swift-format --in-place --parallel
   "
   exit "${SWIFT_FORMAT_RC}"
 fi

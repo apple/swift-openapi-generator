@@ -80,14 +80,14 @@ enum Constants {
         enum Transport {
 
             /// The name of the client transport type.
-            static let typeName: String = "ClientTransport"
+            static let typeName: String = "any ClientTransport"
         }
 
         /// Constants related to the client middleware type.
         enum Middleware {
 
             /// The name of the client middleware type.
-            static let typeName: String = "ClientMiddleware"
+            static let typeName: String = "any ClientMiddleware"
         }
     }
 
@@ -110,14 +110,14 @@ enum Constants {
         enum Transport {
 
             /// The name of the server transport type.
-            static let typeName: String = "ServerTransport"
+            static let typeName: String = "any ServerTransport"
         }
 
         /// Constants related to the server middleware type.
         enum Middleware {
 
             /// The name of the server middleware type.
-            static let typeName: String = "ServerMiddleware"
+            static let typeName: String = "any ServerMiddleware"
         }
     }
 
