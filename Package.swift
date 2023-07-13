@@ -149,8 +149,9 @@ let package = Package(
             ]
         ),
 
+        // Command Plugin
         .plugin(
-            name: "OpenAPIGeneratorCommandPlugin",
+            name: "OpenAPIGeneratorCommand",
             capability: Target.PluginCapability.command(
                 intent: .custom(
                     verb: "generate-openapi-code",
