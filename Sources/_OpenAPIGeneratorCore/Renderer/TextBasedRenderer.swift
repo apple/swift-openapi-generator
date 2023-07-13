@@ -20,7 +20,7 @@ struct TextBasedRenderer: RendererProtocol {
     func render(
         structured: StructuredSwiftRepresentation,
         config: Config,
-        diagnostics: DiagnosticCollector
+        diagnostics: any DiagnosticCollector
     ) throws -> InMemoryOutputFile {
         let namedFile = structured.file
         return InMemoryOutputFile(

@@ -14,6 +14,13 @@
 //===----------------------------------------------------------------------===//
 import PackageDescription
 
+// General Swift-settings for all targets.
+let swiftSettings: [SwiftSetting] = [
+    // https://github.com/apple/swift-evolution/blob/main/proposals/0335-existential-any.md
+    // Require `any` for existential types.
+    .enableUpcomingFeature("ExistentialAny")
+]
+
 let package = Package(
     name: "swift-openapi-generator",
     platforms: [
@@ -57,7 +64,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/jpsim/Yams.git",
-            from: "4.0.0"
+            "4.0.0"..<"6.0.0"
         ),
 
         // CLI Tool
@@ -73,6 +80,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
     ],
     targets: [
+
         // Generator Core
         .target(
             name: "_OpenAPIGeneratorCore",
@@ -84,15 +92,17 @@ let package = Package(
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
                 .product(name: "SwiftFormat", package: "swift-format"),
                 .product(name: "SwiftFormatConfiguration", package: "swift-format"),
-            ]
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // Generator Core Tests
         .testTarget(
             name: "OpenAPIGeneratorCoreTests",
             dependencies: [
-                "_OpenAPIGeneratorCore",
-            ]
+                "_OpenAPIGeneratorCore"
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // GeneratorReferenceTests
@@ -104,8 +114,9 @@ let package = Package(
                 .product(name: "SwiftFormatConfiguration", package: "swift-format"),
             ],
             resources: [
-                .copy("Resources"),
-            ]
+                .copy("Resources")
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // PetstoreConsumerTests
@@ -114,8 +125,9 @@ let package = Package(
         .testTarget(
             name: "PetstoreConsumerTests",
             dependencies: [
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
-            ]
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // Generator CLI
@@ -124,7 +136,8 @@ let package = Package(
             dependencies: [
                 "_OpenAPIGeneratorCore",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ]
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // Build Plugin
@@ -132,7 +145,7 @@ let package = Package(
             name: "OpenAPIGenerator",
             capability: .buildTool(),
             dependencies: [
-                "swift-openapi-generator",
+                "swift-openapi-generator"
             ]
         ),
 

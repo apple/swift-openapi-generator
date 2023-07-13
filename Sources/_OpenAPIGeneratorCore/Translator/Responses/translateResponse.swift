@@ -83,6 +83,7 @@ extension TypesFileTranslator {
         }
         let hasNoContent: Bool = bodyCases.isEmpty
         let contentEnumDecl: Declaration = .enum(
+            isFrozen: true,
             accessModifier: config.access,
             name: bodyTypeName.shortSwiftName,
             conformances: Constants.Operation.Body.conformances,

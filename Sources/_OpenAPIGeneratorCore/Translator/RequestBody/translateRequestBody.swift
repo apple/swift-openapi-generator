@@ -150,6 +150,7 @@ extension TypesFileTranslator {
         members: [Declaration]
     ) -> Declaration {
         let bodyEnumDecl: Declaration = .enum(
+            isFrozen: true,
             accessModifier: config.access,
             name: typeName.shortSwiftName,
             conformances: Constants.Operation.Output.conformances,

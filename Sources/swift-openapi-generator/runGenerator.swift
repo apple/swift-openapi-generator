@@ -31,7 +31,7 @@ extension _Tool {
         configs: [Config],
         invocationSource: InvocationSource,
         outputDirectory: URL,
-        diagnostics: DiagnosticCollector
+        diagnostics: any DiagnosticCollector
     ) throws {
         let docData: Data
         do {
@@ -82,7 +82,7 @@ extension _Tool {
         config: Config,
         outputDirectory: URL,
         outputFileName: String,
-        diagnostics: DiagnosticCollector
+        diagnostics: any DiagnosticCollector
     ) throws {
         let didChange = try replaceFileContents(
             inDirectory: outputDirectory,
