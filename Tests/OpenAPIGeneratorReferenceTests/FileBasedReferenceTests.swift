@@ -33,7 +33,7 @@ extension TestConfig {
 }
 
 /// Tests that the generator produces Swift files that match a reference.
-class ReferenceTests: XCTestCase {
+class FileBasedReferenceTests: XCTestCase {
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
@@ -82,10 +82,8 @@ class ReferenceTests: XCTestCase {
         )
 
         // Run the requested generator invocation
-        let diagnostics: any DiagnosticCollector = strictDiagnosticsCollector
         let generatorPipeline = self.makeGeneratorPipeline(
-            config: referenceTest.asConfig,
-            diagnostics: diagnostics
+            config: referenceTest.asConfig
         )
         let generatedOutputSource = try generatorPipeline.run(input)
 
@@ -143,32 +141,8 @@ class ReferenceTests: XCTestCase {
     }
 }
 
-struct StrictDiagnosticsCollector: DiagnosticCollector {
-    var test: XCTestCase
-
-    func emit(_ diagnostic: Diagnostic) {
-        print("Test emitted diagnostic: \(diagnostic.description)")
-        switch diagnostic.severity {
-        case .note:
-            // no need to fail, just print
-            break
-        case .warning, .error:
-            XCTFail("Failing with a diagnostic: \(diagnostic.description)")
-        }
-    }
-}
-
-extension ReferenceTests {
-
-    var strictDiagnosticsCollector: any DiagnosticCollector {
-        StrictDiagnosticsCollector(test: self)
-    }
-
-    private func makeGeneratorPipeline(
-        config: Config,
-        diagnostics: any DiagnosticCollector
-    ) -> GeneratorPipeline {
-
+extension FileBasedReferenceTests {
+    private func makeGeneratorPipeline(config: Config) -> GeneratorPipeline {
         let parser = YamsParser()
         let translator = MultiplexTranslator()
         let renderer = TextBasedRenderer()
@@ -183,7 +157,7 @@ extension ReferenceTests {
                 return newFile
             },
             config: config,
-            diagnostics: diagnostics
+            diagnostics: XCTestDiagnosticCollector(test: self)
         )
     }
 
