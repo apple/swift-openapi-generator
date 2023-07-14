@@ -143,7 +143,6 @@ class FileBasedReferenceTests: XCTestCase {
 
 extension FileBasedReferenceTests {
     private func makeGeneratorPipeline(config: Config) -> GeneratorPipeline {
-
         let parser = YamsParser()
         let translator = MultiplexTranslator()
         let renderer = TextBasedRenderer()

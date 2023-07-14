@@ -114,7 +114,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public struct MyObject: Codable, Equatable, Hashable, Sendable {
                     public init() {}
-                    public init(from decoder: Decoder) throws {
+                    public init(from decoder: any Decoder) throws {
                         try decoder.ensureNoAdditionalProperties(knownKeys: [])
                     }
                 }
@@ -139,10 +139,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer = .init()) {
                         self.additionalProperties = additionalProperties
                     }
-                    public init(from decoder: Decoder) throws {
+                    public init(from decoder: any Decoder) throws {
                         additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [])
                     }
-                    public func encode(to encoder: Encoder) throws {
+                    public func encode(to encoder: any Encoder) throws {
                         try encoder.encodeAdditionalProperties(additionalProperties)
                     }
                 }
@@ -168,10 +168,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(additionalProperties: [String: Swift.Int] = .init()) {
                         self.additionalProperties = additionalProperties
                     }
-                    public init(from decoder: Decoder) throws {
+                    public init(from decoder: any Decoder) throws {
                         additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [])
                     }
-                    public func encode(to encoder: Encoder) throws {
+                    public func encode(to encoder: any Encoder) throws {
                         try encoder.encodeAdditionalProperties(additionalProperties)
                     }
                 }
@@ -239,11 +239,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         self.value1 = value1
                         self.value2 = value2
                     }
-                    public init(from decoder: Decoder) throws {
+                    public init(from decoder: any Decoder) throws {
                         value1 = try .init(from: decoder)
                         value2 = try .init(from: decoder)
                     }
-                    public func encode(to encoder: Encoder) throws {
+                    public func encode(to encoder: any Encoder) throws {
                         try value1.encode(to: encoder)
                         try value2.encode(to: encoder)
                     }
@@ -278,7 +278,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         self.value1 = value1
                         self.value2 = value2
                     }
-                    public init(from decoder: Decoder) throws {
+                    public init(from decoder: any Decoder) throws {
                         value1 = try? .init(from: decoder)
                         value2 = try? .init(from: decoder)
                         try DecodingError.verifyAtLeastOneSchemaIsNotNil(
@@ -287,7 +287,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             codingPath: decoder.codingPath
                         )
                     }
-                    public func encode(to encoder: Encoder) throws {
+                    public func encode(to encoder: any Encoder) throws {
                         try value1?.encode(to: encoder)
                         try value2?.encode(to: encoder)
                     }
@@ -316,7 +316,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     case case2(Swift.Int)
                     case A(Components.Schemas.A)
                     case undocumented(OpenAPIRuntime.OpenAPIValueContainer)
-                    public init(from decoder: Decoder) throws {
+                    public init(from decoder: any Decoder) throws {
                         do {
                             self = .case1(try .init(from: decoder))
                             return
@@ -333,7 +333,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         let value = try container.decode(OpenAPIRuntime.OpenAPIValueContainer.self)
                         self = .undocumented(value)
                     }
-                    public func encode(to encoder: Encoder) throws {
+                    public func encode(to encoder: any Encoder) throws {
                         switch self {
                         case let .case1(value): try value.encode(to: encoder)
                         case let .case2(value): try value.encode(to: encoder)
@@ -410,7 +410,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 @available(*, deprecated)
                 public struct MyObject: Codable, Equatable, Hashable, Sendable {
                     public init() {}
-                    public init(from decoder: Decoder) throws {
+                    public init(from decoder: any Decoder) throws {
                         try decoder.ensureNoAdditionalProperties(knownKeys: [])
                     }
                 }

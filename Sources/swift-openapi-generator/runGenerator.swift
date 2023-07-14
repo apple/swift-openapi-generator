@@ -31,7 +31,7 @@ extension _Tool {
         configs: [Config],
         isPluginInvocation: Bool,
         outputDirectory: URL,
-        diagnostics: DiagnosticCollector
+        diagnostics: any DiagnosticCollector
     ) throws {
         let docData: Data
         do {
@@ -73,7 +73,7 @@ extension _Tool {
         docData: Data,
         config: Config,
         outputFilePath: URL,
-        diagnostics: DiagnosticCollector
+        diagnostics: any DiagnosticCollector
     ) throws {
         let didChange = try replaceFileContents(at: outputFilePath) {
             let output = try _OpenAPIGeneratorCore.runGenerator(

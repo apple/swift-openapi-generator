@@ -23,7 +23,7 @@ import OpenAPIKit30
 struct ServerFileTranslator: FileTranslator {
 
     var config: Config
-    var diagnostics: DiagnosticCollector
+    var diagnostics: any DiagnosticCollector
     var components: OpenAPI.Components
 
     func translateFile(

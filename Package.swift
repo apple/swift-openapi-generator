@@ -14,6 +14,13 @@
 //===----------------------------------------------------------------------===//
 import PackageDescription
 
+// General Swift-settings for all targets.
+let swiftSettings: [SwiftSetting] = [
+    // https://github.com/apple/swift-evolution/blob/main/proposals/0335-existential-any.md
+    // Require `any` for existential types.
+    .enableUpcomingFeature("ExistentialAny")
+]
+
 let package = Package(
     name: "swift-openapi-generator",
     platforms: [
@@ -72,6 +79,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
     ],
     targets: [
+
         // Generator Core
         .target(
             name: "_OpenAPIGeneratorCore",
@@ -83,7 +91,8 @@ let package = Package(
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
                 .product(name: "SwiftFormat", package: "swift-format"),
                 .product(name: "SwiftFormatConfiguration", package: "swift-format"),
-            ]
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // Generator Core Tests
@@ -91,7 +100,8 @@ let package = Package(
             name: "OpenAPIGeneratorCoreTests",
             dependencies: [
                 "_OpenAPIGeneratorCore"
-            ]
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // GeneratorReferenceTests
@@ -104,7 +114,8 @@ let package = Package(
             ],
             resources: [
                 .copy("Resources")
-            ]
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // PetstoreConsumerTests
@@ -114,7 +125,8 @@ let package = Package(
             name: "PetstoreConsumerTests",
             dependencies: [
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")
-            ]
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // Generator CLI
@@ -123,7 +135,8 @@ let package = Package(
             dependencies: [
                 "_OpenAPIGeneratorCore",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ]
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // Build Plugin
