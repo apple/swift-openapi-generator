@@ -85,7 +85,7 @@ struct ClientFileTranslator: FileTranslator {
                     ),
                     .init(
                         label: "middlewares",
-                        type: "[any \(Constants.Client.Middleware.typeName)]",
+                        type: "[\(Constants.Client.Middleware.typeName)]",
                         defaultValue: .literal(.array([]))
                     ),
                 ],
