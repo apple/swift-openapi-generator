@@ -155,7 +155,7 @@ let package = Package(
             capability: Target.PluginCapability.command(
                 intent: .custom(
                     verb: "generate-openapi-code",
-                    description: "Generates OpenAPI code"
+                    description: "Generates Swift code from an OpenAPI document."
                 ),
                 permissions: [.writeToPackageDirectory(reason: "To write the generated Swift files back into the source directory of the package.")]
             ),
