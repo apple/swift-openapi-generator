@@ -610,9 +610,6 @@ struct TextBasedRenderer: RendererProtocol {
             }
         }
         words.append(":")
-        if parameterDescription.anyKeyword {
-            words.append("any")
-        }
         words.append(parameterDescription.type)
         if let defaultValue = parameterDescription.defaultValue {
             words.append("=")

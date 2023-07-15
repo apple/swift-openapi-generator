@@ -79,7 +79,6 @@ struct ServerFileTranslator: FileTranslator {
                     .init(
                         label: "on",
                         name: "transport",
-                        anyKeyword: true,
                         type: Constants.Server.Transport.typeName
                     ),
                     .init(
