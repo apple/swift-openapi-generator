@@ -160,7 +160,7 @@ let package = Package(
                 permissions: [.writeToPackageDirectory(reason: "To write the generated Swift files back into the source directory of the package.")]
             ),
             dependencies: [
-                "swift-openapi-generator",
+                "swift-openapi-generator"
             ]
         )
     ]
