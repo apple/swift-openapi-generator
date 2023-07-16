@@ -35,10 +35,6 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
 }
 
 extension [PluginError]: Swift.Error, CustomStringConvertible, LocalizedError {
-    public var description: String {
-        "Multiple Plugin Errors { \(self.map(\.description).joined(separator: ",")) }"
-    }
-
     public var errorDescription: String? {
         description
     }

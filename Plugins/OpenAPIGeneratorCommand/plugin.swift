@@ -172,6 +172,7 @@ extension SwiftOpenAPIGeneratorPlugin {
                 default:
                     // We can't throw any of these errors because they only complain about
                     // the target not being openapi-generator compatible.
+                    // We can't expect all targets to be OpenAPI compatible.
                     return nil
                 }
             } else {
