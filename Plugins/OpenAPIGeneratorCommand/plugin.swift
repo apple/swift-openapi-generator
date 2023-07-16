@@ -46,6 +46,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
         switch CommandMode(arguments: arguments) {
         case .allTargets:
             var hasHadASuccessfulRun = false
+            var errors = [(error: any Error, targetName: String)]()
             for target in context.package.targets {
                 guard let swiftTarget = target as? SwiftSourceModuleTarget else {
                     continue
@@ -59,12 +60,13 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
                     )
                     hasHadASuccessfulRun = true
                 } catch {
-                    try throwErrorIfNecessary(error, targetName: target.name)
+                    errors.append((error, target.name))
                 }
             }
             if !hasHadASuccessfulRun {
                 throw PluginError.noTargetsFoundForCommandPlugin
             }
+            try throwErrorsIfNecessary(errors)
         case .target(let targetName):
             let matchingTargets = try context.package.targets(named: [targetName])
             // `matchingTargets.count` can't be 0 because
@@ -97,6 +99,7 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
         switch CommandMode(arguments: arguments) {
         case .allTargets:
             var hasHadASuccessfulRun = false
+            var errors = [(error: any Error, targetName: String)]()
             for xcodeTarget in context.xcodeProject.targets {
                 guard let target = xcodeTarget as? SourceModuleTarget else {
                     continue
@@ -110,12 +113,13 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
                     )
                     hasHadASuccessfulRun = true
                 } catch {
-                    try throwErrorIfNecessary(error, targetName: target.name)
+                    errors.append((error, target.name))
                 }
             }
             if !hasHadASuccessfulRun {
                 throw PluginError.noTargetsFoundForCommandPlugin
             }
+            try throwErrorsIfNecessary(errors)
         case .target(let targetName):
             guard let xcodeTarget = context.xcodeProject.targets.first(
                 where: { $0.displayName == targetName }
@@ -150,27 +154,35 @@ enum CommandMode {
 }
 
 extension SwiftOpenAPIGeneratorPlugin {
-    func throwErrorIfNecessary(_ error: any Error, targetName: String) throws {
-        if let error = error as? PluginError {
-            switch error {
-            case .fileErrors(let errors):
-                if errors.count != FileError.Kind.allCases.count {
-                    // There are some file-finding errors but at least 1 file is available.
-                    // This means the user means to use the target with the generator, just
-                    // hasn't configured their target properly.
-                    // We'll throw this error to let them know.
-                    throw error
-                } else {
-                    break
+    func throwErrorsIfNecessary(_ errors: [(error: any Error, targetName: String)]) throws {
+        let errorsToBeReported = errors.compactMap {
+            (error, targetName) -> PluginError? in
+            if let error = error as? PluginError {
+                switch error {
+                case .fileErrors(let errors, _):
+                    if errors.count != FileError.Kind.allCases.count {
+                        // There are some file-finding errors but at least 1 file is available.
+                        // This means the user means to use the target with the generator, just
+                        // hasn't configured their target properly.
+                        // We'll throw this error to let them know.
+                        return error
+                    } else {
+                        return nil
+                    }
+                default:
+                    // We can't throw any of these errors because they only complain about
+                    // the target not being openapi-generator compatible.
+                    return nil
                 }
-            default:
-                // We can't throw any of these errors because they only complain about
-                // the target not being openapi-generator compatible.
-                break
+            } else {
+                print("Unknown error reported by run command for target '\(targetName)'. This is unexpected and should not happen. Please report at https://github.com/apple/swift-openapi-generator/issues")
+                // Don't throw the error to not interrupt the process.
+                return nil
             }
-        } else {
-            print("Unknown error reported by run command for target '\(targetName)'. This is unexpected and should not happen. Please report at https://github.com/apple/swift-openapi-generator/issues")
-            // Don't throw the error to not interrupt the process.
+        }
+
+        if !errorsToBeReported.isEmpty {
+            throw errorsToBeReported
         }
     }
 }

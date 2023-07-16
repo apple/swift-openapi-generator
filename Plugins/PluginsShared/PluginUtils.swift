@@ -48,11 +48,11 @@ enum PluginUtils {
         let doc = findDocument(inputFiles: inputFiles, targetName: targetName)
         switch (config, doc) {
         case (.failure(let error1), .failure(let error2)):
-            throw PluginError.fileErrors([error1, error2])
+            throw PluginError.fileErrors([error1, error2], targetName: targetName)
         case (_, .failure(let error)):
-            throw PluginError.fileErrors([error])
+            throw PluginError.fileErrors([error], targetName: targetName)
         case (.failure(let error), _):
-            throw PluginError.fileErrors([error])
+            throw PluginError.fileErrors([error], targetName: targetName)
         case (.success(let config), .success(let doc)):
             return (config, doc)
         }

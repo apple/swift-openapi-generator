@@ -9,7 +9,7 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     case noTargetsMatchingTargetName(targetName: String)
     // The description is not suitable for Xcode, as it's not thrown in Xcode plugins.
     case tooManyTargetsMatchingTargetName(targetNames: [String])
-    case fileErrors([FileError])
+    case fileErrors([FileError], targetName: String)
 
     var description: String {
         switch self {
@@ -24,12 +24,22 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
             return "No target called '\(targetName)' were found. Use Xcode's UI to choose a single specific target before triggering the command plugin."
         case .tooManyTargetsMatchingTargetName(let targetNames):
             return "Too many targets found matching the provided target name: '\(targetNames)'. Target name must be specific enough for the plugin to only find a single target."
-        case .fileErrors(let errors):
-            return "Found file errors: \(errors.description)"
+        case .fileErrors(let errors, let targetName):
+            return "Found file errors in target called '\(targetName)': \(errors.description)"
         }
     }
 
     var errorDescription: String? {
+        description
+    }
+}
+
+extension [PluginError]: Swift.Error, CustomStringConvertible, LocalizedError {
+    public var description: String {
+        "Multiple Plugin Errors { \(self.map(\.description).joined(separator: ",")) }"
+    }
+
+    public var errorDescription: String? {
         description
     }
 }
