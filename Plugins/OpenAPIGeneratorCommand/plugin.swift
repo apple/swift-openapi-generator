@@ -62,7 +62,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
             }
         }
         try throwErrorsIfNecessary(errors)
-        if !hasHadASuccessfulRun {
+        guard hasHadASuccessfulRun else {
             throw PluginError.noTargetsFoundForCommandPlugin
         }
     }
@@ -95,7 +95,7 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
             }
         }
         try throwErrorsIfNecessary(errors)
-        if !hasHadASuccessfulRun {
+        guard hasHadASuccessfulRun else {
             throw PluginError.noTargetsFoundForCommandPlugin
         }
     }
@@ -103,35 +103,35 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
 #endif
 
 extension SwiftOpenAPIGeneratorPlugin {
+    /// Throws if there are any errors that show a target is definitely trying to
+    /// have OpenAPI generator compatibility, but is failing to.
     func throwErrorsIfNecessary(_ errors: [(error: any Error, targetName: String)]) throws {
-        let errorsToBeReported = errors.compactMap {
-            (error, targetName) -> PluginError? in
-            if let error = error as? PluginError {
-                switch error {
-                case .fileErrors(let errors, _):
-                    if errors.count != FileError.Kind.allCases.count {
-                        // There are some file-finding errors but at least 1 file is available.
-                        // This means the user means to use the target with the generator, just
-                        // hasn't configured their target properly.
-                        // We'll throw this error to let them know.
-                        return error
-                    } else {
-                        return nil
-                    }
-                default:
-                    // We can't throw any of these errors because they only complain about
-                    // the target not being openapi-generator compatible.
-                    // We can't expect all targets to be OpenAPI compatible.
-                    return nil
-                }
-            } else {
+        let errorsToBeReported = errors.compactMap { (error, targetName) -> PluginError? in
+            guard let error = error as? PluginError else {
                 print("Unknown error reported by run command for target '\(targetName)'. This is unexpected and should not happen. Please report at https://github.com/apple/swift-openapi-generator/issues")
                 // Don't throw the error to not interrupt the process.
                 return nil
             }
+            switch error {
+            case .fileErrors(let errors, _):
+                if errors.count != FileError.Kind.allCases.count {
+                    // There are some file-finding errors but at least 1 file is available.
+                    // This means the user means to use the target with the generator, just
+                    // hasn't configured their target properly.
+                    // We'll throw this error to let them know.
+                    return error
+                } else {
+                    return nil
+                }
+            case .incompatibleTarget, .noTargetsFoundForCommandPlugin:
+                // We can't throw any of these errors because they only complain about
+                // the target not being openapi-generator compatible.
+                // We can't expect all targets to be OpenAPI compatible.
+                return nil
+            }
         }
 
-        if !errorsToBeReported.isEmpty {
+        guard errorsToBeReported.isEmpty else {
             throw errorsToBeReported
         }
     }
