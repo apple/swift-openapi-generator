@@ -52,9 +52,6 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
             let targetNames = try parseTargetNames(arguments: arguments)
             print("Running OpenAPI generator CommandPlugin on targets: \(targetNames)")
             targets = try context.package.targets(named: Array(targetNames))
-            guard !targets.isEmpty else {
-                throw PluginError.noTargetsMatchingTargetNames(targetNames: Array(targetNames))
-            }
         }
 
         var hasHadASuccessfulRun = false
@@ -75,7 +72,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
                 errors.append((error, target.name))
             }
         }
-        try throwErrorsIfNecessary(errors, targetCount: targets.count)
+        try throwErrorsIfNecessary(errors)
         if !hasHadASuccessfulRun {
             throw PluginError.noTargetsFoundForCommandPlugin
         }
@@ -93,28 +90,26 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
         // On Xcode, it automatically includes all targets when you run the plugin.
         let targetNames = try parseTargetNames(arguments: arguments)
         print("Running OpenAPI generator CommandPlugin on targets: \(targetNames)")
-        let targets = context.xcodeProject.targets
-            .compactMap { $0 as? SourceModuleTarget }
-            .filter { targetNames.contains($0.name) }
-        guard !targets.isEmpty else {
-            throw PluginError.noTargetsMatchingTargetNames(targetNames: Array(targetNames))
-        }
+        let targets = context.xcodeProject.targets.filter { targetNames.contains($0.displayName) }
         var hasHadASuccessfulRun = false
         var errors = [(error: any Error, targetName: String)]()
-        for target in targets {
+        for xcodeTarget in targets {
+            guard let target = xcodeTarget as? SourceModuleTarget else {
+                continue
+            }
             do {
                 try runCommand(
                     targetWorkingDirectory: target.directory,
                     tool: context.tool,
-                    sourceFiles: target.sourceFiles,
-                    targetName: target.name
+                    sourceFiles: xcodeTarget.inputFiles,
+                    targetName: xcodeTarget.displayName
                 )
                 hasHadASuccessfulRun = true
             } catch {
                 errors.append((error, target.name))
             }
         }
-        try throwErrorsIfNecessary(errors, targetCount: targets.count)
+        try throwErrorsIfNecessary(errors)
         if !hasHadASuccessfulRun {
             throw PluginError.noTargetsFoundForCommandPlugin
         }
@@ -140,21 +135,13 @@ extension SwiftOpenAPIGeneratorPlugin {
         return targets
     }
     
-    func throwErrorsIfNecessary(
-        _ errors: [(error: any Error, targetName: String)],
-        targetCount: Int
-    ) throws {
-        // Always throw any existing error if only one target.
-        if targetCount == 1, errors.count == 1 {
-            throw errors[0].error
-        }
-
+    func throwErrorsIfNecessary(_ errors: [(error: any Error, targetName: String)]) throws {
         let errorsToBeReported = errors.compactMap {
             (error, targetName) -> PluginError? in
             if let error = error as? PluginError {
                 switch error {
-                case .fileErrors(let fileErrors, _):
-                    if fileErrors.count != FileError.Kind.allCases.count {
+                case .fileErrors(let errors, _):
+                    if errors.count != FileError.Kind.allCases.count {
                         // There are some file-finding errors but at least 1 file is available.
                         // This means the user means to use the target with the generator, just
                         // hasn't configured their target properly.
