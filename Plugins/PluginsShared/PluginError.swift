@@ -5,6 +5,7 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     case incompatibleTarget(targetName: String)
     case badArguments(arguments: [String])
     case noTargetsFoundForCommandPlugin
+    case noTargetsMatchingTargetNames(targetNames: [String])
     case fileErrors([FileError], targetName: String)
 
     var description: String {
@@ -16,6 +17,8 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
             return "Bad arguments provided: \(arguments). One or more arguments of form '--target TARGET_NAME' are supported so the generator only acts on specific targets."
         case .noTargetsFoundForCommandPlugin:
             return "None of the targets include valid OpenAPI spec files. Please make sure at least one of your targets has any valid OpenAPI spec files before triggering this command plugin. See documentation for details."
+        case .noTargetsMatchingTargetNames(let targetNames):
+            return "No targets with names \(targetNames) were found. Make sure the input target names are valid."
         case .fileErrors(let errors, let targetName):
             return "Found file errors in target called '\(targetName)': \(errors.description)"
         }
