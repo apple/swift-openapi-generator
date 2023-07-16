@@ -90,16 +90,12 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
         context: XcodePluginContext,
         arguments: [String]
     ) throws {
-        // On Xcode, it automatically includes all targets of the scheme when you run the plugin.
-        // We search for recursive dependencies to make sure we don't miss a target just because of
-        // scheme settings.
+        // On Xcode, it automatically includes all targets when you run the plugin.
         let targetNames = try parseTargetNames(arguments: arguments)
+        print("Running OpenAPI generator CommandPlugin on targets: \(targetNames)")
         let targets = context.xcodeProject.targets
             .compactMap { $0 as? SourceModuleTarget }
             .filter { targetNames.contains($0.name) }
-            .flatMap { $0.recursiveTargetDependencies }
-            .compactMap { $0 as? SourceModuleTarget }
-        print("Running OpenAPI generator CommandPlugin on targets: \(targets.map(\.name))")
         guard !targets.isEmpty else {
             throw PluginError.noTargetsMatchingTargetNames(targetNames: Array(targetNames))
         }
