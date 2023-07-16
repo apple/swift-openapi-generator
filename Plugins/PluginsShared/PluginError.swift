@@ -9,10 +9,7 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     case noTargetsMatchingTargetName(targetName: String)
     // The description is not suitable for Xcode, as it's not thrown in Xcode plugins.
     case tooManyTargetsMatchingTargetName(targetNames: [String])
-    case noConfigFound(targetName: String)
-    case noDocumentFound(targetName: String)
-    case multiConfigFound(targetName: String, files: [Path])
-    case multiDocumentFound(targetName: String, files: [Path])
+    case fileErrors([FileError])
 
     var description: String {
         switch self {
@@ -27,18 +24,56 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
             return "No target called '\(targetName)' were found. Use Xcode's UI to choose a single specific target before triggering the command plugin."
         case .tooManyTargetsMatchingTargetName(let targetNames):
             return "Too many targets found matching the provided target name: '\(targetNames)'. Target name must be specific enough for the plugin to only find a single target."
-        case .noConfigFound(let targetName):
-            return
-            "No config file found in the target named '\(targetName)'. Add a file called 'openapi-generator-config.yaml' or 'openapi-generator-config.yml' to the target's source directory. See documentation for details."
-        case .noDocumentFound(let targetName):
-            return
-            "No OpenAPI document found in the target named '\(targetName)'. Add a file called 'openapi.yaml', 'openapi.yml' or 'openapi.json' (can also be a symlink) to the target's source directory. See documentation for details."
-        case .multiConfigFound(let targetName, let files):
-            return
-            "Multiple config files found in the target named '\(targetName)', but exactly one is required. Found \(files.map(\.description).joined(separator: " "))."
-        case .multiDocumentFound(let targetName, let files):
-            return
-            "Multiple OpenAPI documents found in the target named '\(targetName)', but exactly one is required. Found \(files.map(\.description).joined(separator: " "))."
+        case .fileErrors(let errors):
+            return "Found file errors: \(errors.description)"
+        }
+    }
+
+    var errorDescription: String? {
+        description
+    }
+}
+
+struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
+
+    enum Kind: CaseIterable {
+        case config
+        case document
+    }
+
+    enum Issue {
+        case notFound
+        case multiFound(files: [Path])
+    }
+
+    let targetName: String
+    let fileKind: Kind
+    let issue: Issue
+
+    var description: String {
+        "FileError { targetName: \(targetName), fileKind: \(fileKind), description: \(preciseErrorDescription) }"
+    }
+
+    var preciseErrorDescription: String {
+        switch fileKind {
+        case .config:
+            switch issue {
+            case .notFound:
+                return
+                "No config file found in the target named '\(targetName)'. Add a file called 'openapi-generator-config.yaml' or 'openapi-generator-config.yml' to the target's source directory. See documentation for details."
+            case .multiFound(let files):
+                return
+                "Multiple config files found in the target named '\(targetName)', but exactly one is expected. Found \(files.map(\.description).joined(separator: " "))."
+            }
+        case .document:
+            switch issue {
+            case .notFound:
+                return
+                "No OpenAPI document found in the target named '\(targetName)'. Add a file called 'openapi.yaml', 'openapi.yml' or 'openapi.json' (can also be a symlink) to the target's source directory. See documentation for details."
+            case .multiFound(let files):
+                return
+                "Multiple OpenAPI documents found in the target named '\(targetName)', but exactly one is expected. Found \(files.map(\.description).joined(separator: " "))."
+            }
         }
     }
 

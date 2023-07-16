@@ -58,19 +58,8 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
                         targetName: target.name
                     )
                     hasHadASuccessfulRun = true
-                } catch let error as PluginError {
-                    // FIXME: throw the error if any config files exist but some don't exist.
-                    switch error {
-                    case .incompatibleTarget, .badArguments, .noTargetsFoundForCommandPlugin, .noTargetsMatchingTargetName, .tooManyTargetsMatchingTargetName, .noConfigFound, .noDocumentFound:
-                        // We can't throw any of these errors because they only complain about
-                        // the target not being openapi-generator compatible.
-                        break
-                    case .multiConfigFound, .multiDocumentFound:
-                        // We throw these errors because it appears the target is supposed to be openapi-generator compatible, but it contains errors.
-                        throw error
-                    }
                 } catch {
-                    print("Unknown error reported by run command for target '\(target.name)'. This is unexpected and should not happen. Please report at https://github.com/apple/swift-openapi-generator/issues")
+                    try throwErrorIfNecessary(error, targetName: target.name)
                 }
             }
             if !hasHadASuccessfulRun {
@@ -120,18 +109,8 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
                         targetName: xcodeTarget.displayName
                     )
                     hasHadASuccessfulRun = true
-                } catch let error as PluginError {
-                    switch error {
-                    case .incompatibleTarget, .badArguments, .noTargetsFoundForCommandPlugin, .noTargetsMatchingTargetName, .tooManyTargetsMatchingTargetName, .noConfigFound, .noDocumentFound:
-                        // We can't throw any of these errors because they only complain about
-                        // the target not being openapi-generator compatible.
-                        break
-                    case .multiConfigFound, .multiDocumentFound:
-                        // We throw these errors because it appears the target is supposed to be openapi-generator compatible, but it contains errors.
-                        throw error
-                    }
                 } catch {
-                    print("Unknown error reported by run command for target '\(target.name)'. This is unexpected and should not happen. Please report at https://github.com/apple/swift-openapi-generator/issues")
+                    try throwErrorIfNecessary(error, targetName: target.name)
                 }
             }
             if !hasHadASuccessfulRun {
@@ -166,6 +145,32 @@ enum CommandMode {
             self = .target(name: arguments[1])
         } else {
             self = .allTargets
+        }
+    }
+}
+
+extension SwiftOpenAPIGeneratorPlugin {
+    func throwErrorIfNecessary(_ error: any Error, targetName: String) throws {
+        if let error = error as? PluginError {
+            switch error {
+            case .fileErrors(let errors):
+                if errors.count != FileError.Kind.allCases.count {
+                    // There are some file-finding errors but at least 1 file is available.
+                    // This means the user means to use the target with the generator, just
+                    // hasn't configured their target properly.
+                    // We'll throw this error to let them know.
+                    throw error
+                } else {
+                    break
+                }
+            default:
+                // We can't throw any of these errors because they only complain about
+                // the target not being openapi-generator compatible.
+                break
+            }
+        } else {
+            print("Unknown error reported by run command for target '\(targetName)'. This is unexpected and should not happen. Please report at https://github.com/apple/swift-openapi-generator/issues")
+            // Don't throw the error to not interrupt the process.
         }
     }
 }

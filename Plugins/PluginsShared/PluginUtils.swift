@@ -19,24 +19,7 @@ enum PluginUtils {
         targetName: String,
         invocationSource: InvocationSource
     ) throws -> ValidatedInputs {
-        let inputFiles = sourceFiles
-        let matchedConfigs = inputFiles.filter { supportedConfigFiles.contains($0.path.lastComponent) }.map(\.path)
-        guard matchedConfigs.count > 0 else {
-            throw PluginError.noConfigFound(targetName: targetName)
-        }
-        guard matchedConfigs.count == 1 else {
-            throw PluginError.multiConfigFound(targetName: targetName, files: matchedConfigs)
-        }
-        let config = matchedConfigs[0]
-
-        let matchedDocs = inputFiles.filter { supportedDocFiles.contains($0.path.lastComponent) }.map(\.path)
-        guard matchedDocs.count > 0 else {
-            throw PluginError.noDocumentFound(targetName: targetName)
-        }
-        guard matchedDocs.count == 1 else {
-            throw PluginError.multiDocumentFound(targetName: targetName, files: matchedDocs)
-        }
-        let doc = matchedDocs[0]
+        let (config, doc) = try findFiles(inputFiles: sourceFiles, targetName: targetName)
         let genSourcesDir = workingDirectory.appending("GeneratedSources")
 
         let arguments = [
@@ -55,5 +38,67 @@ enum PluginUtils {
             arguments: arguments,
             tool: tool
         )
+    }
+
+    private static func findFiles(
+        inputFiles: FileList,
+        targetName: String
+    ) throws -> (config: Path, doc: Path) {
+        let config = findConfig(inputFiles: inputFiles, targetName: targetName)
+        let doc = findDocument(inputFiles: inputFiles, targetName: targetName)
+        switch (config, doc) {
+        case (.failure(let error1), .failure(let error2)):
+            throw PluginError.fileErrors([error1, error2])
+        case (_, .failure(let error)):
+            throw PluginError.fileErrors([error])
+        case (.failure(let error), _):
+            throw PluginError.fileErrors([error])
+        case (.success(let config), .success(let doc)):
+            return (config, doc)
+        }
+    }
+
+    private static func findConfig(
+        inputFiles: FileList,
+        targetName: String
+    ) -> Result<Path, FileError> {
+        let matchedConfigs = inputFiles.filter { supportedConfigFiles.contains($0.path.lastComponent) }.map(\.path)
+        guard matchedConfigs.count > 0 else {
+            return .failure(FileError(
+                targetName: targetName,
+                fileKind: .config,
+                issue: .notFound
+            ))
+        }
+        guard matchedConfigs.count == 1 else {
+            return .failure(FileError(
+                targetName: targetName,
+                fileKind: .config,
+                issue: .multiFound(files: matchedConfigs)
+            ))
+        }
+        return .success(matchedConfigs[0])
+    }
+
+    private static func findDocument(
+        inputFiles: FileList,
+        targetName: String
+    ) -> Result<Path, FileError> {
+        let matchedDocs = inputFiles.filter { supportedDocFiles.contains($0.path.lastComponent) }.map(\.path)
+        guard matchedDocs.count > 0 else {
+            return .failure(FileError(
+                targetName: targetName,
+                fileKind: .document,
+                issue: .notFound
+            ))
+        }
+        guard matchedDocs.count == 1 else {
+            return .failure(FileError(
+                targetName: targetName,
+                fileKind: .document,
+                issue: .multiFound(files: matchedDocs)
+            ))
+        }
+        return .success(matchedDocs[0])
     }
 }
