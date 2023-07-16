@@ -63,10 +63,10 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
                     errors.append((error, target.name))
                 }
             }
+            try throwErrorsIfNecessary(errors)
             if !hasHadASuccessfulRun {
                 throw PluginError.noTargetsFoundForCommandPlugin
             }
-            try throwErrorsIfNecessary(errors)
         case .target(let targetName):
             let matchingTargets = try context.package.targets(named: [targetName])
             // `matchingTargets.count` can't be 0 because
@@ -116,10 +116,10 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
                     errors.append((error, target.name))
                 }
             }
+            try throwErrorsIfNecessary(errors)
             if !hasHadASuccessfulRun {
                 throw PluginError.noTargetsFoundForCommandPlugin
             }
-            try throwErrorsIfNecessary(errors)
         case .target(let targetName):
             guard let xcodeTarget = context.xcodeProject.targets.first(
                 where: { $0.displayName == targetName }
