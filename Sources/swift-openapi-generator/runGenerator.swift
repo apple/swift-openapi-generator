@@ -123,16 +123,15 @@ extension _Tool {
 
         let path = outputDirectory.appendingPathComponent(fileName)
         let data = try contents()
-        if fm.fileExists(atPath: path.path) {
-            let existingData = try? Data(contentsOf: path)
-            if existingData == data {
-                return false
-            } else {
-                try data.write(to: path)
-                return true
-            }
-        } else {
+        guard fm.fileExists(atPath: path.path) else {
             return fm.createFile(atPath: path.path, contents: data)
+        }
+        let existingData = try? Data(contentsOf: path)
+        if existingData == data {
+            return false
+        } else {
+            try data.write(to: path)
+            return true
         }
     }
 }
