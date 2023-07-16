@@ -43,7 +43,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
         context: PluginContext,
         arguments: [String]
     ) async throws {
-        switch CommandMode(arguments: arguments) {
+        switch try CommandMode(arguments: arguments, fromXcode: false) {
         case .allTargets:
             var hasHadASuccessfulRun = false
             var errors = [(error: any Error, targetName: String)]()
@@ -96,7 +96,7 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
         context: XcodePluginContext,
         arguments: [String]
     ) throws {
-        switch CommandMode(arguments: arguments) {
+        switch try CommandMode(arguments: arguments, fromXcode: true) {
         case .allTargets:
             var hasHadASuccessfulRun = false
             var errors = [(error: any Error, targetName: String)]()
@@ -144,9 +144,15 @@ enum CommandMode {
     case allTargets
     case target(name: String)
 
-    init(arguments: [String]) {
+    init(arguments: [String], fromXcode: Bool) throws {
         if arguments.count == 2, arguments[0] == "--target" {
             self = .target(name: arguments[1])
+        } else if arguments.count != 0 {
+            if fromXcode {
+                throw PluginError.badArgumentsXcode(arguments: arguments)
+            } else {
+                throw PluginError.badArgumentsCLI(arguments: arguments)
+            }
         } else {
             self = .allTargets
         }
