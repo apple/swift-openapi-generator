@@ -50,7 +50,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
             print("Running OpenAPI generator CommandPlugin all targets")
         } else {
             let targetNames = try parseTargetNames(arguments: arguments)
-            print("Running OpenAPI generator CommandPlugin on select targets: \(targetNames)")
+            print("Running OpenAPI generator CommandPlugin on targets: \(targetNames)")
             targets = try context.package.targets(named: Array(targetNames))
             guard !targets.isEmpty else {
                 throw PluginError.noTargetsMatchingTargetNames(targetNames: Array(targetNames))
@@ -97,7 +97,7 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
         let targets = context.xcodeProject.targets
             .compactMap { $0 as? SourceModuleTarget }
             .filter { targetNames.contains($0.name) }
-            .flatMap { $0.dependencies }
+            .flatMap { $0.recursiveTargetDependencies }
             .compactMap { $0 as? SourceModuleTarget }
         print("Running OpenAPI generator CommandPlugin on targets: \(targets.map(\.name))")
         guard !targets.isEmpty else {
@@ -128,7 +128,6 @@ extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
 
 extension SwiftOpenAPIGeneratorPlugin {
     func parseTargetNames(arguments: [String]) throws -> Set<String> {
-
         guard arguments.count % 2 == 0 else {
             throw PluginError.badArguments(arguments: arguments)
         }
