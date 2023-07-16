@@ -64,18 +64,22 @@ enum PluginUtils {
     ) -> Result<Path, FileError> {
         let matchedConfigs = inputFiles.filter { supportedConfigFiles.contains($0.path.lastComponent) }.map(\.path)
         guard matchedConfigs.count > 0 else {
-            return .failure(FileError(
-                targetName: targetName,
-                fileKind: .config,
-                issue: .notFound
-            ))
+            return .failure(
+                FileError(
+                    targetName: targetName,
+                    fileKind: .config,
+                    issue: .notFound
+                )
+            )
         }
         guard matchedConfigs.count == 1 else {
-            return .failure(FileError(
-                targetName: targetName,
-                fileKind: .config,
-                issue: .multiFound(files: matchedConfigs)
-            ))
+            return .failure(
+                FileError(
+                    targetName: targetName,
+                    fileKind: .config,
+                    issue: .multiFound(files: matchedConfigs)
+                )
+            )
         }
         return .success(matchedConfigs[0])
     }
@@ -86,18 +90,22 @@ enum PluginUtils {
     ) -> Result<Path, FileError> {
         let matchedDocs = inputFiles.filter { supportedDocFiles.contains($0.path.lastComponent) }.map(\.path)
         guard matchedDocs.count > 0 else {
-            return .failure(FileError(
-                targetName: targetName,
-                fileKind: .document,
-                issue: .notFound
-            ))
+            return .failure(
+                FileError(
+                    targetName: targetName,
+                    fileKind: .document,
+                    issue: .notFound
+                )
+            )
         }
         guard matchedDocs.count == 1 else {
-            return .failure(FileError(
-                targetName: targetName,
-                fileKind: .document,
-                issue: .multiFound(files: matchedDocs)
-            ))
+            return .failure(
+                FileError(
+                    targetName: targetName,
+                    fileKind: .document,
+                    issue: .multiFound(files: matchedDocs)
+                )
+            )
         }
         return .success(matchedDocs[0])
     }
