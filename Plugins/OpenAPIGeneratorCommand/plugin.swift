@@ -124,8 +124,7 @@ extension SwiftOpenAPIGeneratorPlugin {
         }
         var targets: Set<String> = []
         targets.reserveCapacity(arguments.count / 2)
-        for num in 0..<arguments.count / 2 {
-            let idx = num * 2
+        for idx in 0..<arguments.count / 2 {
             if arguments[idx] == "--target" {
                 targets.insert(arguments[idx + 1])
             } else {
