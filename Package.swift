@@ -15,11 +15,15 @@
 import PackageDescription
 
 // General Swift-settings for all targets.
-let swiftSettings: [SwiftSetting] = [
+var swiftSettings: [SwiftSetting] = []
+
+#if swift(>=5.9)
+swiftSettings.append(
     // https://github.com/apple/swift-evolution/blob/main/proposals/0335-existential-any.md
     // Require `any` for existential types.
     .enableUpcomingFeature("ExistentialAny")
-]
+)
+#endif
 
 let package = Package(
     name: "swift-openapi-generator",
