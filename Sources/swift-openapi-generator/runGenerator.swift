@@ -21,14 +21,14 @@ extension _Tool {
     /// - Parameters:
     ///   - doc: A path to the OpenAPI document.
     ///   - configs: A list of generator configurations.
-    ///   - invocationSource: The source of the generator invocation.
+    ///   - pluginSource: The source of the generator invocation.
     ///   - outputDirectory: The directory to which the generator writes
     ///   the generated Swift files.
     ///   - diagnostics: A collector for diagnostics emitted by the generator.
     static func runGenerator(
         doc: URL,
         configs: [Config],
-        invocationSource: InvocationSource,
+        pluginSource: PluginSource?,
         outputDirectory: URL,
         diagnostics: any DiagnosticCollector
     ) throws {
@@ -53,7 +53,7 @@ extension _Tool {
         // (Types.swift, Client.Swift, and Server.swift) regardless of which generator
         // mode was requested, with the caveat that the not-requested files are empty.
         // This is due to a limitation of the build system used by SwiftPM under the hood.
-        if invocationSource == .BuildToolPlugin {
+        if pluginSource == .build {
             let nonGeneratedModes = Set(GeneratorMode.allCases).subtracting(configs.map(\.mode))
             for mode in nonGeneratedModes.sorted() {
                 try replaceFileContents(

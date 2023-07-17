@@ -1,1 +1,0 @@
-../../Sources/swift-openapi-generator/InvocationSource.swift

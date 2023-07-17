@@ -27,14 +27,16 @@ struct SwiftOpenAPIGeneratorPlugin {
             tool: tool,
             sourceFiles: sourceFiles,
             targetName: targetName,
-            invocationSource: .CommandPlugin
+            pluginSource: .command
         )
 
         let toolUrl = URL(fileURLWithPath: inputs.tool.path.string)
         let process = Process()
         process.executableURL = toolUrl
         process.arguments = inputs.arguments
+        process.environment = [:]
         try process.run()
+        process.waitUntilExit()
     }
 }
 

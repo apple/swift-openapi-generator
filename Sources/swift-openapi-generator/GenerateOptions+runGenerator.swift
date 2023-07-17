@@ -21,10 +21,10 @@ extension _GenerateOptions {
     /// - Parameters:
     ///   - outputDirectory: The directory path to which the generator writes
     ///   the generated Swift files.
-    ///   - invocationSource: The source of the generator invocation.
+    ///   - pluginSource: The source of the generator invocation if from a plugin.
     func runGenerator(
         outputDirectory: URL,
-        invocationSource: InvocationSource
+        pluginSource: PluginSource?
     ) throws {
         let config = try loadedConfig()
         let sortedModes = try resolvedModes(config)
@@ -57,7 +57,7 @@ extension _GenerateOptions {
             - Output directory: \(outputDirectory.path)
             - Diagnostics output path: \(diagnosticsOutputPath?.path ?? "<none - logs to stderr>")
             - Current directory: \(FileManager.default.currentDirectoryPath)
-            - Invoked from: \(invocationSource.rawValue)
+            - Plugin invoked from: \(pluginSource?.rawValue ?? "<none>")
             - Additional imports: \(resolvedAdditionalImports.isEmpty ? "<none>" : resolvedAdditionalImports.joined(separator: ", "))
             """
         )
@@ -65,7 +65,7 @@ extension _GenerateOptions {
             try _Tool.runGenerator(
                 doc: doc,
                 configs: configs,
-                invocationSource: invocationSource,
+                pluginSource: pluginSource,
                 outputDirectory: outputDirectory,
                 diagnostics: diagnostics
             )

@@ -13,7 +13,7 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
         case .noTargetsFoundForCommandPlugin:
             return "None of the targets include valid OpenAPI spec files. Please make sure at least one of your targets has any valid OpenAPI spec files before triggering this command plugin. See documentation for details."
         case .fileErrors(let errors, let targetName):
-            return "Found file errors in target called '\(targetName)': \(errors.description)"
+            return "Found file errors in target called '\(targetName)': \(errors)"
         }
     }
 
@@ -36,14 +36,14 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
     }
 
     enum Issue {
-        case notFound
-        case multiFound(files: [Path])
+        case noFilesFound
+        case multipleFilesFound(files: [Path])
 
         var isNotFound: Bool {
             switch self {
-            case .notFound:
+            case .noFilesFound:
                 return true
-            case .multiFound:
+            case .multipleFilesFound:
                 return false
             }
         }
@@ -61,16 +61,16 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
         switch fileKind {
         case .config:
             switch issue {
-            case .notFound:
+            case .noFilesFound:
                 return "No config file found in the target named '\(targetName)'. Add a file called 'openapi-generator-config.yaml' or 'openapi-generator-config.yml' to the target's source directory. See documentation for details."
-            case .multiFound(let files):
+            case .multipleFilesFound(let files):
                 return "Multiple config files found in the target named '\(targetName)', but exactly one is expected. Found \(files.map(\.description).joined(separator: " "))."
             }
         case .document:
             switch issue {
-            case .notFound:
+            case .noFilesFound:
                 return "No OpenAPI document found in the target named '\(targetName)'. Add a file called 'openapi.yaml', 'openapi.yml' or 'openapi.json' (can also be a symlink) to the target's source directory. See documentation for details."
-            case .multiFound(let files):
+            case .multipleFilesFound(let files):
                 return "Multiple OpenAPI documents found in the target named '\(targetName)', but exactly one is expected. Found \(files.map(\.description).joined(separator: " "))."
             }
         }

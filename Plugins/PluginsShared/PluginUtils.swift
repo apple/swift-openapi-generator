@@ -19,7 +19,7 @@ enum PluginUtils {
         tool: (String) throws -> PluginContext.Tool,
         sourceFiles: FileList,
         targetName: String,
-        invocationSource: InvocationSource
+        pluginSource: PluginSource
     ) throws -> ValidatedInputs {
         let (config, doc) = try findFiles(inputFiles: sourceFiles, targetName: targetName)
         let genSourcesDir = workingDirectory.appending("OpenAPISources")
@@ -28,7 +28,7 @@ enum PluginUtils {
             "generate", "\(doc)",
             "--config", "\(config)",
             "--output-directory", "\(genSourcesDir)",
-            "--invoked-from", "\(invocationSource.rawValue)",
+            "--invoked-from", "\(pluginSource.rawValue)",
         ]
 
         let tool = try tool("swift-openapi-generator")
@@ -73,7 +73,7 @@ enum PluginUtils {
                 FileError(
                     targetName: targetName,
                     fileKind: .config,
-                    issue: .notFound
+                    issue: .noFilesFound
                 )
             )
         }
@@ -82,7 +82,7 @@ enum PluginUtils {
                 FileError(
                     targetName: targetName,
                     fileKind: .config,
-                    issue: .multiFound(files: matchedConfigs)
+                    issue: .multipleFilesFound(files: matchedConfigs)
                 )
             )
         }
@@ -100,7 +100,7 @@ enum PluginUtils {
                 FileError(
                     targetName: targetName,
                     fileKind: .document,
-                    issue: .notFound
+                    issue: .noFilesFound
                 )
             )
         }
@@ -109,7 +109,7 @@ enum PluginUtils {
                 FileError(
                     targetName: targetName,
                     fileKind: .document,
-                    issue: .multiFound(files: matchedDocs)
+                    issue: .multipleFilesFound(files: matchedDocs)
                 )
             )
         }

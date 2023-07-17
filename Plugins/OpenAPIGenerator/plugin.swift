@@ -27,7 +27,7 @@ struct SwiftOpenAPIGeneratorPlugin {
             tool: tool,
             sourceFiles: sourceFiles,
             targetName: targetName,
-            invocationSource: .BuildToolPlugin
+            pluginSource: .build
         )
 
         let outputFiles: [Path] = GeneratorMode.allCases.map { inputs.genSourcesDir.appending($0.outputFileName) }
