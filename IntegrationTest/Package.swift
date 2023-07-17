@@ -19,6 +19,15 @@ let package = Package(
     platforms: [
         .macOS(.v13)
     ],
+    products: [
+        .library(name: "IntegrationTestLibrary", targets: [
+            "Types",
+            "Client",
+            "Server",
+            "MockTransportClient",
+            "MockTransportServer",
+        ]),
+    ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", .upToNextMinor(from: "0.1.0")),
         .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.1.0")),
