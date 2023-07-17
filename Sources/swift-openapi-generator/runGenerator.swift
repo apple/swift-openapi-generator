@@ -16,31 +16,6 @@ import ArgumentParser
 import _OpenAPIGeneratorCore
 
 extension _Tool {
-    
-    /// A structure that defines ANSI escape codes for different colors in the terminal output.
-    ///
-    /// You can use these codes to change the color of the text printed by the `print` function or other methods that write to the standard output. To reset the text color to the default, use the `reset` code.
-    ///
-    /// For example, to print "Hello" in red and "World" in green, you can use:
-    /// ```swift
-    /// print(
-    ///     CommandLineColors.red +
-    ///      "Hello" +
-    ///        CommandLineColors.green +
-    ///         "World" +
-    ///          CommandLineColors.reset
-    /// )
-    /// ```
-    struct CommandLineColors {
-        /// The ANSI escape code for resetting the text color and style to the default.
-        static let reset = "\u{001B}[0;0m"
-        /// The ANSI escape code for changing the text color to red.
-        static let red = "\u{001B}[0;31m"
-        /// The ANSI escape code for changing the text color to green.
-        static let green = "\u{001B}[0;32m"
-    }
-
-
     /// Runs the generator with the specified configuration values.
     /// - Parameters:
     ///   - doc: A path to the OpenAPI document.
@@ -110,7 +85,7 @@ extension _Tool {
         isDryRun: Bool,
         diagnostics: any DiagnosticCollector
     ) throws {
-        let didChange = try replaceFileContents(
+        try replaceFileContents(
             at: outputFilePath,
             with: {
                 let output = try _OpenAPIGeneratorCore.runGenerator(
@@ -122,9 +97,6 @@ extension _Tool {
             },
             isDryRun: isDryRun
         )
-        if !isDryRun {
-            print("File \(outputFilePath.lastPathComponent): \(didChange ? "changed" : "unchanged")")
-        }
     }
 
     /// Evaluates a closure to generate file data and writes the data to disk
@@ -148,17 +120,17 @@ extension _Tool {
             let existingData = try? Data(contentsOf: path)
             didChange = existingData != data
             if didChange {
-                print(CommandLineColors.red + "File \(path.lastPathComponent) will be overwritten." + CommandLineColors.reset)
+                print("File \(path.lastPathComponent) will be overwritten.")
             } else {
-                print(CommandLineColors.green + "File \(path.lastPathComponent) will remain unchanged." + CommandLineColors.reset)
+                print("File \(path.lastPathComponent) will remain unchanged.")
             }
         } else {
-            print(CommandLineColors.green + "File \(path.lastPathComponent) does not exist.\nCreating new file..." + CommandLineColors.reset)
+            print("File \(path.lastPathComponent) does not exist.\nCreating new file...")
             didChange = true
         }
         if didChange {
             if isDryRun {
-                print(CommandLineColors.green + "Writing data to \(path.lastPathComponent)..." + CommandLineColors.reset)
+                print("Writing data to \(path.lastPathComponent)...")
             } else {
                 try data.write(to: path)
             }
