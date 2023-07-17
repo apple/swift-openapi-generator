@@ -45,10 +45,10 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
     let issue: Issue
 
     var description: String {
-        "FileError { targetName: \(targetName), fileKind: \(fileKind), description: \(preciseErrorDescription) }"
+        "FileError { fileKind: \(fileKind), description: \(helpAnchor!) }"
     }
 
-    var preciseErrorDescription: String {
+    var helpAnchor: String? {
         switch fileKind {
         case .config:
             switch issue {
