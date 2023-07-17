@@ -9,7 +9,7 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     var description: String {
         switch self {
         case .incompatibleTarget(let targetName):
-            return "Incompatible target called '\(targetName)'. Only Swift source targets can be used with the Swift OpenAPI generator plugin."
+            return "Incompatible target called '\(targetName)'. Only Swift source targets can be used with the Swift OpenAPI Generator plugin."
         case .noTargetsFoundForCommandPlugin:
             return "None of the targets include valid OpenAPI spec files. Please make sure at least one of your targets has any valid OpenAPI spec files before triggering this command plugin. See documentation for details."
         case .fileErrors(let errors, let targetName):
