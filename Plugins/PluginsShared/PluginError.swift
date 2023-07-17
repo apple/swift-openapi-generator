@@ -54,7 +54,7 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
     let issue: Issue
 
     var description: String {
-        "FileError { fileKind: \(fileKind), description: \(helpAnchor!) }"
+        "FileError { \(helpAnchor!) }"
     }
 
     var helpAnchor: String? {
