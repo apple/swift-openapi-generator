@@ -27,9 +27,13 @@ extension _GenerateOptions {
     ///   Server.swift) regardless of which generator mode was requested, with
     ///   the caveat that the not requested files are empty. This is due to
     ///   a limitation of the build system used by SwiftPM under the hood.
+    ///   - isDryRun: A Boolean value that indicates whether this invocation should
+    ///   be run in a testing mode to preview all the operations being carried out without
+    ///   making any actual changes.
     func runGenerator(
         outputDirectory: URL,
-        isPluginInvocation: Bool
+        isPluginInvocation: Bool,
+        isDryRun: Bool
     ) throws {
         let config = try loadedConfig()
         let sortedModes = try resolvedModes(config)
@@ -63,6 +67,7 @@ extension _GenerateOptions {
             - Diagnostics output path: \(diagnosticsOutputPath?.path ?? "<none - logs to stderr>")
             - Current directory: \(FileManager.default.currentDirectoryPath)
             - Is plugin invocation: \(isPluginInvocation)
+            - Is dry run: \(isDryRun)
             - Additional imports: \(resolvedAdditionalImports.isEmpty ? "<none>" : resolvedAdditionalImports.joined(separator: ", "))
             """
         )
@@ -72,6 +77,7 @@ extension _GenerateOptions {
                 configs: configs,
                 isPluginInvocation: isPluginInvocation,
                 outputDirectory: outputDirectory,
+                isDryRun: isDryRun,
                 diagnostics: diagnostics
             )
         } catch let error as Diagnostic {

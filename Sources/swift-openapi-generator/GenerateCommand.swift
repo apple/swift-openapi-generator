@@ -47,11 +47,18 @@ struct _GenerateCommand: AsyncParsableCommand {
             "Whether this invocation is from the SwiftPM plugin. We always need to produce all files when invoked from the plugin. Non-requested modes produce empty files."
     )
     var isPluginInvocation: Bool = false
+    
+    @Flag(
+        help:
+            "Simulate the command and print the operations, without actually affecting the file system."
+    )
+    var isDryRun: Bool = false
 
     func run() async throws {
         try generate.runGenerator(
             outputDirectory: outputDirectory,
-            isPluginInvocation: isPluginInvocation
+            isPluginInvocation: isPluginInvocation,
+            isDryRun: isDryRun
         )
     }
 }
