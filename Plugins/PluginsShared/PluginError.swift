@@ -38,6 +38,15 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
     enum Issue {
         case notFound
         case multiFound(files: [Path])
+
+        var isNotFound: Bool {
+            switch self {
+            case .notFound:
+                return true
+            case .multiFound:
+                return false
+            }
+        }
     }
 
     let targetName: String

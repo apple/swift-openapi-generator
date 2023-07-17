@@ -114,14 +114,13 @@ extension SwiftOpenAPIGeneratorPlugin {
             }
             switch error {
             case .fileErrors(let errors, _):
-                guard errors.count == FileError.Kind.allCases.count else {
-                    // There are some file-finding errors but at least 1 file is available.
-                    // This means the user means to use the target with the generator, just
-                    // hasn't configured their target properly.
-                    // We'll throw this error to let them know.
-                    return error
+                if errors.count == FileError.Kind.allCases.count,
+                   errors.allSatisfy(\.issue.isNotFound) {
+                    // No files were found so there is no indication that the target is supposed
+                    // to be generator-compatible.
+                    return nil
                 }
-                return nil
+                return error
             case .incompatibleTarget, .noTargetsFoundForCommandPlugin:
                 // We can't throw any of these errors because they only complain about
                 // the target not being openapi-generator compatible.
