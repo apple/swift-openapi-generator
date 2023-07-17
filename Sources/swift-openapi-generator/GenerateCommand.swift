@@ -56,4 +56,5 @@ struct _GenerateCommand: AsyncParsableCommand {
     }
 }
 
-extension InvocationSource: ExpressibleByArgument { }
+// MARK: - InvocationSource + ExpressibleByArgument
+extension InvocationSource: ExpressibleByArgument {}

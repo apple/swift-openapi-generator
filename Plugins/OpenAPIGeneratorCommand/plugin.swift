@@ -115,7 +115,8 @@ extension SwiftOpenAPIGeneratorPlugin {
             switch error {
             case .fileErrors(let errors, _):
                 if errors.count == FileError.Kind.allCases.count,
-                   errors.allSatisfy(\.issue.isNotFound) {
+                   errors.allSatisfy(\.issue.isNotFound)
+                {
                     // No files were found so there is no indication that the target is supposed
                     // to be generator-compatible.
                     return nil

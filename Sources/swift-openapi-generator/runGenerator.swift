@@ -126,11 +126,10 @@ extension _Tool {
             return fm.createFile(atPath: path.path, contents: data)
         }
         let existingData = try? Data(contentsOf: path)
-        if existingData == data {
-            return false
-        } else {
+        guard existingData == data else {
             try data.write(to: path)
             return true
         }
+        return false
     }
 }
