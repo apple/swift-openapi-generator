@@ -22,7 +22,7 @@ enum PluginUtils {
         pluginSource: PluginSource
     ) throws -> ValidatedInputs {
         let (config, doc) = try findFiles(inputFiles: sourceFiles, targetName: targetName)
-        let genSourcesDir = workingDirectory.appending("OpenAPISources")
+        let genSourcesDir = workingDirectory.appending("GeneratedSources")
 
         let arguments = [
             "generate", "\(doc)",
