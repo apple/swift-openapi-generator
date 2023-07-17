@@ -21,8 +21,7 @@ extension _Tool {
     /// - Parameters:
     ///   - doc: A path to the OpenAPI document.
     ///   - configs: A list of generator configurations.
-    ///   - isPluginInvocation: A Boolean value that indicates whether this
-    ///   generator invocation is coming from a SwiftPM plugin.
+    ///   - invocationSource: The source of the generator invocation.
     ///   - outputDirectory: The directory to which the generator writes
     ///   the generated Swift files.
     ///   - diagnostics: A collector for diagnostics emitted by the generator.
@@ -40,10 +39,6 @@ extension _Tool {
             throw ValidationError("Failed to load the OpenAPI document at path \(doc.path), error: \(error)")
         }
         for config in configs {
-            // BuildTool plugins guarantee the compiler that they will create some files
-            // with specific names (the same as `config.mode.outputFileNameSuffix`, for us)
-            // To make sure the BuildTool plugin and the Command plugin don't create files with
-            // the same names, we add a prefix to the names.
             try runGenerator(
                 doc: doc,
                 docData: docData,
@@ -54,8 +49,10 @@ extension _Tool {
             )
         }
 
-        // Swift expects us to always create these files in BuildTool plugins,
-        // so we create the unused files, but empty.
+        // If from a BuildTool plugin, the generator will have to emit all 3 files
+        // (Types.swift, Client.Swift, and Server.swift) regardless of which generator
+        // mode was requested, with the caveat that the not-requested files are empty.
+        // This is due to a limitation of the build system used by SwiftPM under the hood.
         if invocationSource == .BuildToolPlugin {
             let nonGeneratedModes = Set(GeneratorMode.allCases).subtracting(configs.map(\.mode))
             for mode in nonGeneratedModes.sorted() {
@@ -73,8 +70,10 @@ extension _Tool {
     ///   - doc: A path to the OpenAPI document.
     ///   - docData: The raw contents of the OpenAPI document.
     ///   - config: A set of configuration values for the generator.
-    ///   - outputFilePath: The directory to which the generator writes
-    ///   the generated Swift files.
+    ///   - outputDirectory: The directory to which the generator writes
+    ///   the generated Swift file.
+    ///   - outputFileName: The file name to which the generator writes
+    ///   the generated Swift file.
     ///   - diagnostics: A collector for diagnostics emitted by the generator.
     static func runGenerator(
         doc: URL,
@@ -113,7 +112,7 @@ extension _Tool {
     ) throws -> Bool {
         let fm = FileManager.default
 
-        // Create directory if doesn't exist
+        // Create directory if it doesn't exist.
         if !fm.fileExists(atPath: outputDirectory.path) {
             try fm.createDirectory(
                 at: outputDirectory,

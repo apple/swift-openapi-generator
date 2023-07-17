@@ -19,7 +19,7 @@ import _OpenAPIGeneratorCore
 /// of the generator pipeline, and, for example, generate both Types.swift and
 /// Client.swift in one invocation of the command-line tool.
 struct _UserConfig: Codable {
-    
+
     /// A list of modes to use, in other words, which Swift files to generate.
     var generate: [GeneratorMode]
 

@@ -4,6 +4,7 @@ enum PluginUtils {
     private static var supportedConfigFiles: Set<String> { Set(["yaml", "yml"].map { "openapi-generator-config." + $0 }) }
     private static var supportedDocFiles: Set<String> { Set(["yaml", "yml", "json"].map { "openapi." + $0 }) }
 
+    /// Validated values to run a plugin with.
     struct ValidatedInputs {
         let doc: Path
         let config: Path
@@ -12,6 +13,7 @@ enum PluginUtils {
         let tool: PluginContext.Tool
     }
 
+    /// Validates the inputs and returns the necessary values to run a plugin.
     static func validateInputs(
         workingDirectory: Path,
         tool: (String) throws -> PluginContext.Tool,
@@ -40,6 +42,8 @@ enum PluginUtils {
         )
     }
 
+    /// Finds the OpenAPI config and document files or throws an error including both possible
+    /// previous errors from the process of finding the config and document files.
     private static func findFiles(
         inputFiles: FileList,
         targetName: String
@@ -58,6 +62,7 @@ enum PluginUtils {
         }
     }
 
+    /// Find the config file.
     private static func findConfig(
         inputFiles: FileList,
         targetName: String
@@ -84,6 +89,7 @@ enum PluginUtils {
         return .success(matchedConfigs[0])
     }
 
+    /// Find the document file.
     private static func findDocument(
         inputFiles: FileList,
         targetName: String

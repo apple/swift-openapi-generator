@@ -21,12 +21,7 @@ extension _GenerateOptions {
     /// - Parameters:
     ///   - outputDirectory: The directory path to which the generator writes
     ///   the generated Swift files.
-    ///   - isPluginInvocation: A Boolean value that indicates whether this
-    ///   generator invocation is coming from a SwiftPM plugin, as that forces
-    ///   the generator to emit all 3 files (Types.swift, Client.Swift, and
-    ///   Server.swift) regardless of which generator mode was requested, with
-    ///   the caveat that the not requested files are empty. This is due to
-    ///   a limitation of the build system used by SwiftPM under the hood.
+    ///   - invocationSource: The source of the generator invocation.
     func runGenerator(
         outputDirectory: URL,
         invocationSource: InvocationSource
