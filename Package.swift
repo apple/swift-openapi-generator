@@ -33,7 +33,7 @@ let package = Package(
         // The platforms below are not currently supported for running
         // the generator itself. We include them here to allow the generator
         // to emit a more descriptive compiler error.
-        .iOS("99"), .tvOS("99"), .watchOS("99"),
+        .iOS(.v13), .tvOS(.v13), .watchOS(.v6),
     ],
     products: [
         .executable(name: "swift-openapi-generator", targets: ["swift-openapi-generator"]),
