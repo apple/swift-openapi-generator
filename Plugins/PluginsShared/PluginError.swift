@@ -8,6 +8,16 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     case tooManyTargetsMatchingTargetName(targetName: String, matchingTargetNames: [String])
     case fileErrors([FileError], targetName: String)
 
+    /// The error is definitely due to misconfiguration of a target.
+    var isDefiniteMisconfigurationError: Bool {
+        switch self {
+        case .incompatibleTarget, .badArguments, .noTargetsMatchingTargetName, .tooManyTargetsMatchingTargetName:
+            return false
+        case .fileErrors(let errors, _):
+            return errors.isDefiniteMisconfigurationError
+        }
+    }
+
     var description: String {
         switch self {
         case .incompatibleTarget(let targetName):
@@ -44,6 +54,16 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
     enum Issue {
         case noFilesFound
         case multipleFilesFound(files: [Path])
+
+        /// The error is definitely due to misconfiguration of a target.
+        var isDefiniteMisconfigurationError: Bool {
+            switch self {
+            case .noFilesFound:
+                return false
+            case .multipleFilesFound:
+                return true
+            }
+        }
     }
 
     let targetName: String
@@ -75,5 +95,23 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
 
     var errorDescription: String? {
         description
+    }
+
+    static func notFoundFileErrors(forTarget targetName: String) -> [FileError] {
+        FileError.Kind.allCases.map { kind in
+            FileError(targetName: targetName, fileKind: kind, issue: .noFilesFound)
+        }
+    }
+}
+
+
+private extension [FileError] {
+    /// The error is definitely due to misconfiguration of a target.
+    var isDefiniteMisconfigurationError: Bool {
+        if count == FileError.Kind.allCases.count,
+           self.map(\.issue.isDefiniteMisconfigurationError).allSatisfy({ $0 ==  false }) {
+            return false
+        }
+        return true
     }
 }

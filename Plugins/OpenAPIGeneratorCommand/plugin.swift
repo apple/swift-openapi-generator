@@ -45,77 +45,63 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
         context: PluginContext,
         arguments: [String]
     ) async throws {
-        let targetName = try parseTargetName(from: arguments)
+        guard arguments.count == 2,
+              arguments[0] == "--target"
+        else {
+            throw PluginError.badArguments(arguments)
+        }
+        let targetName = arguments[1]
+
         let matchingTargets = try context.package.targets(named: [targetName])
 
         switch matchingTargets.count {
         case 0:
             throw PluginError.noTargetsMatchingTargetName(targetName: targetName)
         case 1:
-            let target = matchingTargets[0]
-            guard let swiftTarget = target as? SwiftSourceModuleTarget else {
-                throw PluginError.incompatibleTarget(targetName: target.name)
+            let mainTarget = matchingTargets[0]
+            guard mainTarget is SwiftSourceModuleTarget else {
+                throw PluginError.incompatibleTarget(targetName: mainTarget.name)
             }
-            try runCommand(
-                targetWorkingDirectory: target.directory,
-                tool: context.tool,
-                sourceFiles: swiftTarget.sourceFiles,
-                targetName: target.name
-            )
+            let allDependencies = mainTarget.recursiveTargetDependencies
+            let packageTargets = Set(context.package.targets.map(\.id))
+            let dependenciesInPackage = allDependencies.filter { packageTargets.contains($0.id) }
+
+            var hadASuccessfulRun = false
+
+            for target in [mainTarget] + dependenciesInPackage {
+                guard let swiftTarget = target as? SwiftSourceModuleTarget else {
+                    continue
+                }
+                do {
+                    try runCommand(
+                        targetWorkingDirectory: target.directory,
+                        tool: context.tool,
+                        sourceFiles: swiftTarget.sourceFiles,
+                        targetName: target.name
+                    )
+                    hadASuccessfulRun = true
+                } catch let error as PluginError {
+                    if error.isDefiniteMisconfigurationError {
+                        throw error
+                    }
+                }
+
+                guard hadASuccessfulRun else {
+                    // None of the targets had a successful run and none had any definite
+                    // indication of trying to be OpenAPI-generator compatible.
+                    // To follow how the build command works, we throw file errors to let users
+                    // know they need to add these files to their target.
+                    throw PluginError.fileErrors(
+                        FileError.notFoundFileErrors(forTarget: mainTarget.name),
+                        targetName: mainTarget.name
+                    )
+                }
+            }
         default:
             throw PluginError.tooManyTargetsMatchingTargetName(
                 targetName: targetName,
                 matchingTargetNames: matchingTargets.map(\.name)
             )
         }
-    }
-}
-
-#if canImport(XcodeProjectPlugin)
-import XcodeProjectPlugin
-
-extension SwiftOpenAPIGeneratorPlugin: XcodeCommandPlugin {
-    func performCommand(
-        context: XcodePluginContext,
-        arguments: [String]
-    ) throws {
-        let targetName = try parseTargetName(from: arguments)
-        let matchingTargets = context.xcodeProject.targets.filter {
-            $0.displayName == targetName
-        }
-
-        switch matchingTargets.count {
-        case 0:
-            throw PluginError.noTargetsMatchingTargetName(targetName: targetName)
-        case 1:
-            let xcodeTarget = matchingTargets[0]
-            guard let target = xcodeTarget as? SourceModuleTarget else {
-                throw PluginError.incompatibleTarget(targetName: xcodeTarget.displayName)
-            }
-            try runCommand(
-                targetWorkingDirectory: target.directory,
-                tool: context.tool,
-                sourceFiles: xcodeTarget.inputFiles,
-                targetName: xcodeTarget.displayName
-            )
-        default:
-            throw PluginError.tooManyTargetsMatchingTargetName(
-                targetName: targetName,
-                matchingTargetNames: matchingTargets.map(\.displayName)
-            )
-        }
-    }
-}
-#endif
-
-extension SwiftOpenAPIGeneratorPlugin {
-    /// Parses the target name from the arguments.
-    func parseTargetName(from arguments: [String]) throws -> String {
-        guard arguments.count == 2,
-              arguments[0] == "--target"
-        else {
-            throw PluginError.badArguments(arguments)
-        }
-        return arguments[1]
     }
 }
