@@ -44,10 +44,6 @@ extension _Tool {
         let filePathForMode: (GeneratorMode) -> URL = { mode in
             outputDirectory.appendingPathComponent(mode.outputFileName)
         }
-        if isDryRun {
-            print("--------------------------------")
-            print("Dry run mode: No files will be created or modified")
-        }
         for config in configs {
             try runGenerator(
                 doc: doc,
@@ -85,7 +81,7 @@ extension _Tool {
         isDryRun: Bool,
         diagnostics: any DiagnosticCollector
     ) throws {
-        try replaceFileContents(
+        let result = try replaceFileContents(
             at: outputFilePath,
             with: {
                 let output = try _OpenAPIGeneratorCore.runGenerator(
@@ -97,44 +93,49 @@ extension _Tool {
             },
             isDryRun: isDryRun
         )
+        if result.didCreate && isDryRun {
+            print("File \(outputFilePath.lastPathComponent) does not exist.\nCreating new file...")
+        }
+        if result.didChange {
+            print("File \(outputFilePath.lastPathComponent) will be overwritten.")
+        } else {
+            print("File \(outputFilePath.lastPathComponent) will remain unchanged.")
+        }
     }
 
     /// Evaluates a closure to generate file data and writes the data to disk
-    /// if the data is different than the current file contents.
+    /// if the data is different than the current file contents. Will write to disk
+    /// only if `isDryRun` is set as `false`.
     /// - Parameters:
     ///   - path: A path to the file.
     ///   - contents: A closure evaluated to produce the file contents data.
     ///   - isDryRun: A Boolean value that indicates whether this invocation should
     ///   be a dry run. File system changes will not be written to disk in this mode.
     /// - Throws: When writing to disk fails.
-    /// - Returns: `true` if the generated contents changed, otherwise `false`.
+    /// - Returns: A tuple of two booleans didChange and didCreate.
+    ///   The former will be `true` if the generated contents changed, otherwise `false` and
+    ///   the latter will be `true` if the file did not exist before, otherwise `false`.
     @discardableResult
     static func replaceFileContents(
         at path: URL,
         with contents: () throws -> Data,
         isDryRun: Bool
-    ) throws -> Bool {
+    ) throws -> (didChange: Bool, didCreate: Bool) {
         let data = try contents()
         let didChange: Bool
+        var didCreate = false
         if FileManager.default.fileExists(atPath: path.path) {
             let existingData = try? Data(contentsOf: path)
             didChange = existingData != data
-            if didChange {
-                print("File \(path.lastPathComponent) will be overwritten.")
-            } else {
-                print("File \(path.lastPathComponent) will remain unchanged.")
-            }
         } else {
-            print("File \(path.lastPathComponent) does not exist.\nCreating new file...")
             didChange = true
+            didCreate = true
         }
         if didChange {
-            if isDryRun {
-                print("Writing data to \(path.lastPathComponent)...")
-            } else {
+            if !isDryRun {
                 try data.write(to: path)
             }
         }
-        return didChange
+        return (didChange, didCreate)
     }
 }
