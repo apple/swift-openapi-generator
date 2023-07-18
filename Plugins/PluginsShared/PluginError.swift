@@ -3,17 +3,23 @@ import Foundation
 
 enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     case incompatibleTarget(targetName: String)
-    case noTargetsFoundForCommandPlugin
+    case badArguments([String])
+    case noTargetsMatchingTargetName(targetName: String)
+    case tooManyTargetsMatchingTargetName(targetName: String, matchingTargetNames: [String])
     case fileErrors([FileError], targetName: String)
 
     var description: String {
         switch self {
         case .incompatibleTarget(let targetName):
             return "Incompatible target called '\(targetName)'. Only Swift source targets can be used with the Swift OpenAPI Generator plugin."
-        case .noTargetsFoundForCommandPlugin:
-            return "None of the targets include valid OpenAPI spec files. Please make sure at least one of your targets has any valid OpenAPI spec files before triggering this command plugin. See documentation for details."
+        case .badArguments(let arguments):
+            return "Unexpected arguments: \(arguments). On Xcode, use Xcode's command plugin UI to choose one specific target before hitting 'Run'. Otherwise make sure arguments are exactly of form '--target <target-name>'."
+        case .noTargetsMatchingTargetName(let targetName):
+            return "Found no targets matching target name '\(targetName)'. Please make sure the target name argument leads to one and only one target."
+        case .tooManyTargetsMatchingTargetName(let targetName, let matchingTargetNames):
+            return "Found too many targets matching target name '\(targetName)': \(matchingTargetNames). Please make sure the target name argument leads to a unique target."
         case .fileErrors(let errors, let targetName):
-            return "Found file errors in target called '\(targetName)': \(errors)"
+            return "Found file errors in target called '\(targetName)': \(errors)."
         }
     }
 
@@ -38,15 +44,6 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
     enum Issue {
         case noFilesFound
         case multipleFilesFound(files: [Path])
-
-        var isNotFound: Bool {
-            switch self {
-            case .noFilesFound:
-                return true
-            case .multipleFilesFound:
-                return false
-            }
-        }
     }
 
     let targetName: String
