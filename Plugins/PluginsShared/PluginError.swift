@@ -108,8 +108,10 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
 private extension [FileError] {
     /// The error is definitely due to misconfiguration of a target.
     var isDefiniteMisconfigurationError: Bool {
+        // If errors for both files exist and none is "Definite Misconfiguration Error" then the error
+        // can be related to a target that isn't supposed to be generator compatible at all.
         if count == FileError.Kind.allCases.count,
-           self.map(\.issue.isDefiniteMisconfigurationError).allSatisfy({ $0 ==  false }) {
+        self.allSatisfy({ !$0.issue.isDefiniteMisconfigurationError }) {
             return false
         }
         return true
