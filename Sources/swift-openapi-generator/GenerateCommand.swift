@@ -46,12 +46,12 @@ struct _GenerateCommand: AsyncParsableCommand {
         help:
             "Source of invocation if by a plugin. The generator needs to produce all files when invoked as a build plugin, so non-requested modes produce empty files."
     )
-    var invokedFrom: PluginSource?
+    var pluginSource: PluginSource?
 
     func run() async throws {
         try generate.runGenerator(
             outputDirectory: outputDirectory,
-            pluginSource: invokedFrom
+            pluginSource: pluginSource
         )
     }
 }

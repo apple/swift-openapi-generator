@@ -37,6 +37,9 @@ struct SwiftOpenAPIGeneratorPlugin {
         process.environment = [:]
         try process.run()
         process.waitUntilExit()
+        guard process.terminationStatus == 0 else {
+            throw PluginError.generatorFailure(targetName: targetName)
+        }
     }
 }
 
@@ -56,11 +59,11 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
 
         switch matchingTargets.count {
         case 0:
-            throw PluginError.noTargetsMatchingTargetName(targetName: targetName)
+            throw PluginError.noTargetsMatchingTargetName(targetName)
         case 1:
             let mainTarget = matchingTargets[0]
             guard mainTarget is SwiftSourceModuleTarget else {
-                throw PluginError.incompatibleTarget(targetName: mainTarget.name)
+                throw PluginError.incompatibleTarget(name: mainTarget.name)
             }
             let allDependencies = mainTarget.recursiveTargetDependencies
             let packageTargets = Set(context.package.targets.map(\.id))
@@ -81,7 +84,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
                     )
                     hadASuccessfulRun = true
                 } catch let error as PluginError {
-                    if error.isDefiniteMisconfigurationError {
+                    if error.isMisconfigurationError {
                         throw error
                     }
                 }
@@ -95,7 +98,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
             }
         default:
             throw PluginError.tooManyTargetsMatchingTargetName(
-                targetName: targetName,
+                targetName,
                 matchingTargetNames: matchingTargets.map(\.name)
             )
         }

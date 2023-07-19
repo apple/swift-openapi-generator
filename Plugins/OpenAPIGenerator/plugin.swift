@@ -53,7 +53,7 @@ extension SwiftOpenAPIGeneratorPlugin: BuildToolPlugin {
         target: Target
     ) async throws -> [Command] {
         guard let swiftTarget = target as? SwiftSourceModuleTarget else {
-            throw PluginError.incompatibleTarget(targetName: target.name)
+            throw PluginError.incompatibleTarget(name: target.name)
         }
         return try createBuildCommands(
             pluginWorkDirectory: context.pluginWorkDirectory,

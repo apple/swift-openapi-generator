@@ -110,11 +110,11 @@ extension _Tool {
         fileName: String,
         with contents: () throws -> Data
     ) throws -> Bool {
-        let fm = FileManager.default
+        let fileManager = FileManager.default
 
         // Create directory if it doesn't exist.
-        if !fm.fileExists(atPath: outputDirectory.path) {
-            try fm.createDirectory(
+        if !fileManager.fileExists(atPath: outputDirectory.path) {
+            try fileManager.createDirectory(
                 at: outputDirectory,
                 withIntermediateDirectories: true
             )
@@ -122,8 +122,8 @@ extension _Tool {
 
         let path = outputDirectory.appendingPathComponent(fileName)
         let data = try contents()
-        guard fm.fileExists(atPath: path.path) else {
-            return fm.createFile(atPath: path.path, contents: data)
+        guard fileManager.fileExists(atPath: path.path) else {
+            return fileManager.createFile(atPath: path.path, contents: data)
         }
         let existingData = try? Data(contentsOf: path)
         guard existingData == data else {
