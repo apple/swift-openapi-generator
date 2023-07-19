@@ -158,7 +158,7 @@ let package = Package(
             name: "OpenAPIGeneratorCommand",
             capability: .command(
                 intent: .custom(
-                    verb: "generate-openapi-code",
+                    verb: "generate-code-from-openapi",
                     description: "Generate Swift code from an OpenAPI document."
                 ),
                 permissions: [.writeToPackageDirectory(reason: "To write the generated Swift files back into the source directory of the package.")]
