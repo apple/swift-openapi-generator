@@ -3,27 +3,20 @@ import Foundation
 
 enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     case incompatibleTarget(targetName: String)
+    case noTargetOrDependenciesWithExpectedFiles(targetName: String)
     case badArguments([String])
     case noTargetsMatchingTargetName(targetName: String)
     case tooManyTargetsMatchingTargetName(targetName: String, matchingTargetNames: [String])
     case fileErrors([FileError], targetName: String)
 
-    /// The error is definitely due to misconfiguration of a target.
-    var isDefiniteMisconfigurationError: Bool {
-        switch self {
-        case .incompatibleTarget, .badArguments, .noTargetsMatchingTargetName, .tooManyTargetsMatchingTargetName:
-            return false
-        case .fileErrors(let errors, _):
-            return errors.isDefiniteMisconfigurationError
-        }
-    }
-
     var description: String {
         switch self {
         case .incompatibleTarget(let targetName):
             return "Incompatible target called '\(targetName)'. Only Swift source targets can be used with the Swift OpenAPI Generator plugin."
+        case .noTargetOrDependenciesWithExpectedFiles(let targetName):
+            return "Target called '\(targetName)' and its dependencies don't contain any config or document files with expected names. For OpenAPI code generation, a target needs to contain a config file named 'openapi-generator-config.yaml' or 'openapi-generator-config.yml', as well as an OpenAPI document named 'openapi.yaml', 'openapi.yml' or 'openapi.json' under target's source directory. See documentation for details."
         case .badArguments(let arguments):
-            return "Unexpected arguments: \(arguments). On Xcode, use Xcode's command plugin UI to choose one specific target before hitting 'Run'. Otherwise make sure arguments are exactly of form '--target <target-name>'."
+            return "Unexpected arguments: \(arguments). On Xcode, use Xcode's command plugin UI to choose one specific target before hitting 'Run'. On CLI make sure arguments are exactly of form '--target <target-name>'."
         case .noTargetsMatchingTargetName(let targetName):
             return "Found no targets matching target name '\(targetName)'. Please make sure the target name argument leads to one and only one target."
         case .tooManyTargetsMatchingTargetName(let targetName, let matchingTargetNames):
@@ -35,6 +28,16 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
 
     var errorDescription: String? {
         description
+    }
+
+    /// The error is definitely due to misconfiguration of a target.
+    var isDefiniteMisconfigurationError: Bool {
+        switch self {
+        case .incompatibleTarget, .noTargetOrDependenciesWithExpectedFiles, .badArguments, .noTargetsMatchingTargetName, .tooManyTargetsMatchingTargetName:
+            return false
+        case .fileErrors(let errors, _):
+            return errors.isDefiniteMisconfigurationError
+        }
     }
 }
 

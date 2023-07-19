@@ -88,15 +88,10 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
             }
 
             guard hadASuccessfulRun else {
-                    // None of the targets had a successful run and none had any definite
-                    // indication of trying to be OpenAPI-generator compatible.
-                    // To follow how the build command works, we throw file errors to let users
-                    // know they need to add these files to their target.
-                    throw PluginError.fileErrors(
-                        FileError.notFoundFileErrors(forTarget: mainTarget.name),
-                        targetName: mainTarget.name
-                    )
-                }
+                throw PluginError.noTargetOrDependenciesWithExpectedFiles(
+                    targetName: mainTarget.name
+                )
+            }
         default:
             throw PluginError.tooManyTargetsMatchingTargetName(
                 targetName: targetName,
