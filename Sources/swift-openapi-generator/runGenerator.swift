@@ -81,7 +81,7 @@ extension _Tool {
         isDryRun: Bool,
         diagnostics: any DiagnosticCollector
     ) throws {
-        let result = try replaceFileContents(
+        try replaceFileContents(
             at: outputFilePath,
             with: {
                 let output = try _OpenAPIGeneratorCore.runGenerator(
@@ -93,14 +93,6 @@ extension _Tool {
             },
             isDryRun: isDryRun
         )
-        if result.didCreate && isDryRun {
-            print("File \(outputFilePath.lastPathComponent) does not exist.\nCreating new file...")
-        }
-        if result.didChange {
-            print("File \(outputFilePath.lastPathComponent) will be overwritten.")
-        } else {
-            print("File \(outputFilePath.lastPathComponent) will remain unchanged.")
-        }
     }
 
     /// Evaluates a closure to generate file data and writes the data to disk
@@ -112,30 +104,26 @@ extension _Tool {
     ///   - isDryRun: A Boolean value that indicates whether this invocation should
     ///   be a dry run. File system changes will not be written to disk in this mode.
     /// - Throws: When writing to disk fails.
-    /// - Returns: A tuple of two booleans didChange and didCreate.
-    ///   The former will be `true` if the generated contents changed, otherwise `false` and
-    ///   the latter will be `true` if the file did not exist before, otherwise `false`.
-    @discardableResult
     static func replaceFileContents(
         at path: URL,
         with contents: () throws -> Data,
         isDryRun: Bool
-    ) throws -> (didChange: Bool, didCreate: Bool) {
+    ) throws {
         let data = try contents()
         let didChange: Bool
-        var didCreate = false
         if FileManager.default.fileExists(atPath: path.path) {
             let existingData = try? Data(contentsOf: path)
             didChange = existingData != data
         } else {
             didChange = true
-            didCreate = true
         }
         if didChange {
+            print("File \(path.lastPathComponent) will be overwritten.")
             if !isDryRun {
                 try data.write(to: path)
             }
+        } else {
+            print("File \(path.lastPathComponent) will remain unchanged.")
         }
-        return (didChange, didCreate)
     }
 }
