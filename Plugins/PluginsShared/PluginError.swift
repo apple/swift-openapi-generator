@@ -3,7 +3,7 @@ import Foundation
 
 enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     case incompatibleTarget(targetName: String)
-    case noTargetOrDependenciesWithExpectedFiles(targetName: String)
+    case noTargetOrDependenciesWithExpectedFiles(targetName: String, dependencyNames: [String])
     case badArguments([String])
     case noTargetsMatchingTargetName(targetName: String)
     case tooManyTargetsMatchingTargetName(targetName: String, matchingTargetNames: [String])
@@ -13,8 +13,11 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
         switch self {
         case .incompatibleTarget(let targetName):
             return "Incompatible target called '\(targetName)'. Only Swift source targets can be used with the Swift OpenAPI Generator plugin."
-        case .noTargetOrDependenciesWithExpectedFiles(let targetName):
-            return "Target called '\(targetName)' and its dependencies don't contain any config or document files with expected names. For OpenAPI code generation, a target needs to contain a config file named 'openapi-generator-config.yaml' or 'openapi-generator-config.yml', as well as an OpenAPI document named 'openapi.yaml', 'openapi.yml' or 'openapi.json' under target's source directory. See documentation for details."
+        case .noTargetOrDependenciesWithExpectedFiles(let targetName, let dependencyNames):
+            let introduction = dependencyNames.isEmpty ?
+            "Target called '\(targetName)' doesn't contain" :
+            "Target called '\(targetName)' and its dependencies \(dependencyNames) don't contain"
+            return "\(introduction) any config or document files with expected names. For OpenAPI code generation, a target needs to contain a config file named 'openapi-generator-config.yaml' or 'openapi-generator-config.yml', as well as an OpenAPI document named 'openapi.yaml', 'openapi.yml' or 'openapi.json' under target's source directory. See documentation for details."
         case .badArguments(let arguments):
             return "On Xcode, use Xcode's command plugin UI to choose one specific target before hitting 'Run'. On CLI make sure arguments are exactly of form '--target <target-name>'. The reason for this error is unexpected arguments: \(arguments)"
         case .noTargetsMatchingTargetName(let targetName):

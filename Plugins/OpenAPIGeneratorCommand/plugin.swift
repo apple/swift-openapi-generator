@@ -89,7 +89,8 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
 
             guard hadASuccessfulRun else {
                 throw PluginError.noTargetOrDependenciesWithExpectedFiles(
-                    targetName: mainTarget.name
+                    targetName: mainTarget.name,
+                    dependencyNames: dependenciesInPackage.map(\.name)
                 )
             }
         default:
