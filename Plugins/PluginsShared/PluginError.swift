@@ -7,7 +7,7 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     case badArguments([String])
     case noTargetsMatchingTargetName(targetName: String)
     case tooManyTargetsMatchingTargetName(targetName: String, matchingTargetNames: [String])
-    case fileErrors([FileError], targetName: String)
+    case fileErrors([FileError])
 
     var description: String {
         switch self {
@@ -16,13 +16,13 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
         case .noTargetOrDependenciesWithExpectedFiles(let targetName):
             return "Target called '\(targetName)' and its dependencies don't contain any config or document files with expected names. For OpenAPI code generation, a target needs to contain a config file named 'openapi-generator-config.yaml' or 'openapi-generator-config.yml', as well as an OpenAPI document named 'openapi.yaml', 'openapi.yml' or 'openapi.json' under target's source directory. See documentation for details."
         case .badArguments(let arguments):
-            return "Unexpected arguments: \(arguments). On Xcode, use Xcode's command plugin UI to choose one specific target before hitting 'Run'. On CLI make sure arguments are exactly of form '--target <target-name>'."
+            return "On Xcode, use Xcode's command plugin UI to choose one specific target before hitting 'Run'. On CLI make sure arguments are exactly of form '--target <target-name>'. The reason for this error is unexpected arguments: \(arguments)"
         case .noTargetsMatchingTargetName(let targetName):
             return "Found no targets matching target name '\(targetName)'. Please make sure the target name argument leads to one and only one target."
         case .tooManyTargetsMatchingTargetName(let targetName, let matchingTargetNames):
             return "Found too many targets matching target name '\(targetName)': \(matchingTargetNames). Please make sure the target name argument leads to a unique target."
-        case .fileErrors(let errors, let targetName):
-            return "Found file errors in target called '\(targetName)': \(errors)."
+        case .fileErrors(let errors):
+            return "Found file errors: \(errors)."
         }
     }
 
@@ -35,15 +35,9 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
         switch self {
         case .incompatibleTarget, .noTargetOrDependenciesWithExpectedFiles, .badArguments, .noTargetsMatchingTargetName, .tooManyTargetsMatchingTargetName:
             return false
-        case .fileErrors(let errors, _):
+        case .fileErrors(let errors):
             return errors.isDefiniteMisconfigurationError
         }
-    }
-}
-
-extension [PluginError]: Swift.Error, CustomStringConvertible, LocalizedError {
-    public var errorDescription: String? {
-        description
     }
 }
 
