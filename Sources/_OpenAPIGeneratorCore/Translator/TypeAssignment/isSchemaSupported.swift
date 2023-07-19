@@ -56,9 +56,11 @@ extension FileTranslator {
     /// If a schema is not supported, no references to it should be emitted.
     /// - Parameters:
     ///   - schema: The schema to validate.
+    ///   - seenReferences: A set of seen references, used to detect cycles.
     /// - Returns: `true` if the schema is supported; `false` otherwise.
     func isSchemaSupported(
-        _ schema: JSONSchema
+        _ schema: JSONSchema,
+        seenReferences: Set<String> = []
     ) throws -> Bool {
         switch schema.value {
         case .string,
@@ -73,26 +75,30 @@ extension FileTranslator {
             .fragment:
             return true
         case .reference(let ref, _):
+            let referenceString = ref.absoluteString
+            guard !seenReferences.contains(referenceString) else {
+                throw JSONReferenceParsingError.referenceCycleUnsupported(referenceString)
+            }
             // reference is supported iff the existing type is supported
             let existingSchema = try components.lookup(ref)
-            return try isSchemaSupported(existingSchema)
+            return try isSchemaSupported(existingSchema, seenReferences: seenReferences.union([referenceString]))
         case .array(_, let array):
             guard let items = array.items else {
                 // an array of fragments is supported
                 return true
             }
             // an array is supported iff its element schema is supported
-            return try isSchemaSupported(items)
+            return try isSchemaSupported(items, seenReferences: seenReferences)
         case .all(of: let schemas, _):
             guard !schemas.isEmpty else {
                 return false
             }
-            return try areObjectishSchemasAndSupported(schemas)
+            return try areObjectishSchemasAndSupported(schemas, seenReferences: seenReferences)
         case .any(of: let schemas, _):
             guard !schemas.isEmpty else {
                 return false
             }
-            return try areObjectishSchemasAndSupported(schemas)
+            return try areObjectishSchemasAndSupported(schemas, seenReferences: seenReferences)
         case .one(of: let schemas, let context):
             guard !schemas.isEmpty else {
                 return false
@@ -103,7 +109,7 @@ extension FileTranslator {
             guard context.discriminator != nil else {
                 return try areSchemasSupported(schemas)
             }
-            return try areRefsToObjectishSchemaAndSupported(schemas)
+            return try areRefsToObjectishSchemaAndSupported(schemas, seenReferences: seenReferences)
         case .not:
             return false
         }
@@ -114,9 +120,11 @@ extension FileTranslator {
     /// If a schema is not supported, no references to it should be emitted.
     /// - Parameters:
     ///   - schema: The schema to validate.
+    ///   - seenReferences: A set of seen references, used to detect cycles.
     /// - Returns: `true` if the schema is supported; `false` otherwise.
     func isSchemaSupported(
-        _ schema: UnresolvedSchema?
+        _ schema: UnresolvedSchema?,
+        seenReferences: Set<String> = []
     ) throws -> Bool {
         guard let schema else {
             // fragment type is supported
@@ -127,36 +135,51 @@ extension FileTranslator {
             // references are supported
             return true
         case let .b(schema):
-            return try isSchemaSupported(schema)
+            return try isSchemaSupported(schema, seenReferences: seenReferences)
         }
     }
 
     /// Returns a Boolean value that indicates whether the provided schemas
     /// are supported.
-    /// - Parameter schemas: Schemas to check.
+    /// - Parameter:
+    ///   - schemas: Schemas to check.
+    ///   - seenReferences: A set of seen references, used to detect cycles.
     /// - Returns: `true` if all schemas are supported; `false` otherwise.
-    func areSchemasSupported(_ schemas: [JSONSchema]) throws -> Bool {
-        try schemas.allSatisfy(isSchemaSupported)
+    func areSchemasSupported(
+        _ schemas: [JSONSchema],
+        seenReferences: Set<String> = []
+    ) throws -> Bool {
+        try schemas.allSatisfy { try isSchemaSupported($0, seenReferences: seenReferences) }
     }
 
     /// Returns a Boolean value that indicates whether the provided schemas
     /// are reference, object, or allOf schemas and supported.
-    /// - Parameter schemas: Schemas to check.
+    /// - Parameter:
+    ///   - schemas: Schemas to check.
+    ///   - seenReferences: A set of seen references, used to detect cycles.
     /// - Returns: `true` if all schemas match; `false` otherwise.
-    func areObjectishSchemasAndSupported(_ schemas: [JSONSchema]) throws -> Bool {
-        try schemas.allSatisfy(isObjectishSchemaAndSupported)
+    func areObjectishSchemasAndSupported(
+        _ schemas: [JSONSchema],
+        seenReferences: Set<String> = []
+    ) throws -> Bool {
+        try schemas.allSatisfy { try isObjectishSchemaAndSupported($0, seenReferences: seenReferences) }
     }
 
     /// Returns a Boolean value that indicates whether the provided schema
     /// is an reference, object, or allOf (object-ish) schema and is supported.
-    /// - Parameter schema: A schemas to check.
+    /// - Parameter:
+    ///   - schemas: Schemas to check.
+    ///   - seenReferences: A set of seen references, used to detect cycles.
     /// - Returns: `true` if the schema matches; `false` otherwise.
-    func isObjectishSchemaAndSupported(_ schema: JSONSchema) throws -> Bool {
+    func isObjectishSchemaAndSupported(
+        _ schema: JSONSchema,
+        seenReferences: Set<String> = []
+    ) throws -> Bool {
         switch schema.value {
         case .object, .reference:
-            return try isSchemaSupported(schema)
+            return try isSchemaSupported(schema, seenReferences: seenReferences)
         case .all(of: let schemas, _):
-            return try areObjectishSchemasAndSupported(schemas)
+            return try areObjectishSchemasAndSupported(schemas, seenReferences: seenReferences)
         default:
             return false
         }
@@ -164,20 +187,30 @@ extension FileTranslator {
 
     /// Returns a Boolean value that indicates whether the provided schemas
     /// are reference schemas that point to object-ish schemas and supported.
-    /// - Parameter schemas: Schemas to check.
+    /// - Parameter:
+    ///   - schemas: Schemas to check.
+    ///   - seenReferences: A set of seen references, used to detect cycles.
     /// - Returns: `true` if all schemas match; `false` otherwise.
-    func areRefsToObjectishSchemaAndSupported(_ schemas: [JSONSchema]) throws -> Bool {
-        try schemas.allSatisfy(isRefToObjectishSchemaAndSupported)
+    func areRefsToObjectishSchemaAndSupported(
+        _ schemas: [JSONSchema],
+        seenReferences: Set<String> = []
+    ) throws -> Bool {
+        try schemas.allSatisfy { try isRefToObjectishSchemaAndSupported($0, seenReferences: seenReferences) }
     }
 
     /// Returns a Boolean value that indicates whether the provided schema
     /// is a reference schema that points to an object-ish schema and is supported.
-    /// - Parameter schema: A schema to check.
+    /// - Parameter:
+    ///   - schemas: Schemas to check.
+    ///   - seenReferences: A set of seen references, used to detect cycles.
     /// - Returns: `true` if the schema matches; `false` otherwise.
-    func isRefToObjectishSchemaAndSupported(_ schema: JSONSchema) throws -> Bool {
+    func isRefToObjectishSchemaAndSupported(
+        _ schema: JSONSchema,
+        seenReferences: Set<String> = []
+    ) throws -> Bool {
         switch schema.value {
         case .reference:
-            return try isObjectishSchemaAndSupported(schema)
+            return try isObjectishSchemaAndSupported(schema, seenReferences: seenReferences)
         default:
             return false
         }
