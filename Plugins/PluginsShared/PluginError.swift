@@ -34,7 +34,15 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     /// The error is definitely due to misconfiguration of a target.
     var isDefiniteMisconfigurationError: Bool {
         switch self {
-        case .incompatibleTarget, .noTargetOrDependenciesWithExpectedFiles, .badArguments, .noTargetsMatchingTargetName, .tooManyTargetsMatchingTargetName:
+        case .incompatibleTarget:
+            return false
+        case .noTargetOrDependenciesWithExpectedFiles:
+            return false
+        case .badArguments:
+            return false
+        case .noTargetsMatchingTargetName:
+            return false
+        case .tooManyTargetsMatchingTargetName:
             return false
         case .fileErrors(let errors):
             return errors.isDefiniteMisconfigurationError
@@ -101,7 +109,6 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
         }
     }
 }
-
 
 private extension [FileError] {
     /// The error is definitely due to misconfiguration of a target.
