@@ -64,11 +64,11 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
             }
             let allDependencies = mainTarget.recursiveTargetDependencies
             let packageTargets = Set(context.package.targets.map(\.id))
-            let dependenciesInPackage = allDependencies.filter { packageTargets.contains($0.id) }
+            let localDependencies = allDependencies.filter { packageTargets.contains($0.id) }
 
             var hadASuccessfulRun = false
 
-            for target in [mainTarget] + dependenciesInPackage {
+            for target in [mainTarget] + localDependencies {
                 guard let swiftTarget = target as? SwiftSourceModuleTarget else {
                     continue
                 }
@@ -90,7 +90,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
             guard hadASuccessfulRun else {
                 throw PluginError.noTargetOrDependenciesWithExpectedFiles(
                     targetName: mainTarget.name,
-                    dependencyNames: dependenciesInPackage.map(\.name)
+                    dependencyNames: localDependencies.map(\.name)
                 )
             }
         default:

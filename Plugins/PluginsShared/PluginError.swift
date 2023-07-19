@@ -14,7 +14,7 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
         case .incompatibleTarget(let targetName):
             return "Incompatible target called '\(targetName)'. Only Swift source targets can be used with the Swift OpenAPI Generator plugin."
         case .noTargetOrDependenciesWithExpectedFiles(let targetName, let dependencyNames):
-            let introduction = dependencyNames.isEmpty ? "Target called '\(targetName)' doesn't contain" : "Target called '\(targetName)' or its dependencies \(dependencyNames) don't contain"
+            let introduction = dependencyNames.isEmpty ? "Target called '\(targetName)' doesn't contain" : "Target called '\(targetName)' or its local dependencies \(dependencyNames) don't contain"
             return "\(introduction) any config or document files with expected names. For OpenAPI code generation, a target needs to contain a config file named 'openapi-generator-config.yaml' or 'openapi-generator-config.yml', as well as an OpenAPI document named 'openapi.yaml', 'openapi.yml' or 'openapi.json' under target's source directory. See documentation for details."
         case .badArguments(let arguments):
             return "On Xcode, use Xcode's command plugin UI to choose one specific target before hitting 'Run'. On CLI make sure arguments are exactly of form '--target <target-name>'. The reason for this error is unexpected arguments: \(arguments)"
