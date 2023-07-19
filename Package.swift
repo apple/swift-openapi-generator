@@ -156,7 +156,7 @@ let package = Package(
         // Command Plugin
         .plugin(
             name: "OpenAPIGeneratorCommand",
-            capability: Target.PluginCapability.command(
+            capability: .command(
                 intent: .custom(
                     verb: "generate-openapi-code",
                     description: "Generates Swift code from an OpenAPI document."
