@@ -16,7 +16,7 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
         case .noTargetOrDependenciesWithExpectedFiles(let targetName, let dependencyNames):
             let introduction = dependencyNames.isEmpty ?
             "Target called '\(targetName)' doesn't contain" :
-            "Target called '\(targetName)' and its dependencies \(dependencyNames) don't contain"
+            "Target called '\(targetName)' or its dependencies \(dependencyNames) don't contain"
             return "\(introduction) any config or document files with expected names. For OpenAPI code generation, a target needs to contain a config file named 'openapi-generator-config.yaml' or 'openapi-generator-config.yml', as well as an OpenAPI document named 'openapi.yaml', 'openapi.yml' or 'openapi.json' under target's source directory. See documentation for details."
         case .badArguments(let arguments):
             return "On Xcode, use Xcode's command plugin UI to choose one specific target before hitting 'Run'. On CLI make sure arguments are exactly of form '--target <target-name>'. The reason for this error is unexpected arguments: \(arguments)"
@@ -108,8 +108,8 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
 private extension [FileError] {
     /// The error is definitely due to misconfiguration of a target.
     var isDefiniteMisconfigurationError: Bool {
-        // If errors for both files exist and none is "Definite Misconfiguration Error" then the error
-        // can be related to a target that isn't supposed to be generator compatible at all.
+        // If errors for both files exist and none is "Definite Misconfiguration Error" then the
+        // error can be related to a target that isn't supposed to be generator compatible at all.
         if count == FileError.Kind.allCases.count,
         self.allSatisfy({ !$0.issue.isDefiniteMisconfigurationError }) {
             return false
