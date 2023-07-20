@@ -131,6 +131,10 @@ func makeGeneratorPipeline(
                     // Validate that the document is dereferenceable, which
                     // catches reference cycles, which we don't yet support.
                     _ = try doc.locallyDereferenced()
+
+                    // Also explicitly dereference the parts of components
+                    // that the generator uses. `locallyDereferenced()` above
+                    // only dereferences paths/operations, but not components.
                     let components = doc.components
                     try components.schemas.forEach { schema in
                         _ = try schema.value.dereferenced(in: components)
