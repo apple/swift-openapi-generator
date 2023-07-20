@@ -90,9 +90,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
                     print("- OpenAPI code generation failed with error.")
                     throw error
                 } else {
-                    let fileNames = FileError.Kind.allCases.map(\.name)
-                        .joined(separator: ", ", lastSeparator: " or ")
-                    print("- Skipping OpenAPI code generation. No expected \(fileNames) files.")
+                    print("- Stopping because target isn't configured for OpenAPI code generation.")
                 }
             }
         }
