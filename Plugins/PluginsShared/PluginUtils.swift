@@ -116,3 +116,13 @@ enum PluginUtils {
         return .success(matchedDocs[0])
     }
 }
+
+extension Array where Element == String {
+    func joined(separator: String, lastSeparator: String) -> String {
+        if count > 1 {
+            return "\(self.dropLast().joined(separator: separator))\(lastSeparator)\(self.last!)"
+        } else {
+            return self.joined(separator: separator)
+        }
+    }
+}

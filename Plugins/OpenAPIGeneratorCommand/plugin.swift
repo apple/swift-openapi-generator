@@ -48,59 +48,57 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
         context: PluginContext,
         arguments: [String]
     ) async throws {
-        guard arguments.count == 2,
-              arguments[0] == "--target"
-        else {
-            throw PluginError.badArguments(arguments)
-        }
-        let targetName = arguments[1]
-
-        let matchingTargets = try context.package.targets(named: [targetName])
-
-        switch matchingTargets.count {
-        case 0:
-            throw PluginError.noTargetsMatchingTargetName(targetName)
-        case 1:
-            let mainTarget = matchingTargets[0]
-            guard mainTarget is SwiftSourceModuleTarget else {
-                throw PluginError.incompatibleTarget(name: mainTarget.name)
-            }
-            let allDependencies = mainTarget.recursiveTargetDependencies
+        let targetNameArguments = arguments.filter({ $0 != "--target" })
+        let targets: [Target]
+        if targetNameArguments.isEmpty {
+            targets = context.package.targets
+        } else {
+            let matchingTargets = try context.package.targets(named: targetNameArguments)
+            let withDependencies = matchingTargets.flatMap { [$0] + $0.recursiveTargetDependencies }
             let packageTargets = Set(context.package.targets.map(\.id))
-            let localDependencies = allDependencies.filter { packageTargets.contains($0.id) }
-
-            var hadASuccessfulRun = false
-
-            for target in [mainTarget] + localDependencies {
-                guard let swiftTarget = target as? SwiftSourceModuleTarget else {
-                    continue
-                }
-                do {
-                    try runCommand(
-                        targetWorkingDirectory: target.directory,
-                        tool: context.tool,
-                        sourceFiles: swiftTarget.sourceFiles,
-                        targetName: target.name
-                    )
-                    hadASuccessfulRun = true
-                } catch let error as PluginError {
-                    if error.isMisconfigurationError {
-                        throw error
-                    }
-                }
+            let withLocalDependencies = withDependencies.filter { packageTargets.contains($0.id) }
+            let enumeratedKeyValues = withLocalDependencies.map(\.id).enumerated().map { (key: $0.element, value: $0.offset) }
+            let indexLookupTable = Dictionary(enumeratedKeyValues, uniquingKeysWith: { l, _ in l })
+            let groupedByID = Dictionary(grouping: withDependencies, by: \.id)
+            let sortedUniqueTargets = groupedByID.map(\.value[0]).sorted {
+                indexLookupTable[$0.id, default: 0] < indexLookupTable[$1.id, default: 0]
             }
+            targets = sortedUniqueTargets
+        }
 
-            guard hadASuccessfulRun else {
-                throw PluginError.noTargetOrDependenciesWithExpectedFiles(
-                    targetName: mainTarget.name,
-                    dependencyNames: localDependencies.map(\.name)
+        guard !targets.isEmpty else {
+            throw PluginError.noTargetsMatchingTargetNames(targetNameArguments)
+        }
+
+        var hadASuccessfulRun = false
+
+        for target in targets {
+            guard let swiftTarget = target as? SwiftSourceModuleTarget else {
+                print("- Target '\(target.name)': Not a Swift source module. Can't generate OpenAPI code.")
+                continue
+            }
+            do {
+                try runCommand(
+                    targetWorkingDirectory: target.directory,
+                    tool: context.tool,
+                    sourceFiles: swiftTarget.sourceFiles,
+                    targetName: target.name
                 )
+                print("- Target '\(target.name)': OpenAPI code generation completed successfully.")
+                hadASuccessfulRun = true
+            } catch let error as PluginError {
+                if error.isMisconfigurationError {
+                    throw error
+                } else {
+                    let fileNames = FileError.Kind.allCases.map(\.name)
+                        .joined(separator: ", ", lastSeparator: " or ")
+                    print("- Target '\(target.name)': OpenAPI code generation failed. No expected \(fileNames) files.")
+                }
             }
-        default:
-            throw PluginError.tooManyTargetsMatchingTargetName(
-                targetName,
-                matchingTargetNames: matchingTargets.map(\.name)
-            )
+        }
+
+        guard hadASuccessfulRun else {
+            throw PluginError.noTargetsWithExpectedFiles(targetNames: targets.map(\.name))
         }
     }
 }

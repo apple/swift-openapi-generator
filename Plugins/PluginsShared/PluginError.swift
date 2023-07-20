@@ -4,10 +4,8 @@ import Foundation
 enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     case incompatibleTarget(name: String)
     case generatorFailure(targetName: String)
-    case noTargetOrDependenciesWithExpectedFiles(targetName: String, dependencyNames: [String])
-    case badArguments([String])
-    case noTargetsMatchingTargetName(String)
-    case tooManyTargetsMatchingTargetName(String, matchingTargetNames: [String])
+    case noTargetsWithExpectedFiles(targetNames: [String])
+    case noTargetsMatchingTargetNames([String])
     case fileErrors([FileError])
 
     var description: String {
@@ -16,15 +14,14 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
             return "Incompatible target called '\(name)'. Only Swift source targets can be used with the Swift OpenAPI Generator plugin."
         case .generatorFailure(let targetName):
             return "The generator failed to generate OpenAPI files for target '\(targetName)'."
-        case .noTargetOrDependenciesWithExpectedFiles(let targetName, let dependencyNames):
-            let introduction = dependencyNames.isEmpty ? "Target called '\(targetName)' doesn't contain" : "Target called '\(targetName)' or its local dependencies \(dependencyNames.joined(separator: ", ")) don't contain"
-            return "\(introduction) any config or OpenAPI document files with expected names. See documentation for details."
-        case .badArguments(let arguments):
-            return "Unexpected arguments: '\(arguments.joined(separator: " "))', expected: '--target MyTarget'."
-        case .noTargetsMatchingTargetName(let targetName):
-            return "Found no targets with the name '\(targetName)'."
-        case .tooManyTargetsMatchingTargetName(let targetName, let matchingTargetNames):
-            return "Found too many targets with the name '\(targetName)': \(matchingTargetNames.joined(separator: ", ")). Select a target name with a unique name."
+        case .noTargetsWithExpectedFiles(let targetNames):
+            let fileNames = FileError.Kind.allCases.map(\.name)
+                .joined(separator: ", ", lastSeparator: " or ")
+            let targetNames = targetNames.joined(separator: ", ", lastSeparator: " and ")
+            return "Targets with names '\(targetNames)' don't contain any \(fileNames) files with expected names. See documentation for details."
+        case .noTargetsMatchingTargetNames(let targetNames):
+            let targetNames = targetNames.joined(separator: ", ", lastSeparator: " and ")
+            return "Found no targets with names \(targetNames)."
         case .fileErrors(let fileErrors):
             return "Issues with required files: \(fileErrors.map(\.description).joined(separator: ", and"))."
         }
@@ -37,12 +34,13 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     /// The error is definitely due to misconfiguration of a target.
     var isMisconfigurationError: Bool {
         switch self {
-        case .incompatibleTarget,
-                .generatorFailure,
-                .noTargetOrDependenciesWithExpectedFiles,
-                .badArguments,
-                .noTargetsMatchingTargetName,
-                .tooManyTargetsMatchingTargetName:
+        case .incompatibleTarget:
+            return false
+        case .generatorFailure:
+            return false
+        case .noTargetsWithExpectedFiles:
+            return false
+        case .noTargetsMatchingTargetNames:
             return false
         case .fileErrors(let errors):
             return errors.isMisconfigurationError
@@ -58,6 +56,15 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
         case config
         /// OpenAPI document file.
         case document
+
+        var name: String {
+            switch self {
+            case .config:
+                return "config"
+            case .document:
+                return "OpenAPI document"
+            }
+        }
     }
 
     /// Encountered issue.
@@ -109,7 +116,7 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
 private extension Array where Element == FileError {
     /// The error is definitely due to misconfiguration of a target.
     var isMisconfigurationError: Bool {
-        // If errors for both files exist and none is "Definite Misconfiguration Error" then the
+        // If errors for both files exist and none is a "Misconfiguration Error" then the
         // error can be related to a target that isn't supposed to be generator compatible at all.
         if count == FileError.Kind.allCases.count,
            self.allSatisfy({ !$0.issue.isMisconfigurationError })
