@@ -107,7 +107,7 @@ extension FileTranslator {
             // object schemas are allowed.
             // Otherwise, any schema is allowed.
             guard context.discriminator != nil else {
-                return try areSchemasSupported(schemas)
+                return try areSchemasSupported(schemas, seenReferences: seenReferences)
             }
             return try areRefsToObjectishSchemaAndSupported(schemas, seenReferences: seenReferences)
         case .not:
