@@ -84,7 +84,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
                     sourceFiles: swiftTarget.sourceFiles,
                     targetName: target.name
                 )
-                print("- Target '\(target.name)': OpenAPI code generation completed successfully.")
+                print("- Target '\(target.name)': OpenAPI code generation successfully completed.")
                 hadASuccessfulRun = true
             } catch let error as PluginError {
                 if error.isMisconfigurationError {
