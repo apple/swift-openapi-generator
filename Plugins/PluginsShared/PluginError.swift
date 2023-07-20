@@ -18,7 +18,7 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
             let fileNames = FileError.Kind.allCases.map(\.name)
                 .joined(separator: ", ", lastSeparator: " or ")
             let targetNames = targetNames.joined(separator: ", ", lastSeparator: " and ")
-            return "Targets with names '\(targetNames)' don't contain any \(fileNames) files with expected names. See documentation for details."
+            return "Targets with names \(targetNames) don't contain any \(fileNames) files with expected names. See documentation for details."
         case .noTargetsMatchingTargetNames(let targetNames):
             let targetNames = targetNames.joined(separator: ", ", lastSeparator: " and ")
             return "Found no targets with names \(targetNames)."
