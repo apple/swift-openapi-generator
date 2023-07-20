@@ -122,7 +122,19 @@ func makeGeneratorPipeline(
                     diagnostics: diagnostics
                 )
             },
-            postTransitionHooks: []
+            postTransitionHooks: [
+                { doc in
+
+                    // Run OpenAPIKit's built-in validation.
+                    try doc.validate()
+
+                    // Validate that the document is dereferenceable, which
+                    // catches reference cycles, which we don't yet support.
+                    _ = try doc.locallyDereferenced()
+
+                    return doc
+                }
+            ]
         ),
         translateOpenAPIToStructuredSwiftStage: .init(
             preTransitionHooks: [],

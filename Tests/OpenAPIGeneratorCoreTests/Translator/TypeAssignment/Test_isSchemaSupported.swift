@@ -17,16 +17,10 @@ import OpenAPIKit30
 
 class Test_isSchemaSupported: XCTestCase {
 
-    func translator(components: OpenAPI.Components) -> any FileTranslator {
+    var translator: any FileTranslator {
         TypesFileTranslator(
             config: .init(mode: .types),
             diagnostics: PrintingDiagnosticCollector(),
-            components: components
-        )
-    }
-
-    var translator: any FileTranslator {
-        translator(
             components: .init(schemas: [
                 "Foo": .string,
                 "MyObj": .object,
@@ -111,64 +105,6 @@ class Test_isSchemaSupported: XCTestCase {
                 try translator.isSchemaSupported(schema),
                 "Expected schema to be unsupported: \(schema)"
             )
-        }
-    }
-
-    func testRecursion_direct() throws {
-        let fooA: JSONSchema = .all(of: [
-            .reference(.component(named: "FooB"))
-        ])
-        let fooB: JSONSchema = .all(of: [
-            .reference(.component(named: "FooA"))
-        ])
-        let translator = translator(
-            components: .init(schemas: [
-                "FooA": fooA,
-                "FooB": fooB,
-            ])
-        )
-        for (schema, detectedAtName) in [(fooA, "FooB"), (fooB, "FooA")] {
-            XCTAssertThrowsError(try translator.isSchemaSupported(schema)) { error in
-                guard
-                    let jsonError = error as? JSONReferenceParsingError,
-                    case let .referenceCycleUnsupported(string) = jsonError
-                else {
-                    XCTFail("Unexpected error thrown: \(error)")
-                    return
-                }
-                XCTAssertEqual(string, "#/components/schemas/\(detectedAtName)")
-            }
-        }
-    }
-
-    func testRecursion_indirect() throws {
-        let fooA: JSONSchema = .all(of: [
-            .reference(.component(named: "FooB"))
-        ])
-        let fooB: JSONSchema = .all(of: [
-            .reference(.component(named: "FooC"))
-        ])
-        let fooC: JSONSchema = .all(of: [
-            .reference(.component(named: "FooA"))
-        ])
-        let translator = translator(
-            components: .init(schemas: [
-                "FooA": fooA,
-                "FooB": fooB,
-                "FooC": fooC,
-            ])
-        )
-        for (schema, detectedAtName) in [(fooA, "FooB"), (fooB, "FooC"), (fooC, "FooA")] {
-            XCTAssertThrowsError(try translator.isSchemaSupported(schema)) { error in
-                guard
-                    let jsonError = error as? JSONReferenceParsingError,
-                    case let .referenceCycleUnsupported(string) = jsonError
-                else {
-                    XCTFail("Unexpected error thrown: \(error)")
-                    return
-                }
-                XCTAssertEqual(string, "#/components/schemas/\(detectedAtName)")
-            }
         }
     }
 }
