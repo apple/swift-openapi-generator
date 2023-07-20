@@ -70,26 +70,29 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
         var hadASuccessfulRun = false
 
         for target in targets {
+            print("Considering target '\(target.name)':")
             guard let swiftTarget = target as? SwiftSourceModuleTarget else {
-                print("- Target '\(target.name)': Not a Swift source module. Can't generate OpenAPI code.")
+                print("- Not a swift source module. Can't generate OpenAPI code.")
                 continue
             }
             do {
+                print("- Trying OpenAPI code generation.")
                 try runCommand(
                     targetWorkingDirectory: target.directory,
                     tool: context.tool,
                     sourceFiles: swiftTarget.sourceFiles,
                     targetName: target.name
                 )
-                print("- Target '\(target.name)': OpenAPI code generation successfully completed.")
+                print("- OpenAPI code generation successfully completed.")
                 hadASuccessfulRun = true
             } catch let error as PluginError {
                 if error.isMisconfigurationError {
+                    print("- OpenAPI code generation failed with error.")
                     throw error
                 } else {
                     let fileNames = FileError.Kind.allCases.map(\.name)
                         .joined(separator: ", ", lastSeparator: " or ")
-                    print("- Target '\(target.name)': OpenAPI code generation failed. No expected \(fileNames) files.")
+                    print("- Skipping OpenAPI code generation. No expected \(fileNames) files.")
                 }
             }
         }
