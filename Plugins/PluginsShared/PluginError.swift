@@ -118,9 +118,7 @@ private extension Array where Element == FileError {
     var isMisconfigurationError: Bool {
         // If errors for both files exist and none is a "Misconfiguration Error" then the
         // error can be related to a target that isn't supposed to be generator compatible at all.
-        if count == FileError.Kind.allCases.count,
-           self.allSatisfy({ !$0.issue.isMisconfigurationError })
-        {
+        if count == FileError.Kind.allCases.count, self.allSatisfy({ !$0.issue.isMisconfigurationError }) {
             return false
         }
         return true
