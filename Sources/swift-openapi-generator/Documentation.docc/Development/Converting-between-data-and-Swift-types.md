@@ -50,8 +50,8 @@ Below is a list of the "dimensions" across which the helper methods differ:
 - **Swift type** represents the generated type in Swift that best represents the JSON schema defined in the OpenAPI document. For example, a `string` schema is generated as `Swift.String`, an `object` schema is generated as a Swift structure, and an `array` schema is generated as a `Swift.Array` generic over the element type. For the helper methods, it's important which protocol they conform to, as those are used for serialization. Values:
     - _string-convertible_ refers to types that conform to `LosslessStringConvertible`
     - _array of string-convertibles_ refers to an array of types that conform to `LosslessStringConvertible`
-    - _date_ is represented by `Foundation.Date`
-    - _array of dates_ refers to an array of `Foundation.Date`
+    - _date-time_ is represented by `Foundation.Date`
+    - _array of date-times_ refers to an array of `Foundation.Date`
     - _codable_ refers to types that conform to `Codable`
     - _data_ is represented by `Foundation.Data`
 - **Optional/required** represents whether the method works with optional values. Values:
