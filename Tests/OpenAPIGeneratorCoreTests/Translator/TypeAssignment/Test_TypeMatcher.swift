@@ -26,7 +26,7 @@ final class Test_TypeMatcher: Test_Core {
         (.string, "Swift.String"),
         (.string(.init(format: .byte), .init()), "Swift.String"),
         (.string(.init(format: .binary), .init()), "Foundation.Data"),
-        (.string(.init(format: .date), .init()), "Foundation.Date"),
+        (.string(.init(format: .date), .init()), "Swift.String"),
         (.string(.init(format: .dateTime), .init()), "Foundation.Date"),
 
         (.integer, "Swift.Int"),

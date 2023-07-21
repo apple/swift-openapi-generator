@@ -215,7 +215,7 @@ struct TypeMatcher {
                 typeName = .swift("String")
             case .binary:
                 typeName = .foundation("Data")
-            case .date, .dateTime:
+            case .dateTime:
                 typeName = .foundation("Date")
             default:
                 typeName = .swift("String")
