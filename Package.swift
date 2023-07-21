@@ -161,11 +161,15 @@ let package = Package(
                     verb: "generate-code-from-openapi",
                     description: "Generate Swift code from an OpenAPI document."
                 ),
-                permissions: [.writeToPackageDirectory(reason: "To write the generated Swift files back into the source directory of the package.")]
+                permissions: [
+                    .writeToPackageDirectory(
+                        reason: "To write the generated Swift files back into the source directory of the package."
+                    )
+                ]
             ),
             dependencies: [
                 "swift-openapi-generator"
             ]
-        )
+        ),
     ]
 )

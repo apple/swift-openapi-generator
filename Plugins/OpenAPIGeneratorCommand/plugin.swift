@@ -55,11 +55,14 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
         } else {
             let matchingTargets = try context.package.targets(named: targetNameArguments)
             let packageTargets = Set(context.package.targets.map(\.id))
-            let withLocalDependencies = matchingTargets.flatMap { [$0] + $0.recursiveTargetDependencies }.filter { packageTargets.contains($0.id) }
-            let enumeratedKeyValues = withLocalDependencies.map(\.id).enumerated().map { (key: $0.element, value: $0.offset) }
+            let withLocalDependencies = matchingTargets.flatMap { [$0] + $0.recursiveTargetDependencies }
+                .filter { packageTargets.contains($0.id) }
+            let enumeratedKeyValues = withLocalDependencies.map(\.id).enumerated()
+                .map { (key: $0.element, value: $0.offset) }
             let indexLookupTable = Dictionary(enumeratedKeyValues, uniquingKeysWith: { l, _ in l })
             let groupedByID = Dictionary(grouping: withLocalDependencies, by: \.id)
-            let sortedUniqueTargets = groupedByID.map(\.value[0]).sorted { indexLookupTable[$0.id, default: 0] < indexLookupTable[$1.id, default: 0] }
+            let sortedUniqueTargets = groupedByID.map(\.value[0])
+                .sorted { indexLookupTable[$0.id, default: 0] < indexLookupTable[$1.id, default: 0] }
             targets = sortedUniqueTargets
         }
 

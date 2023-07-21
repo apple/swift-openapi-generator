@@ -11,14 +11,16 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     var description: String {
         switch self {
         case .incompatibleTarget(let name):
-            return "Incompatible target called '\(name)'. Only Swift source targets can be used with the Swift OpenAPI Generator plugin."
+            return
+                "Incompatible target called '\(name)'. Only Swift source targets can be used with the Swift OpenAPI Generator plugin."
         case .generatorFailure(let targetName):
             return "The generator failed to generate OpenAPI files for target '\(targetName)'."
         case .noTargetsWithExpectedFiles(let targetNames):
             let fileNames = FileError.Kind.allCases.map(\.name)
                 .joined(separator: ", ", lastSeparator: " or ")
             let targetNames = targetNames.joined(separator: ", ", lastSeparator: " and ")
-            return "Targets with names \(targetNames) don't contain any \(fileNames) files with expected names. See documentation for details."
+            return
+                "Targets with names \(targetNames) don't contain any \(fileNames) files with expected names. See documentation for details."
         case .noTargetsMatchingTargetNames(let targetNames):
             let targetNames = targetNames.joined(separator: ", ", lastSeparator: " and ")
             return "Found no targets with names \(targetNames)."
@@ -94,16 +96,20 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
         case .config:
             switch issue {
             case .noFilesFound:
-                return "No config file found in the target named '\(targetName)'. Add a file called 'openapi-generator-config.yaml' or 'openapi-generator-config.yml' to the target's source directory. See documentation for details."
+                return
+                    "No config file found in the target named '\(targetName)'. Add a file called 'openapi-generator-config.yaml' or 'openapi-generator-config.yml' to the target's source directory. See documentation for details."
             case .multipleFilesFound(let files):
-                return "Multiple config files found in the target named '\(targetName)', but exactly one is expected. Found \(files.map(\.description).joined(separator: " "))."
+                return
+                    "Multiple config files found in the target named '\(targetName)', but exactly one is expected. Found \(files.map(\.description).joined(separator: " "))."
             }
         case .document:
             switch issue {
             case .noFilesFound:
-                return "No OpenAPI document found in the target named '\(targetName)'. Add a file called 'openapi.yaml', 'openapi.yml' or 'openapi.json' (can also be a symlink) to the target's source directory. See documentation for details."
+                return
+                    "No OpenAPI document found in the target named '\(targetName)'. Add a file called 'openapi.yaml', 'openapi.yml' or 'openapi.json' (can also be a symlink) to the target's source directory. See documentation for details."
             case .multipleFilesFound(let files):
-                return "Multiple OpenAPI documents found in the target named '\(targetName)', but exactly one is expected. Found \(files.map(\.description).joined(separator: " "))."
+                return
+                    "Multiple OpenAPI documents found in the target named '\(targetName)', but exactly one is expected. Found \(files.map(\.description).joined(separator: " "))."
             }
         }
     }

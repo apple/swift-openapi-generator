@@ -1,7 +1,9 @@
 import PackagePlugin
 
 enum PluginUtils {
-    private static var supportedConfigFiles: Set<String> { Set(["yaml", "yml"].map { "openapi-generator-config." + $0 }) }
+    private static var supportedConfigFiles: Set<String> {
+        Set(["yaml", "yml"].map { "openapi-generator-config." + $0 })
+    }
     private static var supportedDocFiles: Set<String> { Set(["yaml", "yml", "json"].map { "openapi." + $0 }) }
 
     /// Validated values to run a plugin with.
@@ -119,10 +121,9 @@ enum PluginUtils {
 
 extension Array where Element == String {
     func joined(separator: String, lastSeparator: String) -> String {
-        if count > 1 {
-            return "\(self.dropLast().joined(separator: separator))\(lastSeparator)\(self.last!)"
-        } else {
+        guard count > 1 else {
             return self.joined(separator: separator)
         }
+        return "\(self.dropLast().joined(separator: separator))\(lastSeparator)\(self.last!)"
     }
 }
