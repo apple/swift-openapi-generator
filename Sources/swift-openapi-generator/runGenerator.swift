@@ -94,12 +94,12 @@ extension _Tool {
             inDirectory: outputDirectory,
             fileName: outputFileName,
             with: {
-            let output = try _OpenAPIGeneratorCore.runGenerator(
-                input: .init(absolutePath: doc, contents: docData),
-                config: config,
-                diagnostics: diagnostics
-            )
-            return output.contents
+                let output = try _OpenAPIGeneratorCore.runGenerator(
+                    input: .init(absolutePath: doc, contents: docData),
+                    config: config,
+                    diagnostics: diagnostics
+                )
+                return output.contents
             },
             isDryRun: isDryRun
         )
