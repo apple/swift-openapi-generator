@@ -48,10 +48,17 @@ struct _GenerateCommand: AsyncParsableCommand {
     )
     var pluginSource: PluginSource?
 
+    @Flag(
+        name: .customLong("dry-run"),
+        help: "Simulate the command and print the operations, without actually affecting the file system."
+    )
+    var isDryRun: Bool = false
+
     func run() async throws {
         try generate.runGenerator(
             outputDirectory: outputDirectory,
-            pluginSource: pluginSource
+            pluginSource: pluginSource,
+            isDryRun: isDryRun
         )
     }
 }
