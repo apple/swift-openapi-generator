@@ -49,8 +49,8 @@ struct _GenerateCommand: AsyncParsableCommand {
     var pluginSource: PluginSource?
 
     @Flag(
-        help:
-            "Simulate the command and print the operations, without actually affecting the file system."
+        name: .customLong("dry-run"),
+        help: "Simulate the command and print the operations, without actually affecting the file system."
     )
     var isDryRun: Bool = false
 
