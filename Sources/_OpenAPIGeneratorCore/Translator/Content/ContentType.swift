@@ -69,19 +69,6 @@ enum ContentType: Hashable {
         }
     }
 
-    /// An identifier used as the Payload.Content enum case name
-    /// in generated code.
-    var identifier: String {
-        switch self {
-        case .json:
-            return "json"
-        case .text:
-            return "text"
-        case .binary:
-            return "binary"
-        }
-    }
-
     /// The coding strategy appropriate for this content type.
     var codingStrategy: CodingStrategy {
         switch self {

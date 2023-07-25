@@ -169,7 +169,7 @@ extension ClientFileTranslator {
                 argumentNames: ["value"],
                 body: [
                     .expression(
-                        .dot(typedContent.content.contentType.identifier)
+                        .dot(contentSwiftName(typedContent.content.contentType))
                             .call([
                                 .init(label: nil, expression: .identifier("value"))
                             ])
@@ -323,7 +323,7 @@ extension ServerFileTranslator {
             let contentType = typedContent.content.contentType
             let switchContentCases: [SwitchCaseDescription] = [
                 .init(
-                    kind: .case(.dot(contentType.identifier), ["value"]),
+                    kind: .case(.dot(contentSwiftName(contentType)), ["value"]),
                     body: [
                         .expression(
                             .return(
