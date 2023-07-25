@@ -31,8 +31,11 @@ struct _GenerateOptions: ParsableArguments {
     )
     var mode: [GeneratorMode] = []
 
-    @Option(help: "Additional imports to add to all generated files.")
+    @Option(help: "Additional import to add to all generated files.")
     var additionalImport: [String] = []
+
+    @Option(help: "Pre-release feature to enable. Options: \(FeatureFlag.prettyListing).")
+    var featureFlag: [FeatureFlag] = []
 
     @Option(
         help: "When specified, writes out the diagnostics into a YAML file instead of emitting them to standard error."
@@ -75,6 +78,15 @@ extension _GenerateOptions {
             return additionalImports
         }
         return []
+    }
+
+    /// Returns a list of the feature flags requested by the user.
+    /// - Parameter config: The configuration specified by the user.
+    func resolvedFeatureFlags(_ config: _UserConfig?) -> FeatureFlags {
+        if !featureFlag.isEmpty {
+            return Set(featureFlag)
+        }
+        return Set(config?.featureFlags ?? [])
     }
 
     /// Returns the configuration requested by the user.
