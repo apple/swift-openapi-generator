@@ -235,16 +235,7 @@ final class Test_Server: XCTestCase {
     func testCreatePet_withIncorrectContentType() async throws {
         client = .init(
             createPetBlock: { input in
-                return .created(
-                    .init(
-                        headers: .init(
-                            X_Extra_Arguments: .init(code: 1)
-                        ),
-                        body: .json(
-                            .init(id: 1, name: "Fluffz")
-                        )
-                    )
-                )
+                XCTFail("The handler should not have been called")
             }
         )
         
@@ -266,9 +257,7 @@ final class Test_Server: XCTestCase {
                 .init()
             )
             XCTFail("The method should have thrown an error.")
-        } catch {
-            XCTAssertNotNil(error)
-        }
+        } catch {}
     }
     
     func testUpdatePet_204_withBody() async throws {
