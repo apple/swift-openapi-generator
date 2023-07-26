@@ -22,14 +22,15 @@ extension ServerFileTranslator {
         _ operation: OperationDescription
     ) throws -> Expression {
         var closureBody: [CodeBlock] = []
-        
+
         let typedRequestBody = try typedRequestBody(in: operation)
-        
+
         if let headerValueForValidation = typedRequestBody?
             .content
             .content
             .contentType
-            .headerValueForValidation {
+            .headerValueForValidation
+        {
             let validateContentTypeExpr: Expression = .try(
                 .identifier("converter").dot("validateContentTypeIfPresent")
                     .call([
@@ -42,7 +43,7 @@ extension ServerFileTranslator {
             )
             closureBody.append(.expression(validateContentTypeExpr))
         }
-        
+
         let inputTypeName = operation.inputTypeName
 
         func locationSpecificInputDecl(
@@ -115,7 +116,7 @@ extension ServerFileTranslator {
                     .init(label: "body", expression: .identifier("body")),
                 ])
         )
-        
+
         closureBody.append(
             contentsOf: inputMemberDecls.map(CodeBlock.declaration) + [.expression(returnExpr)]
         )

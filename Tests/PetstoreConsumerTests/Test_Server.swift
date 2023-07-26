@@ -231,7 +231,6 @@ final class Test_Server: XCTestCase {
         )
     }
 
-    
     func testCreatePet_withIncorrectContentType() async throws {
         client = .init(
             createPetBlock: { input in
@@ -239,7 +238,7 @@ final class Test_Server: XCTestCase {
                 fatalError("Unreachable")
             }
         )
-        
+
         do {
             _ = try await server.createPet(
                 .init(
@@ -260,7 +259,7 @@ final class Test_Server: XCTestCase {
             XCTFail("The method should have thrown an error.")
         } catch {}
     }
-    
+
     func testUpdatePet_204_withBody() async throws {
         client = .init(
             updatePetBlock: { input in
