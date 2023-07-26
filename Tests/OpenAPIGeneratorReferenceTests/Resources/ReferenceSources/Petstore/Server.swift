@@ -180,7 +180,12 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             with: metadata,
             forOperation: Operations.createPet.id,
             using: APIHandler.createPet,
-            deserializer: { request, metadata in let path: Operations.createPet.Input.Path = .init()
+            deserializer: { request, metadata in
+                try converter.validateContentTypeIfPresent(
+                    in: request.headerFields,
+                    substring: "application/json"
+                )
+                let path: Operations.createPet.Input.Path = .init()
                 let query: Operations.createPet.Input.Query = .init()
                 let headers: Operations.createPet.Input.Headers = .init(
                     X_Extra_Arguments: try converter.getOptionalHeaderFieldAsJSON(
@@ -309,6 +314,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             forOperation: Operations.updatePet.id,
             using: APIHandler.updatePet,
             deserializer: { request, metadata in
+                try converter.validateContentTypeIfPresent(
+                    in: request.headerFields,
+                    substring: "application/json"
+                )
                 let path: Operations.updatePet.Input.Path = .init(
                     petId: try converter.getPathParameterAsText(
                         in: metadata.pathParameters,
@@ -380,6 +389,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             forOperation: Operations.uploadAvatarForPet.id,
             using: APIHandler.uploadAvatarForPet,
             deserializer: { request, metadata in
+                try converter.validateContentTypeIfPresent(
+                    in: request.headerFields,
+                    substring: "application/octet-stream"
+                )
                 let path: Operations.uploadAvatarForPet.Input.Path = .init(
                     petId: try converter.getPathParameterAsText(
                         in: metadata.pathParameters,
