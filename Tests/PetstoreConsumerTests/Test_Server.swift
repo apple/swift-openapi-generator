@@ -231,6 +231,46 @@ final class Test_Server: XCTestCase {
         )
     }
 
+    
+    func testCreatePet_withIncorrectContentType() async throws {
+        client = .init(
+            createPetBlock: { input in
+                return .created(
+                    .init(
+                        headers: .init(
+                            X_Extra_Arguments: .init(code: 1)
+                        ),
+                        body: .json(
+                            .init(id: 1, name: "Fluffz")
+                        )
+                    )
+                )
+            }
+        )
+        
+        do {
+            _ = try await server.createPet(
+                .init(
+                    path: "/api/pets",
+                    method: .post,
+                    headerFields: [
+                        .init(name: "x-extra-arguments", value: #"{"code":1}"#),
+                        .init(name: "content-type", value: "text/plain; charset=utf-8"),
+                    ],
+                    encodedBody: #"""
+                        {
+                          "name" : "Fluffz"
+                        }
+                        """#
+                ),
+                .init()
+            )
+            XCTFail("The method should have thrown an error.")
+        } catch {
+            XCTAssertNotNil(error)
+        }
+    }
+    
     func testUpdatePet_204_withBody() async throws {
         client = .init(
             updatePetBlock: { input in
