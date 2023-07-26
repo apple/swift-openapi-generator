@@ -23,6 +23,7 @@ extension URL: ExpressibleByArgument {
 }
 
 extension GeneratorMode: ExpressibleByArgument {}
+extension FeatureFlag: ExpressibleByArgument {}
 
 extension CaseIterable where Self: RawRepresentable, Self.RawValue == String {
 

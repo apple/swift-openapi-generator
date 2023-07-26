@@ -20,6 +20,7 @@ struct TestConfig: Encodable {
     var docFilePath: String
     var mode: GeneratorMode
     var additionalImports: [String]?
+    var featureFlags: FeatureFlags?
     var referenceOutputDirectory: String
 }
 
@@ -27,7 +28,8 @@ extension TestConfig {
     var asConfig: Config {
         .init(
             mode: mode,
-            additionalImports: additionalImports ?? []
+            additionalImports: additionalImports ?? [],
+            featureFlags: featureFlags ?? []
         )
     }
 }
@@ -134,6 +136,7 @@ class FileBasedReferenceTests: XCTestCase {
                     docFilePath: "Docs/\(name.fileName)",
                     mode: mode,
                     additionalImports: [],
+                    featureFlags: [],
                     referenceOutputDirectory: "ReferenceSources/\(name.directoryName)"
                 )
             )
