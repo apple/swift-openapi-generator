@@ -236,6 +236,7 @@ final class Test_Server: XCTestCase {
         client = .init(
             createPetBlock: { input in
                 XCTFail("The handler should not have been called")
+                fatalError("Unreachable")
             }
         )
         
