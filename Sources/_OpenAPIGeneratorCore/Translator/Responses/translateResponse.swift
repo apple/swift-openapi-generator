@@ -63,7 +63,7 @@ extension TypesFileTranslator {
             response.content,
             inParent: bodyTypeName
         ) {
-            let identifier = typedContent.content.contentType.identifier
+            let identifier = contentSwiftName(typedContent.content.contentType)
             let associatedType = typedContent.resolvedTypeUsage
             if TypeMatcher.isInlinable(typedContent.content.schema), let inlineType = typedContent.typeUsage {
                 let inlineTypeDecls = try translateSchema(

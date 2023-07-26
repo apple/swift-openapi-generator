@@ -56,7 +56,7 @@ extension TypesFileTranslator {
             )
             bodyMembers.append(contentsOf: inlineTypeDecls)
         }
-        let identifier = content.content.contentType.identifier
+        let identifier = contentSwiftName(content.content.contentType)
         let associatedType = content.resolvedTypeUsage
         let contentCase: Declaration = .enumCase(
             .init(
@@ -178,7 +178,7 @@ extension ClientFileTranslator {
         let typedContent = requestBody.content
         let content = typedContent.content
         let contentType = content.contentType
-        let contentTypeIdentifier = contentType.identifier
+        let contentTypeIdentifier = contentSwiftName(contentType)
         let contentTypeHeaderValue = contentType.headerValueForSending
 
         let transformReturnExpr: Expression = .return(
@@ -270,7 +270,7 @@ extension ServerFileTranslator {
         let contentTypeUsage = typedContent.resolvedTypeUsage
         let content = typedContent.content
         let contentType = content.contentType
-        let contentTypeIdentifier = contentType.identifier
+        let contentTypeIdentifier = contentSwiftName(contentType)
         let codingStrategyName = contentType.codingStrategy.runtimeName
         let isOptional = !requestBody.request.required
 
