@@ -19,21 +19,21 @@ class Test_TypeAssigner: Test_Core {
 
     func testTypeNameForReferences() throws {
         try XCTAssertEqual(
-            TypeAssigner.typeName(for: JSONReference<JSONSchema>.component(named: "mumble")),
+            typeAssigner.typeName(for: JSONReference<JSONSchema>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.Schemas.mumble",
                 jsonFQName: "#/components/schemas/mumble"
             )
         )
         try XCTAssertEqual(
-            TypeAssigner.typeName(for: JSONReference<OpenAPI.Parameter>.component(named: "mumble")),
+            typeAssigner.typeName(for: JSONReference<OpenAPI.Parameter>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.Parameters.mumble",
                 jsonFQName: "#/components/parameters/mumble"
             )
         )
         try XCTAssertEqual(
-            TypeAssigner.typeName(for: JSONReference<OpenAPI.Header>.component(named: "mumble")),
+            typeAssigner.typeName(for: JSONReference<OpenAPI.Header>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.Headers.mumble",
                 jsonFQName: "#/components/headers/mumble"
@@ -41,7 +41,7 @@ class Test_TypeAssigner: Test_Core {
 
         )
         try XCTAssertEqual(
-            TypeAssigner.typeName(for: JSONReference<OpenAPI.Request>.component(named: "mumble")),
+            typeAssigner.typeName(for: JSONReference<OpenAPI.Request>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.RequestBodies.mumble",
                 jsonFQName: "#/components/requestBodies/mumble"
@@ -49,7 +49,7 @@ class Test_TypeAssigner: Test_Core {
 
         )
         try XCTAssertEqual(
-            TypeAssigner.typeName(for: JSONReference<OpenAPI.Response>.component(named: "mumble")),
+            typeAssigner.typeName(for: JSONReference<OpenAPI.Response>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.Responses.mumble",
                 jsonFQName: "#/components/responses/mumble"
@@ -76,7 +76,7 @@ class Test_TypeAssigner: Test_Core {
             "enum": "_enum",
         ]
         for (componentKey, expectedSwiftTypeName) in expectedSchemaTypeNames {
-            XCTAssertEqual(componentKey.shortSwiftName, expectedSwiftTypeName)
+            XCTAssertEqual(asSwiftSafeName(componentKey.rawValue), expectedSwiftTypeName)
         }
     }
 
@@ -87,7 +87,7 @@ class Test_TypeAssigner: Test_Core {
             ]
         )
         XCTAssertEqual(
-            components.schemas.map(TypeAssigner.typeName(for:)),
+            components.schemas.map(typeAssigner.typeName(for:)),
             [
                 try newTypeName(
                     swiftFQName: "Components.Schemas.my_reusable_schema",
@@ -107,7 +107,7 @@ class Test_TypeAssigner: Test_Core {
         ]
         for (originalName, location, typeNameString) in expected {
             XCTAssertEqual(
-                TypeAssigner
+                typeAssigner
                     .typeName(
                         forComponentOriginallyNamed: originalName,
                         in: location
@@ -134,7 +134,7 @@ class Test_TypeAssigner: Test_Core {
         ]
         for (originalName, schema, typeNameString) in expected {
             try XCTAssertEqual(
-                TypeAssigner.typeUsage(
+                typeAssigner.typeUsage(
                     forObjectPropertyNamed: originalName,
                     withSchema: schema,
                     inParent: parent

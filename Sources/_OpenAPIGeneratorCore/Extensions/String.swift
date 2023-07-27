@@ -15,13 +15,6 @@ import Foundation
 
 extension String {
 
-    /// Returns a copy of the string modified to be a valid Swift identifier.
-    ///
-    /// For sanitization rules, see ``String/sanitizedForSwiftCode``.
-    var asSwiftSafeName: String {
-        sanitizedForSwiftCode
-    }
-
     /// Returns a copy of the string with the first letter uppercased.
     var uppercasingFirstLetter: String {
         transformingFirstLetter { $0.uppercased() }
@@ -31,28 +24,6 @@ extension String {
     var lowercasingFirstLetter: String {
         transformingFirstLetter { $0.lowercased() }
     }
-}
-
-fileprivate extension Character {
-
-    /// A Boolean value that indicates whether the character is an underscore.
-    var isUnderscore: Bool { self == "_" }
-}
-
-fileprivate extension String {
-
-    /// Returns a copy of the string with the first letter modified by
-    /// the specified closure.
-    /// - Parameter transformation: A closure that modifies the first letter.
-    func transformingFirstLetter<T>(_ transformation: (Character) -> T) -> String where T: StringProtocol {
-        guard let firstLetterIndex = self.firstIndex(where: \.isLetter) else {
-            return self
-        }
-        return self.replacingCharacters(
-            in: firstLetterIndex..<self.index(after: firstLetterIndex),
-            with: transformation(self[firstLetterIndex])
-        )
-    }
 
     /// Returns a string sanitized to be usable as a Swift identifier.
     ///
@@ -61,7 +32,7 @@ fileprivate extension String {
     ///
     /// In addition to replacing illegal characters with an underscores, also
     /// ensures that the identifier starts with a letter and not a number.
-    var sanitizedForSwiftCode: String {
+    var safeForSwiftCode: String {
         guard !isEmpty else {
             return "_empty"
         }
@@ -94,6 +65,39 @@ fileprivate extension String {
             return validString
         }
         return "_\(validString)"
+    }
+
+    /// Returns a string sanitized to be usable as a Swift identifier.
+    ///
+    /// See the proposal SOAR-0001 for details.
+    ///
+    /// In addition to replacing illegal characters with an underscores, also
+    /// ensures that the identifier starts with a letter and not a number.
+    var proposedSafeForSwiftCode: String {
+        // TODO: New logic proposed in SOAR-0001 goes here.
+        return ""
+    }
+}
+
+fileprivate extension Character {
+
+    /// A Boolean value that indicates whether the character is an underscore.
+    var isUnderscore: Bool { self == "_" }
+}
+
+fileprivate extension String {
+
+    /// Returns a copy of the string with the first letter modified by
+    /// the specified closure.
+    /// - Parameter transformation: A closure that modifies the first letter.
+    func transformingFirstLetter<T>(_ transformation: (Character) -> T) -> String where T: StringProtocol {
+        guard let firstLetterIndex = self.firstIndex(where: \.isLetter) else {
+            return self
+        }
+        return self.replacingCharacters(
+            in: firstLetterIndex..<self.index(after: firstLetterIndex),
+            with: transformation(self[firstLetterIndex])
+        )
     }
 
     /// A list of Swift keywords.

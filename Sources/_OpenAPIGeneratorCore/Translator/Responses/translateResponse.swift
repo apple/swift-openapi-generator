@@ -52,7 +52,8 @@ extension TypesFileTranslator {
             default: headerProperties.isEmpty ? .emptyInit : nil,
             associatedDeclarations: [
                 headersStructDecl
-            ]
+            ],
+            asSwiftSafeName: swiftSafeName
         )
 
         let bodyTypeName = typeName.appending(
@@ -97,7 +98,8 @@ extension TypesFileTranslator {
             default: hasNoContent ? .nil : nil,
             associatedDeclarations: [
                 contentEnumDecl
-            ]
+            ],
+            asSwiftSafeName: swiftSafeName
         )
 
         let responseStructDecl = translateStructBlueprint(
@@ -127,7 +129,7 @@ extension TypesFileTranslator {
         componentKey: OpenAPI.ComponentKey,
         response: TypedResponse
     ) throws -> Declaration {
-        let typeName = TypeAssigner.typeName(
+        let typeName = typeAssigner.typeName(
             for: componentKey,
             of: OpenAPI.Response.self
         )

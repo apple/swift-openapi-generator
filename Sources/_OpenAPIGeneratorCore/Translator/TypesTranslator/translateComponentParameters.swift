@@ -26,7 +26,7 @@ extension TypesFileTranslator {
         let typedParameters: [(OpenAPI.ComponentKey, TypedParameter)] =
             try parameters
             .compactMap { key, parameter in
-                let parent = TypeAssigner.typeName(
+                let parent = typeAssigner.typeName(
                     for: key,
                     of: OpenAPI.Parameter.self
                 )

@@ -43,7 +43,7 @@ extension FileTranslator {
         let isInlined: Bool
         switch unresolvedResponse {
         case .a(let reference):
-            typeName = try TypeAssigner.typeName(for: reference)
+            typeName = try typeAssigner.typeName(for: reference)
             response = try components.lookup(reference)
             isInlined = false
         case .b(let _response):

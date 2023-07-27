@@ -31,13 +31,17 @@ struct TypedResponseHeader {
 
     /// The coding strategy appropriate for this parameter.
     var codingStrategy: CodingStrategy
+
+    /// A converted function from user-provided strings to strings
+    /// safe to be used as a Swift identifier.
+    var asSwiftSafeName: (String) -> String
 }
 
 extension TypedResponseHeader {
 
     /// The name of the header sanitized to be a valid Swift identifier.
     var variableName: String {
-        name.asSwiftSafeName
+        asSwiftSafeName(name)
     }
 
     /// A Boolean value that indicates whether the response header can
@@ -141,13 +145,13 @@ extension FileTranslator {
         let type: TypeUsage
         switch unresolvedHeader {
         case let .a(ref):
-            type = try TypeAssigner.typeName(for: ref).asUsage
+            type = try typeAssigner.typeName(for: ref).asUsage
         case .b:
             switch schema {
             case let .a(reference):
-                type = try TypeAssigner.typeName(for: reference).asUsage
+                type = try typeAssigner.typeName(for: reference).asUsage
             case let .b(schema):
-                type = try TypeAssigner.typeUsage(
+                type = try typeAssigner.typeUsage(
                     forParameterNamed: name,
                     withSchema: schema,
                     inParent: parent
@@ -160,7 +164,8 @@ extension FileTranslator {
             name: name,
             schema: schema,
             typeUsage: usage,
-            codingStrategy: codingStrategy
+            codingStrategy: codingStrategy,
+            asSwiftSafeName: swiftSafeName
         )
     }
 }

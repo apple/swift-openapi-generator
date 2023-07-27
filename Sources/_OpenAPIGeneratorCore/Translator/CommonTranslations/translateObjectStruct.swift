@@ -40,7 +40,7 @@ extension FileTranslator {
                 )
             }
             .map { key, value in
-                let propertyType = try TypeAssigner.typeUsage(
+                let propertyType = try typeAssigner.typeUsage(
                     forObjectPropertyNamed: key,
                     withSchema: value,
                     inParent: typeName
@@ -65,7 +65,8 @@ extension FileTranslator {
                     isDeprecated: value.deprecated,
                     originalName: key,
                     typeUsage: propertyType,
-                    associatedDeclarations: associatedDeclarations
+                    associatedDeclarations: associatedDeclarations,
+                    asSwiftSafeName: swiftSafeName
                 )
             }
 
@@ -123,7 +124,7 @@ extension FileTranslator {
             typeUsage = TypeName.objectContainer.asUsage
             associatedDeclarations = []
         case .b(let schema):
-            let valueTypeUsage = try TypeAssigner.typeUsage(
+            let valueTypeUsage = try typeAssigner.typeUsage(
                 forObjectPropertyNamed: "additionalProperties",
                 withSchema: schema,
                 inParent: parent
@@ -149,7 +150,8 @@ extension FileTranslator {
             typeUsage: typeUsage,
             default: .emptyInit,
             isSerializedInTopLevelDictionary: false,
-            associatedDeclarations: associatedDeclarations
+            associatedDeclarations: associatedDeclarations,
+            asSwiftSafeName: swiftSafeName
         )
         return (.allowingAdditionalProperties, extraProperty)
     }
