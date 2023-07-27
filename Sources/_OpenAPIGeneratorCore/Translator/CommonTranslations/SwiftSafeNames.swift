@@ -13,26 +13,15 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 
-extension String {
-
-    /// Returns a copy of the string modified to be a valid Swift identifier.
-    ///
-    /// - Parameter config: The current generator config, as the logic is
-    /// conditionalized using a feature flag.
-    func asSwiftSafeName(config: Config) -> String {
-        guard config.featureFlags.contains(.proposal0001) else {
-            return safeForSwiftCode
-        }
-        return proposedSafeForSwiftCode
-    }
-}
-
 extension FileTranslator {
 
     /// Returns a copy of the string modified to be a valid Swift identifier.
     ///
     /// - Parameter string: The string to convert to be safe for Swift.
     func swiftSafeName(for string: String) -> String {
-        string.asSwiftSafeName(config: config)
+        guard config.featureFlags.contains(.proposal0001) else {
+            return string.safeForSwiftCode
+        }
+        return string.proposedSafeForSwiftCode
     }
 }
