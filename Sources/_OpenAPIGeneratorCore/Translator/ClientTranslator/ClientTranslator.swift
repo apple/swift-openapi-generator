@@ -43,7 +43,11 @@ struct ClientFileTranslator: FileTranslator {
 
         let clientMethodDecls =
             try OperationDescription
-            .all(from: doc.paths, in: components)
+            .all(
+                from: doc.paths,
+                in: components,
+                asSwiftSafeName: swiftSafeName
+            )
             .map(translateClientMethod(_:))
 
         let clientStructPropertyDecl: Declaration = .commentable(

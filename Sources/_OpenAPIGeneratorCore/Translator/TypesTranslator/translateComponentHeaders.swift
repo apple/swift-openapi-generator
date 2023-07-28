@@ -26,7 +26,7 @@ extension TypesFileTranslator {
         let typedHeaders: [(OpenAPI.ComponentKey, TypedResponseHeader)] =
             try headers
             .compactMap { key, header in
-                let parent = TypeAssigner.typeName(
+                let parent = typeAssigner.typeName(
                     for: key,
                     of: OpenAPI.Header.self
                 )

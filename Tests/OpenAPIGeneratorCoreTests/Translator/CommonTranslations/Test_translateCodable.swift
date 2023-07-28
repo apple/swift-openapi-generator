@@ -35,7 +35,7 @@ final class Test_translateCodable: Test_Core {
     func testDecoder_onePropertyWithExtraCodeBlocks() throws {
         let members = try _testDecoder(
             properties: [
-                .init(originalName: "bar", typeUsage: TypeName.string.asUsage)
+                makeProperty(originalName: "bar", typeUsage: TypeName.string.asUsage)
             ],
             trailingCodeBlocks: [
                 .expression(.identifier("foo"))
@@ -54,7 +54,7 @@ final class Test_translateCodable: Test_Core {
     func testDecoder_onePropertyNoExtraCodeBlocks() throws {
         let members = try _testDecoder(
             properties: [
-                .init(originalName: "bar", typeUsage: TypeName.string.asUsage)
+                makeProperty(originalName: "bar", typeUsage: TypeName.string.asUsage)
             ]
         )
         XCTAssertEqual(
@@ -100,7 +100,7 @@ final class Test_translateCodable: Test_Core {
     func testEncoder_onePropertyWithExtraCodeBlocks() throws {
         let members = try _testEncoder(
             properties: [
-                .init(originalName: "bar", typeUsage: TypeName.string.asUsage)
+                makeProperty(originalName: "bar", typeUsage: TypeName.string.asUsage)
             ],
             trailingCodeBlocks: [
                 .expression(.identifier("foo"))
@@ -119,7 +119,7 @@ final class Test_translateCodable: Test_Core {
     func testEncoder_onePropertyNoExtraCodeBlocks() throws {
         let members = try _testEncoder(
             properties: [
-                .init(originalName: "bar", typeUsage: TypeName.string.asUsage)
+                makeProperty(originalName: "bar", typeUsage: TypeName.string.asUsage)
             ]
         )
         XCTAssertEqual(

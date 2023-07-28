@@ -119,7 +119,8 @@ extension TypesFileTranslator {
             originalName: "body",
             typeUsage: bodyEnumTypeUsage,
             default: nil,
-            associatedDeclarations: extraDecls
+            associatedDeclarations: extraDecls,
+            asSwiftSafeName: swiftSafeName
         )
         return bodyProperty
     }

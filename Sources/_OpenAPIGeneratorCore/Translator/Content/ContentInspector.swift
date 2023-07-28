@@ -53,7 +53,7 @@ extension FileTranslator {
             return nil
         }
         let identifier = contentSwiftName(content.contentType)
-        let associatedType = try TypeAssigner.typeUsage(
+        let associatedType = try typeAssigner.typeUsage(
             usingNamingHint: identifier,
             withSchema: content.schema,
             inParent: parent

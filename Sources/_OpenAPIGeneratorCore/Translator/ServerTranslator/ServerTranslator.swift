@@ -41,7 +41,11 @@ struct ServerFileTranslator: FileTranslator {
 
         let serverMethodDeclPairs =
             try OperationDescription
-            .all(from: doc.paths, in: components)
+            .all(
+                from: doc.paths,
+                in: components,
+                asSwiftSafeName: swiftSafeName
+            )
             .map { operation in
                 try translateServerMethod(operation, serverUrlVariableName: "server")
             }

@@ -37,10 +37,10 @@ extension FileTranslator {
         // An OpenAPI array is represented as a Swift array with an element type
         let elementType: TypeUsage
         if let items = arrayContext.items {
-            if let builtinType = try TypeMatcher.tryMatchReferenceableType(for: items) {
+            if let builtinType = try typeMatcher.tryMatchReferenceableType(for: items) {
                 elementType = builtinType
             } else {
-                elementType = try TypeAssigner.typeUsage(
+                elementType = try typeAssigner.typeUsage(
                     forArrayElementWithSchema: items,
                     inParent: typeName
                 )

@@ -23,7 +23,8 @@ extension TypesFileTranslator {
 
         let operations = OperationDescription.all(
             from: paths,
-            in: components
+            in: components,
+            asSwiftSafeName: swiftSafeName
         )
         let functionDecls =
             operations

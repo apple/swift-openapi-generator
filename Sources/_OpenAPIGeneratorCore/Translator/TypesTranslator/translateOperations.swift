@@ -70,7 +70,8 @@ extension TypesFileTranslator {
                 default: defaultValue,
                 associatedDeclarations: [
                     structDecl
-                ]
+                ],
+                asSwiftSafeName: swiftSafeName
             )
         }
         let bodyProperty = try parseRequestBodyAsProperty(

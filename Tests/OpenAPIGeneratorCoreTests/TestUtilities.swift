@@ -41,17 +41,37 @@ class Test_Core: XCTestCase {
         featureFlags: FeatureFlags = []
     ) -> TypesFileTranslator {
         TypesFileTranslator(
-            config: .init(
-                mode: .types,
-                featureFlags: featureFlags
-            ),
+            config: makeConfig(featureFlags: featureFlags),
             diagnostics: diagnostics,
             components: components
         )
     }
 
+    func makeConfig(featureFlags: FeatureFlags = []) -> Config {
+        .init(
+            mode: .types,
+            featureFlags: featureFlags
+        )
+    }
+
     static var testTypeName: TypeName {
         .init(swiftKeyPath: ["Foo"])
+    }
+
+    var typeAssigner: TypeAssigner {
+        makeTranslator().typeAssigner
+    }
+
+    var typeMatcher: TypeMatcher {
+        makeTranslator().typeMatcher
+    }
+
+    var asSwiftSafeName: (String) -> String {
+        makeTranslator().swiftSafeName
+    }
+
+    func makeProperty(originalName: String, typeUsage: TypeUsage) -> PropertyBlueprint {
+        .init(originalName: originalName, typeUsage: typeUsage, asSwiftSafeName: asSwiftSafeName)
     }
 }
 

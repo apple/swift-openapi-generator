@@ -33,8 +33,10 @@ final class Test_String: Test_Core {
             // Empty string
             ("", "_empty"),
         ]
+        let translator = makeTranslator(featureFlags: [])
+        let asSwiftSafeName: (String) -> String = translator.swiftSafeName
         for (input, sanitized) in cases {
-            XCTAssertEqual(input.asSwiftSafeName, sanitized)
+            XCTAssertEqual(asSwiftSafeName(input), sanitized)
         }
     }
 }

@@ -130,13 +130,17 @@ struct PropertyBlueprint {
     /// property declaration, used for declaring nested types before
     /// referring to them in the property.
     var associatedDeclarations: [Declaration] = []
+
+    /// A converted function from user-provided strings to strings
+    /// safe to be used as a Swift identifier.
+    var asSwiftSafeName: (String) -> String
 }
 
 extension PropertyBlueprint {
 
     /// A name that is verified to be a valid Swift identifier.
     var swiftSafeName: String {
-        originalName.asSwiftSafeName
+        asSwiftSafeName(originalName)
     }
 
     /// A human-readable, fully qualified name of the Swift property.

@@ -29,7 +29,8 @@ extension TypesFileTranslator {
             originalName: header.name,
             typeUsage: header.typeUsage,
             default: header.header.required ? nil : .nil,
-            associatedDeclarations: []
+            associatedDeclarations: [],
+            asSwiftSafeName: swiftSafeName
         )
     }
 
@@ -47,7 +48,7 @@ extension TypesFileTranslator {
         componentKey: OpenAPI.ComponentKey,
         header: TypedResponseHeader
     ) throws -> [Declaration] {
-        let typeName = TypeAssigner.typeName(for: componentKey, of: OpenAPI.Header.self)
+        let typeName = typeAssigner.typeName(for: componentKey, of: OpenAPI.Header.self)
         return try translateResponseHeaderInTypes(
             typeName: typeName,
             header: header
