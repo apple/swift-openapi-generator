@@ -102,20 +102,23 @@ extension TypesFileTranslator {
             asSwiftSafeName: swiftSafeName
         )
 
-        let responseStructDecl = translateStructBlueprint(
-            .init(
-                comment: nil,
-                access: config.access,
-                typeName: typeName,
-                conformances: Constants.Operation.Output.Payload.conformances,
-                properties: [
-                    headersProperty,
-                    contentProperty,
-                ]
-            )
+        let structBlueprint: StructBlueprint = .init(
+            comment: nil,
+            access: config.access,
+            typeName: typeName,
+            conformances: Constants.Operation.Output.Payload.conformances,
+            properties: [
+                headersProperty,
+                contentProperty,
+            ]
         )
 
-        return responseStructDecl
+        let responseStructDecl = _calculateRequiredHeadersForInitialize(
+            with: headers,
+            from: translateStructBlueprint(structBlueprint)
+        )
+
+        return responseStructDecl.deprecate(if: structBlueprint.isDeprecated)
     }
 
     /// Returns a list of declarations for the specified reusable response
@@ -137,5 +140,83 @@ extension TypesFileTranslator {
             typeName: typeName,
             response: response
         )
+    }
+
+    /// Calculate the necessary parameters for initializing the response headers
+    /// and return the list of specified reusable response declarations.
+    /// - Parameters:
+    ///   - headers: the typed response headers
+    ///   - responseStructDecl:　A structure declaration before calculate.
+    /// - Returns: A structure declaration.
+    private func _calculateRequiredHeadersForInitialize(
+        with headers: [TypedResponseHeader],
+        from responseStructDecl: Declaration
+    ) -> Declaration {
+        guard case .commentable(let comment, let structDec) = responseStructDecl,
+            case .struct(let structDescription) = structDec
+        else {
+            return responseStructDecl
+        }
+
+        let newMembers: [Declaration] = structDescription
+            .members
+            .reduce(into: [Declaration]()) { partialResult, member in
+                let labelHeaders = "headers"
+
+                if case .commentable(let memberComment, let memberDecl) = member,
+                    case .function(let memberFuncDescription) = memberDecl,
+                    memberFuncDescription.signature.kind == .initializer,
+                    memberFuncDescription.signature.parameters.first(where: { $0.label == labelHeaders }) != nil
+                {
+
+                    let initParameters: [ParameterDescription] = memberFuncDescription
+                        .signature
+                        .parameters
+                        .map { parameterDesc in
+                            guard parameterDesc.label == labelHeaders else {
+                                return parameterDesc
+                            }
+                            let defaultValue: Expression? = {
+                                if headers.isEmpty {
+                                    return PropertyBlueprint.DefaultValue.emptyInit.asExpression
+                                }
+                                if headers.first(where: { !$0.isOptional }) != nil {
+                                    return nil
+                                }
+                                return PropertyBlueprint.DefaultValue.emptyInit.asExpression
+                            }()
+                            return .init(
+                                label: parameterDesc.label,
+                                name: parameterDesc.name,
+                                type: parameterDesc.type,
+                                defaultValue: defaultValue
+                            )
+                        }
+
+                    let initDescription: FunctionDescription = .init(
+                        accessModifier: memberFuncDescription.signature.accessModifier,
+                        kind: memberFuncDescription.signature.kind,
+                        parameters: initParameters,
+                        keywords: memberFuncDescription.signature.keywords,
+                        returnType: memberFuncDescription.signature.returnType,
+                        body: memberFuncDescription.body
+                    )
+
+                    partialResult.append(
+                        .commentable(memberComment, .function(initDescription))
+                    )
+                } else {
+                    partialResult.append(member)
+                }
+            }
+
+        let structDescriptionWithCalc = StructDescription(
+            accessModifier: structDescription.accessModifier,
+            name: structDescription.name,
+            conformances: structDescription.conformances,
+            members: newMembers
+        )
+
+        return .commentable(comment, .struct(structDescriptionWithCalc))
     }
 }
