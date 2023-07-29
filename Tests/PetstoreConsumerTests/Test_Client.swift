@@ -170,6 +170,7 @@ final class Test_Client: XCTestCase {
                 headers: [
                     .init(name: "content-type", value: "application/json; charset=utf-8"),
                     .init(name: "x-extra-arguments", value: #"{"code":1}"#),
+                    .init(name: "x-extra-arguments2", value: #"{"code":9999}"#),
                 ],
                 encodedBody: #"""
                     {
@@ -192,6 +193,7 @@ final class Test_Client: XCTestCase {
             return
         }
         XCTAssertEqual(value.headers.X_Extra_Arguments, .init(code: 1))
+        XCTAssertEqual(value.headers.X_Extra_Arguments2, .init(code: 9999))
         switch value.body {
         case .json(let pets):
             XCTAssertEqual(pets, .init(id: 1, name: "Fluffz"))

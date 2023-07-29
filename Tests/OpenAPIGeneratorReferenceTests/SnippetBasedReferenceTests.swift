@@ -519,7 +519,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-    func testComponentsResponsesResponseWithHeader() throws {
+    func testComponentsResponsesResponseWithOptionalHeader() throws {
         try self.assertResponsesTranslation(
             """
             responses:
@@ -536,6 +536,42 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public struct Headers: Sendable, Equatable, Hashable {
                         public var X_Reason: Swift.String?
                         public init(X_Reason: Swift.String? = nil) {
+                            self.X_Reason = X_Reason }
+                    }
+                    public var headers: Components.Responses.BadRequest.Headers
+                    @frozen public enum Body: Sendable, Equatable, Hashable {}
+                    public var body: Components.Responses.BadRequest.Body?
+                    public init(
+                        headers: Components.Responses.BadRequest.Headers = .init(),
+                        body: Components.Responses.BadRequest.Body? = nil
+                    ) {
+                        self.headers = headers
+                        self.body = body
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsResponsesResponseWithRequiredHeader() throws {
+        try self.assertResponsesTranslation(
+            """
+            responses:
+              BadRequest:
+                description: Bad request
+                headers:
+                  X-Reason:
+                    schema:
+                      type: string
+                    required: true
+            """,
+            """
+            public enum Responses {
+                public struct BadRequest: Sendable, Equatable, Hashable {
+                    public struct Headers: Sendable, Equatable, Hashable {
+                        public var X_Reason: Swift.String
+                        public init(X_Reason: Swift.String) {
                             self.X_Reason = X_Reason }
                     }
                     public var headers: Components.Responses.BadRequest.Headers

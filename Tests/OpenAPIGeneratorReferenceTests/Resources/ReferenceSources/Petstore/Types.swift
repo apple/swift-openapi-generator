@@ -686,7 +686,7 @@ public enum Components {
             ///   - headers: Received HTTP response headers
             ///   - body: Received HTTP response body
             public init(
-                headers: Components.Responses.ErrorBadRequest.Headers,
+                headers: Components.Responses.ErrorBadRequest.Headers = .init(),
                 body: Components.Responses.ErrorBadRequest.Body
             ) {
                 self.headers = headers
@@ -985,12 +985,18 @@ public enum Operations {
             public struct Created: Sendable, Equatable, Hashable {
                 public struct Headers: Sendable, Equatable, Hashable {
                     public var X_Extra_Arguments: Components.Schemas.CodeError?
+                    public var X_Extra_Arguments2: Components.Schemas.CodeError
                     /// Creates a new `Headers`.
                     ///
                     /// - Parameters:
                     ///   - X_Extra_Arguments:
-                    public init(X_Extra_Arguments: Components.Schemas.CodeError? = nil) {
+                    ///   - X_Extra_Arguments2:
+                    public init(
+                        X_Extra_Arguments: Components.Schemas.CodeError? = nil,
+                        X_Extra_Arguments2: Components.Schemas.CodeError
+                    ) {
                         self.X_Extra_Arguments = X_Extra_Arguments
+                        self.X_Extra_Arguments2 = X_Extra_Arguments2
                     }
                 }
                 /// Received HTTP response headers

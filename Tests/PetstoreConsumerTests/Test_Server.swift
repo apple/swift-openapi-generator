@@ -137,7 +137,7 @@ final class Test_Server: XCTestCase {
                 return .created(
                     .init(
                         headers: .init(
-                            X_Extra_Arguments: .init(code: 1)
+                            X_Extra_Arguments2: .init(code: 1)
                         ),
                         body: .json(
                             .init(id: 1, name: "Fluffz")
@@ -166,7 +166,7 @@ final class Test_Server: XCTestCase {
         XCTAssertEqual(
             response.headerFields,
             [
-                .init(name: "X-Extra-Arguments", value: #"{"code":1}"#),
+                .init(name: "X-Extra-Arguments2", value: #"{"code":1}"#),
                 .init(name: "content-type", value: "application/json; charset=utf-8"),
             ]
         )

@@ -220,6 +220,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         name: "X-Extra-Arguments",
                         value: value.headers.X_Extra_Arguments
                     )
+                    try converter.setHeaderFieldAsJSON(
+                        in: &response.headerFields,
+                        name: "X-Extra-Arguments2",
+                        value: value.headers.X_Extra_Arguments2
+                    )
                     try converter.validateAcceptIfPresent(
                         "application/json",
                         in: request.headerFields
