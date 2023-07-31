@@ -306,10 +306,13 @@ extension ServerFileTranslator {
         }
         codeBlocks.append(contentsOf: headerExprs.map { .expression($0) })
 
-        let typedContents = [try bestSingleTypedContent(
-            typedResponse.response.content,
-            inParent: bodyTypeName
-        )].compactMap { $0 }
+        let typedContents = [
+            try bestSingleTypedContent(
+                typedResponse.response.content,
+                inParent: bodyTypeName
+            )
+        ]
+        .compactMap { $0 }
 
         if !typedContents.isEmpty {
             let switchContentCases: [SwitchCaseDescription] = typedContents.map { typedContent in
