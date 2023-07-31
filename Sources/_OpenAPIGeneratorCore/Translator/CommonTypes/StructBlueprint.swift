@@ -80,6 +80,21 @@ struct StructBlueprint {
     var properties: [PropertyBlueprint]
 }
 
+extension StructBlueprint {
+
+    /// A Boolean value indicating whether the struct can be initialized using
+    /// an empty initializer.
+    ///
+    /// For example, when all the properties of the struct have a default value,
+    /// the struct can be initialized using `Foo()`. This is important for
+    /// other types referencing this type.
+    var hasEmptyInit: Bool {
+        // If at least one property requires an explicit value, this struct
+        // cannot have an empty initializer.
+        !properties.contains(where: { $0.defaultValue == nil })
+    }
+}
+
 /// A structure that contains the information about an OpenAPI object property
 /// that is required to generate a matching Swift property.
 struct PropertyBlueprint {
