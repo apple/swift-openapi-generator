@@ -74,11 +74,62 @@ fileprivate extension String {
     ///
     /// See the proposal SOAR-0001 for details.
     ///
-    /// In addition to replacing illegal characters with an underscores, also
+    /// For example, the string `$nake…` would be returned as `_dollar_nake_x2026_`, because
+    /// both the dollar and ellipsis sign are not valid characters in a Swift identifier.
+    /// So, it replaces such characters with their html entity equivalents or unicode hex representation,
+    /// in case it's not present in the `specialCharsMap`. It marks this replacement with `_` as a delimiter.
+    ///
+    /// In addition to replacing illegal characters, it also
     /// ensures that the identifier starts with a letter and not a number.
     var proposedSafeForSwiftCode: String {
-        // TODO: New logic proposed in SOAR-0001 goes here.
-        return ""
+        guard !isEmpty else {
+            return "_empty"
+        }
+        
+        let firstCharSet: CharacterSet = .letters.union(.init(charactersIn: "_"))
+        let numbers: CharacterSet = .decimalDigits
+        let otherCharSet: CharacterSet = .alphanumerics.union(.init(charactersIn: "_"))
+        
+        var sanitizedScalars: [Unicode.Scalar] = []
+        for (index, scalar) in unicodeScalars.enumerated() {
+            let allowedSet = index == 0 ? firstCharSet : otherCharSet
+            let outScalar: Unicode.Scalar
+            if allowedSet.contains(scalar) {
+                outScalar = scalar
+            } else if index == 0 && numbers.contains(scalar) {
+                sanitizedScalars.append("_")
+                outScalar = scalar
+            } else {
+                sanitizedScalars.append("_")
+                if let entityName = Self.specialCharsMap[scalar] {
+                    for char in entityName.unicodeScalars {
+                        sanitizedScalars.append(char)
+                    }
+                } else {
+                    sanitizedScalars.append("x")
+                    let hexString = String(scalar.value, radix: 16, uppercase: true)
+                    for char in hexString.unicodeScalars {
+                        sanitizedScalars.append(char)
+                    }
+                }
+                sanitizedScalars.append("_")
+                continue
+            }
+            sanitizedScalars.append(outScalar)
+        }
+        
+        let validString = String(UnicodeScalarView(sanitizedScalars))
+        
+        //Special case for a single underscore.
+        //We can't add it to the map as its a valid swift identifier in other cases.
+        if validString == "_" {
+            return "_underscore_"
+        }
+        
+        guard Self.keywords.contains(validString) else {
+            return validString
+        }
+        return "_\(validString)"
     }
 
     /// A list of Swift keywords.
@@ -138,62 +189,6 @@ fileprivate extension String {
         "true",
         "try",
         "throws",
-        "__FILE__",
-        "__LINE__",
-        "__COLUMN__",
-        "__FUNCTION__",
-        "__DSO_HANDLE__",
-        "_",
-        "(",
-        ")",
-        "{",
-        "}",
-        "[",
-        "]",
-        "<",
-        ">",
-        ".",
-        ".",
-        ",",
-        "...",
-        ":",
-        ";",
-        "=",
-        "@",
-        "#",
-        "&",
-        "->",
-        "`",
-        "\\",
-        "!",
-        "?",
-        "?",
-        "\"",
-        "\'",
-        "\"\"\"",
-        "#keyPath",
-        "#line",
-        "#selector",
-        "#file",
-        "#fileID",
-        "#filePath",
-        "#column",
-        "#function",
-        "#dsohandle",
-        "#assert",
-        "#sourceLocation",
-        "#warning",
-        "#error",
-        "#if",
-        "#else",
-        "#elseif",
-        "#endif",
-        "#available",
-        "#unavailable",
-        "#fileLiteral",
-        "#imageLiteral",
-        "#colorLiteral",
-        ")",
         "yield",
         "String",
         "Error",
@@ -204,5 +199,41 @@ fileprivate extension String {
         "type",
         "Protocol",
         "await",
+    ]
+    
+    /// A map of ASCII printable characters to their HTML entity names. Used to reduce collisions in generated names.
+    private static let specialCharsMap: [Unicode.Scalar: String] = [
+        " ": "space",
+        "!": "excl",
+        "\"": "quot",
+        "#": "num",
+        "$": "dollar",
+        "%": "percnt",
+        "&": "amp",
+        "'": "apos",
+        "(": "lpar",
+        ")": "rpar",
+        "*": "ast",
+        "+": "plus",
+        ",": "comma",
+        "-": "hyphen",
+        ".": "period",
+        "/": "sol",
+        ":": "colon",
+        ";": "semi",
+        "<": "lt",
+        "=": "equals",
+        ">": "gt",
+        "?": "quest",
+        "@": "commat",
+        "[": "lbrack",
+        "\\": "bsol",
+        "]": "rbrack",
+        "^": "hat",
+        "`": "grave",
+        "{": "lcub",
+        "|": "verbar",
+        "}": "rcub",
+        "~": "tilde",
     ]
 }
