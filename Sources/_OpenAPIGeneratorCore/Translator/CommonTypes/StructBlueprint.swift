@@ -91,7 +91,7 @@ extension StructBlueprint {
     var hasEmptyInit: Bool {
         // If at least one property requires an explicit value, this struct
         // cannot have an empty initializer.
-        !properties.contains(where: { $0.defaultValue == nil })
+        properties.allSatisfy { $0.defaultValue != nil }
     }
 }
 
