@@ -31,7 +31,7 @@ Below is a table of example changes you might make to an OpenAPI document, and w
 
 > ‡: Adding a new response to an existing operation introduces a new enum case that the adopter needs to handle, so is a breaking change in OpenAPI and Swift.
 
-> §: Adding a new content type to an existing response is similar to [2]: it introduces a new enum case that the adopter needs to handle, so is a breaking change in OpenAPI and Swift.
+> §: Adding a new content type to an existing response is similar to ‡: it introduces a new enum case that the adopter needs to handle, so is a breaking change in OpenAPI and Swift.
 
 The table above is not exhaustive, but it shows a pattern:
 - Removing (or renaming) anything that the adopter might have relied on is usually a breaking change.
