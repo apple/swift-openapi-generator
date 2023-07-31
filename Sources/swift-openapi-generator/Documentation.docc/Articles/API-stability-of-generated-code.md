@@ -10,7 +10,7 @@ This document outlines the API stability goals for the generated code to help yo
 
 ### Example changes
 
-There are three API bounderies to consider:
+There are three API boundaries to consider:
 - **HTTP**: the requests and responses sent over the network
 - **OpenAPI**: the description of the API using the OpenAPI specification
 - **Swift**: the client or server code generated from the OpenAPI document
@@ -60,7 +60,7 @@ Let's consider an example where you're creating a Swift library that provides a 
 You can hide the generated client code as an implementation detail and provide a hand-written Swift API to your users using the following steps:
 
 1. Create a library target that is not exposed as a product, called, for example, `GeneratedGreetingClient`, which uses the Swift OpenAPI Generator package plugin.
-2. Create another library target that is exposed as a product, called, for example, `Greeter`, which imports the depends on the `GeneratedGreetingClient` target but doesn't use the imported types in its public API.
+2. Create another library target that is exposed as a product, called, for example, `Greeter`, which depends on the `GeneratedGreetingClient` target but doesn't use the imported types in its public API.
 
 This way, you are in full control of the public API of the `Greeter` library, but you also benefit from calling the service using generated code.
 
