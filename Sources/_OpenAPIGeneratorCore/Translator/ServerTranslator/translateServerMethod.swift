@@ -285,6 +285,7 @@ extension ServerFileTranslator {
                     .expression(handleExpr)
                 ]
             )
+            .deprecate(if: description.operation.deprecated)
         )
 
         return (registerCall, functionDecl)
