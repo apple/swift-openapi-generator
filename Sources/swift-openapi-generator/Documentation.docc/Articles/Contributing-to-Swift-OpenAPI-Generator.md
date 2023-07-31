@@ -22,7 +22,7 @@ The code generator project is written in Swift and can be thought of as a functi
 
 The generated Swift code depends on the runtime library, so some features might require coordinated changes in both the runtime and generator repositories.
 
-Similarly, any changes to the transport and middleware protocols in the runtime library must consider the impact on existing existing transport and middleware implementation packages.
+Similarly, any changes to the transport and middleware protocols in the runtime library must consider the impact on existing transport and middleware implementation packages.
 
 > Tip: For non-trivial changes affecting the API, consider writing a proposal. For more, check out <doc:Proposals>.
 
@@ -44,7 +44,7 @@ To use this functionality, use an SPI import:
 
 ### Example contribution workflow
 
-Let's walk through the steps to implement a miising OpenAPI feature that requires changes in multiple repositories. For example, adding support for a [new query style][0].
+Let's walk through the steps to implement a missing OpenAPI feature that requires changes in multiple repositories. For example, adding support for a [new query style][0].
 
 1. Clone the generator and runtime repositories and set up a development environment where the generator uses the local runtime package dependency, by either:
 
