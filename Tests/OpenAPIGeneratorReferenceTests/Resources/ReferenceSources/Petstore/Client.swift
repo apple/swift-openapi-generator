@@ -208,7 +208,9 @@ public struct Client: APIProtocol {
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    public func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output {
+    @available(*, deprecated) public func probe(_ input: Operations.probe.Input) async throws
+        -> Operations.probe.Output
+    {
         try await client.send(
             input: input,
             forOperation: Operations.probe.id,

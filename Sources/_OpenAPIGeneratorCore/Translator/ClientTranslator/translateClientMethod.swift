@@ -212,6 +212,7 @@ extension ClientFileTranslator {
                     .expression(sendExpr)
                 ]
             )
+            .deprecate(if: description.operation.deprecated)
         )
     }
 }
