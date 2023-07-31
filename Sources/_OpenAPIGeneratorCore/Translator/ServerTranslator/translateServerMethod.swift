@@ -206,8 +206,17 @@ extension ServerFileTranslator {
         )
         let methodArg: FunctionArgumentDescription = .init(
             label: "using",
-            expression: .identifier(Constants.Server.Universal.apiHandlerName)
-                .dot(description.methodName)
+            expression: .closureInvocation(
+                body: [
+                    .expression(
+                        .identifier(Constants.Server.Universal.apiHandlerName)
+                            .dot(description.methodName)
+                            .call([
+                                .init(label: nil, expression: .identifier("$0"))
+                            ])
+                    )
+                ]
+            )
         )
         let deserializerArg: FunctionArgumentDescription = .init(
             label: "deserializer",

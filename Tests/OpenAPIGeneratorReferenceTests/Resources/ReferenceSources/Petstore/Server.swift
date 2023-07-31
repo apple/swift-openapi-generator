@@ -69,7 +69,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             with: metadata,
             forOperation: Operations.listPets.id,
-            using: APIHandler.listPets,
+            using: { APIHandler.listPets($0) },
             deserializer: { request, metadata in let path: Operations.listPets.Input.Path = .init()
                 let query: Operations.listPets.Input.Query = .init(
                     limit: try converter.getOptionalQueryItemAsText(
@@ -179,7 +179,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             with: metadata,
             forOperation: Operations.createPet.id,
-            using: APIHandler.createPet,
+            using: { APIHandler.createPet($0) },
             deserializer: { request, metadata in
                 try converter.validateContentTypeIfPresent(
                     in: request.headerFields,
@@ -279,7 +279,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             with: metadata,
             forOperation: Operations.probe.id,
-            using: APIHandler.probe,
+            using: { APIHandler.probe($0) },
             deserializer: { request, metadata in let path: Operations.probe.Input.Path = .init()
                 let query: Operations.probe.Input.Query = .init()
                 let headers: Operations.probe.Input.Headers = .init()
@@ -314,7 +314,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             with: metadata,
             forOperation: Operations.updatePet.id,
-            using: APIHandler.updatePet,
+            using: { APIHandler.updatePet($0) },
             deserializer: { request, metadata in
                 try converter.validateContentTypeIfPresent(
                     in: request.headerFields,
@@ -389,7 +389,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             with: metadata,
             forOperation: Operations.uploadAvatarForPet.id,
-            using: APIHandler.uploadAvatarForPet,
+            using: { APIHandler.uploadAvatarForPet($0) },
             deserializer: { request, metadata in
                 try converter.validateContentTypeIfPresent(
                     in: request.headerFields,
