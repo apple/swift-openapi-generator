@@ -123,13 +123,22 @@ let package = Package(
             swiftSettings: swiftSettings
         ),
 
+        // Common types for concrete PetstoreConsumer*Tests test targets.
+        .target(
+            name: "PetstoreConsumerTestCore",
+            dependencies: [
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")
+            ],
+            swiftSettings: swiftSettings
+        ),
+
         // PetstoreConsumerTests
         // Builds and tests the reference code from GeneratorReferenceTests
         // to ensure it actually works correctly at runtime.
         .testTarget(
             name: "PetstoreConsumerTests",
             dependencies: [
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")
+                "PetstoreConsumerTestCore"
             ],
             swiftSettings: swiftSettings
         ),
