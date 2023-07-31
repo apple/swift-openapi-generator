@@ -985,18 +985,12 @@ public enum Operations {
             public struct Created: Sendable, Equatable, Hashable {
                 public struct Headers: Sendable, Equatable, Hashable {
                     public var X_Extra_Arguments: Components.Schemas.CodeError?
-                    public var X_Extra_Arguments2: Components.Schemas.CodeError
                     /// Creates a new `Headers`.
                     ///
                     /// - Parameters:
                     ///   - X_Extra_Arguments:
-                    ///   - X_Extra_Arguments2:
-                    public init(
-                        X_Extra_Arguments: Components.Schemas.CodeError? = nil,
-                        X_Extra_Arguments2: Components.Schemas.CodeError
-                    ) {
+                    public init(X_Extra_Arguments: Components.Schemas.CodeError? = nil) {
                         self.X_Extra_Arguments = X_Extra_Arguments
-                        self.X_Extra_Arguments2 = X_Extra_Arguments2
                     }
                 }
                 /// Received HTTP response headers
@@ -1012,7 +1006,7 @@ public enum Operations {
                 ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
                 public init(
-                    headers: Operations.createPet.Output.Created.Headers,
+                    headers: Operations.createPet.Output.Created.Headers = .init(),
                     body: Operations.createPet.Output.Created.Body
                 ) {
                     self.headers = headers

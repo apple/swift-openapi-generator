@@ -107,13 +107,6 @@ paths:
                 application/json:
                   schema:
                     $ref: '#/components/schemas/CodeError'
-            X-Extra-Arguments2:
-              required: true
-              description: "A description here."
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/CodeError'
           content:
             application/json:
               schema:

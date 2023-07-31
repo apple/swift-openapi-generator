@@ -174,11 +174,6 @@ public struct Client: APIProtocol {
                             in: response.headerFields,
                             name: "X-Extra-Arguments",
                             as: Components.Schemas.CodeError.self
-                        ),
-                        X_Extra_Arguments2: try converter.getRequiredHeaderFieldAsJSON(
-                            in: response.headerFields,
-                            name: "X-Extra-Arguments2",
-                            as: Components.Schemas.CodeError.self
                         )
                     )
                     try converter.validateContentTypeIfPresent(
