@@ -26,7 +26,7 @@ final class Test_TypeMatcher: Test_Core {
         (.string, "Swift.String"),
         (.string(.init(format: .byte), .init()), "Swift.String"),
         (.string(.init(format: .binary), .init()), "Foundation.Data"),
-        (.string(.init(format: .date), .init()), "Foundation.Date"),
+        (.string(.init(format: .date), .init()), "Swift.String"),
         (.string(.init(format: .dateTime), .init()), "Foundation.Date"),
 
         (.integer, "Swift.Int"),
@@ -63,7 +63,7 @@ final class Test_TypeMatcher: Test_Core {
     func testBuiltinTypes() {
         for (schema, name) in Self.builtinTypes {
             XCTAssertEqual(
-                TypeMatcher.tryMatchBuiltinType(for: schema.value)?
+                typeMatcher.tryMatchBuiltinType(for: schema.value)?
                     .fullyQualifiedSwiftName,
                 name
             )
@@ -146,7 +146,7 @@ final class Test_TypeMatcher: Test_Core {
     func testNonBuiltinTypes() {
         for schema in Self.nonBuiltinTypes {
             XCTAssertNil(
-                TypeMatcher.tryMatchBuiltinType(for: schema.value),
+                typeMatcher.tryMatchBuiltinType(for: schema.value),
                 "Type is expected to not match a builtin type: \(schema)"
             )
         }
@@ -172,7 +172,7 @@ final class Test_TypeMatcher: Test_Core {
         for (schema, name) in Self.referenceableTypes {
             try XCTAssertEqual(
                 XCTUnwrap(
-                    TypeMatcher.tryMatchReferenceableType(for: schema),
+                    typeMatcher.tryMatchReferenceableType(for: schema),
                     "Expected schema to be referenceable: \(schema)"
                 )
                 .fullyQualifiedSwiftName,
@@ -203,7 +203,7 @@ final class Test_TypeMatcher: Test_Core {
     func testNonReferenceableTypes() {
         for schema in Self.nonReferenceableTypes {
             XCTAssertNil(
-                TypeMatcher.tryMatchBuiltinType(for: schema.value),
+                typeMatcher.tryMatchBuiltinType(for: schema.value),
                 "Type is expected to not match a builtin type: \(schema)"
             )
             XCTAssertFalse(TypeMatcher.isReferenceable(schema), "Expected schema not to be referenceable: \(schema)")

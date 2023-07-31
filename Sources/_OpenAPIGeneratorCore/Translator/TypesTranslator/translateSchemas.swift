@@ -40,7 +40,7 @@ extension TypesFileTranslator {
         else {
             return []
         }
-        let typeName = TypeAssigner.typeName(for: (componentKey, schema))
+        let typeName = typeAssigner.typeName(for: (componentKey, schema))
         return try translateSchema(
             typeName: typeName,
             schema: schema,

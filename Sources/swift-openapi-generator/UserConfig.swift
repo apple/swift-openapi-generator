@@ -26,4 +26,7 @@ struct _UserConfig: Codable {
     /// A list of names of additional imports that are added to every
     /// generated Swift file.
     var additionalImports: [String]?
+
+    /// A set of features to explicitly enable.
+    var featureFlags: FeatureFlags?
 }

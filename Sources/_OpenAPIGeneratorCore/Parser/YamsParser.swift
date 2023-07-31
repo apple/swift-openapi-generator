@@ -21,7 +21,7 @@ struct YamsParser: ParserProtocol {
     func parseOpenAPI(
         _ input: InMemoryInputFile,
         config: Config,
-        diagnostics: DiagnosticCollector
+        diagnostics: any DiagnosticCollector
     ) throws -> ParsedOpenAPIRepresentation {
         let decoder = YAMLDecoder()
         let openapiData = input.contents
@@ -86,7 +86,7 @@ struct YamsParser: ParserProtocol {
                     location: .init(filePath: input.absolutePath.path, lineNumber: yamlMark.line - 1)
                 )
             }
-        } else if let openAPIError = context.underlyingError as? OpenAPIError {
+        } else if let openAPIError = context.underlyingError as? (any OpenAPIError) {
             throw Diagnostic.error(
                 message: openAPIError.localizedDescription,
                 location: .init(filePath: input.absolutePath.path)

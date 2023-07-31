@@ -61,7 +61,7 @@ extension FileTranslator {
         let type: TypeName
         switch unresolvedRequest {
         case .a(let reference):
-            type = try TypeAssigner.typeName(for: reference)
+            type = try typeAssigner.typeName(for: reference)
         case .b:
             type = parent.appending(
                 swiftComponent: Constants.Operation.Body.typeName

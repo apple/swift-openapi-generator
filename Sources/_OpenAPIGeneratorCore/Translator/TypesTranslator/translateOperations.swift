@@ -70,7 +70,8 @@ extension TypesFileTranslator {
                 default: defaultValue,
                 associatedDeclarations: [
                     structDecl
-                ]
+                ],
+                asSwiftSafeName: swiftSafeName
             )
         }
         let bodyProperty = try parseRequestBodyAsProperty(
@@ -161,6 +162,7 @@ extension TypesFileTranslator {
         }
 
         let enumDecl: Declaration = .enum(
+            isFrozen: true,
             accessModifier: config.access,
             name: outputTypeName.shortSwiftName,
             conformances: Constants.Operation.Output.conformances,

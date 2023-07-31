@@ -27,6 +27,10 @@ struct TypedParameter {
 
     /// The coding strategy appropriate for this parameter.
     var codingStrategy: CodingStrategy
+
+    /// A converted function from user-provided strings to strings
+    /// safe to be used as a Swift identifier.
+    var asSwiftSafeName: (String) -> String
 }
 
 extension TypedParameter: CustomStringConvertible {
@@ -44,7 +48,7 @@ extension TypedParameter {
 
     /// The name of the parameter sanitized to be a valid Swift identifier.
     var variableName: String {
-        name.asSwiftSafeName
+        asSwiftSafeName(name)
     }
 
     /// A Boolean value that indicates whether the parameter must be specified
@@ -200,13 +204,13 @@ extension FileTranslator {
         let type: TypeUsage
         switch unresolvedParameter {
         case let .a(ref):
-            type = try TypeAssigner.typeName(for: ref).asUsage
+            type = try typeAssigner.typeName(for: ref).asUsage
         case let .b(_parameter):
             switch schema {
             case let .a(reference):
-                type = try TypeAssigner.typeName(for: reference).asUsage
+                type = try typeAssigner.typeName(for: reference).asUsage
             case let .b(schema):
-                type = try TypeAssigner.typeUsage(
+                type = try typeAssigner.typeUsage(
                     forParameterNamed: _parameter.name,
                     withSchema: schema,
                     inParent: locationTypeName
@@ -218,7 +222,8 @@ extension FileTranslator {
             parameter: parameter,
             schema: schema,
             typeUsage: usage,
-            codingStrategy: codingStrategy
+            codingStrategy: codingStrategy,
+            asSwiftSafeName: swiftSafeName
         )
     }
 }

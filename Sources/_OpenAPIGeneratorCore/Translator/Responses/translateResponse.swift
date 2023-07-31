@@ -52,7 +52,8 @@ extension TypesFileTranslator {
             default: headerProperties.isEmpty ? .emptyInit : nil,
             associatedDeclarations: [
                 headersStructDecl
-            ]
+            ],
+            asSwiftSafeName: swiftSafeName
         )
 
         let bodyTypeName = typeName.appending(
@@ -63,7 +64,7 @@ extension TypesFileTranslator {
             response.content,
             inParent: bodyTypeName
         ) {
-            let identifier = typedContent.content.contentType.identifier
+            let identifier = contentSwiftName(typedContent.content.contentType)
             let associatedType = typedContent.resolvedTypeUsage
             if TypeMatcher.isInlinable(typedContent.content.schema), let inlineType = typedContent.typeUsage {
                 let inlineTypeDecls = try translateSchema(
@@ -83,6 +84,7 @@ extension TypesFileTranslator {
         }
         let hasNoContent: Bool = bodyCases.isEmpty
         let contentEnumDecl: Declaration = .enum(
+            isFrozen: true,
             accessModifier: config.access,
             name: bodyTypeName.shortSwiftName,
             conformances: Constants.Operation.Body.conformances,
@@ -96,7 +98,8 @@ extension TypesFileTranslator {
             default: hasNoContent ? .nil : nil,
             associatedDeclarations: [
                 contentEnumDecl
-            ]
+            ],
+            asSwiftSafeName: swiftSafeName
         )
 
         let responseStructDecl = translateStructBlueprint(
@@ -126,7 +129,7 @@ extension TypesFileTranslator {
         componentKey: OpenAPI.ComponentKey,
         response: TypedResponse
     ) throws -> Declaration {
-        let typeName = TypeAssigner.typeName(
+        let typeName = typeAssigner.typeName(
             for: componentKey,
             of: OpenAPI.Response.self
         )

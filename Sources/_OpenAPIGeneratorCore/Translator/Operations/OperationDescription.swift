@@ -30,6 +30,10 @@ struct OperationDescription {
     /// The OpenAPI components, used to resolve JSON references.
     var components: OpenAPI.Components
 
+    /// A converted function from user-provided strings to strings
+    /// safe to be used as a Swift identifier.
+    var asSwiftSafeName: (String) -> String
+
     /// The OpenAPI operation object.
     var operation: OpenAPI.Operation {
         endpoint.operation
@@ -53,9 +57,12 @@ extension OperationDescription {
     /// - Parameters:
     ///   - map: The paths from the OpenAPI document.
     ///   - components: The components from the OpenAPI document.
+    ///   - asSwiftSafeName: A converted function from user-provided strings
+    ///   to strings safe to be used as a Swift identifier.
     static func all(
         from map: OpenAPI.PathItem.Map,
-        in components: OpenAPI.Components
+        in components: OpenAPI.Components,
+        asSwiftSafeName: @escaping (String) -> String
     ) -> [OperationDescription] {
         map.flatMap { path, value in
             value.endpoints.map { endpoint in
@@ -63,7 +70,8 @@ extension OperationDescription {
                     path: path,
                     endpoint: endpoint,
                     pathParameters: value.parameters,
-                    components: components
+                    components: components,
+                    asSwiftSafeName: asSwiftSafeName
                 )
             }
         }
@@ -75,7 +83,7 @@ extension OperationDescription {
     /// specified. Otherwise, computes a unique name from the operation's
     /// path and HTTP method.
     var methodName: String {
-        operationID.asSwiftSafeName
+        asSwiftSafeName(operationID)
     }
 
     /// Returns the identifier for the operation.
@@ -246,7 +254,7 @@ extension OperationDescription {
             let names: [Expression] =
                 pathParameters
                 .map { param in
-                    .identifier("input.path.\(param.name.asSwiftSafeName)")
+                    .identifier("input.path.\(asSwiftSafeName(param.name))")
                 }
             let arrayExpr: Expression = .literal(.array(names))
             return (template, arrayExpr)

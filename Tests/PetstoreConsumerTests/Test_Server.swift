@@ -231,6 +231,35 @@ final class Test_Server: XCTestCase {
         )
     }
 
+    func testCreatePet_withIncorrectContentType() async throws {
+        client = .init(
+            createPetBlock: { input in
+                XCTFail("The handler should not have been called")
+                fatalError("Unreachable")
+            }
+        )
+
+        do {
+            _ = try await server.createPet(
+                .init(
+                    path: "/api/pets",
+                    method: .post,
+                    headerFields: [
+                        .init(name: "x-extra-arguments", value: #"{"code":1}"#),
+                        .init(name: "content-type", value: "text/plain; charset=utf-8"),
+                    ],
+                    encodedBody: #"""
+                        {
+                          "name" : "Fluffz"
+                        }
+                        """#
+                ),
+                .init()
+            )
+            XCTFail("The method should have thrown an error.")
+        } catch {}
+    }
+
     func testUpdatePet_204_withBody() async throws {
         client = .init(
             updatePetBlock: { input in

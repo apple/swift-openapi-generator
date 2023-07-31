@@ -20,6 +20,7 @@ struct TestConfig: Encodable {
     var docFilePath: String
     var mode: GeneratorMode
     var additionalImports: [String]?
+    var featureFlags: FeatureFlags?
     var referenceOutputDirectory: String
 }
 
@@ -27,13 +28,14 @@ extension TestConfig {
     var asConfig: Config {
         .init(
             mode: mode,
-            additionalImports: additionalImports ?? []
+            additionalImports: additionalImports ?? [],
+            featureFlags: featureFlags ?? []
         )
     }
 }
 
 /// Tests that the generator produces Swift files that match a reference.
-class ReferenceTests: XCTestCase {
+class FileBasedReferenceTests: XCTestCase {
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
@@ -82,10 +84,8 @@ class ReferenceTests: XCTestCase {
         )
 
         // Run the requested generator invocation
-        let diagnostics: DiagnosticCollector = strictDiagnosticsCollector
         let generatorPipeline = self.makeGeneratorPipeline(
-            config: referenceTest.asConfig,
-            diagnostics: diagnostics
+            config: referenceTest.asConfig
         )
         let generatedOutputSource = try generatorPipeline.run(input)
 
@@ -136,6 +136,7 @@ class ReferenceTests: XCTestCase {
                     docFilePath: "Docs/\(name.fileName)",
                     mode: mode,
                     additionalImports: [],
+                    featureFlags: [],
                     referenceOutputDirectory: "ReferenceSources/\(name.directoryName)"
                 )
             )
@@ -143,32 +144,8 @@ class ReferenceTests: XCTestCase {
     }
 }
 
-struct StrictDiagnosticsCollector: DiagnosticCollector {
-    var test: XCTestCase
-
-    func emit(_ diagnostic: Diagnostic) {
-        print("Test emitted diagnostic: \(diagnostic.description)")
-        switch diagnostic.severity {
-        case .note:
-            // no need to fail, just print
-            break
-        case .warning, .error:
-            XCTFail("Failing with a diagnostic: \(diagnostic.description)")
-        }
-    }
-}
-
-extension ReferenceTests {
-
-    var strictDiagnosticsCollector: DiagnosticCollector {
-        StrictDiagnosticsCollector(test: self)
-    }
-
-    private func makeGeneratorPipeline(
-        config: Config,
-        diagnostics: DiagnosticCollector
-    ) -> GeneratorPipeline {
-
+extension FileBasedReferenceTests {
+    private func makeGeneratorPipeline(config: Config) -> GeneratorPipeline {
         let parser = YamsParser()
         let translator = MultiplexTranslator()
         let renderer = TextBasedRenderer()
@@ -183,7 +160,7 @@ extension ReferenceTests {
                 return newFile
             },
             config: config,
-            diagnostics: diagnostics
+            diagnostics: XCTestDiagnosticCollector(test: self)
         )
     }
 

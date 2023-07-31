@@ -20,7 +20,7 @@ As a result, the generated code may not always be idiomatic Swift style or confo
 
 If you require the generated code to conform to specific style, we recommend you preprocess the OpenAPI document to update the identifiers to produce different code.
 
-For larger documents, you may want to do this programatically and, if you are doing so in Swift, you could use [OpenAPIKit][0], which is the same library used by Swift OpenAPI Generator.
+For larger documents, you may want to do this programmatically and, if you are doing so in Swift, you could use [OpenAPIKit][0], which is the same library used by Swift OpenAPI Generator.
 
 > Warning: Understand which identifiers can be changed without impacting the wire protocol for the API before attempting to preprocess the OpenAPI document.
 

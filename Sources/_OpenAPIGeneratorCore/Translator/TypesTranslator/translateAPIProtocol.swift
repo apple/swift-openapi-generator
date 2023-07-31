@@ -23,7 +23,8 @@ extension TypesFileTranslator {
 
         let operations = OperationDescription.all(
             from: paths,
-            in: components
+            in: components,
+            asSwiftSafeName: swiftSafeName
         )
         let functionDecls =
             operations
@@ -57,7 +58,7 @@ extension TypesFileTranslator {
         let function = FunctionDescription(signature: signature)
         return .commentable(
             operationComment,
-            .function(function)
+            .function(function).deprecate(if: description.operation.deprecated)
         )
     }
 }

@@ -14,6 +14,17 @@
 //===----------------------------------------------------------------------===//
 import PackageDescription
 
+// General Swift-settings for all targets.
+var swiftSettings: [SwiftSetting] = []
+
+#if swift(>=5.9)
+swiftSettings.append(
+    // https://github.com/apple/swift-evolution/blob/main/proposals/0335-existential-any.md
+    // Require `any` for existential types.
+    .enableUpcomingFeature("ExistentialAny")
+)
+#endif
+
 let package = Package(
     name: "swift-openapi-generator",
     platforms: [
@@ -22,11 +33,12 @@ let package = Package(
         // The platforms below are not currently supported for running
         // the generator itself. We include them here to allow the generator
         // to emit a more descriptive compiler error.
-        .iOS("99"), .tvOS("99"), .watchOS("99"),
+        .iOS(.v13), .tvOS(.v13), .watchOS(.v6),
     ],
     products: [
         .executable(name: "swift-openapi-generator", targets: ["swift-openapi-generator"]),
         .plugin(name: "OpenAPIGenerator", targets: ["OpenAPIGenerator"]),
+        .plugin(name: "OpenAPIGeneratorCommand", targets: ["OpenAPIGeneratorCommand"]),
         .library(name: "_OpenAPIGeneratorCore", targets: ["_OpenAPIGeneratorCore"]),
     ],
     dependencies: [
@@ -56,7 +68,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/jpsim/Yams.git",
-            from: "4.0.0"
+            "4.0.0"..<"6.0.0"
         ),
 
         // CLI Tool
@@ -66,12 +78,13 @@ let package = Package(
         ),
 
         // Tests-only: Runtime library linked by generated code
-        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.1.3")),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.1.6")),
 
         // Build and preview docs
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
     ],
     targets: [
+
         // Generator Core
         .target(
             name: "_OpenAPIGeneratorCore",
@@ -83,15 +96,17 @@ let package = Package(
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
                 .product(name: "SwiftFormat", package: "swift-format"),
                 .product(name: "SwiftFormatConfiguration", package: "swift-format"),
-            ]
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // Generator Core Tests
         .testTarget(
             name: "OpenAPIGeneratorCoreTests",
             dependencies: [
-                "_OpenAPIGeneratorCore",
-            ]
+                "_OpenAPIGeneratorCore"
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // GeneratorReferenceTests
@@ -103,8 +118,9 @@ let package = Package(
                 .product(name: "SwiftFormatConfiguration", package: "swift-format"),
             ],
             resources: [
-                .copy("Resources"),
-            ]
+                .copy("Resources")
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // PetstoreConsumerTests
@@ -113,8 +129,9 @@ let package = Package(
         .testTarget(
             name: "PetstoreConsumerTests",
             dependencies: [
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
-            ]
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // Generator CLI
@@ -123,7 +140,8 @@ let package = Package(
             dependencies: [
                 "_OpenAPIGeneratorCore",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ]
+            ],
+            swiftSettings: swiftSettings
         ),
 
         // Build Plugin
@@ -131,7 +149,26 @@ let package = Package(
             name: "OpenAPIGenerator",
             capability: .buildTool(),
             dependencies: [
-                "swift-openapi-generator",
+                "swift-openapi-generator"
+            ]
+        ),
+
+        // Command Plugin
+        .plugin(
+            name: "OpenAPIGeneratorCommand",
+            capability: .command(
+                intent: .custom(
+                    verb: "generate-code-from-openapi",
+                    description: "Generate Swift code from an OpenAPI document."
+                ),
+                permissions: [
+                    .writeToPackageDirectory(
+                        reason: "To write the generated Swift files back into the source directory of the package."
+                    )
+                ]
+            ),
+            dependencies: [
+                "swift-openapi-generator"
             ]
         ),
     ]

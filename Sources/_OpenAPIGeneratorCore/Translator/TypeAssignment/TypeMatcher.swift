@@ -16,6 +16,10 @@ import OpenAPIKit30
 /// A set of functions that match Swift types onto OpenAPI types.
 struct TypeMatcher {
 
+    /// A converted function from user-provided strings to strings
+    /// safe to be used as a Swift identifier.
+    var asSwiftSafeName: (String) -> String
+
     /// Returns the type name of a built-in type that matches the specified
     /// schema.
     ///
@@ -36,11 +40,11 @@ struct TypeMatcher {
     /// - Parameter schema: The schema to match a built-in type for.
     /// - Returns: A type usage for the schema if the schema is supported.
     /// Otherwise, returns nil.
-    static func tryMatchBuiltinType(for schema: JSONSchema.Schema) -> TypeUsage? {
-        _tryMatchRecursive(
+    func tryMatchBuiltinType(for schema: JSONSchema.Schema) -> TypeUsage? {
+        Self._tryMatchRecursive(
             for: schema,
             test: { schema in
-                _tryMatchBuiltinNonRecursive(for: schema)
+                Self._tryMatchBuiltinNonRecursive(for: schema)
             },
             matchedArrayHandler: { elementType in
                 elementType.asArray
@@ -62,19 +66,20 @@ struct TypeMatcher {
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: A type usage for the schema if the schema is supported.
     /// Otherwise, returns nil.
-    static func tryMatchReferenceableType(
+    func tryMatchReferenceableType(
         for schema: JSONSchema
     ) throws -> TypeUsage? {
-        try _tryMatchRecursive(
+        try Self._tryMatchRecursive(
             for: schema.value,
             test: { schema in
-                if let builtinType = _tryMatchBuiltinNonRecursive(for: schema) {
+                if let builtinType = Self._tryMatchBuiltinNonRecursive(for: schema) {
                     return builtinType
                 }
                 guard case let .reference(ref, _) = schema else {
                     return nil
                 }
-                return try TypeAssigner.typeName(for: ref).asUsage
+                return try TypeAssigner(asSwiftSafeName: asSwiftSafeName)
+                    .typeName(for: ref).asUsage
             },
             matchedArrayHandler: { elementType in
                 elementType.asArray
@@ -215,7 +220,7 @@ struct TypeMatcher {
                 typeName = .swift("String")
             case .binary:
                 typeName = .foundation("Data")
-            case .date, .dateTime:
+            case .dateTime:
                 typeName = .foundation("Date")
             default:
                 typeName = .swift("String")

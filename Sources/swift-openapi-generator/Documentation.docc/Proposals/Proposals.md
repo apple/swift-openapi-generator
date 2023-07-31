@@ -8,7 +8,7 @@ For non-trivial changes that affect the public API, the Swift OpenAPI Generator 
 
 Writing a proposal first helps discuss multiple possible solutions early, apply useful feedback from other contributors, and avoid reimplementing the same feature multiple times.
 
-While it's encouraged to get feedback by opening a pull request with a proposal early in the process, it's also important to consider the complexity of the implementation when evaluating different solutions (as per <doc:Project-scope-and-goals>). For example, this might mean including a prototype implementation of the feature in the same PR as the proposal document.
+While it's encouraged to get feedback by opening a pull request with a proposal early in the process, it's also important to consider the complexity of the implementation when evaluating different solutions (as per <doc:Project-scope-and-goals>). For example, this might mean including a link to a branch containing a prototype implementation of the feature in the pull request description.
 
 > Note: The goal of this process is to help solicit feedback from the whole community around the project, and we will continue to refine the proposal process itself. Use your best judgement, and don't hesitate to propose changes to the proposal structure itself!
 

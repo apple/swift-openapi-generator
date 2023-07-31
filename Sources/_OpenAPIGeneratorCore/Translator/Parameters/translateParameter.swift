@@ -44,9 +44,11 @@ extension TypesFileTranslator {
             associatedDeclarations = []
         }
         return .init(
+            isDeprecated: parameter.parameter.deprecated,
             originalName: parameter.name,
             typeUsage: parameter.typeUsage,
-            associatedDeclarations: associatedDeclarations
+            associatedDeclarations: associatedDeclarations,
+            asSwiftSafeName: swiftSafeName
         )
     }
 
@@ -60,7 +62,7 @@ extension TypesFileTranslator {
         componentKey: OpenAPI.ComponentKey,
         parameter: TypedParameter
     ) throws -> [Declaration] {
-        let typeName = TypeAssigner.typeName(for: componentKey, of: OpenAPI.Parameter.self)
+        let typeName = typeAssigner.typeName(for: componentKey, of: OpenAPI.Parameter.self)
         return try translateParameterInTypes(
             typeName: typeName,
             parameter: parameter

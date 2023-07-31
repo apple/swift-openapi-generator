@@ -27,6 +27,6 @@ protocol ParserProtocol {
     func parseOpenAPI(
         _ input: InMemoryInputFile,
         config: Config,
-        diagnostics: DiagnosticCollector
+        diagnostics: any DiagnosticCollector
     ) throws -> ParsedOpenAPIRepresentation
 }

@@ -75,7 +75,7 @@ extension FileTranslator {
         let value = schema.value
 
         // If this type maps to a referenceable schema, define a typealias
-        if let builtinType = try TypeMatcher.tryMatchReferenceableType(for: schema) {
+        if let builtinType = try typeMatcher.tryMatchReferenceableType(for: schema) {
             let typealiasDecl = try translateTypealias(
                 named: typeName,
                 userDescription: overrides.userDescription ?? schema.description,
@@ -90,7 +90,8 @@ extension FileTranslator {
             let objectDecl = try translateObjectStruct(
                 typeName: typeName,
                 openAPIDescription: overrides.userDescription ?? coreContext.description,
-                objectContext: objectContext
+                objectContext: objectContext,
+                isDeprecated: coreContext.deprecated
             )
             return [objectDecl]
         case let .string(coreContext, _):

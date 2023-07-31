@@ -26,7 +26,7 @@ extension TypesFileTranslator {
         let typedItems: [TypedRequestBody] =
             try items
             .compactMap { key, item in
-                let typeName = TypeAssigner.typeName(
+                let typeName = typeAssigner.typeName(
                     for: key,
                     of: OpenAPI.Request.self
                 )

@@ -26,7 +26,7 @@ extension TypesFileTranslator {
         let typedResponses: [TypedResponse] =
             responses
             .map { key, response in
-                let typeName = TypeAssigner.typeName(
+                let typeName = typeAssigner.typeName(
                     for: key,
                     of: OpenAPI.Response.self
                 )

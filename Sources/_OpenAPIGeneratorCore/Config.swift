@@ -18,8 +18,6 @@
 /// A single generator pipeline run produces exactly one file, so for
 /// generating multiple files, create multiple configuration values, each with
 /// a different generator mode.
-///
-/// TODO: Rename to something more specific, like "GeneratorConfig"
 public struct Config {
 
     /// The generator mode to use.
@@ -28,14 +26,22 @@ public struct Config {
     /// Additional imports to add to each generated file.
     public var additionalImports: [String]
 
+    /// Additional pre-release features to enable.
+    public var featureFlags: FeatureFlags
+
     /// Creates a configuration with the specified generator mode and imports.
     /// - Parameters:
     ///   - mode: The mode to use for generation.
-    ///   - additionalImports:  Additional imports to add to each generated
-    ///   file.
-    public init(mode: GeneratorMode, additionalImports: [String] = []) {
+    ///   - additionalImports: Additional imports to add to each generated file.
+    ///   - featureFlags: Additional pre-release features to enable.
+    public init(
+        mode: GeneratorMode,
+        additionalImports: [String] = [],
+        featureFlags: FeatureFlags = []
+    ) {
         self.mode = mode
         self.additionalImports = additionalImports
+        self.featureFlags = featureFlags
     }
 }
 

@@ -15,28 +15,15 @@ import Foundation
 
 extension String {
 
-    /// Returns a copy of the string modified to be a valid Swift identifier.
-    ///
-    /// For sanitization rules, see ``String/sanitizedForSwiftCode``.
-    var asSwiftSafeName: String {
-        sanitizedForSwiftCode
-    }
-
     /// Returns a copy of the string with the first letter uppercased.
     var uppercasingFirstLetter: String {
-        tranformingFirstLetter { $0.uppercased() }
+        transformingFirstLetter { $0.uppercased() }
     }
 
     /// Returns a copy of the string with the first letter lowercased.
     var lowercasingFirstLetter: String {
-        tranformingFirstLetter { $0.lowercased() }
+        transformingFirstLetter { $0.lowercased() }
     }
-}
-
-fileprivate extension Character {
-
-    /// A Boolean value that indicates whether the character is an underscore.
-    var isUnderscore: Bool { self == "_" }
 }
 
 fileprivate extension String {
@@ -44,7 +31,7 @@ fileprivate extension String {
     /// Returns a copy of the string with the first letter modified by
     /// the specified closure.
     /// - Parameter transformation: A closure that modifies the first letter.
-    func tranformingFirstLetter<T>(_ transformation: (Character) -> T) -> String where T: StringProtocol {
+    func transformingFirstLetter<T>(_ transformation: (Character) -> T) -> String where T: StringProtocol {
         guard let firstLetterIndex = self.firstIndex(where: \.isLetter) else {
             return self
         }

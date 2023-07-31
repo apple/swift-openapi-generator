@@ -21,6 +21,29 @@ extension ServerFileTranslator {
     func translateServerDeserializer(
         _ operation: OperationDescription
     ) throws -> Expression {
+        var closureBody: [CodeBlock] = []
+
+        let typedRequestBody = try typedRequestBody(in: operation)
+
+        if let headerValueForValidation = typedRequestBody?
+            .content
+            .content
+            .contentType
+            .headerValueForValidation
+        {
+            let validateContentTypeExpr: Expression = .try(
+                .identifier("converter").dot("validateContentTypeIfPresent")
+                    .call([
+                        .init(label: "in", expression: .identifier("request").dot("headerFields")),
+                        .init(
+                            label: "substring",
+                            expression: .literal(headerValueForValidation)
+                        ),
+                    ])
+            )
+            closureBody.append(.expression(validateContentTypeExpr))
+        }
+
         let inputTypeName = operation.inputTypeName
 
         func locationSpecificInputDecl(
@@ -67,7 +90,7 @@ extension ServerFileTranslator {
         .map(locationSpecificInputDecl(locatedIn:fromParameters:))
 
         let bodyDecl = try translateRequestBodyInServer(
-            typedRequestBody(in: operation),
+            typedRequestBody,
             requestVariableName: "request",
             bodyVariableName: "body",
             inputTypeName: inputTypeName
@@ -94,11 +117,13 @@ extension ServerFileTranslator {
                 ])
         )
 
+        closureBody.append(
+            contentsOf: inputMemberDecls.map(CodeBlock.declaration) + [.expression(returnExpr)]
+        )
+
         return .closureInvocation(
             argumentNames: ["request", "metadata"],
-            body: inputMemberDecls.map(CodeBlock.declaration) + [
-                .expression(returnExpr)
-            ]
+            body: closureBody
         )
     }
 
@@ -181,8 +206,17 @@ extension ServerFileTranslator {
         )
         let methodArg: FunctionArgumentDescription = .init(
             label: "using",
-            expression: .identifier(Constants.Server.Universal.apiHandlerName)
-                .dot(description.methodName)
+            expression: .closureInvocation(
+                body: [
+                    .expression(
+                        .identifier(Constants.Server.Universal.apiHandlerName)
+                            .dot(description.methodName)
+                            .call([
+                                .init(label: nil, expression: .identifier("$0"))
+                            ])
+                    )
+                ]
+            )
         )
         let deserializerArg: FunctionArgumentDescription = .init(
             label: "deserializer",
@@ -260,6 +294,7 @@ extension ServerFileTranslator {
                     .expression(handleExpr)
                 ]
             )
+            .deprecate(if: description.operation.deprecated)
         )
 
         return (registerCall, functionDecl)
