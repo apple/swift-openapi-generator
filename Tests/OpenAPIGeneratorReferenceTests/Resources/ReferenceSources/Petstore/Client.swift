@@ -151,19 +151,14 @@ public struct Client: APIProtocol {
                     name: "accept",
                     value: "application/json"
                 )
-                request.body = try converter.setRequiredRequestBodyAsJSON(
-                    input.body,
-                    headerFields: &request.headerFields,
-                    transforming: { wrapped in
-                        switch wrapped {
-                        case let .json(value):
-                            return .init(
-                                value: value,
-                                contentType: "application/json; charset=utf-8"
-                            )
-                        }
-                    }
-                )
+                switch input.body {
+                case let .json(value):
+                    request.body = try converter.setRequiredRequestBodyAsJSON(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "application/json; charset=utf-8"
+                    )
+                }
                 return request
             },
             deserializer: { response in
@@ -257,19 +252,15 @@ public struct Client: APIProtocol {
                     name: "accept",
                     value: "application/json"
                 )
-                request.body = try converter.setOptionalRequestBodyAsJSON(
-                    input.body,
-                    headerFields: &request.headerFields,
-                    transforming: { wrapped in
-                        switch wrapped {
-                        case let .json(value):
-                            return .init(
-                                value: value,
-                                contentType: "application/json; charset=utf-8"
-                            )
-                        }
-                    }
-                )
+                switch input.body {
+                case .none: request.body = nil
+                case let .json(value):
+                    request.body = try converter.setOptionalRequestBodyAsJSON(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "application/json; charset=utf-8"
+                    )
+                }
                 return request
             },
             deserializer: { response in
@@ -317,16 +308,14 @@ public struct Client: APIProtocol {
                     name: "accept",
                     value: "application/octet-stream, application/json, text/plain"
                 )
-                request.body = try converter.setRequiredRequestBodyAsBinary(
-                    input.body,
-                    headerFields: &request.headerFields,
-                    transforming: { wrapped in
-                        switch wrapped {
-                        case let .binary(value):
-                            return .init(value: value, contentType: "application/octet-stream")
-                        }
-                    }
-                )
+                switch input.body {
+                case let .binary(value):
+                    request.body = try converter.setRequiredRequestBodyAsBinary(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "application/octet-stream"
+                    )
+                }
                 return request
             },
             deserializer: { response in
