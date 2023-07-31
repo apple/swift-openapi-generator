@@ -341,6 +341,7 @@ final class Test_Client: XCTestCase {
         }
     }
 
+    @available(*, deprecated)
     func testProbe_204() async throws {
         transport = .init { request, baseURL, operationID in
             XCTAssertEqual(operationID, "probe")
@@ -359,6 +360,7 @@ final class Test_Client: XCTestCase {
         }
     }
 
+    @available(*, deprecated)
     func testProbe_undocumented() async throws {
         transport = .init { request, baseURL, operationID in
             .init(statusCode: 503)
