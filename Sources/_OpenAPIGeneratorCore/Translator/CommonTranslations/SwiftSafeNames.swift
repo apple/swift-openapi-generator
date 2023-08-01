@@ -85,11 +85,11 @@ fileprivate extension String {
         guard !isEmpty else {
             return "_empty"
         }
-        
+
         let firstCharSet: CharacterSet = .letters.union(.init(charactersIn: "_"))
         let numbers: CharacterSet = .decimalDigits
         let otherCharSet: CharacterSet = .alphanumerics.union(.init(charactersIn: "_"))
-        
+
         var sanitizedScalars: [Unicode.Scalar] = []
         for (index, scalar) in unicodeScalars.enumerated() {
             let allowedSet = index == 0 ? firstCharSet : otherCharSet
@@ -117,15 +117,15 @@ fileprivate extension String {
             }
             sanitizedScalars.append(outScalar)
         }
-        
+
         let validString = String(UnicodeScalarView(sanitizedScalars))
-        
+
         //Special case for a single underscore.
         //We can't add it to the map as its a valid swift identifier in other cases.
         if validString == "_" {
             return "_underscore_"
         }
-        
+
         guard Self.keywords.contains(validString) else {
             return validString
         }
@@ -200,7 +200,7 @@ fileprivate extension String {
         "Protocol",
         "await",
     ]
-    
+
     /// A map of ASCII printable characters to their HTML entity names. Used to reduce collisions in generated names.
     private static let specialCharsMap: [Unicode.Scalar: String] = [
         " ": "space",
