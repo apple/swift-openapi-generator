@@ -45,7 +45,7 @@ class FileBasedReferenceTests: XCTestCase {
     }
 
     func testPetstore() throws {
-        try _test(referenceProjectNamed: .petstore)
+        try _test(referenceProject: .init(name: .petstore))
     }
 
     // MARK: - Private
@@ -60,7 +60,8 @@ class FileBasedReferenceTests: XCTestCase {
     }
 
     func performReferenceTest(
-        _ referenceTest: TestConfig
+        _ referenceTest: TestConfig,
+        ignoredDiagnosticMessages: Set<String> = []
     ) throws {
         print(
             """
@@ -85,7 +86,8 @@ class FileBasedReferenceTests: XCTestCase {
 
         // Run the requested generator invocation
         let generatorPipeline = self.makeGeneratorPipeline(
-            config: referenceTest.asConfig
+            config: referenceTest.asConfig,
+            ignoredDiagnosticMessages: ignoredDiagnosticMessages
         )
         let generatedOutputSource = try generatorPipeline.run(input)
 
@@ -115,16 +117,33 @@ class FileBasedReferenceTests: XCTestCase {
     enum ReferenceProjectName: String, Hashable, CaseIterable {
         case petstore
 
-        var fileName: String {
+        var openAPIDocFileName: String {
             "\(rawValue).yaml"
         }
 
-        var directoryName: String {
+        var fixtureCodeDirectoryName: String {
             rawValue.capitalized
         }
     }
 
-    func _test(referenceProjectNamed name: ReferenceProjectName) throws {
+    struct ReferenceProject: Hashable, Equatable {
+        var name: ReferenceProjectName
+        var customDirectoryName: String? = nil
+
+        var fixtureCodeDirectoryName: String {
+            customDirectoryName ?? name.fixtureCodeDirectoryName
+        }
+
+        var openAPIDocFileName: String {
+            name.openAPIDocFileName
+        }
+    }
+
+    func _test(
+        referenceProject project: ReferenceProject,
+        featureFlags: FeatureFlags = [],
+        ignoredDiagnosticMessages: Set<String> = []
+    ) throws {
         let modes: [GeneratorMode] = [
             .types,
             .client,
@@ -133,19 +152,23 @@ class FileBasedReferenceTests: XCTestCase {
         for mode in modes {
             try performReferenceTest(
                 .init(
-                    docFilePath: "Docs/\(name.fileName)",
+                    docFilePath: "Docs/\(project.openAPIDocFileName)",
                     mode: mode,
                     additionalImports: [],
-                    featureFlags: [],
-                    referenceOutputDirectory: "ReferenceSources/\(name.directoryName)"
-                )
+                    featureFlags: featureFlags,
+                    referenceOutputDirectory: "ReferenceSources/\(project.fixtureCodeDirectoryName)"
+                ),
+                ignoredDiagnosticMessages: ignoredDiagnosticMessages
             )
         }
     }
 }
 
 extension FileBasedReferenceTests {
-    private func makeGeneratorPipeline(config: Config) -> GeneratorPipeline {
+    private func makeGeneratorPipeline(
+        config: Config,
+        ignoredDiagnosticMessages: Set<String> = []
+    ) -> GeneratorPipeline {
         let parser = YamsParser()
         let translator = MultiplexTranslator()
         let renderer = TextBasedRenderer()
@@ -160,7 +183,10 @@ extension FileBasedReferenceTests {
                 return newFile
             },
             config: config,
-            diagnostics: XCTestDiagnosticCollector(test: self)
+            diagnostics: XCTestDiagnosticCollector(
+                test: self,
+                ignoredDiagnosticMessages: ignoredDiagnosticMessages
+            )
         )
     }
 

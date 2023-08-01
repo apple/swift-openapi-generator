@@ -41,19 +41,17 @@ struct TypesFileTranslator: FileTranslator {
             + config.additionalImports
             .map { ImportDescription(moduleName: $0) }
 
-        let apiProtocol = translateAPIProtocol(doc.paths)
+        let apiProtocol = try translateAPIProtocol(doc.paths)
 
         let serversDecl = translateServers(doc.servers)
 
         let components = try translateComponents(doc.components)
 
-        let operationDescriptions =
-            OperationDescription
-            .all(
-                from: parsedOpenAPI.paths,
-                in: doc.components,
-                asSwiftSafeName: swiftSafeName
-            )
+        let operationDescriptions = try OperationDescription.all(
+            from: parsedOpenAPI.paths,
+            in: doc.components,
+            asSwiftSafeName: swiftSafeName
+        )
         let operations = try translateOperations(operationDescriptions)
 
         let typesFile = FileDescription(

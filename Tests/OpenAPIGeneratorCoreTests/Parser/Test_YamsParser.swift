@@ -118,8 +118,12 @@ final class Test_YamsParser: Test_Core {
                       description: Success
             """
 
-        let expected =
-            "/foo.yaml: error: Expected to find `responses` key for the **GET** endpoint under `/system` but it is missing."
+        let expected = """
+            /foo.yaml: error: Found neither a $ref nor a PathItem in Document.paths['/system']. 
+
+            PathItem could not be decoded because:
+            Expected to find `responses` key for the **GET** endpoint under `/system` but it is missing..
+            """
         assertThrownError(try _test(yaml), expectedDiagnostic: expected)
     }
 

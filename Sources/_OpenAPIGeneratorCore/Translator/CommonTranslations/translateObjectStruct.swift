@@ -144,7 +144,7 @@ extension FileTranslator {
             typeUsage = valueTypeUsage.asDictionaryValue
         }
 
-        let extraProperty: PropertyBlueprint = .init(
+        let extraProperty = PropertyBlueprint(
             comment: .doc("A container of undocumented properties."),
             originalName: "additionalProperties",
             typeUsage: typeUsage,

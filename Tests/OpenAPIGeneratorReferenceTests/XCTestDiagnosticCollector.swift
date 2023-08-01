@@ -17,8 +17,12 @@ import XCTest
 // A diagnostic collector that fails the running test on a warning or error.
 struct XCTestDiagnosticCollector: DiagnosticCollector {
     var test: XCTestCase
+    var ignoredDiagnosticMessages: Set<String> = []
 
     func emit(_ diagnostic: Diagnostic) {
+        guard !ignoredDiagnosticMessages.contains(diagnostic.message) else {
+            return
+        }
         print("Test emitted diagnostic: \(diagnostic.description)")
         switch diagnostic.severity {
         case .note:

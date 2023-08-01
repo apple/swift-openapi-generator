@@ -192,19 +192,19 @@ extension ServerFileTranslator {
             .identifier(Constants.Operations.namespace)
             .dot(description.methodName)
 
-        let operationArg: FunctionArgumentDescription = .init(
+        let operationArg = FunctionArgumentDescription(
             label: "forOperation",
             expression: operationTypeExpr.dot("id")
         )
-        let requestArg: FunctionArgumentDescription = .init(
+        let requestArg = FunctionArgumentDescription(
             label: "request",
             expression: .identifier("request")
         )
-        let metadataArg: FunctionArgumentDescription = .init(
+        let metadataArg = FunctionArgumentDescription(
             label: "with",
             expression: .identifier("metadata")
         )
-        let methodArg: FunctionArgumentDescription = .init(
+        let methodArg = FunctionArgumentDescription(
             label: "using",
             expression: .closureInvocation(
                 body: [
@@ -218,11 +218,11 @@ extension ServerFileTranslator {
                 ]
             )
         )
-        let deserializerArg: FunctionArgumentDescription = .init(
+        let deserializerArg = FunctionArgumentDescription(
             label: "deserializer",
             expression: try translateServerDeserializer(description)
         )
-        let serializerArg: FunctionArgumentDescription = .init(
+        let serializerArg = FunctionArgumentDescription(
             label: "serializer",
             expression: try translateServerSerializer(description)
         )
