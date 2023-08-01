@@ -59,13 +59,20 @@ extension OperationDescription {
     ///   - components: The components from the OpenAPI document.
     ///   - asSwiftSafeName: A converted function from user-provided strings
     ///   to strings safe to be used as a Swift identifier.
+    /// - Throws: if `map` contains any references; see discussion for details.
+    ///
+    /// This function will throw an error if `map` contains any references, because:
+    /// 1. OpenAPI 3.0.3 only supports external path references (cf. 3.1, which supports internal references too)
+    /// 2. Swift OpenAPI Generator currently only supports OpenAPI 3.0.x.
+    /// 3. Swift OpenAPI Generator currently doesn't support external references.
     static func all(
         from map: OpenAPI.PathItem.Map,
         in components: OpenAPI.Components,
         asSwiftSafeName: @escaping (String) -> String
-    ) -> [OperationDescription] {
-        map.flatMap { path, value in
-            value.endpoints.map { endpoint in
+    ) throws -> [OperationDescription] {
+        try map.flatMap { path, value in
+            let value = try value.resolve(in: components)
+            return value.endpoints.map { endpoint in
                 OperationDescription(
                     path: path,
                     endpoint: endpoint,

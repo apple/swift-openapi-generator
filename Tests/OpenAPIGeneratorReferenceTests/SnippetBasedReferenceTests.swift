@@ -347,6 +347,103 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasAllOfOneStringRef() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              A:
+                type: string
+              MyAllOf:
+                allOf:
+                  - $ref: '#/components/schemas/A'
+            """,
+            """
+            public enum Schemas {
+                public typealias A = Swift.String
+                public struct MyAllOf: Codable, Equatable, Hashable, Sendable {
+                    public var value1: Components.Schemas.A
+                    public init(value1: Components.Schemas.A) {
+                        self.value1 = value1
+                    }
+                    public init(from decoder: any Decoder) throws {
+                        value1 = try .init(from: decoder)
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        try value1.encode(to: encoder)
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasObjectWithRequiredAllOfOneStringRefProperty() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              A:
+                type: string
+              B:
+                type: object
+                required:
+                  - c
+                properties:
+                  c:
+                    allOf:
+                      - $ref: "#/components/schemas/A"
+            """,
+            """
+            public enum Schemas {
+                public typealias A = Swift.String
+                public struct B: Codable, Equatable, Hashable, Sendable {
+                    public struct cPayload: Codable, Equatable, Hashable, Sendable {
+                        public var value1: Components.Schemas.A
+                        public init(value1: Components.Schemas.A) { self.value1 = value1 }
+                        public init(from decoder: any Decoder) throws { value1 = try .init(from: decoder) }
+                        public func encode(to encoder: any Encoder) throws { try value1.encode(to: encoder) }
+                    }
+                    public var c: Components.Schemas.B.cPayload
+                    public init(c: Components.Schemas.B.cPayload) { self.c = c }
+                    public enum CodingKeys: String, CodingKey { case c }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasObjectWithOptionalAllOfOneStringRefProperty() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              A:
+                type: string
+              B:
+                type: object
+                required: []
+                properties:
+                  c:
+                    allOf:
+                      - $ref: "#/components/schemas/A"
+            """,
+            """
+            public enum Schemas {
+                public typealias A = Swift.String
+                public struct B: Codable, Equatable, Hashable, Sendable {
+                    public struct cPayload: Codable, Equatable, Hashable, Sendable {
+                        public var value1: Components.Schemas.A
+                        public init(value1: Components.Schemas.A) { self.value1 = value1 }
+                        public init(from decoder: any Decoder) throws { value1 = try .init(from: decoder) }
+                        public func encode(to encoder: any Encoder) throws { try value1.encode(to: encoder) }
+                    }
+                    public var c: Components.Schemas.B.cPayload?
+                    public init(c: Components.Schemas.B.cPayload? = nil) { self.c = c }
+                    public enum CodingKeys: String, CodingKey { case c }
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsSchemasEnum() throws {
         try self.assertSchemasTranslation(
             """
@@ -629,6 +726,52 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
+
+    func testPathsSimplestCase() throws {
+        try self.assertPathsTranslation(
+            """
+            /health:
+              get:
+                operationId: getHealth
+                responses:
+                  '200':
+                    description: A success response with a greeting.
+                    content:
+                      text/plain:
+                        schema:
+                          type: string
+            """,
+            """
+            public protocol APIProtocol: Sendable {
+                func getHealth(_ input: Operations.getHealth.Input) async throws -> Operations.getHealth.Output
+            }
+            """
+        )
+    }
+
+    func testPathWithPathItemReference() throws {
+        XCTAssertThrowsError(
+            try self.assertPathsTranslation(
+                """
+                /health:
+                  get:
+                    operationId: getHealth
+                    responses:
+                      '200':
+                        description: A success response with a greeting.
+                        content:
+                          text/plain:
+                            schema:
+                              type: string
+                /health2:
+                  $ref: "#/paths/~1health"
+                """,
+                """
+                unused: This test throws an error.
+                """
+            )
+        )
+    }
 }
 
 extension SnippetBasedReferenceTests {
@@ -718,6 +861,19 @@ extension SnippetBasedReferenceTests {
             componentsYAML: componentsYAML
         )
         let translation = try translator.translateComponentRequestBodies(translator.components.requestBodies)
+        try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
+    }
+
+    func assertPathsTranslation(
+        _ pathsYAML: String,
+        componentsYAML: String = "{}",
+        _ expectedSwift: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
+        let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
+        let translation = try translator.translateAPIProtocol(paths)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 }

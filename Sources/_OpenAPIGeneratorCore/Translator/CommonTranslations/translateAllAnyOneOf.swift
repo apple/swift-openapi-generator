@@ -55,10 +55,10 @@ extension FileTranslator {
                 switch type {
                 case .allOf:
                     // AllOf uses all required properties.
-                    propertyType = rawPropertyType
+                    propertyType = rawPropertyType.withOptional(false)
                 case .anyOf:
                     // AnyOf uses all optional properties.
-                    propertyType = rawPropertyType.asOptional
+                    propertyType = rawPropertyType.withOptional(true)
                 }
                 let comment: Comment? = .property(
                     originalName: key,
