@@ -726,6 +726,52 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
+
+    func testPathsSimplestCase() throws {
+        try self.assertPathsTranslation(
+            """
+            /health:
+              get:
+                operationId: getHealth
+                responses:
+                  '200':
+                    description: A success response with a greeting.
+                    content:
+                      text/plain:
+                        schema:
+                          type: string
+            """,
+            """
+            public protocol APIProtocol: Sendable {
+                func getHealth(_ input: Operations.getHealth.Input) async throws -> Operations.getHealth.Output
+            }
+            """
+        )
+    }
+
+    func testPathWithPathItemReference() throws {
+        XCTAssertThrowsError(
+            try self.assertPathsTranslation(
+                """
+                /health:
+                  get:
+                    operationId: getHealth
+                    responses:
+                      '200':
+                        description: A success response with a greeting.
+                        content:
+                          text/plain:
+                            schema:
+                              type: string
+                /health2:
+                  $ref: "#/paths/~1health"
+                """,
+                """
+                unused: This test throws an error.
+                """
+            )
+        )
+    }
 }
 
 extension SnippetBasedReferenceTests {
@@ -815,6 +861,19 @@ extension SnippetBasedReferenceTests {
             componentsYAML: componentsYAML
         )
         let translation = try translator.translateComponentRequestBodies(translator.components.requestBodies)
+        try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
+    }
+
+    func assertPathsTranslation(
+        _ pathsYAML: String,
+        componentsYAML: String = "{}",
+        _ expectedSwift: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
+        let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
+        let translation = try translator.translateAPIProtocol(paths)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 }
