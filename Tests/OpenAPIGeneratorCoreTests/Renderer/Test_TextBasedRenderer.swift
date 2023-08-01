@@ -16,7 +16,7 @@ import XCTest
 
 final class Test_TextBasedRenderer: XCTestCase {
 
-    var renderer: TextBasedRenderer = .init()
+    var renderer = TextBasedRenderer()
 
     func testComment() throws {
         try _test(

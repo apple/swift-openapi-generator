@@ -276,8 +276,7 @@ extension ServerFileTranslator {
         let responseVarDecl: Declaration = .variable(
             kind: .var,
             left: "response",
-            type: "Response",
-            right: .dot("init")
+            right: .identifier("Response")
                 .call([
                     .init(label: "statusCode", expression: statusCodeExpr)
                 ])

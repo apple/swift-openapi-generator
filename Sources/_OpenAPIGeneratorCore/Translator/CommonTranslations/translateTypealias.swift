@@ -26,7 +26,7 @@ extension FileTranslator {
         userDescription: String?,
         to existingTypeUsage: TypeUsage
     ) throws -> Declaration {
-        let typealiasDescription: TypealiasDescription = .init(
+        let typealiasDescription = TypealiasDescription(
             accessModifier: config.access,
             name: typeName.shortSwiftName,
             existingType: existingTypeUsage.fullyQualifiedNonOptionalSwiftName
