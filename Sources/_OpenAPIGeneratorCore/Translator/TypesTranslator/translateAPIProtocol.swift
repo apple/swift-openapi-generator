@@ -31,7 +31,7 @@ extension TypesFileTranslator {
             operations
             .map(translateAPIProtocolDeclaration(operation:))
 
-        let protocolDescription: ProtocolDescription = .init(
+        let protocolDescription = ProtocolDescription(
             accessModifier: config.access,
             name: Constants.APIProtocol.typeName,
             conformances: Constants.APIProtocol.conformances,

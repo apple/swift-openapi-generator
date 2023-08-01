@@ -114,7 +114,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .ok(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 200)
+                    var response = Response(statusCode: 200)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsText(
                         in: &response.headerFields,
@@ -141,7 +141,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     return response
                 case let .`default`(statusCode, value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: statusCode)
+                    var response = Response(statusCode: statusCode)
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .json(value):
@@ -203,7 +203,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .created(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 201)
+                    var response = Response(statusCode: 201)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsJSON(
                         in: &response.headerFields,
@@ -225,7 +225,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     return response
                 case let .badRequest(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 400)
+                    var response = Response(statusCode: 400)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsText(
                         in: &response.headerFields,
@@ -277,7 +277,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .noContent(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 204)
+                    var response = Response(statusCode: 204)
                     suppressMutabilityWarning(&response)
                     return response
                 case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
@@ -328,12 +328,12 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .noContent(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 204)
+                    var response = Response(statusCode: 204)
                     suppressMutabilityWarning(&response)
                     return response
                 case let .badRequest(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 400)
+                    var response = Response(statusCode: 400)
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .json(value):
@@ -398,7 +398,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .ok(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 200)
+                    var response = Response(statusCode: 200)
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .binary(value):
@@ -415,7 +415,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     return response
                 case let .preconditionFailed(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 412)
+                    var response = Response(statusCode: 412)
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .json(value):
@@ -432,7 +432,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     return response
                 case let .internalServerError(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 500)
+                    var response = Response(statusCode: 500)
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .text(value):

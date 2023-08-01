@@ -204,7 +204,7 @@ extension ClientFileTranslator {
                         ])
                 )
             )
-            let caseDesc: SwitchCaseDescription = .init(
+            let caseDesc = SwitchCaseDescription(
                 kind: .case(.dot(contentTypeIdentifier), ["value"]),
                 body: [
                     .expression(bodyAssignExpr)
@@ -213,7 +213,7 @@ extension ClientFileTranslator {
             return caseDesc
         }
         if !requestBody.request.required {
-            let noneCase: SwitchCaseDescription = .init(
+            let noneCase = SwitchCaseDescription(
                 kind: .case(.dot("none")),
                 body: [
                     .expression(
