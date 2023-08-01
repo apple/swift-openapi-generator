@@ -13,6 +13,7 @@
 //===----------------------------------------------------------------------===//
 import XCTest
 import OpenAPIRuntime
+import PetstoreConsumerTestCore
 
 final class Test_Client: XCTestCase {
 

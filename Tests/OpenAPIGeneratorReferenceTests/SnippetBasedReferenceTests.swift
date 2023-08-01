@@ -605,11 +605,15 @@ extension SnippetBasedReferenceTests {
         )
     }
 
-    func makeTypesTranslator(componentsYAML: String) throws -> TypesFileTranslator {
+    func makeTypesTranslator(
+        featureFlags: FeatureFlags = [],
+        ignoredDiagnosticMessages: Set<String> = [],
+        componentsYAML: String
+    ) throws -> TypesFileTranslator {
         let components = try YAMLDecoder().decode(OpenAPI.Components.self, from: componentsYAML)
         return TypesFileTranslator(
-            config: Config(mode: .types),
-            diagnostics: XCTestDiagnosticCollector(test: self),
+            config: Config(mode: .types, featureFlags: featureFlags),
+            diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
             components: components
         )
     }
@@ -648,23 +652,35 @@ extension SnippetBasedReferenceTests {
     }
 
     func assertResponsesTranslation(
+        featureFlags: FeatureFlags = [],
+        ignoredDiagnosticMessages: Set<String> = [],
         _ componentsYAML: String,
         _ expectedSwift: String,
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
-        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
+        let translator = try makeTypesTranslator(
+            featureFlags: featureFlags,
+            ignoredDiagnosticMessages: ignoredDiagnosticMessages,
+            componentsYAML: componentsYAML
+        )
         let translation = try translator.translateComponentResponses(translator.components.responses)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 
     func assertRequestBodiesTranslation(
+        featureFlags: FeatureFlags = [],
+        ignoredDiagnosticMessages: Set<String> = [],
         _ componentsYAML: String,
         _ expectedSwift: String,
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
-        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
+        let translator = try makeTypesTranslator(
+            featureFlags: featureFlags,
+            ignoredDiagnosticMessages: ignoredDiagnosticMessages,
+            componentsYAML: componentsYAML
+        )
         let translation = try translator.translateComponentRequestBodies(translator.components.requestBodies)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
