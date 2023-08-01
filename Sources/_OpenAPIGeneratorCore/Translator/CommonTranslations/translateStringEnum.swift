@@ -72,7 +72,7 @@ extension FileTranslator {
                     ]
                 )
             }
-            let unknownCase: SwitchCaseDescription = .init(
+            let unknownCase = SwitchCaseDescription(
                 kind: .default,
                 body: [
                     .expression(
@@ -126,7 +126,7 @@ extension FileTranslator {
                     ]
                 )
             }
-            let unknownCase: SwitchCaseDescription = .init(
+            let unknownCase = SwitchCaseDescription(
                 kind: .case(
                     .valueBinding(
                         kind: .let,
@@ -147,7 +147,7 @@ extension FileTranslator {
                 ]
             )
 
-            let variableDescription: VariableDescription = .init(
+            let variableDescription = VariableDescription(
                 accessModifier: config.access,
                 kind: .var,
                 left: "rawValue",
@@ -186,7 +186,7 @@ extension FileTranslator {
             )
         }
 
-        let enumDescription: EnumDescription = .init(
+        let enumDescription = EnumDescription(
             isFrozen: true,
             accessModifier: config.access,
             name: typeName.shortSwiftName,

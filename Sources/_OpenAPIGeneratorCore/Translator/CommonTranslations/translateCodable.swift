@@ -29,7 +29,7 @@ extension FileTranslator {
         let knownKeys =
             properties
             .map(\.originalName)
-        let knownKeysFunctionArg: FunctionArgumentDescription = .init(
+        let knownKeysFunctionArg = FunctionArgumentDescription(
             label: "knownKeys",
             expression: .literal(
                 .array(
