@@ -686,7 +686,7 @@ public enum Components {
             ///   - headers: Received HTTP response headers
             ///   - body: Received HTTP response body
             public init(
-                headers: Components.Responses.ErrorBadRequest.Headers,
+                headers: Components.Responses.ErrorBadRequest.Headers = .init(),
                 body: Components.Responses.ErrorBadRequest.Body
             ) {
                 self.headers = headers
@@ -1006,7 +1006,7 @@ public enum Operations {
                 ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
                 public init(
-                    headers: Operations.createPet.Output.Created.Headers,
+                    headers: Operations.createPet.Output.Created.Headers = .init(),
                     body: Operations.createPet.Output.Created.Body
                 ) {
                     self.headers = headers

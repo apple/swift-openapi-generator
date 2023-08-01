@@ -36,20 +36,21 @@ extension TypesFileTranslator {
         let headerProperties: [PropertyBlueprint] = try headers.map { header in
             try parseResponseHeaderAsProperty(for: header)
         }
+        let headersStructBlueprint: StructBlueprint = .init(
+            comment: nil,
+            access: config.access,
+            typeName: headersTypeName,
+            conformances: Constants.Operation.Output.Payload.Headers.conformances,
+            properties: headerProperties
+        )
         let headersStructDecl = translateStructBlueprint(
-            .init(
-                comment: nil,
-                access: config.access,
-                typeName: headersTypeName,
-                conformances: Constants.Operation.Output.Payload.Headers.conformances,
-                properties: headerProperties
-            )
+            headersStructBlueprint
         )
         let headersProperty = PropertyBlueprint(
             comment: .doc("Received HTTP response headers"),
             originalName: Constants.Operation.Output.Payload.Headers.variableName,
             typeUsage: headersTypeName.asUsage,
-            default: headerProperties.isEmpty ? .emptyInit : nil,
+            default: headersStructBlueprint.hasEmptyInit ? .emptyInit : nil,
             associatedDeclarations: [
                 headersStructDecl
             ],
