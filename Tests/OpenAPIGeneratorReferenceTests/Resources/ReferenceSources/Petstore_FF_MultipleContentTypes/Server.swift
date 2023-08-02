@@ -303,6 +303,26 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             headerFields: &response.headerFields,
                             contentType: "application/json; charset=utf-8"
                         )
+                    case let .text(value):
+                        try converter.validateAcceptIfPresent(
+                            "text/plain",
+                            in: request.headerFields
+                        )
+                        response.body = try converter.setResponseBodyAsText(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "text/plain"
+                        )
+                    case let .binary(value):
+                        try converter.validateAcceptIfPresent(
+                            "application/octet-stream",
+                            in: request.headerFields
+                        )
+                        response.body = try converter.setResponseBodyAsBinary(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "application/octet-stream"
+                        )
                     }
                     return response
                 case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
@@ -334,6 +354,24 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         Components.Schemas.PetStats.self,
                         from: request.body,
                         transforming: { value in .json(value) }
+                    )
+                } else if converter.isValidContentType(
+                    received: contentType,
+                    expected: "text/plain"
+                ) {
+                    body = try converter.getRequiredRequestBodyAsText(
+                        Swift.String.self,
+                        from: request.body,
+                        transforming: { value in .text(value) }
+                    )
+                } else if converter.isValidContentType(
+                    received: contentType,
+                    expected: "application/octet-stream"
+                ) {
+                    body = try converter.getRequiredRequestBodyAsBinary(
+                        Foundation.Data.self,
+                        from: request.body,
+                        transforming: { value in .binary(value) }
                     )
                 } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)

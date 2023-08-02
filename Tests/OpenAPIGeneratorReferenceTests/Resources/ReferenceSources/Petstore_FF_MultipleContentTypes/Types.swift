@@ -1107,6 +1107,8 @@ public enum Operations {
                 public var headers: Operations.getStats.Output.Ok.Headers
                 @frozen public enum Body: Sendable, Equatable, Hashable {
                     case json(Components.Schemas.PetStats)
+                    case text(Swift.String)
+                    case binary(Foundation.Data)
                 }
                 /// Received HTTP response body
                 public var body: Operations.getStats.Output.Ok.Body
@@ -1162,6 +1164,8 @@ public enum Operations {
             public var cookies: Operations.postStats.Input.Cookies
             @frozen public enum Body: Sendable, Equatable, Hashable {
                 case json(Components.Schemas.PetStats)
+                case text(Swift.String)
+                case binary(Foundation.Data)
             }
             public var body: Operations.postStats.Input.Body
             /// Creates a new `Input`.
