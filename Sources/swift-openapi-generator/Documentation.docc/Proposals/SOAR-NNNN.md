@@ -10,6 +10,7 @@ Feature name (template proposal)
 - Issue: [apple/swift-openapi-generator#1](https://github.com/apple/swift-openapi-generator/issues/1)
 - Implementation:
     - [apple/swift-openapi-generator#1](https://github.com/apple/swift-openapi-generator/pull/1)
+- Feature flag: `proposalNNNN`
 - Affected components:
     - generator
     - runtime

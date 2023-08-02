@@ -20,7 +20,7 @@ While it's encouraged to get feedback by opening a pull request with a proposal 
 4. Open a pull request with your proposal and solicit feedback from other contributors.
 5. Once a maintainer confirms that the proposal is ready for review, the state is updated accordingly. The review period is 7 days, and ends when one of the maintainers marks the proposal as Ready for Implementation, or Deferred.
 6. Before the pull request is merged, there should be an implementation ready, either in the same pull request, or a separate one, linked from the proposal.
-7. The proposal is considered Approved once the implementation and proposal PRs have been merged.
+7. The proposal is considered Approved once the implementation, proposal PRs have been merged, and, if originally disabled by a feature flag, feature flag enabled unconditionally.
 
 If you have any questions, tag [Honza Dvorsky](https://github.com/czechboy0) or [Si Beaumont](https://github.com/simonjbeaumont) in your issue or pull request on GitHub.
 
@@ -29,6 +29,7 @@ If you have any questions, tag [Honza Dvorsky](https://github.com/czechboy0) or 
 - Awaiting Review
 - In Review
 - Ready for Implementation
+- In Preview
 - Approved
 - Deferred
 
