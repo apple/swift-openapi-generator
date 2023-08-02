@@ -39,4 +39,55 @@ final class Test_String: Test_Core {
             XCTAssertEqual(asSwiftSafeName(input), sanitized)
         }
     }
+
+    func testAsProposedSwiftName() {
+        let cases: [(String, String)] = [
+            // Simple
+            ("foo", "foo"),
+
+            // Starts with a number
+            ("3foo", "_3foo"),
+
+            // Keyword
+            ("default", "_default"),
+
+            // Reserved name
+            ("Type", "_Type"),
+
+            // Empty string
+            ("", "_empty"),
+
+            // Special Char in middle
+            ("inv@lidName", "inv_commat_lidName"),
+
+            // Special Char in first position
+            ("!nvalidName", "_excl_nvalidName"),
+
+            // Special Char in last position
+            ("invalidNam?", "invalidNam_quest_"),
+
+            // Valid underscore case
+            ("__user", "__user"),
+
+            // Invalid underscore case
+            ("_", "_underscore_"),
+
+            // Special character mixed with character not in map
+            ("$nake…", "_dollar_nake_x2026_"),
+
+            // Only special character
+            ("$", "_dollar_"),
+
+            // Only special character not in map
+            ("……", "_x2026__x2026_"),
+
+            // Non Latin Characters
+            ("$مرحبا", "_dollar_مرحبا"),
+        ]
+        let translator = makeTranslator(featureFlags: [.proposal0001])
+        let asSwiftSafeName: (String) -> String = translator.swiftSafeName
+        for (input, sanitized) in cases {
+            XCTAssertEqual(asSwiftSafeName(input), sanitized)
+        }
+    }
 }
