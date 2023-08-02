@@ -19,9 +19,9 @@ struct MultiplexTranslator: TranslatorProtocol {
     func translate(
         parsedOpenAPI: ParsedOpenAPIRepresentation,
         config: Config,
-        diagnostics: DiagnosticCollector
+        diagnostics: any DiagnosticCollector
     ) throws -> StructuredSwiftRepresentation {
-        let translator: FileTranslator
+        let translator: any FileTranslator
         switch config.mode {
         case .types:
             translator = TypesFileTranslator(

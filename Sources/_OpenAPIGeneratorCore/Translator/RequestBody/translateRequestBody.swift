@@ -56,7 +56,7 @@ extension TypesFileTranslator {
             )
             bodyMembers.append(contentsOf: inlineTypeDecls)
         }
-        let identifier = content.content.contentType.identifier
+        let identifier = contentSwiftName(content.content.contentType)
         let associatedType = content.resolvedTypeUsage
         let contentCase: Declaration = .enumCase(
             .init(
@@ -119,7 +119,8 @@ extension TypesFileTranslator {
             originalName: "body",
             typeUsage: bodyEnumTypeUsage,
             default: nil,
-            associatedDeclarations: extraDecls
+            associatedDeclarations: extraDecls,
+            asSwiftSafeName: swiftSafeName
         )
         return bodyProperty
     }
@@ -150,6 +151,7 @@ extension TypesFileTranslator {
         members: [Declaration]
     ) -> Declaration {
         let bodyEnumDecl: Declaration = .enum(
+            isFrozen: true,
             accessModifier: config.access,
             name: typeName.shortSwiftName,
             conformances: Constants.Operation.Output.conformances,
@@ -173,63 +175,60 @@ extension ClientFileTranslator {
         requestVariableName: String,
         inputVariableName: String
     ) throws -> Expression {
+        let contents = [requestBody.content]
+        var cases: [SwitchCaseDescription] = contents.map { typedContent in
+            let content = typedContent.content
+            let contentType = content.contentType
+            let contentTypeIdentifier = contentSwiftName(contentType)
+            let contentTypeHeaderValue = contentType.headerValueForSending
 
-        let typedContent = requestBody.content
-        let content = typedContent.content
-        let contentType = content.contentType
-        let contentTypeIdentifier = contentType.identifier
-        let contentTypeHeaderValue = contentType.headerValueForSending
-
-        let transformReturnExpr: Expression = .return(
-            .dot("init")
-                .call([
-                    .init(
-                        label: "value",
-                        expression: .identifier("value")
-                    ),
-                    .init(
-                        label: "contentType",
-                        expression: .literal(contentTypeHeaderValue)
-                    ),
-                ])
-        )
-        let caseDecl: SwitchCaseDescription = .init(
-            kind: .case(.dot(contentTypeIdentifier), ["value"]),
-            body: [
-                .expression(transformReturnExpr)
-            ]
-        )
-        let transformExpr: Expression = .closureInvocation(
-            argumentNames: ["wrapped"],
-            body: [
-                .expression(
-                    .switch(
-                        switchedExpression: .identifier("wrapped"),
-                        cases: [
-                            caseDecl
-                        ]
-                    )
+            let bodyAssignExpr: Expression = .assignment(
+                left: .identifier(requestVariableName).dot("body"),
+                right: .try(
+                    .identifier("converter")
+                        .dot(
+                            "set\(requestBody.request.required ? "Required" : "Optional")RequestBodyAs\(contentType.codingStrategy.runtimeName)"
+                        )
+                        .call([
+                            .init(label: nil, expression: .identifier("value")),
+                            .init(
+                                label: "headerFields",
+                                expression: .inOut(
+                                    .identifier(requestVariableName).dot("headerFields")
+                                )
+                            ),
+                            .init(
+                                label: "contentType",
+                                expression: .literal(contentTypeHeaderValue)
+                            ),
+                        ])
                 )
-            ]
-        )
-        return .assignment(
-            left: .identifier(requestVariableName).dot("body"),
-            right: .try(
-                .identifier("converter")
-                    .dot(
-                        "set\(requestBody.request.required ? "Required" : "Optional")RequestBodyAs\(contentType.codingStrategy.runtimeName)"
-                    )
-                    .call([
-                        .init(label: nil, expression: .identifier(inputVariableName).dot("body")),
-                        .init(
-                            label: "headerFields",
-                            expression: .inOut(
-                                .identifier(requestVariableName).dot("headerFields")
-                            )
-                        ),
-                        .init(label: "transforming", expression: transformExpr),
-                    ])
             )
+            let caseDesc = SwitchCaseDescription(
+                kind: .case(.dot(contentTypeIdentifier), ["value"]),
+                body: [
+                    .expression(bodyAssignExpr)
+                ]
+            )
+            return caseDesc
+        }
+        if !requestBody.request.required {
+            let noneCase = SwitchCaseDescription(
+                kind: .case(.dot("none")),
+                body: [
+                    .expression(
+                        .assignment(
+                            left: .identifier(requestVariableName).dot("body"),
+                            right: .literal(.nil)
+                        )
+                    )
+                ]
+            )
+            cases.insert(noneCase, at: 0)
+        }
+        return .switch(
+            switchedExpression: .identifier(inputVariableName).dot("body"),
+            cases: cases
         )
     }
 }
@@ -269,7 +268,7 @@ extension ServerFileTranslator {
         let contentTypeUsage = typedContent.resolvedTypeUsage
         let content = typedContent.content
         let contentType = content.contentType
-        let contentTypeIdentifier = contentType.identifier
+        let contentTypeIdentifier = contentSwiftName(contentType)
         let codingStrategyName = contentType.codingStrategy.runtimeName
         let isOptional = !requestBody.request.required
 

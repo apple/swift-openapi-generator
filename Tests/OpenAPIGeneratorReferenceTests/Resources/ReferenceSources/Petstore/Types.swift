@@ -177,8 +177,10 @@ public enum Components {
                 /// - Parameters:
                 ///   - value1:
                 public init(value1: Components.Schemas.ExtraInfo) { self.value1 = value1 }
-                public init(from decoder: Decoder) throws { value1 = try .init(from: decoder) }
-                public func encode(to encoder: Encoder) throws { try value1.encode(to: encoder) }
+                public init(from decoder: any Decoder) throws { value1 = try .init(from: decoder) }
+                public func encode(to encoder: any Encoder) throws {
+                    try value1.encode(to: encoder)
+                }
             }
             /// Extra information about the error.
             ///
@@ -268,7 +270,7 @@ public enum Components {
             ///   - foo:
             public init(foo: Swift.String? = nil) { self.foo = foo }
             public enum CodingKeys: String, CodingKey { case foo }
-            public init(from decoder: Decoder) throws {
+            public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 foo = try container.decodeIfPresent(Swift.String.self, forKey: .foo)
                 try decoder.ensureNoAdditionalProperties(knownKeys: ["foo"])
@@ -293,12 +295,12 @@ public enum Components {
                 self.additionalProperties = additionalProperties
             }
             public enum CodingKeys: String, CodingKey { case foo }
-            public init(from decoder: Decoder) throws {
+            public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 foo = try container.decodeIfPresent(Swift.String.self, forKey: .foo)
                 additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: ["foo"])
             }
-            public func encode(to encoder: Encoder) throws {
+            public func encode(to encoder: any Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encodeIfPresent(foo, forKey: .foo)
                 try encoder.encodeAdditionalProperties(additionalProperties)
@@ -323,12 +325,12 @@ public enum Components {
                 self.additionalProperties = additionalProperties
             }
             public enum CodingKeys: String, CodingKey { case foo }
-            public init(from decoder: Decoder) throws {
+            public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 foo = try container.decodeIfPresent(Swift.String.self, forKey: .foo)
                 additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: ["foo"])
             }
-            public func encode(to encoder: Encoder) throws {
+            public func encode(to encoder: any Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encodeIfPresent(foo, forKey: .foo)
                 try encoder.encodeAdditionalProperties(additionalProperties)
@@ -374,11 +376,11 @@ public enum Components {
                 self.value1 = value1
                 self.value2 = value2
             }
-            public init(from decoder: Decoder) throws {
+            public init(from decoder: any Decoder) throws {
                 value1 = try .init(from: decoder)
                 value2 = try .init(from: decoder)
             }
-            public func encode(to encoder: Encoder) throws {
+            public func encode(to encoder: any Encoder) throws {
                 try value1.encode(to: encoder)
                 try value2.encode(to: encoder)
             }
@@ -412,7 +414,7 @@ public enum Components {
                 self.value1 = value1
                 self.value2 = value2
             }
-            public init(from decoder: Decoder) throws {
+            public init(from decoder: any Decoder) throws {
                 value1 = try? .init(from: decoder)
                 value2 = try? .init(from: decoder)
                 try DecodingError.verifyAtLeastOneSchemaIsNotNil(
@@ -421,7 +423,7 @@ public enum Components {
                     codingPath: decoder.codingPath
                 )
             }
-            public func encode(to encoder: Encoder) throws {
+            public func encode(to encoder: any Encoder) throws {
                 try value1?.encode(to: encoder)
                 try value2?.encode(to: encoder)
             }
@@ -449,7 +451,7 @@ public enum Components {
             case case4(Components.Schemas.OneOfAny.Case4Payload)
             /// Parsed a case that was not defined in the OpenAPI document.
             case undocumented(OpenAPIRuntime.OpenAPIValueContainer)
-            public init(from decoder: Decoder) throws {
+            public init(from decoder: any Decoder) throws {
                 do {
                     self = .case1(try .init(from: decoder))
                     return
@@ -470,7 +472,7 @@ public enum Components {
                 let value = try container.decode(OpenAPIRuntime.OpenAPIValueContainer.self)
                 self = .undocumented(value)
             }
-            public func encode(to encoder: Encoder) throws {
+            public func encode(to encoder: any Encoder) throws {
                 switch self {
                 case let .case1(value): try value.encode(to: encoder)
                 case let .case2(value): try value.encode(to: encoder)
@@ -540,11 +542,11 @@ public enum Components {
                 self.value1 = value1
                 self.value2 = value2
             }
-            public init(from decoder: Decoder) throws {
+            public init(from decoder: any Decoder) throws {
                 value1 = try .init(from: decoder)
                 value2 = try .init(from: decoder)
             }
-            public func encode(to encoder: Encoder) throws {
+            public func encode(to encoder: any Encoder) throws {
                 try value1.encode(to: encoder)
                 try value2.encode(to: encoder)
             }
@@ -558,7 +560,7 @@ public enum Components {
             /// Parsed a case that was not defined in the OpenAPI document.
             case undocumented(OpenAPIRuntime.OpenAPIObjectContainer)
             public enum CodingKeys: String, CodingKey { case kind }
-            public init(from decoder: Decoder) throws {
+            public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 let discriminator = try container.decode(String.self, forKey: .kind)
                 switch discriminator {
@@ -570,7 +572,7 @@ public enum Components {
                     self = .undocumented(value)
                 }
             }
-            public func encode(to encoder: Encoder) throws {
+            public func encode(to encoder: any Encoder) throws {
                 switch self {
                 case let .Walk(value): try value.encode(to: encoder)
                 case let .MessagedExercise(value): try value.encode(to: encoder)
@@ -583,7 +585,7 @@ public enum Components {
         public struct DeprecatedObject: Codable, Equatable, Hashable, Sendable {
             /// Creates a new `DeprecatedObject`.
             public init() {}
-            public init(from decoder: Decoder) throws {
+            public init(from decoder: any Decoder) throws {
                 try decoder.ensureNoAdditionalProperties(knownKeys: [])
             }
         }
@@ -616,7 +618,7 @@ public enum Components {
     }
     /// Types generated from the `#/components/requestBodies` section of the OpenAPI document.
     public enum RequestBodies {
-        public enum UpdatePetRequest: Sendable, Equatable, Hashable {
+        @frozen public enum UpdatePetRequest: Sendable, Equatable, Hashable {
             /// - Remark: Generated from `#/components/requestBodies/UpdatePetRequest/json`.
             public struct jsonPayload: Codable, Equatable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/requestBodies/UpdatePetRequest/json/name`.
@@ -662,7 +664,7 @@ public enum Components {
             }
             /// Received HTTP response headers
             public var headers: Components.Responses.ErrorBadRequest.Headers
-            public enum Body: Sendable, Equatable, Hashable {
+            @frozen public enum Body: Sendable, Equatable, Hashable {
                 /// - Remark: Generated from `#/components/responses/ErrorBadRequest/json`.
                 public struct jsonPayload: Codable, Equatable, Hashable, Sendable {
                     /// - Remark: Generated from `#/components/responses/ErrorBadRequest/json/code`.
@@ -684,7 +686,7 @@ public enum Components {
             ///   - headers: Received HTTP response headers
             ///   - body: Received HTTP response body
             public init(
-                headers: Components.Responses.ErrorBadRequest.Headers,
+                headers: Components.Responses.ErrorBadRequest.Headers = .init(),
                 body: Components.Responses.ErrorBadRequest.Body
             ) {
                 self.headers = headers
@@ -819,7 +821,7 @@ public enum Operations {
                 public init() {}
             }
             public var cookies: Operations.listPets.Input.Cookies
-            public enum Body: Sendable, Equatable, Hashable {}
+            @frozen public enum Body: Sendable, Equatable, Hashable {}
             public var body: Operations.listPets.Input.Body?
             /// Creates a new `Input`.
             ///
@@ -843,7 +845,7 @@ public enum Operations {
                 self.body = body
             }
         }
-        public enum Output: Sendable, Equatable, Hashable {
+        @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct Ok: Sendable, Equatable, Hashable {
                 public struct Headers: Sendable, Equatable, Hashable {
                     public var My_Response_UUID: Swift.String
@@ -863,7 +865,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.listPets.Output.Ok.Headers
-                public enum Body: Sendable, Equatable, Hashable {
+                @frozen public enum Body: Sendable, Equatable, Hashable {
                     case json(Components.Schemas.Pets)
                 }
                 /// Received HTTP response body
@@ -894,7 +896,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.listPets.Output.Default.Headers
-                public enum Body: Sendable, Equatable, Hashable {
+                @frozen public enum Body: Sendable, Equatable, Hashable {
                     case json(Components.Schemas._Error)
                 }
                 /// Received HTTP response body
@@ -953,7 +955,7 @@ public enum Operations {
                 public init() {}
             }
             public var cookies: Operations.createPet.Input.Cookies
-            public enum Body: Sendable, Equatable, Hashable {
+            @frozen public enum Body: Sendable, Equatable, Hashable {
                 case json(Components.Schemas.CreatePetRequest)
             }
             public var body: Operations.createPet.Input.Body
@@ -979,7 +981,7 @@ public enum Operations {
                 self.body = body
             }
         }
-        public enum Output: Sendable, Equatable, Hashable {
+        @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct Created: Sendable, Equatable, Hashable {
                 public struct Headers: Sendable, Equatable, Hashable {
                     public var X_Extra_Arguments: Components.Schemas.CodeError?
@@ -993,7 +995,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.createPet.Output.Created.Headers
-                public enum Body: Sendable, Equatable, Hashable {
+                @frozen public enum Body: Sendable, Equatable, Hashable {
                     case json(Components.Schemas.Pet)
                 }
                 /// Received HTTP response body
@@ -1004,7 +1006,7 @@ public enum Operations {
                 ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
                 public init(
-                    headers: Operations.createPet.Output.Created.Headers,
+                    headers: Operations.createPet.Output.Created.Headers = .init(),
                     body: Operations.createPet.Output.Created.Body
                 ) {
                     self.headers = headers
@@ -1054,7 +1056,7 @@ public enum Operations {
                 public init() {}
             }
             public var cookies: Operations.probe.Input.Cookies
-            public enum Body: Sendable, Equatable, Hashable {}
+            @frozen public enum Body: Sendable, Equatable, Hashable {}
             public var body: Operations.probe.Input.Body?
             /// Creates a new `Input`.
             ///
@@ -1078,7 +1080,7 @@ public enum Operations {
                 self.body = body
             }
         }
-        public enum Output: Sendable, Equatable, Hashable {
+        @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct NoContent: Sendable, Equatable, Hashable {
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
@@ -1086,7 +1088,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.probe.Output.NoContent.Headers
-                public enum Body: Sendable, Equatable, Hashable {}
+                @frozen public enum Body: Sendable, Equatable, Hashable {}
                 /// Received HTTP response body
                 public var body: Operations.probe.Output.NoContent.Body?
                 /// Creates a new `NoContent`.
@@ -1168,7 +1170,7 @@ public enum Operations {
                 self.body = body
             }
         }
-        public enum Output: Sendable, Equatable, Hashable {
+        @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct NoContent: Sendable, Equatable, Hashable {
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
@@ -1176,7 +1178,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.updatePet.Output.NoContent.Headers
-                public enum Body: Sendable, Equatable, Hashable {}
+                @frozen public enum Body: Sendable, Equatable, Hashable {}
                 /// Received HTTP response body
                 public var body: Operations.updatePet.Output.NoContent.Body?
                 /// Creates a new `NoContent`.
@@ -1205,7 +1207,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.updatePet.Output.BadRequest.Headers
-                public enum Body: Sendable, Equatable, Hashable {
+                @frozen public enum Body: Sendable, Equatable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/json`.
                     public struct jsonPayload: Codable, Equatable, Hashable, Sendable {
                         /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/json/message`.
@@ -1277,7 +1279,7 @@ public enum Operations {
                 public init() {}
             }
             public var cookies: Operations.uploadAvatarForPet.Input.Cookies
-            public enum Body: Sendable, Equatable, Hashable { case binary(Foundation.Data) }
+            @frozen public enum Body: Sendable, Equatable, Hashable { case binary(Foundation.Data) }
             public var body: Operations.uploadAvatarForPet.Input.Body
             /// Creates a new `Input`.
             ///
@@ -1301,7 +1303,7 @@ public enum Operations {
                 self.body = body
             }
         }
-        public enum Output: Sendable, Equatable, Hashable {
+        @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct Ok: Sendable, Equatable, Hashable {
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
@@ -1309,7 +1311,9 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.uploadAvatarForPet.Output.Ok.Headers
-                public enum Body: Sendable, Equatable, Hashable { case binary(Foundation.Data) }
+                @frozen public enum Body: Sendable, Equatable, Hashable {
+                    case binary(Foundation.Data)
+                }
                 /// Received HTTP response body
                 public var body: Operations.uploadAvatarForPet.Output.Ok.Body
                 /// Creates a new `Ok`.
@@ -1338,7 +1342,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.uploadAvatarForPet.Output.PreconditionFailed.Headers
-                public enum Body: Sendable, Equatable, Hashable { case json(Swift.String) }
+                @frozen public enum Body: Sendable, Equatable, Hashable { case json(Swift.String) }
                 /// Received HTTP response body
                 public var body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body
                 /// Creates a new `PreconditionFailed`.
@@ -1368,7 +1372,7 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.uploadAvatarForPet.Output.InternalServerError.Headers
-                public enum Body: Sendable, Equatable, Hashable { case text(Swift.String) }
+                @frozen public enum Body: Sendable, Equatable, Hashable { case text(Swift.String) }
                 /// Received HTTP response body
                 public var body: Operations.uploadAvatarForPet.Output.InternalServerError.Body
                 /// Creates a new `InternalServerError`.

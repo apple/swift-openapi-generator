@@ -27,8 +27,6 @@ services:
   soundness:
     <<: *common
     command: /bin/bash -xcl "swift -version && uname -a && ./scripts/soundness.sh"
-    environment:
-      SWIFT_OPENAPI_GENERATOR_REPO_URL: file:///code
 
   test:
     <<: *common
@@ -38,3 +36,14 @@ services:
     <<: *common
     entrypoint: /bin/bash
 
+  integration-test:
+    <<: *common
+    command: /bin/bash -xcl "swift -version && uname -a && bash ./scripts/run-integration-test.sh"
+    environment:
+      SWIFT_OPENAPI_GENERATOR_REPO_URL: file:///code
+
+  docc-test:
+    <<: *common
+    command: /bin/bash -xcl "swift -version && uname -a && bash ./scripts/check-for-docc-warnings.sh"
+    environment:
+      DOCC_TARGET: swift-openapi-generator

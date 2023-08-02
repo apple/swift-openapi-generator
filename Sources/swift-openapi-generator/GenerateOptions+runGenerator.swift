@@ -21,26 +21,27 @@ extension _GenerateOptions {
     /// - Parameters:
     ///   - outputDirectory: The directory path to which the generator writes
     ///   the generated Swift files.
-    ///   - isPluginInvocation: A Boolean value that indicates whether this
-    ///   generator invocation is coming from a SwiftPM plugin, as that forces
-    ///   the generator to emit all 3 files (Types.swift, Client.Swift, and
-    ///   Server.swift) regardless of which generator mode was requested, with
-    ///   the caveat that the not requested files are empty. This is due to
-    ///   a limitation of the build system used by SwiftPM under the hood.
+    ///   - pluginSource: The source of the generator invocation if from a plugin.
+    ///   - isDryRun: A Boolean value that indicates whether this invocation should
+    ///   be run in a testing mode to preview all the operations being carried out without
+    ///   making any actual changes.
     func runGenerator(
         outputDirectory: URL,
-        isPluginInvocation: Bool
+        pluginSource: PluginSource?,
+        isDryRun: Bool
     ) throws {
         let config = try loadedConfig()
         let sortedModes = try resolvedModes(config)
         let resolvedAdditionalImports = resolvedAdditionalImports(config)
+        let resolvedFeatureFlags = resolvedFeatureFlags(config)
         let configs: [Config] = sortedModes.map {
             .init(
                 mode: $0,
-                additionalImports: resolvedAdditionalImports
+                additionalImports: resolvedAdditionalImports,
+                featureFlags: resolvedFeatureFlags
             )
         }
-        let diagnostics: DiagnosticCollector
+        let diagnostics: any DiagnosticCollector
         let finalizeDiagnostics: () throws -> Void
         if let diagnosticsOutputPath {
             let _diagnostics = _YamlFileDiagnosticsCollector(url: diagnosticsOutputPath)
@@ -58,11 +59,13 @@ extension _GenerateOptions {
             - OpenAPI document path: \(doc.path)
             - Configuration path: \(self.config?.path ?? "<none>")
             - Generator modes: \(sortedModes.map(\.rawValue).joined(separator: ", "))
+            - Feature flags: \(resolvedFeatureFlags.isEmpty ? "<none>" : resolvedFeatureFlags.map(\.rawValue).joined(separator: ", "))
             - Output file names: \(sortedModes.map(\.outputFileName).joined(separator: ", "))
             - Output directory: \(outputDirectory.path)
             - Diagnostics output path: \(diagnosticsOutputPath?.path ?? "<none - logs to stderr>")
             - Current directory: \(FileManager.default.currentDirectoryPath)
-            - Is plugin invocation: \(isPluginInvocation)
+            - Plugin source: \(pluginSource?.rawValue ?? "<none>")
+            - Is dry run: \(isDryRun)
             - Additional imports: \(resolvedAdditionalImports.isEmpty ? "<none>" : resolvedAdditionalImports.joined(separator: ", "))
             """
         )
@@ -70,8 +73,9 @@ extension _GenerateOptions {
             try _Tool.runGenerator(
                 doc: doc,
                 configs: configs,
-                isPluginInvocation: isPluginInvocation,
+                pluginSource: pluginSource,
                 outputDirectory: outputDirectory,
+                isDryRun: isDryRun,
                 diagnostics: diagnostics
             )
         } catch let error as Diagnostic {

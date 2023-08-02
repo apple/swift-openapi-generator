@@ -25,7 +25,7 @@ import OpenAPIKit30
 struct TypesFileTranslator: FileTranslator {
 
     var config: Config
-    var diagnostics: DiagnosticCollector
+    var diagnostics: any DiagnosticCollector
     var components: OpenAPI.Components
 
     func translateFile(
@@ -41,15 +41,17 @@ struct TypesFileTranslator: FileTranslator {
             + config.additionalImports
             .map { ImportDescription(moduleName: $0) }
 
-        let apiProtocol = translateAPIProtocol(doc.paths)
+        let apiProtocol = try translateAPIProtocol(doc.paths)
 
         let serversDecl = translateServers(doc.servers)
 
         let components = try translateComponents(doc.components)
 
-        let operationDescriptions =
-            OperationDescription
-            .all(from: parsedOpenAPI.paths, in: doc.components)
+        let operationDescriptions = try OperationDescription.all(
+            from: parsedOpenAPI.paths,
+            in: doc.components,
+            asSwiftSafeName: swiftSafeName
+        )
         let operations = try translateOperations(operationDescriptions)
 
         let typesFile = FileDescription(

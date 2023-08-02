@@ -19,17 +19,19 @@ extension TypesFileTranslator {
     /// per HTTP operation defined in the OpenAPI document.
     /// - Parameter paths: The paths object from the OpenAPI document.
     /// - Returns: A protocol declaration.
-    func translateAPIProtocol(_ paths: OpenAPI.PathItem.Map) -> Declaration {
+    /// - Throws: If `paths` contains any references.
+    func translateAPIProtocol(_ paths: OpenAPI.PathItem.Map) throws -> Declaration {
 
-        let operations = OperationDescription.all(
+        let operations = try OperationDescription.all(
             from: paths,
-            in: components
+            in: components,
+            asSwiftSafeName: swiftSafeName
         )
         let functionDecls =
             operations
             .map(translateAPIProtocolDeclaration(operation:))
 
-        let protocolDescription: ProtocolDescription = .init(
+        let protocolDescription = ProtocolDescription(
             accessModifier: config.access,
             name: Constants.APIProtocol.typeName,
             conformances: Constants.APIProtocol.conformances,

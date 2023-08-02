@@ -91,7 +91,7 @@ final class Test_DiscriminatorExtensions: Test_Core {
             "B$z",
         ]
         let types: [TypeName] = typeShortNames.map {
-            TypeAssigner.typeName(
+            typeAssigner.typeName(
                 forComponentOriginallyNamed: $0,
                 in: .schemas
             )

@@ -169,7 +169,7 @@ extension ClientFileTranslator {
                 argumentNames: ["value"],
                 body: [
                     .expression(
-                        .dot(typedContent.content.contentType.identifier)
+                        .dot(contentSwiftName(typedContent.content.contentType))
                             .call([
                                 .init(label: nil, expression: .identifier("value"))
                             ])
@@ -276,8 +276,7 @@ extension ServerFileTranslator {
         let responseVarDecl: Declaration = .variable(
             kind: .var,
             left: "response",
-            type: "Response",
-            right: .dot("init")
+            right: .identifier("Response")
                 .call([
                     .init(label: "statusCode", expression: statusCodeExpr)
                 ])
@@ -306,73 +305,66 @@ extension ServerFileTranslator {
         }
         codeBlocks.append(contentsOf: headerExprs.map { .expression($0) })
 
-        if let typedContent = try bestSingleTypedContent(
-            typedResponse.response.content,
-            inParent: bodyTypeName
-        ) {
-            let contentTypeHeaderValue = typedContent.content.contentType.headerValueForValidation
-            let validateAcceptHeader: Expression = .try(
-                .identifier("converter").dot("validateAcceptIfPresent")
-                    .call([
-                        .init(label: nil, expression: .literal(contentTypeHeaderValue)),
-                        .init(label: "in", expression: .identifier("request").dot("headerFields")),
-                    ])
+        let typedContents = [
+            try bestSingleTypedContent(
+                typedResponse.response.content,
+                inParent: bodyTypeName
             )
-            codeBlocks.append(.expression(validateAcceptHeader))
+        ]
+        .compactMap { $0 }
 
-            let contentType = typedContent.content.contentType
-            let switchContentCases: [SwitchCaseDescription] = [
-                .init(
-                    kind: .case(.dot(contentType.identifier), ["value"]),
-                    body: [
-                        .expression(
-                            .return(
-                                .dot("init")
-                                    .call([
-                                        .init(
-                                            label: "value",
-                                            expression: .identifier("value")
-                                        ),
-                                        .init(
-                                            label: "contentType",
-                                            expression: .literal(contentType.headerValueForSending)
-                                        ),
-                                    ])
-                            )
-                        )
-                    ]
-                )
-            ]
+        if !typedContents.isEmpty {
+            let switchContentCases: [SwitchCaseDescription] = typedContents.map { typedContent in
 
-            let transformExpr: Expression = .closureInvocation(
-                argumentNames: ["wrapped"],
-                body: [
-                    .expression(
-                        .switch(
-                            switchedExpression: .identifier("wrapped"),
-                            cases: switchContentCases
-                        )
-                    )
-                ]
-            )
-            let assignBodyExpr: Expression = .assignment(
-                left: .identifier("response").dot("body"),
-                right: .try(
-                    .identifier("converter")
-                        .dot("setResponseBodyAs\(contentType.codingStrategy.runtimeName)")
+                var caseCodeBlocks: [CodeBlock] = []
+
+                let contentTypeHeaderValue = typedContent.content.contentType.headerValueForValidation
+                let validateAcceptHeader: Expression = .try(
+                    .identifier("converter").dot("validateAcceptIfPresent")
                         .call([
-                            .init(label: nil, expression: .identifier("value").dot("body")),
-                            .init(
-                                label: "headerFields",
-                                expression: .inOut(
-                                    .identifier("response").dot("headerFields")
-                                )
-                            ),
-                            .init(label: "transforming", expression: transformExpr),
+                            .init(label: nil, expression: .literal(contentTypeHeaderValue)),
+                            .init(label: "in", expression: .identifier("request").dot("headerFields")),
                         ])
                 )
+                caseCodeBlocks.append(.expression(validateAcceptHeader))
+
+                let contentType = typedContent.content.contentType
+                let assignBodyExpr: Expression = .assignment(
+                    left: .identifier("response").dot("body"),
+                    right: .try(
+                        .identifier("converter")
+                            .dot("setResponseBodyAs\(contentType.codingStrategy.runtimeName)")
+                            .call([
+                                .init(label: nil, expression: .identifier("value")),
+                                .init(
+                                    label: "headerFields",
+                                    expression: .inOut(
+                                        .identifier("response").dot("headerFields")
+                                    )
+                                ),
+                                .init(
+                                    label: "contentType",
+                                    expression: .literal(contentType.headerValueForSending)
+                                ),
+                            ])
+                    )
+                )
+                caseCodeBlocks.append(.expression(assignBodyExpr))
+
+                return .init(
+                    kind: .case(.dot(contentSwiftName(contentType)), ["value"]),
+                    body: caseCodeBlocks
+                )
+            }
+
+            codeBlocks.append(
+                .expression(
+                    .switch(
+                        switchedExpression: .identifier("value").dot("body"),
+                        cases: switchContentCases
+                    )
+                )
             )
-            codeBlocks.append(.expression(assignBodyExpr))
         }
 
         let returnExpr: Expression = .return(

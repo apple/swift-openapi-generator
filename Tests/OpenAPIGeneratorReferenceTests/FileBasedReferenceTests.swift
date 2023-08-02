@@ -20,6 +20,7 @@ struct TestConfig: Encodable {
     var docFilePath: String
     var mode: GeneratorMode
     var additionalImports: [String]?
+    var featureFlags: FeatureFlags?
     var referenceOutputDirectory: String
 }
 
@@ -27,13 +28,14 @@ extension TestConfig {
     var asConfig: Config {
         .init(
             mode: mode,
-            additionalImports: additionalImports ?? []
+            additionalImports: additionalImports ?? [],
+            featureFlags: featureFlags ?? []
         )
     }
 }
 
 /// Tests that the generator produces Swift files that match a reference.
-class ReferenceTests: XCTestCase {
+class FileBasedReferenceTests: XCTestCase {
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
@@ -43,7 +45,7 @@ class ReferenceTests: XCTestCase {
     }
 
     func testPetstore() throws {
-        try _test(referenceProjectNamed: .petstore)
+        try _test(referenceProject: .init(name: .petstore))
     }
 
     // MARK: - Private
@@ -58,7 +60,8 @@ class ReferenceTests: XCTestCase {
     }
 
     func performReferenceTest(
-        _ referenceTest: TestConfig
+        _ referenceTest: TestConfig,
+        ignoredDiagnosticMessages: Set<String> = []
     ) throws {
         print(
             """
@@ -82,10 +85,9 @@ class ReferenceTests: XCTestCase {
         )
 
         // Run the requested generator invocation
-        let diagnostics: DiagnosticCollector = strictDiagnosticsCollector
         let generatorPipeline = self.makeGeneratorPipeline(
             config: referenceTest.asConfig,
-            diagnostics: diagnostics
+            ignoredDiagnosticMessages: ignoredDiagnosticMessages
         )
         let generatedOutputSource = try generatorPipeline.run(input)
 
@@ -115,16 +117,33 @@ class ReferenceTests: XCTestCase {
     enum ReferenceProjectName: String, Hashable, CaseIterable {
         case petstore
 
-        var fileName: String {
+        var openAPIDocFileName: String {
             "\(rawValue).yaml"
         }
 
-        var directoryName: String {
+        var fixtureCodeDirectoryName: String {
             rawValue.capitalized
         }
     }
 
-    func _test(referenceProjectNamed name: ReferenceProjectName) throws {
+    struct ReferenceProject: Hashable, Equatable {
+        var name: ReferenceProjectName
+        var customDirectoryName: String? = nil
+
+        var fixtureCodeDirectoryName: String {
+            customDirectoryName ?? name.fixtureCodeDirectoryName
+        }
+
+        var openAPIDocFileName: String {
+            name.openAPIDocFileName
+        }
+    }
+
+    func _test(
+        referenceProject project: ReferenceProject,
+        featureFlags: FeatureFlags = [],
+        ignoredDiagnosticMessages: Set<String> = []
+    ) throws {
         let modes: [GeneratorMode] = [
             .types,
             .client,
@@ -133,42 +152,23 @@ class ReferenceTests: XCTestCase {
         for mode in modes {
             try performReferenceTest(
                 .init(
-                    docFilePath: "Docs/\(name.fileName)",
+                    docFilePath: "Docs/\(project.openAPIDocFileName)",
                     mode: mode,
                     additionalImports: [],
-                    referenceOutputDirectory: "ReferenceSources/\(name.directoryName)"
-                )
+                    featureFlags: featureFlags,
+                    referenceOutputDirectory: "ReferenceSources/\(project.fixtureCodeDirectoryName)"
+                ),
+                ignoredDiagnosticMessages: ignoredDiagnosticMessages
             )
         }
     }
 }
 
-struct StrictDiagnosticsCollector: DiagnosticCollector {
-    var test: XCTestCase
-
-    func emit(_ diagnostic: Diagnostic) {
-        print("Test emitted diagnostic: \(diagnostic.description)")
-        switch diagnostic.severity {
-        case .note:
-            // no need to fail, just print
-            break
-        case .warning, .error:
-            XCTFail("Failing with a diagnostic: \(diagnostic.description)")
-        }
-    }
-}
-
-extension ReferenceTests {
-
-    var strictDiagnosticsCollector: DiagnosticCollector {
-        StrictDiagnosticsCollector(test: self)
-    }
-
+extension FileBasedReferenceTests {
     private func makeGeneratorPipeline(
         config: Config,
-        diagnostics: DiagnosticCollector
+        ignoredDiagnosticMessages: Set<String> = []
     ) -> GeneratorPipeline {
-
         let parser = YamsParser()
         let translator = MultiplexTranslator()
         let renderer = TextBasedRenderer()
@@ -183,7 +183,10 @@ extension ReferenceTests {
                 return newFile
             },
             config: config,
-            diagnostics: diagnostics
+            diagnostics: XCTestDiagnosticCollector(
+                test: self,
+                ignoredDiagnosticMessages: ignoredDiagnosticMessages
+            )
         )
     }
 

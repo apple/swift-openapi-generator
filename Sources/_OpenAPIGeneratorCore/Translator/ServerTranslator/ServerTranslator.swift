@@ -23,7 +23,7 @@ import OpenAPIKit30
 struct ServerFileTranslator: FileTranslator {
 
     var config: Config
-    var diagnostics: DiagnosticCollector
+    var diagnostics: any DiagnosticCollector
     var components: OpenAPI.Components
 
     func translateFile(
@@ -41,7 +41,11 @@ struct ServerFileTranslator: FileTranslator {
 
         let serverMethodDeclPairs =
             try OperationDescription
-            .all(from: doc.paths, in: components)
+            .all(
+                from: doc.paths,
+                in: components,
+                asSwiftSafeName: swiftSafeName
+            )
             .map { operation in
                 try translateServerMethod(operation, serverUrlVariableName: "server")
             }

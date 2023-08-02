@@ -80,6 +80,21 @@ struct StructBlueprint {
     var properties: [PropertyBlueprint]
 }
 
+extension StructBlueprint {
+
+    /// A Boolean value indicating whether the struct can be initialized using
+    /// an empty initializer.
+    ///
+    /// For example, when all the properties of the struct have a default value,
+    /// the struct can be initialized using `Foo()`. This is important for
+    /// other types referencing this type.
+    var hasEmptyInit: Bool {
+        // If at least one property requires an explicit value, this struct
+        // cannot have an empty initializer.
+        properties.allSatisfy { $0.defaultValue != nil }
+    }
+}
+
 /// A structure that contains the information about an OpenAPI object property
 /// that is required to generate a matching Swift property.
 struct PropertyBlueprint {
@@ -130,13 +145,17 @@ struct PropertyBlueprint {
     /// property declaration, used for declaring nested types before
     /// referring to them in the property.
     var associatedDeclarations: [Declaration] = []
+
+    /// A converted function from user-provided strings to strings
+    /// safe to be used as a Swift identifier.
+    var asSwiftSafeName: (String) -> String
 }
 
 extension PropertyBlueprint {
 
     /// A name that is verified to be a valid Swift identifier.
     var swiftSafeName: String {
-        originalName.asSwiftSafeName
+        asSwiftSafeName(originalName)
     }
 
     /// A human-readable, fully qualified name of the Swift property.

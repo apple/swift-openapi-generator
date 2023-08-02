@@ -89,7 +89,7 @@ struct GeneratorPipeline {
 public func runGenerator(
     input: InMemoryInputFile,
     config: Config,
-    diagnostics: DiagnosticCollector
+    diagnostics: any DiagnosticCollector
 ) throws -> InMemoryOutputFile {
     try makeGeneratorPipeline(config: config, diagnostics: diagnostics).run(input)
 }
@@ -105,12 +105,12 @@ public func runGenerator(
 /// - Returns: A configured generator pipeline that can be executed with
 /// ``GeneratorPipeline/run(_:)``.
 func makeGeneratorPipeline(
-    parser: ParserProtocol = YamsParser(),
-    translator: TranslatorProtocol = MultiplexTranslator(),
-    renderer: RendererProtocol = TextBasedRenderer(),
+    parser: any ParserProtocol = YamsParser(),
+    translator: any TranslatorProtocol = MultiplexTranslator(),
+    renderer: any RendererProtocol = TextBasedRenderer(),
     formatter: @escaping (InMemoryOutputFile) throws -> InMemoryOutputFile = { try $0.swiftFormatted },
     config: Config,
-    diagnostics: DiagnosticCollector
+    diagnostics: any DiagnosticCollector
 ) -> GeneratorPipeline {
     return .init(
         parseOpenAPIFileStage: .init(
@@ -122,7 +122,39 @@ func makeGeneratorPipeline(
                     diagnostics: diagnostics
                 )
             },
-            postTransitionHooks: []
+            postTransitionHooks: [
+                { doc in
+
+                    // Run OpenAPIKit's built-in validation.
+                    try doc.validate()
+
+                    // Validate that the document is dereferenceable, which
+                    // catches reference cycles, which we don't yet support.
+                    _ = try doc.locallyDereferenced()
+
+                    // Also explicitly dereference the parts of components
+                    // that the generator uses. `locallyDereferenced()` above
+                    // only dereferences paths/operations, but not components.
+                    let components = doc.components
+                    try components.schemas.forEach { schema in
+                        _ = try schema.value.dereferenced(in: components)
+                    }
+                    try components.parameters.forEach { schema in
+                        _ = try schema.value.dereferenced(in: components)
+                    }
+                    try components.headers.forEach { schema in
+                        _ = try schema.value.dereferenced(in: components)
+                    }
+                    try components.requestBodies.forEach { schema in
+                        _ = try schema.value.dereferenced(in: components)
+                    }
+                    try components.responses.forEach { schema in
+                        _ = try schema.value.dereferenced(in: components)
+                    }
+
+                    return doc
+                }
+            ]
         ),
         translateOpenAPIToStructuredSwiftStage: .init(
             preTransitionHooks: [],

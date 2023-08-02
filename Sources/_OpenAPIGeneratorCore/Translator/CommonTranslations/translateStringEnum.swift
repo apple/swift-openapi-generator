@@ -38,7 +38,7 @@ extension FileTranslator {
         let knownCases: [Declaration] =
             rawValues
             .map { rawValue in
-                let caseName = rawValue.asSwiftSafeName
+                let caseName = swiftSafeName(for: rawValue)
                 return .enumCase(
                     name: caseName,
                     kind: .nameOnly
@@ -65,14 +65,14 @@ extension FileTranslator {
                                 Expression
                                     .identifier("self")
                                     .equals(
-                                        .dot(rawValue.asSwiftSafeName)
+                                        .dot(swiftSafeName(for: rawValue))
                                     )
                             )
                         )
                     ]
                 )
             }
-            let unknownCase: SwitchCaseDescription = .init(
+            let unknownCase = SwitchCaseDescription(
                 kind: .default,
                 body: [
                     .expression(
@@ -118,7 +118,7 @@ extension FileTranslator {
         do {
             let knownCases: [SwitchCaseDescription] = rawValues.map { rawValue in
                 .init(
-                    kind: .case(.dot(rawValue.asSwiftSafeName)),
+                    kind: .case(.dot(swiftSafeName(for: rawValue))),
                     body: [
                         .expression(
                             .return(.literal(rawValue))
@@ -126,7 +126,7 @@ extension FileTranslator {
                     ]
                 )
             }
-            let unknownCase: SwitchCaseDescription = .init(
+            let unknownCase = SwitchCaseDescription(
                 kind: .case(
                     .valueBinding(
                         kind: .let,
@@ -147,7 +147,7 @@ extension FileTranslator {
                 ]
             )
 
-            let variableDescription: VariableDescription = .init(
+            let variableDescription = VariableDescription(
                 accessModifier: config.access,
                 kind: .var,
                 left: "rawValue",
@@ -170,7 +170,7 @@ extension FileTranslator {
         let allCasesGetter: Declaration
         do {
             let caseExpressions: [Expression] = rawValues.map { rawValue in
-                .memberAccess(.init(right: rawValue.asSwiftSafeName))
+                .memberAccess(.init(right: swiftSafeName(for: rawValue)))
             }
             allCasesGetter = .variable(
                 .init(
@@ -186,7 +186,7 @@ extension FileTranslator {
             )
         }
 
-        let enumDescription: EnumDescription = .init(
+        let enumDescription = EnumDescription(
             isFrozen: true,
             accessModifier: config.access,
             name: typeName.shortSwiftName,

@@ -13,6 +13,7 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIRuntime
 import Foundation
+import PetstoreConsumerTestCore
 
 extension APIProtocol {
     func configuredServer(

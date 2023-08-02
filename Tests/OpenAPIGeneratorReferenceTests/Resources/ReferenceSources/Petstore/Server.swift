@@ -14,10 +14,10 @@ extension APIProtocol {
     ///   - configuration: A set of configuration values for the server.
     ///   - middlewares: A list of middlewares to call before the handler.
     public func registerHandlers(
-        on transport: ServerTransport,
+        on transport: any ServerTransport,
         serverURL: URL = .defaultOpenAPIServerURL,
         configuration: Configuration = .init(),
-        middlewares: [ServerMiddleware] = []
+        middlewares: [any ServerMiddleware] = []
     ) throws {
         let server = UniversalServer(
             serverURL: serverURL,
@@ -69,7 +69,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             with: metadata,
             forOperation: Operations.listPets.id,
-            using: APIHandler.listPets,
+            using: { APIHandler.listPets($0) },
             deserializer: { request, metadata in let path: Operations.listPets.Input.Path = .init()
                 let query: Operations.listPets.Input.Query = .init(
                     limit: try converter.getOptionalQueryItemAsText(
@@ -114,7 +114,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .ok(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 200)
+                    var response = Response(statusCode: 200)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsText(
                         in: &response.headerFields,
@@ -126,45 +126,35 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         name: "My-Tracing-Header",
                         value: value.headers.My_Tracing_Header
                     )
-                    try converter.validateAcceptIfPresent(
-                        "application/json",
-                        in: request.headerFields
-                    )
-                    response.body = try converter.setResponseBodyAsJSON(
-                        value.body,
-                        headerFields: &response.headerFields,
-                        transforming: { wrapped in
-                            switch wrapped {
-                            case let .json(value):
-                                return .init(
-                                    value: value,
-                                    contentType: "application/json; charset=utf-8"
-                                )
-                            }
-                        }
-                    )
+                    switch value.body {
+                    case let .json(value):
+                        try converter.validateAcceptIfPresent(
+                            "application/json",
+                            in: request.headerFields
+                        )
+                        response.body = try converter.setResponseBodyAsJSON(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
                     return response
                 case let .`default`(statusCode, value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: statusCode)
+                    var response = Response(statusCode: statusCode)
                     suppressMutabilityWarning(&response)
-                    try converter.validateAcceptIfPresent(
-                        "application/json",
-                        in: request.headerFields
-                    )
-                    response.body = try converter.setResponseBodyAsJSON(
-                        value.body,
-                        headerFields: &response.headerFields,
-                        transforming: { wrapped in
-                            switch wrapped {
-                            case let .json(value):
-                                return .init(
-                                    value: value,
-                                    contentType: "application/json; charset=utf-8"
-                                )
-                            }
-                        }
-                    )
+                    switch value.body {
+                    case let .json(value):
+                        try converter.validateAcceptIfPresent(
+                            "application/json",
+                            in: request.headerFields
+                        )
+                        response.body = try converter.setResponseBodyAsJSON(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
                     return response
                 }
             }
@@ -179,8 +169,13 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             with: metadata,
             forOperation: Operations.createPet.id,
-            using: APIHandler.createPet,
-            deserializer: { request, metadata in let path: Operations.createPet.Input.Path = .init()
+            using: { APIHandler.createPet($0) },
+            deserializer: { request, metadata in
+                try converter.validateContentTypeIfPresent(
+                    in: request.headerFields,
+                    substring: "application/json"
+                )
+                let path: Operations.createPet.Input.Path = .init()
                 let query: Operations.createPet.Input.Query = .init()
                 let headers: Operations.createPet.Input.Headers = .init(
                     X_Extra_Arguments: try converter.getOptionalHeaderFieldAsJSON(
@@ -208,57 +203,47 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .created(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 201)
+                    var response = Response(statusCode: 201)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsJSON(
                         in: &response.headerFields,
                         name: "X-Extra-Arguments",
                         value: value.headers.X_Extra_Arguments
                     )
-                    try converter.validateAcceptIfPresent(
-                        "application/json",
-                        in: request.headerFields
-                    )
-                    response.body = try converter.setResponseBodyAsJSON(
-                        value.body,
-                        headerFields: &response.headerFields,
-                        transforming: { wrapped in
-                            switch wrapped {
-                            case let .json(value):
-                                return .init(
-                                    value: value,
-                                    contentType: "application/json; charset=utf-8"
-                                )
-                            }
-                        }
-                    )
+                    switch value.body {
+                    case let .json(value):
+                        try converter.validateAcceptIfPresent(
+                            "application/json",
+                            in: request.headerFields
+                        )
+                        response.body = try converter.setResponseBodyAsJSON(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
                     return response
                 case let .badRequest(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 400)
+                    var response = Response(statusCode: 400)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsText(
                         in: &response.headerFields,
                         name: "X-Reason",
                         value: value.headers.X_Reason
                     )
-                    try converter.validateAcceptIfPresent(
-                        "application/json",
-                        in: request.headerFields
-                    )
-                    response.body = try converter.setResponseBodyAsJSON(
-                        value.body,
-                        headerFields: &response.headerFields,
-                        transforming: { wrapped in
-                            switch wrapped {
-                            case let .json(value):
-                                return .init(
-                                    value: value,
-                                    contentType: "application/json; charset=utf-8"
-                                )
-                            }
-                        }
-                    )
+                    switch value.body {
+                    case let .json(value):
+                        try converter.validateAcceptIfPresent(
+                            "application/json",
+                            in: request.headerFields
+                        )
+                        response.body = try converter.setResponseBodyAsJSON(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
                     return response
                 case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
                 }
@@ -267,12 +252,14 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    func probe(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
+    @available(*, deprecated) func probe(request: Request, metadata: ServerRequestMetadata)
+        async throws -> Response
+    {
         try await handle(
             request: request,
             with: metadata,
             forOperation: Operations.probe.id,
-            using: APIHandler.probe,
+            using: { APIHandler.probe($0) },
             deserializer: { request, metadata in let path: Operations.probe.Input.Path = .init()
                 let query: Operations.probe.Input.Query = .init()
                 let headers: Operations.probe.Input.Headers = .init()
@@ -290,7 +277,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .noContent(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 204)
+                    var response = Response(statusCode: 204)
                     suppressMutabilityWarning(&response)
                     return response
                 case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
@@ -307,8 +294,12 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             with: metadata,
             forOperation: Operations.updatePet.id,
-            using: APIHandler.updatePet,
+            using: { APIHandler.updatePet($0) },
             deserializer: { request, metadata in
+                try converter.validateContentTypeIfPresent(
+                    in: request.headerFields,
+                    substring: "application/json"
+                )
                 let path: Operations.updatePet.Input.Path = .init(
                     petId: try converter.getPathParameterAsText(
                         in: metadata.pathParameters,
@@ -337,30 +328,25 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .noContent(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 204)
+                    var response = Response(statusCode: 204)
                     suppressMutabilityWarning(&response)
                     return response
                 case let .badRequest(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 400)
+                    var response = Response(statusCode: 400)
                     suppressMutabilityWarning(&response)
-                    try converter.validateAcceptIfPresent(
-                        "application/json",
-                        in: request.headerFields
-                    )
-                    response.body = try converter.setResponseBodyAsJSON(
-                        value.body,
-                        headerFields: &response.headerFields,
-                        transforming: { wrapped in
-                            switch wrapped {
-                            case let .json(value):
-                                return .init(
-                                    value: value,
-                                    contentType: "application/json; charset=utf-8"
-                                )
-                            }
-                        }
-                    )
+                    switch value.body {
+                    case let .json(value):
+                        try converter.validateAcceptIfPresent(
+                            "application/json",
+                            in: request.headerFields
+                        )
+                        response.body = try converter.setResponseBodyAsJSON(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
                     return response
                 case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
                 }
@@ -378,8 +364,12 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             with: metadata,
             forOperation: Operations.uploadAvatarForPet.id,
-            using: APIHandler.uploadAvatarForPet,
+            using: { APIHandler.uploadAvatarForPet($0) },
             deserializer: { request, metadata in
+                try converter.validateContentTypeIfPresent(
+                    in: request.headerFields,
+                    substring: "application/octet-stream"
+                )
                 let path: Operations.uploadAvatarForPet.Input.Path = .init(
                     petId: try converter.getPathParameterAsText(
                         in: metadata.pathParameters,
@@ -408,60 +398,54 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .ok(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 200)
+                    var response = Response(statusCode: 200)
                     suppressMutabilityWarning(&response)
-                    try converter.validateAcceptIfPresent(
-                        "application/octet-stream",
-                        in: request.headerFields
-                    )
-                    response.body = try converter.setResponseBodyAsBinary(
-                        value.body,
-                        headerFields: &response.headerFields,
-                        transforming: { wrapped in
-                            switch wrapped {
-                            case let .binary(value):
-                                return .init(value: value, contentType: "application/octet-stream")
-                            }
-                        }
-                    )
+                    switch value.body {
+                    case let .binary(value):
+                        try converter.validateAcceptIfPresent(
+                            "application/octet-stream",
+                            in: request.headerFields
+                        )
+                        response.body = try converter.setResponseBodyAsBinary(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "application/octet-stream"
+                        )
+                    }
                     return response
                 case let .preconditionFailed(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 412)
+                    var response = Response(statusCode: 412)
                     suppressMutabilityWarning(&response)
-                    try converter.validateAcceptIfPresent(
-                        "application/json",
-                        in: request.headerFields
-                    )
-                    response.body = try converter.setResponseBodyAsJSON(
-                        value.body,
-                        headerFields: &response.headerFields,
-                        transforming: { wrapped in
-                            switch wrapped {
-                            case let .json(value):
-                                return .init(
-                                    value: value,
-                                    contentType: "application/json; charset=utf-8"
-                                )
-                            }
-                        }
-                    )
+                    switch value.body {
+                    case let .json(value):
+                        try converter.validateAcceptIfPresent(
+                            "application/json",
+                            in: request.headerFields
+                        )
+                        response.body = try converter.setResponseBodyAsJSON(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
                     return response
                 case let .internalServerError(value):
                     suppressUnusedWarning(value)
-                    var response: Response = .init(statusCode: 500)
+                    var response = Response(statusCode: 500)
                     suppressMutabilityWarning(&response)
-                    try converter.validateAcceptIfPresent("text/plain", in: request.headerFields)
-                    response.body = try converter.setResponseBodyAsText(
-                        value.body,
-                        headerFields: &response.headerFields,
-                        transforming: { wrapped in
-                            switch wrapped {
-                            case let .text(value):
-                                return .init(value: value, contentType: "text/plain")
-                            }
-                        }
-                    )
+                    switch value.body {
+                    case let .text(value):
+                        try converter.validateAcceptIfPresent(
+                            "text/plain",
+                            in: request.headerFields
+                        )
+                        response.body = try converter.setResponseBodyAsText(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "text/plain"
+                        )
+                    }
                     return response
                 case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
                 }

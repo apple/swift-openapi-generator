@@ -25,7 +25,7 @@ import OpenAPIKit30
 struct ClientFileTranslator: FileTranslator {
 
     var config: Config
-    var diagnostics: DiagnosticCollector
+    var diagnostics: any DiagnosticCollector
     var components: OpenAPI.Components
 
     func translateFile(
@@ -43,7 +43,11 @@ struct ClientFileTranslator: FileTranslator {
 
         let clientMethodDecls =
             try OperationDescription
-            .all(from: doc.paths, in: components)
+            .all(
+                from: doc.paths,
+                in: components,
+                asSwiftSafeName: swiftSafeName
+            )
             .map(translateClientMethod(_:))
 
         let clientStructPropertyDecl: Declaration = .commentable(
@@ -79,7 +83,10 @@ struct ClientFileTranslator: FileTranslator {
                         type: Constants.Configuration.typeName,
                         defaultValue: .dot("init").call([])
                     ),
-                    .init(label: "transport", type: Constants.Client.Transport.typeName),
+                    .init(
+                        label: "transport",
+                        type: Constants.Client.Transport.typeName
+                    ),
                     .init(
                         label: "middlewares",
                         type: "[\(Constants.Client.Middleware.typeName)]",

@@ -172,19 +172,19 @@ extension ClientFileTranslator {
             .identifier(Constants.Operations.namespace)
             .dot(description.methodName)
 
-        let operationArg: FunctionArgumentDescription = .init(
+        let operationArg = FunctionArgumentDescription(
             label: "forOperation",
             expression: operationTypeExpr.dot("id")
         )
-        let inputArg: FunctionArgumentDescription = .init(
+        let inputArg = FunctionArgumentDescription(
             label: "input",
             expression: .identifier(Constants.Operation.Input.variableName)
         )
-        let serializerArg: FunctionArgumentDescription = .init(
+        let serializerArg = FunctionArgumentDescription(
             label: "serializer",
             expression: try translateClientSerializer(description)
         )
-        let deserializerArg: FunctionArgumentDescription = .init(
+        let deserializerArg = FunctionArgumentDescription(
             label: "deserializer",
             expression: try translateClientDeserializer(description)
         )
@@ -212,6 +212,7 @@ extension ClientFileTranslator {
                     .expression(sendExpr)
                 ]
             )
+            .deprecate(if: description.operation.deprecated)
         )
     }
 }

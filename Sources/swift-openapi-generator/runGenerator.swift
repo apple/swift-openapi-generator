@@ -16,22 +16,23 @@ import ArgumentParser
 import _OpenAPIGeneratorCore
 
 extension _Tool {
-
     /// Runs the generator with the specified configuration values.
     /// - Parameters:
     ///   - doc: A path to the OpenAPI document.
     ///   - configs: A list of generator configurations.
-    ///   - isPluginInvocation: A Boolean value that indicates whether this
-    ///   generator invocation is coming from a SwiftPM plugin.
+    ///   - pluginSource: The source of the generator invocation.
     ///   - outputDirectory: The directory to which the generator writes
     ///   the generated Swift files.
+    ///   - isDryRun: A Boolean value that indicates whether this invocation should
+    ///   be a dry run.
     ///   - diagnostics: A collector for diagnostics emitted by the generator.
     static func runGenerator(
         doc: URL,
         configs: [Config],
-        isPluginInvocation: Bool,
+        pluginSource: PluginSource?,
         outputDirectory: URL,
-        diagnostics: DiagnosticCollector
+        isDryRun: Bool,
+        diagnostics: any DiagnosticCollector
     ) throws {
         let docData: Data
         do {
@@ -39,23 +40,31 @@ extension _Tool {
         } catch {
             throw ValidationError("Failed to load the OpenAPI document at path \(doc.path), error: \(error)")
         }
-        let filePathForMode: (GeneratorMode) -> URL = { mode in
-            outputDirectory.appendingPathComponent(mode.outputFileName)
-        }
         for config in configs {
             try runGenerator(
                 doc: doc,
                 docData: docData,
                 config: config,
-                outputFilePath: filePathForMode(config.mode),
+                outputDirectory: outputDirectory,
+                outputFileName: config.mode.outputFileName,
+                isDryRun: isDryRun,
                 diagnostics: diagnostics
             )
         }
-        if isPluginInvocation {
+
+        // If from a BuildTool plugin, the generator will have to emit all 3 files
+        // (Types.swift, Client.Swift, and Server.swift) regardless of which generator
+        // mode was requested, with the caveat that the not-requested files are empty.
+        // This is due to a limitation of the build system used by SwiftPM under the hood.
+        if pluginSource == .build {
             let nonGeneratedModes = Set(GeneratorMode.allCases).subtracting(configs.map(\.mode))
             for mode in nonGeneratedModes.sorted() {
-                let path = filePathForMode(mode)
-                try replaceFileContents(at: path, with: { Data() })
+                try replaceFileContents(
+                    inDirectory: outputDirectory,
+                    fileName: mode.outputFileName,
+                    with: { Data() },
+                    isDryRun: isDryRun
+                )
             }
         }
     }
@@ -65,47 +74,67 @@ extension _Tool {
     ///   - doc: A path to the OpenAPI document.
     ///   - docData: The raw contents of the OpenAPI document.
     ///   - config: A set of configuration values for the generator.
-    ///   - outputFilePath: The directory to which the generator writes
-    ///   the generated Swift files.
+    ///   - outputDirectory: The directory to which the generator writes
+    ///   the generated Swift file.
+    ///   - outputFileName: The file name to which the generator writes
+    ///   the generated Swift file.
+    ///   - isDryRun: A Boolean value that indicates whether this invocation should
+    ///   be a dry run.
     ///   - diagnostics: A collector for diagnostics emitted by the generator.
     static func runGenerator(
         doc: URL,
         docData: Data,
         config: Config,
-        outputFilePath: URL,
-        diagnostics: DiagnosticCollector
+        outputDirectory: URL,
+        outputFileName: String,
+        isDryRun: Bool,
+        diagnostics: any DiagnosticCollector
     ) throws {
-        let didChange = try replaceFileContents(at: outputFilePath) {
-            let output = try _OpenAPIGeneratorCore.runGenerator(
-                input: .init(absolutePath: doc, contents: docData),
-                config: config,
-                diagnostics: diagnostics
-            )
-            return output.contents
-        }
-        print("File \(outputFilePath.lastPathComponent): \(didChange ? "changed" : "unchanged")")
+        try replaceFileContents(
+            inDirectory: outputDirectory,
+            fileName: outputFileName,
+            with: {
+                let output = try _OpenAPIGeneratorCore.runGenerator(
+                    input: .init(absolutePath: doc, contents: docData),
+                    config: config,
+                    diagnostics: diagnostics
+                )
+                return output.contents
+            },
+            isDryRun: isDryRun
+        )
     }
 
     /// Evaluates a closure to generate file data and writes the data to disk
-    /// if the data is different than the current file contents.
+    /// if the data is different than the current file contents. Will write to disk
+    /// only if `isDryRun` is set as `false`.
     /// - Parameters:
     ///   - path: A path to the file.
     ///   - contents: A closure evaluated to produce the file contents data.
+    ///   - isDryRun: A Boolean value that indicates whether this invocation should
+    ///   be a dry run. File system changes will not be written to disk in this mode.
     /// - Throws: When writing to disk fails.
-    /// - Returns: `true` if the generated contents changed, otherwise `false`.
-    @discardableResult
-    static func replaceFileContents(at path: URL, with contents: () throws -> Data) throws -> Bool {
+    static func replaceFileContents(
+        inDirectory outputDirectory: URL,
+        fileName: String,
+        with contents: () throws -> Data,
+        isDryRun: Bool
+    ) throws {
+        let fileManager = FileManager.default
+        let path = outputDirectory.appendingPathComponent(fileName)
         let data = try contents()
-        let didChange: Bool
-        if FileManager.default.fileExists(atPath: path.path) {
-            let existingData = try? Data(contentsOf: path)
-            didChange = existingData != data
-        } else {
-            didChange = true
+
+        if let existingData = try? Data(contentsOf: path), existingData == data {
+            print("File \(path.lastPathComponent) already up to date.")
+            return
         }
-        if didChange {
+        print("Writing data to file \(path.lastPathComponent)...")
+        if !isDryRun {
+            try fileManager.createDirectory(
+                at: outputDirectory,
+                withIntermediateDirectories: true
+            )
             try data.write(to: path)
         }
-        return didChange
     }
 }

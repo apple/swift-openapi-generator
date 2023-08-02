@@ -21,6 +21,29 @@ extension ServerFileTranslator {
     func translateServerDeserializer(
         _ operation: OperationDescription
     ) throws -> Expression {
+        var closureBody: [CodeBlock] = []
+
+        let typedRequestBody = try typedRequestBody(in: operation)
+
+        if let headerValueForValidation = typedRequestBody?
+            .content
+            .content
+            .contentType
+            .headerValueForValidation
+        {
+            let validateContentTypeExpr: Expression = .try(
+                .identifier("converter").dot("validateContentTypeIfPresent")
+                    .call([
+                        .init(label: "in", expression: .identifier("request").dot("headerFields")),
+                        .init(
+                            label: "substring",
+                            expression: .literal(headerValueForValidation)
+                        ),
+                    ])
+            )
+            closureBody.append(.expression(validateContentTypeExpr))
+        }
+
         let inputTypeName = operation.inputTypeName
 
         func locationSpecificInputDecl(
@@ -67,7 +90,7 @@ extension ServerFileTranslator {
         .map(locationSpecificInputDecl(locatedIn:fromParameters:))
 
         let bodyDecl = try translateRequestBodyInServer(
-            typedRequestBody(in: operation),
+            typedRequestBody,
             requestVariableName: "request",
             bodyVariableName: "body",
             inputTypeName: inputTypeName
@@ -94,11 +117,13 @@ extension ServerFileTranslator {
                 ])
         )
 
+        closureBody.append(
+            contentsOf: inputMemberDecls.map(CodeBlock.declaration) + [.expression(returnExpr)]
+        )
+
         return .closureInvocation(
             argumentNames: ["request", "metadata"],
-            body: inputMemberDecls.map(CodeBlock.declaration) + [
-                .expression(returnExpr)
-            ]
+            body: closureBody
         )
     }
 
@@ -167,28 +192,37 @@ extension ServerFileTranslator {
             .identifier(Constants.Operations.namespace)
             .dot(description.methodName)
 
-        let operationArg: FunctionArgumentDescription = .init(
+        let operationArg = FunctionArgumentDescription(
             label: "forOperation",
             expression: operationTypeExpr.dot("id")
         )
-        let requestArg: FunctionArgumentDescription = .init(
+        let requestArg = FunctionArgumentDescription(
             label: "request",
             expression: .identifier("request")
         )
-        let metadataArg: FunctionArgumentDescription = .init(
+        let metadataArg = FunctionArgumentDescription(
             label: "with",
             expression: .identifier("metadata")
         )
-        let methodArg: FunctionArgumentDescription = .init(
+        let methodArg = FunctionArgumentDescription(
             label: "using",
-            expression: .identifier(Constants.Server.Universal.apiHandlerName)
-                .dot(description.methodName)
+            expression: .closureInvocation(
+                body: [
+                    .expression(
+                        .identifier(Constants.Server.Universal.apiHandlerName)
+                            .dot(description.methodName)
+                            .call([
+                                .init(label: nil, expression: .identifier("$0"))
+                            ])
+                    )
+                ]
+            )
         )
-        let deserializerArg: FunctionArgumentDescription = .init(
+        let deserializerArg = FunctionArgumentDescription(
             label: "deserializer",
             expression: try translateServerDeserializer(description)
         )
-        let serializerArg: FunctionArgumentDescription = .init(
+        let serializerArg = FunctionArgumentDescription(
             label: "serializer",
             expression: try translateServerSerializer(description)
         )
@@ -260,6 +294,7 @@ extension ServerFileTranslator {
                     .expression(handleExpr)
                 ]
             )
+            .deprecate(if: description.operation.deprecated)
         )
 
         return (registerCall, functionDecl)

@@ -46,7 +46,7 @@ extension FileTranslator {
             .enumerated()
             .map { index, schema in
                 let key = "value\(index+1)"
-                let rawPropertyType = try TypeAssigner.typeUsage(
+                let rawPropertyType = try typeAssigner.typeUsage(
                     forAllOrAnyOrOneOfChildSchemaNamed: key,
                     withSchema: schema,
                     inParent: typeName
@@ -55,10 +55,10 @@ extension FileTranslator {
                 switch type {
                 case .allOf:
                     // AllOf uses all required properties.
-                    propertyType = rawPropertyType
+                    propertyType = rawPropertyType.withOptional(false)
                 case .anyOf:
                     // AnyOf uses all optional properties.
-                    propertyType = rawPropertyType.asOptional
+                    propertyType = rawPropertyType.withOptional(true)
                 }
                 let comment: Comment? = .property(
                     originalName: key,
@@ -79,7 +79,8 @@ extension FileTranslator {
                     comment: comment,
                     originalName: key,
                     typeUsage: propertyType,
-                    associatedDeclarations: associatedDeclarations
+                    associatedDeclarations: associatedDeclarations,
+                    asSwiftSafeName: swiftSafeName
                 )
             }
         let comment: Comment? =
@@ -129,7 +130,7 @@ extension FileTranslator {
             .enumerated()
             .map { index, schema in
                 let key = "case\(index+1)"
-                let childType = try TypeAssigner.typeUsage(
+                let childType = try typeAssigner.typeUsage(
                     forAllOrAnyOrOneOfChildSchemaNamed: key,
                     withSchema: schema,
                     inParent: typeName
@@ -188,7 +189,7 @@ extension FileTranslator {
         if let discriminator {
             undocumentedType = .objectContainer
             let originalName = discriminator.propertyName
-            let swiftName = originalName.asSwiftSafeName
+            let swiftName = swiftSafeName(for: originalName)
             codingKeysDecls = [
                 .enum(
                     accessModifier: config.access,

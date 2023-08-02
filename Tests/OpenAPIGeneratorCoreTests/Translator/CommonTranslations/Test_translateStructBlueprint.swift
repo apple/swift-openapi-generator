@@ -23,7 +23,7 @@ final class Test_translateStructBlueprint: Test_Core {
                 typeName: Self.testTypeName,
                 shouldGenerateCodingKeys: true,
                 properties: [
-                    .init(originalName: "bar", typeUsage: TypeName.int.asUsage)
+                    makeProperty(originalName: "bar", typeUsage: TypeName.int.asUsage)
                 ]
             )
         )
