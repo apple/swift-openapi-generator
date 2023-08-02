@@ -113,6 +113,31 @@ paths:
                 $ref: '#/components/schemas/Pet'
         '400':
           $ref: '#/components/responses/ErrorBadRequest'
+  /pets/stats:
+    get:
+      operationId: getStats
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetStats'
+            text/plain: {}
+            application/octet-stream: {}
+    post:
+      operationId: postStats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetStats'
+          text/plain: {}
+          application/octet-stream: {}
+      responses:
+        '202':
+          description: Accepted data.
   /probe/:
     post:
       operationId: probe
@@ -389,6 +414,13 @@ components:
         message:
           type: string
           deprecated: true
+    PetStats:
+      type: object
+      properties:
+        count:
+          type: integer
+      required:
+        - count
   responses:
     ErrorBadRequest:
       description: Bad request
