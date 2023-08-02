@@ -113,6 +113,32 @@ public struct Diagnostic: Error, Codable {
             context: context
         )
     }
+
+    /// Creates a diagnostic for an unsupported schema.
+    /// - Parameters:
+    ///   - reason: A human-readable reason.
+    ///   - schema: The unsupported JSON schema.
+    ///   - foundIn: A description of the location in which the unsupported
+    ///   schema was detected.
+    ///   - location: Describe the source file that triggered the diagnostic (if known).
+    ///   - context: A set of key-value pairs that help the user understand
+    ///   where the warning occurred.
+    /// - Returns: A warning diagnostic.
+    public static func unsupportedSchema(
+        reason: String,
+        schema: JSONSchema,
+        foundIn: String,
+        location: Location? = nil,
+        context: [String: String] = [:]
+    ) -> Diagnostic {
+        var context = context
+        context["foundIn"] = foundIn
+        return warning(
+            message: "Schema \"\(schema.prettyDescription)\" is not supported, reason: \"\(reason)\", skipping",
+            location: location,
+            context: context
+        )
+    }
 }
 
 extension Diagnostic.Severity: CustomStringConvertible {
@@ -172,6 +198,31 @@ extension DiagnosticCollector {
         context: [String: String] = [:]
     ) {
         emit(Diagnostic.unsupported(feature, foundIn: foundIn, context: context))
+    }
+
+    /// Emits a diagnostic for an unsupported schema found in the specified
+    /// string location.
+    /// - Parameters:
+    ///   - reason: A human-readable reason.
+    ///   - schema: The unsupported JSON schema.
+    ///   - foundIn: A description of the location in which the unsupported
+    ///   schema was detected.
+    ///   - context: A set of key-value pairs that help the user understand
+    ///   where the warning occurred.
+    func emitUnsupportedSchema(
+        reason: String,
+        schema: JSONSchema,
+        foundIn: String,
+        context: [String: String] = [:]
+    ) {
+        emit(
+            Diagnostic.unsupportedSchema(
+                reason: reason,
+                schema: schema,
+                foundIn: foundIn,
+                context: context
+            )
+        )
     }
 
     /// Emits a diagnostic for an unsupported feature found in the specified

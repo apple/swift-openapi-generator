@@ -88,23 +88,33 @@ class Test_isSchemaSupported: XCTestCase {
         let translator = self.translator
         for schema in Self.supportedTypes {
             XCTAssertTrue(
-                try translator.isSchemaSupported(schema),
+                try translator.isSchemaSupported(schema) == .supported,
                 "Expected schema to be supported: \(schema)"
             )
         }
     }
 
-    static let unsupportedTypes: [JSONSchema] = [
+    static let unsupportedTypes: [(JSONSchema, IsSchemaSupportedResult.UnsupportedReason)] = [
         // a not
-        .not(.string)
+        (.not(.string), .schemaType),
+
+        // an allOf without any subschemas
+        (.all(of: []), .noSubschemas),
+
+        // an allOf with non-object-ish schemas
+        (.all(of: [.string, .integer]), .notObjectish),
+
+        // a oneOf with a discriminator with an inline subschema
+        (.one(of: .object, discriminator: .init(propertyName: "foo")), .notRef),
     ]
     func testUnsupportedTypes() throws {
         let translator = self.translator
-        for schema in Self.unsupportedTypes {
-            XCTAssertFalse(
-                try translator.isSchemaSupported(schema),
-                "Expected schema to be unsupported: \(schema)"
-            )
+        for (schema, expectedReason) in Self.unsupportedTypes {
+            guard case let .unsupported(reason, _) = try translator.isSchemaSupported(schema) else {
+                XCTFail("Expected schema to be unsupported: \(schema)")
+                return
+            }
+            XCTAssertEqual(reason, expectedReason)
         }
     }
 }
