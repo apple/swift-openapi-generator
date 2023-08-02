@@ -25,8 +25,8 @@ struct TypedRequestBody {
     /// A Boolean value indicating whether the response is inlined.
     var isInlined: Bool
 
-    /// The validated content.
-    var content: TypedSchemaContent
+    /// The validated contents.
+    var contents: [TypedSchemaContent]
 }
 
 extension FileTranslator {
@@ -95,12 +95,11 @@ extension FileTranslator {
             isInlined = true
         }
 
-        guard
-            let content = try bestSingleTypedContent(
-                request.content,
-                inParent: typeName
-            )
-        else {
+        let contents = try supportedTypedContents(
+            request.content,
+            inParent: typeName
+        )
+        if contents.isEmpty {
             return nil
         }
 
@@ -109,7 +108,7 @@ extension FileTranslator {
             request: request,
             typeUsage: usage,
             isInlined: isInlined,
-            content: content
+            contents: contents
         )
     }
 }

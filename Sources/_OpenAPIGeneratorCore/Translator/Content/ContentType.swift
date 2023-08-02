@@ -42,6 +42,14 @@ enum ContentType: Hashable {
         self = .binary(rawValue)
     }
 
+    /// Returns the original raw MIME type.
+    var rawMIMEType: String {
+        switch self {
+        case .json(let string), .text(let string), .binary(let string):
+            return string
+        }
+    }
+
     /// The header value used when sending a content-type header.
     var headerValueForSending: String {
         switch self {
@@ -107,22 +115,9 @@ enum ContentType: Hashable {
         }
         return false
     }
-
-    /// Returns a new content type representing an octet stream.
-    static var octetStream: Self {
-        .binary("application/octet-stream")
-    }
-
-    /// Returns a new content type representing JSON.
-    static var applicationJSON: Self {
-        .json("application/json")
-    }
 }
 
 extension OpenAPI.ContentType {
-
-    /// Returns a new content type representing an octet stream.
-    static let octetStream: Self = .other(ContentType.octetStream.headerValueForValidation)
 
     /// A Boolean value that indicates whether the content type
     /// is a type of JSON.

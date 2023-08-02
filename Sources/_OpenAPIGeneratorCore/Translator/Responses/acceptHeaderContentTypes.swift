@@ -29,12 +29,9 @@ extension FileTranslator {
             try description
             .operation
             .responseOutcomes
-            .compactMap { outcome in
+            .flatMap { outcome in
                 let response = try outcome.response.resolve(in: components)
-                return bestSingleContent(
-                    response.content,
-                    foundIn: description.operationID
-                )
+                return supportedContents(response.content, foundIn: description.operationID)
             }
             .map { content in
                 content.contentType

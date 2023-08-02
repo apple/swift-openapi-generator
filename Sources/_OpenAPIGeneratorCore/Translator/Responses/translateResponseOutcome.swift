@@ -142,61 +142,134 @@ extension ClientFileTranslator {
         codeBlocks.append(.declaration(headersVarDecl))
         let headersVarExpr: Expression = .identifier("headers")
 
-        let bodyVarExpr: Expression
-        if let typedContent = try bestSingleTypedContent(
+        let typedContents = try supportedTypedContents(
             typedResponse.response.content,
             inParent: bodyTypeName
-        ) {
-            let validateContentTypeExpr: Expression = .try(
-                .identifier("converter").dot("validateContentTypeIfPresent")
+        )
+        let bodyVarExpr: Expression
+        if !typedContents.isEmpty {
+
+            let contentTypeDecl: Declaration = .variable(
+                kind: .let,
+                left: "contentType",
+                right: .identifier("converter")
+                    .dot("extractContentTypeIfPresent")
                     .call([
-                        .init(label: "in", expression: .identifier("response").dot("headerFields")),
                         .init(
-                            label: "substring",
-                            expression: .literal(
-                                typedContent
-                                    .content
-                                    .contentType
-                                    .headerValueForValidation
-                            )
-                        ),
+                            label: "in",
+                            expression: .identifier("response")
+                                .dot("headerFields")
+                        )
                     ])
             )
-            codeBlocks.append(.expression(validateContentTypeExpr))
+            codeBlocks.append(.declaration(contentTypeDecl))
 
-            let contentTypeUsage = typedContent.resolvedTypeUsage
-            let transformExpr: Expression = .closureInvocation(
-                argumentNames: ["value"],
-                body: [
-                    .expression(
-                        .dot(contentSwiftName(typedContent.content.contentType))
-                            .call([
-                                .init(label: nil, expression: .identifier("value"))
-                            ])
-                    )
-                ]
-            )
             let bodyDecl: Declaration = .variable(
                 kind: .let,
                 left: "body",
-                type: bodyTypeName.fullyQualifiedSwiftName,
-                right: .try(
-                    .identifier("converter")
-                        .dot("getResponseBodyAs\(typedContent.content.contentType.codingStrategy.runtimeName)")
-                        .call([
-                            .init(
-                                label: nil,
-                                expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
-                            ),
-                            .init(label: "from", expression: .identifier("response").dot("body")),
-                            .init(
-                                label: "transforming",
-                                expression: transformExpr
-                            ),
-                        ])
-                )
+                type: bodyTypeName.fullyQualifiedSwiftName
             )
             codeBlocks.append(.declaration(bodyDecl))
+
+            let branches: [IfConditionPair] =
+                typedContents
+                .enumerated()
+                .map { (index, typedContent) in
+
+                    let isValidContentTypeExpr: Expression = .identifier("converter")
+                        .dot("isValidContentType")
+                        .call([
+                            .init(
+                                label: "received",
+                                expression: .identifier("contentType")
+                            ),
+                            .init(
+                                label: "expected",
+                                expression: .literal(
+                                    typedContent
+                                        .content
+                                        .contentType
+                                        .headerValueForValidation
+                                )
+                            ),
+                        ])
+                    let condition: Expression
+                    if index == 0 {
+                        condition = .binaryOperation(
+                            left: .binaryOperation(
+                                left: .identifier("contentType"),
+                                operation: .equals,
+                                right: .literal(.nil)
+                            ),
+                            operation: .booleanOr,
+                            right: isValidContentTypeExpr
+                        )
+                    } else {
+                        condition = isValidContentTypeExpr
+                    }
+                    let contentTypeUsage = typedContent.resolvedTypeUsage
+                    let transformExpr: Expression = .closureInvocation(
+                        argumentNames: ["value"],
+                        body: [
+                            .expression(
+                                .dot(contentSwiftName(typedContent.content.contentType))
+                                    .call([
+                                        .init(label: nil, expression: .identifier("value"))
+                                    ])
+                            )
+                        ]
+                    )
+                    let bodyExpr: Expression = .try(
+                        .identifier("converter")
+                            .dot("getResponseBodyAs\(typedContent.content.contentType.codingStrategy.runtimeName)")
+                            .call([
+                                .init(
+                                    label: nil,
+                                    expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
+                                ),
+                                .init(label: "from", expression: .identifier("response").dot("body")),
+                                .init(
+                                    label: "transforming",
+                                    expression: transformExpr
+                                ),
+                            ])
+                    )
+                    return .init(
+                        condition: condition,
+                        body: [
+                            .expression(
+                                .assignment(
+                                    left: .identifier("body"),
+                                    right: bodyExpr
+                                )
+                            )
+                        ]
+                    )
+                }
+
+            codeBlocks.append(
+                .expression(
+                    .ifStatement(
+                        branches: branches,
+                        elseBody: [
+                            .expression(
+                                .unaryKeyword(
+                                    kind: .throw,
+                                    expression: .identifier("converter")
+                                        .dot("makeUnexpectedContentTypeError")
+                                        .call([
+                                            .init(
+                                                label: "contentType",
+                                                expression: .identifier("contentType")
+                                            )
+                                        ])
+                                )
+                            )
+                        ]
+                    )
+                )
+            )
+
             bodyVarExpr = .identifier("body")
         } else {
             bodyVarExpr = .literal(.nil)
@@ -305,13 +378,10 @@ extension ServerFileTranslator {
         }
         codeBlocks.append(contentsOf: headerExprs.map { .expression($0) })
 
-        let typedContents = [
-            try bestSingleTypedContent(
-                typedResponse.response.content,
-                inParent: bodyTypeName
-            )
-        ]
-        .compactMap { $0 }
+        let typedContents = try supportedTypedContents(
+            typedResponse.response.content,
+            inParent: bodyTypeName
+        )
 
         if !typedContents.isEmpty {
             let switchContentCases: [SwitchCaseDescription] = typedContents.map { typedContent in

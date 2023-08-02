@@ -173,6 +173,28 @@ struct TextBasedRenderer: RendererProtocol {
         return lines.joinedLines()
     }
 
+    /// Renders the specified if statement.
+    func renderedIf(_ ifDesc: IfStatementDescription) -> String {
+        var branches = ifDesc.branches
+        precondition(!branches.isEmpty, "Cannot have an if statement with no branches.")
+        var lines: [String] = []
+        let firstCondition = branches.removeFirst()
+        lines.append("if \(renderedExpression(firstCondition.condition)) {")
+        lines.append(renderedCodeBlocks(firstCondition.body))
+        lines.append("}")
+        for branch in branches {
+            lines.append("else if \(renderedExpression(branch.condition)) {")
+            lines.append(renderedCodeBlocks(branch.body))
+            lines.append("}")
+        }
+        if let elseBody = ifDesc.elseBody {
+            lines.append("else {")
+            lines.append(renderedCodeBlocks(elseBody))
+            lines.append("}")
+        }
+        return lines.joinedLines()
+    }
+
     /// Renders the specified switch expression.
     func renderedDoStatement(_ description: DoStatementDescription) -> String {
         var lines: [String] = ["do {"]
@@ -199,6 +221,8 @@ struct TextBasedRenderer: RendererProtocol {
             return "try\(hasPostfixQuestionMark ? "?" : "")"
         case .await:
             return "await"
+        case .throw:
+            return "throw"
         }
     }
 
@@ -266,6 +290,8 @@ struct TextBasedRenderer: RendererProtocol {
             return renderedAssignment(assignment)
         case .switch(let switchDesc):
             return renderedSwitch(switchDesc)
+        case .ifStatement(let ifDesc):
+            return renderedIf(ifDesc)
         case .doStatement(let doStmt):
             return renderedDoStatement(doStmt)
         case .valueBinding(let valueBinding):

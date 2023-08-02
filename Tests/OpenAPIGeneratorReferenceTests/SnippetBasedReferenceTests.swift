@@ -616,7 +616,79 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-    func testComponentsResponsesResponseWithOptionalHeader() throws {
+    func testComponentsResponsesResponseMultipleContentTypes() throws {
+        try self.assertResponsesTranslation(
+            featureFlags: [],
+            ignoredDiagnosticMessages: [#"Feature "Multiple content types" is not supported, skipping"#],
+            """
+            responses:
+              MultipleContentTypes:
+                description: Multiple content types
+                content:
+                  application/json:
+                    schema:
+                      type: integer
+                  text/plain: {}
+                  application/octet-stream: {}
+            """,
+            """
+            public enum Responses {
+                public struct MultipleContentTypes: Sendable, Equatable, Hashable {
+                    public struct Headers: Sendable, Equatable, Hashable { public init() {} }
+                    public var headers: Components.Responses.MultipleContentTypes.Headers
+                    @frozen public enum Body: Sendable, Equatable, Hashable {
+                        case json(Swift.Int)
+                    }
+                    public var body: Components.Responses.MultipleContentTypes.Body
+                    public init(
+                        headers: Components.Responses.MultipleContentTypes.Headers = .init(),
+                        body: Components.Responses.MultipleContentTypes.Body
+                    ) {
+                        self.headers = headers
+                        self.body = body
+                    }
+                }
+            }
+            """
+        )
+        try self.assertResponsesTranslation(
+            featureFlags: [.multipleContentTypes],
+            """
+            responses:
+              MultipleContentTypes:
+                description: Multiple content types
+                content:
+                  application/json:
+                    schema:
+                      type: integer
+                  text/plain: {}
+                  application/octet-stream: {}
+            """,
+            """
+            public enum Responses {
+                public struct MultipleContentTypes: Sendable, Equatable, Hashable {
+                    public struct Headers: Sendable, Equatable, Hashable { public init() {} }
+                    public var headers: Components.Responses.MultipleContentTypes.Headers
+                    @frozen public enum Body: Sendable, Equatable, Hashable {
+                        case json(Swift.Int)
+                        case text(Swift.String)
+                        case binary(Foundation.Data)
+                    }
+                    public var body: Components.Responses.MultipleContentTypes.Body
+                    public init(
+                        headers: Components.Responses.MultipleContentTypes.Headers = .init(),
+                        body: Components.Responses.MultipleContentTypes.Body
+                    ) {
+                        self.headers = headers
+                        self.body = body
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsResponsesResponseWithHeader() throws {
         try self.assertResponsesTranslation(
             """
             responses:
@@ -726,6 +798,53 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
+
+    func testComponentsRequestBodiesMultipleContentTypes() throws {
+        try self.assertRequestBodiesTranslation(
+            featureFlags: [],
+            ignoredDiagnosticMessages: [#"Feature "Multiple content types" is not supported, skipping"#],
+            """
+            requestBodies:
+              MyResponseBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/MyBody'
+                  text/plain: {}
+                  application/octet-stream: {}
+            """,
+            """
+            public enum RequestBodies {
+                @frozen public enum MyResponseBody: Sendable, Equatable, Hashable {
+                    case json(Components.Schemas.MyBody)
+                }
+            }
+            """
+        )
+        try self.assertRequestBodiesTranslation(
+            featureFlags: [.multipleContentTypes],
+            """
+            requestBodies:
+              MyResponseBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/MyBody'
+                  text/plain: {}
+                  application/octet-stream: {}
+            """,
+            """
+            public enum RequestBodies {
+                @frozen public enum MyResponseBody: Sendable, Equatable, Hashable {
+                    case json(Components.Schemas.MyBody)
+                    case text(Swift.String)
+                    case binary(Foundation.Data)
+                }
+            }
+            """
+        )
+    }
+
 
     func testPathsSimplestCase() throws {
         try self.assertPathsTranslation(

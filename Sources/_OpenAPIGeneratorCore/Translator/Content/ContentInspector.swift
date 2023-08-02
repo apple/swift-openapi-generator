@@ -61,6 +61,78 @@ extension FileTranslator {
         return .init(content: content, typeUsage: associatedType)
     }
 
+    /// Extract the supported content types.
+    /// - Parameters:
+    ///   - map: The content map from the OpenAPI document.
+    ///   - excludeBinary: A Boolean value controlling whether binary content
+    ///   type should be skipped, for example used when encoding headers.
+    ///   - parent: The parent type of the chosen typed schema.
+    /// - Returns: The supported content type + schema + type names.
+    func supportedTypedContents(
+        _ map: OpenAPI.Content.Map,
+        excludeBinary: Bool = false,
+        inParent parent: TypeName
+    ) throws -> [TypedSchemaContent] {
+        let contents = supportedContents(
+            map,
+            excludeBinary: excludeBinary,
+            foundIn: parent.description
+        )
+        return try contents.compactMap { content in
+            guard
+                try validateSchemaIsSupported(
+                    content.schema,
+                    foundIn: parent.description
+                )
+            else {
+                return nil
+            }
+            let identifier = contentSwiftName(content.contentType)
+            let associatedType = try typeAssigner.typeUsage(
+                usingNamingHint: identifier,
+                withSchema: content.schema,
+                inParent: parent
+            )
+            return .init(content: content, typeUsage: associatedType)
+        }
+    }
+
+    /// Extract the supported content types.
+    /// - Parameters:
+    ///   - contents: The content map from the OpenAPI document.
+    ///   - excludeBinary: A Boolean value controlling whether binary content
+    ///   type should be skipped, for example used when encoding headers.
+    ///   - foundIn: The location where this content is parsed.
+    /// - Returns: the detected content type + schema, nil if no supported
+    /// schema found or if empty.
+    func supportedContents(
+        _ contents: OpenAPI.Content.Map,
+        excludeBinary: Bool = false,
+        foundIn: String
+    ) -> [SchemaContent] {
+        guard !contents.isEmpty else {
+            return []
+        }
+        guard config.featureFlags.contains(.multipleContentTypes) else {
+            return bestSingleContent(
+                contents,
+                excludeBinary: excludeBinary,
+                foundIn: foundIn
+            )
+            .flatMap { [$0] } ?? []
+        }
+        return
+            contents
+            .compactMap { key, value in
+                parseContentIfSupported(
+                    contentKey: key,
+                    contentValue: value,
+                    excludeBinary: excludeBinary,
+                    foundIn: foundIn + "/\(key.rawValue)"
+                )
+            }
+    }
+
     /// While we only support a single content at a time, choose the best one.
     ///
     /// Priority:
@@ -72,6 +144,7 @@ extension FileTranslator {
     ///   - map: The content map from the OpenAPI document.
     ///   - excludeBinary: A Boolean value controlling whether binary content
     ///   type should be skipped, for example used when encoding headers.
+    ///   - foundIn: The location where this content is parsed.
     /// - Returns: the detected content type + schema, nil if no supported
     /// schema found or if empty.
     func bestSingleContent(
@@ -122,5 +195,63 @@ extension FileTranslator {
             )
             return nil
         }
+    }
+
+    /// Returns a wrapped version of the provided content if supported, returns
+    /// nil otherwise.
+    ///
+    /// Priority of checking for known MIME types:
+    /// 1. JSON
+    /// 2. text
+    /// 3. binary
+    ///
+    /// - Parameters:
+    ///   - contentKey: The content key from the OpenAPI document.
+    ///   - contentValue: The content value from the OpenAPI document.
+    ///   - excludeBinary: A Boolean value controlling whether binary content
+    ///   type should be skipped, for example used when encoding headers.
+    ///   - foundIn: The location where this content is parsed.
+    /// - Returns: The detected content type + schema, nil if unsupported.
+    func parseContentIfSupported(
+        contentKey: OpenAPI.ContentType,
+        contentValue: OpenAPI.Content,
+        excludeBinary: Bool = false,
+        foundIn: String
+    ) -> SchemaContent? {
+        if contentKey.isJSON,
+            let contentType = ContentType(contentKey.typeAndSubtype)
+        {
+            diagnostics.emitUnsupportedIfNotNil(
+                contentValue.encoding,
+                "Custom encoding for JSON content",
+                foundIn: "\(foundIn), content \(contentKey.rawValue)"
+            )
+            return .init(
+                contentType: contentType,
+                schema: contentValue.schema
+            )
+        }
+        if contentKey.isText,
+            let contentType = ContentType(contentKey.typeAndSubtype)
+        {
+            return .init(
+                contentType: contentType,
+                schema: .b(.string)
+            )
+        }
+        if !excludeBinary,
+            contentKey.isBinary,
+            let contentType = ContentType(contentKey.typeAndSubtype)
+        {
+            return .init(
+                contentType: contentType,
+                schema: .b(.string(format: .binary))
+            )
+        }
+        diagnostics.emitUnsupported(
+            "Unsupported content",
+            foundIn: foundIn
+        )
+        return nil
     }
 }
