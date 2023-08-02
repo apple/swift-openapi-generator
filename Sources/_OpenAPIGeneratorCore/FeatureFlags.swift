@@ -39,6 +39,11 @@ public enum FeatureFlag: String, Hashable, Equatable, Codable, CaseIterable {
     /// Tracking issues:
     /// - https://github.com/apple/swift-openapi-generator/pull/95
     case proposal0001
+
+    /// Stricted input OpenAPI document validation.
+    ///
+    /// Check for structural issues and detect cycles proactively.
+    case strictOpenAPIValidation
 }
 
 /// A set of enabled feature flags.
