@@ -29,7 +29,7 @@ If you have any questions, tag [Honza Dvorsky](https://github.com/czechboy0) or 
 - Awaiting Review
 - In Review
 - Ready for Implementation
-- Merged behind a Feature Flag
+- In Preview
 - Approved
 - Deferred
 
