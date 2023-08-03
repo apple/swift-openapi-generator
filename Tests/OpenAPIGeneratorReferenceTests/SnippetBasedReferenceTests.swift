@@ -811,6 +811,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
     }
 
     func testResponseWithExampleWithOnlyValue() throws {
+        // This test currently throws because the parsing of ExampleObject is too strict:
+        // https://github.com/mattpolzin/OpenAPIKit/issues/286.
         XCTAssertThrowsError(
             try self.assertResponsesTranslation(
                 """
