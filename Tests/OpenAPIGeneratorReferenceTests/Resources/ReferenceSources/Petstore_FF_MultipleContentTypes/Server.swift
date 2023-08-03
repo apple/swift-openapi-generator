@@ -193,10 +193,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let cookies: Operations.createPet.Input.Cookies = .init()
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.createPet.Input.Body
-                if contentType == nil
+                if try contentType == nil
                     || converter.isMatchingContentType(
                         received: contentType,
-                        expected: "application/json"
+                        expectedRaw: "application/json"
                     )
                 {
                     body = try converter.getRequiredRequestBodyAsJSON(
@@ -344,10 +344,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let cookies: Operations.postStats.Input.Cookies = .init()
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.postStats.Input.Body
-                if contentType == nil
+                if try contentType == nil
                     || converter.isMatchingContentType(
                         received: contentType,
-                        expected: "application/json"
+                        expectedRaw: "application/json"
                     )
                 {
                     body = try converter.getRequiredRequestBodyAsJSON(
@@ -355,18 +355,18 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         from: request.body,
                         transforming: { value in .json(value) }
                     )
-                } else if converter.isMatchingContentType(
+                } else if try converter.isMatchingContentType(
                     received: contentType,
-                    expected: "text/plain"
+                    expectedRaw: "text/plain"
                 ) {
                     body = try converter.getRequiredRequestBodyAsText(
                         Swift.String.self,
                         from: request.body,
                         transforming: { value in .text(value) }
                     )
-                } else if converter.isMatchingContentType(
+                } else if try converter.isMatchingContentType(
                     received: contentType,
-                    expected: "application/octet-stream"
+                    expectedRaw: "application/octet-stream"
                 ) {
                     body = try converter.getRequiredRequestBodyAsBinary(
                         Foundation.Data.self,
@@ -453,10 +453,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let cookies: Operations.updatePet.Input.Cookies = .init()
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Components.RequestBodies.UpdatePetRequest?
-                if contentType == nil
+                if try contentType == nil
                     || converter.isMatchingContentType(
                         received: contentType,
-                        expected: "application/json"
+                        expectedRaw: "application/json"
                     )
                 {
                     body = try converter.getOptionalRequestBodyAsJSON(
@@ -529,10 +529,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let cookies: Operations.uploadAvatarForPet.Input.Cookies = .init()
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.uploadAvatarForPet.Input.Body
-                if contentType == nil
+                if try contentType == nil
                     || converter.isMatchingContentType(
                         received: contentType,
-                        expected: "application/octet-stream"
+                        expectedRaw: "application/octet-stream"
                     )
                 {
                     body = try converter.getRequiredRequestBodyAsBinary(

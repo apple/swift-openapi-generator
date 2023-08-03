@@ -283,7 +283,7 @@ extension ServerFileTranslator {
                         expression: .identifier("contentType")
                     ),
                     .init(
-                        label: "expected",
+                        label: "expectedRaw",
                         expression: .literal(
                             typedContent
                                 .content
@@ -337,7 +337,7 @@ extension ServerFileTranslator {
                     ])
             )
             return .init(
-                condition: condition,
+                condition: .try(condition),
                 body: [
                     .expression(
                         .assignment(

@@ -100,10 +100,10 @@ public struct Client: APIProtocol {
                         in: response.headerFields
                     )
                     let body: Operations.listPets.Output.Ok.Body
-                    if contentType == nil
+                    if try contentType == nil
                         || converter.isMatchingContentType(
                             received: contentType,
-                            expected: "application/json"
+                            expectedRaw: "application/json"
                         )
                     {
                         body = try converter.getResponseBodyAsJSON(
@@ -121,10 +121,10 @@ public struct Client: APIProtocol {
                         in: response.headerFields
                     )
                     let body: Operations.listPets.Output.Default.Body
-                    if contentType == nil
+                    if try contentType == nil
                         || converter.isMatchingContentType(
                             received: contentType,
-                            expected: "application/json"
+                            expectedRaw: "application/json"
                         )
                     {
                         body = try converter.getResponseBodyAsJSON(
@@ -191,10 +191,10 @@ public struct Client: APIProtocol {
                         in: response.headerFields
                     )
                     let body: Operations.createPet.Output.Created.Body
-                    if contentType == nil
+                    if try contentType == nil
                         || converter.isMatchingContentType(
                             received: contentType,
-                            expected: "application/json"
+                            expectedRaw: "application/json"
                         )
                     {
                         body = try converter.getResponseBodyAsJSON(
@@ -218,10 +218,10 @@ public struct Client: APIProtocol {
                         in: response.headerFields
                     )
                     let body: Components.Responses.ErrorBadRequest.Body
-                    if contentType == nil
+                    if try contentType == nil
                         || converter.isMatchingContentType(
                             received: contentType,
-                            expected: "application/json"
+                            expectedRaw: "application/json"
                         )
                     {
                         body = try converter.getResponseBodyAsJSON(
@@ -268,10 +268,10 @@ public struct Client: APIProtocol {
                         in: response.headerFields
                     )
                     let body: Operations.getStats.Output.Ok.Body
-                    if contentType == nil
+                    if try contentType == nil
                         || converter.isMatchingContentType(
                             received: contentType,
-                            expected: "application/json"
+                            expectedRaw: "application/json"
                         )
                     {
                         body = try converter.getResponseBodyAsJSON(
@@ -391,10 +391,10 @@ public struct Client: APIProtocol {
                         in: response.headerFields
                     )
                     let body: Operations.updatePet.Output.BadRequest.Body
-                    if contentType == nil
+                    if try contentType == nil
                         || converter.isMatchingContentType(
                             received: contentType,
-                            expected: "application/json"
+                            expectedRaw: "application/json"
                         )
                     {
                         body = try converter.getResponseBodyAsJSON(
@@ -451,10 +451,10 @@ public struct Client: APIProtocol {
                         in: response.headerFields
                     )
                     let body: Operations.uploadAvatarForPet.Output.Ok.Body
-                    if contentType == nil
+                    if try contentType == nil
                         || converter.isMatchingContentType(
                             received: contentType,
-                            expected: "application/octet-stream"
+                            expectedRaw: "application/octet-stream"
                         )
                     {
                         body = try converter.getResponseBodyAsBinary(
@@ -473,10 +473,10 @@ public struct Client: APIProtocol {
                         in: response.headerFields
                     )
                     let body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body
-                    if contentType == nil
+                    if try contentType == nil
                         || converter.isMatchingContentType(
                             received: contentType,
-                            expected: "application/json"
+                            expectedRaw: "application/json"
                         )
                     {
                         body = try converter.getResponseBodyAsJSON(
@@ -495,10 +495,10 @@ public struct Client: APIProtocol {
                         in: response.headerFields
                     )
                     let body: Operations.uploadAvatarForPet.Output.InternalServerError.Body
-                    if contentType == nil
+                    if try contentType == nil
                         || converter.isMatchingContentType(
                             received: contentType,
-                            expected: "text/plain"
+                            expectedRaw: "text/plain"
                         )
                     {
                         body = try converter.getResponseBodyAsText(

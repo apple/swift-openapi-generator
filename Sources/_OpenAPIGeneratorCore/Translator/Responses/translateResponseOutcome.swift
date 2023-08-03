@@ -180,7 +180,7 @@ extension ClientFileTranslator {
                             expression: .identifier("contentType")
                         ),
                         .init(
-                            label: "expected",
+                            label: "expectedRaw",
                             expression: .literal(
                                 typedContent
                                     .content
@@ -231,7 +231,7 @@ extension ClientFileTranslator {
                         ])
                 )
                 return .init(
-                    condition: condition,
+                    condition: .try(condition),
                     body: [
                         .expression(
                             .assignment(
