@@ -161,40 +161,56 @@ extension FileTranslator {
                 foundIn: foundIn
             )
         }
+        let chosenContent: (SchemaContent, OpenAPI.Content)?
         if let (contentKey, contentValue) = map.first(where: { $0.key.isJSON }),
             let contentType = ContentType(contentKey.typeAndSubtype)
         {
-            diagnostics.emitUnsupportedIfNotNil(
-                contentValue.encoding,
-                "Custom encoding for JSON content",
-                foundIn: "\(foundIn), content \(contentKey.rawValue)"
+            chosenContent = (
+                .init(
+                    contentType: contentType,
+                    schema: contentValue.schema
+                ),
+                contentValue
             )
-            return .init(
-                contentType: contentType,
-                schema: contentValue.schema
-            )
-        } else if let (contentKey, _) = map.first(where: { $0.key.isText }),
+        } else if let (contentKey, contentValue) = map.first(where: { $0.key.isText }),
             let contentType = ContentType(contentKey.typeAndSubtype)
         {
-            return .init(
-                contentType: contentType,
-                schema: .b(.string)
+            chosenContent = (
+                .init(
+                    contentType: contentType,
+                    schema: .b(.string)
+                ),
+                contentValue
             )
         } else if !excludeBinary,
-            let (contentKey, _) = map.first(where: { $0.key.isBinary }),
+            let (contentKey, contentValue) = map.first(where: { $0.key.isBinary }),
             let contentType = ContentType(contentKey.typeAndSubtype)
         {
-            return .init(
-                contentType: contentType,
-                schema: .b(.string(format: .binary))
+            chosenContent = (
+                .init(
+                    contentType: contentType,
+                    schema: .b(.string(format: .binary))
+                ),
+                contentValue
             )
         } else {
             diagnostics.emitUnsupported(
                 "Unsupported content",
                 foundIn: foundIn
             )
-            return nil
+            chosenContent = nil
         }
+        if let chosenContent {
+            let rawMIMEType = chosenContent.0.contentType.rawMIMEType
+            if rawMIMEType.hasPrefix("multipart/") || rawMIMEType.contains("application/x-www-form-urlencoded") {
+                diagnostics.emitUnsupportedIfNotNil(
+                    chosenContent.1.encoding,
+                    "Custom encoding for JSON content",
+                    foundIn: "\(foundIn), content \(rawMIMEType)"
+                )
+            }
+        }
+        return chosenContent?.0
     }
 
     /// Returns a wrapped version of the provided content if supported, returns
