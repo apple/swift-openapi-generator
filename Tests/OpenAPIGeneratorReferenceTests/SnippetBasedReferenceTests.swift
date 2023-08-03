@@ -811,39 +811,41 @@ final class SnippetBasedReferenceTests: XCTestCase {
     }
 
     func testResponseWithExampleWithOnlyValue() throws {
-        XCTAssertThrowsError(try self.assertResponsesTranslation(
-            """
-            responses:
-              MyResponse:
-                description: Some response
-                content:
-                  application/json:
-                    schema:
-                      type: string
-                    examples:
+        XCTAssertThrowsError(
+            try self.assertResponsesTranslation(
+                """
+                responses:
+                  MyResponse:
+                    description: Some response
+                    content:
                       application/json:
-                        summary: "a hello response"
-            """,
-            """
-            public enum Responses {
-                public struct MyResponse: Sendable, Equatable, Hashable {
-                    public struct Headers: Sendable, Equatable, Hashable { public init() {} }
-                    public var headers: Components.Responses.MyResponse.Headers
-                    @frozen public enum Body: Sendable, Equatable, Hashable {
-                        case json(Swift.String)
-                    }
-                    public var body: Components.Responses.MyResponse.Body
-                    public init(
-                        headers: Components.Responses.MyResponse.Headers = .init(),
-                        body: Components.Responses.MyResponse.Body
-                    ) {
-                        self.headers = headers
-                        self.body = body
+                        schema:
+                          type: string
+                        examples:
+                          application/json:
+                            summary: "a hello response"
+                """,
+                """
+                public enum Responses {
+                    public struct MyResponse: Sendable, Equatable, Hashable {
+                        public struct Headers: Sendable, Equatable, Hashable { public init() {} }
+                        public var headers: Components.Responses.MyResponse.Headers
+                        @frozen public enum Body: Sendable, Equatable, Hashable {
+                            case json(Swift.String)
+                        }
+                        public var body: Components.Responses.MyResponse.Body
+                        public init(
+                            headers: Components.Responses.MyResponse.Headers = .init(),
+                            body: Components.Responses.MyResponse.Body
+                        ) {
+                            self.headers = headers
+                            self.body = body
+                        }
                     }
                 }
-            }
-            """
-        )) { error in
+                """
+            )
+        ) { error in
             XCTAssert(error is DecodingError)
         }
     }
