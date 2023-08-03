@@ -811,8 +811,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
     }
 
     func testResponseWithExampleWithOnlyValue() throws {
-        XCTExpectFailure("Throws decoding error", strict: true)
-        try self.assertResponsesTranslation(
+        XCTAssertThrowsError(try self.assertResponsesTranslation(
             """
             responses:
               MyResponse:
@@ -844,7 +843,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 }
             }
             """
-        )
+        )) { error in
+            XCTAssert(error is DecodingError)
+        }
     }
 }
 
