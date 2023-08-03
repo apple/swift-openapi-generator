@@ -54,12 +54,15 @@ struct TextBasedRenderer: RendererProtocol {
             prefix = "// MARK:"
             commentString = string
         }
-        return commentString.transformingLines { line in
-            if line.isEmpty {
-                return prefix
+        return
+            commentString
+            .replacingOccurrences(of: "\r", with: "\n")
+            .transformingLines { line in
+                if line.isEmpty {
+                    return prefix
+                }
+                return "\(prefix) \(line)"
             }
-            return "\(prefix) \(line)"
-        }
     }
 
     /// Renders the specified import statements.

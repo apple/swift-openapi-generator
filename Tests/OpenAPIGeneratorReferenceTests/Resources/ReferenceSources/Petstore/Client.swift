@@ -35,7 +35,9 @@ public struct Client: APIProtocol {
     private var converter: Converter { client.converter }
     /// List all pets
     ///
-    /// You can fetch all the pets here
+    /// You can fetch
+    ///
+    /// all the pets here
     ///
     /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
