@@ -101,7 +101,7 @@ public struct Client: APIProtocol {
                     )
                     let body: Operations.listPets.Output.Ok.Body
                     if contentType == nil
-                        || converter.isValidContentType(
+                        || converter.isMatchingContentType(
                             received: contentType,
                             expected: "application/json"
                         )
@@ -122,7 +122,7 @@ public struct Client: APIProtocol {
                     )
                     let body: Operations.listPets.Output.Default.Body
                     if contentType == nil
-                        || converter.isValidContentType(
+                        || converter.isMatchingContentType(
                             received: contentType,
                             expected: "application/json"
                         )
@@ -192,7 +192,7 @@ public struct Client: APIProtocol {
                     )
                     let body: Operations.createPet.Output.Created.Body
                     if contentType == nil
-                        || converter.isValidContentType(
+                        || converter.isMatchingContentType(
                             received: contentType,
                             expected: "application/json"
                         )
@@ -219,7 +219,7 @@ public struct Client: APIProtocol {
                     )
                     let body: Components.Responses.ErrorBadRequest.Body
                     if contentType == nil
-                        || converter.isValidContentType(
+                        || converter.isMatchingContentType(
                             received: contentType,
                             expected: "application/json"
                         )
@@ -269,7 +269,7 @@ public struct Client: APIProtocol {
                     )
                     let body: Operations.getStats.Output.Ok.Body
                     if contentType == nil
-                        || converter.isValidContentType(
+                        || converter.isMatchingContentType(
                             received: contentType,
                             expected: "application/json"
                         )
@@ -392,7 +392,7 @@ public struct Client: APIProtocol {
                     )
                     let body: Operations.updatePet.Output.BadRequest.Body
                     if contentType == nil
-                        || converter.isValidContentType(
+                        || converter.isMatchingContentType(
                             received: contentType,
                             expected: "application/json"
                         )
@@ -452,7 +452,7 @@ public struct Client: APIProtocol {
                     )
                     let body: Operations.uploadAvatarForPet.Output.Ok.Body
                     if contentType == nil
-                        || converter.isValidContentType(
+                        || converter.isMatchingContentType(
                             received: contentType,
                             expected: "application/octet-stream"
                         )
@@ -474,7 +474,7 @@ public struct Client: APIProtocol {
                     )
                     let body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body
                     if contentType == nil
-                        || converter.isValidContentType(
+                        || converter.isMatchingContentType(
                             received: contentType,
                             expected: "application/json"
                         )
@@ -496,7 +496,7 @@ public struct Client: APIProtocol {
                     )
                     let body: Operations.uploadAvatarForPet.Output.InternalServerError.Body
                     if contentType == nil
-                        || converter.isValidContentType(
+                        || converter.isMatchingContentType(
                             received: contentType,
                             expected: "text/plain"
                         )

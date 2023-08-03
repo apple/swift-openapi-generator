@@ -275,8 +275,8 @@ extension ServerFileTranslator {
         )
 
         func makeIfBranch(typedContent: TypedSchemaContent, isFirstBranch: Bool) -> IfBranch {
-            let isValidContentTypeExpr: Expression = .identifier("converter")
-                .dot("isValidContentType")
+            let isMatchingContentTypeExpr: Expression = .identifier("converter")
+                .dot("isMatchingContentType")
                 .call([
                     .init(
                         label: "received",
@@ -301,10 +301,10 @@ extension ServerFileTranslator {
                         right: .literal(.nil)
                     ),
                     operation: .booleanOr,
-                    right: isValidContentTypeExpr
+                    right: isMatchingContentTypeExpr
                 )
             } else {
-                condition = isValidContentTypeExpr
+                condition = isMatchingContentTypeExpr
             }
             let contentTypeUsage = typedContent.resolvedTypeUsage
             let content = typedContent.content

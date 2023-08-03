@@ -194,7 +194,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.createPet.Input.Body
                 if contentType == nil
-                    || converter.isValidContentType(
+                    || converter.isMatchingContentType(
                         received: contentType,
                         expected: "application/json"
                     )
@@ -345,7 +345,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.postStats.Input.Body
                 if contentType == nil
-                    || converter.isValidContentType(
+                    || converter.isMatchingContentType(
                         received: contentType,
                         expected: "application/json"
                     )
@@ -355,7 +355,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         from: request.body,
                         transforming: { value in .json(value) }
                     )
-                } else if converter.isValidContentType(
+                } else if converter.isMatchingContentType(
                     received: contentType,
                     expected: "text/plain"
                 ) {
@@ -364,7 +364,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         from: request.body,
                         transforming: { value in .text(value) }
                     )
-                } else if converter.isValidContentType(
+                } else if converter.isMatchingContentType(
                     received: contentType,
                     expected: "application/octet-stream"
                 ) {
@@ -454,7 +454,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Components.RequestBodies.UpdatePetRequest?
                 if contentType == nil
-                    || converter.isValidContentType(
+                    || converter.isMatchingContentType(
                         received: contentType,
                         expected: "application/json"
                     )
@@ -530,7 +530,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.uploadAvatarForPet.Input.Body
                 if contentType == nil
-                    || converter.isValidContentType(
+                    || converter.isMatchingContentType(
                         received: contentType,
                         expected: "application/octet-stream"
                     )

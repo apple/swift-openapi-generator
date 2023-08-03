@@ -194,7 +194,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.createPet.Input.Body
                 if contentType == nil
-                    || converter.isValidContentType(
+                    || converter.isMatchingContentType(
                         received: contentType,
                         expected: "application/json"
                     )
@@ -325,7 +325,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.postStats.Input.Body
                 if contentType == nil
-                    || converter.isValidContentType(
+                    || converter.isMatchingContentType(
                         received: contentType,
                         expected: "application/json"
                     )
@@ -416,7 +416,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Components.RequestBodies.UpdatePetRequest?
                 if contentType == nil
-                    || converter.isValidContentType(
+                    || converter.isMatchingContentType(
                         received: contentType,
                         expected: "application/json"
                     )
@@ -492,7 +492,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.uploadAvatarForPet.Input.Body
                 if contentType == nil
-                    || converter.isValidContentType(
+                    || converter.isMatchingContentType(
                         received: contentType,
                         expected: "application/octet-stream"
                     )
