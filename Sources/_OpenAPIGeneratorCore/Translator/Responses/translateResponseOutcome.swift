@@ -171,86 +171,97 @@ extension ClientFileTranslator {
             )
             codeBlocks.append(.declaration(bodyDecl))
 
-            let branches: [IfConditionPair] =
-                typedContents
-                .enumerated()
-                .map { (index, typedContent) in
-
-                    let isValidContentTypeExpr: Expression = .identifier("converter")
-                        .dot("isValidContentType")
+            func makeIfBranch(typedContent: TypedSchemaContent, isFirstBranch: Bool) -> IfBranch {
+                let isValidContentTypeExpr: Expression = .identifier("converter")
+                    .dot("isValidContentType")
+                    .call([
+                        .init(
+                            label: "received",
+                            expression: .identifier("contentType")
+                        ),
+                        .init(
+                            label: "expected",
+                            expression: .literal(
+                                typedContent
+                                    .content
+                                    .contentType
+                                    .headerValueForValidation
+                            )
+                        ),
+                    ])
+                let condition: Expression
+                if isFirstBranch {
+                    condition = .binaryOperation(
+                        left: .binaryOperation(
+                            left: .identifier("contentType"),
+                            operation: .equals,
+                            right: .literal(.nil)
+                        ),
+                        operation: .booleanOr,
+                        right: isValidContentTypeExpr
+                    )
+                } else {
+                    condition = isValidContentTypeExpr
+                }
+                let contentTypeUsage = typedContent.resolvedTypeUsage
+                let transformExpr: Expression = .closureInvocation(
+                    argumentNames: ["value"],
+                    body: [
+                        .expression(
+                            .dot(contentSwiftName(typedContent.content.contentType))
+                                .call([
+                                    .init(label: nil, expression: .identifier("value"))
+                                ])
+                        )
+                    ]
+                )
+                let bodyExpr: Expression = .try(
+                    .identifier("converter")
+                        .dot("getResponseBodyAs\(typedContent.content.contentType.codingStrategy.runtimeName)")
                         .call([
                             .init(
-                                label: "received",
-                                expression: .identifier("contentType")
+                                label: nil,
+                                expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
                             ),
+                            .init(label: "from", expression: .identifier("response").dot("body")),
                             .init(
-                                label: "expected",
-                                expression: .literal(
-                                    typedContent
-                                        .content
-                                        .contentType
-                                        .headerValueForValidation
-                                )
+                                label: "transforming",
+                                expression: transformExpr
                             ),
                         ])
-                    let condition: Expression
-                    if index == 0 {
-                        condition = .binaryOperation(
-                            left: .binaryOperation(
-                                left: .identifier("contentType"),
-                                operation: .equals,
-                                right: .literal(.nil)
-                            ),
-                            operation: .booleanOr,
-                            right: isValidContentTypeExpr
+                )
+                return .init(
+                    condition: condition,
+                    body: [
+                        .expression(
+                            .assignment(
+                                left: .identifier("body"),
+                                right: bodyExpr
+                            )
                         )
-                    } else {
-                        condition = isValidContentTypeExpr
-                    }
-                    let contentTypeUsage = typedContent.resolvedTypeUsage
-                    let transformExpr: Expression = .closureInvocation(
-                        argumentNames: ["value"],
-                        body: [
-                            .expression(
-                                .dot(contentSwiftName(typedContent.content.contentType))
-                                    .call([
-                                        .init(label: nil, expression: .identifier("value"))
-                                    ])
-                            )
-                        ]
-                    )
-                    let bodyExpr: Expression = .try(
-                        .identifier("converter")
-                            .dot("getResponseBodyAs\(typedContent.content.contentType.codingStrategy.runtimeName)")
-                            .call([
-                                .init(
-                                    label: nil,
-                                    expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
-                                ),
-                                .init(label: "from", expression: .identifier("response").dot("body")),
-                                .init(
-                                    label: "transforming",
-                                    expression: transformExpr
-                                ),
-                            ])
-                    )
-                    return .init(
-                        condition: condition,
-                        body: [
-                            .expression(
-                                .assignment(
-                                    left: .identifier("body"),
-                                    right: bodyExpr
-                                )
-                            )
-                        ]
+                    ]
+                )
+            }
+
+            let primaryIfBranch = makeIfBranch(
+                typedContent: typedContents[0],
+                isFirstBranch: true
+            )
+            let elseIfBranches =
+                typedContents
+                .dropFirst()
+                .map { typedContent in
+                    makeIfBranch(
+                        typedContent: typedContent,
+                        isFirstBranch: false
                     )
                 }
 
             codeBlocks.append(
                 .expression(
                     .ifStatement(
-                        branches: branches,
+                        ifBranch: primaryIfBranch,
+                        elseIfBranches: elseIfBranches,
                         elseBody: [
                             .expression(
                                 .unaryKeyword(

@@ -664,11 +664,11 @@ struct SwitchDescription: Equatable, Codable {
     var cases: [SwitchCaseDescription]
 }
 
-/// A description of an if condition and the corresponding code block.
+/// A description of an if branch and the corresponding code block.
 ///
 /// For example: in `if foo { bar }`, the condition pair represents
 /// `foo` + `bar`.
-struct IfConditionPair: Equatable, Codable {
+struct IfBranch: Equatable, Codable {
 
     /// The expressions evaluated by the if statement and their corresponding
     /// body blocks. If more than one is provided, an `else if` branch is added.
@@ -687,8 +687,11 @@ struct IfConditionPair: Equatable, Codable {
 /// For example: `if foo { } else if bar { } else { }`.
 struct IfStatementDescription: Equatable, Codable {
 
-    /// The conditional branches.
-    var branches: [IfConditionPair]
+    /// The primary `if` branch.
+    var ifBranch: IfBranch
+
+    /// Additional `else if` branches.
+    var elseIfBranches: [IfBranch]
 
     /// The body of an else block.
     ///
@@ -1251,15 +1254,18 @@ extension Expression {
     /// Returns an if statement, with optional else if's and an else
     /// statement attached.
     /// - Parameters:
-    ///   - branches: The conditional branches.
+    ///   - ifBranch: The primary `if` branch.
+    ///   - elseIfBranches: Additional `else if` branches.
     ///   - elseBody: The body of an else block.
     static func ifStatement(
-        branches: [IfConditionPair],
+        ifBranch: IfBranch,
+        elseIfBranches: [IfBranch] = [],
         elseBody: [CodeBlock]? = nil
     ) -> Self {
         .ifStatement(
             .init(
-                branches: branches,
+                ifBranch: ifBranch,
+                elseIfBranches: elseIfBranches,
                 elseBody: elseBody
             )
         )

@@ -368,8 +368,6 @@ final class Test_Client: XCTestCase {
         switch value.body {
         case .json(let stats):
             XCTAssertEqual(stats, .init(count: 1))
-        default:
-            XCTFail("Unexpected content type")
         }
     }
 
@@ -397,8 +395,6 @@ final class Test_Client: XCTestCase {
         switch value.body {
         case .json(let stats):
             XCTAssertEqual(stats, .init(count: 1))
-        default:
-            XCTFail("Unexpected content type")
         }
     }
 

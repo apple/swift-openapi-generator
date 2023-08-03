@@ -175,14 +175,12 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders the specified if statement.
     func renderedIf(_ ifDesc: IfStatementDescription) -> String {
-        var branches = ifDesc.branches
-        precondition(!branches.isEmpty, "Cannot have an if statement with no branches.")
         var lines: [String] = []
-        let firstCondition = branches.removeFirst()
-        lines.append("if \(renderedExpression(firstCondition.condition)) {")
-        lines.append(renderedCodeBlocks(firstCondition.body))
+        let ifBranch = ifDesc.ifBranch
+        lines.append("if \(renderedExpression(ifBranch.condition)) {")
+        lines.append(renderedCodeBlocks(ifBranch.body))
         lines.append("}")
-        for branch in branches {
+        for branch in ifDesc.elseIfBranches {
             lines.append("else if \(renderedExpression(branch.condition)) {")
             lines.append(renderedCodeBlocks(branch.body))
             lines.append("}")

@@ -845,7 +845,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-
     func testPathsSimplestCase() throws {
         try self.assertPathsTranslation(
             """
