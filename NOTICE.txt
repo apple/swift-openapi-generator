@@ -41,3 +41,79 @@ This product contains derivations of examples from the OpenAPI project.
     * https://github.com/OAI/OpenAPI-Specification/blob/main/LICENSE
   * HOMEPAGE:
     * https://github.com/OAI/OpenAPI-Specification
+
+-------------------------------------------------------------------------------
+
+This product contains OpenAPI document(s) for compatibility testing from:
+
+  * AWS Lambda for .NET Core
+    * LICENSE (Apache License 2.0):
+      * https://github.com/aws/aws-lambda-dotnet/blob/master/LICENSE
+    * HOMEPAGE:
+      * https://github.com/aws/aws-lambda-dotnet
+
+  * Azure IoT Identity Service
+    * LICENSE (MIT License):
+      * https://github.com/Azure/iot-identity-service/blob/main/LICENSE
+    * HOMEPAGE:
+      * https://github.com/Azure/iot-identity-service
+
+  * OpenAPI 3.0 Specification for the Box APIs
+    * LICENSE (Apache License 2.0):
+      * https://github.com/box/box-openapi/blob/main/LICENSE
+    * HOMEPAGE:
+      * https://github.com/box/box-openapi
+
+  * MindMeld Conversational AI Platform
+    * LICENSE (Apache License 2.0):
+      * https://github.com/cisco/mindmeld/blob/master/LICENSE
+    * HOMEPAGE:
+      * https://github.com/cisco/mindmeld
+
+  * Cloud Hypervisor
+    * LICENSE (Apache License 2.0):
+      * https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/LICENSE-APACHE
+    * HOMEPAGE:
+      * https://github.com/cloud-hypervisor/cloud-hypervisor
+
+  * Discourse API Documentation
+    * LICENSE (MIT License):
+      * https://github.com/discourse/discourse_api_docs/blob/main/LICENSE.txt
+    * HOMEPAGE:
+      * https://github.com/discourse/discourse_api_docs
+
+  * GitHub's REST API OpenAPI Description
+    * LICENSE (MIT License):
+      * https://github.com/github/rest-api-description/blob/main/LICENSE.md
+    * HOMEPAGE:
+      * https://github.com/github/rest-api-description
+
+  * Kubernetes (K8s)
+    * LICENSE (Apache License 2.0):
+      * https://github.com/kubernetes/kubernetes/blob/master/LICENSE
+    * HOMEPAGE:
+      * https://github.com/kubernetes/kubernetes
+
+  * ConsoleMe
+    * LICENSE (Apache License 2.0):
+      * https://github.com/Netflix/consoleme/blob/master/LICENSE
+    * HOMEPAGE:
+      * https://github.com/Netflix/consoleme
+
+  * OpenAPI spec for the OpenAI API
+    * LICENSE (MIT License):
+      * https://github.com/openai/openai-openapi/blob/master/LICENSE
+    * HOMEPAGE:
+      * https://github.com/openai/openai-openapi
+
+  * The OpenAPI Specification
+    * LICENSE (Apache License 2.0):
+      * https://github.com/OAI/OpenAPI-Specification/blob/main/LICENSE
+    * HOMEPAGE:
+      * https://github.com/OAI/OpenAPI-Specification
+
+  * Swift Package Manager Project
+    * LICENSE (Apache License 2.0):
+      * https://github.com/apple/swift-package-manager/blob/main/LICENSE.txt
+    * HOMEPAGE:
+      * https://github.com/apple/swift-package-manager

@@ -47,3 +47,11 @@ services:
     command: /bin/bash -xcl "swift -version && uname -a && bash ./scripts/check-for-docc-warnings.sh"
     environment:
       DOCC_TARGET: swift-openapi-generator
+
+  compatibility-test:
+    <<: *common
+    command: /bin/bash -xcl "swift test -c release --filter OpenAPIGeneratorReferenceTests.CompatibilityTest"
+    environment:
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE: true
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD: true
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_VALIDATE: true
