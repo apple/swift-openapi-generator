@@ -30,7 +30,8 @@ The configuration file has the following keys:
     - `types`: Common types and abstractions used by generated client and server code.
     - `client`: Client code that can be used with any client transport (depends on code from `types`).
     - `server`: Server code that can be used with any server transport (depends on code from `types`).
-- `additionalImports` (optional): array of strings. Each string value Swift module name. An import statement will be added to the generated source files for each module.
+- `additionalImports` (optional): array of strings. Each string value is a Swift module name. An import statement will be added to the generated source files for each module.
+- `featureFlags` (optional): array of strings. Each string must be a valid feature flag to enable. For a list of currently supported feature flags, check out [FeatureFlags.swift](https://github.com/apple/swift-openapi-generator/blob/main/Sources/_OpenAPIGeneratorCore/FeatureFlags.swift).
 
 ### Example config files
 
