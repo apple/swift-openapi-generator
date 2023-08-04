@@ -56,7 +56,6 @@ struct TextBasedRenderer: RendererProtocol {
         }
         return
             commentString
-            .replacingOccurrences(of: "\r", with: "\n")
             .transformingLines { line in
                 if line.isEmpty {
                     return prefix
@@ -724,7 +723,8 @@ fileprivate extension String {
     /// Returns an array of strings, where each string represents one line
     /// in the current string.
     func asLines() -> [String] {
-        split(separator: "\n", omittingEmptySubsequences: false)
+        replacingOccurrences(of: "\r\n", with: "\n")
+            .split(separator: "\n", omittingEmptySubsequences: false)
             .map(String.init)
     }
 

@@ -10,7 +10,6 @@ public protocol APIProtocol: Sendable {
     /// List all pets
     ///
     /// You can fetch
-    ///
     /// all the pets here
     ///
     /// - Remark: HTTP `GET /pets`.
@@ -707,7 +706,6 @@ public enum Operations {
     /// List all pets
     ///
     /// You can fetch
-    ///
     /// all the pets here
     ///
     /// - Remark: HTTP `GET /pets`.

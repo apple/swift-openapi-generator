@@ -36,7 +36,6 @@ public struct Client: APIProtocol {
     /// List all pets
     ///
     /// You can fetch
-    ///
     /// all the pets here
     ///
     /// - Remark: HTTP `GET /pets`.
