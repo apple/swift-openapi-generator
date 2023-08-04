@@ -83,6 +83,9 @@ final class Test_String: Test_Core {
 
             // Non Latin Characters
             ("$مرحبا", "_dollar_مرحبا"),
+
+            // Content type
+            ("application/vendor1+json", "application_sol_vendor1_plus_json"),
         ]
         let translator = makeTranslator(featureFlags: [.proposal0001])
         let asSwiftSafeName: (String) -> String = translator.swiftSafeName
