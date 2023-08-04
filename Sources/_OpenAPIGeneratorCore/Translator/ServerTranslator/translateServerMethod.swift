@@ -24,26 +24,6 @@ extension ServerFileTranslator {
         var closureBody: [CodeBlock] = []
 
         let typedRequestBody = try typedRequestBody(in: operation)
-
-        if let headerValueForValidation = typedRequestBody?
-            .content
-            .content
-            .contentType
-            .headerValueForValidation
-        {
-            let validateContentTypeExpr: Expression = .try(
-                .identifier("converter").dot("validateContentTypeIfPresent")
-                    .call([
-                        .init(label: "in", expression: .identifier("request").dot("headerFields")),
-                        .init(
-                            label: "substring",
-                            expression: .literal(headerValueForValidation)
-                        ),
-                    ])
-            )
-            closureBody.append(.expression(validateContentTypeExpr))
-        }
-
         let inputTypeName = operation.inputTypeName
 
         func locationSpecificInputDecl(
@@ -69,7 +49,7 @@ extension ServerFileTranslator {
             )
         }
 
-        var inputMemberDecls = try [
+        var inputMemberCodeBlocks = try [
             (
                 .path,
                 operation.allPathParameters
@@ -88,14 +68,21 @@ extension ServerFileTranslator {
             ),
         ]
         .map(locationSpecificInputDecl(locatedIn:fromParameters:))
+        .map(CodeBlock.declaration)
 
-        let bodyDecl = try translateRequestBodyInServer(
-            typedRequestBody,
-            requestVariableName: "request",
-            bodyVariableName: "body",
-            inputTypeName: inputTypeName
-        )
-        inputMemberDecls.append(bodyDecl)
+        let requestBodyExpr: Expression
+        if let typedRequestBody {
+            let bodyCodeBlocks = try translateRequestBodyInServer(
+                typedRequestBody,
+                requestVariableName: "request",
+                bodyVariableName: "body",
+                inputTypeName: inputTypeName
+            )
+            inputMemberCodeBlocks.append(contentsOf: bodyCodeBlocks)
+            requestBodyExpr = .identifier("body")
+        } else {
+            requestBodyExpr = .literal(.nil)
+        }
 
         func functionArgumentForLocation(
             _ location: OpenAPI.Parameter.Context.Location
@@ -113,14 +100,13 @@ extension ServerFileTranslator {
                     functionArgumentForLocation(.query),
                     functionArgumentForLocation(.header),
                     functionArgumentForLocation(.cookie),
-                    .init(label: "body", expression: .identifier("body")),
+                    .init(label: "body", expression: requestBodyExpr),
                 ])
         )
 
         closureBody.append(
-            contentsOf: inputMemberDecls.map(CodeBlock.declaration) + [.expression(returnExpr)]
+            contentsOf: inputMemberCodeBlocks + [.expression(returnExpr)]
         )
-
         return .closureInvocation(
             argumentNames: ["request", "metadata"],
             body: closureBody

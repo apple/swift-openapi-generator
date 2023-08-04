@@ -50,6 +50,7 @@ enum ExprKind: String, Equatable, CustomStringConvertible {
     case functionCall
     case assignment
     case `switch`
+    case `if`
     case doStatement
     case valueBinding
     case unaryKeyword
@@ -176,6 +177,8 @@ extension KeywordKind {
             return hasPostfixQuestionMark ? "try?" : "try"
         case .await:
             return "await"
+        case .throw:
+            return "throw"
         }
     }
 }
@@ -206,6 +209,8 @@ extension Expression {
             return .init(name: value.left.info.name, kind: .assignment)
         case .`switch`(let value):
             return .init(name: value.switchedExpression.info.name, kind: .switch)
+        case .ifStatement(_):
+            return .init(name: nil, kind: .if)
         case .doStatement(_):
             return .init(name: nil, kind: .doStatement)
         case .valueBinding(let value):

@@ -342,6 +342,116 @@ final class Test_Client: XCTestCase {
         }
     }
 
+    func testGetStats_200_json() async throws {
+        transport = .init { request, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
+            XCTAssertEqual(request.path, "/pets/stats")
+            XCTAssertEqual(request.method, .get)
+            XCTAssertNil(request.body)
+            return .init(
+                statusCode: 200,
+                headers: [
+                    .init(name: "content-type", value: "application/json")
+                ],
+                encodedBody: #"""
+                    {
+                      "count" : 1
+                    }
+                    """#
+            )
+        }
+        let response = try await client.getStats(.init())
+        guard case let .ok(value) = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+        switch value.body {
+        case .json(let stats):
+            XCTAssertEqual(stats, .init(count: 1))
+        }
+    }
+
+    func testGetStats_200_default_json() async throws {
+        transport = .init { request, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
+            XCTAssertEqual(request.path, "/pets/stats")
+            XCTAssertEqual(request.method, .get)
+            XCTAssertNil(request.body)
+            return .init(
+                statusCode: 200,
+                headers: [],
+                encodedBody: #"""
+                    {
+                      "count" : 1
+                    }
+                    """#
+            )
+        }
+        let response = try await client.getStats(.init())
+        guard case let .ok(value) = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+        switch value.body {
+        case .json(let stats):
+            XCTAssertEqual(stats, .init(count: 1))
+        }
+    }
+
+    func testGetStats_200_unexpectedContentType() async throws {
+        transport = .init { request, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
+            XCTAssertEqual(request.path, "/pets/stats")
+            XCTAssertEqual(request.method, .get)
+            XCTAssertNil(request.body)
+            return .init(
+                statusCode: 200,
+                headers: [
+                    .init(name: "content-type", value: "foo/bar")
+                ],
+                encodedBody: #"""
+                    count_is_1
+                    """#
+            )
+        }
+        do {
+            _ = try await client.getStats(.init())
+            XCTFail("Should have thrown an error")
+        } catch {}
+    }
+
+    func testPostStats_202_json() async throws {
+        transport = .init { request, baseURL, operationID in
+            XCTAssertEqual(operationID, "postStats")
+            XCTAssertEqual(request.path, "/pets/stats")
+            XCTAssertNil(request.query)
+            XCTAssertEqual(baseURL.absoluteString, "/api")
+            XCTAssertEqual(request.method, .post)
+            XCTAssertEqual(
+                request.headerFields,
+                [
+                    .init(name: "content-type", value: "application/json; charset=utf-8")
+                ]
+            )
+            XCTAssertEqual(
+                request.body?.pretty,
+                #"""
+                {
+                  "count" : 1
+                }
+                """#
+            )
+            return .init(statusCode: 202)
+        }
+        let response = try await client.postStats(
+            .init(body: .json(.init(count: 1)))
+        )
+        guard case .accepted = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+    }
+
     @available(*, deprecated)
     func testProbe_204() async throws {
         transport = .init { request, baseURL, operationID in

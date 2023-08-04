@@ -239,7 +239,6 @@ final class Test_Server: XCTestCase {
                 fatalError("Unreachable")
             }
         )
-
         do {
             _ = try await server.createPet(
                 .init(
@@ -280,8 +279,44 @@ final class Test_Server: XCTestCase {
                 path: "/api/pets/1",
                 method: .patch,
                 headerFields: [
-                    .init(name: "accept", value: "application/json")
+                    .init(name: "accept", value: "application/json"),
+                    .init(name: "content-type", value: "application/json"),
                 ],
+                encodedBody: #"""
+                    {
+                      "name" : "Fluffz"
+                    }
+                    """#
+            ),
+            .init(
+                pathParameters: [
+                    "petId": "1"
+                ]
+            )
+        )
+        XCTAssertEqual(response.statusCode, 204)
+        XCTAssertEqual(response.headerFields, [])
+    }
+
+    func testUpdatePet_204_withBody_default_json() async throws {
+        client = .init(
+            updatePetBlock: { input in
+                XCTAssertEqual(input.path.petId, 1)
+                guard let body = input.body else {
+                    throw TestError.unexpectedMissingRequestBody
+                }
+                guard case let .json(updatePet) = body else {
+                    throw TestError.unexpectedValue(body)
+                }
+                XCTAssertEqual(updatePet, .init(name: "Fluffz"))
+                return .noContent(.init())
+            }
+        )
+        let response = try await server.updatePet(
+            .init(
+                path: "/api/pets/1",
+                method: .patch,
+                headerFields: [],
                 encodedBody: #"""
                     {
                       "name" : "Fluffz"
@@ -355,6 +390,124 @@ final class Test_Server: XCTestCase {
             }
             """#
         )
+    }
+
+    func testGetStats_200_json() async throws {
+        client = .init(
+            getStatsBlock: { input in
+                return .ok(.init(body: .json(.init(count: 1))))
+            }
+        )
+        let response = try await server.getStats(
+            .init(
+                path: "/api/pets/stats",
+                method: .patch,
+                headerFields: [
+                    .init(name: "accept", value: "application/json, text/plain, application/octet-stream")
+                ]
+            ),
+            .init()
+        )
+        XCTAssertEqual(response.statusCode, 200)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .init(name: "content-type", value: "application/json; charset=utf-8")
+            ]
+        )
+        XCTAssertEqualStringifiedData(
+            response.body,
+            #"""
+            {
+              "count" : 1
+            }
+            """#
+        )
+    }
+
+    func testGetStats_200_unexpectedAccept() async throws {
+        client = .init(
+            getStatsBlock: { input in
+                return .ok(.init(body: .json(.init(count: 1))))
+            }
+        )
+        do {
+            _ = try await server.getStats(
+                .init(
+                    path: "/api/pets/stats",
+                    method: .patch,
+                    headerFields: [
+                        .init(name: "accept", value: "foo/bar")
+                    ]
+                ),
+                .init()
+            )
+            XCTFail("Should have thrown an error.")
+        } catch {}
+    }
+
+    func testPostStats_202_json() async throws {
+        client = .init(
+            postStatsBlock: { input in
+                guard case let .json(stats) = input.body else {
+                    throw TestError.unexpectedValue(input.body)
+                }
+                XCTAssertEqual(stats, .init(count: 1))
+                return .accepted(.init())
+            }
+        )
+        let response = try await server.postStats(
+            .init(
+                path: "/api/pets/stats",
+                method: .post,
+                headerFields: [
+                    .init(name: "content-type", value: "application/json; charset=utf-8")
+                ],
+                encodedBody: #"""
+                    {
+                      "count" : 1
+                    }
+                    """#
+            ),
+            .init()
+        )
+        XCTAssertEqual(response.statusCode, 202)
+        XCTAssertEqual(
+            response.headerFields,
+            []
+        )
+        XCTAssert(response.body.isEmpty)
+    }
+
+    func testPostStats_202_default_json() async throws {
+        client = .init(
+            postStatsBlock: { input in
+                guard case let .json(stats) = input.body else {
+                    throw TestError.unexpectedValue(input.body)
+                }
+                XCTAssertEqual(stats, .init(count: 1))
+                return .accepted(.init())
+            }
+        )
+        let response = try await server.postStats(
+            .init(
+                path: "/api/pets/stats",
+                method: .post,
+                headerFields: [],
+                encodedBody: #"""
+                    {
+                      "count" : 1
+                    }
+                    """#
+            ),
+            .init()
+        )
+        XCTAssertEqual(response.statusCode, 202)
+        XCTAssertEqual(
+            response.headerFields,
+            []
+        )
+        XCTAssert(response.body.isEmpty)
     }
 
     func testProbe_204() async throws {

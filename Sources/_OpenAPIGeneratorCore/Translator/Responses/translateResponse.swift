@@ -60,11 +60,12 @@ extension TypesFileTranslator {
         let bodyTypeName = typeName.appending(
             swiftComponent: Constants.Operation.Body.typeName
         )
-        var bodyCases: [Declaration] = []
-        if let typedContent = try bestSingleTypedContent(
+        let typedContents = try supportedTypedContents(
             response.content,
             inParent: bodyTypeName
-        ) {
+        )
+        var bodyCases: [Declaration] = []
+        for typedContent in typedContents {
             let identifier = contentSwiftName(typedContent.content.contentType)
             let associatedType = typedContent.resolvedTypeUsage
             if TypeMatcher.isInlinable(typedContent.content.schema), let inlineType = typedContent.typeUsage {

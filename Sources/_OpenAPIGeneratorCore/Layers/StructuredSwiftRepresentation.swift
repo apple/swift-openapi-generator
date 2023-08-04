@@ -664,6 +664,41 @@ struct SwitchDescription: Equatable, Codable {
     var cases: [SwitchCaseDescription]
 }
 
+/// A description of an if branch and the corresponding code block.
+///
+/// For example: in `if foo { bar }`, the condition pair represents
+/// `foo` + `bar`.
+struct IfBranch: Equatable, Codable {
+
+    /// The expressions evaluated by the if statement and their corresponding
+    /// body blocks. If more than one is provided, an `else if` branch is added.
+    ///
+    /// For example, in `if foo { bar }`, `condition` is `foo`.
+    var condition: Expression
+
+    /// The body executed if the `condition` evaluates to true.
+    ///
+    /// For example, in `if foo { bar }`, `body` is `bar`.
+    var body: [CodeBlock]
+}
+
+/// A description of an if[[/elseif]/else] statement expression.
+///
+/// For example: `if foo { } else if bar { } else { }`.
+struct IfStatementDescription: Equatable, Codable {
+
+    /// The primary `if` branch.
+    var ifBranch: IfBranch
+
+    /// Additional `else if` branches.
+    var elseIfBranches: [IfBranch]
+
+    /// The body of an else block.
+    ///
+    /// No `else` statement is added when `elseBody` is nil.
+    var elseBody: [CodeBlock]?
+}
+
 /// A description of a do statement.
 ///
 /// For example: `do { try foo() } catch { return bar }`.
@@ -709,6 +744,9 @@ enum KeywordKind: Equatable, Codable {
 
     /// The await keyword.
     case `await`
+
+    /// The throw keyword.
+    case `throw`
 }
 
 /// A description of an expression that places a keyword before an expression.
@@ -751,8 +789,14 @@ enum BinaryOperator: String, Equatable, Codable {
     /// The += operator, adds and then assigns another value.
     case plusEquals = "+="
 
+    /// The == operator, checks equality between two values.
+    case equals = "=="
+
     /// The ... operator, creates an end-inclusive range between two numbers.
     case rangeInclusive = "..."
+
+    /// The || operator, used between two Boolean values.
+    case booleanOr = "||"
 }
 
 /// A description of a binary operation expression.
@@ -831,6 +875,11 @@ indirect enum Expression: Equatable, Codable {
     ///
     /// For example: `switch foo {`.
     case `switch`(SwitchDescription)
+
+    /// An if statement, with optional else if's and an else statement attached.
+    ///
+    /// For example: `if foo { bar } else if baz { boo } else { bam }`.
+    case ifStatement(IfStatementDescription)
 
     /// A do statement.
     ///
@@ -1198,6 +1247,26 @@ extension Expression {
             .init(
                 switchedExpression: switchedExpression,
                 cases: cases
+            )
+        )
+    }
+
+    /// Returns an if statement, with optional else if's and an else
+    /// statement attached.
+    /// - Parameters:
+    ///   - ifBranch: The primary `if` branch.
+    ///   - elseIfBranches: Additional `else if` branches.
+    ///   - elseBody: The body of an else block.
+    static func ifStatement(
+        ifBranch: IfBranch,
+        elseIfBranches: [IfBranch] = [],
+        elseBody: [CodeBlock]? = nil
+    ) -> Self {
+        .ifStatement(
+            .init(
+                ifBranch: ifBranch,
+                elseIfBranches: elseIfBranches,
+                elseBody: elseBody
             )
         )
     }

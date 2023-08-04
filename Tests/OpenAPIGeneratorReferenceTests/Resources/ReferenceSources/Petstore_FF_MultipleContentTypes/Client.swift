@@ -257,7 +257,7 @@ public struct Client: APIProtocol {
                 try converter.setHeaderFieldAsText(
                     in: &request.headerFields,
                     name: "accept",
-                    value: "application/json"
+                    value: "application/json, text/plain, application/octet-stream"
                 )
                 return request
             },
@@ -279,6 +279,24 @@ public struct Client: APIProtocol {
                             Components.Schemas.PetStats.self,
                             from: response.body,
                             transforming: { value in .json(value) }
+                        )
+                    } else if try converter.isMatchingContentType(
+                        received: contentType,
+                        expectedRaw: "text/plain"
+                    ) {
+                        body = try converter.getResponseBodyAsText(
+                            Swift.String.self,
+                            from: response.body,
+                            transforming: { value in .text(value) }
+                        )
+                    } else if try converter.isMatchingContentType(
+                        received: contentType,
+                        expectedRaw: "application/octet-stream"
+                    ) {
+                        body = try converter.getResponseBodyAsBinary(
+                            Foundation.Data.self,
+                            from: response.body,
+                            transforming: { value in .binary(value) }
                         )
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
@@ -310,6 +328,18 @@ public struct Client: APIProtocol {
                         value,
                         headerFields: &request.headerFields,
                         contentType: "application/json; charset=utf-8"
+                    )
+                case let .text(value):
+                    request.body = try converter.setRequiredRequestBodyAsText(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "text/plain"
+                    )
+                case let .binary(value):
+                    request.body = try converter.setRequiredRequestBodyAsBinary(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "application/octet-stream"
                     )
                 }
                 return request

@@ -33,18 +33,18 @@ final class Test_ContentSwiftName: Test_Core {
         try _testIdentifiers(cases: cases, nameMaker: nameMaker)
     }
 
-    func testProposed() throws {
+    func testProposed_multipleContentTypes() throws {
         let nameMaker = makeTranslator(featureFlags: [.multipleContentTypes]).contentSwiftName
         let cases: [(String, String)] = [
-            ("application/json", "unsupported"),
-            ("application/x-www-form-urlencoded", "unsupported"),
-            ("multipart/form-data", "unsupported"),
-            ("text/plain", "unsupported"),
-            ("*/*", "unsupported"),
-            ("application/xml", "unsupported"),
-            ("application/octet-stream", "unsupported"),
-            ("application/myformat+json", "unsupported"),
-            ("foo/bar", "unsupported"),
+            ("application/json", "json"),
+            ("application/x-www-form-urlencoded", "form"),
+            ("multipart/form-data", "multipart"),
+            ("text/plain", "text"),
+            ("*/*", "any"),
+            ("application/xml", "xml"),
+            ("application/octet-stream", "binary"),
+            ("application/myformat+json", "application_myformat_json"),
+            ("foo/bar", "foo_bar"),
         ]
         try _testIdentifiers(cases: cases, nameMaker: nameMaker)
     }
