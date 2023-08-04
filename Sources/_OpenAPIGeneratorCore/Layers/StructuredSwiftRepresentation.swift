@@ -97,6 +97,11 @@ enum LiteralDescription: Equatable, Codable {
     /// For example `42`.
     case int(Int)
 
+    /// A Boolean literal.
+    ///
+    /// For example `true`.
+    case bool(Bool)
+
     /// The nil literal: `nil`.
     case `nil`
 

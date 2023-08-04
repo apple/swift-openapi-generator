@@ -22,6 +22,12 @@ struct TypedParameter {
     /// The underlying schema.
     var schema: UnresolvedSchema
 
+    /// The parameter serialization style.
+    var style: OpenAPI.Parameter.SchemaContext.Style
+
+    /// The parameter explode value.
+    var explode: Bool
+
     /// The computed type usage.
     var typeUsage: TypeUsage
 
@@ -134,9 +140,13 @@ extension FileTranslator {
 
         let schema: UnresolvedSchema
         let codingStrategy: CodingStrategy
+        let style: OpenAPI.Parameter.SchemaContext.Style
+        let explode: Bool
         switch parameter.schemaOrContent {
         case let .a(schemaContext):
             schema = schemaContext.schema
+            style = schemaContext.style
+            explode = schemaContext.explode
             codingStrategy = .text
 
             // Check supported exploded/style types
@@ -146,13 +156,6 @@ extension FileTranslator {
                 guard case .form = schemaContext.style else {
                     diagnostics.emitUnsupported(
                         "Non-form style query params",
-                        foundIn: foundIn
-                    )
-                    return nil
-                }
-                guard schemaContext.explode else {
-                    diagnostics.emitUnsupported(
-                        "Unexploded query params",
                         foundIn: foundIn
                     )
                     return nil
@@ -189,6 +192,14 @@ extension FileTranslator {
                 .content
                 .contentType
                 .codingStrategy
+            switch parameter.location {
+            case .query, .cookie:
+                style = .form
+                explode = true
+            case .path, .header:
+                style = .simple
+                explode = false
+            }
         }
 
         // Check if the underlying schema is supported
@@ -221,6 +232,8 @@ extension FileTranslator {
         return .init(
             parameter: parameter,
             schema: schema,
+            style: style,
+            explode: explode,
             typeUsage: usage,
             codingStrategy: codingStrategy,
             asSwiftSafeName: swiftSafeName
@@ -268,6 +281,19 @@ extension OpenAPI.Parameter.Context.Location {
             return "query"
         case .cookie:
             return "cookies"
+        }
+    }
+}
+
+extension OpenAPI.Parameter.SchemaContext.Style {
+
+    /// The runtime name for the style.
+    var runtimeName: String {
+        switch self {
+        case .form:
+            return Constants.Components.Parameters.Style.form
+        default:
+            preconditionFailure("Unsupported style")
         }
     }
 }
