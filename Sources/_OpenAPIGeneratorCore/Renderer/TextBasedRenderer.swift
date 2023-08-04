@@ -723,8 +723,7 @@ fileprivate extension String {
     /// Returns an array of strings, where each string represents one line
     /// in the current string.
     func asLines() -> [String] {
-        replacingOccurrences(of: "\r\n", with: "\n")
-            .split(separator: "\n", omittingEmptySubsequences: false)
+        split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
             .map(String.init)
     }
 
