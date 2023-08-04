@@ -16,7 +16,7 @@ paths:
     description: "Even more information about working with pets"
     get:
       summary: List all pets
-      description: "You can fetch all the pets here"
+      description: "You can fetch\r\nall the pets here"
       operationId: listPets
       tags:
         - pets
