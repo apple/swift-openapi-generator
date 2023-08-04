@@ -60,7 +60,8 @@ extension APIProtocol {
 fileprivate extension UniversalServer where APIHandler: APIProtocol {
     /// List all pets
     ///
-    /// You can fetch all the pets here
+    /// You can fetch
+    /// all the pets here
     ///
     /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.

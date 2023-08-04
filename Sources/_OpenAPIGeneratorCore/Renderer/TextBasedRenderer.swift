@@ -54,12 +54,14 @@ struct TextBasedRenderer: RendererProtocol {
             prefix = "// MARK:"
             commentString = string
         }
-        return commentString.transformingLines { line in
-            if line.isEmpty {
-                return prefix
+        return
+            commentString
+            .transformingLines { line in
+                if line.isEmpty {
+                    return prefix
+                }
+                return "\(prefix) \(line)"
             }
-            return "\(prefix) \(line)"
-        }
     }
 
     /// Renders the specified import statements.
@@ -721,7 +723,7 @@ fileprivate extension String {
     /// Returns an array of strings, where each string represents one line
     /// in the current string.
     func asLines() -> [String] {
-        split(separator: "\n", omittingEmptySubsequences: false)
+        split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
             .map(String.init)
     }
 
