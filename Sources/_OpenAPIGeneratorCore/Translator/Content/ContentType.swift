@@ -63,10 +63,10 @@ struct ContentType: Hashable {
     }
 
     /// The underlying raw content type string.
-    private var rawValue: String
+    private let rawValue: String
 
     /// The mapped content type category.
-    private(set) var category: Category
+    let category: Category
 
     /// Creates a new content type by parsing the specified MIME type.
     /// - Parameter rawValue: A MIME type, for example "application/json".
