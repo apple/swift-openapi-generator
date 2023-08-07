@@ -17,103 +17,106 @@ import OpenAPIKit30
 ///
 /// Represents the serialization method of the payload and affects
 /// the generated serialization code.
-enum ContentType: Hashable {
+struct ContentType: Hashable {
 
-    /// A content type for JSON.
-    case json(String)
+    /// The category of a content type.
+    enum Category: Hashable {
 
-    /// A content type for any plain text.
-    case text(String)
+        /// A content type for JSON.
+        case json
 
-    /// A content type for raw binary data.
-    case binary(String)
+        /// A content type for any plain text.
+        case text
+
+        /// A content type for raw binary data.
+        case binary
+
+        /// Creates a category from the provided raw string.
+        ///
+        /// First checks if the provided content type is a JSON, then text,
+        /// and uses binary if none of the two match.
+        /// - Parameter rawValue: A string with the content type to create.
+        init(rawValue: String) {
+            // https://json-schema.org/draft/2020-12/json-schema-core.html#section-4.2
+            if rawValue == "application/json" || rawValue.hasSuffix("+json") {
+                self = .json
+                return
+            }
+            if rawValue.hasPrefix("text/") {
+                self = .text
+                return
+            }
+            self = .binary
+        }
+
+        /// The coding strategy appropriate for this content type.
+        var codingStrategy: CodingStrategy {
+            switch self {
+            case .json:
+                return .json
+            case .text:
+                return .text
+            case .binary:
+                return .binary
+            }
+        }
+    }
+
+    /// The underlying raw content type string.
+    private var rawValue: String
+
+    /// The mapped content type category.
+    private(set) var category: Category
 
     /// Creates a new content type by parsing the specified MIME type.
     /// - Parameter rawValue: A MIME type, for example "application/json".
-    init?(_ rawValue: String) {
-        if rawValue.hasPrefix("application/") && rawValue.hasSuffix("json") {
-            self = .json(rawValue)
-            return
-        }
-        if rawValue.hasPrefix("text/") {
-            self = .text(rawValue)
-            return
-        }
-        self = .binary(rawValue)
+    init(_ rawValue: String) {
+        self.rawValue = rawValue
+        self.category = Category(rawValue: rawValue)
     }
 
     /// Returns the original raw MIME type.
     var rawMIMEType: String {
-        switch self {
-        case .json(let string), .text(let string), .binary(let string):
-            return string
-        }
+        rawValue
     }
 
     /// The header value used when sending a content-type header.
     var headerValueForSending: String {
-        switch self {
-        case .json(let string):
-            // We always encode JSON using JSONEncoder which uses UTF-8.
-            return string + "; charset=utf-8"
-        case .text(let string):
-            return string
-        case .binary(let string):
-            return string
+        guard case .json = category else {
+            return rawValue
         }
+        // We always encode JSON using JSONEncoder which uses UTF-8.
+        return rawValue + "; charset=utf-8"
     }
 
     /// The header value used when validating a content-type header.
     ///
     /// This should be less strict, e.g. not require `charset`.
     var headerValueForValidation: String {
-        switch self {
-        case .json(let string):
-            return string
-        case .text(let string):
-            return string
-        case .binary(let string):
-            return string
-        }
+        rawValue
     }
 
     /// The coding strategy appropriate for this content type.
     var codingStrategy: CodingStrategy {
-        switch self {
-        case .json:
-            return .json
-        case .text:
-            return .text
-        case .binary:
-            return .binary
-        }
+        category.codingStrategy
     }
 
     /// A Boolean value that indicates whether the content type
     /// is a type of JSON.
     var isJSON: Bool {
-        if case .json = self {
-            return true
-        }
-        return false
+        category == .json
     }
 
     /// A Boolean value that indicates whether the content type
     /// is a type of plain text.
     var isText: Bool {
-        if case .text = self {
-            return true
-        }
-        return false
+        category == .text
     }
 
     /// A Boolean value that indicates whether the content type
     /// is just binary data.
     var isBinary: Bool {
-        if case .binary = self {
-            return true
-        }
-        return false
+        category == .binary
     }
 }
 
@@ -122,27 +125,24 @@ extension OpenAPI.ContentType {
     /// A Boolean value that indicates whether the content type
     /// is a type of JSON.
     var isJSON: Bool {
-        guard let contentType = ContentType(typeAndSubtype) else {
-            return false
-        }
-        return contentType.isJSON
+        asGeneratorContentType.isJSON
     }
 
     /// A Boolean value that indicates whether the content type
     /// is a type of plain text.
     var isText: Bool {
-        guard let contentType = ContentType(typeAndSubtype) else {
-            return false
-        }
-        return contentType.isText
+        asGeneratorContentType.isText
     }
 
     /// A Boolean value that indicates whether the content type
     /// is just binary data.
     var isBinary: Bool {
-        guard let contentType = ContentType(typeAndSubtype) else {
-            return false
-        }
-        return contentType.isBinary
+        asGeneratorContentType.isBinary
+    }
+
+    /// Returns the content type wrapped in the generator's representation
+    /// of a content type, as opposed to the one from OpenAPIKit.
+    var asGeneratorContentType: ContentType {
+        ContentType(typeAndSubtype)
     }
 }

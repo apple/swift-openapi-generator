@@ -41,7 +41,7 @@ extension FileTranslator {
                 return swiftSafeName(for: rawMIMEType)
             }
         } else {
-            switch contentType {
+            switch contentType.category {
             case .json:
                 return "json"
             case .text:
