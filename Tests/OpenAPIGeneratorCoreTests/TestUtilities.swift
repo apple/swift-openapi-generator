@@ -189,3 +189,14 @@ func newTypeName(swiftFQName: String, jsonFQName: String) throws -> TypeName {
             .map(TypeName.Component.init)
     )
 }
+
+/// A diagnostic collector that accumulates all received diagnostics into
+/// an array.
+final class AccumulatingDiagnosticCollector: DiagnosticCollector {
+
+    private(set) var diagnostics: [Diagnostic] = []
+
+    func emit(_ diagnostic: Diagnostic) {
+        diagnostics.append(diagnostic)
+    }
+}
