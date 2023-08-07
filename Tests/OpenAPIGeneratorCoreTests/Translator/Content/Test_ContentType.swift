@@ -28,6 +28,7 @@ final class Test_ContentType: Test_Core {
             ("application/octet-stream", .binary),
             ("application/myformat+json", .json),
             ("foo/bar", .binary),
+            ("foo/bar+json", .json),
         ]
         for (rawValue, category) in cases {
             let contentType = ContentType(rawValue)
