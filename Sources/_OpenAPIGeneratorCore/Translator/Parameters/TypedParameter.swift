@@ -192,6 +192,9 @@ extension FileTranslator {
                 .content
                 .contentType
                 .codingStrategy
+
+            // Defaults are defined by the OpenAPI specification:
+            // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#fixed-fields-10
             switch parameter.location {
             case .query, .cookie:
                 style = .form
