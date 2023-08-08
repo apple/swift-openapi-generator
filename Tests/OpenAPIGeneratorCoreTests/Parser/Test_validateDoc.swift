@@ -33,17 +33,16 @@ final class Test_validateDoc: Test_Core {
                 "myImperfectSchema": schemaWithWarnings
             ])
         )
-        XCTAssertNoThrow(
-            try validateDoc(
-                doc,
-                config: .init(
-                    mode: .types,
-                    featureFlags: [
-                        .strictOpenAPIValidation
-                    ]
-                )
+        let diagnostics = try validateDoc(
+            doc,
+            config: .init(
+                mode: .types,
+                featureFlags: [
+                    .strictOpenAPIValidation
+                ]
             )
         )
+        XCTAssertEqual(diagnostics.count, 1)
     }
 
     func testStructuralWarningIsFatal() throws {

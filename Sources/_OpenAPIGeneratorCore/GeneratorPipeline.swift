@@ -106,7 +106,7 @@ public func runGenerator(
 /// ``GeneratorPipeline/run(_:)``.
 func makeGeneratorPipeline(
     parser: any ParserProtocol = YamsParser(),
-    validator: @escaping (ParsedOpenAPIRepresentation, Config) throws -> Void = validateDoc,
+    validator: @escaping (ParsedOpenAPIRepresentation, Config) throws -> [Diagnostic] = validateDoc,
     translator: any TranslatorProtocol = MultiplexTranslator(),
     renderer: any RendererProtocol = TextBasedRenderer(),
     formatter: @escaping (InMemoryOutputFile) throws -> InMemoryOutputFile = { try $0.swiftFormatted },
@@ -125,7 +125,10 @@ func makeGeneratorPipeline(
             },
             postTransitionHooks: [
                 { doc in
-                    try validator(doc, config)
+                    let validationDiagnostics = try validator(doc, config)
+                    for diagnostic in validationDiagnostics {
+                        diagnostics.emit(diagnostic)
+                    }
                     return doc
                 }
             ]

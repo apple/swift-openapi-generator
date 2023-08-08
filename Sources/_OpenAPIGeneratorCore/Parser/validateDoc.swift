@@ -17,9 +17,9 @@
 ///   - doc: The OpenAPI document to validate.
 ///   - config: The generator config.
 /// - Throws: An error if a fatal issue is found.
-func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws {
+func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [Diagnostic] {
     guard config.featureFlags.contains(.strictOpenAPIValidation) else {
-        return
+        return []
     }
     // Run OpenAPIKit's built-in validation.
     // Pass `false` to `strict`, however, because we don't
@@ -30,7 +30,17 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws {
     // block the generator from running.
     // Validation errors continue to be fatal, such as
     // structural issues, like non-unique operationIds, etc.
-    try doc.validate(strict: false)
+    let warnings = try doc.validate(strict: false)
+    let diagnostics: [Diagnostic] = warnings.map { warning in
+        .warning(
+            message: "Validation warning: \(warning.description)",
+            context: [
+                "codingPath": warning.codingPathString ?? "<none>",
+                "contextString": warning.contextString ?? "<none>",
+                "subjectName": warning.subjectName ?? "<none>",
+            ]
+        )
+    }
 
     // Validate that the document is dereferenceable, which
     // catches reference cycles, which we don't yet support.
@@ -55,4 +65,5 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws {
     try components.responses.forEach { schema in
         _ = try schema.value.dereferenced(in: components)
     }
+    return diagnostics
 }
