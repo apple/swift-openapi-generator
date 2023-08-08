@@ -106,6 +106,7 @@ public func runGenerator(
 /// ``GeneratorPipeline/run(_:)``.
 func makeGeneratorPipeline(
     parser: any ParserProtocol = YamsParser(),
+    validator: @escaping (ParsedOpenAPIRepresentation, Config) throws -> [Diagnostic] = validateDoc,
     translator: any TranslatorProtocol = MultiplexTranslator(),
     renderer: any RendererProtocol = TextBasedRenderer(),
     formatter: @escaping (InMemoryOutputFile) throws -> InMemoryOutputFile = { try $0.swiftFormatted },
@@ -124,36 +125,10 @@ func makeGeneratorPipeline(
             },
             postTransitionHooks: [
                 { doc in
-
-                    if config.featureFlags.contains(.strictOpenAPIValidation) {
-                        // Run OpenAPIKit's built-in validation.
-                        try doc.validate()
-
-                        // Validate that the document is dereferenceable, which
-                        // catches reference cycles, which we don't yet support.
-                        _ = try doc.locallyDereferenced()
-
-                        // Also explicitly dereference the parts of components
-                        // that the generator uses. `locallyDereferenced()` above
-                        // only dereferences paths/operations, but not components.
-                        let components = doc.components
-                        try components.schemas.forEach { schema in
-                            _ = try schema.value.dereferenced(in: components)
-                        }
-                        try components.parameters.forEach { schema in
-                            _ = try schema.value.dereferenced(in: components)
-                        }
-                        try components.headers.forEach { schema in
-                            _ = try schema.value.dereferenced(in: components)
-                        }
-                        try components.requestBodies.forEach { schema in
-                            _ = try schema.value.dereferenced(in: components)
-                        }
-                        try components.responses.forEach { schema in
-                            _ = try schema.value.dereferenced(in: components)
-                        }
+                    let validationDiagnostics = try validator(doc, config)
+                    for diagnostic in validationDiagnostics {
+                        diagnostics.emit(diagnostic)
                     }
-
                     return doc
                 }
             ]
