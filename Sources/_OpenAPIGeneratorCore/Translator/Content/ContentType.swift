@@ -20,15 +20,29 @@ import OpenAPIKit30
 struct ContentType: Hashable {
 
     /// The category of a content type.
+    ///
+    /// This categorization helps the generator decide how to handle
+    /// the content's raw body data.
     enum Category: Hashable {
 
         /// A content type for JSON.
+        ///
+        /// The bytes are provided to a JSON encoder or decoder.
         case json
 
         /// A content type for any plain text.
+        ///
+        /// The bytes are encoded or decoded as a UTF-8 string.
         case text
 
         /// A content type for raw binary data.
+        ///
+        /// This case covers both explicit binary data content types, such
+        /// as `application/octet-stream`, and content types that no further
+        /// introspection is performed on, such as `image/png`.
+        ///
+        /// The bytes are not further processed, they are instead passed along
+        /// either to the network (requests) or to the caller (responses).
         case binary
 
         /// Creates a category from the provided type and subtype.
