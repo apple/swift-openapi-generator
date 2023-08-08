@@ -54,6 +54,10 @@ class Test_Core: XCTestCase {
         )
     }
 
+    func loadSchemaFromYAML(_ yamlString: String) throws -> JSONSchema {
+        try YAMLDecoder().decode(JSONSchema.self, from: yamlString)
+    }
+
     static var testTypeName: TypeName {
         .init(swiftKeyPath: ["Foo"])
     }
