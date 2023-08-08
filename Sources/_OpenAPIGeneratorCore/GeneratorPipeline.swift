@@ -127,7 +127,15 @@ func makeGeneratorPipeline(
 
                     if config.featureFlags.contains(.strictOpenAPIValidation) {
                         // Run OpenAPIKit's built-in validation.
-                        try doc.validate()
+                        // Pass `false` to `strict`, however, because we don't
+                        // want to turn schema loading warnings into errors.
+                        // We already propagate the warnings to the generator's
+                        // diagnostics, so they get surfaced to the user.
+                        // But the warnings are often too strict and should not
+                        // block the generator from running.
+                        // Validation errors continue to be fatal, such as
+                        // structural issues, like non-unique operationIds, etc.
+                        try doc.validate(strict: false)
 
                         // Validate that the document is dereferenceable, which
                         // catches reference cycles, which we don't yet support.
