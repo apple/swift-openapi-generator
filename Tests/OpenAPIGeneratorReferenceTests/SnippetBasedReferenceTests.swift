@@ -969,6 +969,142 @@ final class SnippetBasedReferenceTests: XCTestCase {
             XCTAssert(error is DecodingError)
         }
     }
+
+    func testRequestWithQueryItems() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                parameters:
+                  - name: single
+                    in: query
+                    schema:
+                      type: string
+                  - name: manyExploded
+                    in: query
+                    explode: true
+                    schema:
+                      type: array
+                      items:
+                        type: string
+                  - name: manyUnexploded
+                    in: query
+                    explode: false
+                    schema:
+                      type: array
+                      items:
+                        type: string
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Equatable, Hashable {
+                    public struct Path: Sendable, Equatable, Hashable { public init() {} }
+                    public var path: Operations.get_foo.Input.Path
+                    public struct Query: Sendable, Equatable, Hashable {
+                        public var single: Swift.String?
+                        public var manyExploded: [Swift.String]?
+                        public var manyUnexploded: [Swift.String]?
+                        public init(
+                            single: Swift.String? = nil,
+                            manyExploded: [Swift.String]? = nil,
+                            manyUnexploded: [Swift.String]? = nil
+                        ) {
+                            self.single = single
+                            self.manyExploded = manyExploded
+                            self.manyUnexploded = manyUnexploded
+                        }
+                    }
+                    public var query: Operations.get_foo.Input.Query
+                    public struct Headers: Sendable, Equatable, Hashable { public init() {} }
+                    public var headers: Operations.get_foo.Input.Headers
+                    public struct Cookies: Sendable, Equatable, Hashable { public init() {} }
+                    public var cookies: Operations.get_foo.Input.Cookies
+                    @frozen public enum Body: Sendable, Equatable, Hashable {}
+                    public var body: Operations.get_foo.Input.Body?
+                    public init(
+                        path: Operations.get_foo.Input.Path = .init(),
+                        query: Operations.get_foo.Input.Query = .init(),
+                        headers: Operations.get_foo.Input.Headers = .init(),
+                        cookies: Operations.get_foo.Input.Cookies = .init(),
+                        body: Operations.get_foo.Input.Body? = nil
+                    ) {
+                        self.path = path
+                        self.query = query
+                        self.headers = headers
+                        self.cookies = cookies
+                        self.body = body
+                    }
+                }
+                """,
+            client: """
+                { input in let path = try converter.renderedRequestPath(template: "/foo", parameters: [])
+                    var request: OpenAPIRuntime.Request = .init(path: path, method: .get)
+                    suppressMutabilityWarning(&request)
+                    try converter.setQueryItemAsText(
+                        in: &request,
+                        style: .form,
+                        explode: true,
+                        name: "single",
+                        value: input.query.single
+                    )
+                    try converter.setQueryItemAsText(
+                        in: &request,
+                        style: .form,
+                        explode: true,
+                        name: "manyExploded",
+                        value: input.query.manyExploded
+                    )
+                    try converter.setQueryItemAsText(
+                        in: &request,
+                        style: .form,
+                        explode: false,
+                        name: "manyUnexploded",
+                        value: input.query.manyUnexploded
+                    )
+                    return request
+                }
+                """,
+            server: """
+                { request, metadata in let path: Operations.get_foo.Input.Path = .init()
+                    let query: Operations.get_foo.Input.Query = .init(
+                        single: try converter.getOptionalQueryItemAsText(
+                            in: metadata.queryParameters,
+                            style: .form,
+                            explode: true,
+                            name: "single",
+                            as: Swift.String.self
+                        ),
+                        manyExploded: try converter.getOptionalQueryItemAsText(
+                            in: metadata.queryParameters,
+                            style: .form,
+                            explode: true,
+                            name: "manyExploded",
+                            as: [Swift.String].self
+                        ),
+                        manyUnexploded: try converter.getOptionalQueryItemAsText(
+                            in: metadata.queryParameters,
+                            style: .form,
+                            explode: false,
+                            name: "manyUnexploded",
+                            as: [Swift.String].self
+                        )
+                    )
+                    let headers: Operations.get_foo.Input.Headers = .init()
+                    let cookies: Operations.get_foo.Input.Cookies = .init()
+                    return Operations.get_foo.Input(
+                        path: path,
+                        query: query,
+                        headers: headers,
+                        cookies: cookies,
+                        body: nil
+                    )
+                }
+                """
+        )
+    }
+
 }
 
 extension SnippetBasedReferenceTests {
@@ -994,6 +1130,31 @@ extension SnippetBasedReferenceTests {
         )
     }
 
+    func makeTranslators(
+        components: OpenAPI.Components = .noComponents,
+        featureFlags: FeatureFlags = [],
+        ignoredDiagnosticMessages: Set<String> = []
+    ) throws -> (TypesFileTranslator, ClientFileTranslator, ServerFileTranslator) {
+        let collector = XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages)
+        return (
+            TypesFileTranslator(
+                config: Config(mode: .types, featureFlags: featureFlags),
+                diagnostics: collector,
+                components: components
+            ),
+            ClientFileTranslator(
+                config: Config(mode: .client, featureFlags: featureFlags),
+                diagnostics: collector,
+                components: components
+            ),
+            ServerFileTranslator(
+                config: Config(mode: .server, featureFlags: featureFlags),
+                diagnostics: collector,
+                components: components
+            )
+        )
+    }
+
     func assertHeadersTranslation(
         _ componentsYAML: String,
         _ expectedSwift: String,
@@ -1014,6 +1175,45 @@ extension SnippetBasedReferenceTests {
         let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
         let translation = try translator.translateComponentParameters(translator.components.parameters)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
+    }
+
+    func assertRequestInTypesClientServerTranslation(
+        _ pathsYAML: String,
+        _ componentsYAML: String? = nil,
+        types expectedTypesSwift: String,
+        client expectedClientSwift: String,
+        server expectedServerSwift: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        continueAfterFailure = false
+        let (types, client, server) = try makeTranslators()
+        let components =
+            try componentsYAML.flatMap { componentsYAML in
+                try YAMLDecoder().decode(OpenAPI.Components.self, from: componentsYAML)
+            } ?? OpenAPI.Components.noComponents
+        let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
+        let document = OpenAPI.Document(
+            openAPIVersion: .v3_0_3,
+            info: .init(title: "Test", version: "1.0.0"),
+            servers: [],
+            paths: paths,
+            components: components
+        )
+        let operationDescriptions = try OperationDescription.all(
+            from: document.paths,
+            in: document.components,
+            asSwiftSafeName: types.swiftSafeName
+        )
+        let operation = try XCTUnwrap(operationDescriptions.first)
+        let generatedTypesStructuredSwift = try types.translateOperationInput(operation)
+        try XCTAssertSwiftEquivalent(generatedTypesStructuredSwift, expectedTypesSwift, file: file, line: line)
+
+        let generatedClientStructuredSwift = try client.translateClientSerializer(operation)
+        try XCTAssertSwiftEquivalent(generatedClientStructuredSwift, expectedClientSwift, file: file, line: line)
+
+        let generatedServerStructuredSwift = try server.translateServerDeserializer(operation)
+        try XCTAssertSwiftEquivalent(generatedServerStructuredSwift, expectedServerSwift, file: file, line: line)
     }
 
     func assertSchemasTranslation(
@@ -1100,6 +1300,34 @@ private func XCTAssertSwiftEquivalent(
 ) throws {
     try XCTAssertEqualWithDiff(
         TextBasedRenderer().renderedDeclaration(declaration.strippingComments).swiftFormatted,
+        expectedSwift.swiftFormatted,
+        file: file,
+        line: line
+    )
+}
+
+private func XCTAssertSwiftEquivalent(
+    _ codeBlock: CodeBlock,
+    _ expectedSwift: String,
+    file: StaticString = #filePath,
+    line: UInt = #line
+) throws {
+    try XCTAssertEqualWithDiff(
+        TextBasedRenderer().renderedCodeBlock(codeBlock).swiftFormatted,
+        expectedSwift.swiftFormatted,
+        file: file,
+        line: line
+    )
+}
+
+private func XCTAssertSwiftEquivalent(
+    _ expression: Expression,
+    _ expectedSwift: String,
+    file: StaticString = #filePath,
+    line: UInt = #line
+) throws {
+    try XCTAssertEqualWithDiff(
+        TextBasedRenderer().renderedExpression(expression).swiftFormatted,
         expectedSwift.swiftFormatted,
         file: file,
         line: line

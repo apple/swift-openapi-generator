@@ -52,16 +52,22 @@ public struct Client: APIProtocol {
                 suppressMutabilityWarning(&request)
                 try converter.setQueryItemAsText(
                     in: &request,
+                    style: .form,
+                    explode: true,
                     name: "limit",
                     value: input.query.limit
                 )
                 try converter.setQueryItemAsText(
                     in: &request,
+                    style: .form,
+                    explode: true,
                     name: "habitat",
                     value: input.query.habitat
                 )
                 try converter.setQueryItemAsText(
                     in: &request,
+                    style: .form,
+                    explode: true,
                     name: "feeds",
                     value: input.query.feeds
                 )
@@ -72,6 +78,8 @@ public struct Client: APIProtocol {
                 )
                 try converter.setQueryItemAsText(
                     in: &request,
+                    style: .form,
+                    explode: true,
                     name: "since",
                     value: input.query.since
                 )

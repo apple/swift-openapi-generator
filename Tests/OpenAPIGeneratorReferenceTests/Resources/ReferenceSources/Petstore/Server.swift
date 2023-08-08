@@ -87,21 +87,29 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let query: Operations.listPets.Input.Query = .init(
                     limit: try converter.getOptionalQueryItemAsText(
                         in: metadata.queryParameters,
+                        style: .form,
+                        explode: true,
                         name: "limit",
                         as: Swift.Int32.self
                     ),
                     habitat: try converter.getOptionalQueryItemAsText(
                         in: metadata.queryParameters,
+                        style: .form,
+                        explode: true,
                         name: "habitat",
                         as: Operations.listPets.Input.Query.habitatPayload.self
                     ),
                     feeds: try converter.getOptionalQueryItemAsText(
                         in: metadata.queryParameters,
+                        style: .form,
+                        explode: true,
                         name: "feeds",
                         as: Operations.listPets.Input.Query.feedsPayload.self
                     ),
                     since: try converter.getOptionalQueryItemAsText(
                         in: metadata.queryParameters,
+                        style: .form,
+                        explode: true,
                         name: "since",
                         as: Components.Parameters.query_born_since.self
                     )

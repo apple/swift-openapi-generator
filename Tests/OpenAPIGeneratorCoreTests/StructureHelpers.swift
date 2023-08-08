@@ -156,13 +156,15 @@ extension Declaration {
 extension LiteralDescription {
     var name: String {
         switch self {
-        case .string(_):
+        case .string:
             return "string"
-        case .int(_):
+        case .int:
             return "int"
+        case .bool:
+            return "bool"
         case .nil:
             return "nil"
-        case .array(_):
+        case .array:
             return "array"
         }
     }

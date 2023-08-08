@@ -81,7 +81,7 @@ Supported features are always provided on _both_ client and server.
 - [x] requestBody
 - [x] responses
 - [ ] callbacks
-- [ ] deprecated
+- [x] deprecated
 - [ ] security
 - [ ] servers
 
@@ -162,7 +162,7 @@ Supported features are always provided on _both_ client and server.
 - [ ] xml
 - [ ] externalDocs
 - [ ] example
-- [ ] deprecated
+- [x] deprecated
 
 #### External Documentation Object
 
@@ -196,15 +196,15 @@ Supported features are always provided on _both_ client and server.
 - [x] in
 - [x] description
 - [x] required
-- [ ] deprecated
+- [x] deprecated
 - [ ] allowEmptyValue
-- [x] style (not all)
-- [x] explode (only explode: `true`)
+- [x] style (only defaults)
+- [x] explode (non default only for query items)
 - [ ] allowReserved
 - [x] schema
 - [ ] example
 - [ ] examples
-- [ ] content
+- [x] content (chooses one from the map)
 
 #### Style Values
 
@@ -223,7 +223,7 @@ Supported features are always provided on _both_ client and server.
 
 Supported location + styles + exploded combinations:
 - path + simple + false
-- query + form + true
+- query + form + true/false
 - header + simple + false
 
 #### Reference Object

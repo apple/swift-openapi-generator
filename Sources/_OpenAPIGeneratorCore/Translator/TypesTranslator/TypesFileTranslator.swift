@@ -48,7 +48,7 @@ struct TypesFileTranslator: FileTranslator {
         let components = try translateComponents(doc.components)
 
         let operationDescriptions = try OperationDescription.all(
-            from: parsedOpenAPI.paths,
+            from: doc.paths,
             in: doc.components,
             asSwiftSafeName: swiftSafeName
         )
