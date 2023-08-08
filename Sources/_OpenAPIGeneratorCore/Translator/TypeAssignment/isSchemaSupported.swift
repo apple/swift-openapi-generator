@@ -141,7 +141,7 @@ extension FileTranslator {
                     schema: schema
                 )
             }
-            return try areObjectishSchemasAndSupported(schemas)
+            return try areSchemasSupported(schemas)
         case .any(of: let schemas, _):
             guard !schemas.isEmpty else {
                 return .unsupported(
@@ -149,7 +149,7 @@ extension FileTranslator {
                     schema: schema
                 )
             }
-            return try areObjectishSchemasAndSupported(schemas)
+            return try areSchemasSupported(schemas)
         case .one(of: let schemas, let context):
             guard !schemas.isEmpty else {
                 return .unsupported(
@@ -206,20 +206,6 @@ extension FileTranslator {
         return .supported
     }
 
-    /// Returns a result indicating whether the provided schemas
-    /// are reference, object, or allOf schemas and supported.
-    /// - Parameter schemas: Schemas to check.
-    /// - Returns: `.supported` if all schemas match; `.unsupported` otherwise.
-    func areObjectishSchemasAndSupported(_ schemas: [JSONSchema]) throws -> IsSchemaSupportedResult {
-        for schema in schemas {
-            let result = try isObjectishSchemaAndSupported(schema)
-            guard result == .supported else {
-                return result
-            }
-        }
-        return .supported
-    }
-
     /// Returns a result indicating whether the provided schema
     /// is an reference, object, or allOf (object-ish) schema and is supported.
     /// - Parameter schema: A schemas to check.
@@ -228,7 +214,7 @@ extension FileTranslator {
         case .object, .reference:
             return try isSchemaSupported(schema)
         case .all(of: let schemas, _):
-            return try areObjectishSchemasAndSupported(schemas)
+            return try areSchemasSupported(schemas)
         default:
             return .unsupported(
                 reason: .notObjectish,
