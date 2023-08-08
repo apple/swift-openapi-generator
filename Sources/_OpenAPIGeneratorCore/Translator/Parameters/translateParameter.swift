@@ -116,19 +116,31 @@ extension ClientFileTranslator {
     ) throws -> Expression? {
         let methodPrefix: String
         let containerExpr: Expression
+        let supportsStyleAndExplode: Bool
         switch parameter.location {
         case .header:
             methodPrefix = "HeaderField"
             containerExpr = .identifier(requestVariableName).dot("headerFields")
+            supportsStyleAndExplode = false
         case .query:
             methodPrefix = "QueryItem"
             containerExpr = .identifier(requestVariableName)
+            supportsStyleAndExplode = true
         default:
             diagnostics.emitUnsupported(
                 "Parameter of type \(parameter.location.rawValue)",
                 foundIn: parameter.description
             )
             return nil
+        }
+        let styleAndExplodeArgs: [FunctionArgumentDescription]
+        if supportsStyleAndExplode {
+            styleAndExplodeArgs = [
+                .init(label: "style", expression: .dot(parameter.style.runtimeName)),
+                .init(label: "explode", expression: .literal(.bool(parameter.explode))),
+            ]
+        } else {
+            styleAndExplodeArgs = []
         }
         return .try(
             .identifier("converter")
@@ -138,7 +150,8 @@ extension ClientFileTranslator {
                         .init(
                             label: "in",
                             expression: .inOut(containerExpr)
-                        ),
+                        )
+                    ] + styleAndExplodeArgs + [
                         .init(label: "name", expression: .literal(parameter.name)),
                         .init(
                             label: "value",
@@ -194,6 +207,8 @@ extension ServerFileTranslator {
                 .identifier("converter").dot(methodName("QueryItem"))
                     .call([
                         .init(label: "in", expression: .identifier("metadata").dot("queryParameters")),
+                        .init(label: "style", expression: .dot(typedParameter.style.runtimeName)),
+                        .init(label: "explode", expression: .literal(.bool(typedParameter.explode))),
                         .init(label: "name", expression: .literal(parameter.name)),
                         .init(
                             label: "as",

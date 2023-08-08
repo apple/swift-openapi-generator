@@ -299,6 +299,13 @@ enum Constants {
 
             /// The name of the namespace.
             static let namespace: String = "Parameters"
+
+            /// Maps to `OpenAPIRuntime.ParameterStyle`.
+            enum Style {
+
+                /// The form style.
+                static let form = "form"
+            }
         }
 
         /// Constants related to the Headers namespace.

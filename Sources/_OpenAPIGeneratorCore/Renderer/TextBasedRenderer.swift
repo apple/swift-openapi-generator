@@ -316,6 +316,8 @@ struct TextBasedRenderer: RendererProtocol {
             return "\"\(string)\""
         case let .int(int):
             return "\(int)"
+        case let .bool(bool):
+            return bool ? "true" : "false"
         case .nil:
             return "nil"
         case .array(let items):
