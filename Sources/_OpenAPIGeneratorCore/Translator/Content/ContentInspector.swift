@@ -162,9 +162,8 @@ extension FileTranslator {
             )
         }
         let chosenContent: (SchemaContent, OpenAPI.Content)?
-        if let (contentKey, contentValue) = map.first(where: { $0.key.isJSON }),
+        if let (contentKey, contentValue) = map.first(where: { $0.key.isJSON }) {
             let contentType = ContentType(contentKey.typeAndSubtype)
-        {
             chosenContent = (
                 .init(
                     contentType: contentType,
@@ -172,9 +171,8 @@ extension FileTranslator {
                 ),
                 contentValue
             )
-        } else if let (contentKey, contentValue) = map.first(where: { $0.key.isText }),
+        } else if let (contentKey, contentValue) = map.first(where: { $0.key.isText }) {
             let contentType = ContentType(contentKey.typeAndSubtype)
-        {
             chosenContent = (
                 .init(
                     contentType: contentType,
@@ -182,10 +180,8 @@ extension FileTranslator {
                 ),
                 contentValue
             )
-        } else if !excludeBinary,
-            let (contentKey, contentValue) = map.first(where: { $0.key.isBinary }),
+        } else if !excludeBinary, let (contentKey, contentValue) = map.first(where: { $0.key.isBinary }) {
             let contentType = ContentType(contentKey.typeAndSubtype)
-        {
             chosenContent = (
                 .init(
                     contentType: contentType,
@@ -201,12 +197,14 @@ extension FileTranslator {
             chosenContent = nil
         }
         if let chosenContent {
-            let rawMIMEType = chosenContent.0.contentType.rawMIMEType
-            if rawMIMEType.hasPrefix("multipart/") || rawMIMEType.contains("application/x-www-form-urlencoded") {
+            let contentType = chosenContent.0.contentType
+            if contentType.lowercasedType == "multipart"
+                || contentType.lowercasedTypeAndSubtype.contains("application/x-www-form-urlencoded")
+            {
                 diagnostics.emitUnsupportedIfNotNil(
                     chosenContent.1.encoding,
                     "Custom encoding for JSON content",
-                    foundIn: "\(foundIn), content \(rawMIMEType)"
+                    foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
                 )
             }
         }
@@ -234,9 +232,8 @@ extension FileTranslator {
         excludeBinary: Bool = false,
         foundIn: String
     ) -> SchemaContent? {
-        if contentKey.isJSON,
+        if contentKey.isJSON {
             let contentType = ContentType(contentKey.typeAndSubtype)
-        {
             diagnostics.emitUnsupportedIfNotNil(
                 contentValue.encoding,
                 "Custom encoding for JSON content",
@@ -247,18 +244,15 @@ extension FileTranslator {
                 schema: contentValue.schema
             )
         }
-        if contentKey.isText,
+        if contentKey.isText {
             let contentType = ContentType(contentKey.typeAndSubtype)
-        {
             return .init(
                 contentType: contentType,
                 schema: .b(.string)
             )
         }
-        if !excludeBinary,
-            contentKey.isBinary,
+        if !excludeBinary, contentKey.isBinary {
             let contentType = ContentType(contentKey.typeAndSubtype)
-        {
             return .init(
                 contentType: contentType,
                 schema: .b(.string(format: .binary))
