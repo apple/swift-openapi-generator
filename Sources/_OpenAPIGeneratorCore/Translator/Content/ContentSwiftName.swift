@@ -27,7 +27,7 @@ extension FileTranslator {
             case "application/x-www-form-urlencoded":
                 return "urlEncodedForm"
             case "multipart/form-data":
-                return "formData"
+                return "multipartForm"
             case "text/plain":
                 return "plainText"
             case "*/*":

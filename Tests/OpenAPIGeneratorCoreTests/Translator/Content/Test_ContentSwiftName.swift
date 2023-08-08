@@ -43,7 +43,7 @@ final class Test_ContentSwiftName: Test_Core {
             // Short names.
             ("application/json", "json"),
             ("application/x-www-form-urlencoded", "urlEncodedForm"),
-            ("multipart/form-data", "formData"),
+            ("multipart/form-data", "multipartForm"),
             ("text/plain", "plainText"),
             ("*/*", "any"),
             ("application/xml", "xml"),
