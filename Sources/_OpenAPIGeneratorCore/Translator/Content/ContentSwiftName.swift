@@ -21,7 +21,7 @@ extension FileTranslator {
     /// - Parameter contentType: The content type for which to compute the name.
     func contentSwiftName(_ contentType: ContentType) -> String {
         if config.featureFlags.contains(.multipleContentTypes) {
-            let rawMIMEType = contentType.rawMIMEType
+            let rawMIMEType = contentType.lowercasedTypeAndSubtype
             switch rawMIMEType {
             case "application/json":
                 return "json"
@@ -41,7 +41,7 @@ extension FileTranslator {
                 return swiftSafeName(for: rawMIMEType)
             }
         } else {
-            switch contentType {
+            switch contentType.category {
             case .json:
                 return "json"
             case .text:

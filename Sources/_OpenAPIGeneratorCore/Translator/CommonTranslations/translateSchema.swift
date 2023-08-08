@@ -74,6 +74,20 @@ extension FileTranslator {
 
         let value = schema.value
 
+        // Attach any warnings from the parsed schema as a diagnostic.
+        for warning in schema.warnings {
+            diagnostics.emit(
+                .warning(
+                    message: "Schema warning: \(warning.description)",
+                    context: [
+                        "codingPath": warning.codingPathString ?? "<none>",
+                        "contextString": warning.contextString ?? "<none>",
+                        "subjectName": warning.subjectName ?? "<none>",
+                    ]
+                )
+            )
+        }
+
         // If this type maps to a referenceable schema, define a typealias
         if let builtinType = try typeMatcher.tryMatchReferenceableType(for: schema) {
             let typealiasDecl = try translateTypealias(
