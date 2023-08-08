@@ -45,4 +45,36 @@ final class Test_validateDoc: Test_Core {
             )
         )
     }
+
+    func testStructuralWarningIsFatal() throws {
+        let doc = OpenAPI.Document(
+            info: .init(title: "Test", version: "1.0.0"),
+            servers: [],
+            paths: [
+                "/foo": .b(
+                    .init(
+                        get: .init(
+                            requestBody: nil,
+
+                            // Fatal error: missing at least one response.
+                            responses: [:]
+                        )
+                    )
+                )
+            ],
+            components: .noComponents
+        )
+        XCTAssertThrowsError(
+            try validateDoc(
+                doc,
+                config: .init(
+                    mode: .types,
+                    featureFlags: [
+                        .strictOpenAPIValidation
+                    ]
+                )
+            )
+        )
+    }
+
 }
