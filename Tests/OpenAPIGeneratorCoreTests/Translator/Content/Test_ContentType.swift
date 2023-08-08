@@ -18,22 +18,126 @@ import OpenAPIKit30
 final class Test_ContentType: Test_Core {
 
     func testDecoding() throws {
-        let cases: [(String, ContentType.Category)] = [
-            ("application/json", .json),
-            ("application/x-www-form-urlencoded", .binary),
-            ("multipart/form-data", .binary),
-            ("text/plain", .text),
-            ("*/*", .binary),
-            ("application/xml", .binary),
-            ("application/octet-stream", .binary),
-            ("application/myformat+json", .json),
-            ("foo/bar", .binary),
-            ("foo/bar+json", .json),
-        ]
-        for (rawValue, category) in cases {
+        let cases:
+            [(
+                input: String,
+                category: ContentType.Category,
+                type: String,
+                subtype: String,
+                lowercasedOutput: String,
+                originallyCasedOutput: String
+            )] = [
+                (
+                    "application/json",
+                    .json,
+                    "application",
+                    "json",
+                    "application/json",
+                    "application/json"
+                ),
+                (
+                    "APPLICATION/JSON",
+                    .json,
+                    "application",
+                    "json",
+                    "application/json",
+                    "APPLICATION/JSON"
+                ),
+                (
+                    "application/json; charset=utf-8",
+                    .json,
+                    "application",
+                    "json",
+                    "application/json",
+                    "application/json"
+                ),
+                (
+                    "application/x-www-form-urlencoded",
+                    .binary,
+                    "application",
+                    "x-www-form-urlencoded",
+                    "application/x-www-form-urlencoded",
+                    "application/x-www-form-urlencoded"
+                ),
+                (
+                    "multipart/form-data",
+                    .binary,
+                    "multipart",
+                    "form-data",
+                    "multipart/form-data",
+                    "multipart/form-data"
+                ),
+                (
+                    "text/plain",
+                    .text,
+                    "text",
+                    "plain",
+                    "text/plain",
+                    "text/plain"
+                ),
+                (
+                    "*/*",
+                    .binary,
+                    "*",
+                    "*",
+                    "*/*",
+                    "*/*"
+                ),
+                (
+                    "application/xml",
+                    .binary,
+                    "application",
+                    "xml",
+                    "application/xml",
+                    "application/xml"
+                ),
+                (
+                    "application/octet-stream",
+                    .binary,
+                    "application",
+                    "octet-stream",
+                    "application/octet-stream",
+                    "application/octet-stream"
+                ),
+                (
+                    "application/myformat+json",
+                    .json,
+                    "application",
+                    "myformat+json",
+                    "application/myformat+json",
+                    "application/myformat+json"
+                ),
+                (
+                    "foo/bar",
+                    .binary,
+                    "foo",
+                    "bar",
+                    "foo/bar",
+                    "foo/bar"
+                ),
+                (
+                    "foo/bar+json",
+                    .json,
+                    "foo",
+                    "bar+json",
+                    "foo/bar+json",
+                    "foo/bar+json"
+                ),
+            ]
+        for (
+            rawValue,
+            category,
+            type,
+            subtype,
+            lowercasedTypeAndSubtype,
+            originallyCasedTypeAndSubtype
+        ) in cases {
             let contentType = ContentType(rawValue)
             XCTAssertEqual(contentType.category, category)
-            XCTAssertEqual(contentType.rawMIMEType, rawValue)
+            XCTAssertEqual(contentType.lowercasedType, type)
+            XCTAssertEqual(contentType.lowercasedSubtype, subtype)
+            XCTAssertEqual(contentType.lowercasedTypeAndSubtype, lowercasedTypeAndSubtype)
+            XCTAssertEqual(contentType.originallyCasedTypeAndSubtype, originallyCasedTypeAndSubtype)
         }
     }
 }

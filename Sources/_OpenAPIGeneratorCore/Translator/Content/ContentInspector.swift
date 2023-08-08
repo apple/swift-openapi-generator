@@ -197,12 +197,14 @@ extension FileTranslator {
             chosenContent = nil
         }
         if let chosenContent {
-            let rawMIMEType = chosenContent.0.contentType.rawMIMEType
-            if rawMIMEType.hasPrefix("multipart/") || rawMIMEType.contains("application/x-www-form-urlencoded") {
+            let contentType = chosenContent.0.contentType
+            if contentType.lowercasedType == "multipart"
+                || contentType.lowercasedTypeAndSubtype.contains("application/x-www-form-urlencoded")
+            {
                 diagnostics.emitUnsupportedIfNotNil(
                     chosenContent.1.encoding,
                     "Custom encoding for JSON content",
-                    foundIn: "\(foundIn), content \(rawMIMEType)"
+                    foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
                 )
             }
         }

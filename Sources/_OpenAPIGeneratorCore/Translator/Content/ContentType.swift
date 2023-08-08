@@ -31,22 +31,26 @@ struct ContentType: Hashable {
         /// A content type for raw binary data.
         case binary
 
-        /// Creates a category from the provided raw string.
+        /// Creates a category from the provided type and subtype.
         ///
         /// First checks if the provided content type is a JSON, then text,
         /// and uses binary if none of the two match.
-        /// - Parameter rawValue: A string with the content type to create.
-        init(rawValue: String) {
+        /// - Parameters:
+        ///   - type: The first component of the MIME type.
+        ///   - subtype: The second component of the MIME type.
+        init(type: String, subtype: String) {
+            let lowercasedType = type.lowercased()
+            let lowercasedSubtype = subtype.lowercased()
+
             // https://json-schema.org/draft/2020-12/json-schema-core.html#section-4.2
-            if rawValue == "application/json" || rawValue.hasSuffix("+json") {
+            if (lowercasedType == "application" && lowercasedSubtype == "json") || lowercasedSubtype.hasSuffix("+json")
+            {
                 self = .json
-                return
-            }
-            if rawValue.hasPrefix("text/") {
+            } else if lowercasedType == "text" {
                 self = .text
-                return
+            } else {
+                self = .binary
             }
-            self = .binary
         }
 
         /// The coding strategy appropriate for this content type.
@@ -62,38 +66,80 @@ struct ContentType: Hashable {
         }
     }
 
-    /// The underlying raw content type string.
-    private let rawValue: String
-
     /// The mapped content type category.
-    let category: Category
-
-    /// Creates a new content type by parsing the specified MIME type.
-    /// - Parameter rawValue: A MIME type, for example "application/json".
-    init(_ rawValue: String) {
-        self.rawValue = rawValue
-        self.category = Category(rawValue: rawValue)
+    var category: Category {
+        Category(type: type, subtype: subtype)
     }
 
-    /// Returns the original raw MIME type.
-    var rawMIMEType: String {
-        rawValue
+    /// The first component of the MIME type.
+    private let type: String
+
+    /// The first component of the MIME type, as a lowercase string.
+    ///
+    /// The raw value in its original casing is only provided by `rawTypeAndSubtype`.
+    var lowercasedType: String {
+        type.lowercased()
+    }
+
+    /// The second component of the MIME type.
+    private let subtype: String
+
+    /// The second component of the MIME type, as a lowercase string.
+    ///
+    /// The raw value in its original casing is only provided by `originallyCasedTypeAndSubtype`.
+    var lowercasedSubtype: String {
+        subtype.lowercased()
+    }
+
+    /// Creates a new content type by parsing the specified MIME type.
+    /// - Parameter rawValue: A MIME type, for example "application/json". Must
+    ///   not be empty.
+    init(_ rawValue: String) {
+        precondition(!rawValue.isEmpty, "rawValue of a ContentType cannot be empty.")
+        let rawTypeAndSubtype =
+            rawValue
+            .split(separator: ";")[0]
+            .trimmingCharacters(in: .whitespaces)
+        let typeAndSubtype =
+            rawTypeAndSubtype
+            .split(separator: "/")
+            .map(String.init)
+        precondition(
+            typeAndSubtype.count == 2,
+            "Invalid ContentType string, must have 2 components separated by a slash."
+        )
+        self.type = typeAndSubtype[0]
+        self.subtype = typeAndSubtype[1]
+    }
+
+    /// Returns the type and subtype as a "<type>/<subtype>" string.
+    ///
+    /// Respects the original casing provided as input.
+    var originallyCasedTypeAndSubtype: String {
+        "\(type)/\(subtype)"
+    }
+
+    /// Returns the type and subtype as a "<type>/<subtype>" string.
+    ///
+    /// Lowercased to ease case-insensitive comparisons.
+    var lowercasedTypeAndSubtype: String {
+        "\(lowercasedType)/\(lowercasedSubtype)"
     }
 
     /// The header value used when sending a content-type header.
     var headerValueForSending: String {
         guard case .json = category else {
-            return rawValue
+            return lowercasedTypeAndSubtype
         }
         // We always encode JSON using JSONEncoder which uses UTF-8.
-        return rawValue + "; charset=utf-8"
+        return lowercasedTypeAndSubtype + "; charset=utf-8"
     }
 
     /// The header value used when validating a content-type header.
     ///
     /// This should be less strict, e.g. not require `charset`.
     var headerValueForValidation: String {
-        rawValue
+        lowercasedTypeAndSubtype
     }
 
     /// The coding strategy appropriate for this content type.
@@ -117,6 +163,15 @@ struct ContentType: Hashable {
     /// is just binary data.
     var isBinary: Bool {
         category == .binary
+    }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        // MIME type equality is case-insensitive.
+        lhs.lowercasedTypeAndSubtype == rhs.lowercasedTypeAndSubtype
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(lowercasedTypeAndSubtype)
     }
 }
 
