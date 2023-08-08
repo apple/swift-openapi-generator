@@ -106,6 +106,7 @@ public func runGenerator(
 /// ``GeneratorPipeline/run(_:)``.
 func makeGeneratorPipeline(
     parser: any ParserProtocol = YamsParser(),
+    validator: @escaping (ParsedOpenAPIRepresentation, Config) throws -> Void = validateDoc,
     translator: any TranslatorProtocol = MultiplexTranslator(),
     renderer: any RendererProtocol = TextBasedRenderer(),
     formatter: @escaping (InMemoryOutputFile) throws -> InMemoryOutputFile = { try $0.swiftFormatted },
@@ -124,44 +125,7 @@ func makeGeneratorPipeline(
             },
             postTransitionHooks: [
                 { doc in
-
-                    if config.featureFlags.contains(.strictOpenAPIValidation) {
-                        // Run OpenAPIKit's built-in validation.
-                        // Pass `false` to `strict`, however, because we don't
-                        // want to turn schema loading warnings into errors.
-                        // We already propagate the warnings to the generator's
-                        // diagnostics, so they get surfaced to the user.
-                        // But the warnings are often too strict and should not
-                        // block the generator from running.
-                        // Validation errors continue to be fatal, such as
-                        // structural issues, like non-unique operationIds, etc.
-                        try doc.validate(strict: false)
-
-                        // Validate that the document is dereferenceable, which
-                        // catches reference cycles, which we don't yet support.
-                        _ = try doc.locallyDereferenced()
-
-                        // Also explicitly dereference the parts of components
-                        // that the generator uses. `locallyDereferenced()` above
-                        // only dereferences paths/operations, but not components.
-                        let components = doc.components
-                        try components.schemas.forEach { schema in
-                            _ = try schema.value.dereferenced(in: components)
-                        }
-                        try components.parameters.forEach { schema in
-                            _ = try schema.value.dereferenced(in: components)
-                        }
-                        try components.headers.forEach { schema in
-                            _ = try schema.value.dereferenced(in: components)
-                        }
-                        try components.requestBodies.forEach { schema in
-                            _ = try schema.value.dereferenced(in: components)
-                        }
-                        try components.responses.forEach { schema in
-                            _ = try schema.value.dereferenced(in: components)
-                        }
-                    }
-
+                    try validator(doc, config)
                     return doc
                 }
             ]
