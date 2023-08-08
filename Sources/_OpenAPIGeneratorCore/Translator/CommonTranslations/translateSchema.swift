@@ -115,6 +115,7 @@ extension FileTranslator {
             let enumDecl = try translateStringEnum(
                 typeName: typeName,
                 userDescription: overrides.userDescription ?? coreContext.description,
+                isNullable: coreContext.nullable,
                 allowedValues: allowedValues
             )
             return [enumDecl]
