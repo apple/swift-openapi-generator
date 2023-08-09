@@ -77,7 +77,7 @@ class Test_isSchemaSupported: XCTestCase {
             ]),
             .reference(.component(named: "MyObj")),
         ]),
-        
+
         // oneOf without a discriminator with various schemas
         .one(of: [
             .object(properties: [
@@ -116,7 +116,10 @@ class Test_isSchemaSupported: XCTestCase {
         (.all(of: []), .noSubschemas),
 
         // a oneOf with a discriminator with non-object-ish schemas
-        (.one(of: .reference(.internal(.component(name: "Foo"))), discriminator: .init(propertyName: "foo")), .notObjectish),
+        (
+            .one(of: .reference(.internal(.component(name: "Foo"))), discriminator: .init(propertyName: "foo")),
+            .notObjectish
+        ),
 
         // a oneOf with a discriminator with an inline subschema
         (.one(of: .object, discriminator: .init(propertyName: "foo")), .notRef),
