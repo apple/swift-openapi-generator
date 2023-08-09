@@ -151,15 +151,16 @@ extension OperationDescription {
     /// - Throws: When an invalid JSON reference is found.
     var allParameters: [UnresolvedParameter] {
         get throws { 
-            var mergedParameters = [UnresolvedParameter]()
-            var uniqueIdentifiers = Set<String>()
+            var mergedParameters: [UnresolvedParameter] = []
+            var uniqueIdentifiers: Set<String> = []
 
             for parameter in pathParameters + operation.parameters {
                 let resolvedParameter = try parameter.resolve(in: components)
-                let identifier = resolvedParameter.name + resolvedParameter.location.rawValue
+                let identifier = resolvedParameter.location.rawValue + ":" + resolvedParameter.name
 
-                guard !uniqueIdentifiers.contains(identifier) 
-                else { continue }
+                guard !uniqueIdentifiers.contains(identifier) else { 
+                    continue 
+                }
 
                 mergedParameters.append(parameter)
                 uniqueIdentifiers.insert(identifier)
