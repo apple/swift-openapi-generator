@@ -24,6 +24,7 @@ class Test_isSchemaSupported: XCTestCase {
             components: .init(schemas: [
                 "Foo": .string,
                 "MyObj": .object,
+                "MyObj2": .object,
             ])
         )
     }
@@ -71,12 +72,11 @@ class Test_isSchemaSupported: XCTestCase {
         ]),
 
         // oneOf with a discriminator with two objectish schemas
-        .one(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .reference(.component(named: "MyObj")),
-        ]),
+        .one(
+            of: .reference(.component(named: "MyObj")),
+            .reference(.component(named: "MyObj2")),
+            discriminator: .init(propertyName: "foo")
+        ),
 
         // oneOf without a discriminator with various schemas
         .one(of: [
