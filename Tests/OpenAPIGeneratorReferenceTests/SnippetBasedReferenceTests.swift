@@ -224,6 +224,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 allOf:
                   - $ref: '#/components/schemas/A'
                   - $ref: '#/components/schemas/B'
+                  - type: string
+                  - type: array
+                    items:
+                      type: integer
             """,
             """
             public enum Schemas {
@@ -232,20 +236,30 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct MyAllOf: Codable, Equatable, Hashable, Sendable {
                     public var value1: Components.Schemas.A
                     public var value2: Components.Schemas.B
+                    public var value3: Swift.String
+                    public var value4: [Swift.Int]
                     public init(
                         value1: Components.Schemas.A,
-                        value2: Components.Schemas.B
+                        value2: Components.Schemas.B,
+                        value3: Swift.String,
+                        value4: [Swift.Int]
                     ) {
                         self.value1 = value1
                         self.value2 = value2
+                        self.value3 = value3
+                        self.value4 = value4
                     }
                     public init(from decoder: any Decoder) throws {
                         value1 = try .init(from: decoder)
                         value2 = try .init(from: decoder)
+                        value3 = try .init(from: decoder)
+                        value4 = try .init(from: decoder)
                     }
                     public func encode(to encoder: any Encoder) throws {
                         try value1.encode(to: encoder)
                         try value2.encode(to: encoder)
+                        try value3.encode(to: encoder)
+                        try value4.encode(to: encoder)
                     }
                 }
             }
@@ -263,6 +277,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 anyOf:
                   - $ref: '#/components/schemas/A'
                   - $ref: '#/components/schemas/B'
+                  - type: string
+                  - type: array
+                    items:
+                      type: integer
             """,
             """
             public enum Schemas {
@@ -271,18 +289,26 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct MyAnyOf: Codable, Equatable, Hashable, Sendable {
                     public var value1: Components.Schemas.A?
                     public var value2: Components.Schemas.B?
+                    public var value3: Swift.String?
+                    public var value4: [Swift.Int]?
                     public init(
                         value1: Components.Schemas.A? = nil,
-                        value2: Components.Schemas.B? = nil
+                        value2: Components.Schemas.B? = nil,
+                        value3: Swift.String? = nil,
+                        value4: [Swift.Int]? = nil
                     ) {
                         self.value1 = value1
                         self.value2 = value2
+                        self.value3 = value3
+                        self.value4 = value4
                     }
                     public init(from decoder: any Decoder) throws {
                         value1 = try? .init(from: decoder)
                         value2 = try? .init(from: decoder)
+                        value3 = try? .init(from: decoder)
+                        value4 = try? .init(from: decoder)
                         try DecodingError.verifyAtLeastOneSchemaIsNotNil(
-                            [value1, value2],
+                            [value1, value2, value3, value4],
                             type: Self.self,
                             codingPath: decoder.codingPath
                         )
@@ -290,6 +316,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public func encode(to encoder: any Encoder) throws {
                         try value1?.encode(to: encoder)
                         try value2?.encode(to: encoder)
+                        try value3?.encode(to: encoder)
+                        try value4?.encode(to: encoder)
                     }
                 }
             }
