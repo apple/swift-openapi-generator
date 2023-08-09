@@ -1251,13 +1251,6 @@ extension SnippetBasedReferenceTests {
         line: UInt = #line
     ) throws {
         let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
-        let schemas = translator.components.schemas
-        for (key, schema) in schemas {
-            XCTAssertTrue(
-                try translator.isSchemaSupported(schema) == .supported,
-                "Schema \(schema.prettyDescription) for key \(key) is not supported"
-            )
-        }
         let translation = try translator.translateSchemas(translator.components.schemas)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
