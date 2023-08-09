@@ -242,8 +242,9 @@ extension FileTranslator {
     /// - Parameter schema: A schema to check.
     func isRefToObjectishSchemaAndSupported(_ schema: JSONSchema) throws -> IsSchemaSupportedResult {
         switch schema.value {
-        case .reference:
-            return try isObjectishSchemaAndSupported(schema)
+        case let .reference(ref, _):
+            let referencedSchema = try components.lookup(ref)
+            return try isObjectishSchemaAndSupported(referencedSchema)
         default:
             return .unsupported(
                 reason: .notRef,
