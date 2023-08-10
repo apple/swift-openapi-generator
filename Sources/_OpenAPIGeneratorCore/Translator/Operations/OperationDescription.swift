@@ -154,7 +154,7 @@ extension OperationDescription {
             var mergedParameters: [UnresolvedParameter] = []
             var uniqueIdentifiers: Set<String> = []
 
-            for parameter in pathParameters + operation.parameters {
+            for parameter in operation.parameters + pathParameters {
                 let resolvedParameter = try parameter.resolve(in: components)
                 let identifier = resolvedParameter.location.rawValue + ":" + resolvedParameter.name
 

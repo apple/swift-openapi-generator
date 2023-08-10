@@ -18,94 +18,78 @@ import XCTest
 final class Test_OperationDescription: Test_Core {
 
     func testAllParameters_duplicates_retainOnlyOperationParameters() throws {
-        let allParameters = try _test(
-            """
-            openapi: "3.0.0"
-            info:
-              title: "Test"
-              version: "1.0.0"
-            paths:
-              /system:
-                get:
-                  description: This is a unit test.
-                  responses:
-                    '200':
-                      description: Success
-                  parameters:
-                    - name: test
-                      in: query
-                      schema:
-                        type: string
-                parameters:
-                  - name: test
-                    in: query
-                    schema:
-                      type: integer
-            """
-        )
-
-        XCTAssertEqual(
-            allParameters,
-            [.b(OpenAPI.Parameter(name: "test", context: .query(required: false), schema: .integer))]
-        )
-    }
-
-    func testAllParameters_duplicates_keepsDuplicatesAtDifferentLocation() throws {
-        let allParameters = try _test(
-            """
-            openapi: "3.0.0"
-            info:
-              title: "Test"
-              version: "1.0.0"
-            paths:
-              /system:
-                get:
-                  description: This is a unit test.
-                  responses:
-                    '200':
-                      description: Success
-                  parameters:
-                    - name: test
-                      in: query
-                      schema:
-                        type: string
-                parameters:
-                  - name: test
-                    in: path
-                    required: true
-                    schema:
-                      type: integer
-            """
-        )
-
-        XCTAssertEqual(
-            allParameters,
-            [
-                .b(OpenAPI.Parameter(name: "test", context: .path, schema: .integer)),
-                .b(OpenAPI.Parameter(name: "test", context: .query(required: false), schema: .string))
-            ]
-        )
-    }
-
-    private func _test(_ yaml: String) throws -> [UnresolvedParameter] {
-        let document = try YamsParser()
-            .parseOpenAPI(
-                .init(
-                    absolutePath: URL(fileURLWithPath: "/foo.yaml"),
-                    contents: Data(yaml.utf8)
-                ),
-                config: .init(mode: .types),
-                diagnostics: PrintingDiagnosticCollector()
+        let pathLevelParameter = UnresolvedParameter.b(
+            OpenAPI.Parameter(
+                name: "test",
+                context: .query(required: false),
+                schema: .integer
             )
+        )
+        let operationLevelParameter = UnresolvedParameter.b(
+            OpenAPI.Parameter(
+                name: "test",
+                context: .query(required: false),
+                schema: .string
+            )
+        )
 
-        guard let operationDescription = try OperationDescription.all(
-            from: document.paths,
-            in: document.components,
-            asSwiftSafeName: { $0 }
-        ).first else {
-            XCTFail("Unable to retrieve the operation description.")
+        let pathItem = OpenAPI.PathItem(
+            parameters: [pathLevelParameter],
+            get: .init(
+                parameters: [operationLevelParameter],
+                requestBody: .b(.init(content: [:])),
+                responses: [:]
+            ),
+            vendorExtensions: [:]
+        )
+        let allParameters = try _test(pathItem)
+
+        XCTAssertEqual(allParameters, [operationLevelParameter])
+    }
+
+    func testAllParameters_duplicates_keepsDuplicatesFromDifferentLocation() throws {
+        let pathLevelParameter = UnresolvedParameter.b(
+            OpenAPI.Parameter(
+                name: "test",
+                context: .query(required: false),
+                schema: .integer
+            )
+        )
+        let operationLevelParameter = UnresolvedParameter.b(
+            OpenAPI.Parameter(
+                name: "test",
+                context: .path,
+                schema: .string
+            )
+        )
+
+        let pathItem = OpenAPI.PathItem(
+            parameters: [pathLevelParameter],
+            get: .init(
+                parameters: [operationLevelParameter],
+                requestBody: .b(.init(content: [:])),
+                responses: [:]
+            ),
+            vendorExtensions: [:]
+        )
+        let allParameters = try _test(pathItem)
+
+        XCTAssertEqual(allParameters, [operationLevelParameter, pathLevelParameter])
+    }
+
+    private func _test(_ pathItem: OpenAPI.PathItem) throws -> [UnresolvedParameter] {
+        guard let endpoint = pathItem.endpoints.first else {
+            XCTFail("Unable to retrieve the path item first endpoint.")
             return []
         }
+
+        let operationDescription = OperationDescription(
+            path: .init(["\test"]),
+            endpoint: endpoint,
+            pathParameters: pathItem.parameters,
+            components: .init(),
+            asSwiftSafeName: { $0 }
+        )
 
         return try operationDescription.allParameters
     }
