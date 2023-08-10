@@ -22,6 +22,8 @@ struct ImportDescription: Equatable, Codable {
     /// For example, the `Foo` in `import Foo`.
     var moduleName: String
 
+    var moduleTypes: [String]?
+
     /// The name of the private interface for an `@_spi` import.
     ///
     /// For example, if `spi` was "Secret" and the module name was "Foo" then the import
