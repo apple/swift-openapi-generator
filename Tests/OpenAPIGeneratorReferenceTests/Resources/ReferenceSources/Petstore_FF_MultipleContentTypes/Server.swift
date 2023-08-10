@@ -285,7 +285,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             using: { APIHandler.getStats($0) },
             deserializer: { request, metadata in let path: Operations.getStats.Input.Path = .init()
                 let query: Operations.getStats.Input.Query = .init()
-                let headers: Operations.getStats.Input.Headers = .init()
+                let headers: Operations.getStats.Input.Headers = .init(
+                    accept: try converter.extractAcceptHeaderIfPresent(
+                        in: request.headerFields
+                    )
+                )
                 let cookies: Operations.getStats.Input.Cookies = .init()
                 return Operations.getStats.Input(
                     path: path,

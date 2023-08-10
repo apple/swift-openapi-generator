@@ -1066,8 +1066,48 @@ public enum Operations {
             }
             public var query: Operations.getStats.Input.Query
             public struct Headers: Sendable, Equatable, Hashable {
+                public enum AcceptableContentType: AcceptableProtocol {
+                    case json
+                    case text
+                    case binary
+                    case other(String)
+                    public static var defaultValues: [Operations.getStats.Input.Headers.AcceptableContentType] {
+                        [.json, .text, .binary]
+                    }
+                    public init?(rawValue: String) {
+                        let lowercasedRawValue = rawValue.lowercased()
+                        switch lowercasedRawValue {
+                        case "application/json":
+                            self = .json
+                        case "text/plain":
+                            self = .text
+                        case "application/octet-stream":
+                            self = .binary
+                        default:
+                            self = .other(rawValue)
+                        }
+                    }
+                    public var rawValue: String {
+                        switch self {
+                        case .json:
+                            return "application/json"
+                        case .text:
+                            return "text/plain"
+                        case .binary:
+                            return "application/octet-stream"
+                        case .other(let value):
+                            return value
+                        }
+                    }
+                }
+                public typealias Accept = [AcceptHeaderContentType<AcceptableContentType>]
+                public var accept: Accept
                 /// Creates a new `Headers`.
-                public init() {}
+                public init(
+                    accept: Accept = Accept.Element.defaultValues
+                ) {
+                    self.accept = accept
+                }
             }
             public var headers: Operations.getStats.Input.Headers
             public struct Cookies: Sendable, Equatable, Hashable {

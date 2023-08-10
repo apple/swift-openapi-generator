@@ -37,6 +37,12 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(operationID, "getStats")
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(request.method, .get)
+            XCTAssertEqual(
+                request.headerFields,
+                [
+                    .init(name: "accept", value: "application/json, text/plain, application/octet-stream")
+                ]
+            )
             XCTAssertNil(request.body)
             return .init(
                 statusCode: 200,
@@ -49,6 +55,48 @@ final class Test_Client: XCTestCase {
             )
         }
         let response = try await client.getStats(.init())
+        guard case let .ok(value) = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+        switch value.body {
+        case .text(let stats):
+            XCTAssertEqual(stats, "count is 1")
+        default:
+            XCTFail("Unexpected content type")
+        }
+    }
+
+    func testGetStats_200_text_customAccept() async throws {
+        transport = .init { request, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
+            XCTAssertEqual(request.path, "/pets/stats")
+            XCTAssertEqual(request.method, .get)
+            XCTAssertEqual(
+                request.headerFields,
+                [
+                    .init(name: "accept", value: "application/json; q=0.800, text/plain")
+                ]
+            )
+            XCTAssertNil(request.body)
+            return .init(
+                statusCode: 200,
+                headers: [
+                    .init(name: "content-type", value: "text/plain")
+                ],
+                encodedBody: #"""
+                    count is 1
+                    """#
+            )
+        }
+        let response = try await client.getStats(
+            .init(
+                headers: .init(accept: [
+                    .init(quality: 0.8, contentType: .json),
+                    .init(contentType: .text),
+                ])
+            )
+        )
         guard case let .ok(value) = response else {
             XCTFail("Unexpected response: \(response)")
             return

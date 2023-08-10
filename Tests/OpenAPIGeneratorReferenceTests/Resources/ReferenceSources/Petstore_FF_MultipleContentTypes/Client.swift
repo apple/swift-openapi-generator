@@ -262,10 +262,9 @@ public struct Client: APIProtocol {
                 )
                 var request: OpenAPIRuntime.Request = .init(path: path, method: .get)
                 suppressMutabilityWarning(&request)
-                try converter.setHeaderFieldAsText(
+                try converter.setAcceptHeader(
                     in: &request.headerFields,
-                    name: "accept",
-                    value: "application/json, text/plain, application/octet-stream"
+                    value: input.headers.accept
                 )
                 return request
             },
