@@ -16,7 +16,7 @@
   "prioritizeKeepingFunctionOutputTogether" : false,
   "respectsExistingLineBreaks" : true,
   "rules" : {
-    "AllPublicDeclarationsHaveDocumentation" :true,
+    "AllPublicDeclarationsHaveDocumentation" : true,
     "AlwaysUseLowerCamelCase" : false,
     "AmbiguousTrailingClosureOverload" : true,
     "BeginDocumentationCommentWithOneLineSummary" : false,
