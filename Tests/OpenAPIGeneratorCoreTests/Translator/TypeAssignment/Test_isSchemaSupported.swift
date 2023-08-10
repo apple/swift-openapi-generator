@@ -24,6 +24,7 @@ class Test_isSchemaSupported: XCTestCase {
             components: .init(schemas: [
                 "Foo": .string,
                 "MyObj": .object,
+                "MyObj2": .object,
             ])
         )
     }
@@ -60,28 +61,41 @@ class Test_isSchemaSupported: XCTestCase {
             )
         ),
 
-        // allOf with two schemas
+        // allOf with many schemas
         .all(of: [
             .object(properties: [
                 "Foo": .string
             ]),
             .reference(.component(named: "MyObj")),
+            .string,
+            .array(items: .string),
         ]),
 
-        // oneOf with two schemas
+        // oneOf with a discriminator with two objectish schemas
+        .one(
+            of: .reference(.component(named: "MyObj")),
+            .reference(.component(named: "MyObj2")),
+            discriminator: .init(propertyName: "foo")
+        ),
+
+        // oneOf without a discriminator with various schemas
         .one(of: [
             .object(properties: [
                 "Foo": .string
             ]),
             .reference(.component(named: "MyObj")),
+            .string,
+            .array(items: .string),
         ]),
 
-        // anyOf with two schemas
+        // anyOf with various schemas
         .any(of: [
             .object(properties: [
                 "Foo": .string
             ]),
             .reference(.component(named: "MyObj")),
+            .string,
+            .array(items: .string),
         ]),
     ]
     func testSupportedTypes() throws {
@@ -101,8 +115,11 @@ class Test_isSchemaSupported: XCTestCase {
         // an allOf without any subschemas
         (.all(of: []), .noSubschemas),
 
-        // an allOf with non-object-ish schemas
-        (.all(of: [.string, .integer]), .notObjectish),
+        // a oneOf with a discriminator with non-object-ish schemas
+        (
+            .one(of: .reference(.internal(.component(name: "Foo"))), discriminator: .init(propertyName: "foo")),
+            .notObjectish
+        ),
 
         // a oneOf with a discriminator with an inline subschema
         (.one(of: .object, discriminator: .init(propertyName: "foo")), .notRef),
