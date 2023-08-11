@@ -144,10 +144,31 @@ extension OperationDescription {
         )
     }
 
-    /// Returns parameters from both the path item level
-    /// and the operation level.
+    /// Merged parameters from both the path item level and the operation level.
+    /// If duplicate parameters exist, only the parameters from the operation level are preserved.
+    ///
+    /// - Returns: An array of merged path item and operation level parameters without duplicates.
+    /// - Throws: When an invalid JSON reference is found.
     var allParameters: [UnresolvedParameter] {
-        pathParameters + operation.parameters
+        get throws {
+            var mergedParameters: [UnresolvedParameter] = []
+            var uniqueIdentifiers: Set<String> = []
+
+            let allParameters = pathParameters + operation.parameters
+            for parameter in allParameters.reversed() {
+                let resolvedParameter = try parameter.resolve(in: components)
+                let identifier = resolvedParameter.location.rawValue + ":" + resolvedParameter.name
+
+                guard !uniqueIdentifiers.contains(identifier) else {
+                    continue
+                }
+
+                mergedParameters.append(parameter)
+                uniqueIdentifiers.insert(identifier)
+            }
+
+            return mergedParameters.reversed()
+        }
     }
 
     /// Returns all parameters by resolving any parameter references first.
