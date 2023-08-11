@@ -113,6 +113,44 @@ paths:
                 $ref: '#/components/schemas/Pet'
         '400':
           $ref: '#/components/responses/ErrorBadRequest'
+    post:
+      summary: Create a pet using a url form
+      operationId: createPetWithForm
+      tags:
+        - pets
+      parameters:
+        - name: X-Extra-Arguments
+          in: header
+          required: false
+          description: "A description here."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeError'
+      requestBody:
+        required: true
+        description: "Create a pet with these properties"
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreatePetRequest'
+      responses:
+        '201':
+          description: Successfully created pet
+          headers:
+            X-Extra-Arguments:
+              required: false
+              description: "A description here."
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/CodeError'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '400':
+          $ref: '#/components/responses/ErrorBadRequest'
   /pets/stats:
     get:
       operationId: getStats
