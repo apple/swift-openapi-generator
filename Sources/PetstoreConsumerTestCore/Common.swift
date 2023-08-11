@@ -14,10 +14,10 @@
 import OpenAPIRuntime
 import Foundation
 
-public enum TestError: Swift.Error, LocalizedError, CustomStringConvertible {
+public enum TestError: Swift.Error, LocalizedError, CustomStringConvertible, Sendable {
     case noHandlerFound(method: HTTPMethod, path: [RouterPathComponent])
     case invalidURLString(String)
-    case unexpectedValue(Any)
+    case unexpectedValue(any Sendable)
     case unexpectedMissingRequestBody
 
     public var description: String {
