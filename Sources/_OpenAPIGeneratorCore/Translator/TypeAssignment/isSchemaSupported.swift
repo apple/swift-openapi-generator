@@ -157,13 +157,12 @@ extension FileTranslator {
                     schema: schema
                 )
             }
-            // If a discriminator is provided, only refs to object/allOf of
-            // object schemas are allowed.
-            // Otherwise, any schema is allowed.
             guard context.discriminator != nil else {
                 return try areSchemasSupported(schemas)
             }
-            return try areRefsToObjectishSchemaAndSupported(schemas)
+            // > When using the discriminator, inline schemas will not be considered.
+            // > — https://spec.openapis.org/oas/v3.0.3#discriminator-object
+            return try areRefsToObjectishSchemaAndSupported(schemas.filter(\.isReference))
         case .not:
             return .unsupported(
                 reason: .schemaType,

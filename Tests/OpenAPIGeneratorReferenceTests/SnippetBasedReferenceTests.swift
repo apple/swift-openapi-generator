@@ -375,6 +375,77 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasOneOfWithDiscriminator() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              A:
+                type: object
+                properties:
+                  which:
+                    type: string
+              B:
+                type: object
+                properties:
+                  which:
+                    type: string
+              MyOneOf:
+                oneOf:
+                  - $ref: '#/components/schemas/A'
+                  - $ref: '#/components/schemas/B'
+                  - type: string
+                  - type: object
+                    properties:
+                      p:
+                        type: integer
+                discriminator:
+                  propertyName: which
+                  mapping:
+                    a: '#/components/schemas/A'
+                    b: '#/components/schemas/B'
+            """,
+            """
+            public enum Schemas {
+                public struct A: Codable, Equatable, Hashable, Sendable {
+                    public var which: Swift.String?
+                    public init(which: Swift.String? = nil) { self.which = which }
+                    public enum CodingKeys: String, CodingKey { case which }
+                }
+                public struct B: Codable, Equatable, Hashable, Sendable {
+                    public var which: Swift.String?
+                    public init(which: Swift.String? = nil) { self.which = which }
+                    public enum CodingKeys: String, CodingKey { case which }
+                }
+                @frozen public enum MyOneOf: Codable, Equatable, Hashable, Sendable {
+                    case A(Components.Schemas.A)
+                    case B(Components.Schemas.B)
+                    case undocumented(OpenAPIRuntime.OpenAPIObjectContainer)
+                    public enum CodingKeys: String, CodingKey { case which }
+                    public init(from decoder: any Decoder) throws {
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        let discriminator = try container.decode(String.self, forKey: .which)
+                        switch discriminator {
+                        case "a": self = .A(try .init(from: decoder))
+                        case "b": self = .B(try .init(from: decoder))
+                        default:
+                            let container = try decoder.singleValueContainer()
+                            let value = try container.decode(OpenAPIRuntime.OpenAPIObjectContainer.self)
+                            self = .undocumented(value)
+                        }
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        switch self {
+                        case let .A(value): try value.encode(to: encoder)
+                        case let .B(value): try value.encode(to: encoder)
+                        case let .undocumented(value): try value.encode(to: encoder)
+                        }
+                    }
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsSchemasAllOfOneStringRef() throws {
         try self.assertSchemasTranslation(
             """
