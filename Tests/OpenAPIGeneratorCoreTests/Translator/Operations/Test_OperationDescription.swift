@@ -77,6 +77,43 @@ final class Test_OperationDescription: Test_Core {
         XCTAssertEqual(allParameters, [pathLevelParameter, operationLevelParameter])
     }
 
+    func testAllParameters_duplicates_ordering() throws {
+        let pathLevelParameter = UnresolvedParameter.b(
+            OpenAPI.Parameter(
+                name: "test1",
+                context: .query(required: false),
+                schema: .integer
+            )
+        )
+        let duplicatedParameter = UnresolvedParameter.b(
+            OpenAPI.Parameter(
+                name: "test2",
+                context: .query(required: false),
+                schema: .integer
+            )
+        )
+        let operationLevelParameter = UnresolvedParameter.b(
+            OpenAPI.Parameter(
+                name: "test3",
+                context: .query(required: false),
+                schema: .string
+            )
+        )
+
+        let pathItem = OpenAPI.PathItem(
+            parameters: [pathLevelParameter, duplicatedParameter],
+            get: .init(
+                parameters: [duplicatedParameter, operationLevelParameter],
+                requestBody: .b(.init(content: [:])),
+                responses: [:]
+            ),
+            vendorExtensions: [:]
+        )
+        let allParameters = try _test(pathItem)
+
+        XCTAssertEqual(allParameters, [pathLevelParameter, duplicatedParameter, operationLevelParameter])
+    }
+
     private func _test(_ pathItem: OpenAPI.PathItem) throws -> [UnresolvedParameter] {
         guard let endpoint = pathItem.endpoints.first else {
             XCTFail("Unable to retrieve the path item first endpoint.")
@@ -84,7 +121,7 @@ final class Test_OperationDescription: Test_Core {
         }
 
         let operationDescription = OperationDescription(
-            path: .init(["\test"]),
+            path: .init(["/test"]),
             endpoint: endpoint,
             pathParameters: pathItem.parameters,
             components: .init(),
