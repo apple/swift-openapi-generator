@@ -74,7 +74,7 @@ final class Test_OperationDescription: Test_Core {
         )
         let allParameters = try _test(pathItem)
 
-        XCTAssertEqual(allParameters, [operationLevelParameter, pathLevelParameter])
+        XCTAssertEqual(allParameters, [pathLevelParameter, operationLevelParameter])
     }
 
     private func _test(_ pathItem: OpenAPI.PathItem) throws -> [UnresolvedParameter] {
