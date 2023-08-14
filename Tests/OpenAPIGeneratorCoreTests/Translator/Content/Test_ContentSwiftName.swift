@@ -34,16 +34,30 @@ final class Test_ContentSwiftName: Test_Core {
     }
 
     func testProposed_multipleContentTypes() throws {
-        let nameMaker = makeTranslator(featureFlags: [.multipleContentTypes]).contentSwiftName
+        let nameMaker = makeTranslator(featureFlags: [
+            .proposal0001,
+            .multipleContentTypes,
+        ])
+        .contentSwiftName
         let cases: [(String, String)] = [
+
+            // Short names.
             ("application/json", "json"),
-            ("application/x-www-form-urlencoded", "form"),
-            ("multipart/form-data", "multipart"),
-            ("text/plain", "text"),
+            ("application/x-www-form-urlencoded", "urlEncodedForm"),
+            ("multipart/form-data", "multipartForm"),
+            ("text/plain", "plainText"),
             ("*/*", "any"),
             ("application/xml", "xml"),
             ("application/octet-stream", "binary"),
-            ("application/myformat+json", "application_myformat_json"),
+            ("text/html", "html"),
+            ("application/yaml", "yaml"),
+            ("text/csv", "csv"),
+            ("image/png", "png"),
+            ("application/pdf", "pdf"),
+            ("image/jpeg", "jpeg"),
+
+            // Generic names.
+            ("application/myformat+json", "application_myformat_plus_json"),
             ("foo/bar", "foo_bar"),
         ]
         try _testIdentifiers(cases: cases, nameMaker: nameMaker)
