@@ -20,6 +20,12 @@ public protocol APIProtocol: Sendable {
     /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
     func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output
+    /// Create a pet using a url form
+    ///
+    /// - Remark: HTTP `POST /pets/create`.
+    /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
+    func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws
+        -> Operations.createPetWithForm.Output
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
     func getStats(_ input: Operations.getStats.Input) async throws -> Operations.getStats.Output
@@ -1041,6 +1047,115 @@ public enum Operations {
             /// Bad request
             ///
             /// - Remark: Generated from `#/paths//pets/post(createPet)/responses/400`.
+            ///
+            /// HTTP response code: `400 badRequest`.
+            case badRequest(Components.Responses.ErrorBadRequest)
+            /// Undocumented response.
+            ///
+            /// A response with a code that is not documented in the OpenAPI document.
+            case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
+        }
+    }
+    /// Create a pet using a url form
+    ///
+    /// - Remark: HTTP `POST /pets/create`.
+    /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
+    public enum createPetWithForm {
+        public static let id: String = "createPetWithForm"
+        public struct Input: Sendable, Equatable, Hashable {
+            public struct Path: Sendable, Equatable, Hashable {
+                /// Creates a new `Path`.
+                public init() {}
+            }
+            public var path: Operations.createPetWithForm.Input.Path
+            public struct Query: Sendable, Equatable, Hashable {
+                /// Creates a new `Query`.
+                public init() {}
+            }
+            public var query: Operations.createPetWithForm.Input.Query
+            public struct Headers: Sendable, Equatable, Hashable {
+                public var X_Extra_Arguments: Components.Schemas.CodeError?
+                /// Creates a new `Headers`.
+                ///
+                /// - Parameters:
+                ///   - X_Extra_Arguments:
+                public init(X_Extra_Arguments: Components.Schemas.CodeError? = nil) {
+                    self.X_Extra_Arguments = X_Extra_Arguments
+                }
+            }
+            public var headers: Operations.createPetWithForm.Input.Headers
+            public struct Cookies: Sendable, Equatable, Hashable {
+                /// Creates a new `Cookies`.
+                public init() {}
+            }
+            public var cookies: Operations.createPetWithForm.Input.Cookies
+            @frozen public enum Body: Sendable, Equatable, Hashable {
+                case form(Components.Schemas.CreatePetRequest)
+            }
+            public var body: Operations.createPetWithForm.Input.Body
+            /// Creates a new `Input`.
+            ///
+            /// - Parameters:
+            ///   - path:
+            ///   - query:
+            ///   - headers:
+            ///   - cookies:
+            ///   - body:
+            public init(
+                path: Operations.createPetWithForm.Input.Path = .init(),
+                query: Operations.createPetWithForm.Input.Query = .init(),
+                headers: Operations.createPetWithForm.Input.Headers = .init(),
+                cookies: Operations.createPetWithForm.Input.Cookies = .init(),
+                body: Operations.createPetWithForm.Input.Body
+            ) {
+                self.path = path
+                self.query = query
+                self.headers = headers
+                self.cookies = cookies
+                self.body = body
+            }
+        }
+        @frozen public enum Output: Sendable, Equatable, Hashable {
+            public struct Created: Sendable, Equatable, Hashable {
+                public struct Headers: Sendable, Equatable, Hashable {
+                    public var X_Extra_Arguments: Components.Schemas.CodeError?
+                    /// Creates a new `Headers`.
+                    ///
+                    /// - Parameters:
+                    ///   - X_Extra_Arguments:
+                    public init(X_Extra_Arguments: Components.Schemas.CodeError? = nil) {
+                        self.X_Extra_Arguments = X_Extra_Arguments
+                    }
+                }
+                /// Received HTTP response headers
+                public var headers: Operations.createPetWithForm.Output.Created.Headers
+                @frozen public enum Body: Sendable, Equatable, Hashable {
+                    case json(Components.Schemas.Pet)
+                }
+                /// Received HTTP response body
+                public var body: Operations.createPetWithForm.Output.Created.Body
+                /// Creates a new `Created`.
+                ///
+                /// - Parameters:
+                ///   - headers: Received HTTP response headers
+                ///   - body: Received HTTP response body
+                public init(
+                    headers: Operations.createPetWithForm.Output.Created.Headers = .init(),
+                    body: Operations.createPetWithForm.Output.Created.Body
+                ) {
+                    self.headers = headers
+                    self.body = body
+                }
+            }
+            /// Successfully created pet
+            ///
+            /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)/responses/201`.
+            ///
+            /// HTTP response code: `201 created`.
+            case created(Operations.createPetWithForm.Output.Created)
+            /// Bad request
+            ///
+            /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)/responses/400`.
             ///
             /// HTTP response code: `400 badRequest`.
             case badRequest(Components.Responses.ErrorBadRequest)

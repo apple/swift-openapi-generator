@@ -21,7 +21,7 @@ final class Test_ContentSwiftName: Test_Core {
         let nameMaker = makeTranslator(featureFlags: []).contentSwiftName
         let cases: [(String, String)] = [
             ("application/json", "json"),
-            ("application/x-www-form-urlencoded", "binary"),
+            ("application/x-www-form-urlencoded", "form"),
             ("multipart/form-data", "binary"),
             ("text/plain", "text"),
             ("*/*", "binary"),

@@ -247,11 +247,10 @@ public struct Client: APIProtocol {
             }
         )
     }
-    
     /// Create a pet using a url form
     ///
-    /// - Remark: HTTP `POST /pets`.
-    /// - Remark: Generated from `#/paths//pets/post(createPet)`.
+    /// - Remark: HTTP `POST /pets/create`.
+    /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
     public func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws
         -> Operations.createPetWithForm.Output
     {
@@ -259,7 +258,10 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.createPetWithForm.id,
             serializer: { input in
-                let path = try converter.renderedRequestPath(template: "/pets", parameters: [])
+                let path = try converter.renderedRequestPath(
+                    template: "/pets/create",
+                    parameters: []
+                )
                 var request: OpenAPIRuntime.Request = .init(path: path, method: .post)
                 suppressMutabilityWarning(&request)
                 try converter.setHeaderFieldAsJSON(
@@ -273,11 +275,11 @@ public struct Client: APIProtocol {
                     value: "application/json"
                 )
                 switch input.body {
-                case let .urlEncodedForm(value):
+                case let .form(value):
                     request.body = try converter.setRequiredRequestBodyAsURLEncodedForm(
                         value,
                         headerFields: &request.headerFields,
-                        contentType: "application/x-www-form-urlencoded; charset=utf-8"
+                        contentType: "application/x-www-form-urlencoded"
                     )
                 }
                 return request
@@ -343,7 +345,6 @@ public struct Client: APIProtocol {
             }
         )
     }
-    
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
     public func getStats(_ input: Operations.getStats.Input) async throws

@@ -20,6 +20,12 @@ public protocol APIProtocol: Sendable {
     /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
     func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output
+    /// Create a pet using a url form
+    ///
+    /// - Remark: HTTP `POST /pets/create`.
+    /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
+    func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws
+        -> Operations.createPetWithForm.Output
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
     func getStats(_ input: Operations.getStats.Input) async throws -> Operations.getStats.Output
@@ -1050,11 +1056,10 @@ public enum Operations {
             case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
         }
     }
-    
     /// Create a pet using a url form
     ///
-    /// - Remark: HTTP `POST /pets`.
-    /// - Remark: Generated from `#/paths//pets/post(createPet)`.
+    /// - Remark: HTTP `POST /pets/create`.
+    /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
     public enum createPetWithForm {
         public static let id: String = "createPetWithForm"
         public struct Input: Sendable, Equatable, Hashable {
@@ -1085,7 +1090,7 @@ public enum Operations {
             }
             public var cookies: Operations.createPetWithForm.Input.Cookies
             @frozen public enum Body: Sendable, Equatable, Hashable {
-                case urlEncodedForm(Components.Schemas.CreatePetRequest)
+                case form(Components.Schemas.CreatePetRequest)
             }
             public var body: Operations.createPetWithForm.Input.Body
             /// Creates a new `Input`.
@@ -1144,13 +1149,13 @@ public enum Operations {
             }
             /// Successfully created pet
             ///
-            /// - Remark: Generated from `#/paths//pets/post(createPet)/responses/201`.
+            /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)/responses/201`.
             ///
             /// HTTP response code: `201 created`.
             case created(Operations.createPetWithForm.Output.Created)
             /// Bad request
             ///
-            /// - Remark: Generated from `#/paths//pets/post(createPet)/responses/400`.
+            /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)/responses/400`.
             ///
             /// HTTP response code: `400 badRequest`.
             case badRequest(Components.Responses.ErrorBadRequest)

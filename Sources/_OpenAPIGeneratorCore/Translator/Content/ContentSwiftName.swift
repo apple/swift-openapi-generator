@@ -48,6 +48,8 @@ extension FileTranslator {
                 return "text"
             case .binary:
                 return "binary"
+            case .urlEncodedForm:
+                return "form"
             }
         }
     }

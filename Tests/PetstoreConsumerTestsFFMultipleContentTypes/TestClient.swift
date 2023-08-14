@@ -37,6 +37,18 @@ struct TestClient: APIProtocol {
         }
         return try await block(input)
     }
+    
+    
+    typealias CreatePetWithFormSignature = @Sendable (Operations.createPetWithForm.Input) async throws -> Operations.createPetWithForm.Output
+    var createPetWithFormBlock: CreatePetWithFormSignature?
+    func createPetWithForm(
+        _ input: Operations.createPetWithForm.Input
+    ) async throws -> Operations.createPetWithForm.Output {
+        guard let block = createPetWithFormBlock else {
+            throw UnspecifiedBlockError()
+        }
+        return try await block(input)
+    }
 
     typealias GetStatsSignature = @Sendable (Operations.getStats.Input) async throws -> Operations.getStats.Output
     var getStatsBlock: GetStatsSignature?
