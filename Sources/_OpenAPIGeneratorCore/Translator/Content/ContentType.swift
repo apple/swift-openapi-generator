@@ -50,12 +50,9 @@ struct ContentType: Hashable {
         /// First checks if the provided content type is a JSON, then text,
         /// and uses binary if none of the two match.
         /// - Parameters:
-        ///   - type: The first component of the MIME type.
-        ///   - subtype: The second component of the MIME type.
-        init(type: String, subtype: String) {
-            let lowercasedType = type.lowercased()
-            let lowercasedSubtype = subtype.lowercased()
-
+        ///   - lowercasedType: The first component of the MIME type.
+        ///   - lowercasedSubtype: The second component of the MIME type.
+        fileprivate init(lowercasedType: String, lowercasedSubtype: String) {
             // https://json-schema.org/draft/2020-12/json-schema-core.html#section-4.2
             if (lowercasedType == "application" && lowercasedSubtype == "json") || lowercasedSubtype.hasSuffix("+json")
             {
@@ -82,27 +79,33 @@ struct ContentType: Hashable {
 
     /// The mapped content type category.
     var category: Category {
-        Category(type: type, subtype: subtype)
+        Category(lowercasedType: lowercasedType, lowercasedSubtype: lowercasedSubtype)
     }
 
     /// The first component of the MIME type.
-    private let type: String
+    ///
+    /// Preserves the casing from the input, do not use this
+    /// for equality comparisons, use `lowercasedType` instead.
+    let originallyCasedType: String
 
     /// The first component of the MIME type, as a lowercase string.
     ///
     /// The raw value in its original casing is only provided by `rawTypeAndSubtype`.
     var lowercasedType: String {
-        type.lowercased()
+        originallyCasedType.lowercased()
     }
 
     /// The second component of the MIME type.
-    private let subtype: String
+    ///
+    /// Preserves the casing from the input, do not use this
+    /// for equality comparisons, use `lowercasedSubtype` instead.
+    let originallyCasedSubtype: String
 
     /// The second component of the MIME type, as a lowercase string.
     ///
     /// The raw value in its original casing is only provided by `originallyCasedTypeAndSubtype`.
     var lowercasedSubtype: String {
-        subtype.lowercased()
+        originallyCasedSubtype.lowercased()
     }
 
     /// Creates a new content type by parsing the specified MIME type.
@@ -122,15 +125,15 @@ struct ContentType: Hashable {
             typeAndSubtype.count == 2,
             "Invalid ContentType string, must have 2 components separated by a slash."
         )
-        self.type = typeAndSubtype[0]
-        self.subtype = typeAndSubtype[1]
+        self.originallyCasedType = typeAndSubtype[0]
+        self.originallyCasedSubtype = typeAndSubtype[1]
     }
 
     /// Returns the type and subtype as a "<type>/<subtype>" string.
     ///
     /// Respects the original casing provided as input.
     var originallyCasedTypeAndSubtype: String {
-        "\(type)/\(subtype)"
+        "\(originallyCasedType)/\(originallyCasedSubtype)"
     }
 
     /// Returns the type and subtype as a "<type>/<subtype>" string.
