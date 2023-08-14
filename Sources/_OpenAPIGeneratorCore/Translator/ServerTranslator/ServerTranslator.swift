@@ -39,31 +39,41 @@ struct ServerFileTranslator: FileTranslator {
             + config.additionalImports
             .map { ImportDescription(moduleName: $0) }
 
-        let serverMethodDeclPairs =
-            try OperationDescription
+        let allOperations = try OperationDescription
             .all(
                 from: doc.paths,
                 in: components,
                 asSwiftSafeName: swiftSafeName
             )
+
+        var registerHandlersDeclBody: [CodeBlock] = []
+        let serverMethodDeclPairs = try allOperations
             .map { operation in
                 try translateServerMethod(operation, serverUrlVariableName: "server")
             }
         let serverMethodDecls = serverMethodDeclPairs.map(\.functionDecl)
 
-        let serverMethodRegisterCalls = serverMethodDeclPairs.map(\.registerCall)
+        // To avoid an used variable warning, we add the server variable declaration
+        // and server method register cals to the body of the register handler declaration
+        // only when there is at least one registration call.
+        if !serverMethodDeclPairs.isEmpty {
+            let serverMethodRegisterCalls = serverMethodDeclPairs.map(\.registerCall)
+            let registerHandlerServerVarDecl: Declaration = .variable(
+                kind: .let,
+                left: "server",
+                right: .identifier(Constants.Server.Universal.typeName)
+                    .call([
+                        .init(label: "serverURL", expression: .identifier("serverURL")),
+                        .init(label: "handler", expression: .identifier("self")),
+                        .init(label: "configuration", expression: .identifier("configuration")),
+                        .init(label: "middlewares", expression: .identifier("middlewares")),
+                    ])
+            )
 
-        let registerHandlerServerVarDecl: Declaration = .variable(
-            kind: .let,
-            left: "server",
-            right: .identifier(Constants.Server.Universal.typeName)
-                .call([
-                    .init(label: "serverURL", expression: .identifier("serverURL")),
-                    .init(label: "handler", expression: .identifier("self")),
-                    .init(label: "configuration", expression: .identifier("configuration")),
-                    .init(label: "middlewares", expression: .identifier("middlewares")),
-                ])
-        )
+            registerHandlersDeclBody.append(.declaration(registerHandlerServerVarDecl))
+            registerHandlersDeclBody.append(contentsOf: serverMethodRegisterCalls.map { .expression($0) })
+        }
+
         let registerHandlersDecl: Declaration = .commentable(
             .doc(
                 #"""
@@ -104,9 +114,7 @@ struct ServerFileTranslator: FileTranslator {
                 keywords: [
                     .throws
                 ],
-                body: [
-                    .declaration(registerHandlerServerVarDecl)
-                ] + serverMethodRegisterCalls.map { .expression($0) }
+                body: registerHandlersDeclBody
             )
         )
 
