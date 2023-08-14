@@ -21,15 +21,13 @@ class Test_translateSchemas: Test_Core {
     func testSchemaWarningsForwardedToGeneratorDiagnostics() throws {
         let typeName = TypeName(swiftKeyPath: ["Foo"])
 
-        let schemaWithWarnings = try YAMLDecoder()
-            .decode(
-                JSONSchema.self,
-                from: #"""
-                    type: string
-                    items:
-                      type: integer
-                    """#
-            )
+        let schemaWithWarnings = try loadSchemaFromYAML(
+            #"""
+            type: string
+            items:
+              type: integer
+            """#
+        )
 
         let cases: [(JSONSchema, [String])] = [
             (.string, []),

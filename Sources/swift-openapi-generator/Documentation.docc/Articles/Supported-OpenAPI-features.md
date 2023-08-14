@@ -142,12 +142,12 @@ Supported features are always provided on _both_ client and server.
 - [x] enum
 - [x] type
 - [x] allOf
-    - a wrapper struct is generated and children must be object schemas
+    - a wrapper struct is generated, children can be any schema
 - [x] oneOf
-    - if a discriminator is specified (recommended), children must be object schemas
+    - if a discriminator is specified, each child must be a reference to an object schema
     - if no discriminator is specified, children can be any schema
 - [x] anyOf
-    - children must be object schemas
+    - a wrapper struct is generated, children can be any schema
 - [ ] not
 - [x] items
 - [x] properties
