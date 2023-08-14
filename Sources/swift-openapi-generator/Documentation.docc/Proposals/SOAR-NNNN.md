@@ -1,6 +1,6 @@
-# SOAR-NNNN
+# SOAR-NNNN: Feature name
 
-Feature name (template proposal)
+Feature abstract – a one sentence summary.
 
 ## Overview
 
