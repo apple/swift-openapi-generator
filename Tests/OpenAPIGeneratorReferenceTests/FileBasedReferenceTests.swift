@@ -59,10 +59,7 @@ class FileBasedReferenceTests: XCTestCase {
                 name: .petstore,
                 customDirectoryName: "Petstore_FF_MultipleContentTypes"
             ),
-            featureFlags: [
-                .multipleContentTypes,
-                .proposal0001,
-            ]
+            featureFlags: [.multipleContentTypes]
         )
     }
 

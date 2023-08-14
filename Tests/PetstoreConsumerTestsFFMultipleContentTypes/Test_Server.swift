@@ -32,7 +32,7 @@ final class Test_Server: XCTestCase {
     func testGetStats_200_text() async throws {
         client = .init(
             getStatsBlock: { input in
-                return .ok(.init(body: .plainText("count is 1")))
+                return .ok(.init(body: .text("count is 1")))
             }
         )
         let response = try await server.getStats(
@@ -94,7 +94,7 @@ final class Test_Server: XCTestCase {
     func testPostStats_202_text() async throws {
         client = .init(
             postStatsBlock: { input in
-                guard case let .plainText(stats) = input.body else {
+                guard case let .text(stats) = input.body else {
                     throw TestError.unexpectedValue(input.body)
                 }
                 XCTAssertEqual(stats, "count is 1")

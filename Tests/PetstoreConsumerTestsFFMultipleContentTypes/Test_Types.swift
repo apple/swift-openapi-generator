@@ -25,7 +25,7 @@ final class Test_Types: XCTestCase {
     func testStructCodingKeys() throws {
         let cases: [(Components.Schemas._Error.CodingKeys, String)] = [
             (.code, "code"),
-            (.me_dollar_sage, "me$sage"),
+            (.me_sage, "me$sage"),
         ]
         for (value, rawValue) in cases {
             XCTAssertEqual(value.rawValue, rawValue)
@@ -35,7 +35,7 @@ final class Test_Types: XCTestCase {
     func testEnumCoding() throws {
         let cases: [(Components.Schemas.PetKind, String)] = [
             (.cat, "cat"),
-            (._dollar_nake, "$nake"),
+            (._nake, "$nake"),
         ]
         for (value, rawValue) in cases {
             XCTAssertEqual(value.rawValue, rawValue)

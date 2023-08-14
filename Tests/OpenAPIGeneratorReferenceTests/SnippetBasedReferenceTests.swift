@@ -751,10 +751,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
         try self.assertResponsesTranslation(
-            featureFlags: [
-                .multipleContentTypes,
-                .proposal0001,
-            ],
+            featureFlags: [.multipleContentTypes],
             """
             responses:
               MultipleContentTypes:
@@ -773,7 +770,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public var headers: Components.Responses.MultipleContentTypes.Headers
                     @frozen public enum Body: Sendable, Equatable, Hashable {
                         case json(Swift.Int)
-                        case plainText(Swift.String)
+                        case text(Swift.String)
                         case binary(Foundation.Data)
                     }
                     public var body: Components.Responses.MultipleContentTypes.Body
@@ -924,10 +921,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
         try self.assertRequestBodiesTranslation(
-            featureFlags: [
-                .multipleContentTypes,
-                .proposal0001,
-            ],
+            featureFlags: [.multipleContentTypes],
             """
             requestBodies:
               MyResponseBody:
@@ -942,7 +936,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum RequestBodies {
                 @frozen public enum MyResponseBody: Sendable, Equatable, Hashable {
                     case json(Components.Schemas.MyBody)
-                    case plainText(Swift.String)
+                    case text(Swift.String)
                     case binary(Foundation.Data)
                 }
             }

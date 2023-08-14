@@ -54,7 +54,7 @@ final class Test_Client: XCTestCase {
             return
         }
         switch value.body {
-        case .plainText(let stats):
+        case .text(let stats):
             XCTAssertEqual(stats, "count is 1")
         default:
             XCTFail("Unexpected content type")
@@ -112,7 +112,7 @@ final class Test_Client: XCTestCase {
             return .init(statusCode: 202)
         }
         let response = try await client.postStats(
-            .init(body: .plainText("count is 1"))
+            .init(body: .text("count is 1"))
         )
         guard case .accepted = response else {
             XCTFail("Unexpected response: \(response)")
