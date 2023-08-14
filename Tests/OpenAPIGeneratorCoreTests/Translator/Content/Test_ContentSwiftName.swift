@@ -37,9 +37,10 @@ final class Test_ContentSwiftName: Test_Core {
         let nameMaker = makeTranslator(featureFlags: [
             .proposal0001,
             .multipleContentTypes,
-        ]).contentSwiftName
+        ])
+        .contentSwiftName
         let cases: [(String, String)] = [
-            
+
             // Short names.
             ("application/json", "json"),
             ("application/x-www-form-urlencoded", "urlEncodedForm"),
@@ -54,7 +55,7 @@ final class Test_ContentSwiftName: Test_Core {
             ("image/png", "png"),
             ("application/pdf", "pdf"),
             ("image/jpeg", "jpeg"),
-            
+
             // Generic names.
             ("application/myformat+json", "application_myformat_plus_json"),
             ("foo/bar", "foo_bar"),
