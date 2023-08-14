@@ -18,7 +18,7 @@ import OpenAPIKit30
 public struct Diagnostic: Error, Codable {
 
     /// Describes the severity of a diagnostic.
-    public enum Severity: String, Codable {
+    public enum Severity: String, Codable, Sendable {
 
         /// An informative message, does not represent an issue.
         case note
@@ -38,7 +38,7 @@ public struct Diagnostic: Error, Codable {
     public var message: String
 
     /// Describes the source file that triggered a diagnostic.
-    public struct Location: Codable {
+    public struct Location: Codable, Sendable {
         /// The absolute path to a specific source file that triggered the diagnostic.
         public var filePath: String
 
@@ -333,7 +333,7 @@ public struct StdErrPrintingDiagnosticCollector: DiagnosticCollector {
     public init() {}
 
     public func emit(_ diagnostic: Diagnostic) {
-        print(diagnostic.description, to: &stdErrHandle)
+        stdErrHandle.write(diagnostic.description)
     }
 }
 

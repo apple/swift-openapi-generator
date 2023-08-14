@@ -141,7 +141,7 @@ extension FileTranslator {
                     schema: schema
                 )
             }
-            return try areObjectishSchemasAndSupported(schemas)
+            return try areSchemasSupported(schemas)
         case .any(of: let schemas, _):
             guard !schemas.isEmpty else {
                 return .unsupported(
@@ -149,7 +149,7 @@ extension FileTranslator {
                     schema: schema
                 )
             }
-            return try areObjectishSchemasAndSupported(schemas)
+            return try areSchemasSupported(schemas)
         case .one(of: let schemas, let context):
             guard !schemas.isEmpty else {
                 return .unsupported(
@@ -157,13 +157,12 @@ extension FileTranslator {
                     schema: schema
                 )
             }
-            // If a discriminator is provided, only refs to object/allOf of
-            // object schemas are allowed.
-            // Otherwise, any schema is allowed.
             guard context.discriminator != nil else {
                 return try areSchemasSupported(schemas)
             }
-            return try areRefsToObjectishSchemaAndSupported(schemas)
+            // > When using the discriminator, inline schemas will not be considered.
+            // > — https://spec.openapis.org/oas/v3.0.3#discriminator-object
+            return try areRefsToObjectishSchemaAndSupported(schemas.filter(\.isReference))
         case .not:
             return .unsupported(
                 reason: .schemaType,
@@ -206,20 +205,6 @@ extension FileTranslator {
         return .supported
     }
 
-    /// Returns a result indicating whether the provided schemas
-    /// are reference, object, or allOf schemas and supported.
-    /// - Parameter schemas: Schemas to check.
-    /// - Returns: `.supported` if all schemas match; `.unsupported` otherwise.
-    func areObjectishSchemasAndSupported(_ schemas: [JSONSchema]) throws -> IsSchemaSupportedResult {
-        for schema in schemas {
-            let result = try isObjectishSchemaAndSupported(schema)
-            guard result == .supported else {
-                return result
-            }
-        }
-        return .supported
-    }
-
     /// Returns a result indicating whether the provided schema
     /// is an reference, object, or allOf (object-ish) schema and is supported.
     /// - Parameter schema: A schemas to check.
@@ -228,7 +213,7 @@ extension FileTranslator {
         case .object, .reference:
             return try isSchemaSupported(schema)
         case .all(of: let schemas, _):
-            return try areObjectishSchemasAndSupported(schemas)
+            return try areSchemasSupported(schemas)
         default:
             return .unsupported(
                 reason: .notObjectish,
@@ -256,8 +241,9 @@ extension FileTranslator {
     /// - Parameter schema: A schema to check.
     func isRefToObjectishSchemaAndSupported(_ schema: JSONSchema) throws -> IsSchemaSupportedResult {
         switch schema.value {
-        case .reference:
-            return try isObjectishSchemaAndSupported(schema)
+        case let .reference(ref, _):
+            let referencedSchema = try components.lookup(ref)
+            return try isObjectishSchemaAndSupported(referencedSchema)
         default:
             return .unsupported(
                 reason: .notRef,

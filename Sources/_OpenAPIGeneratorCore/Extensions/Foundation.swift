@@ -47,7 +47,7 @@ extension InMemoryOutputFile {
 }
 
 /// File handle to stderr.
-var stdErrHandle = FileHandle.standardError
+let stdErrHandle = FileHandle.standardError
 
 extension FileHandle: TextOutputStream {
     public func write(_ string: String) {

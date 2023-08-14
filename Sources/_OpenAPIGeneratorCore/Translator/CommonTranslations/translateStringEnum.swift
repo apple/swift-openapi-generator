@@ -20,15 +20,23 @@ extension FileTranslator {
     ///   - typeName: The name of the type to give to the declared enum.
     ///   - openAPIDescription: A user-specified description from the OpenAPI
     ///   document.
+    ///   - isNullable: Whether the enum schema is nullable.
     ///   - allowedValues: The enumerated allowed values.
     func translateStringEnum(
         typeName: TypeName,
         userDescription: String?,
+        isNullable: Bool,
         allowedValues: [AnyCodable]
     ) throws -> Declaration {
 
         let rawValues = try allowedValues.map(\.value)
             .map { anyValue in
+                // In nullable enum schemas, empty strings are parsed as Void.
+                // This is unlikely to be fixed, so handling that case here.
+                // https://github.com/apple/swift-openapi-generator/issues/118
+                if isNullable && anyValue is Void {
+                    return ""
+                }
                 guard let string = anyValue as? String else {
                     throw GenericError(message: "Disallowed value for a string enum '\(typeName)': \(anyValue)")
                 }

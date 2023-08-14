@@ -124,9 +124,17 @@ extension FileTranslator {
         discriminator: OpenAPI.Discriminator?,
         schemas: [JSONSchema]
     ) throws -> Declaration {
+        // > When using the discriminator, inline schemas will not be considered.
+        // > — https://spec.openapis.org/oas/v3.0.3#discriminator-object
+        let includedSchemas: [JSONSchema]
+        if discriminator != nil {
+            includedSchemas = schemas.filter(\.isReference)
+        } else {
+            includedSchemas = schemas
+        }
 
         let cases: [(String, Comment?, TypeUsage, [Declaration])] =
-            try schemas
+            try includedSchemas
             .enumerated()
             .map { index, schema in
                 let key = "case\(index+1)"
