@@ -59,8 +59,13 @@ struct TypeUsage {
 
         /// A dictionary value wrapper for the underlying type.
         ///
-        /// For examplle: `Wrapped` becomes `[String: Wrapped]`.
+        /// For example: `Wrapped` becomes `[String: Wrapped]`.
         case dictionaryValue
+        
+        /// A generic type wrapper for the underlying type.
+        ///
+        /// For example, `Wrapped` becomes `Wrapper<Wrapped>`.
+        case generic(wrapper: TypeName)
     }
 
     /// The type usage applied to the underlying type.
@@ -132,6 +137,8 @@ extension TypeUsage {
             return "[" + component + "]"
         case .dictionaryValue:
             return "[String: " + component + "]"
+        case .generic(wrapper: let wrapper):
+            return "\(wrapper.fullyQualifiedSwiftName)<" + component + ">"
         }
     }
 
@@ -192,6 +199,12 @@ extension TypeUsage {
     /// - Returns: A type usage for the dictionary.
     var asDictionaryValue: Self {
         TypeUsage(wrapped: .usage(self), usage: .dictionaryValue)
+    }
+    
+    /// A type usage created by wrapping the current type usage inside the
+    /// wrapper type, where the wrapper type is generic over the current type.
+    func asWrapped(in wrapper: TypeName) -> Self {
+        TypeUsage(wrapped: .usage(self), usage: .generic(wrapper: wrapper))
     }
 }
 

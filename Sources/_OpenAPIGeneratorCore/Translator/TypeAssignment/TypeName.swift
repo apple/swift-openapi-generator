@@ -91,9 +91,12 @@ struct TypeName: Equatable {
     ///
     /// For example: `#/components/schemas/Foo`.
     /// - Returns: A string representation; nil if the type name has no
-    /// JSON path components.
+    /// JSON path components or if the last JSON path component is nil.
     var fullyQualifiedJSONPath: String? {
-        jsonKeyPathComponents?.joined(separator: "/")
+        guard components.last?.json != nil else {
+            return nil
+        }
+        return jsonKeyPathComponents?.joined(separator: "/")
     }
 
     /// A string representation of the last path component of the JSON path.

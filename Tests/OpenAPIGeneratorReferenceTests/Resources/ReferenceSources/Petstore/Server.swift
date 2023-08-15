@@ -119,7 +119,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         in: request.headerFields,
                         name: "My-Request-UUID",
                         as: Swift.String.self
-                    )
+                    ),
+                    accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
                 )
                 let cookies: Operations.listPets.Input.Cookies = .init()
                 return Operations.listPets.Input(
@@ -197,7 +198,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         in: request.headerFields,
                         name: "X-Extra-Arguments",
                         as: Components.Schemas.CodeError.self
-                    )
+                    ),
+                    accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
                 )
                 let cookies: Operations.createPet.Input.Cookies = .init()
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
@@ -285,7 +287,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             using: { APIHandler.getStats($0) },
             deserializer: { request, metadata in let path: Operations.getStats.Input.Path = .init()
                 let query: Operations.getStats.Input.Query = .init()
-                let headers: Operations.getStats.Input.Headers = .init()
+                let headers: Operations.getStats.Input.Headers = .init(
+                    accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
+                )
                 let cookies: Operations.getStats.Input.Cookies = .init()
                 return Operations.getStats.Input(
                     path: path,
@@ -420,7 +424,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     )
                 )
                 let query: Operations.updatePet.Input.Query = .init()
-                let headers: Operations.updatePet.Input.Headers = .init()
+                let headers: Operations.updatePet.Input.Headers = .init(
+                    accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
+                )
                 let cookies: Operations.updatePet.Input.Cookies = .init()
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Components.RequestBodies.UpdatePetRequest?
@@ -496,7 +502,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     )
                 )
                 let query: Operations.uploadAvatarForPet.Input.Query = .init()
-                let headers: Operations.uploadAvatarForPet.Input.Headers = .init()
+                let headers: Operations.uploadAvatarForPet.Input.Headers = .init(
+                    accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
+                )
                 let cookies: Operations.uploadAvatarForPet.Input.Cookies = .init()
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.uploadAvatarForPet.Input.Body

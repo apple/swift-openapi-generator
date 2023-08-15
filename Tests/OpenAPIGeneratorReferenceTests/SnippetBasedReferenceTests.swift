@@ -584,7 +584,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             case ._public: return "public"
                         }
                     }
-                    public static var allCases: [MyEnum] { [.one, ._empty, ._tart, ._public] }
+                    public static var allCases: [Self] { [.one, ._empty, ._tart, ._public] }
                 }
             }
             """
