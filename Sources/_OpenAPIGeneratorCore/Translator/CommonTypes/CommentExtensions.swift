@@ -96,6 +96,16 @@ extension TypeName {
             suffix: generatedFromCommentText
         )
     }
+    
+    func docCommentWithUserDescription(_ userDescription: String?, subPath: String) -> Comment? {
+        guard let fullyQualifiedJSONPath else {
+            return Comment.doc(prefix: userDescription, suffix: nil)
+        }
+        return Comment.doc(
+            prefix: userDescription,
+            suffix:  "- Remark: Generated from `\(fullyQualifiedJSONPath)/\(subPath)`."
+        )
+    }
 }
 
 extension ResponseKind {

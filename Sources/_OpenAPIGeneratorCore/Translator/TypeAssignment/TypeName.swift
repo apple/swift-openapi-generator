@@ -126,6 +126,10 @@ struct TypeName: Equatable {
         precondition(components.count >= 1, "Cannot get the parent of a root type")
         return .init(components: components.dropLast())
     }
+    
+    var isComponent: Bool {
+        description.contains("#/components")
+    }
 }
 
 extension TypeName: CustomStringConvertible {

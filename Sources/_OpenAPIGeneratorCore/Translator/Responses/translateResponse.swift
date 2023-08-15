@@ -20,6 +20,7 @@ extension TypesFileTranslator {
     ///   - typedResponse: The typed response to declare.
     /// - Returns: A structure declaration.
     func translateResponseInTypes(
+        responseKind: String = "",
         typeName: TypeName,
         response: TypedResponse
     ) throws -> Declaration {
@@ -34,10 +35,19 @@ extension TypesFileTranslator {
             inParent: headersTypeName
         )
         let headerProperties: [PropertyBlueprint] = try headers.map { header in
-            try parseResponseHeaderAsProperty(for: header)
+            try parseResponseHeaderAsProperty(
+                responseKind: responseKind,
+                typeName: typeName,
+                for: header)
         }
+        let headerStructComment: Comment? = {
+            let subPath = typeName.isComponent
+                  ? "headers"
+                  : "reponses/\(responseKind)/headers"
+            return typeName.docCommentWithUserDescription(nil, subPath: subPath)
+        }()
         let headersStructBlueprint: StructBlueprint = .init(
-            comment: nil,
+            comment: headerStructComment,
             access: config.access,
             typeName: headersTypeName,
             conformances: Constants.Operation.Output.Payload.Headers.conformances,
@@ -76,22 +86,35 @@ extension TypesFileTranslator {
                 )
                 bodyCases.append(contentsOf: inlineTypeDecls)
             }
-            let bodyCase: Declaration = .enumCase(
-                name: identifier,
-                kind: .nameWithAssociatedValues([
-                    .init(type: associatedType.fullyQualifiedSwiftName)
-                ])
+            let subPathForContentCase = typeName.isComponent
+              ? "content/\(typedContent.content.contentType.lowercasedTypeAndSubtypeWithEscape)"
+              : "reponses/\(responseKind)/content/\(typedContent.content.contentType.lowercasedTypeAndSubtypeWithEscape)"
+            let bodyCase: Declaration = .commentable(
+                typeName.docCommentWithUserDescription(nil, subPath: subPathForContentCase),
+                .enumCase(
+                    name: identifier,
+                    kind: .nameWithAssociatedValues([
+                        .init(type: associatedType.fullyQualifiedSwiftName)
+                    ])
+                )
             )
             bodyCases.append(bodyCase)
         }
+        let subPathForContent = typeName.isComponent
+              ? "content"
+              : "reponses/\(responseKind)/content"
         let hasNoContent: Bool = bodyCases.isEmpty
-        let contentEnumDecl: Declaration = .enum(
-            isFrozen: true,
-            accessModifier: config.access,
-            name: bodyTypeName.shortSwiftName,
-            conformances: Constants.Operation.Body.conformances,
-            members: bodyCases
+        let contentEnumDecl: Declaration = .commentable(
+            typeName.docCommentWithUserDescription(nil, subPath: subPathForContent),
+            .enum(
+                isFrozen: true,
+                accessModifier: config.access,
+                name: bodyTypeName.shortSwiftName,
+                conformances: Constants.Operation.Body.conformances,
+                members: bodyCases
+            )
         )
+        
         let contentTypeUsage = bodyTypeName.asUsage.withOptional(hasNoContent)
         let contentProperty = PropertyBlueprint(
             comment: .doc("Received HTTP response body"),

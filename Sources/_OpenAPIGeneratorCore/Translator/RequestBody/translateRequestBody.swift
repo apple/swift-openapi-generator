@@ -41,6 +41,7 @@ extension TypesFileTranslator {
     /// - Returns: A list of declarations; empty if the request body is
     /// unsupported.
     func requestBodyContentCases(
+        typeName: TypeName,
         for requestBody: TypedRequestBody
     ) throws -> [Declaration] {
         var bodyMembers: [Declaration] = []
@@ -54,13 +55,20 @@ extension TypesFileTranslator {
             }
             let identifier = contentSwiftName(content.content.contentType)
             let associatedType = content.resolvedTypeUsage
-            let contentCase: Declaration = .enumCase(
-                .init(
+            
+            let subPath: String = {
+                let contentPath = typeName.isComponent ? "content" : "requestBody/content"
+                return "\(contentPath)/\(content.content.contentType.lowercasedTypeAndSubtypeWithEscape)"
+            }()
+            
+            let contentCase: Declaration = .commentable(
+                typeName.docCommentWithUserDescription(nil, subPath: subPath),
+                .enumCase(.init(
                     name: identifier,
                     kind: .nameWithAssociatedValues([
                         .init(type: associatedType.fullyQualifiedNonOptionalSwiftName)
                     ])
-                )
+                ))
             )
             bodyMembers.append(contentCase)
         }
@@ -131,7 +139,8 @@ extension TypesFileTranslator {
         requestBody: TypedRequestBody
     ) throws -> Declaration {
         let type = requestBody.typeUsage.typeName
-        let members = try requestBodyContentCases(for: requestBody)
+        let members = try requestBodyContentCases(typeName: type,
+                                                  for: requestBody)
         return translateRequestBodyInTypes(
             typeName: type,
             members: members
@@ -154,7 +163,14 @@ extension TypesFileTranslator {
             conformances: Constants.Operation.Output.conformances,
             members: members
         )
-        return bodyEnumDecl
+        let comment: Comment? = {
+            if typeName.isComponent {
+                return typeName.docCommentWithUserDescription(nil)
+            } else {
+                return typeName.docCommentWithUserDescription(nil, subPath: "requestBody")
+            }
+        }()
+        return .commentable(comment, bodyEnumDecl)
     }
 }
 

@@ -142,6 +142,10 @@ struct ContentType: Hashable {
     var lowercasedTypeAndSubtype: String {
         "\(lowercasedType)/\(lowercasedSubtype)"
     }
+    
+    var lowercasedTypeAndSubtypeWithEscape: String {
+        "\(lowercasedType)\\/\(lowercasedSubtype)"
+    }
 
     /// The header value used when sending a content-type header.
     var headerValueForSending: String {
