@@ -217,10 +217,11 @@ final class Test_Client: XCTestCase {
         let response = try await client.createPet(
             .init(body: .json(.init(name: "Fluffz")))
         )
-        guard case let .badRequest(value) = response else {
+        guard case let .clientError(statusCode, value) = response else {
             XCTFail("Unexpected response: \(response)")
             return
         }
+        XCTAssertEqual(statusCode, 400)
         XCTAssertEqual(value.headers.X_Reason, "bad luck")
         switch value.body {
         case .json(let body):

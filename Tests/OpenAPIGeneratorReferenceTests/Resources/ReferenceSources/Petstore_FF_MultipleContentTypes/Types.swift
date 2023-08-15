@@ -1042,10 +1042,10 @@ public enum Operations {
             case created(Operations.createPet.Output.Created)
             /// Bad request
             ///
-            /// - Remark: Generated from `#/paths//pets/post(createPet)/responses/400`.
+            /// - Remark: Generated from `#/paths//pets/post(createPet)/responses/4XX`.
             ///
-            /// HTTP response code: `400 badRequest`.
-            case badRequest(Components.Responses.ErrorBadRequest)
+            /// HTTP response code: `400...499 clientError`.
+            case clientError(statusCode: Int, Components.Responses.ErrorBadRequest)
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.

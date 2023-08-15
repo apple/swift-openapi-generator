@@ -248,9 +248,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return response
-                case let .badRequest(value):
+                case let .clientError(statusCode, value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: 400)
+                    var response = Response(statusCode: statusCode)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsText(
                         in: &response.headerFields,
