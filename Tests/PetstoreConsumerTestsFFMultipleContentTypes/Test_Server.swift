@@ -66,11 +66,11 @@ final class Test_Server: XCTestCase {
                 XCTAssertEqual(
                     input.headers.accept,
                     [
-                        .init(quality: 0.8, contentType: .json),
-                        .init(contentType: .text),
+                        .init(contentType: .json, quality: 0.8),
+                        .init(contentType: .plainText),
                     ]
                 )
-                return .ok(.init(body: .text("count is 1")))
+                return .ok(.init(body: .plainText("count is 1")))
             }
         )
         let response = try await server.getStats(

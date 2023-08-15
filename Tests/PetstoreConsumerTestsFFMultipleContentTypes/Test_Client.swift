@@ -92,8 +92,8 @@ final class Test_Client: XCTestCase {
         let response = try await client.getStats(
             .init(
                 headers: .init(accept: [
-                    .init(quality: 0.8, contentType: .json),
-                    .init(contentType: .text),
+                    .init(contentType: .json, quality: 0.8),
+                    .init(contentType: .plainText),
                 ])
             )
         )
@@ -102,7 +102,7 @@ final class Test_Client: XCTestCase {
             return
         }
         switch value.body {
-        case .text(let stats):
+        case .plainText(let stats):
             XCTAssertEqual(stats, "count is 1")
         default:
             XCTFail("Unexpected content type")

@@ -264,7 +264,7 @@ public struct Client: APIProtocol {
                 suppressMutabilityWarning(&request)
                 try converter.setAcceptHeader(
                     in: &request.headerFields,
-                    value: input.headers.accept
+                    contentTypes: input.headers.accept
                 )
                 return request
             },

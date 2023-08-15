@@ -1070,11 +1070,11 @@ public enum Operations {
             public struct Headers: Sendable, Equatable, Hashable {
                 public enum AcceptableContentType: AcceptableProtocol {
                     case json
-                    case text
+                    case plainText
                     case binary
                     case other(String)
                     public static var defaultValues: [Operations.getStats.Input.Headers.AcceptableContentType] {
-                        [.json, .text, .binary]
+                        [.json, .plainText, .binary]
                     }
                     public init?(rawValue: String) {
                         let lowercasedRawValue = rawValue.lowercased()
@@ -1082,7 +1082,7 @@ public enum Operations {
                         case "application/json":
                             self = .json
                         case "text/plain":
-                            self = .text
+                            self = .plainText
                         case "application/octet-stream":
                             self = .binary
                         default:
@@ -1093,7 +1093,7 @@ public enum Operations {
                         switch self {
                         case .json:
                             return "application/json"
-                        case .text:
+                        case .plainText:
                             return "text/plain"
                         case .binary:
                             return "application/octet-stream"
@@ -1102,11 +1102,10 @@ public enum Operations {
                         }
                     }
                 }
-                public typealias Accept = [AcceptHeaderContentType<AcceptableContentType>]
-                public var accept: Accept
+                public var accept: [AcceptHeaderContentType<AcceptableContentType>]
                 /// Creates a new `Headers`.
                 public init(
-                    accept: Accept = Accept.Element.defaultValues
+                    accept: [AcceptHeaderContentType<AcceptableContentType>] = .defaultValues()
                 ) {
                     self.accept = accept
                 }
