@@ -882,11 +882,11 @@ public enum Operations {
         }
         @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct Ok: Sendable, Equatable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/GET/reponses/200/headers`.
+                /// - Remark: Generated from `#/paths/pets/GET/responses/200/headers`.
                 public struct Headers: Sendable, Equatable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/GET/reponses/200/headers/My-Response-UUID`.
+                    /// - Remark: Generated from `#/paths/pets/GET/responses/200/headers/My-Response-UUID`.
                     public var My_Response_UUID: Swift.String
-                    /// - Remark: Generated from `#/paths/pets/GET/reponses/200/headers/My-Tracing-Header`.
+                    /// - Remark: Generated from `#/paths/pets/GET/responses/200/headers/My-Tracing-Header`.
                     public var My_Tracing_Header: Components.Headers.TracingHeader?
                     /// Creates a new `Headers`.
                     ///
@@ -903,9 +903,9 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.listPets.Output.Ok.Headers
-                /// - Remark: Generated from `#/paths/pets/GET/reponses/200/content`.
+                /// - Remark: Generated from `#/paths/pets/GET/responses/200/content`.
                 @frozen public enum Body: Sendable, Equatable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/GET/reponses/200/content/application\/json`.
+                    /// - Remark: Generated from `#/paths/pets/GET/responses/200/content/application\/json`.
                     case json(Components.Schemas.Pets)
                 }
                 /// Received HTTP response body
@@ -930,16 +930,16 @@ public enum Operations {
             /// HTTP response code: `200 ok`.
             case ok(Operations.listPets.Output.Ok)
             public struct Default: Sendable, Equatable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/GET/reponses/default/headers`.
+                /// - Remark: Generated from `#/paths/pets/GET/responses/default/headers`.
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
                     public init() {}
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.listPets.Output.Default.Headers
-                /// - Remark: Generated from `#/paths/pets/GET/reponses/default/content`.
+                /// - Remark: Generated from `#/paths/pets/GET/responses/default/content`.
                 @frozen public enum Body: Sendable, Equatable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/GET/reponses/default/content/application\/json`.
+                    /// - Remark: Generated from `#/paths/pets/GET/responses/default/content/application\/json`.
                     case json(Components.Schemas._Error)
                 }
                 /// Received HTTP response body
@@ -1033,9 +1033,9 @@ public enum Operations {
         }
         @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct Created: Sendable, Equatable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/POST/reponses/201/headers`.
+                /// - Remark: Generated from `#/paths/pets/POST/responses/201/headers`.
                 public struct Headers: Sendable, Equatable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/POST/reponses/201/headers/X-Extra-Arguments`.
+                    /// - Remark: Generated from `#/paths/pets/POST/responses/201/headers/X-Extra-Arguments`.
                     public var X_Extra_Arguments: Components.Schemas.CodeError?
                     /// Creates a new `Headers`.
                     ///
@@ -1047,9 +1047,9 @@ public enum Operations {
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.createPet.Output.Created.Headers
-                /// - Remark: Generated from `#/paths/pets/POST/reponses/201/content`.
+                /// - Remark: Generated from `#/paths/pets/POST/responses/201/content`.
                 @frozen public enum Body: Sendable, Equatable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/POST/reponses/201/content/application\/json`.
+                    /// - Remark: Generated from `#/paths/pets/POST/responses/201/content/application\/json`.
                     case json(Components.Schemas.Pet)
                 }
                 /// Received HTTP response body
@@ -1141,16 +1141,16 @@ public enum Operations {
         }
         @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct Ok: Sendable, Equatable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/stats/GET/reponses/200/headers`.
+                /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/headers`.
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
                     public init() {}
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.getStats.Output.Ok.Headers
-                /// - Remark: Generated from `#/paths/pets/stats/GET/reponses/200/content`.
+                /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/content`.
                 @frozen public enum Body: Sendable, Equatable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/stats/GET/reponses/200/content/application\/json`.
+                    /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/content/application\/json`.
                     case json(Components.Schemas.PetStats)
                 }
                 /// Received HTTP response body
@@ -1239,14 +1239,14 @@ public enum Operations {
         }
         @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct Accepted: Sendable, Equatable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/stats/POST/reponses/202/headers`.
+                /// - Remark: Generated from `#/paths/pets/stats/POST/responses/202/headers`.
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
                     public init() {}
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.postStats.Output.Accepted.Headers
-                /// - Remark: Generated from `#/paths/pets/stats/POST/reponses/202/content`.
+                /// - Remark: Generated from `#/paths/pets/stats/POST/responses/202/content`.
                 @frozen public enum Body: Sendable, Equatable, Hashable {}
                 /// Received HTTP response body
                 public var body: Operations.postStats.Output.Accepted.Body?
@@ -1331,14 +1331,14 @@ public enum Operations {
         }
         @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct NoContent: Sendable, Equatable, Hashable {
-                /// - Remark: Generated from `#/paths/probe/POST/reponses/204/headers`.
+                /// - Remark: Generated from `#/paths/probe/POST/responses/204/headers`.
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
                     public init() {}
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.probe.Output.NoContent.Headers
-                /// - Remark: Generated from `#/paths/probe/POST/reponses/204/content`.
+                /// - Remark: Generated from `#/paths/probe/POST/responses/204/content`.
                 @frozen public enum Body: Sendable, Equatable, Hashable {}
                 /// Received HTTP response body
                 public var body: Operations.probe.Output.NoContent.Body?
@@ -1428,14 +1428,14 @@ public enum Operations {
         }
         @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct NoContent: Sendable, Equatable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/reponses/204/headers`.
+                /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/204/headers`.
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
                     public init() {}
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.updatePet.Output.NoContent.Headers
-                /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/reponses/204/content`.
+                /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/204/content`.
                 @frozen public enum Body: Sendable, Equatable, Hashable {}
                 /// Received HTTP response body
                 public var body: Operations.updatePet.Output.NoContent.Body?
@@ -1459,14 +1459,14 @@ public enum Operations {
             /// HTTP response code: `204 noContent`.
             case noContent(Operations.updatePet.Output.NoContent)
             public struct BadRequest: Sendable, Equatable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/reponses/400/headers`.
+                /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/400/headers`.
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
                     public init() {}
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.updatePet.Output.BadRequest.Headers
-                /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/reponses/400/content`.
+                /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/400/content`.
                 @frozen public enum Body: Sendable, Equatable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/json`.
                     public struct jsonPayload: Codable, Equatable, Hashable, Sendable {
@@ -1479,7 +1479,7 @@ public enum Operations {
                         public init(message: Swift.String) { self.message = message }
                         public enum CodingKeys: String, CodingKey { case message }
                     }
-                    /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/reponses/400/content/application\/json`.
+                    /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/400/content/application\/json`.
                     case json(Operations.updatePet.Output.BadRequest.Body.jsonPayload)
                 }
                 /// Received HTTP response body
@@ -1575,16 +1575,16 @@ public enum Operations {
         }
         @frozen public enum Output: Sendable, Equatable, Hashable {
             public struct Ok: Sendable, Equatable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/reponses/200/headers`.
+                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/200/headers`.
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
                     public init() {}
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.uploadAvatarForPet.Output.Ok.Headers
-                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/reponses/200/content`.
+                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/200/content`.
                 @frozen public enum Body: Sendable, Equatable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/reponses/200/content/application\/octet-stream`.
+                    /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/200/content/application\/octet-stream`.
                     case binary(Foundation.Data)
                 }
                 /// Received HTTP response body
@@ -1609,16 +1609,16 @@ public enum Operations {
             /// HTTP response code: `200 ok`.
             case ok(Operations.uploadAvatarForPet.Output.Ok)
             public struct PreconditionFailed: Sendable, Equatable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/reponses/412/headers`.
+                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/412/headers`.
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
                     public init() {}
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.uploadAvatarForPet.Output.PreconditionFailed.Headers
-                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/reponses/412/content`.
+                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/412/content`.
                 @frozen public enum Body: Sendable, Equatable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/reponses/412/content/application\/json`.
+                    /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/412/content/application\/json`.
                     case json(Swift.String)
                 }
                 /// Received HTTP response body
@@ -1644,16 +1644,16 @@ public enum Operations {
             /// HTTP response code: `412 preconditionFailed`.
             case preconditionFailed(Operations.uploadAvatarForPet.Output.PreconditionFailed)
             public struct InternalServerError: Sendable, Equatable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/reponses/500/headers`.
+                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/500/headers`.
                 public struct Headers: Sendable, Equatable, Hashable {
                     /// Creates a new `Headers`.
                     public init() {}
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.uploadAvatarForPet.Output.InternalServerError.Headers
-                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/reponses/500/content`.
+                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/500/content`.
                 @frozen public enum Body: Sendable, Equatable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/reponses/500/content/text\/plain`.
+                    /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/500/content/text\/plain`.
                     case text(Swift.String)
                 }
                 /// Received HTTP response body
