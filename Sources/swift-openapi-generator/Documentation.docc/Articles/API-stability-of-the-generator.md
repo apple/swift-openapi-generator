@@ -6,7 +6,14 @@ Understand the impact of updating the generator package plugin on the generated 
 
 Swift OpenAPI Generator generates client and server Swift code from an OpenAPI document. The generated code may change if the OpenAPI document is changed or a different version of the generator is used.
 
-This document outlines the API stability goals for the generated code to help you avoid unintentional build errors when updating to a new version of Swift OpenAPI Generator.
+This document outlines the API stability goals for the generator to help you avoid unintentional build errors when updating to a new version of Swift OpenAPI Generator.
+
+The components covered by these rules are:
+- the name of the Swift OpenAPI Generator package plugin
+- the format of the config file provided to Swift OpenAPI Generator (plugin or CLI tool)
+- the Swift OpenAPI Generator CLI tool arguments
+
+If you upgrade any of the components above to the next non-breaking version, your project should continue to build successfully. Check out how these rules are applied before 1.0 is released, and what a breaking change means for the generated code: <doc:API-stability-of-generated-code>.
 
 ### API stability for versions >= 1.0.0
 
