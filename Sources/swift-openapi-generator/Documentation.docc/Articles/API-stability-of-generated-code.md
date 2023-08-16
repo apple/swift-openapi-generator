@@ -27,7 +27,7 @@ Below is a table of example changes you might make to an OpenAPI document, and w
 | Remove a required property | ❌ | ❌ | ❌ |
 | Rename a schema | ✅ | ❌ | ❌ |
 
-> †: Safe change to make as long as no adopter captured the Swift function signature of the initializer of the generated struct, which gains a new parameter. Rare, but something to be aware of. Note that when upgrading the generator to a newer version, we reserve the right to add new defaulted properties to generated structs, so such a change is considered non-breaking. For that reason, avoid capturing the function signature of generated structs.
+> †: Safe change to make as long as no adopter captured the Swift function signature of the initializer of the generated struct, which gains a new parameter. Rare, but something to be aware of. Note that when upgrading the generator to a newer version, we reserve the right to add new defaulted properties to generated structs, so such a change is considered non-breaking. For that reason, avoid capturing the function signature of the initializer of any generated struct.
 
 > ‡: Adding a new response to an existing operation introduces a new enum case that the adopter needs to handle, so is a breaking change in OpenAPI and Swift.
 
