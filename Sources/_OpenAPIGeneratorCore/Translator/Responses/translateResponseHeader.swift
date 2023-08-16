@@ -22,14 +22,18 @@ extension TypesFileTranslator {
     ///   - header: A response parameter.
     /// - Returns: A property blueprint.
     func parseResponseHeaderAsProperty(
-        responseKind: ResponseKind,
+        responseKind: ResponseKind?,
         typeName: TypeName,
         for header: TypedResponseHeader
     ) throws -> PropertyBlueprint {
         let comment: Comment? = {
-            let subPath: String = typeName.isComponent
-            ? "headers/\(header.name)"
-            : "responses/\(responseKind)/headers/\(header.name)"
+            let subPath: String = {
+                if let responseKind = responseKind?.jsonPathComponent, !typeName.isComponent {
+                    return "responses/\(responseKind)/headers/\(header.name)"
+                } else {
+                    return "headers/\(header.name)"
+                }
+            }()
             return typeName.docCommentWithUserDescription(nil, subPath: subPath)
         }()
         return .init(

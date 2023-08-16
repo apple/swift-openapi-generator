@@ -96,14 +96,19 @@ extension TypeName {
             suffix: generatedFromCommentText
         )
     }
-    
+
+    /// Returns a documentation comment by appending the "generated from" with some path
+    /// string to the specified user description.
+    /// - Parameter userDescription: The description specified by the user
+    /// - Parameter subPath: Sub path following `fullyQualifiedJSONPath`
+    /// in the OpenAPI document.
     func docCommentWithUserDescription(_ userDescription: String?, subPath: String) -> Comment? {
         guard let fullyQualifiedJSONPath else {
             return Comment.doc(prefix: userDescription, suffix: nil)
         }
         return Comment.doc(
             prefix: userDescription,
-            suffix:  "- Remark: Generated from `\(fullyQualifiedJSONPath)/\(subPath)`."
+            suffix: "- Remark: Generated from `\(fullyQualifiedJSONPath)/\(subPath)`."
         )
     }
 }

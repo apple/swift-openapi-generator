@@ -20,7 +20,7 @@ extension TypesFileTranslator {
     ///   - typedResponse: The typed response to declare.
     /// - Returns: A structure declaration.
     func translateResponseInTypes(
-        responseKind: ResponseKind,
+        responseKind: ResponseKind?,
         typeName: TypeName,
         response: TypedResponse
     ) throws -> Declaration {
@@ -38,13 +38,15 @@ extension TypesFileTranslator {
             try parseResponseHeaderAsProperty(
                 responseKind: responseKind,
                 typeName: typeName,
-                for: header)
+                for: header
+            )
         }
         let headerStructComment: Comment? = {
-            let subPath = typeName.isComponent
-                  ? "headers"
-                  : "responses/\(responseKind)/headers"
-            return typeName.docCommentWithUserDescription(nil, subPath: subPath)
+            if let responseKind = responseKind?.jsonPathComponent, !typeName.isComponent {
+                return typeName.docCommentWithUserDescription(nil, subPath: "responses/\(responseKind)/headers")
+            } else {
+                return typeName.docCommentWithUserDescription(nil, subPath: "headers")
+            }
         }()
         let headersStructBlueprint: StructBlueprint = .init(
             comment: headerStructComment,
@@ -86,9 +88,15 @@ extension TypesFileTranslator {
                 )
                 bodyCases.append(contentsOf: inlineTypeDecls)
             }
-            let subPathForContentCase = typeName.isComponent
-              ? "content/\(typedContent.content.contentType.lowercasedTypeAndSubtypeWithEscape)"
-              : "reponses/\(responseKind)/content/\(typedContent.content.contentType.lowercasedTypeAndSubtypeWithEscape)"
+
+            let subPathForContentCase: String = {
+                if let responseKind = responseKind?.jsonPathComponent, !typeName.isComponent {
+                    return
+                        "responses/\(responseKind)/content/\(typedContent.content.contentType.lowercasedTypeAndSubtypeWithEscape)"
+                } else {
+                    return "content/\(typedContent.content.contentType.lowercasedTypeAndSubtypeWithEscape)"
+                }
+            }()
             let bodyCase: Declaration = .commentable(
                 typeName.docCommentWithUserDescription(nil, subPath: subPathForContentCase),
                 .enumCase(
@@ -100,9 +108,13 @@ extension TypesFileTranslator {
             )
             bodyCases.append(bodyCase)
         }
-        let subPathForContent = typeName.isComponent
-              ? "content"
-              : "reponses/\(responseKind)/content"
+        let subPathForContent: String = {
+            if let responseKind = responseKind?.jsonPathComponent, !typeName.isComponent {
+                return "responses/\(responseKind)/content"
+            } else {
+                return "content"
+            }
+        }()
         let hasNoContent: Bool = bodyCases.isEmpty
         let contentEnumDecl: Declaration = .commentable(
             typeName.docCommentWithUserDescription(nil, subPath: subPathForContent),
@@ -114,7 +126,7 @@ extension TypesFileTranslator {
                 members: bodyCases
             )
         )
-        
+
         let contentTypeUsage = bodyTypeName.asUsage.withOptional(hasNoContent)
         let contentProperty = PropertyBlueprint(
             comment: .doc("Received HTTP response body"),
@@ -159,6 +171,7 @@ extension TypesFileTranslator {
             of: OpenAPI.Response.self
         )
         return try translateResponseInTypes(
+            responseKind: nil,
             typeName: typeName,
             response: response
         )

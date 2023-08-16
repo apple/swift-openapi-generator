@@ -126,9 +126,13 @@ struct TypeName: Equatable {
         precondition(components.count >= 1, "Cannot get the parent of a root type")
         return .init(components: components.dropLast())
     }
-    
+
+    /// Returns a bool value indicating whether the list of JSON path components contains "#" first and "components" second.
     var isComponent: Bool {
-        description.contains("#/components")
+        guard let jsonKeyPathComponents else {
+            return false
+        }
+        return jsonKeyPathComponents[0] == "#" && jsonKeyPathComponents[1] == "components"
     }
 }
 

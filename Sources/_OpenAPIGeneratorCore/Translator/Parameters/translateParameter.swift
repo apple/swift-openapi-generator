@@ -43,7 +43,7 @@ extension TypesFileTranslator {
         } else {
             associatedDeclarations = []
         }
-        
+
         let comment: Comment? = parent.docCommentWithUserDescription(
             nil,
             subPath: "\(parameter.location.rawValue)/\(parameter.name)"
