@@ -20,7 +20,7 @@ extension TypesFileTranslator {
     ///   - typedResponse: The typed response to declare.
     /// - Returns: A structure declaration.
     func translateResponseInTypes(
-        responseKind: String = "",
+        responseKind: ResponseKind,
         typeName: TypeName,
         response: TypedResponse
     ) throws -> Declaration {
@@ -43,7 +43,7 @@ extension TypesFileTranslator {
         let headerStructComment: Comment? = {
             let subPath = typeName.isComponent
                   ? "headers"
-                  : "reponses/\(responseKind)/headers"
+                  : "responses/\(responseKind)/headers"
             return typeName.docCommentWithUserDescription(nil, subPath: subPath)
         }()
         let headersStructBlueprint: StructBlueprint = .init(

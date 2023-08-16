@@ -42,7 +42,7 @@ extension TypesFileTranslator {
         let responseStructDecl: Declaration?
         if typedResponse.isInlined {
             responseStructDecl = try translateResponseInTypes(
-                responseKind: responseKind.jsonPathComponent,
+                responseKind: responseKind,
                 typeName: typedResponse.typeUsage.typeName,
                 response: typedResponse
             )

@@ -44,8 +44,10 @@ extension TypesFileTranslator {
             associatedDeclarations = []
         }
         
-        let comment: Comment? = parent.docCommentWithUserDescription(nil,
-                                                                    subPath: "\(parameter.location.rawValue)/\(parameter.name)")
+        let comment: Comment? = parent.docCommentWithUserDescription(
+            nil,
+            subPath: "\(parameter.location.rawValue)/\(parameter.name)"
+        )
         return .init(
             comment: comment,
             isDeprecated: parameter.parameter.deprecated,

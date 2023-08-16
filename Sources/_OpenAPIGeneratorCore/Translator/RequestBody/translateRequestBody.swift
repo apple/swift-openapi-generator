@@ -41,7 +41,6 @@ extension TypesFileTranslator {
     /// - Returns: A list of declarations; empty if the request body is
     /// unsupported.
     func requestBodyContentCases(
-        typeName: TypeName,
         for requestBody: TypedRequestBody
     ) throws -> [Declaration] {
         var bodyMembers: [Declaration] = []
@@ -63,7 +62,7 @@ extension TypesFileTranslator {
             
             let contentCase: Declaration = .commentable(
                 typeName.docCommentWithUserDescription(nil, subPath: subPath),
-                .enumCase(.init(
+                .enumCase(
                     name: identifier,
                     kind: .nameWithAssociatedValues([
                         .init(type: associatedType.fullyQualifiedNonOptionalSwiftName)
@@ -139,8 +138,7 @@ extension TypesFileTranslator {
         requestBody: TypedRequestBody
     ) throws -> Declaration {
         let type = requestBody.typeUsage.typeName
-        let members = try requestBodyContentCases(typeName: type,
-                                                  for: requestBody)
+        let members = try requestBodyContentCases(for: requestBody)
         return translateRequestBodyInTypes(
             typeName: type,
             members: members
