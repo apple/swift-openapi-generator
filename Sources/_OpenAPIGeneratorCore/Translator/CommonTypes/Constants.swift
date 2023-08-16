@@ -145,9 +145,14 @@ enum Constants {
         /// The name of the undocumented enum case.
         static let undocumentedCaseName = "undocumented"
 
+        /// The name of the base conformance when enums are open.
+        static let baseConformanceOpen: String = "RawRepresentable"
+
+        /// The name of the base conformance when enums are closed.
+        static let baseConformanceClosed: String = "String"
+
         /// The types that every enum conforms to.
         static let conformances: [String] = [
-            "RawRepresentable",
             "Codable",
             "Equatable",
             "Hashable",

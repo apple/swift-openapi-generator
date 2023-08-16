@@ -338,52 +338,78 @@ extension FileTranslator {
                 )
             )
         }
-        let decodeUndocumentedExprs: [CodeBlock] = [
-            .declaration(
-                .variable(
-                    kind: .let,
-                    left: "container",
-                    right: .try(
-                        .identifier("decoder")
-                            .dot("singleValueContainer")
-                            .call([])
+
+        let generateUndocumentedCase = shouldGenerateUndocumentedCaseForEnumsAndOneOfs
+        let otherExprs: [CodeBlock]
+        if generateUndocumentedCase {
+            otherExprs = [
+                .declaration(
+                    .variable(
+                        kind: .let,
+                        left: "container",
+                        right: .try(
+                            .identifier("decoder")
+                                .dot("singleValueContainer")
+                                .call([])
+                        )
                     )
-                )
-            ),
-            .declaration(
-                .variable(
-                    kind: .let,
-                    left: "value",
-                    right: .try(
-                        .identifier("container")
-                            .dot("decode")
+                ),
+                .declaration(
+                    .variable(
+                        kind: .let,
+                        left: "value",
+                        right: .try(
+                            .identifier("container")
+                                .dot("decode")
+                                .call([
+                                    .init(
+                                        label: nil,
+                                        expression:
+                                            .identifier(
+                                                TypeName
+                                                    .valueContainer
+                                                    .fullyQualifiedSwiftName
+                                            )
+                                            .dot("self")
+                                    )
+                                ])
+                        )
+                    )
+                ),
+                .expression(
+                    .assignment(
+                        left: .identifier("self"),
+                        right: .dot(Constants.OneOf.undocumentedCaseName)
+                            .call([
+                                .init(label: nil, expression: .identifier("value"))
+                            ])
+                    )
+                ),
+            ]
+        } else {
+            otherExprs = [
+                .expression(
+                    .unaryKeyword(
+                        kind: .throw,
+                        expression: .identifier("DecodingError")
+                            .dot("failedToDecodeOneOfSchema")
                             .call([
                                 .init(
-                                    label: nil,
-                                    expression:
-                                        .identifier(
-                                            TypeName
-                                                .valueContainer
-                                                .fullyQualifiedSwiftName
-                                        )
-                                        .dot("self")
-                                )
+                                    label: "type",
+                                    expression: .identifier("Self").dot("self")
+                                ),
+                                .init(
+                                    label: "codingPath",
+                                    expression: .identifier("decoder").dot("codingPath")
+                                ),
                             ])
                     )
                 )
-            ),
-            .expression(
-                .assignment(
-                    left: .identifier("self"),
-                    right: .dot(Constants.OneOf.undocumentedCaseName)
-                        .call([
-                            .init(label: nil, expression: .identifier("value"))
-                        ])
-                )
-            ),
-        ]
+            ]
+        }
+
         return decoderInitializer(
-            body: (assignExprs).map { .expression($0) } + decodeUndocumentedExprs
+            body: (assignExprs).map { .expression($0) } + otherExprs
         )
     }
 
@@ -507,9 +533,16 @@ extension FileTranslator {
     func translateOneOfEncoder(
         caseNames: [String]
     ) -> Declaration {
+        let generateUndocumentedCase = shouldGenerateUndocumentedCaseForEnumsAndOneOfs
+        let otherCaseNames: [String]
+        if generateUndocumentedCase {
+            otherCaseNames = [Constants.OneOf.undocumentedCaseName]
+        } else {
+            otherCaseNames = []
+        }
         let switchExpr: Expression = .switch(
             switchedExpression: .identifier("self"),
-            cases: (caseNames + [Constants.OneOf.undocumentedCaseName])
+            cases: (caseNames + otherCaseNames)
                 .map { caseName in
                     .init(
                         kind: .case(.dot(caseName), ["value"]),
