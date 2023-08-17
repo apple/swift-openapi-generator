@@ -72,3 +72,56 @@ MyOpenOneOf:
         - #/components/schemas/Baz
     - type: object
 ```
+
+### Server-sent Events/EventSource
+
+While [Server-sent Events](https://en.wikipedia.org/wiki/Server-sent_events) are not explicitly part of the OpenAPI 3.0 or 3.1 specification, you can document an operation that returns SSE and also the event payloads themselves.
+
+> Important: Until [async bodies](https://github.com/apple/swift-openapi-generator/issues/9) are supported in Swift OpenAPI Generator, SSE are of limited value, as bodies are fully buffered before being returned to the caller.
+
+In the OpenAPI document, an example of an operation that returns SSE could look like:
+
+```yaml
+paths:
+  /events:
+    get:
+      operationId: getEvents
+      responses:
+        '200':
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                format: binary
+components:
+  schemas:
+    MyEvent:
+      type: object
+      properties:
+        ...
+```
+
+The returned binary body contains the raw events, and the stream can be split up into events by using one of the existing Swift implementations of Server-sent Events (sometimes libraries also use the term EventSource for the client of server-sent events).
+
+If the event themselves are documented using one of the JSON schemas from the OpenAPI document (such as `MyEvent` in the example above), you can use the generated Codable type to easily parse the payload.
+
+```swift
+guard case .ok(let okPayload) = try await client.getEvents(.init()) else {
+    // handle an unexpected HTTP response code
+}
+guard case .text_event_hyphen_stream(let rawBody) = okPayload.body else {
+    // handle an unexpected content type
+}
+// ... pass rawBody to an SSE library
+let streamOfRawEvents: AsyncSequence<Data> = ... // returned by an SSE library
+for try await rawEventData in streamOfRawEvents {
+    let event = try JSONDecoder().decode(
+        Components.Schemas.MyEvent.self
+        from: rawEventData
+    )
+    // Print the type-safe event here
+    print(event)
+}
+```
+
+This way, with a little bit of manual work, you can still get type safety from an SSE operation being documented in an OpenAPI document.
