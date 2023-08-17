@@ -77,7 +77,7 @@ MyOpenOneOf:
 
 While [Server-sent Events](https://en.wikipedia.org/wiki/Server-sent_events) are not explicitly part of the OpenAPI 3.0 or 3.1 specification, you can document an operation that returns SSE and also the event payloads themselves.
 
-> Important: Until [async bodies](https://github.com/apple/swift-openapi-generator/issues/9) are supported in Swift OpenAPI Generator are supported, SSE are of limited value, as bodies are fully buffered before being returned to the caller.
+> Important: Until [async bodies](https://github.com/apple/swift-openapi-generator/issues/9) are supported in Swift OpenAPI Generator, SSE are of limited value, as bodies are fully buffered before being returned to the caller.
 
 In the OpenAPI document, an example of an operation that returns SSE could look like:
 
