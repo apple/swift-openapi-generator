@@ -1223,6 +1223,23 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testServerRegisterHandlers_noOperation() throws {
+        try self.assertServerRegisterHandlers(
+            """
+            {}
+            """,
+            """
+            public func registerHandlers(
+                on transport: any ServerTransport,
+                serverURL: URL = .defaultOpenAPIServerURL,
+                configuration: Configuration = .init(),
+                middlewares: [any ServerMiddleware] = []
+            ) throws {
+            }
+            """
+        )
+    }
+
     func testPathWithPathItemReference() throws {
         XCTAssertThrowsError(
             try self.assertPathsTranslation(

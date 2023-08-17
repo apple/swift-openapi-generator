@@ -98,7 +98,7 @@ struct ServerFileTranslator: FileTranslator {
             }
         let serverMethodDecls = serverMethodDeclPairs.map(\.functionDecl)
 
-        // To avoid an used variable warning, we add the server variable declaration
+        // To avoid an unused variable warning, we add the server variable declaration
         // and server method register calls to the body of the register handler declaration
         // only when there is at least one registration call.
         if !serverMethodDeclPairs.isEmpty {
