@@ -446,6 +446,139 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasOneOf_closed() throws {
+        try self.assertSchemasTranslation(
+            featureFlags: [.closedEnumsAndOneOfs],
+            """
+            schemas:
+              A: {}
+              MyOneOf:
+                oneOf:
+                  - type: string
+                  - type: integer
+                  - $ref: '#/components/schemas/A'
+            """,
+            """
+            public enum Schemas {
+                public typealias A = OpenAPIRuntime.OpenAPIValueContainer
+                @frozen public enum MyOneOf: Codable, Equatable, Hashable, Sendable {
+                    case case1(Swift.String)
+                    case case2(Swift.Int)
+                    case A(Components.Schemas.A)
+                    public init(from decoder: any Decoder) throws {
+                        do {
+                            self = .case1(try .init(from: decoder))
+                            return
+                        } catch {}
+                        do {
+                            self = .case2(try .init(from: decoder))
+                            return
+                        } catch {}
+                        do {
+                            self = .A(try .init(from: decoder))
+                            return
+                        } catch {}
+                        throw DecodingError.failedToDecodeOneOfSchema(
+                            type: Self.self,
+                            codingPath: decoder.codingPath
+                        )
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        switch self {
+                        case let .case1(value): try value.encode(to: encoder)
+                        case let .case2(value): try value.encode(to: encoder)
+                        case let .A(value): try value.encode(to: encoder)
+                        }
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasOneOf_open_pattern() throws {
+        try self.assertSchemasTranslation(
+            featureFlags: [.closedEnumsAndOneOfs],
+            """
+            schemas:
+              A:
+                type: object
+                additionalProperties: false
+              MyOpenOneOf:
+                anyOf:
+                  - oneOf:
+                    - type: string
+                    - type: integer
+                    - $ref: '#/components/schemas/A'
+                  - {}
+            """,
+            """
+            public enum Schemas {
+                public struct A: Codable, Equatable, Hashable, Sendable {
+                    public init() {}
+                    public init(from decoder: any Decoder) throws {
+                        try decoder.ensureNoAdditionalProperties(knownKeys: [])
+                    }
+                }
+                public struct MyOpenOneOf: Codable, Equatable, Hashable, Sendable {
+                    @frozen public enum Value1Payload: Codable, Equatable, Hashable, Sendable {
+                        case case1(Swift.String)
+                        case case2(Swift.Int)
+                        case A(Components.Schemas.A)
+                        public init(from decoder: any Decoder) throws {
+                            do {
+                                self = .case1(try .init(from: decoder))
+                                return
+                            } catch {}
+                            do {
+                                self = .case2(try .init(from: decoder))
+                                return
+                            } catch {}
+                            do {
+                                self = .A(try .init(from: decoder))
+                                return
+                            } catch {}
+                            throw DecodingError.failedToDecodeOneOfSchema(
+                                type: Self.self,
+                                codingPath: decoder.codingPath
+                            )
+                        }
+                        public func encode(to encoder: any Encoder) throws {
+                            switch self {
+                            case let .case1(value): try value.encode(to: encoder)
+                            case let .case2(value): try value.encode(to: encoder)
+                            case let .A(value): try value.encode(to: encoder)
+                            }
+                        }
+                    }
+                    public var value1: Components.Schemas.MyOpenOneOf.Value1Payload?
+                    public var value2: OpenAPIRuntime.OpenAPIValueContainer?
+                    public init(
+                        value1: Components.Schemas.MyOpenOneOf.Value1Payload? = nil,
+                        value2: OpenAPIRuntime.OpenAPIValueContainer? = nil
+                    ) {
+                        self.value1 = value1
+                        self.value2 = value2
+                    }
+                    public init(from decoder: any Decoder) throws {
+                        value1 = try? .init(from: decoder)
+                        value2 = try? .init(from: decoder)
+                        try DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                            [value1, value2],
+                            type: Self.self,
+                            codingPath: decoder.codingPath
+                        )
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        try value1?.encode(to: encoder)
+                        try value2?.encode(to: encoder)
+                    }
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsSchemasAllOfOneStringRef() throws {
         try self.assertSchemasTranslation(
             """
@@ -585,6 +718,86 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         }
                     }
                     public static var allCases: [MyEnum] { [.one, ._empty, ._tart, ._public] }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasEnum_closed() throws {
+        try self.assertSchemasTranslation(
+            featureFlags: [.closedEnumsAndOneOfs],
+            """
+            schemas:
+              MyEnum:
+                type: string
+                enum:
+                  - one
+                  -
+                  - $tart
+                  - public
+            """,
+            """
+            public enum Schemas {
+                @frozen
+                public enum MyEnum: String, Codable, Equatable, Hashable, Sendable,
+                    _AutoLosslessStringConvertible, CaseIterable
+                {
+                    case one = "one"
+                    case _empty = ""
+                    case _tart = "$tart"
+                    case _public = "public"
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasEnum_open_pattern() throws {
+        try self.assertSchemasTranslation(
+            featureFlags: [.closedEnumsAndOneOfs],
+            """
+            schemas:
+              MyOpenEnum:
+                anyOf:
+                  - type: string
+                    enum:
+                      - one
+                      - two
+                  - type: string
+            """,
+            """
+            public enum Schemas {
+                public struct MyOpenEnum: Codable, Equatable, Hashable, Sendable {
+                    @frozen
+                    public enum Value1Payload: String, Codable, Equatable, Hashable, Sendable,
+                        _AutoLosslessStringConvertible, CaseIterable
+                    {
+                        case one = "one"
+                        case two = "two"
+                    }
+                    public var value1: Components.Schemas.MyOpenEnum.Value1Payload?
+                    public var value2: Swift.String?
+                    public init(
+                        value1: Components.Schemas.MyOpenEnum.Value1Payload? = nil,
+                        value2: Swift.String? = nil
+                    ) {
+                        self.value1 = value1
+                        self.value2 = value2
+                    }
+                    public init(from decoder: any Decoder) throws {
+                        value1 = try? .init(from: decoder)
+                        value2 = try? .init(from: decoder)
+                        try DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                            [value1, value2],
+                            type: Self.self,
+                            codingPath: decoder.codingPath
+                        )
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        try value1?.encode(to: encoder)
+                        try value2?.encode(to: encoder)
+                    }
                 }
             }
             """
@@ -1322,12 +1535,16 @@ extension SnippetBasedReferenceTests {
     }
 
     func assertSchemasTranslation(
+        featureFlags: FeatureFlags = [],
         _ componentsYAML: String,
         _ expectedSwift: String,
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
-        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
+        let translator = try makeTypesTranslator(
+            featureFlags: featureFlags,
+            componentsYAML: componentsYAML
+        )
         let translation = try translator.translateSchemas(translator.components.schemas)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }

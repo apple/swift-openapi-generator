@@ -143,6 +143,14 @@ struct ContentType: Hashable {
         "\(lowercasedType)/\(lowercasedSubtype)"
     }
 
+    /// Returns the type and subtype as a "<type>\/<subtype>" string.
+    ///
+    /// Lowercased to ease case-insensitive comparisons, and escaped to show
+    /// that the slash between type and subtype is not a path separator.
+    var lowercasedTypeAndSubtypeWithEscape: String {
+        "\(lowercasedType)\\/\(lowercasedSubtype)"
+    }
+
     /// The header value used when sending a content-type header.
     var headerValueForSending: String {
         guard case .json = category else {
