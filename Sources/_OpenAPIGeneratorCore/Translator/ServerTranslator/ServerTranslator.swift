@@ -39,22 +39,67 @@ struct ServerFileTranslator: FileTranslator {
             + config.additionalImports
             .map { ImportDescription(moduleName: $0) }
 
-        let allOperations = try OperationDescription
+        let allOperations =
+            try OperationDescription
             .all(
                 from: doc.paths,
                 in: components,
                 asSwiftSafeName: swiftSafeName
             )
 
+        let (registerHandlersDecl, serverMethodDecls) = try translateRegisterHandlers(allOperations)
+
+        let protocolExtensionDecl: Declaration = .extension(
+            accessModifier: nil,
+            onType: Constants.APIProtocol.typeName,
+            declarations: [
+                registerHandlersDecl
+            ]
+        )
+
+        let serverExtensionDecl: Declaration = .extension(
+            accessModifier: .fileprivate,
+            onType: Constants.Server.Universal.typeName,
+            whereClause: .init(requirements: [
+                .conformance(
+                    Constants.Server.Universal.apiHandlerName,
+                    Constants.APIProtocol.typeName
+                )
+            ]),
+            declarations: serverMethodDecls
+        )
+
+        return StructuredSwiftRepresentation(
+            file: .init(
+                name: GeneratorMode.server.outputFileName,
+                contents: .init(
+                    topComment: topComment,
+                    imports: imports,
+                    codeBlocks: [
+                        .declaration(protocolExtensionDecl),
+                        .declaration(serverExtensionDecl),
+                    ]
+                )
+            )
+        )
+    }
+
+    /// Returns a declaration of the registerHandlers method and
+    /// the declarations of the individual operation methods.
+    /// - Parameter operations: The operations found in the OpenAPI document.
+    func translateRegisterHandlers(
+        _ operations: [OperationDescription]
+    ) throws -> (Declaration, [Declaration]) {
         var registerHandlersDeclBody: [CodeBlock] = []
-        let serverMethodDeclPairs = try allOperations
+        let serverMethodDeclPairs =
+            try operations
             .map { operation in
                 try translateServerMethod(operation, serverUrlVariableName: "server")
             }
         let serverMethodDecls = serverMethodDeclPairs.map(\.functionDecl)
 
         // To avoid an used variable warning, we add the server variable declaration
-        // and server method register cals to the body of the register handler declaration
+        // and server method register calls to the body of the register handler declaration
         // only when there is at least one registration call.
         if !serverMethodDeclPairs.isEmpty {
             let serverMethodRegisterCalls = serverMethodDeclPairs.map(\.registerCall)
@@ -117,39 +162,6 @@ struct ServerFileTranslator: FileTranslator {
                 body: registerHandlersDeclBody
             )
         )
-
-        let protocolExtensionDecl: Declaration = .extension(
-            accessModifier: nil,
-            onType: Constants.APIProtocol.typeName,
-            declarations: [
-                registerHandlersDecl
-            ]
-        )
-
-        let serverExtensionDecl: Declaration = .extension(
-            accessModifier: .fileprivate,
-            onType: Constants.Server.Universal.typeName,
-            whereClause: .init(requirements: [
-                .conformance(
-                    Constants.Server.Universal.apiHandlerName,
-                    Constants.APIProtocol.typeName
-                )
-            ]),
-            declarations: serverMethodDecls
-        )
-
-        return StructuredSwiftRepresentation(
-            file: .init(
-                name: GeneratorMode.server.outputFileName,
-                contents: .init(
-                    topComment: topComment,
-                    imports: imports,
-                    codeBlocks: [
-                        .declaration(protocolExtensionDecl),
-                        .declaration(serverExtensionDecl),
-                    ]
-                )
-            )
-        )
+        return (registerHandlersDecl, serverMethodDecls)
     }
 }
