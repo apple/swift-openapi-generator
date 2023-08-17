@@ -58,7 +58,7 @@ extension TypesFileTranslator {
 
             let typeName = requestBody.typeUsage.typeName
             let subPath: String = {
-                let contentPath = (typeName.isComponent ? "" : "requestBody/") + "content"
+                let contentPath = (typeName.isInComponents ? "" : "requestBody/") + "content"
                 return "\(contentPath)/\(contentType.lowercasedTypeAndSubtypeWithEscape)"
             }()
             let contentCase: Declaration = .commentable(
@@ -164,7 +164,7 @@ extension TypesFileTranslator {
             members: members
         )
         let comment: Comment? = {
-            if typeName.isComponent {
+            if typeName.isInComponents {
                 return typeName.docCommentWithUserDescription(nil)
             } else {
                 return typeName.docCommentWithUserDescription(nil, subPath: "requestBody")

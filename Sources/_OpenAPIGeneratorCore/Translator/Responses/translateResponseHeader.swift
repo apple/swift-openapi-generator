@@ -27,14 +27,14 @@ extension TypesFileTranslator {
         for header: TypedResponseHeader
     ) throws -> PropertyBlueprint {
         let comment: Comment? = {
-            let subPath: String = {
-                if let responseKind = responseKind?.jsonPathComponent, !typeName.isComponent {
-                    return "responses/\(responseKind)/headers/\(header.name)"
-                } else {
-                    return "headers/\(header.name)"
-                }
-            }()
-            return typeName.docCommentWithUserDescription(nil, subPath: subPath)
+            if let responseKind = responseKind?.jsonPathComponent, !typeName.isInComponents {
+                return typeName.docCommentWithUserDescription(
+                    nil,
+                    subPath: "responses/\(responseKind)/headers/\(header.name)"
+                )
+            } else {
+                return typeName.docCommentWithUserDescription(nil, subPath: "headers/\(header.name)")
+            }
         }()
         return .init(
             comment: comment,

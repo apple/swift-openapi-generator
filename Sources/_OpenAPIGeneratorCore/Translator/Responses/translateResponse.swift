@@ -24,8 +24,8 @@ extension TypesFileTranslator {
         typeName: TypeName,
         response: TypedResponse
     ) throws -> Declaration {
-
         let response = response.response
+        let subPathPrefixInOperations: String = "responses/\(responseKind?.jsonPathComponent ?? "")"
 
         let headersTypeName = typeName.appending(
             swiftComponent: Constants.Operation.Output.Payload.Headers.typeName
@@ -42,8 +42,8 @@ extension TypesFileTranslator {
             )
         }
         let headerStructComment: Comment? = {
-            if let responseKind = responseKind?.jsonPathComponent, !typeName.isComponent {
-                return typeName.docCommentWithUserDescription(nil, subPath: "responses/\(responseKind)/headers")
+            if !typeName.isInComponents {
+                return typeName.docCommentWithUserDescription(nil, subPath: "\(subPathPrefixInOperations)/headers")
             } else {
                 return typeName.docCommentWithUserDescription(nil, subPath: "headers")
             }
@@ -90,9 +90,9 @@ extension TypesFileTranslator {
             }
 
             let subPathForContentCase: String = {
-                if let responseKind = responseKind?.jsonPathComponent, !typeName.isComponent {
+                if !typeName.isInComponents {
                     return
-                        "responses/\(responseKind)/content/\(typedContent.content.contentType.lowercasedTypeAndSubtypeWithEscape)"
+                        "\(subPathPrefixInOperations)/content/\(typedContent.content.contentType.lowercasedTypeAndSubtypeWithEscape)"
                 } else {
                     return "content/\(typedContent.content.contentType.lowercasedTypeAndSubtypeWithEscape)"
                 }
@@ -108,13 +108,7 @@ extension TypesFileTranslator {
             )
             bodyCases.append(bodyCase)
         }
-        let subPathForContent: String = {
-            if let responseKind = responseKind?.jsonPathComponent, !typeName.isComponent {
-                return "responses/\(responseKind)/content"
-            } else {
-                return "content"
-            }
-        }()
+        let subPathForContent: String = !typeName.isInComponents ? "\(subPathPrefixInOperations)/content" : "content"
         let hasNoContent: Bool = bodyCases.isEmpty
         let contentEnumDecl: Declaration = .commentable(
             typeName.docCommentWithUserDescription(nil, subPath: subPathForContent),
