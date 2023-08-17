@@ -23,21 +23,26 @@ extension TypesFileTranslator {
         typeName: TypeName,
         response: TypedResponse
     ) throws -> Declaration {
-
         let response = response.response
-
         let headersTypeName = typeName.appending(
-            swiftComponent: Constants.Operation.Output.Payload.Headers.typeName
+            swiftComponent: Constants.Operation.Output.Payload.Headers.typeName,
+            jsonComponent: "headers"
         )
         let headers = try typedResponseHeaders(
             from: response,
             inParent: headersTypeName
         )
         let headerProperties: [PropertyBlueprint] = try headers.map { header in
-            try parseResponseHeaderAsProperty(for: header)
+            try parseResponseHeaderAsProperty(
+                for: header,
+                parent: headersTypeName
+            )
         }
+        let headerStructComment: Comment? =
+            headersTypeName
+            .docCommentWithUserDescription(nil)
         let headersStructBlueprint: StructBlueprint = .init(
-            comment: nil,
+            comment: headerStructComment,
             access: config.access,
             typeName: headersTypeName,
             conformances: Constants.Operation.Output.Payload.Headers.conformances,
@@ -58,7 +63,8 @@ extension TypesFileTranslator {
         )
 
         let bodyTypeName = typeName.appending(
-            swiftComponent: Constants.Operation.Body.typeName
+            swiftComponent: Constants.Operation.Body.typeName,
+            jsonComponent: "content"
         )
         let typedContents = try supportedTypedContents(
             response.content,
@@ -66,7 +72,8 @@ extension TypesFileTranslator {
         )
         var bodyCases: [Declaration] = []
         for typedContent in typedContents {
-            let identifier = contentSwiftName(typedContent.content.contentType)
+            let contentType = typedContent.content.contentType
+            let identifier = contentSwiftName(contentType)
             let associatedType = typedContent.resolvedTypeUsage
             if TypeMatcher.isInlinable(typedContent.content.schema), let inlineType = typedContent.typeUsage {
                 let inlineTypeDecls = try translateSchema(
@@ -76,22 +83,30 @@ extension TypesFileTranslator {
                 )
                 bodyCases.append(contentsOf: inlineTypeDecls)
             }
-            let bodyCase: Declaration = .enumCase(
-                name: identifier,
-                kind: .nameWithAssociatedValues([
-                    .init(type: associatedType.fullyQualifiedSwiftName)
-                ])
+
+            let bodyCase: Declaration = .commentable(
+                contentType.docComment(typeName: bodyTypeName),
+                .enumCase(
+                    name: identifier,
+                    kind: .nameWithAssociatedValues([
+                        .init(type: associatedType.fullyQualifiedSwiftName)
+                    ])
+                )
             )
             bodyCases.append(bodyCase)
         }
         let hasNoContent: Bool = bodyCases.isEmpty
-        let contentEnumDecl: Declaration = .enum(
-            isFrozen: true,
-            accessModifier: config.access,
-            name: bodyTypeName.shortSwiftName,
-            conformances: Constants.Operation.Body.conformances,
-            members: bodyCases
+        let contentEnumDecl: Declaration = .commentable(
+            bodyTypeName.docCommentWithUserDescription(nil),
+            .enum(
+                isFrozen: true,
+                accessModifier: config.access,
+                name: bodyTypeName.shortSwiftName,
+                conformances: Constants.Operation.Body.conformances,
+                members: bodyCases
+            )
         )
+
         let contentTypeUsage = bodyTypeName.asUsage.withOptional(hasNoContent)
         let contentProperty = PropertyBlueprint(
             comment: .doc("Received HTTP response body"),
