@@ -1185,6 +1185,61 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testServerRegisterHandlers_oneOperation() throws {
+        try self.assertServerRegisterHandlers(
+            """
+            /health:
+              get:
+                operationId: getHealth
+                responses:
+                  '200':
+                    description: A success response with a greeting.
+                    content:
+                      text/plain:
+                        schema:
+                          type: string
+            """,
+            """
+            public func registerHandlers(
+                on transport: any ServerTransport,
+                serverURL: URL = .defaultOpenAPIServerURL,
+                configuration: Configuration = .init(),
+                middlewares: [any ServerMiddleware] = []
+            ) throws {
+                let server = UniversalServer(
+                    serverURL: serverURL,
+                    handler: self,
+                    configuration: configuration,
+                    middlewares: middlewares
+                )
+                try transport.register(
+                    { try await server.getHealth(request: $0, metadata: $1) },
+                    method: .get,
+                    path: server.apiPathComponentsWithServerPrefix(["health"]),
+                    queryItemNames: []
+                )
+            }
+            """
+        )
+    }
+
+    func testServerRegisterHandlers_noOperation() throws {
+        try self.assertServerRegisterHandlers(
+            """
+            {}
+            """,
+            """
+            public func registerHandlers(
+                on transport: any ServerTransport,
+                serverURL: URL = .defaultOpenAPIServerURL,
+                configuration: Configuration = .init(),
+                middlewares: [any ServerMiddleware] = []
+            ) throws {
+            }
+            """
+        )
+    }
+
     func testPathWithPathItemReference() throws {
         XCTAssertThrowsError(
             try self.assertPathsTranslation(
@@ -1594,6 +1649,23 @@ extension SnippetBasedReferenceTests {
         let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
         let translation = try translator.translateAPIProtocol(paths)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
+    }
+
+    func assertServerRegisterHandlers(
+        _ pathsYAML: String,
+        _ expectedSwift: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let (_, _, translator) = try makeTranslators()
+        let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
+        let operations = try OperationDescription.all(
+            from: paths,
+            in: .noComponents,
+            asSwiftSafeName: translator.swiftSafeName
+        )
+        let (registerHandlersDecl, _) = try translator.translateRegisterHandlers(operations)
+        try XCTAssertSwiftEquivalent(registerHandlersDecl, expectedSwift, file: file, line: line)
     }
 }
 
