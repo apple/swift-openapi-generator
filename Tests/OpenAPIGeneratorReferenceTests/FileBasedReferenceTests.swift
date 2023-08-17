@@ -62,6 +62,8 @@ class FileBasedReferenceTests: XCTestCase {
             featureFlags: [
                 .multipleContentTypes,
                 .proposal0001,
+                .strictOpenAPIValidation,
+                .closedEnumsAndOneOfs,
             ]
         )
     }
