@@ -37,7 +37,7 @@ extension TypesFileTranslator {
                 )
             }
             let structDecl: Declaration = .commentable(
-                inputTypeName.docCommentWithUserDescription(nil, subPath: "\(location.rawValue)"),
+                structTypeName.docCommentWithUserDescription(nil),
                 translateStructBlueprint(
                     .init(
                         comment: nil,

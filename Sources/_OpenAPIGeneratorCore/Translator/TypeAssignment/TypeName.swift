@@ -112,8 +112,10 @@ struct TypeName: Equatable {
     /// - Parameters:
     ///   - swiftComponent: The name of the Swift type component.
     ///   - jsonComponent: The name of the JSON path component.
+    /// - Precondition: At least one of the components must be non-nil.
     /// - Returns: A new type name.
-    func appending(swiftComponent: String, jsonComponent: String? = nil) -> Self {
+    func appending(swiftComponent: String? = nil, jsonComponent: String? = nil) -> Self {
+        precondition(swiftComponent != nil || jsonComponent != nil, "At least the Swift or JSON name must be non-nil.")
         let newComponent = Component(swift: swiftComponent, json: jsonComponent)
         return .init(components: components + [newComponent])
     }
@@ -125,14 +127,6 @@ struct TypeName: Equatable {
     var parent: TypeName {
         precondition(components.count >= 1, "Cannot get the parent of a root type")
         return .init(components: components.dropLast())
-    }
-
-    /// Returns a bool value indicating whether the list of JSON path components contains "#" first and "components" second.
-    var isInComponents: Bool {
-        guard let jsonKeyPathComponents else {
-            return false
-        }
-        return jsonKeyPathComponents[0] == "#" && jsonKeyPathComponents[1] == "components"
     }
 }
 

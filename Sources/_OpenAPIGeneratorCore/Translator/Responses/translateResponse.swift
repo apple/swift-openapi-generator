@@ -20,15 +20,13 @@ extension TypesFileTranslator {
     ///   - typedResponse: The typed response to declare.
     /// - Returns: A structure declaration.
     func translateResponseInTypes(
-        responseKind: ResponseKind?,
         typeName: TypeName,
         response: TypedResponse
     ) throws -> Declaration {
         let response = response.response
-        let subPathPrefixInOperations: String = "responses/\(responseKind?.jsonPathComponent ?? "")"
-
         let headersTypeName = typeName.appending(
-            swiftComponent: Constants.Operation.Output.Payload.Headers.typeName
+            swiftComponent: Constants.Operation.Output.Payload.Headers.typeName,
+            jsonComponent: "headers"
         )
         let headers = try typedResponseHeaders(
             from: response,
@@ -36,18 +34,13 @@ extension TypesFileTranslator {
         )
         let headerProperties: [PropertyBlueprint] = try headers.map { header in
             try parseResponseHeaderAsProperty(
-                responseKind: responseKind,
-                typeName: typeName,
-                for: header
+                for: header,
+                parent: headersTypeName
             )
         }
-        let headerStructComment: Comment? = {
-            if !typeName.isInComponents {
-                return typeName.docCommentWithUserDescription(nil, subPath: "\(subPathPrefixInOperations)/headers")
-            } else {
-                return typeName.docCommentWithUserDescription(nil, subPath: "headers")
-            }
-        }()
+        let headerStructComment: Comment? =
+            headersTypeName
+            .docCommentWithUserDescription(nil)
         let headersStructBlueprint: StructBlueprint = .init(
             comment: headerStructComment,
             access: config.access,
@@ -70,7 +63,8 @@ extension TypesFileTranslator {
         )
 
         let bodyTypeName = typeName.appending(
-            swiftComponent: Constants.Operation.Body.typeName
+            swiftComponent: Constants.Operation.Body.typeName,
+            jsonComponent: "content"
         )
         let typedContents = try supportedTypedContents(
             response.content,
@@ -78,7 +72,8 @@ extension TypesFileTranslator {
         )
         var bodyCases: [Declaration] = []
         for typedContent in typedContents {
-            let identifier = contentSwiftName(typedContent.content.contentType)
+            let contentType = typedContent.content.contentType
+            let identifier = contentSwiftName(contentType)
             let associatedType = typedContent.resolvedTypeUsage
             if TypeMatcher.isInlinable(typedContent.content.schema), let inlineType = typedContent.typeUsage {
                 let inlineTypeDecls = try translateSchema(
@@ -89,16 +84,8 @@ extension TypesFileTranslator {
                 bodyCases.append(contentsOf: inlineTypeDecls)
             }
 
-            let subPathForContentCase: String = {
-                if !typeName.isInComponents {
-                    return
-                        "\(subPathPrefixInOperations)/content/\(typedContent.content.contentType.lowercasedTypeAndSubtypeWithEscape)"
-                } else {
-                    return "content/\(typedContent.content.contentType.lowercasedTypeAndSubtypeWithEscape)"
-                }
-            }()
             let bodyCase: Declaration = .commentable(
-                typeName.docCommentWithUserDescription(nil, subPath: subPathForContentCase),
+                contentType.docComment(typeName: bodyTypeName),
                 .enumCase(
                     name: identifier,
                     kind: .nameWithAssociatedValues([
@@ -108,10 +95,9 @@ extension TypesFileTranslator {
             )
             bodyCases.append(bodyCase)
         }
-        let subPathForContent: String = !typeName.isInComponents ? "\(subPathPrefixInOperations)/content" : "content"
         let hasNoContent: Bool = bodyCases.isEmpty
         let contentEnumDecl: Declaration = .commentable(
-            typeName.docCommentWithUserDescription(nil, subPath: subPathForContent),
+            bodyTypeName.docCommentWithUserDescription(nil),
             .enum(
                 isFrozen: true,
                 accessModifier: config.access,
@@ -165,7 +151,6 @@ extension TypesFileTranslator {
             of: OpenAPI.Response.self
         )
         return try translateResponseInTypes(
-            responseKind: nil,
             typeName: typeName,
             response: response
         )

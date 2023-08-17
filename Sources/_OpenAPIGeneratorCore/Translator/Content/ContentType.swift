@@ -145,8 +145,8 @@ struct ContentType: Hashable {
 
     /// Returns the type and subtype as a "<type>\/<subtype>" string.
     ///
-    /// Lowercased to ease case-insensitive comparisons,
-    /// and escaped to show that the slash between type and subtype is not a path.
+    /// Lowercased to ease case-insensitive comparisons, and escaped to show
+    /// that the slash between type and subtype is not a path separator.
     var lowercasedTypeAndSubtypeWithEscape: String {
         "\(lowercasedType)\\/\(lowercasedSubtype)"
     }

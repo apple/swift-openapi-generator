@@ -41,7 +41,6 @@ extension TypesFileTranslator {
             try typedResponses
             .map { value in
                 try translateResponseInTypes(
-                    responseKind: nil,
                     typeName: value.typeUsage.typeName,
                     response: value
                 )

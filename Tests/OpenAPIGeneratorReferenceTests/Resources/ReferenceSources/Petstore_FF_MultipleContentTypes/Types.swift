@@ -690,9 +690,9 @@ public enum Components {
             public var headers: Components.Responses.ErrorBadRequest.Headers
             /// - Remark: Generated from `#/components/responses/ErrorBadRequest/content`.
             @frozen public enum Body: Sendable, Equatable, Hashable {
-                /// - Remark: Generated from `#/components/responses/ErrorBadRequest/json`.
+                /// - Remark: Generated from `#/components/responses/ErrorBadRequest/content/json`.
                 public struct jsonPayload: Codable, Equatable, Hashable, Sendable {
-                    /// - Remark: Generated from `#/components/responses/ErrorBadRequest/json/code`.
+                    /// - Remark: Generated from `#/components/responses/ErrorBadRequest/content/json/code`.
                     public var code: Swift.Int
                     /// Creates a new `jsonPayload`.
                     ///
@@ -1478,9 +1478,9 @@ public enum Operations {
                 public var headers: Operations.updatePet.Output.BadRequest.Headers
                 /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/400/content`.
                 @frozen public enum Body: Sendable, Equatable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/json`.
+                    /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/400/content/json`.
                     public struct jsonPayload: Codable, Equatable, Hashable, Sendable {
-                        /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/json/message`.
+                        /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/400/content/json/message`.
                         public var message: Swift.String
                         /// Creates a new `jsonPayload`.
                         ///

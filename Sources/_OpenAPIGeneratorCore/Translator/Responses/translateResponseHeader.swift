@@ -20,22 +20,16 @@ extension TypesFileTranslator {
     ///
     /// - Parameters:
     ///   - header: A response parameter.
+    ///   - parent: The type name of the parent struct.
     /// - Returns: A property blueprint.
     func parseResponseHeaderAsProperty(
-        responseKind: ResponseKind?,
-        typeName: TypeName,
-        for header: TypedResponseHeader
+        for header: TypedResponseHeader,
+        parent: TypeName
     ) throws -> PropertyBlueprint {
-        let comment: Comment? = {
-            if let responseKind = responseKind?.jsonPathComponent, !typeName.isInComponents {
-                return typeName.docCommentWithUserDescription(
-                    nil,
-                    subPath: "responses/\(responseKind)/headers/\(header.name)"
-                )
-            } else {
-                return typeName.docCommentWithUserDescription(nil, subPath: "headers/\(header.name)")
-            }
-        }()
+        let comment = parent.docCommentWithUserDescription(
+            nil,
+            subPath: header.name
+        )
         return .init(
             comment: comment,
             originalName: header.name,

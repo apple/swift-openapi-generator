@@ -137,10 +137,7 @@ extension OperationDescription {
     var outputTypeName: TypeName {
         operationNamespace.appending(
             swiftComponent: Constants.Operation.Output.typeName,
-
-            // intentionally nil, we'll append the specific params etc
-            // with their valid JSON key path when nested inside Output
-            jsonComponent: nil
+            jsonComponent: "responses"
         )
     }
 
