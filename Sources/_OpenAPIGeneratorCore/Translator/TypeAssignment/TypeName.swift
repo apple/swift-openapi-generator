@@ -128,7 +128,7 @@ struct TypeName: Equatable {
     }
 
     /// Returns a bool value indicating whether the list of JSON path components contains "#" first and "components" second.
-    var isComponent: Bool {
+    var isInComponents: Bool {
         guard let jsonKeyPathComponents else {
             return false
         }

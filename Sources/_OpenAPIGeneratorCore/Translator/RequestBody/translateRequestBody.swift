@@ -52,18 +52,17 @@ extension TypesFileTranslator {
                 )
                 bodyMembers.append(contentsOf: inlineTypeDecls)
             }
-            let identifier = contentSwiftName(content.content.contentType)
+            let contentType = content.content.contentType
+            let identifier = contentSwiftName(contentType)
             let associatedType = content.resolvedTypeUsage
 
+            let typeName = requestBody.typeUsage.typeName
             let subPath: String = {
-                let contentPath = requestBody.typeUsage.typeName.isComponent ? "content" : "requestBody/content"
-                return "\(contentPath)/\(content.content.contentType.lowercasedTypeAndSubtypeWithEscape)"
+                let contentPath = (typeName.isComponent ? "" : "requestBody/") + "content"
+                return "\(contentPath)/\(contentType.lowercasedTypeAndSubtypeWithEscape)"
             }()
-
             let contentCase: Declaration = .commentable(
-                requestBody
-                    .typeUsage
-                    .typeName
+                typeName
                     .docCommentWithUserDescription(nil, subPath: subPath),
                 .enumCase(
                     name: identifier,
