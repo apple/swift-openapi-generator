@@ -188,9 +188,6 @@ final class Test_Types: XCTestCase {
         try _testRoundtrip(
             Components.Schemas.OneOfAny.case4(.init(message: "hello"))
         )
-        try _testRoundtrip(
-            Components.Schemas.OneOfAny.undocumented(true)
-        )
     }
 
     func testOneOfWithDiscriminator_roundtrip() throws {
@@ -210,14 +207,6 @@ final class Test_Types: XCTestCase {
                         value1: .init(kind: "MessagedExercise"),
                         value2: .init(message: "hello")
                     )
-                )
-        )
-        try _testRoundtrip(
-            Components.Schemas.OneOfObjectsWithDiscriminator
-                .undocumented(
-                    .init(unvalidatedValue: [
-                        "kind": "nope"
-                    ])
                 )
         )
     }

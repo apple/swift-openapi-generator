@@ -99,42 +99,15 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/schemas/PetKind`.
         @frozen
-        public enum PetKind: RawRepresentable, Codable, Equatable, Hashable, Sendable,
+        public enum PetKind: String, Codable, Equatable, Hashable, Sendable,
             _AutoLosslessStringConvertible, CaseIterable
         {
-            case cat
-            case dog
-            case ELEPHANT
-            case BIG_ELEPHANT_1
-            case _dollar_nake
-            case _public
-            /// Parsed a raw value that was not defined in the OpenAPI document.
-            case undocumented(String)
-            public init?(rawValue: String) {
-                switch rawValue {
-                case "cat": self = .cat
-                case "dog": self = .dog
-                case "ELEPHANT": self = .ELEPHANT
-                case "BIG_ELEPHANT_1": self = .BIG_ELEPHANT_1
-                case "$nake": self = ._dollar_nake
-                case "public": self = ._public
-                default: self = .undocumented(rawValue)
-                }
-            }
-            public var rawValue: String {
-                switch self {
-                case let .undocumented(string): return string
-                case .cat: return "cat"
-                case .dog: return "dog"
-                case .ELEPHANT: return "ELEPHANT"
-                case .BIG_ELEPHANT_1: return "BIG_ELEPHANT_1"
-                case ._dollar_nake: return "$nake"
-                case ._public: return "public"
-                }
-            }
-            public static var allCases: [PetKind] {
-                [.cat, .dog, .ELEPHANT, .BIG_ELEPHANT_1, ._dollar_nake, ._public]
-            }
+            case cat = "cat"
+            case dog = "dog"
+            case ELEPHANT = "ELEPHANT"
+            case BIG_ELEPHANT_1 = "BIG_ELEPHANT_1"
+            case _dollar_nake = "$nake"
+            case _public = "public"
         }
         /// - Remark: Generated from `#/components/schemas/CreatePetRequest`.
         public struct CreatePetRequest: Codable, Equatable, Hashable, Sendable {
@@ -226,31 +199,12 @@ public enum Components {
         public struct PetFeeding: Codable, Equatable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/PetFeeding/schedule`.
             @frozen
-            public enum schedulePayload: RawRepresentable, Codable, Equatable, Hashable, Sendable,
+            public enum schedulePayload: String, Codable, Equatable, Hashable, Sendable,
                 _AutoLosslessStringConvertible, CaseIterable
             {
-                case hourly
-                case daily
-                case weekly
-                /// Parsed a raw value that was not defined in the OpenAPI document.
-                case undocumented(String)
-                public init?(rawValue: String) {
-                    switch rawValue {
-                    case "hourly": self = .hourly
-                    case "daily": self = .daily
-                    case "weekly": self = .weekly
-                    default: self = .undocumented(rawValue)
-                    }
-                }
-                public var rawValue: String {
-                    switch self {
-                    case let .undocumented(string): return string
-                    case .hourly: return "hourly"
-                    case .daily: return "daily"
-                    case .weekly: return "weekly"
-                    }
-                }
-                public static var allCases: [schedulePayload] { [.hourly, .daily, .weekly] }
+                case hourly = "hourly"
+                case daily = "daily"
+                case weekly = "weekly"
             }
             /// - Remark: Generated from `#/components/schemas/PetFeeding/schedule`.
             public var schedule: Components.Schemas.PetFeeding.schedulePayload?
@@ -456,8 +410,6 @@ public enum Components {
             }
             /// - Remark: Generated from `#/components/schemas/OneOfAny/case4`.
             case case4(Components.Schemas.OneOfAny.Case4Payload)
-            /// Parsed a case that was not defined in the OpenAPI document.
-            case undocumented(OpenAPIRuntime.OpenAPIValueContainer)
             public init(from decoder: any Decoder) throws {
                 do {
                     self = .case1(try .init(from: decoder))
@@ -475,9 +427,10 @@ public enum Components {
                     self = .case4(try .init(from: decoder))
                     return
                 } catch {}
-                let container = try decoder.singleValueContainer()
-                let value = try container.decode(OpenAPIRuntime.OpenAPIValueContainer.self)
-                self = .undocumented(value)
+                throw DecodingError.failedToDecodeOneOfSchema(
+                    type: Self.self,
+                    codingPath: decoder.codingPath
+                )
             }
             public func encode(to encoder: any Encoder) throws {
                 switch self {
@@ -485,7 +438,6 @@ public enum Components {
                 case let .case2(value): try value.encode(to: encoder)
                 case let .CodeError(value): try value.encode(to: encoder)
                 case let .case4(value): try value.encode(to: encoder)
-                case let .undocumented(value): try value.encode(to: encoder)
                 }
             }
         }
@@ -564,8 +516,6 @@ public enum Components {
             case Walk(Components.Schemas.Walk)
             /// - Remark: Generated from `#/components/schemas/OneOfObjectsWithDiscriminator/case2`.
             case MessagedExercise(Components.Schemas.MessagedExercise)
-            /// Parsed a case that was not defined in the OpenAPI document.
-            case undocumented(OpenAPIRuntime.OpenAPIObjectContainer)
             public enum CodingKeys: String, CodingKey { case kind }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -574,16 +524,16 @@ public enum Components {
                 case "Walk": self = .Walk(try .init(from: decoder))
                 case "MessagedExercise": self = .MessagedExercise(try .init(from: decoder))
                 default:
-                    let container = try decoder.singleValueContainer()
-                    let value = try container.decode(OpenAPIRuntime.OpenAPIObjectContainer.self)
-                    self = .undocumented(value)
+                    throw DecodingError.failedToDecodeOneOfSchema(
+                        type: Self.self,
+                        codingPath: decoder.codingPath
+                    )
                 }
             }
             public func encode(to encoder: any Encoder) throws {
                 switch self {
                 case let .Walk(value): try value.encode(to: encoder)
                 case let .MessagedExercise(value): try value.encode(to: encoder)
-                case let .undocumented(value): try value.encode(to: encoder)
                 }
             }
         }
@@ -750,66 +700,24 @@ public enum Operations {
                 public var limit: Swift.Int32?
                 /// - Remark: Generated from `#/paths/pets/GET/query/habitat`.
                 @frozen
-                public enum habitatPayload: RawRepresentable, Codable, Equatable, Hashable,
-                    Sendable, _AutoLosslessStringConvertible, CaseIterable
+                public enum habitatPayload: String, Codable, Equatable, Hashable, Sendable,
+                    _AutoLosslessStringConvertible, CaseIterable
                 {
-                    case water
-                    case land
-                    case air
-                    case _empty
-                    /// Parsed a raw value that was not defined in the OpenAPI document.
-                    case undocumented(String)
-                    public init?(rawValue: String) {
-                        switch rawValue {
-                        case "water": self = .water
-                        case "land": self = .land
-                        case "air": self = .air
-                        case "": self = ._empty
-                        default: self = .undocumented(rawValue)
-                        }
-                    }
-                    public var rawValue: String {
-                        switch self {
-                        case let .undocumented(string): return string
-                        case .water: return "water"
-                        case .land: return "land"
-                        case .air: return "air"
-                        case ._empty: return ""
-                        }
-                    }
-                    public static var allCases: [habitatPayload] { [.water, .land, .air, ._empty] }
+                    case water = "water"
+                    case land = "land"
+                    case air = "air"
+                    case _empty = ""
                 }
                 /// - Remark: Generated from `#/paths/pets/GET/query/habitat`.
                 public var habitat: Operations.listPets.Input.Query.habitatPayload?
                 /// - Remark: Generated from `#/paths/pets/GET/query/feedsPayload`.
                 @frozen
-                public enum feedsPayloadPayload: RawRepresentable, Codable, Equatable, Hashable,
-                    Sendable, _AutoLosslessStringConvertible, CaseIterable
+                public enum feedsPayloadPayload: String, Codable, Equatable, Hashable, Sendable,
+                    _AutoLosslessStringConvertible, CaseIterable
                 {
-                    case omnivore
-                    case carnivore
-                    case herbivore
-                    /// Parsed a raw value that was not defined in the OpenAPI document.
-                    case undocumented(String)
-                    public init?(rawValue: String) {
-                        switch rawValue {
-                        case "omnivore": self = .omnivore
-                        case "carnivore": self = .carnivore
-                        case "herbivore": self = .herbivore
-                        default: self = .undocumented(rawValue)
-                        }
-                    }
-                    public var rawValue: String {
-                        switch self {
-                        case let .undocumented(string): return string
-                        case .omnivore: return "omnivore"
-                        case .carnivore: return "carnivore"
-                        case .herbivore: return "herbivore"
-                        }
-                    }
-                    public static var allCases: [feedsPayloadPayload] {
-                        [.omnivore, .carnivore, .herbivore]
-                    }
+                    case omnivore = "omnivore"
+                    case carnivore = "carnivore"
+                    case herbivore = "herbivore"
                 }
                 /// - Remark: Generated from `#/paths/pets/GET/query/feeds`.
                 public typealias feedsPayload = [Operations.listPets.Input.Query
