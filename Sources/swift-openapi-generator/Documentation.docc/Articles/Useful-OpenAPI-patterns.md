@@ -124,4 +124,4 @@ for try await rawEventData in streamOfRawEvents {
 }
 ```
 
-This way, with a little bit of manual work, you can still get a lot type safety from an SSE operation being documented in an OpenAPI document.
+This way, with a little bit of manual work, you can still get type safety from an SSE operation being documented in an OpenAPI document.
