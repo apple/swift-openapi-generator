@@ -27,7 +27,7 @@ extension TypesFileTranslator {
         parent: TypeName
     ) throws -> PropertyBlueprint {
         let comment = parent.docCommentWithUserDescription(
-            nil,
+            header.header.description,
             subPath: header.name
         )
         return .init(

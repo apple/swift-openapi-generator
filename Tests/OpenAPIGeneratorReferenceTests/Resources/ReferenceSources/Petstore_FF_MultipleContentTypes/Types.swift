@@ -590,6 +590,8 @@ public enum Components {
         @frozen public enum UpdatePetRequest: Sendable, Equatable, Hashable {
             /// - Remark: Generated from `#/components/requestBodies/UpdatePetRequest/json`.
             public struct jsonPayload: Codable, Equatable, Hashable, Sendable {
+                /// Pet name
+                ///
                 /// - Remark: Generated from `#/components/requestBodies/UpdatePetRequest/json/name`.
                 public var name: Swift.String?
                 /// - Remark: Generated from `#/components/requestBodies/UpdatePetRequest/json/kind`.
@@ -599,7 +601,7 @@ public enum Components {
                 /// Creates a new `jsonPayload`.
                 ///
                 /// - Parameters:
-                ///   - name:
+                ///   - name: Pet name
                 ///   - kind:
                 ///   - tag:
                 public init(
@@ -626,12 +628,14 @@ public enum Components {
         public struct ErrorBadRequest: Sendable, Equatable, Hashable {
             /// - Remark: Generated from `#/components/responses/ErrorBadRequest/headers`.
             public struct Headers: Sendable, Equatable, Hashable {
+                /// A description here.
+                ///
                 /// - Remark: Generated from `#/components/responses/ErrorBadRequest/headers/X-Reason`.
                 public var X_hyphen_Reason: Swift.String?
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
-                ///   - X_hyphen_Reason:
+                ///   - X_hyphen_Reason: A description here.
                 public init(X_hyphen_Reason: Swift.String? = nil) {
                     self.X_hyphen_Reason = X_hyphen_Reason
                 }
@@ -672,6 +676,8 @@ public enum Components {
     }
     /// Types generated from the `#/components/headers` section of the OpenAPI document.
     public enum Headers {
+        /// A description here.
+        ///
         /// - Remark: Generated from `#/components/headers/TracingHeader`.
         public typealias TracingHeader = Swift.String
     }
@@ -696,6 +702,8 @@ public enum Operations {
             public var path: Operations.listPets.Input.Path
             /// - Remark: Generated from `#/paths/pets/GET/query`.
             public struct Query: Sendable, Equatable, Hashable {
+                /// How many items to return at one time (max 100)
+                ///
                 /// - Remark: Generated from `#/paths/pets/GET/query/limit`.
                 public var limit: Swift.Int32?
                 /// - Remark: Generated from `#/paths/pets/GET/query/habitat`.
@@ -724,15 +732,17 @@ public enum Operations {
                     .feedsPayloadPayload]
                 /// - Remark: Generated from `#/paths/pets/GET/query/feeds`.
                 public var feeds: Operations.listPets.Input.Query.feedsPayload?
+                /// Supply this parameter to filter pets born since the provided date.
+                ///
                 /// - Remark: Generated from `#/paths/pets/GET/query/since`.
                 public var since: Components.Parameters.query_period_born_hyphen_since?
                 /// Creates a new `Query`.
                 ///
                 /// - Parameters:
-                ///   - limit:
+                ///   - limit: How many items to return at one time (max 100)
                 ///   - habitat:
                 ///   - feeds:
-                ///   - since:
+                ///   - since: Supply this parameter to filter pets born since the provided date.
                 public init(
                     limit: Swift.Int32? = nil,
                     habitat: Operations.listPets.Input.Query.habitatPayload? = nil,
@@ -748,12 +758,14 @@ public enum Operations {
             public var query: Operations.listPets.Input.Query
             /// - Remark: Generated from `#/paths/pets/GET/header`.
             public struct Headers: Sendable, Equatable, Hashable {
+                /// Request identifier
+                ///
                 /// - Remark: Generated from `#/paths/pets/GET/header/My-Request-UUID`.
                 public var My_hyphen_Request_hyphen_UUID: Swift.String?
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
-                ///   - My_hyphen_Request_hyphen_UUID:
+                ///   - My_hyphen_Request_hyphen_UUID: Request identifier
                 public init(My_hyphen_Request_hyphen_UUID: Swift.String? = nil) {
                     self.My_hyphen_Request_hyphen_UUID = My_hyphen_Request_hyphen_UUID
                 }
@@ -794,15 +806,19 @@ public enum Operations {
             public struct Ok: Sendable, Equatable, Hashable {
                 /// - Remark: Generated from `#/paths/pets/GET/responses/200/headers`.
                 public struct Headers: Sendable, Equatable, Hashable {
+                    /// Response identifier
+                    ///
                     /// - Remark: Generated from `#/paths/pets/GET/responses/200/headers/My-Response-UUID`.
                     public var My_hyphen_Response_hyphen_UUID: Swift.String
+                    /// A description here.
+                    ///
                     /// - Remark: Generated from `#/paths/pets/GET/responses/200/headers/My-Tracing-Header`.
                     public var My_hyphen_Tracing_hyphen_Header: Components.Headers.TracingHeader?
                     /// Creates a new `Headers`.
                     ///
                     /// - Parameters:
-                    ///   - My_hyphen_Response_hyphen_UUID:
-                    ///   - My_hyphen_Tracing_hyphen_Header:
+                    ///   - My_hyphen_Response_hyphen_UUID: Response identifier
+                    ///   - My_hyphen_Tracing_hyphen_Header: A description here.
                     public init(
                         My_hyphen_Response_hyphen_UUID: Swift.String,
                         My_hyphen_Tracing_hyphen_Header: Components.Headers.TracingHeader? = nil
@@ -896,12 +912,14 @@ public enum Operations {
             public var query: Operations.createPet.Input.Query
             /// - Remark: Generated from `#/paths/pets/POST/header`.
             public struct Headers: Sendable, Equatable, Hashable {
+                /// A description here.
+                ///
                 /// - Remark: Generated from `#/paths/pets/POST/header/X-Extra-Arguments`.
                 public var X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError?
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
-                ///   - X_hyphen_Extra_hyphen_Arguments:
+                ///   - X_hyphen_Extra_hyphen_Arguments: A description here.
                 public init(X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError? = nil) {
                     self.X_hyphen_Extra_hyphen_Arguments = X_hyphen_Extra_hyphen_Arguments
                 }
@@ -945,12 +963,14 @@ public enum Operations {
             public struct Created: Sendable, Equatable, Hashable {
                 /// - Remark: Generated from `#/paths/pets/POST/responses/201/headers`.
                 public struct Headers: Sendable, Equatable, Hashable {
+                    /// A description here.
+                    ///
                     /// - Remark: Generated from `#/paths/pets/POST/responses/201/headers/X-Extra-Arguments`.
                     public var X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError?
                     /// Creates a new `Headers`.
                     ///
                     /// - Parameters:
-                    ///   - X_hyphen_Extra_hyphen_Arguments:
+                    ///   - X_hyphen_Extra_hyphen_Arguments: A description here.
                     public init(
                         X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError? = nil
                     ) { self.X_hyphen_Extra_hyphen_Arguments = X_hyphen_Extra_hyphen_Arguments }
@@ -1294,12 +1314,14 @@ public enum Operations {
         public struct Input: Sendable, Equatable, Hashable {
             /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/path`.
             public struct Path: Sendable, Equatable, Hashable {
+                /// Id of the pet
+                ///
                 /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/path/petId`.
                 public var petId: Swift.Int64
                 /// Creates a new `Path`.
                 ///
                 /// - Parameters:
-                ///   - petId:
+                ///   - petId: Id of the pet
                 public init(petId: Swift.Int64) { self.petId = petId }
             }
             public var path: Operations.updatePet.Input.Path
@@ -1436,12 +1458,14 @@ public enum Operations {
         public struct Input: Sendable, Equatable, Hashable {
             /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/path`.
             public struct Path: Sendable, Equatable, Hashable {
+                /// The id of the pet to retrieve
+                ///
                 /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/path/petId`.
                 public var petId: Components.Parameters.path_period_petId
                 /// Creates a new `Path`.
                 ///
                 /// - Parameters:
-                ///   - petId:
+                ///   - petId: The id of the pet to retrieve
                 public init(petId: Components.Parameters.path_period_petId) { self.petId = petId }
             }
             public var path: Operations.uploadAvatarForPet.Input.Path
