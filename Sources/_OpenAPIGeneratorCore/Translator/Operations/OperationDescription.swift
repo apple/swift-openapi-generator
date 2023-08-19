@@ -317,4 +317,17 @@ extension OperationDescription {
     var containsDefaultResponse: Bool {
         operation.responses.contains(key: .default)
     }
+
+    /// Returns the operation.responseOutcomes while ensuring if a `.default`
+    /// responseOutcome is present, then it is the last element in the returned array
+    var responseOutcomes: [OpenAPI.Operation.ResponseOutcome] {
+        var outcomes = operation.responseOutcomes
+        // if .default is present and not already last
+        if let index = outcomes.firstIndex(where: { $0.status == .default }), index != (outcomes.count - 1) {
+            //then we move it to be last
+            let defaultResp = outcomes.remove(at: index)
+            outcomes.append(defaultResp)
+        }
+        return outcomes
+    }
 }
