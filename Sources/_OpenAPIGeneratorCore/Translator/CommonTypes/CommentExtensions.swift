@@ -154,7 +154,7 @@ extension TypedParameter {
     ///   - parent: The parent type of the parameter.
     func docComment(parent: TypeName) -> Comment? {
         parent.docCommentWithUserDescription(
-            nil,
+            parameter.description,
             subPath: "\(parameter.location.rawValue)/\(parameter.name)"
         )
     }

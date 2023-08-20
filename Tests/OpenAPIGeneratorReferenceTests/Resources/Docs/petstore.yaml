@@ -210,6 +210,7 @@ paths:
 components:
   headers:
     TracingHeader:
+      description: A description here.
       required: false
       schema:
         type: string
@@ -426,6 +427,7 @@ components:
       description: Bad request
       headers:
         X-Reason:
+          description: A description here.
           schema:
             type: string
       content:
@@ -446,6 +448,7 @@ components:
             type: object
             properties:
               name:
+                description: "Pet name"
                 type: string
               kind:
                 $ref: '#/components/schemas/PetKind'
