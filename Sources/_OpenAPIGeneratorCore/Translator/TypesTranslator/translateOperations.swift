@@ -123,7 +123,6 @@ extension TypesFileTranslator {
 
         let documentedOutcomes =
             try description
-            .operation
             .responseOutcomes
             .map { outcome in
                 try translateResponseOutcomeInTypes(
