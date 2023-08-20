@@ -112,7 +112,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct MyObject: Codable, Equatable, Hashable, Sendable {
+                public struct MyObject: Codable, Hashable, Sendable {
                     public init() {}
                     public init(from decoder: any Decoder) throws {
                         try decoder.ensureNoAdditionalProperties(knownKeys: [])
@@ -134,7 +134,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct MyObject: Codable, Equatable, Hashable, Sendable {
+                public struct MyObject: Codable, Hashable, Sendable {
                     public var additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer
                     public init(additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer = .init()) {
                         self.additionalProperties = additionalProperties
@@ -163,7 +163,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct MyObject: Codable, Equatable, Hashable, Sendable {
+                public struct MyObject: Codable, Hashable, Sendable {
                     public var additionalProperties: [String: Swift.Int]
                     public init(additionalProperties: [String: Swift.Int] = .init()) {
                         self.additionalProperties = additionalProperties
@@ -197,7 +197,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
                 public enum Schemas {
-                  public struct MyObject: Codable, Equatable, Hashable, Sendable {
+                  public struct MyObject: Codable, Hashable, Sendable {
                     public var id: Swift.Int64
                     public var alias: Swift.String?
                     public init(id: Swift.Int64, alias: Swift.String? = nil) {
@@ -233,7 +233,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public typealias A = OpenAPIRuntime.OpenAPIValueContainer
                 public typealias B = OpenAPIRuntime.OpenAPIValueContainer
-                public struct MyAllOf: Codable, Equatable, Hashable, Sendable {
+                public struct MyAllOf: Codable, Hashable, Sendable {
                     public var value1: Components.Schemas.A
                     public var value2: Components.Schemas.B
                     public var value3: Swift.String
@@ -286,7 +286,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public typealias A = OpenAPIRuntime.OpenAPIValueContainer
                 public typealias B = OpenAPIRuntime.OpenAPIValueContainer
-                public struct MyAnyOf: Codable, Equatable, Hashable, Sendable {
+                public struct MyAnyOf: Codable, Hashable, Sendable {
                     public var value1: Components.Schemas.A?
                     public var value2: Components.Schemas.B?
                     public var value3: Swift.String?
@@ -339,7 +339,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Schemas {
                 public typealias A = OpenAPIRuntime.OpenAPIValueContainer
-                @frozen public enum MyOneOf: Codable, Equatable, Hashable, Sendable {
+                @frozen public enum MyOneOf: Codable, Hashable, Sendable {
                     case case1(Swift.String)
                     case case2(Swift.Int)
                     case A(Components.Schemas.A)
@@ -406,17 +406,17 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct A: Codable, Equatable, Hashable, Sendable {
+                public struct A: Codable, Hashable, Sendable {
                     public var which: Swift.String?
                     public init(which: Swift.String? = nil) { self.which = which }
                     public enum CodingKeys: String, CodingKey { case which }
                 }
-                public struct B: Codable, Equatable, Hashable, Sendable {
+                public struct B: Codable, Hashable, Sendable {
                     public var which: Swift.String?
                     public init(which: Swift.String? = nil) { self.which = which }
                     public enum CodingKeys: String, CodingKey { case which }
                 }
-                @frozen public enum MyOneOf: Codable, Equatable, Hashable, Sendable {
+                @frozen public enum MyOneOf: Codable, Hashable, Sendable {
                     case A(Components.Schemas.A)
                     case B(Components.Schemas.B)
                     case undocumented(OpenAPIRuntime.OpenAPIObjectContainer)
@@ -461,7 +461,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Schemas {
                 public typealias A = OpenAPIRuntime.OpenAPIValueContainer
-                @frozen public enum MyOneOf: Codable, Equatable, Hashable, Sendable {
+                @frozen public enum MyOneOf: Codable, Hashable, Sendable {
                     case case1(Swift.String)
                     case case2(Swift.Int)
                     case A(Components.Schemas.A)
@@ -514,14 +514,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct A: Codable, Equatable, Hashable, Sendable {
+                public struct A: Codable, Hashable, Sendable {
                     public init() {}
                     public init(from decoder: any Decoder) throws {
                         try decoder.ensureNoAdditionalProperties(knownKeys: [])
                     }
                 }
-                public struct MyOpenOneOf: Codable, Equatable, Hashable, Sendable {
-                    @frozen public enum Value1Payload: Codable, Equatable, Hashable, Sendable {
+                public struct MyOpenOneOf: Codable, Hashable, Sendable {
+                    @frozen public enum Value1Payload: Codable, Hashable, Sendable {
                         case case1(Swift.String)
                         case case2(Swift.Int)
                         case A(Components.Schemas.A)
@@ -592,7 +592,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Schemas {
                 public typealias A = Swift.String
-                public struct MyAllOf: Codable, Equatable, Hashable, Sendable {
+                public struct MyAllOf: Codable, Hashable, Sendable {
                     public var value1: Components.Schemas.A
                     public init(value1: Components.Schemas.A) {
                         self.value1 = value1
@@ -627,8 +627,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Schemas {
                 public typealias A = Swift.String
-                public struct B: Codable, Equatable, Hashable, Sendable {
-                    public struct cPayload: Codable, Equatable, Hashable, Sendable {
+                public struct B: Codable, Hashable, Sendable {
+                    public struct cPayload: Codable, Hashable, Sendable {
                         public var value1: Components.Schemas.A
                         public init(value1: Components.Schemas.A) { self.value1 = value1 }
                         public init(from decoder: any Decoder) throws { value1 = try .init(from: decoder) }
@@ -660,8 +660,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Schemas {
                 public typealias A = Swift.String
-                public struct B: Codable, Equatable, Hashable, Sendable {
-                    public struct cPayload: Codable, Equatable, Hashable, Sendable {
+                public struct B: Codable, Hashable, Sendable {
+                    public struct cPayload: Codable, Hashable, Sendable {
                         public var value1: Components.Schemas.A
                         public init(value1: Components.Schemas.A) { self.value1 = value1 }
                         public init(from decoder: any Decoder) throws { value1 = try .init(from: decoder) }
@@ -691,7 +691,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Schemas {
                 @frozen
-                public enum MyEnum: RawRepresentable, Codable, Equatable, Hashable, Sendable,
+                public enum MyEnum: RawRepresentable, Codable, Hashable, Sendable,
                     _AutoLosslessStringConvertible, CaseIterable
                 {
                     case one
@@ -740,7 +740,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Schemas {
                 @frozen
-                public enum MyEnum: String, Codable, Equatable, Hashable, Sendable,
+                public enum MyEnum: String, Codable, Hashable, Sendable,
                     _AutoLosslessStringConvertible, CaseIterable
                 {
                     case one = "one"
@@ -768,9 +768,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct MyOpenEnum: Codable, Equatable, Hashable, Sendable {
+                public struct MyOpenEnum: Codable, Hashable, Sendable {
                     @frozen
-                    public enum Value1Payload: String, Codable, Equatable, Hashable, Sendable,
+                    public enum Value1Payload: String, Codable, Hashable, Sendable,
                         _AutoLosslessStringConvertible, CaseIterable
                     {
                         case one = "one"
@@ -817,7 +817,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Schemas {
                 @available(*, deprecated)
-                public struct MyObject: Codable, Equatable, Hashable, Sendable {
+                public struct MyObject: Codable, Hashable, Sendable {
                     public init() {}
                     public init(from decoder: any Decoder) throws {
                         try decoder.ensureNoAdditionalProperties(knownKeys: [])
@@ -841,7 +841,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct MyObject: Codable, Equatable, Hashable, Sendable {
+                public struct MyObject: Codable, Hashable, Sendable {
                     @available(*, deprecated)
                     public var id: Swift.String?
                     public init(id: Swift.String? = nil) { self.id = id }
@@ -877,10 +877,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Responses {
-                public struct BadRequest: Sendable, Equatable, Hashable {
-                    public struct Headers: Sendable, Equatable, Hashable { public init() {} }
+                public struct BadRequest: Sendable, Hashable {
+                    public struct Headers: Sendable, Hashable { public init() {} }
                     public var headers: Components.Responses.BadRequest.Headers
-                    @frozen public enum Body: Sendable, Equatable, Hashable {}
+                    @frozen public enum Body: Sendable, Hashable {}
                     public var body: Components.Responses.BadRequest.Body?
                     public init(
                         headers: Components.Responses.BadRequest.Headers = .init(),
@@ -908,10 +908,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Responses {
-                public struct BadRequest: Sendable, Equatable, Hashable {
-                    public struct Headers: Sendable, Equatable, Hashable { public init() {} }
+                public struct BadRequest: Sendable, Hashable {
+                    public struct Headers: Sendable, Hashable { public init() {} }
                     public var headers: Components.Responses.BadRequest.Headers
-                    @frozen public enum Body: Sendable, Equatable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
                     }
                     public var body: Components.Responses.BadRequest.Body
@@ -945,10 +945,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Responses {
-                public struct MultipleContentTypes: Sendable, Equatable, Hashable {
-                    public struct Headers: Sendable, Equatable, Hashable { public init() {} }
+                public struct MultipleContentTypes: Sendable, Hashable {
+                    public struct Headers: Sendable, Hashable { public init() {} }
                     public var headers: Components.Responses.MultipleContentTypes.Headers
-                    @frozen public enum Body: Sendable, Equatable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.Int)
                     }
                     public var body: Components.Responses.MultipleContentTypes.Body
@@ -981,10 +981,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Responses {
-                public struct MultipleContentTypes: Sendable, Equatable, Hashable {
-                    public struct Headers: Sendable, Equatable, Hashable { public init() {} }
+                public struct MultipleContentTypes: Sendable, Hashable {
+                    public struct Headers: Sendable, Hashable { public init() {} }
                     public var headers: Components.Responses.MultipleContentTypes.Headers
-                    @frozen public enum Body: Sendable, Equatable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.Int)
                         case plainText(Swift.String)
                         case binary(Foundation.Data)
@@ -1016,14 +1016,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Responses {
-                public struct BadRequest: Sendable, Equatable, Hashable {
-                    public struct Headers: Sendable, Equatable, Hashable {
+                public struct BadRequest: Sendable, Hashable {
+                    public struct Headers: Sendable, Hashable {
                         public var X_Reason: Swift.String?
                         public init(X_Reason: Swift.String? = nil) {
                             self.X_Reason = X_Reason }
                     }
                     public var headers: Components.Responses.BadRequest.Headers
-                    @frozen public enum Body: Sendable, Equatable, Hashable {}
+                    @frozen public enum Body: Sendable, Hashable {}
                     public var body: Components.Responses.BadRequest.Body?
                     public init(
                         headers: Components.Responses.BadRequest.Headers = .init(),
@@ -1052,14 +1052,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Responses {
-                public struct BadRequest: Sendable, Equatable, Hashable {
-                    public struct Headers: Sendable, Equatable, Hashable {
+                public struct BadRequest: Sendable, Hashable {
+                    public struct Headers: Sendable, Hashable {
                         public var X_Reason: Swift.String
                         public init(X_Reason: Swift.String) {
                             self.X_Reason = X_Reason }
                     }
                     public var headers: Components.Responses.BadRequest.Headers
-                    @frozen public enum Body: Sendable, Equatable, Hashable {}
+                    @frozen public enum Body: Sendable, Hashable {}
                     public var body: Components.Responses.BadRequest.Body?
                     public init(
                         headers: Components.Responses.BadRequest.Headers,
@@ -1086,7 +1086,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum RequestBodies {
-                @frozen public enum MyResponseBody: Sendable, Equatable, Hashable {
+                @frozen public enum MyResponseBody: Sendable, Hashable {
                     case json(Swift.String)
                 }
             }
@@ -1106,7 +1106,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum RequestBodies {
-                @frozen public enum MyResponseBody: Sendable, Equatable, Hashable {
+                @frozen public enum MyResponseBody: Sendable, Hashable {
                     case json(Components.Schemas.MyBody)
                 }
             }
@@ -1130,7 +1130,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum RequestBodies {
-                @frozen public enum MyResponseBody: Sendable, Equatable, Hashable {
+                @frozen public enum MyResponseBody: Sendable, Hashable {
                     case json(Components.Schemas.MyBody)
                 }
             }
@@ -1153,7 +1153,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum RequestBodies {
-                @frozen public enum MyResponseBody: Sendable, Equatable, Hashable {
+                @frozen public enum MyResponseBody: Sendable, Hashable {
                     case json(Components.Schemas.MyBody)
                     case plainText(Swift.String)
                     case binary(Foundation.Data)
@@ -1281,10 +1281,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Responses {
-                public struct MyResponse: Sendable, Equatable, Hashable {
-                    public struct Headers: Sendable, Equatable, Hashable { public init() {} }
+                public struct MyResponse: Sendable, Hashable {
+                    public struct Headers: Sendable, Hashable { public init() {} }
                     public var headers: Components.Responses.MyResponse.Headers
-                    @frozen public enum Body: Sendable, Equatable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
                     }
                     public var body: Components.Responses.MyResponse.Body
@@ -1372,10 +1372,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     description: Response
             """,
             types: """
-                public struct Input: Sendable, Equatable, Hashable {
-                    public struct Path: Sendable, Equatable, Hashable { public init() {} }
+                public struct Input: Sendable, Hashable {
+                    public struct Path: Sendable, Hashable { public init() {} }
                     public var path: Operations.get_foo.Input.Path
-                    public struct Query: Sendable, Equatable, Hashable {
+                    public struct Query: Sendable, Hashable {
                         public var single: Swift.String?
                         public var manyExploded: [Swift.String]?
                         public var manyUnexploded: [Swift.String]?
@@ -1390,11 +1390,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         }
                     }
                     public var query: Operations.get_foo.Input.Query
-                    public struct Headers: Sendable, Equatable, Hashable { public init() {} }
+                    public struct Headers: Sendable, Hashable { public init() {} }
                     public var headers: Operations.get_foo.Input.Headers
-                    public struct Cookies: Sendable, Equatable, Hashable { public init() {} }
+                    public struct Cookies: Sendable, Hashable { public init() {} }
                     public var cookies: Operations.get_foo.Input.Cookies
-                    @frozen public enum Body: Sendable, Equatable, Hashable {}
+                    @frozen public enum Body: Sendable, Hashable {}
                     public var body: Operations.get_foo.Input.Body?
                     public init(
                         path: Operations.get_foo.Input.Path = .init(),

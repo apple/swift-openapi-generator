@@ -146,7 +146,7 @@ class FileBasedReferenceTests: XCTestCase {
         }
     }
 
-    struct ReferenceProject: Hashable, Equatable {
+    struct ReferenceProject: Hashable {
         var name: ReferenceProjectName
         var customDirectoryName: String? = nil
 
