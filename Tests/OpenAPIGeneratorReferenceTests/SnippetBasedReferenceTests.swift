@@ -1317,10 +1317,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Responses {
-                public struct MyResponse: Sendable, Equatable, Hashable {
-                    public struct Headers: Sendable, Equatable, Hashable { public init() {} }
+                public struct MyResponse: Sendable, Hashable {
+                    public struct Headers: Sendable, Hashable { public init() {} }
                     public var headers: Components.Responses.MyResponse.Headers
-                    @frozen public enum Body: Sendable, Equatable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
                     }
                     public var body: Components.Responses.MyResponse.Body
