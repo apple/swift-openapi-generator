@@ -45,6 +45,8 @@ extension TypesFileTranslator {
         for requestBody: TypedRequestBody
     ) throws -> [Declaration] {
         var bodyMembers: [Declaration] = []
+        let typeName = requestBody.typeUsage.typeName
+        let contentTypeName = typeName.appending(jsonComponent: "content")
         let contents = requestBody.contents
         for content in contents {
             if TypeMatcher.isInlinable(content.content.schema) {
@@ -53,10 +55,12 @@ extension TypesFileTranslator {
                 )
                 bodyMembers.append(contentsOf: inlineTypeDecls)
             }
-            let identifier = contentSwiftName(content.content.contentType)
+            let contentType = content.content.contentType
+            let identifier = contentSwiftName(contentType)
             let associatedType = content.resolvedTypeUsage
-            let contentCase: Declaration = .enumCase(
-                .init(
+            let contentCase: Declaration = .commentable(
+                contentType.docComment(typeName: contentTypeName),
+                .enumCase(
                     name: identifier,
                     kind: .nameWithAssociatedValues([
                         .init(type: associatedType.fullyQualifiedNonOptionalSwiftName)
@@ -102,7 +106,8 @@ extension TypesFileTranslator {
         } else {
             isRequestBodyOptional = true
             bodyEnumTypeName = parent.appending(
-                swiftComponent: Constants.Operation.Body.typeName
+                swiftComponent: Constants.Operation.Body.typeName,
+                jsonComponent: "requestBody"
             )
             extraDecls = [
                 translateRequestBodyInTypes(
@@ -157,7 +162,11 @@ extension TypesFileTranslator {
             conformances: Constants.Operation.Output.conformances,
             members: members
         )
-        return bodyEnumDecl
+        let comment: Comment? = typeName.docCommentWithUserDescription(nil)
+        return .commentable(
+            comment,
+            bodyEnumDecl
+        )
     }
 }
 

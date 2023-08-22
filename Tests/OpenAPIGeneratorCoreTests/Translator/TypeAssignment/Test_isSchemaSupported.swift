@@ -71,10 +71,12 @@ class Test_isSchemaSupported: XCTestCase {
             .array(items: .string),
         ]),
 
-        // oneOf with a discriminator with two objectish schemas
+        // oneOf with a discriminator with two objectish schemas and two (ignored) inline schemas
         .one(
             of: .reference(.component(named: "MyObj")),
             .reference(.component(named: "MyObj2")),
+            .object,
+            .boolean,
             discriminator: .init(propertyName: "foo")
         ),
 
@@ -120,9 +122,6 @@ class Test_isSchemaSupported: XCTestCase {
             .one(of: .reference(.internal(.component(name: "Foo"))), discriminator: .init(propertyName: "foo")),
             .notObjectish
         ),
-
-        // a oneOf with a discriminator with an inline subschema
-        (.one(of: .object, discriminator: .init(propertyName: "foo")), .notRef),
     ]
     func testUnsupportedTypes() throws {
         let translator = self.translator

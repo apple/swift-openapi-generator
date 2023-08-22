@@ -65,7 +65,8 @@ extension FileTranslator {
             type = try typeAssigner.typeName(for: reference)
         case .b:
             type = parent.appending(
-                swiftComponent: Constants.Operation.Body.typeName
+                swiftComponent: Constants.Operation.Body.typeName,
+                jsonComponent: "requestBody"
             )
         }
         return try typedRequestBody(

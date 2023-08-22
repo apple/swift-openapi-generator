@@ -139,17 +139,35 @@ extension OperationDescription {
     var outputTypeName: TypeName {
         operationNamespace.appending(
             swiftComponent: Constants.Operation.Output.typeName,
-
-            // intentionally nil, we'll append the specific params etc
-            // with their valid JSON key path when nested inside Output
-            jsonComponent: nil
+            jsonComponent: "responses"
         )
     }
 
-    /// Returns parameters from both the path item level
-    /// and the operation level.
+    /// Merged parameters from both the path item level and the operation level.
+    /// If duplicate parameters exist, only the parameters from the operation level are preserved.
+    ///
+    /// - Returns: An array of merged path item and operation level parameters without duplicates.
+    /// - Throws: When an invalid JSON reference is found.
     var allParameters: [UnresolvedParameter] {
-        pathParameters + operation.parameters
+        get throws {
+            var mergedParameters: [UnresolvedParameter] = []
+            var uniqueIdentifiers: Set<String> = []
+
+            let allParameters = pathParameters + operation.parameters
+            for parameter in allParameters.reversed() {
+                let resolvedParameter = try parameter.resolve(in: components)
+                let identifier = resolvedParameter.location.rawValue + ":" + resolvedParameter.name
+
+                guard !uniqueIdentifiers.contains(identifier) else {
+                    continue
+                }
+
+                mergedParameters.append(parameter)
+                uniqueIdentifiers.insert(identifier)
+            }
+
+            return mergedParameters.reversed()
+        }
     }
 
     /// Returns all parameters by resolving any parameter references first.
@@ -300,5 +318,18 @@ extension OperationDescription {
     /// a default response.
     var containsDefaultResponse: Bool {
         operation.responses.contains(key: .default)
+    }
+
+    /// Returns the operation.responseOutcomes while ensuring if a `.default`
+    /// responseOutcome is present, then it is the last element in the returned array
+    var responseOutcomes: [OpenAPI.Operation.ResponseOutcome] {
+        var outcomes = operation.responseOutcomes
+        // if .default is present and not already last
+        if let index = outcomes.firstIndex(where: { $0.status == .default }), index != (outcomes.count - 1) {
+            //then we move it to be last
+            let defaultResp = outcomes.remove(at: index)
+            outcomes.append(defaultResp)
+        }
+        return outcomes
     }
 }

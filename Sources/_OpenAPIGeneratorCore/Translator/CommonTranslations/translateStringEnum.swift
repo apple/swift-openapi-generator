@@ -44,168 +44,176 @@ extension FileTranslator {
                 return string
             }
 
+        let generateUnknownCases = shouldGenerateUndocumentedCaseForEnumsAndOneOfs
         let knownCases: [Declaration] =
             rawValues
             .map { rawValue in
                 let caseName = swiftSafeName(for: rawValue)
                 return .enumCase(
                     name: caseName,
-                    kind: .nameOnly
+                    kind: generateUnknownCases ? .nameOnly : .nameWithRawValue(rawValue)
                 )
             }
-        let undocumentedCase: Declaration = .commentable(
-            .doc("Parsed a raw value that was not defined in the OpenAPI document."),
-            .enumCase(
-                name: Constants.StringEnum.undocumentedCaseName,
-                kind: .nameWithAssociatedValues([
-                    .init(type: "String")
-                ])
-            )
-        )
 
-        let rawRepresentableInitializer: Declaration
-        do {
-            let knownCases: [SwitchCaseDescription] = rawValues.map { rawValue in
-                .init(
-                    kind: .case(.literal(rawValue)),
+        let otherMembers: [Declaration]
+        if generateUnknownCases {
+            let undocumentedCase: Declaration = .commentable(
+                .doc("Parsed a raw value that was not defined in the OpenAPI document."),
+                .enumCase(
+                    name: Constants.StringEnum.undocumentedCaseName,
+                    kind: .nameWithAssociatedValues([
+                        .init(type: "String")
+                    ])
+                )
+            )
+
+            let rawRepresentableInitializer: Declaration
+            do {
+                let knownCases: [SwitchCaseDescription] = rawValues.map { rawValue in
+                    .init(
+                        kind: .case(.literal(rawValue)),
+                        body: [
+                            .expression(
+                                .assignment(
+                                    Expression
+                                        .identifier("self")
+                                        .equals(
+                                            .dot(swiftSafeName(for: rawValue))
+                                        )
+                                )
+                            )
+                        ]
+                    )
+                }
+                let unknownCase = SwitchCaseDescription(
+                    kind: .default,
                     body: [
                         .expression(
                             .assignment(
                                 Expression
                                     .identifier("self")
                                     .equals(
-                                        .dot(swiftSafeName(for: rawValue))
+                                        .functionCall(
+                                            calledExpression: .dot(
+                                                Constants
+                                                    .StringEnum
+                                                    .undocumentedCaseName
+                                            ),
+                                            arguments: [
+                                                .identifier("rawValue")
+                                            ]
+                                        )
                                     )
                             )
                         )
                     ]
                 )
-            }
-            let unknownCase = SwitchCaseDescription(
-                kind: .default,
-                body: [
-                    .expression(
-                        .assignment(
-                            Expression
-                                .identifier("self")
-                                .equals(
-                                    .functionCall(
-                                        calledExpression: .dot(
-                                            Constants
-                                                .StringEnum
-                                                .undocumentedCaseName
-                                        ),
-                                        arguments: [
-                                            .identifier("rawValue")
-                                        ]
-                                    )
+                rawRepresentableInitializer = .function(
+                    .init(
+                        accessModifier: config.access,
+                        kind: .initializer(failable: true),
+                        parameters: [
+                            .init(label: "rawValue", type: "String")
+                        ],
+                        body: [
+                            .expression(
+                                .switch(
+                                    switchedExpression: .identifier("rawValue"),
+                                    cases: knownCases + [unknownCase]
                                 )
-                        )
+                            )
+                        ]
                     )
-                ]
-            )
-            rawRepresentableInitializer = .function(
-                .init(
+                )
+            }
+
+            let rawValueGetter: Declaration
+            do {
+                let knownCases: [SwitchCaseDescription] = rawValues.map { rawValue in
+                    .init(
+                        kind: .case(.dot(swiftSafeName(for: rawValue))),
+                        body: [
+                            .expression(
+                                .return(.literal(rawValue))
+                            )
+                        ]
+                    )
+                }
+                let unknownCase = SwitchCaseDescription(
+                    kind: .case(
+                        .valueBinding(
+                            kind: .let,
+                            value: .init(
+                                calledExpression: .dot(
+                                    Constants.StringEnum.undocumentedCaseName
+                                ),
+                                arguments: [
+                                    .identifier("string")
+                                ]
+                            )
+                        )
+                    ),
+                    body: [
+                        .expression(
+                            .return(.identifier("string"))
+                        )
+                    ]
+                )
+                let variableDescription = VariableDescription(
                     accessModifier: config.access,
-                    kind: .initializer(failable: true),
-                    parameters: [
-                        .init(label: "rawValue", type: "String")
-                    ],
+                    kind: .var,
+                    left: "rawValue",
+                    type: "String",
                     body: [
                         .expression(
                             .switch(
-                                switchedExpression: .identifier("rawValue"),
-                                cases: knownCases + [unknownCase]
+                                switchedExpression: .identifier("self"),
+                                cases: [unknownCase] + knownCases
                             )
                         )
                     ]
                 )
-            )
-        }
-
-        let rawValueGetter: Declaration
-        do {
-            let knownCases: [SwitchCaseDescription] = rawValues.map { rawValue in
-                .init(
-                    kind: .case(.dot(swiftSafeName(for: rawValue))),
-                    body: [
-                        .expression(
-                            .return(.literal(rawValue))
-                        )
-                    ]
+                rawValueGetter = .variable(
+                    variableDescription
                 )
             }
-            let unknownCase = SwitchCaseDescription(
-                kind: .case(
-                    .valueBinding(
-                        kind: .let,
-                        value: .init(
-                            calledExpression: .dot(
-                                Constants.StringEnum.undocumentedCaseName
-                            ),
-                            arguments: [
-                                .identifier("string")
-                            ]
-                        )
-                    )
-                ),
-                body: [
-                    .expression(
-                        .return(.identifier("string"))
-                    )
-                ]
-            )
 
-            let variableDescription = VariableDescription(
-                accessModifier: config.access,
-                kind: .var,
-                left: "rawValue",
-                type: "String",
-                body: [
-                    .expression(
-                        .switch(
-                            switchedExpression: .identifier("self"),
-                            cases: [unknownCase] + knownCases
-                        )
+            let allCasesGetter: Declaration
+            do {
+                let caseExpressions: [Expression] = rawValues.map { rawValue in
+                    .memberAccess(.init(right: swiftSafeName(for: rawValue)))
+                }
+                allCasesGetter = .variable(
+                    .init(
+                        accessModifier: config.access,
+                        isStatic: true,
+                        kind: .var,
+                        left: "allCases",
+                        type: typeName.asUsage.asArray.shortSwiftName,
+                        body: [
+                            .expression(.literal(.array(caseExpressions)))
+                        ]
                     )
-                ]
-            )
-
-            rawValueGetter = .variable(
-                variableDescription
-            )
-        }
-
-        let allCasesGetter: Declaration
-        do {
-            let caseExpressions: [Expression] = rawValues.map { rawValue in
-                .memberAccess(.init(right: swiftSafeName(for: rawValue)))
-            }
-            allCasesGetter = .variable(
-                .init(
-                    accessModifier: config.access,
-                    isStatic: true,
-                    kind: .var,
-                    left: "allCases",
-                    type: typeName.asUsage.asArray.shortSwiftName,
-                    body: [
-                        .expression(.literal(.array(caseExpressions)))
-                    ]
                 )
-            )
-        }
-
-        let enumDescription = EnumDescription(
-            isFrozen: true,
-            accessModifier: config.access,
-            name: typeName.shortSwiftName,
-            conformances: Constants.StringEnum.conformances,
-            members: knownCases + [
+            }
+            otherMembers = [
                 undocumentedCase,
                 rawRepresentableInitializer,
                 rawValueGetter,
                 allCasesGetter,
             ]
+        } else {
+            otherMembers = []
+        }
+
+        let baseConformance =
+            generateUnknownCases ? Constants.StringEnum.baseConformanceOpen : Constants.StringEnum.baseConformanceClosed
+        let enumDescription = EnumDescription(
+            isFrozen: true,
+            accessModifier: config.access,
+            name: typeName.shortSwiftName,
+            conformances: [baseConformance] + Constants.StringEnum.conformances,
+            members: knownCases + otherMembers
         )
 
         let comment: Comment? =

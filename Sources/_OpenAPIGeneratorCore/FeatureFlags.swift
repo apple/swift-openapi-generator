@@ -25,7 +25,7 @@
 /// enabled unconditionally on main and the feature flag removed, and version
 /// 0.2 is tagged. (This is for pre-1.0 versioning, would be 1.0 and 2.0 after
 /// 1.0 is released.)
-public enum FeatureFlag: String, Hashable, Equatable, Codable, CaseIterable {
+public enum FeatureFlag: String, Hashable, Codable, CaseIterable {
 
     /// Multiple request and response body content types.
     ///
@@ -44,6 +44,12 @@ public enum FeatureFlag: String, Hashable, Equatable, Codable, CaseIterable {
     ///
     /// Check for structural issues and detect cycles proactively.
     case strictOpenAPIValidation
+
+    /// Removed the generation of an undocumented case in enums/oneOfs.
+    ///
+    /// Tracking issue:
+    /// - https://github.com/apple/swift-openapi-generator/issues/204
+    case closedEnumsAndOneOfs
 }
 
 /// A set of enabled feature flags.

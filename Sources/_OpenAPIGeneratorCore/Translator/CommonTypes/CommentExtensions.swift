@@ -99,6 +99,23 @@ extension TypeName {
             suffix: generatedFromCommentText
         )
     }
+
+    /// Returns a documentation comment by appending the "generated from"
+    /// string to the specified user description.
+    ///
+    /// The "generated from" string also includes a subpath.
+    /// - Parameter userDescription: The description specified by the user.
+    /// - Parameter subPath: A subpath appended to the JSON path of this
+    /// type name.
+    func docCommentWithUserDescription(_ userDescription: String?, subPath: String) -> Comment? {
+        guard let fullyQualifiedJSONPath else {
+            return Comment.doc(prefix: userDescription, suffix: nil)
+        }
+        return Comment.doc(
+            prefix: userDescription,
+            suffix: "- Remark: Generated from `\(fullyQualifiedJSONPath)/\(subPath)`."
+        )
+    }
 }
 
 extension ResponseKind {
@@ -131,6 +148,30 @@ extension ResponseKind {
 
                 HTTP response code: `\(commentDescription)`.
                 """
+        )
+    }
+}
+
+extension TypedParameter {
+    /// Returns a documentation comment for the parameter.
+    /// - Parameters:
+    ///   - parent: The parent type of the parameter.
+    func docComment(parent: TypeName) -> Comment? {
+        parent.docCommentWithUserDescription(
+            parameter.description,
+            subPath: "\(parameter.location.rawValue)/\(parameter.name)"
+        )
+    }
+}
+
+extension ContentType {
+    /// Returns a documentation comment for the content type.
+    /// - Parameters:
+    ///   - typeName: The type name of the content.
+    func docComment(typeName: TypeName) -> Comment? {
+        typeName.docCommentWithUserDescription(
+            nil,
+            subPath: lowercasedTypeAndSubtypeWithEscape
         )
     }
 }

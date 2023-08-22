@@ -462,35 +462,24 @@ extension ServerFileTranslator {
         codeBlocks.append(.expression(returnExpr))
 
         let caseKind: SwitchCaseKind
-        switch responseKind {
-        case .code, .`default`:
-            let optionalStatusCode: [String]
-            if responseKind.wantsStatusCode {
-                optionalStatusCode = ["statusCode"]
-            } else {
-                optionalStatusCode = []
-            }
-            caseKind = .`case`(
-                .dot(responseKind.identifier),
-                optionalStatusCode + ["value"]
-            )
-            codeBlocks =
-                [
-                    .expression(
-                        .suppressUnusedWarning(
-                            for: "value"
-                        )
-                    )
-                ] + codeBlocks
-        case let .range(range):
-            caseKind = .`case`(
-                .binaryOperation(
-                    left: .literal(range.lowerBound),
-                    operation: .rangeInclusive,
-                    right: .literal(range.upperBound)
-                )
-            )
+        let optionalStatusCode: [String]
+        if responseKind.wantsStatusCode {
+            optionalStatusCode = ["statusCode"]
+        } else {
+            optionalStatusCode = []
         }
+        caseKind = .`case`(
+            .dot(responseKind.identifier),
+            optionalStatusCode + ["value"]
+        )
+        codeBlocks =
+            [
+                .expression(
+                    .suppressUnusedWarning(
+                        for: "value"
+                    )
+                )
+            ] + codeBlocks
 
         return .init(
             kind: caseKind,

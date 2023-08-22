@@ -112,8 +112,10 @@ struct TypeName: Equatable {
     /// - Parameters:
     ///   - swiftComponent: The name of the Swift type component.
     ///   - jsonComponent: The name of the JSON path component.
+    /// - Precondition: At least one of the components must be non-nil.
     /// - Returns: A new type name.
-    func appending(swiftComponent: String, jsonComponent: String? = nil) -> Self {
+    func appending(swiftComponent: String? = nil, jsonComponent: String? = nil) -> Self {
+        precondition(swiftComponent != nil || jsonComponent != nil, "At least the Swift or JSON name must be non-nil.")
         let newComponent = Component(swift: swiftComponent, json: jsonComponent)
         return .init(components: components + [newComponent])
     }

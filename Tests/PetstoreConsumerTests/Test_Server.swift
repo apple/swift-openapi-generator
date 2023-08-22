@@ -186,7 +186,8 @@ final class Test_Server: XCTestCase {
     func testCreatePet_400() async throws {
         client = .init(
             createPetBlock: { input in
-                .badRequest(
+                .clientError(
+                    statusCode: 400,
                     .init(
                         headers: .init(
                             X_Reason: "bad luck"

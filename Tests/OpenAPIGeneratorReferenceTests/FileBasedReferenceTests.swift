@@ -59,7 +59,12 @@ class FileBasedReferenceTests: XCTestCase {
                 name: .petstore,
                 customDirectoryName: "Petstore_FF_MultipleContentTypes"
             ),
-            featureFlags: [.multipleContentTypes]
+            featureFlags: [
+                .multipleContentTypes,
+                .proposal0001,
+                .strictOpenAPIValidation,
+                .closedEnumsAndOneOfs,
+            ]
         )
     }
 
@@ -141,7 +146,7 @@ class FileBasedReferenceTests: XCTestCase {
         }
     }
 
-    struct ReferenceProject: Hashable, Equatable {
+    struct ReferenceProject: Hashable {
         var name: ReferenceProjectName
         var customDirectoryName: String? = nil
 
