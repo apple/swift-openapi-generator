@@ -33,7 +33,7 @@ if [ "${SWIFT_FORMAT_RC}" -ne 0 ]; then
 
   To fix, run the following command:
 
-    % git ls-files -z '*.swift' | xargs -0 swift-format --in-place --parallel
+    % swift-format format --parallel --recursive --in-place Sources
   "
   exit "${SWIFT_FORMAT_RC}"
 fi
