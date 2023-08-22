@@ -18,9 +18,9 @@ extension TypesFileTranslator {
     /// Returns the specified response header extracted into a property
     /// blueprint.
     ///
-    /// - Parameters:
-    ///   - header: A response parameter.
+    /// - Parameter header: A response parameter.
     /// - Returns: A property blueprint.
+    /// - Throws: An error if there's an issue while parsing the response header.
     func parseResponseHeaderAsProperty(
         for header: TypedResponseHeader
     ) throws -> PropertyBlueprint {
@@ -44,6 +44,7 @@ extension TypesFileTranslator {
     /// returned, the last one is the header type declaration, while any
     /// previous ones represent unnamed types in the OpenAPI document that
     /// need to be defined inline.
+    /// - Throws: An error if there's an issue while translating the response header or its inline types.
     func translateResponseHeaderInTypes(
         componentKey: OpenAPI.ComponentKey,
         header: TypedResponseHeader
@@ -64,6 +65,7 @@ extension TypesFileTranslator {
     /// returned, the last one is the header type declaration, while any
     /// previous ones represent unnamed types in the OpenAPI document that
     /// need to be defined inline.
+    /// - Throws: An error if there's an issue while translating the response header or its inline types.
     func translateResponseHeaderInTypes(
         typeName: TypeName,
         header: TypedResponseHeader
@@ -88,6 +90,7 @@ extension ClientFileTranslator {
     ///   - header: The response header to extract.
     ///   - responseVariableName: The name of the response variable.
     /// - Returns: A function argument expression.
+    /// - Throws: An error if there's an issue while generating the extraction expression.
     func translateResponseHeaderInClient(
         _ header: TypedResponseHeader,
         responseVariableName: String
@@ -128,6 +131,7 @@ extension ServerFileTranslator {
     ///   - header: The header to extract.
     ///   - responseVariableName: The name of the response variable.
     /// - Returns: A function argument expression.
+    /// - Throws: An error if there's an issue while generating the expression for setting the header field.
     func translateResponseHeaderInServer(
         _ header: TypedResponseHeader,
         responseVariableName: String

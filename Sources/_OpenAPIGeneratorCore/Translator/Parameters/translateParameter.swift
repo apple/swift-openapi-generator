@@ -21,6 +21,7 @@ extension TypesFileTranslator {
     ///   - unresolvedParameter: An unresolved parameter.
     ///   - parent: The parent type name.
     /// - Returns: A property blueprint; nil when the parameter is unsupported.
+    /// - Throws: An error if there is an issue parsing the parameter as a typed parameter or translating the schema.
     func parseParameterAsProperty(
         for unresolvedParameter: UnresolvedParameter,
         inParent parent: TypeName
@@ -58,6 +59,7 @@ extension TypesFileTranslator {
     ///   - componentKey: The component key for the parameter.
     ///   - parameter: The typed parameter.
     /// - Returns: A list of declarations; empty list if the parameter is unsupported.
+    /// - Throws: An error if there is an issue translating the parameter into types.
     func translateParameterInTypes(
         componentKey: OpenAPI.ComponentKey,
         parameter: TypedParameter
@@ -74,6 +76,7 @@ extension TypesFileTranslator {
     ///   - typeName: The type name to declare the parameter type under.
     ///   - parameter: The parameter to declare.
     /// - Returns: A list of declarations; empty list if the parameter is unsupported.
+    /// - Throws: An error if there is an issue translating the parameter into types.
     func translateParameterInTypes(
         typeName: TypeName,
         parameter: TypedParameter
@@ -96,6 +99,8 @@ extension ClientFileTranslator {
     /// the specified operation, and an expression of an array literal
     /// with all those parameters.
     /// - Parameter description: The OpenAPI operation.
+    /// - Returns: A tuple containing a templated string with path parameters and an expression representing an array of those parameters.
+    /// - Throws: An error if there is an issue translating path parameters for the client.
     func translatePathParameterInClient(
         description: OperationDescription
     ) throws -> (String, Expression) {
@@ -109,6 +114,7 @@ extension ClientFileTranslator {
     ///   - requestVariableName: The name of the request variable.
     ///   - inputVariableName: The name of the Input variable.
     /// - Returns: The expression; nil if the parameter is unsupported.
+    /// - Throws: An error if there is an issue translating path parameters for the client.
     func translateNonPathParameterInClient(
         _ parameter: TypedParameter,
         requestVariableName: String,
@@ -170,6 +176,8 @@ extension ServerFileTranslator {
     /// Returns an expression that populates a function argument call with the
     /// result of extracting the parameter value from a request into an Input.
     /// - Parameter typedParameter: The parameter to extract from a request.
+    /// - Returns: The expression representing the extraction of the parameter value; nil if the parameter is unsupported.
+    /// - Throws: An error if there is an issue translating the parameter extraction for the client.
     func translateParameterInServer(
         _ typedParameter: TypedParameter
     ) throws -> FunctionArgumentDescription? {

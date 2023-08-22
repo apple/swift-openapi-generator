@@ -26,6 +26,8 @@ extension TypesFileTranslator {
     /// - Returns: A declaration of the enum case and a declaration of the
     /// structure unique to the response that contains the response headers
     /// and a body payload.
+    /// - Throws: An error if there's an issue generating the declarations, such
+    ///           as unsupported response types or invalid definitions.
     func translateResponseOutcomeInTypes(
         _ outcome: OpenAPI.Operation.ResponseOutcome,
         operation: OperationDescription,
@@ -85,6 +87,9 @@ extension ClientFileTranslator {
     ///   - outcome: The OpenAPI response.
     ///   - operation: The OpenAPI operation.
     /// - Returns: A switch case expression.
+    /// - Throws: An error if there's an issue generating the switch case
+    ///           expression, such as encountering unsupported response types or
+    ///           invalid definitions.
     func translateResponseOutcomeInClient(
         outcome: OpenAPI.Operation.ResponseOutcome,
         operation: OperationDescription
@@ -336,6 +341,9 @@ extension ServerFileTranslator {
     ///   - outcome: The OpenAPI response.
     ///   - operation: The OpenAPI operation.
     /// - Returns: A switch case expression.
+    /// - Throws: An error if there's an issue generating the switch case
+    ///           expression, such as encountering unsupported response types
+    ///           or invalid definitions.
     func translateResponseOutcomeInServer(
         outcome: OpenAPI.Operation.ResponseOutcome,
         operation: OperationDescription

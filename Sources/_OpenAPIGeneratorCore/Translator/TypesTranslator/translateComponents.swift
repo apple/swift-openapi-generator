@@ -21,6 +21,7 @@ extension TypesFileTranslator {
     /// - Parameter components: The components defined in the OpenAPI document.
     /// - Returns: A code block with the enum representing the components
     /// namespace.
+    /// - Throws: An error if there's an issue during translation of components.
     func translateComponents(
         _ components: OpenAPI.Components
     ) throws -> CodeBlock {

@@ -18,10 +18,11 @@ extension FileTranslator {
     /// Returns a declaration of the specified string-based enum schema.
     /// - Parameters:
     ///   - typeName: The name of the type to give to the declared enum.
-    ///   - openAPIDescription: A user-specified description from the OpenAPI
-    ///   document.
+    ///   - userDescription: A user-specified description from the OpenAPI document.
     ///   - isNullable: Whether the enum schema is nullable.
     ///   - allowedValues: The enumerated allowed values.
+    /// - Throws: A `GenericError` if a disallowed value is encountered.
+    /// - Returns: A declaration of the specified string-based enum schema.
     func translateStringEnum(
         typeName: TypeName,
         userDescription: String?,

@@ -28,6 +28,7 @@ extension TypesFileTranslator {
     /// list if the specified schema is unsupported. Returns multiple elements
     /// if the specified schema contains unnamed types that need to be declared
     /// inline.
+    /// - Throws: An error if there is an issue during the matching process.
     func translateSchema(
         componentKey: OpenAPI.ComponentKey,
         schema: JSONSchema
@@ -53,6 +54,7 @@ extension TypesFileTranslator {
     /// - Parameter schemas: The schemas from the OpenAPI document.
     /// - Returns: A declaration of the schemas namespace in the parent
     /// components namespace.
+    /// - Throws: An error if there is an issue during schema translation.
     func translateSchemas(
         _ schemas: OpenAPI.ComponentDictionary<JSONSchema>
     ) throws -> Declaration {

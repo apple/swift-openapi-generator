@@ -58,6 +58,8 @@ extension _GenerateOptions {
 
     /// Returns a list of the generator modes requested by the user.
     /// - Parameter config: The configuration specified by the user.
+    /// - Returns: A list of generator modes requested by the user.
+    /// - Throws: A `ValidationError` if no modes are provided and no configuration is available.
     func resolvedModes(_ config: _UserConfig?) throws -> [GeneratorMode] {
         if !mode.isEmpty {
             return mode
@@ -70,6 +72,7 @@ extension _GenerateOptions {
 
     /// Returns a list of additional imports requested by the user.
     /// - Parameter config: The configuration specified by the user.
+    /// - Returns: A list of additional import statements requested by the user.
     func resolvedAdditionalImports(_ config: _UserConfig?) -> [String] {
         if !additionalImport.isEmpty {
             return additionalImport
@@ -82,6 +85,7 @@ extension _GenerateOptions {
 
     /// Returns a list of the feature flags requested by the user.
     /// - Parameter config: The configuration specified by the user.
+    /// - Returns: A set of feature flags requested by the user.
     func resolvedFeatureFlags(_ config: _UserConfig?) -> FeatureFlags {
         if !featureFlag.isEmpty {
             return Set(featureFlag)
@@ -93,6 +97,7 @@ extension _GenerateOptions {
     ///
     /// - Returns: Loaded configuration, if found and parsed successfully.
     /// Nil if the user provided no configuration file path.
+    /// - Throws: A `ValidationError` if loading or parsing the configuration file encounters an error.
     func loadedConfig() throws -> _UserConfig? {
         guard let config else {
             return nil

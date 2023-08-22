@@ -20,9 +20,12 @@ extension FileTranslator {
     /// - Parameters:
     ///   - typeName: The name of the type to give to the declared structure.
     ///   - openAPIDescription: A user-specified description from the OpenAPI
-    ///   document.
+    ///     document.
     ///   - objectContext: The context for the object, including information
-    ///   such as the names and schemas of the object's properties.
+    ///     such as the names and schemas of the object's properties.
+    ///   - isDeprecated: A flag indicating whether the object is deprecated.
+    /// - Throws: An error if there is an issue during translation.
+    /// - Returns: A declaration representing the translated object schema.
     func translateObjectStruct(
         typeName: TypeName,
         openAPIDescription: String?,
@@ -102,9 +105,12 @@ extension FileTranslator {
 
     /// Parses the appropriate information about additionalProperties for
     /// an object struct.
-    /// - Parameter objectContext: The context describing the object.
+    /// - Parameters:
+    ///   - objectContext: The context describing the object.
+    ///   - parent: The parent type name where this function is called from.
     /// - Returns: The kind of Codable implementation required for the struct,
-    /// and an extra property to be added to the struct, if needed.
+    ///   and an extra property to be added to the struct, if needed.
+    /// - Throws: An error if there is an issue during parsing.
     func parseAdditionalProperties(
         in objectContext: JSONSchema.ObjectContext,
         parent: TypeName

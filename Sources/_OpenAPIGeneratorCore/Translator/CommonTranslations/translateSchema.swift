@@ -28,6 +28,8 @@ extension FileTranslator {
     ///   - schema: The JSON schema representing the type.
     ///   - overrides: A structure with the properties that should be overriden
     ///   instead of extracted from the schema.
+    /// - Throws: An error if there is an issue during translation.
+    /// - Returns: A list of declarations representing the translated schema.
     func translateSchema(
         typeName: TypeName,
         schema: UnresolvedSchema?,
@@ -66,6 +68,8 @@ extension FileTranslator {
     ///   - schema: The JSON schema representing the type.
     ///   - overrides: A structure with the properties that should be overriden
     ///   instead of extracted from the schema.
+    /// - Throws: An error if there is an issue during translation.
+    /// - Returns: A list of declarations representing the translated schema.
     func translateSchema(
         typeName: TypeName,
         schema: JSONSchema,

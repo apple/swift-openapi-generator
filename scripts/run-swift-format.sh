@@ -23,8 +23,9 @@ REPO_ROOT="$(git -C "${CURRENT_SCRIPT_DIR}" rev-parse --show-toplevel)"
 
 SWIFTFORMAT_BIN=${SWIFTFORMAT_BIN:-$(command -v swift-format)} || fatal "❌ SWIFTFORMAT_BIN unset and no swift-format on PATH"
 
-git -C "${REPO_ROOT}" ls-files -z '*.swift' \
-  | xargs -0 "${SWIFTFORMAT_BIN}" lint --parallel --strict \
+"${SWIFTFORMAT_BIN}" lint \
+  --parallel --recursive --strict \
+  "${REPO_ROOT}/Sources" \
   && SWIFT_FORMAT_RC=$? || SWIFT_FORMAT_RC=$?
 
 if [ "${SWIFT_FORMAT_RC}" -ne 0 ]; then

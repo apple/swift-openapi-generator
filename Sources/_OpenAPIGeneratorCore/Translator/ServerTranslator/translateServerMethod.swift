@@ -17,7 +17,9 @@ extension ServerFileTranslator {
 
     /// Returns an expression that converts a request into an Input type for
     /// a specified OpenAPI operation.
-    /// - Parameter description: The OpenAPI operation.
+    /// - Parameter operation: The OpenAPI operation.
+    /// - Returns: An expression representing the process of converting a request into an Input type.
+    /// - Throws: An error if there's an issue while generating the expression for request conversion.
     func translateServerDeserializer(
         _ operation: OperationDescription
     ) throws -> Expression {
@@ -116,6 +118,9 @@ extension ServerFileTranslator {
     /// Returns an expression that converts an Output type into a response
     /// for a specified OpenAPI operation.
     /// - Parameter description: The OpenAPI operation.
+    /// - Returns: An expression for converting the Output type into a structured response.
+    /// - Throws: An error if there's an issue generating the response conversion expression,
+    ///           such as encountering unsupported response types or invalid definitions.
     func translateServerSerializer(_ description: OperationDescription) throws -> Expression {
         var cases: [SwitchCaseDescription] =
             try description
@@ -168,6 +173,8 @@ extension ServerFileTranslator {
     ///   - serverUrlVariableName: The name of the server URL variable.
     /// - Returns: A declaration of a function, and an expression that registers
     /// the function with the router.
+    /// - Throws: An error if there's an issue while generating the method declaration or
+    /// the router registration expression.
     func translateServerMethod(
         _ description: OperationDescription,
         serverUrlVariableName: String

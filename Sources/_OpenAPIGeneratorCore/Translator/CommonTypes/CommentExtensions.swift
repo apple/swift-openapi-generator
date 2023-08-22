@@ -47,6 +47,7 @@ extension Comment {
     /// - Parameters:
     ///   - prefix: The string that comes first.
     ///   - suffix: The string that comes second.
+    /// - Returns: A documentation comment if either prefix or suffix is provided; otherwise, nil.
     static func doc(prefix: String?, suffix: String?) -> Self? {
         text(prefix: prefix, suffix: suffix).map { .doc($0) }
     }
@@ -60,6 +61,7 @@ extension Comment {
     /// - Parameters:
     ///   - prefix: The string that comes first.
     ///   - suffix: The string that comes second.
+    /// - Returns: A string with the joined prefix and suffix separated by a newline, or nil if both are nil.
     private static func text(prefix: String?, suffix: String?) -> String? {
         if let prefix, let suffix {
             return "\(prefix)\n\n\(suffix)"
@@ -90,6 +92,7 @@ extension TypeName {
     /// string to the specified user description.
     /// - Parameter userDescription: The description specified by the user
     /// in the OpenAPI document.
+    /// - Returns: A documentation comment combining the user description and the "generated from" string.
     func docCommentWithUserDescription(_ userDescription: String?) -> Comment? {
         .doc(
             prefix: userDescription,
@@ -119,6 +122,7 @@ extension ResponseKind {
     ///   - userDescription: The comment provided by the user in the OpenAPI
     ///   document.
     ///   - jsonPath: The JSON path of the commented type.
+    /// - Returns: A documentation comment with information about the source JSON path and HTTP response code.
     func docComment(userDescription: String?, jsonPath: String) -> Comment? {
         .doc(
             prefix: userDescription,
@@ -134,6 +138,7 @@ extension ResponseKind {
 extension Comment {
 
     /// Returns a reference documentation string to attach to the generated function for an operation.
+    /// - Parameter operationDescription: The details of the operation from the OpenAPI document.
     init(from operationDescription: OperationDescription) {
         self.init(
             summary: operationDescription.operation.summary,
@@ -149,8 +154,8 @@ extension Comment {
     /// - Parameters:
     ///   - summary: A short summary of what the operation does.
     ///   - description: A verbose explanation of the operation behavior.
-    ///   - path: The path associated with this operation.
     ///   - httpMethod: The HTTP method associated with this operation.
+    ///   - path: The path associated with this operation.
     ///   - openAPIDocumentPath: JSONPath to the operation element in the OpenAPI document.
     init(
         summary: String?,
@@ -189,6 +194,7 @@ extension Comment {
     ///   OpenAPI document.
     ///   - parent: The Swift type name of the structure of which this is
     ///   a property of.
+    /// - Returns: A documentation comment for the property.
     static func property(
         originalName: String,
         userDescription: String?,
@@ -210,6 +216,7 @@ extension Comment {
     ///   OpenAPI document.
     ///   - parent: The Swift type name of the structure of which this is
     ///   a child of.
+    /// - Returns: A documentation comment for the property.
     static func child(
         originalName: String,
         userDescription: String?,
@@ -230,6 +237,7 @@ extension ComponentDictionaryLocatable {
     /// Returns a documentation comment for the Components section.
     ///
     /// Examples of sections: "Schemas", "Parameters", and so on.
+    /// - Returns: A documentation comment for the property.
     static func sectionComment() -> Comment {
         .doc(
             """

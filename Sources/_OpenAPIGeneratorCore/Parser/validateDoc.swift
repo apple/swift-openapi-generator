@@ -16,6 +16,7 @@
 /// - Parameters:
 ///   - doc: The OpenAPI document to validate.
 ///   - config: The generator config.
+/// - Returns: An array of diagnostic messages representing validation warnings.
 /// - Throws: An error if a fatal issue is found.
 func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [Diagnostic] {
     guard config.featureFlags.contains(.strictOpenAPIValidation) else {

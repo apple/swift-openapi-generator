@@ -27,6 +27,7 @@ extension TypeName {
     /// Returns a type name for a type with the specified name in the
     /// Swift module.
     /// - Parameter name: The name of the type.
+    /// - Returns: A TypeName representing the specified type within the Swift module.
     static func swift(_ name: String) -> TypeName {
         TypeName(swiftKeyPath: ["Swift", name])
     }
@@ -34,6 +35,7 @@ extension TypeName {
     /// Returns a type name for a type with the specified name in the
     /// Foundation module.
     /// - Parameter name: The name of the type.
+    /// - Returns: A TypeName representing the specified type within the Foundation module.
     static func foundation(_ name: String) -> TypeName {
         TypeName(swiftKeyPath: ["Foundation", name])
     }
@@ -41,6 +43,7 @@ extension TypeName {
     /// Returns a type name for a type with the specified name in the
     /// OpenAPIRuntime module.
     /// - Parameter name: The name of the type.
+    /// - Returns: A TypeName representing the specified type within the OpenAPIRuntime module.
     static func runtime(_ name: String) -> TypeName {
         TypeName(swiftKeyPath: ["OpenAPIRuntime", name])
     }

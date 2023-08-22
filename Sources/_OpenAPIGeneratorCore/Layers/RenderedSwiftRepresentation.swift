@@ -57,6 +57,7 @@ public struct InMemoryOutputFile {
 }
 
 extension InMemoryOutputFile: Comparable {
+    /// Compares two `InMemoryOutputFile` instances based on `baseName` and contents for ordering.
     public static func < (lhs: InMemoryOutputFile, rhs: InMemoryOutputFile) -> Bool {
         guard lhs.baseName == rhs.baseName else {
             return lhs.baseName < rhs.baseName

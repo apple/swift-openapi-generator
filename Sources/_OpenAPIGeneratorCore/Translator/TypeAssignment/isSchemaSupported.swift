@@ -62,6 +62,7 @@ extension FileTranslator {
     ///   - schema: The schema to validate.
     ///   - foundIn: A description of the schema's context.
     /// - Returns: `true` if the schema is supported; `false` otherwise.
+    /// - Throws: An error if there's an issue during the validation process.
     func validateSchemaIsSupported(
         _ schema: JSONSchema,
         foundIn: String
@@ -86,6 +87,7 @@ extension FileTranslator {
     ///   - schema: The schema to validate.
     ///   - foundIn: A description of the schema's context.
     /// - Returns: `true` if the schema is supported; `false` otherwise.
+    /// - Throws: An error if there's an issue during the validation process.
     func validateSchemaIsSupported(
         _ schema: UnresolvedSchema?,
         foundIn: String
@@ -106,8 +108,9 @@ extension FileTranslator {
     /// Returns whether the schema is supported.
     ///
     /// If a schema is not supported, no references to it should be emitted.
-    /// - Parameters:
-    ///   - schema: The schema to validate.
+    /// - Parameter schema: The schema to validate.
+    /// - Returns: An `IsSchemaSupportedResult` indicating whether the schema is supported or unsupported.
+    /// - Throws: An error if there's an issue during the validation process.
     func isSchemaSupported(
         _ schema: JSONSchema
     ) throws -> IsSchemaSupportedResult {
@@ -175,8 +178,9 @@ extension FileTranslator {
     /// Returns a result indicating whether the schema is supported.
     ///
     /// If a schema is not supported, no references to it should be emitted.
-    /// - Parameters:
-    ///   - schema: The schema to validate.
+    /// - Parameter schema: The schema to validate.
+    /// - Returns: An `IsSchemaSupportedResult` indicating whether the schema is supported or unsupported.
+    /// - Throws: An error if there's an issue during the validation process.
     func isSchemaSupported(
         _ schema: UnresolvedSchema?
     ) throws -> IsSchemaSupportedResult {
@@ -196,6 +200,8 @@ extension FileTranslator {
     /// Returns a result indicating whether the provided schemas
     /// are supported.
     /// - Parameter schemas: Schemas to check.
+    /// - Returns: An `IsSchemaSupportedResult` indicating whether all schemas are supported or if there's an unsupported schema.
+    /// - Throws: An error if there's an issue during the validation process.
     func areSchemasSupported(_ schemas: [JSONSchema]) throws -> IsSchemaSupportedResult {
         for schema in schemas {
             let result = try isSchemaSupported(schema)
@@ -209,6 +215,8 @@ extension FileTranslator {
     /// Returns a result indicating whether the provided schema
     /// is an reference, object, or allOf (object-ish) schema and is supported.
     /// - Parameter schema: A schemas to check.
+    /// - Returns: An `IsSchemaSupportedResult` indicating whether the schema is supported or not.
+    /// - Throws: An error if there's an issue during the validation process.
     func isObjectishSchemaAndSupported(_ schema: JSONSchema) throws -> IsSchemaSupportedResult {
         switch schema.value {
         case .object, .reference:
@@ -227,6 +235,7 @@ extension FileTranslator {
     /// are reference schemas that point to object-ish schemas and supported.
     /// - Parameter schemas: Schemas to check.
     /// - Returns: `.supported` if all schemas match; `.unsupported` otherwise.
+    /// - Throws: An error if there's an issue during the validation process.
     func areRefsToObjectishSchemaAndSupported(_ schemas: [JSONSchema]) throws -> IsSchemaSupportedResult {
         for schema in schemas {
             let result = try isRefToObjectishSchemaAndSupported(schema)
@@ -240,6 +249,8 @@ extension FileTranslator {
     /// Returns a result indicating whether the provided schema
     /// is a reference schema that points to an object-ish schema and is supported.
     /// - Parameter schema: A schema to check.
+    /// - Returns: An `IsSchemaSupportedResult` indicating whether the schema is supported or not.
+    /// - Throws: An error if there's an issue during the validation process.
     func isRefToObjectishSchemaAndSupported(_ schema: JSONSchema) throws -> IsSchemaSupportedResult {
         switch schema.value {
         case let .reference(ref, _):

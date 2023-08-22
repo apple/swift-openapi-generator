@@ -30,6 +30,8 @@ extension FileTranslator {
     ///   - parent: The parent type of the chosen typed schema.
     /// - Returns: the detected content type + schema + type name, nil if no
     /// supported schema found or if empty.
+    /// - Throws: An error if there's a problem while selecting the best content, validating
+    ///           the schema, or assigning the associated type.
     func bestSingleTypedContent(
         _ map: OpenAPI.Content.Map,
         excludeBinary: Bool = false,
@@ -68,6 +70,8 @@ extension FileTranslator {
     ///   type should be skipped, for example used when encoding headers.
     ///   - parent: The parent type of the chosen typed schema.
     /// - Returns: The supported content type + schema + type names.
+    /// - Throws: An error if there's a problem while extracting or validating the supported
+    ///           content types or assigning the associated types.
     func supportedTypedContents(
         _ map: OpenAPI.Content.Map,
         excludeBinary: Bool = false,

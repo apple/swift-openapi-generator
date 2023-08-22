@@ -20,6 +20,7 @@ public enum TestError: Swift.Error, LocalizedError, CustomStringConvertible {
     case unexpectedValue(Any)
     case unexpectedMissingRequestBody
 
+    /// A human-readable description of the error.
     public var description: String {
         switch self {
         case .noHandlerFound(let method, let path):
@@ -33,6 +34,7 @@ public enum TestError: Swift.Error, LocalizedError, CustomStringConvertible {
         }
     }
 
+    /// A localized description of the error suitable for presenting to the user.
     public var errorDescription: String? {
         description
     }

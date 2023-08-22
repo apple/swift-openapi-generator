@@ -17,8 +17,11 @@ extension TypesFileTranslator {
 
     /// Returns a declaration that defines a Swift type for the response.
     /// - Parameters:
-    ///   - typedResponse: The typed response to declare.
-    /// - Returns: A structure declaration.
+    ///   - typeName: The type name for the response structure.
+    ///   - response: The typed response information containing the response headers and body content.
+    /// - Returns: A structure declaration representing the response type.
+    /// - Throws: An error if there's an issue while generating the response type declaration,
+    ///           extracting response headers, or processing the body content.
     func translateResponseInTypes(
         typeName: TypeName,
         response: TypedResponse
@@ -127,6 +130,8 @@ extension TypesFileTranslator {
     ///   in the OpenAPI document.
     ///   - response: The response to declare.
     /// - Returns: A structure declaration.
+    /// - Throws: An error if there's an issue while generating the response header type declaration,
+    ///           or if there's a problem with extracting response headers or processing the body content.
     func translateResponseHeaderInTypes(
         componentKey: OpenAPI.ComponentKey,
         response: TypedResponse

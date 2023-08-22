@@ -17,10 +17,10 @@ extension TypesFileTranslator {
 
     /// Returns a list of declarations that define a Swift type for
     /// the request body content.
-    /// - Parameters:
-    ///   - content: The typed schema content to declare.
+    /// - Parameter content: The typed schema content to declare.
     /// - Returns: A list of declarations; empty list if the content is
     /// unsupported.
+    /// - Throws: An error if there is an issue translating and declaring the schema content.
     func translateRequestBodyContentInTypes(
         _ content: TypedSchemaContent
     ) throws -> [Declaration] {
@@ -40,6 +40,7 @@ extension TypesFileTranslator {
     /// - Parameter requestBody: The request body to declare.
     /// - Returns: A list of declarations; empty if the request body is
     /// unsupported.
+    /// - Throws: An error if there is an issue translating and declaring the request body content cases.
     func requestBodyContentCases(
         for requestBody: TypedRequestBody
     ) throws -> [Declaration] {
@@ -72,6 +73,8 @@ extension TypesFileTranslator {
     /// - Parameters:
     ///   - unresolvedRequestBody: An unresolved request body.
     ///   - parent: The type name of the parent structure.
+    /// - Returns: A property blueprint representing the request body property.
+    /// - Throws: An error if there is an issue parsing or translating the request body.
     func parseRequestBodyAsProperty(
         for unresolvedRequestBody: UnresolvedRequest?,
         inParent parent: TypeName
@@ -123,10 +126,10 @@ extension TypesFileTranslator {
     }
 
     /// Returns a declaration that defines a Swift type for the request body.
-    /// - Parameters:
-    ///   - requestBody: The request body to declare.
+    /// - Parameter requestBody: The request body to declare.
     /// - Returns: A list of declarations; empty list if the request body is
     /// unsupported.
+    /// - Throws: An error if there is an issue translating the request body.
     func translateRequestBodyInTypes(
         requestBody: TypedRequestBody
     ) throws -> Declaration {
@@ -167,6 +170,7 @@ extension ClientFileTranslator {
     ///   - requestVariableName: The name of the request variable.
     ///   - inputVariableName: The name of the Input variable.
     /// - Returns: An assignment expression.
+    /// - Throws: An error if there is an issue translating the request body.
     func translateRequestBodyInClient(
         _ requestBody: TypedRequestBody,
         requestVariableName: String,
@@ -240,6 +244,7 @@ extension ServerFileTranslator {
     ///   - bodyVariableName: The name of the body variable.
     ///   - inputTypeName: The type of the Input.
     /// - Returns: A variable declaration.
+    /// - Throws: An error if there is an issue extracting or validating the request body.
     func translateRequestBodyInServer(
         _ requestBody: TypedRequestBody,
         requestVariableName: String,

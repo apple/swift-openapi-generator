@@ -14,6 +14,7 @@
 import Foundation
 import XCTest
 
+/// Asserts that the stringified data matches the expected string value.
 public func XCTAssertEqualStringifiedData(
     _ expression1: @autoclosure () throws -> Data,
     _ expression2: @autoclosure () throws -> String,

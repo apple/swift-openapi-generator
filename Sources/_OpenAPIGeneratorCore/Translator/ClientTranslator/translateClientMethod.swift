@@ -18,6 +18,8 @@ extension ClientFileTranslator {
     /// Returns an expression that converts an Input type into a request for
     /// a specified OpenAPI operation.
     /// - Parameter description: The OpenAPI operation.
+    /// - Returns: An expression representing the converted request.
+    /// - Throws: An error if there is an issue during translation.
     func translateClientSerializer(
         _ description: OperationDescription
     ) throws -> Expression {
@@ -117,7 +119,10 @@ extension ClientFileTranslator {
 
     /// Returns an expression that converts a Response into an Output for
     /// a specified OpenAPI operation.
+    ///
     /// - Parameter description: The OpenAPI operation.
+    /// - Throws: An error if there is an issue during translation.
+    /// - Returns: An expression representing the translation of a Response to an Output.
     func translateClientDeserializer(
         _ description: OperationDescription
     ) throws -> Expression {
@@ -163,6 +168,8 @@ extension ClientFileTranslator {
     /// Returns a declaration of a client method that invokes a specified
     /// OpenAPI operation.
     /// - Parameter description: The OpenAPI operation.
+    /// - Throws: An error if there is an issue during translation.
+    /// - Returns: A declaration representing the translated client method.
     func translateClientMethod(
         _ description: OperationDescription
     ) throws -> Declaration {

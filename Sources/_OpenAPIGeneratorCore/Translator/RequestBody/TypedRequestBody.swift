@@ -32,10 +32,10 @@ struct TypedRequestBody {
 extension FileTranslator {
 
     /// Returns typed request body for the specified operation's request body.
-    /// - Parameters:
-    ///   - operation: The parent operation of the request body.
+    /// - Parameter operation: The parent operation of the request body.
     /// - Returns: Typed request content; nil if the request body is nil or
     /// unsupported.
+    /// - Throws: An error if there is an issue translating the parameter extraction for the client.
     func typedRequestBody(
         in operation: OperationDescription
     ) throws -> TypedRequestBody? {
@@ -54,6 +54,7 @@ extension FileTranslator {
     ///   - parent: The parent type of the request body.
     /// - Returns: Typed request content; nil if the request body is
     /// unsupported.
+    /// - Throws: An error if there is an issue translating the typed request body.
     func typedRequestBody(
         from unresolvedRequest: UnresolvedRequest,
         inParent parent: TypeName
@@ -79,6 +80,7 @@ extension FileTranslator {
     ///   - unresolvedRequest: An unresolved request body.
     /// - Returns: Typed request content; nil if the request body is
     /// unsupported.
+    /// - Throws: An error if there is an issue translating the typed request body.
     func typedRequestBody(
         typeName: TypeName,
         from unresolvedRequest: UnresolvedRequest

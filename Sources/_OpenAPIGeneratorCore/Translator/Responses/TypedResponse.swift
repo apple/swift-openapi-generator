@@ -30,9 +30,11 @@ extension FileTranslator {
 
     /// Returns a typed response for the specified unresolved response.
     /// - Parameters:
-    ///   - unresolvedResponse: An unresolved response.
+    ///   - outcome: The OpenAPI operation response outcome.
     ///   - operation: The operation in which the response resi.
     /// - Returns: A typed response.
+    /// - Throws: An error if there's an issue resolving the type name, fetching the response,
+    ///           or determining the inlined status.
     func typedResponse(
         from outcome: OpenAPI.Operation.ResponseOutcome,
         operation: OperationDescription

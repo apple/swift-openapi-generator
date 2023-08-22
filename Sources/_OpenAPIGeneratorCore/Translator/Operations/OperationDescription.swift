@@ -59,6 +59,8 @@ extension OperationDescription {
     ///   - components: The components from the OpenAPI document.
     ///   - asSwiftSafeName: A converted function from user-provided strings
     ///   to strings safe to be used as a Swift identifier.
+    /// - Returns: An array of `OperationDescription` instances, each representing
+    ///   an operation discovered in the provided paths.
     /// - Throws: if `map` contains any references; see discussion for details.
     ///
     /// This function will throw an error if `map` contains any references, because:

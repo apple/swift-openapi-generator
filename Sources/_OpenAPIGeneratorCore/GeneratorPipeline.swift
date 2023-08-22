@@ -67,6 +67,7 @@ struct GeneratorPipeline {
     /// recoverable diagnostics, such as unsupported features.
     /// - Parameter input: The input of the parsing stage.
     /// - Returns: The output of the rendering stage.
+    /// - Throws: An error if a non-recoverable issue occurs during pipeline execution.
     func run(_ input: RawInput) throws -> RenderedOutput {
         try renderSwiftFilesStage.run(
             translateOpenAPIToStructuredSwiftStage.run(
@@ -97,6 +98,7 @@ public func runGenerator(
 /// Creates a new pipeline instance.
 /// - Parameters:
 ///   - parser: An OpenAPI document parser.
+///   - validator: A validator for parsed OpenAPI documents.
 ///   - translator: A translator from OpenAPI to Swift.
 ///   - renderer: A Swift code renderer.
 ///   - formatter: A Swift code formatter.

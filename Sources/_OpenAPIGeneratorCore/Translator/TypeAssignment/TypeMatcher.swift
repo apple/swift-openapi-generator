@@ -66,6 +66,7 @@ struct TypeMatcher {
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: A type usage for the schema if the schema is supported.
     /// Otherwise, returns nil.
+    /// - Throws: An error if there is an issue during the matching process.
     func tryMatchReferenceableType(
         for schema: JSONSchema
     ) throws -> TypeUsage? {
