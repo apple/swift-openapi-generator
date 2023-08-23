@@ -226,15 +226,26 @@ extension FileTranslator {
             )
         }
 
-        let undocumentedCase: Declaration = .commentable(
-            .doc("Parsed a case that was not defined in the OpenAPI document."),
-            .enumCase(
-                name: Constants.OneOf.undocumentedCaseName,
-                kind: .nameWithAssociatedValues([
-                    .init(type: undocumentedType.fullyQualifiedSwiftName)
-                ])
+        let generateUndocumentedCase = shouldGenerateUndocumentedCaseForEnumsAndOneOfs
+
+        let otherCases: [Declaration]
+        if generateUndocumentedCase {
+            let undocumentedCase: Declaration = .commentable(
+                .doc("Parsed a case that was not defined in the OpenAPI document."),
+                .enumCase(
+                    name: Constants.OneOf.undocumentedCaseName,
+                    kind: .nameWithAssociatedValues([
+                        .init(type: undocumentedType.fullyQualifiedSwiftName)
+                    ])
+                )
             )
-        )
+            otherCases = [
+                undocumentedCase
+            ]
+        } else {
+            otherCases = []
+        }
+
         let encoder = translateOneOfEncoder(caseNames: caseNames)
 
         let comment: Comment? =
@@ -245,9 +256,7 @@ extension FileTranslator {
             accessModifier: config.access,
             name: typeName.shortSwiftName,
             conformances: Constants.ObjectStruct.conformances,
-            members: caseDecls + [
-                undocumentedCase
-            ] + codingKeysDecls + [
+            members: caseDecls + otherCases + codingKeysDecls + [
                 decoder,
                 encoder,
             ]

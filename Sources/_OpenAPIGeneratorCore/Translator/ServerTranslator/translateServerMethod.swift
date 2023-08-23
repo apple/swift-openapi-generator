@@ -147,7 +147,6 @@ extension ServerFileTranslator {
     func translateServerSerializer(_ description: OperationDescription) throws -> Expression {
         var cases: [SwitchCaseDescription] =
             try description
-            .operation
             .responseOutcomes
             .map { outcome in
                 try translateResponseOutcomeInServer(

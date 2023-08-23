@@ -27,7 +27,6 @@ extension FileTranslator {
     ) throws -> [ContentType] {
         let contentTypes =
             try description
-            .operation
             .responseOutcomes
             .flatMap { outcome in
                 let response = try outcome.response.resolve(in: components)

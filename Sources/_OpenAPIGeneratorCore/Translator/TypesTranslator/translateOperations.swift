@@ -38,13 +38,16 @@ extension TypesFileTranslator {
                         inParent: inputTypeName
                     )
                 } + extraProperties
-            let structDecl: Declaration = translateStructBlueprint(
-                .init(
-                    comment: nil,
-                    access: config.access,
-                    typeName: structTypeName,
-                    conformances: Constants.Operation.Input.conformances,
-                    properties: structProperties
+            let structDecl: Declaration = .commentable(
+                structTypeName.docCommentWithUserDescription(nil),
+                translateStructBlueprint(
+                    .init(
+                        comment: nil,
+                        access: config.access,
+                        typeName: structTypeName,
+                        conformances: Constants.Operation.Input.conformances,
+                        properties: structProperties
+                    )
                 )
             )
 
@@ -138,7 +141,6 @@ extension TypesFileTranslator {
 
         let documentedOutcomes =
             try description
-            .operation
             .responseOutcomes
             .map { outcome in
                 try translateResponseOutcomeInTypes(

@@ -64,7 +64,7 @@ let package = Package(
         // Read OpenAPI documents
         .package(
             url: "https://github.com/mattpolzin/OpenAPIKit.git",
-            exact: "3.0.0-alpha.9"
+            exact: "3.0.0-beta.1"
         ),
         .package(
             url: "https://github.com/jpsim/Yams.git",
@@ -78,7 +78,7 @@ let package = Package(
         ),
 
         // Tests-only: Runtime library linked by generated code
-        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.1.8")),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.1.9")),
 
         // Build and preview docs
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),

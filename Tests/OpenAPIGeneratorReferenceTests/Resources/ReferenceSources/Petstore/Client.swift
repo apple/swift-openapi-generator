@@ -213,7 +213,7 @@ public struct Client: APIProtocol {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
                     return .created(.init(headers: headers, body: body))
-                case 400:
+                case 400...499:
                     let headers: Components.Responses.ErrorBadRequest.Headers = .init(
                         X_Reason: try converter.getOptionalHeaderFieldAsText(
                             in: response.headerFields,
@@ -239,7 +239,10 @@ public struct Client: APIProtocol {
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
-                    return .badRequest(.init(headers: headers, body: body))
+                    return .clientError(
+                        statusCode: response.statusCode,
+                        .init(headers: headers, body: body)
+                    )
                 default: return .undocumented(statusCode: response.statusCode, .init())
                 }
             }
