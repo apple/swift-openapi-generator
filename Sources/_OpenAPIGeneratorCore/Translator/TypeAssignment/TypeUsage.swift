@@ -61,7 +61,7 @@ struct TypeUsage {
         ///
         /// For example: `Wrapped` becomes `[String: Wrapped]`.
         case dictionaryValue
-        
+
         /// A generic type wrapper for the underlying type.
         ///
         /// For example, `Wrapped` becomes `Wrapper<Wrapped>`.
@@ -200,7 +200,7 @@ extension TypeUsage {
     var asDictionaryValue: Self {
         TypeUsage(wrapped: .usage(self), usage: .dictionaryValue)
     }
-    
+
     /// A type usage created by wrapping the current type usage inside the
     /// wrapper type, where the wrapper type is generic over the current type.
     func asWrapped(in wrapper: TypeName) -> Self {

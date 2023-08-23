@@ -14,7 +14,7 @@
 import OpenAPIKit30
 
 extension FileTranslator {
-    
+
     /// Returns a declaration of the specified raw representable enum.
     /// - Parameters:
     ///   - typeName: The name of the type to give to the declared enum.
@@ -35,16 +35,17 @@ extension FileTranslator {
         unknownCaseDescription: String?,
         customSwitchedExpression: (Expression) -> Expression = { $0 }
     ) throws -> Declaration {
-        
+
         let generateUnknownCases = unknownCaseName != nil
-        let knownCases: [Declaration] = cases
+        let knownCases: [Declaration] =
+            cases
             .map { caseName, rawValue in
                 .enumCase(
                     name: caseName,
                     kind: generateUnknownCases ? .nameOnly : .nameWithRawValue(rawValue)
                 )
             }
-        
+
         let otherMembers: [Declaration]
         if let unknownCaseName {
             let undocumentedCase: Declaration = .commentable(
@@ -59,20 +60,20 @@ extension FileTranslator {
             let rawRepresentableInitializer: Declaration
             do {
                 let knownCases: [SwitchCaseDescription] = cases.map { caseName, rawValue in
-                        .init(
-                            kind: .case(.literal(rawValue)),
-                            body: [
-                                .expression(
-                                    .assignment(
-                                        Expression
-                                            .identifier("self")
-                                            .equals(
-                                                .dot(caseName)
-                                            )
-                                    )
+                    .init(
+                        kind: .case(.literal(rawValue)),
+                        body: [
+                            .expression(
+                                .assignment(
+                                    Expression
+                                        .identifier("self")
+                                        .equals(
+                                            .dot(caseName)
+                                        )
                                 )
-                            ]
-                        )
+                            )
+                        ]
+                    )
                 }
                 let unknownCase = SwitchCaseDescription(
                     kind: .default,
@@ -115,18 +116,18 @@ extension FileTranslator {
                     )
                 )
             }
-            
+
             let rawValueGetter: Declaration
             do {
                 let knownCases: [SwitchCaseDescription] = cases.map { caseName, rawValue in
-                        .init(
-                            kind: .case(.dot(caseName)),
-                            body: [
-                                .expression(
-                                    .return(.literal(rawValue))
-                                )
-                            ]
-                        )
+                    .init(
+                        kind: .case(.dot(caseName)),
+                        body: [
+                            .expression(
+                                .return(.literal(rawValue))
+                            )
+                        ]
+                    )
                 }
                 let unknownCase = SwitchCaseDescription(
                     kind: .case(
@@ -148,7 +149,7 @@ extension FileTranslator {
                         )
                     ]
                 )
-                
+
                 let variableDescription = VariableDescription(
                     accessModifier: config.access,
                     kind: .var,
@@ -163,16 +164,16 @@ extension FileTranslator {
                         )
                     ]
                 )
-                
+
                 rawValueGetter = .variable(
                     variableDescription
                 )
             }
-            
+
             let allCasesGetter: Declaration
             do {
                 let caseExpressions: [Expression] = cases.map { caseName, _ in
-                        .memberAccess(.init(right: caseName))
+                    .memberAccess(.init(right: caseName))
                 }
                 allCasesGetter = .variable(
                     .init(

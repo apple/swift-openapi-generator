@@ -39,14 +39,15 @@ extension ServerFileTranslator {
                 type: type.fullyQualifiedSwiftName,
                 right: .dot("init")
                     .call(
-                        try parameters.compactMap {
-                            try parseAsTypedParameter(
-                                from: $0,
-                                inParent: operation.inputTypeName
-                            )
-                        }
-                        .compactMap(translateParameterInServer(_:))
-                        + extraArguments
+                        try parameters
+                            .compactMap {
+                                try parseAsTypedParameter(
+                                    from: $0,
+                                    inParent: operation.inputTypeName
+                                )
+                            }
+                            .compactMap(translateParameterInServer(_:))
+                            + extraArguments
                     )
             )
         }
@@ -66,13 +67,13 @@ extension ServerFileTranslator {
                                 .init(
                                     label: "in",
                                     expression: .identifier("request").dot("headerFields")
-                                ),
+                                )
                             ])
                     )
                 )
             ]
         }
-        
+
         var inputMemberCodeBlocks = try [
             (
                 .path,

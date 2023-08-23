@@ -31,7 +31,8 @@ extension TypesFileTranslator {
         ) throws -> PropertyBlueprint {
             let inputTypeName = description.inputTypeName
             let structTypeName = location.typeName(in: inputTypeName)
-            let structProperties: [PropertyBlueprint] = try parameters
+            let structProperties: [PropertyBlueprint] =
+                try parameters
                 .compactMap { parameter in
                     try parseParameterAsProperty(
                         for: parameter,
@@ -98,7 +99,7 @@ extension TypesFileTranslator {
             )
             extraHeaderProperties = [acceptPropertyBlueprint]
         }
-        
+
         let inputStructDecl = translateStructBlueprint(
             .init(
                 comment: nil,
@@ -190,7 +191,7 @@ extension TypesFileTranslator {
         )
         return enumDecl
     }
-    
+
     /// Returns a declaration of the AcceptableContentType type for the specified
     /// operation.
     /// - Parameter description: The OpenAPI operation.
@@ -205,7 +206,8 @@ extension TypesFileTranslator {
         guard !contentTypes.isEmpty else {
             return nil
         }
-        let cases: [(caseName: String, rawValue: String)] = contentTypes
+        let cases: [(caseName: String, rawValue: String)] =
+            contentTypes
             .map { contentType in
                 (contentSwiftName(contentType), contentType.lowercasedTypeAndSubtype)
             }

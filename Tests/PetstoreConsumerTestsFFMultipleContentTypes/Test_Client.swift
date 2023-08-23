@@ -66,7 +66,7 @@ final class Test_Client: XCTestCase {
             XCTFail("Unexpected content type")
         }
     }
-    
+
     func testGetStats_200_text_requestedSpecific() async throws {
         transport = .init { request, baseURL, operationID in
             XCTAssertEqual(operationID, "getStats")
@@ -89,12 +89,14 @@ final class Test_Client: XCTestCase {
                     """#
             )
         }
-        let response = try await client.getStats(.init(
-            headers: .init(accept: [
-                .init(contentType: .plainText),
-                .init(contentType: .json, quality: 0.5)
-            ])
-        ))
+        let response = try await client.getStats(
+            .init(
+                headers: .init(accept: [
+                    .init(contentType: .plainText),
+                    .init(contentType: .json, quality: 0.5),
+                ])
+            )
+        )
         guard case let .ok(value) = response else {
             XCTFail("Unexpected response: \(response)")
             return
@@ -106,7 +108,6 @@ final class Test_Client: XCTestCase {
             XCTFail("Unexpected content type")
         }
     }
-
 
     func testGetStats_200_text_customAccept() async throws {
         transport = .init { request, baseURL, operationID in

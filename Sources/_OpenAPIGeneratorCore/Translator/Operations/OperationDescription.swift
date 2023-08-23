@@ -140,7 +140,7 @@ extension OperationDescription {
             jsonComponent: "responses"
         )
     }
-    
+
     /// Returns the name of the AcceptableContentType type.
     var acceptableContentTypeName: TypeName {
         operationNamespace.appending(
@@ -151,14 +151,16 @@ extension OperationDescription {
             jsonComponent: nil
         )
     }
-    
+
     /// Returns the name of the array of wrapped AcceptableContentType type.
     var acceptableArrayName: TypeUsage {
         acceptableContentTypeName
             .asUsage
-            .asWrapped(in: .runtime(
-                Constants.Operation.AcceptableContentType.headerTypeName
-            ))
+            .asWrapped(
+                in: .runtime(
+                    Constants.Operation.AcceptableContentType.headerTypeName
+                )
+            )
             .asArray
     }
 

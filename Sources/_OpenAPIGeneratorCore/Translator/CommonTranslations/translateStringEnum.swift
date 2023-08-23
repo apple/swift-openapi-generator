@@ -46,7 +46,8 @@ extension FileTranslator {
             return (caseName, rawValue)
         }
         let generateUnknownCases = shouldGenerateUndocumentedCaseForEnumsAndOneOfs
-        let baseConformance = generateUnknownCases ? Constants.StringEnum.baseConformanceOpen : Constants.StringEnum.baseConformanceClosed
+        let baseConformance =
+            generateUnknownCases ? Constants.StringEnum.baseConformanceOpen : Constants.StringEnum.baseConformanceClosed
         let unknownCaseName = generateUnknownCases ? Constants.StringEnum.undocumentedCaseName : nil
         return try translateRawRepresentableEnum(
             typeName: typeName,

@@ -59,14 +59,17 @@ final class Test_Server: XCTestCase {
             """#
         )
     }
-    
+
     func testGetStats_200_text_requestedSpecific() async throws {
         client = .init(
             getStatsBlock: { input in
-                XCTAssertEqual(input.headers.accept, [
-                    .init(contentType: .plainText),
-                    .init(contentType: .json, quality: 0.5)
-                ])
+                XCTAssertEqual(
+                    input.headers.accept,
+                    [
+                        .init(contentType: .plainText),
+                        .init(contentType: .json, quality: 0.5),
+                    ]
+                )
                 return .ok(.init(body: .plainText("count is 1")))
             }
         )
@@ -94,7 +97,6 @@ final class Test_Server: XCTestCase {
             """#
         )
     }
-
 
     func testGetStats_200_text_customAccept() async throws {
         client = .init(

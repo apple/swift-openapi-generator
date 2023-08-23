@@ -277,23 +277,23 @@ enum Constants {
             /// The name of the undocumented payload type.
             static let undocumentedCaseAssociatedValueTypeName = "UndocumentedPayload"
         }
-        
+
         /// Constants related to every OpenAPI operation's AcceptableContentType
         /// type.
         enum AcceptableContentType {
-            
+
             /// The name of the type.
             static let typeName: String = "AcceptableContentType"
 
             /// The types that the AcceptableContentType type conforms to.
             static let conformances: [String] = [
-                "AcceptableProtocol",
+                "AcceptableProtocol"
             ]
-            
+
             /// The name of the variable on Input given to the acceptable
             /// content types array.
             static let variableName: String = "accept"
-            
+
             /// The name of the wrapper type.
             static let headerTypeName: String = "AcceptHeaderContentType"
 
