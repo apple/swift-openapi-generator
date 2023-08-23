@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 /// Describes the underlying coding strategy.
-enum CodingStrategy: String, Equatable, Hashable, Sendable {
+enum CodingStrategy: String, Hashable, Sendable {
 
     /// A strategy using JSONEncoder/JSONDecoder.
     case json

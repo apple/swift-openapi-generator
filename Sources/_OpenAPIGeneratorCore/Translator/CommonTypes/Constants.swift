@@ -127,7 +127,6 @@ enum Constants {
         /// The types that every struct conforms to.
         static let conformances: [String] = [
             "Codable",
-            "Equatable",
             "Hashable",
             "Sendable",
         ]
@@ -145,11 +144,15 @@ enum Constants {
         /// The name of the undocumented enum case.
         static let undocumentedCaseName = "undocumented"
 
+        /// The name of the base conformance when enums are open.
+        static let baseConformanceOpen: String = "RawRepresentable"
+
+        /// The name of the base conformance when enums are closed.
+        static let baseConformanceClosed: String = "String"
+
         /// The types that every enum conforms to.
         static let conformances: [String] = [
-            "RawRepresentable",
             "Codable",
-            "Equatable",
             "Hashable",
             "Sendable",
             "_AutoLosslessStringConvertible",
@@ -203,7 +206,6 @@ enum Constants {
             /// The types that the body conforms to.
             static let conformances: [String] = [
                 "Sendable",
-                "Equatable",
                 "Hashable",
             ]
         }
@@ -220,7 +222,6 @@ enum Constants {
             /// The types that the Input type conforms to.
             static let conformances: [String] = [
                 "Sendable",
-                "Equatable",
                 "Hashable",
             ]
         }
@@ -234,7 +235,6 @@ enum Constants {
             /// The types that the Output type conforms to.
             static let conformances: [String] = [
                 "Sendable",
-                "Equatable",
                 "Hashable",
             ]
 
@@ -244,7 +244,6 @@ enum Constants {
                 /// The types that the Payload type conforms to.
                 static let conformances: [String] = [
                     "Sendable",
-                    "Equatable",
                     "Hashable",
                 ]
 
@@ -267,7 +266,6 @@ enum Constants {
                     /// The types that the Headers type conforms to.
                     static let conformances: [String] = [
                         "Sendable",
-                        "Equatable",
                         "Hashable",
                     ]
                 }

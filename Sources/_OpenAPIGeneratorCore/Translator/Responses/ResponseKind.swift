@@ -181,7 +181,10 @@ enum ResponseKind {
     /// Returns a new type name that appends the response's Swift name to
     /// the specified parent type name.
     func typeName(in parent: TypeName) -> TypeName {
-        parent.appending(swiftComponent: prettyName.uppercasingFirstLetter)
+        parent.appending(
+            swiftComponent: prettyName.uppercasingFirstLetter,
+            jsonComponent: jsonPathComponent
+        )
     }
 }
 
