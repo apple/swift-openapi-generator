@@ -105,12 +105,12 @@ extension TypeName {
     /// - Parameter subPath: A subpath appended to the JSON path of this
     /// type name.
     func docCommentWithUserDescription(_ userDescription: String?, subPath: String) -> Comment? {
-        guard let fullyQualifiedJSONPath else {
+        guard let jsonPath = appending(jsonComponent: subPath).fullyQualifiedJSONPath else {
             return Comment.doc(prefix: userDescription, suffix: nil)
         }
         return Comment.doc(
             prefix: userDescription,
-            suffix: "- Remark: Generated from `\(fullyQualifiedJSONPath)/\(subPath)`."
+            suffix: "- Remark: Generated from `\(jsonPath)`."
         )
     }
 }
