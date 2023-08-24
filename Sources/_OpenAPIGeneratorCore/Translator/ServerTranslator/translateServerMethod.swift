@@ -28,7 +28,8 @@ extension ServerFileTranslator {
 
         func locationSpecificInputDecl(
             locatedIn location: OpenAPI.Parameter.Context.Location,
-            fromParameters parameters: [UnresolvedParameter]
+            fromParameters parameters: [UnresolvedParameter],
+            extraArguments: [FunctionArgumentDescription]
         ) throws -> Declaration {
             let variableName = location.shortVariableName
             let type = location.typeName(in: inputTypeName)
@@ -38,36 +39,64 @@ extension ServerFileTranslator {
                 type: type.fullyQualifiedSwiftName,
                 right: .dot("init")
                     .call(
-                        try parameters.compactMap {
-                            try parseAsTypedParameter(
-                                from: $0,
-                                inParent: operation.inputTypeName
-                            )
-                        }
-                        .compactMap(translateParameterInServer(_:))
+                        try parameters
+                            .compactMap {
+                                try parseAsTypedParameter(
+                                    from: $0,
+                                    inParent: operation.inputTypeName
+                                )
+                            }
+                            .compactMap(translateParameterInServer(_:))
+                            + extraArguments
                     )
             )
+        }
+
+        let extraHeaderArguments: [FunctionArgumentDescription]
+        let acceptableContentTypes = try acceptHeaderContentTypes(for: operation)
+        if acceptableContentTypes.isEmpty {
+            extraHeaderArguments = []
+        } else {
+            extraHeaderArguments = [
+                .init(
+                    label: Constants.Operation.AcceptableContentType.variableName,
+                    expression: .try(
+                        .identifier("converter")
+                            .dot("extractAcceptHeaderIfPresent")
+                            .call([
+                                .init(
+                                    label: "in",
+                                    expression: .identifier("request").dot("headerFields")
+                                )
+                            ])
+                    )
+                )
+            ]
         }
 
         var inputMemberCodeBlocks = try [
             (
                 .path,
-                operation.allPathParameters
+                operation.allPathParameters,
+                []
             ),
             (
                 .query,
-                operation.allQueryParameters
+                operation.allQueryParameters,
+                []
             ),
             (
                 .header,
-                operation.allHeaderParameters
+                operation.allHeaderParameters,
+                extraHeaderArguments
             ),
             (
                 .cookie,
-                operation.allCookieParameters
+                operation.allCookieParameters,
+                []
             ),
         ]
-        .map(locationSpecificInputDecl(locatedIn:fromParameters:))
+        .map(locationSpecificInputDecl)
         .map(CodeBlock.declaration)
 
         let requestBodyExpr: Expression

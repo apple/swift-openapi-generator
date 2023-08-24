@@ -135,6 +135,17 @@ extension FileTranslator {
             parameter = _parameter
         }
 
+        // OpenAPI 3.0.3: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#fixed-fields-10
+        // > If in is "header" and the name field is "Accept", "Content-Type" or "Authorization", the parameter definition SHALL be ignored.
+        if parameter.location == .header {
+            switch parameter.name.lowercased() {
+            case "accept", "content-type", "authorization":
+                return nil
+            default:
+                break
+            }
+        }
+
         let locationTypeName = parameter.location.typeName(in: parent)
         let foundIn = "\(locationTypeName.description)/\(parameter.name)"
 

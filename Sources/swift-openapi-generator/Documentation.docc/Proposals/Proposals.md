@@ -45,3 +45,4 @@ If you have any questions, tag [Honza Dvorsky](https://github.com/czechboy0) or 
 - <doc:SOAR-NNNN>
 - <doc:SOAR-0001>
 - <doc:SOAR-0002>
+- <doc:SOAR-0003>

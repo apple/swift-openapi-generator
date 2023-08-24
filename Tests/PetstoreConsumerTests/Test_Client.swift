@@ -348,6 +348,12 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(operationID, "getStats")
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(request.method, .get)
+            XCTAssertEqual(
+                request.headerFields,
+                [
+                    .init(name: "accept", value: "application/json")
+                ]
+            )
             XCTAssertNil(request.body)
             return .init(
                 statusCode: 200,
