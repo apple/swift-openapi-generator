@@ -22,7 +22,8 @@ extension FileTranslator {
     ///   - userDescription: The contents of the documentation comment.
     ///   - cases: The list of cases to generate.
     ///   - unknownCaseName: The name of the extra unknown case that preserves
-    ///     the string value that doesn't fit any of the cases.
+    ///     the string value that doesn't fit any of the cases. If nil is
+    ///     passed, the unknown case is not generated.
     ///   - unknownCaseDescription: The contents of the documentation comment
     ///     for the unknown case.
     ///   - customSwitchedExpression: A closure
