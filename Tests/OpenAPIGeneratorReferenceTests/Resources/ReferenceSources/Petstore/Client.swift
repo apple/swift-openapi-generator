@@ -83,10 +83,9 @@ public struct Client: APIProtocol {
                     name: "since",
                     value: input.query.since
                 )
-                try converter.setHeaderFieldAsText(
+                converter.setAcceptHeader(
                     in: &request.headerFields,
-                    name: "accept",
-                    value: "application/json"
+                    contentTypes: input.headers.accept
                 )
                 return request
             },
@@ -171,10 +170,9 @@ public struct Client: APIProtocol {
                     name: "X-Extra-Arguments",
                     value: input.headers.X_Extra_Arguments
                 )
-                try converter.setHeaderFieldAsText(
+                converter.setAcceptHeader(
                     in: &request.headerFields,
-                    name: "accept",
-                    value: "application/json"
+                    contentTypes: input.headers.accept
                 )
                 switch input.body {
                 case let .json(value):
@@ -265,10 +263,9 @@ public struct Client: APIProtocol {
                 )
                 var request: OpenAPIRuntime.Request = .init(path: path, method: .get)
                 suppressMutabilityWarning(&request)
-                try converter.setHeaderFieldAsText(
+                converter.setAcceptHeader(
                     in: &request.headerFields,
-                    name: "accept",
-                    value: "application/json"
+                    contentTypes: input.headers.accept
                 )
                 return request
             },
@@ -376,10 +373,9 @@ public struct Client: APIProtocol {
                 )
                 var request: OpenAPIRuntime.Request = .init(path: path, method: .patch)
                 suppressMutabilityWarning(&request)
-                try converter.setHeaderFieldAsText(
+                converter.setAcceptHeader(
                     in: &request.headerFields,
-                    name: "accept",
-                    value: "application/json"
+                    contentTypes: input.headers.accept
                 )
                 switch input.body {
                 case .none: request.body = nil
@@ -440,10 +436,9 @@ public struct Client: APIProtocol {
                 )
                 var request: OpenAPIRuntime.Request = .init(path: path, method: .put)
                 suppressMutabilityWarning(&request)
-                try converter.setHeaderFieldAsText(
+                converter.setAcceptHeader(
                     in: &request.headerFields,
-                    name: "accept",
-                    value: "application/octet-stream, application/json, text/plain"
+                    contentTypes: input.headers.accept
                 )
                 switch input.body {
                 case let .binary(value):

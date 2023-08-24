@@ -141,6 +141,29 @@ extension OperationDescription {
         )
     }
 
+    /// Returns the name of the AcceptableContentType type.
+    var acceptableContentTypeName: TypeName {
+        operationNamespace.appending(
+            swiftComponent: Constants.Operation.AcceptableContentType.typeName,
+
+            // intentionally nil, we'll append the specific params etc
+            // with their valid JSON key path if nested further
+            jsonComponent: nil
+        )
+    }
+
+    /// Returns the name of the array of wrapped AcceptableContentType type.
+    var acceptableArrayName: TypeUsage {
+        acceptableContentTypeName
+            .asUsage
+            .asWrapped(
+                in: .runtime(
+                    Constants.Operation.AcceptableContentType.headerTypeName
+                )
+            )
+            .asArray
+    }
+
     /// Merged parameters from both the path item level and the operation level.
     /// If duplicate parameters exist, only the parameters from the operation level are preserved.
     ///

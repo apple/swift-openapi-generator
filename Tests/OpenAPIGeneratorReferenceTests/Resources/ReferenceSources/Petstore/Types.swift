@@ -132,7 +132,7 @@ public enum Components {
                 case ._public: return "public"
                 }
             }
-            public static var allCases: [PetKind] {
+            public static var allCases: [Self] {
                 [.cat, .dog, .ELEPHANT, .BIG_ELEPHANT_1, ._nake, ._public]
             }
         }
@@ -250,7 +250,7 @@ public enum Components {
                     case .weekly: return "weekly"
                     }
                 }
-                public static var allCases: [schedulePayload] { [.hourly, .daily, .weekly] }
+                public static var allCases: [Self] { [.hourly, .daily, .weekly] }
             }
             /// - Remark: Generated from `#/components/schemas/PetFeeding/schedule`.
             public var schedule: Components.Schemas.PetFeeding.schedulePayload?
@@ -782,7 +782,7 @@ public enum Operations {
                         case ._empty: return ""
                         }
                     }
-                    public static var allCases: [habitatPayload] { [.water, .land, .air, ._empty] }
+                    public static var allCases: [Self] { [.water, .land, .air, ._empty] }
                 }
                 /// - Remark: Generated from `#/paths/pets/GET/query/habitat`.
                 public var habitat: Operations.listPets.Input.Query.habitatPayload?
@@ -812,9 +812,7 @@ public enum Operations {
                         case .herbivore: return "herbivore"
                         }
                     }
-                    public static var allCases: [feedsPayloadPayload] {
-                        [.omnivore, .carnivore, .herbivore]
-                    }
+                    public static var allCases: [Self] { [.omnivore, .carnivore, .herbivore] }
                 }
                 /// - Remark: Generated from `#/paths/pets/GET/query/feeds`.
                 public typealias feedsPayload = [Operations.listPets.Input.Query
@@ -851,12 +849,23 @@ public enum Operations {
                 ///
                 /// - Remark: Generated from `#/paths/pets/GET/header/My-Request-UUID`.
                 public var My_Request_UUID: Swift.String?
+                public var accept:
+                    [OpenAPIRuntime.AcceptHeaderContentType<
+                        Operations.listPets.AcceptableContentType
+                    >]
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
                 ///   - My_Request_UUID: Request identifier
-                public init(My_Request_UUID: Swift.String? = nil) {
+                ///   - accept:
+                public init(
+                    My_Request_UUID: Swift.String? = nil,
+                    accept: [OpenAPIRuntime.AcceptHeaderContentType<
+                        Operations.listPets.AcceptableContentType
+                    >] = .defaultValues()
+                ) {
                     self.My_Request_UUID = My_Request_UUID
+                    self.accept = accept
                 }
             }
             public var headers: Operations.listPets.Input.Headers
@@ -979,6 +988,23 @@ public enum Operations {
             /// HTTP response code: `default`.
             case `default`(statusCode: Int, Operations.listPets.Output.Default)
         }
+        @frozen public enum AcceptableContentType: AcceptableProtocol {
+            case json
+            case other(String)
+            public init?(rawValue: String) {
+                switch rawValue.lowercased() {
+                case "application/json": self = .json
+                default: self = .other(rawValue)
+                }
+            }
+            public var rawValue: String {
+                switch self {
+                case let .other(string): return string
+                case .json: return "application/json"
+                }
+            }
+            public static var allCases: [Self] { [.json] }
+        }
     }
     /// Create a pet
     ///
@@ -1005,12 +1031,23 @@ public enum Operations {
                 ///
                 /// - Remark: Generated from `#/paths/pets/POST/header/X-Extra-Arguments`.
                 public var X_Extra_Arguments: Components.Schemas.CodeError?
+                public var accept:
+                    [OpenAPIRuntime.AcceptHeaderContentType<
+                        Operations.createPet.AcceptableContentType
+                    >]
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
                 ///   - X_Extra_Arguments: A description here.
-                public init(X_Extra_Arguments: Components.Schemas.CodeError? = nil) {
+                ///   - accept:
+                public init(
+                    X_Extra_Arguments: Components.Schemas.CodeError? = nil,
+                    accept: [OpenAPIRuntime.AcceptHeaderContentType<
+                        Operations.createPet.AcceptableContentType
+                    >] = .defaultValues()
+                ) {
                     self.X_Extra_Arguments = X_Extra_Arguments
+                    self.accept = accept
                 }
             }
             public var headers: Operations.createPet.Input.Headers
@@ -1103,6 +1140,23 @@ public enum Operations {
             /// A response with a code that is not documented in the OpenAPI document.
             case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
         }
+        @frozen public enum AcceptableContentType: AcceptableProtocol {
+            case json
+            case other(String)
+            public init?(rawValue: String) {
+                switch rawValue.lowercased() {
+                case "application/json": self = .json
+                default: self = .other(rawValue)
+                }
+            }
+            public var rawValue: String {
+                switch self {
+                case let .other(string): return string
+                case .json: return "application/json"
+                }
+            }
+            public static var allCases: [Self] { [.json] }
+        }
     }
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
@@ -1123,8 +1177,19 @@ public enum Operations {
             public var query: Operations.getStats.Input.Query
             /// - Remark: Generated from `#/paths/pets/stats/GET/header`.
             public struct Headers: Sendable, Hashable {
+                public var accept:
+                    [OpenAPIRuntime.AcceptHeaderContentType<
+                        Operations.getStats.AcceptableContentType
+                    >]
                 /// Creates a new `Headers`.
-                public init() {}
+                ///
+                /// - Parameters:
+                ///   - accept:
+                public init(
+                    accept: [OpenAPIRuntime.AcceptHeaderContentType<
+                        Operations.getStats.AcceptableContentType
+                    >] = .defaultValues()
+                ) { self.accept = accept }
             }
             public var headers: Operations.getStats.Input.Headers
             /// - Remark: Generated from `#/paths/pets/stats/GET/cookie`.
@@ -1197,6 +1262,23 @@ public enum Operations {
             ///
             /// A response with a code that is not documented in the OpenAPI document.
             case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
+        }
+        @frozen public enum AcceptableContentType: AcceptableProtocol {
+            case json
+            case other(String)
+            public init?(rawValue: String) {
+                switch rawValue.lowercased() {
+                case "application/json": self = .json
+                default: self = .other(rawValue)
+                }
+            }
+            public var rawValue: String {
+                switch self {
+                case let .other(string): return string
+                case .json: return "application/json"
+                }
+            }
+            public static var allCases: [Self] { [.json] }
         }
     }
     /// - Remark: HTTP `POST /pets/stats`.
@@ -1414,8 +1496,19 @@ public enum Operations {
             public var query: Operations.updatePet.Input.Query
             /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/header`.
             public struct Headers: Sendable, Hashable {
+                public var accept:
+                    [OpenAPIRuntime.AcceptHeaderContentType<
+                        Operations.updatePet.AcceptableContentType
+                    >]
                 /// Creates a new `Headers`.
-                public init() {}
+                ///
+                /// - Parameters:
+                ///   - accept:
+                public init(
+                    accept: [OpenAPIRuntime.AcceptHeaderContentType<
+                        Operations.updatePet.AcceptableContentType
+                    >] = .defaultValues()
+                ) { self.accept = accept }
             }
             public var headers: Operations.updatePet.Input.Headers
             /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/cookie`.
@@ -1529,6 +1622,23 @@ public enum Operations {
             /// A response with a code that is not documented in the OpenAPI document.
             case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
         }
+        @frozen public enum AcceptableContentType: AcceptableProtocol {
+            case json
+            case other(String)
+            public init?(rawValue: String) {
+                switch rawValue.lowercased() {
+                case "application/json": self = .json
+                default: self = .other(rawValue)
+                }
+            }
+            public var rawValue: String {
+                switch self {
+                case let .other(string): return string
+                case .json: return "application/json"
+                }
+            }
+            public static var allCases: [Self] { [.json] }
+        }
     }
     /// Upload an avatar
     ///
@@ -1558,8 +1668,19 @@ public enum Operations {
             public var query: Operations.uploadAvatarForPet.Input.Query
             /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/header`.
             public struct Headers: Sendable, Hashable {
+                public var accept:
+                    [OpenAPIRuntime.AcceptHeaderContentType<
+                        Operations.uploadAvatarForPet.AcceptableContentType
+                    >]
                 /// Creates a new `Headers`.
-                public init() {}
+                ///
+                /// - Parameters:
+                ///   - accept:
+                public init(
+                    accept: [OpenAPIRuntime.AcceptHeaderContentType<
+                        Operations.uploadAvatarForPet.AcceptableContentType
+                    >] = .defaultValues()
+                ) { self.accept = accept }
             }
             public var headers: Operations.uploadAvatarForPet.Input.Headers
             /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/cookie`.
@@ -1705,6 +1826,29 @@ public enum Operations {
             ///
             /// A response with a code that is not documented in the OpenAPI document.
             case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
+        }
+        @frozen public enum AcceptableContentType: AcceptableProtocol {
+            case binary
+            case json
+            case text
+            case other(String)
+            public init?(rawValue: String) {
+                switch rawValue.lowercased() {
+                case "application/octet-stream": self = .binary
+                case "application/json": self = .json
+                case "text/plain": self = .text
+                default: self = .other(rawValue)
+                }
+            }
+            public var rawValue: String {
+                switch self {
+                case let .other(string): return string
+                case .binary: return "application/octet-stream"
+                case .json: return "application/json"
+                case .text: return "text/plain"
+                }
+            }
+            public static var allCases: [Self] { [.binary, .json, .text] }
         }
     }
 }
