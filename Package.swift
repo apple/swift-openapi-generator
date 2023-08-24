@@ -145,18 +145,6 @@ let package = Package(
             swiftSettings: swiftSettings
         ),
 
-        // PetstoreConsumerTestsFFMultipleContentTypes
-        // Builds and tests the reference code from GeneratorReferenceTests
-        // to ensure it actually works correctly at runtime.
-        // Enabled feature flag: multipleContentTypes
-        .testTarget(
-            name: "PetstoreConsumerTestsFFMultipleContentTypes",
-            dependencies: [
-                "PetstoreConsumerTestCore"
-            ],
-            swiftSettings: swiftSettings
-        ),
-
         // Generator CLI
         .executableTarget(
             name: "swift-openapi-generator",

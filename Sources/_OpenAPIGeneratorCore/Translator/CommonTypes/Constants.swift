@@ -141,14 +141,8 @@ enum Constants {
     /// Constants related to all generated string-based enums.
     enum StringEnum {
 
-        /// The name of the undocumented enum case.
-        static let undocumentedCaseName = "undocumented"
-
-        /// The name of the base conformance when enums are open.
-        static let baseConformanceOpen: String = "RawRepresentable"
-
-        /// The name of the base conformance when enums are closed.
-        static let baseConformanceClosed: String = "String"
+        /// The name of the base conformance.
+        static let baseConformance: String = "String"
 
         /// The types that every enum conforms to.
         static let conformances: [String] = [
@@ -162,9 +156,6 @@ enum Constants {
 
     /// Constants related to generated oneOf enums.
     enum OneOf {
-        /// The name of the undocumented enum case.
-        static let undocumentedCaseName = "undocumented"
-
         /// The name of the discriminator variable.
         static let discriminatorName = "discriminator"
     }

@@ -111,11 +111,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         style: .form,
                         explode: true,
                         name: "since",
-                        as: Components.Parameters.query_born_since.self
+                        as: Components.Parameters.query_period_born_hyphen_since.self
                     )
                 )
                 let headers: Operations.listPets.Input.Headers = .init(
-                    My_Request_UUID: try converter.getOptionalHeaderFieldAsText(
+                    My_hyphen_Request_hyphen_UUID: try converter.getOptionalHeaderFieldAsText(
                         in: request.headerFields,
                         name: "My-Request-UUID",
                         as: Swift.String.self
@@ -140,12 +140,12 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     try converter.setHeaderFieldAsText(
                         in: &response.headerFields,
                         name: "My-Response-UUID",
-                        value: value.headers.My_Response_UUID
+                        value: value.headers.My_hyphen_Response_hyphen_UUID
                     )
                     try converter.setHeaderFieldAsText(
                         in: &response.headerFields,
                         name: "My-Tracing-Header",
-                        value: value.headers.My_Tracing_Header
+                        value: value.headers.My_hyphen_Tracing_hyphen_Header
                     )
                     switch value.body {
                     case let .json(value):
@@ -194,7 +194,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             deserializer: { request, metadata in let path: Operations.createPet.Input.Path = .init()
                 let query: Operations.createPet.Input.Query = .init()
                 let headers: Operations.createPet.Input.Headers = .init(
-                    X_Extra_Arguments: try converter.getOptionalHeaderFieldAsJSON(
+                    X_hyphen_Extra_hyphen_Arguments: try converter.getOptionalHeaderFieldAsJSON(
                         in: request.headerFields,
                         name: "X-Extra-Arguments",
                         as: Components.Schemas.CodeError.self
@@ -235,7 +235,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     try converter.setHeaderFieldAsJSON(
                         in: &response.headerFields,
                         name: "X-Extra-Arguments",
-                        value: value.headers.X_Extra_Arguments
+                        value: value.headers.X_hyphen_Extra_hyphen_Arguments
                     )
                     switch value.body {
                     case let .json(value):
@@ -257,7 +257,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     try converter.setHeaderFieldAsText(
                         in: &response.headerFields,
                         name: "X-Reason",
-                        value: value.headers.X_Reason
+                        value: value.headers.X_hyphen_Reason
                     )
                     switch value.body {
                     case let .json(value):
@@ -316,6 +316,26 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             headerFields: &response.headerFields,
                             contentType: "application/json; charset=utf-8"
                         )
+                    case let .plainText(value):
+                        try converter.validateAcceptIfPresent(
+                            "text/plain",
+                            in: request.headerFields
+                        )
+                        response.body = try converter.setResponseBodyAsText(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "text/plain"
+                        )
+                    case let .binary(value):
+                        try converter.validateAcceptIfPresent(
+                            "application/octet-stream",
+                            in: request.headerFields
+                        )
+                        response.body = try converter.setResponseBodyAsBinary(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "application/octet-stream"
+                        )
                     }
                     return response
                 case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
@@ -347,6 +367,24 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         Components.Schemas.PetStats.self,
                         from: request.body,
                         transforming: { value in .json(value) }
+                    )
+                } else if try converter.isMatchingContentType(
+                    received: contentType,
+                    expectedRaw: "text/plain"
+                ) {
+                    body = try converter.getRequiredRequestBodyAsText(
+                        Swift.String.self,
+                        from: request.body,
+                        transforming: { value in .plainText(value) }
+                    )
+                } else if try converter.isMatchingContentType(
+                    received: contentType,
+                    expectedRaw: "application/octet-stream"
+                ) {
+                    body = try converter.getRequiredRequestBodyAsBinary(
+                        Foundation.Data.self,
+                        from: request.body,
+                        transforming: { value in .binary(value) }
                     )
                 } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
@@ -498,7 +536,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     petId: try converter.getPathParameterAsText(
                         in: metadata.pathParameters,
                         name: "petId",
-                        as: Components.Parameters.path_petId.self
+                        as: Components.Parameters.path_period_petId.self
                     )
                 )
                 let query: Operations.uploadAvatarForPet.Input.Query = .init()
@@ -571,7 +609,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     var response = Response(statusCode: 500)
                     suppressMutabilityWarning(&response)
                     switch value.body {
-                    case let .text(value):
+                    case let .plainText(value):
                         try converter.validateAcceptIfPresent(
                             "text/plain",
                             in: request.headerFields

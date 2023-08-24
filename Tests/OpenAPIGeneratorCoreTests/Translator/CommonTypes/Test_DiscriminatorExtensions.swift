@@ -38,7 +38,7 @@ final class Test_DiscriminatorExtensions: Test_Core {
                 [
                     "Foo",
                     "Bar",
-                    "B_z",
+                    "B_dollar_z",
                 ],
                 mapped.map(\.caseName)
             )
@@ -65,7 +65,7 @@ final class Test_DiscriminatorExtensions: Test_Core {
                 [
                     "Foo",
                     "Bar",
-                    "B_z",
+                    "B_dollar_z",
                 ],
                 mapped.map(\.caseName)
             )
@@ -100,7 +100,7 @@ final class Test_DiscriminatorExtensions: Test_Core {
             [
                 "Components.Schemas.Foo",
                 "Components.Schemas.Bar",
-                "Components.Schemas.B_z",
+                "Components.Schemas.B_dollar_z",
             ],
             types.map(\.fullyQualifiedSwiftName)
         )

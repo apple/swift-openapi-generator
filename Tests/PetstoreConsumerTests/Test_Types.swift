@@ -25,7 +25,7 @@ final class Test_Types: XCTestCase {
     func testStructCodingKeys() throws {
         let cases: [(Components.Schemas._Error.CodingKeys, String)] = [
             (.code, "code"),
-            (.me_sage, "me$sage"),
+            (.me_dollar_sage, "me$sage"),
         ]
         for (value, rawValue) in cases {
             XCTAssertEqual(value.rawValue, rawValue)
@@ -35,7 +35,7 @@ final class Test_Types: XCTestCase {
     func testEnumCoding() throws {
         let cases: [(Components.Schemas.PetKind, String)] = [
             (.cat, "cat"),
-            (._nake, "$nake"),
+            (._dollar_nake, "$nake"),
         ]
         for (value, rawValue) in cases {
             XCTAssertEqual(value.rawValue, rawValue)
@@ -188,9 +188,6 @@ final class Test_Types: XCTestCase {
         try _testRoundtrip(
             Components.Schemas.OneOfAny.case4(.init(message: "hello"))
         )
-        try _testRoundtrip(
-            Components.Schemas.OneOfAny.undocumented(true)
-        )
     }
 
     func testOneOfWithDiscriminator_roundtrip() throws {
@@ -210,14 +207,6 @@ final class Test_Types: XCTestCase {
                         value1: .init(kind: "MessagedExercise"),
                         value2: .init(message: "hello")
                     )
-                )
-        )
-        try _testRoundtrip(
-            Components.Schemas.OneOfObjectsWithDiscriminator
-                .undocumented(
-                    .init(unvalidatedValue: [
-                        "kind": "nope"
-                    ])
                 )
         )
     }

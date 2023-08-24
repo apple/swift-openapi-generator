@@ -27,29 +27,9 @@
 /// 1.0 is released.)
 public enum FeatureFlag: String, Hashable, Codable, CaseIterable {
 
-    /// Multiple request and response body content types.
-    ///
-    /// Tracking issues:
-    /// - https://github.com/apple/swift-openapi-generator/issues/6
-    /// - https://github.com/apple/swift-openapi-generator/issues/7
-    case multipleContentTypes
-
-    /// SOAR-0001 Improved OpenAPI -> Swift name mapping
-    ///
-    /// Tracking issues:
-    /// - https://github.com/apple/swift-openapi-generator/pull/95
-    case proposal0001
-
-    /// Stricted input OpenAPI document validation.
-    ///
-    /// Check for structural issues and detect cycles proactively.
-    case strictOpenAPIValidation
-
-    /// Removed the generation of an undocumented case in enums/oneOfs.
-    ///
-    /// Tracking issue:
-    /// - https://github.com/apple/swift-openapi-generator/issues/204
-    case closedEnumsAndOneOfs
+    /// Has to be here until we add more feature flags, otherwise the enum
+    /// doesn't compile.
+    case empty
 }
 
 /// A set of enabled feature flags.

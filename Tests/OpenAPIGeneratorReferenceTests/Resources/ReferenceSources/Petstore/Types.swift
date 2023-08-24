@@ -99,42 +99,15 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/schemas/PetKind`.
         @frozen
-        public enum PetKind: RawRepresentable, Codable, Hashable, Sendable,
-            _AutoLosslessStringConvertible, CaseIterable
+        public enum PetKind: String, Codable, Hashable, Sendable, _AutoLosslessStringConvertible,
+            CaseIterable
         {
-            case cat
-            case dog
-            case ELEPHANT
-            case BIG_ELEPHANT_1
-            case _nake
-            case _public
-            /// Parsed a raw value that was not defined in the OpenAPI document.
-            case undocumented(String)
-            public init?(rawValue: String) {
-                switch rawValue {
-                case "cat": self = .cat
-                case "dog": self = .dog
-                case "ELEPHANT": self = .ELEPHANT
-                case "BIG_ELEPHANT_1": self = .BIG_ELEPHANT_1
-                case "$nake": self = ._nake
-                case "public": self = ._public
-                default: self = .undocumented(rawValue)
-                }
-            }
-            public var rawValue: String {
-                switch self {
-                case let .undocumented(string): return string
-                case .cat: return "cat"
-                case .dog: return "dog"
-                case .ELEPHANT: return "ELEPHANT"
-                case .BIG_ELEPHANT_1: return "BIG_ELEPHANT_1"
-                case ._nake: return "$nake"
-                case ._public: return "public"
-                }
-            }
-            public static var allCases: [Self] {
-                [.cat, .dog, .ELEPHANT, .BIG_ELEPHANT_1, ._nake, ._public]
-            }
+            case cat = "cat"
+            case dog = "dog"
+            case ELEPHANT = "ELEPHANT"
+            case BIG_ELEPHANT_1 = "BIG_ELEPHANT_1"
+            case _dollar_nake = "$nake"
+            case _public = "public"
         }
         /// - Remark: Generated from `#/components/schemas/CreatePetRequest`.
         public struct CreatePetRequest: Codable, Hashable, Sendable {
@@ -172,7 +145,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/Error/code`.
             public var code: Swift.Int32
             /// - Remark: Generated from `#/components/schemas/Error/me$sage`.
-            public var me_sage: Swift.String
+            public var me_dollar_sage: Swift.String
             /// Extra information about the error.
             ///
             /// - Remark: Generated from `#/components/schemas/Error/extraInfo`.
@@ -201,23 +174,23 @@ public enum Components {
             ///
             /// - Parameters:
             ///   - code:
-            ///   - me_sage:
+            ///   - me_dollar_sage:
             ///   - extraInfo: Extra information about the error.
             ///   - userData: Custom user-provided key-value pairs.
             public init(
                 code: Swift.Int32,
-                me_sage: Swift.String,
+                me_dollar_sage: Swift.String,
                 extraInfo: Components.Schemas._Error.extraInfoPayload? = nil,
                 userData: OpenAPIRuntime.OpenAPIObjectContainer? = nil
             ) {
                 self.code = code
-                self.me_sage = me_sage
+                self.me_dollar_sage = me_dollar_sage
                 self.extraInfo = extraInfo
                 self.userData = userData
             }
             public enum CodingKeys: String, CodingKey {
                 case code
-                case me_sage = "me$sage"
+                case me_dollar_sage = "me$sage"
                 case extraInfo
                 case userData
             }
@@ -226,31 +199,12 @@ public enum Components {
         public struct PetFeeding: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/PetFeeding/schedule`.
             @frozen
-            public enum schedulePayload: RawRepresentable, Codable, Hashable, Sendable,
+            public enum schedulePayload: String, Codable, Hashable, Sendable,
                 _AutoLosslessStringConvertible, CaseIterable
             {
-                case hourly
-                case daily
-                case weekly
-                /// Parsed a raw value that was not defined in the OpenAPI document.
-                case undocumented(String)
-                public init?(rawValue: String) {
-                    switch rawValue {
-                    case "hourly": self = .hourly
-                    case "daily": self = .daily
-                    case "weekly": self = .weekly
-                    default: self = .undocumented(rawValue)
-                    }
-                }
-                public var rawValue: String {
-                    switch self {
-                    case let .undocumented(string): return string
-                    case .hourly: return "hourly"
-                    case .daily: return "daily"
-                    case .weekly: return "weekly"
-                    }
-                }
-                public static var allCases: [Self] { [.hourly, .daily, .weekly] }
+                case hourly = "hourly"
+                case daily = "daily"
+                case weekly = "weekly"
             }
             /// - Remark: Generated from `#/components/schemas/PetFeeding/schedule`.
             public var schedule: Components.Schemas.PetFeeding.schedulePayload?
@@ -456,8 +410,6 @@ public enum Components {
             }
             /// - Remark: Generated from `#/components/schemas/OneOfAny/case4`.
             case case4(Components.Schemas.OneOfAny.Case4Payload)
-            /// Parsed a case that was not defined in the OpenAPI document.
-            case undocumented(OpenAPIRuntime.OpenAPIValueContainer)
             public init(from decoder: any Decoder) throws {
                 do {
                     self = .case1(try .init(from: decoder))
@@ -475,9 +427,10 @@ public enum Components {
                     self = .case4(try .init(from: decoder))
                     return
                 } catch {}
-                let container = try decoder.singleValueContainer()
-                let value = try container.decode(OpenAPIRuntime.OpenAPIValueContainer.self)
-                self = .undocumented(value)
+                throw DecodingError.failedToDecodeOneOfSchema(
+                    type: Self.self,
+                    codingPath: decoder.codingPath
+                )
             }
             public func encode(to encoder: any Encoder) throws {
                 switch self {
@@ -485,7 +438,6 @@ public enum Components {
                 case let .case2(value): try value.encode(to: encoder)
                 case let .CodeError(value): try value.encode(to: encoder)
                 case let .case4(value): try value.encode(to: encoder)
-                case let .undocumented(value): try value.encode(to: encoder)
                 }
             }
         }
@@ -564,8 +516,6 @@ public enum Components {
             case Walk(Components.Schemas.Walk)
             /// - Remark: Generated from `#/components/schemas/OneOfObjectsWithDiscriminator/case2`.
             case MessagedExercise(Components.Schemas.MessagedExercise)
-            /// Parsed a case that was not defined in the OpenAPI document.
-            case undocumented(OpenAPIRuntime.OpenAPIObjectContainer)
             public enum CodingKeys: String, CodingKey { case kind }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -574,16 +524,16 @@ public enum Components {
                 case "Walk": self = .Walk(try .init(from: decoder))
                 case "MessagedExercise": self = .MessagedExercise(try .init(from: decoder))
                 default:
-                    let container = try decoder.singleValueContainer()
-                    let value = try container.decode(OpenAPIRuntime.OpenAPIObjectContainer.self)
-                    self = .undocumented(value)
+                    throw DecodingError.failedToDecodeOneOfSchema(
+                        type: Self.self,
+                        codingPath: decoder.codingPath
+                    )
                 }
             }
             public func encode(to encoder: any Encoder) throws {
                 switch self {
                 case let .Walk(value): try value.encode(to: encoder)
                 case let .MessagedExercise(value): try value.encode(to: encoder)
-                case let .undocumented(value): try value.encode(to: encoder)
                 }
             }
         }
@@ -623,15 +573,15 @@ public enum Components {
         /// Supply this parameter to filter pets born since the provided date.
         ///
         /// - Remark: Generated from `#/components/parameters/query.born-since`.
-        public typealias query_born_since = Components.Schemas.DOB
+        public typealias query_period_born_hyphen_since = Components.Schemas.DOB
         /// The id of the pet to retrieve
         ///
         /// - Remark: Generated from `#/components/parameters/path.petId`.
-        public typealias path_petId = Swift.Int64
+        public typealias path_period_petId = Swift.Int64
         /// A deprecated header parameter
         ///
         /// - Remark: Generated from `#/components/parameters/header.deprecatedHeader`.
-        public typealias header_deprecatedHeader = Swift.String
+        public typealias header_period_deprecatedHeader = Swift.String
     }
     /// Types generated from the `#/components/requestBodies` section of the OpenAPI document.
     public enum RequestBodies {
@@ -680,12 +630,14 @@ public enum Components {
                 /// A description here.
                 ///
                 /// - Remark: Generated from `#/components/responses/ErrorBadRequest/headers/X-Reason`.
-                public var X_Reason: Swift.String?
+                public var X_hyphen_Reason: Swift.String?
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
-                ///   - X_Reason: A description here.
-                public init(X_Reason: Swift.String? = nil) { self.X_Reason = X_Reason }
+                ///   - X_hyphen_Reason: A description here.
+                public init(X_hyphen_Reason: Swift.String? = nil) {
+                    self.X_hyphen_Reason = X_hyphen_Reason
+                }
             }
             /// Received HTTP response headers
             public var headers: Components.Responses.ErrorBadRequest.Headers
@@ -755,64 +707,24 @@ public enum Operations {
                 public var limit: Swift.Int32?
                 /// - Remark: Generated from `#/paths/pets/GET/query/habitat`.
                 @frozen
-                public enum habitatPayload: RawRepresentable, Codable, Hashable, Sendable,
+                public enum habitatPayload: String, Codable, Hashable, Sendable,
                     _AutoLosslessStringConvertible, CaseIterable
                 {
-                    case water
-                    case land
-                    case air
-                    case _empty
-                    /// Parsed a raw value that was not defined in the OpenAPI document.
-                    case undocumented(String)
-                    public init?(rawValue: String) {
-                        switch rawValue {
-                        case "water": self = .water
-                        case "land": self = .land
-                        case "air": self = .air
-                        case "": self = ._empty
-                        default: self = .undocumented(rawValue)
-                        }
-                    }
-                    public var rawValue: String {
-                        switch self {
-                        case let .undocumented(string): return string
-                        case .water: return "water"
-                        case .land: return "land"
-                        case .air: return "air"
-                        case ._empty: return ""
-                        }
-                    }
-                    public static var allCases: [Self] { [.water, .land, .air, ._empty] }
+                    case water = "water"
+                    case land = "land"
+                    case air = "air"
+                    case _empty = ""
                 }
                 /// - Remark: Generated from `#/paths/pets/GET/query/habitat`.
                 public var habitat: Operations.listPets.Input.Query.habitatPayload?
                 /// - Remark: Generated from `#/paths/pets/GET/query/feedsPayload`.
                 @frozen
-                public enum feedsPayloadPayload: RawRepresentable, Codable, Hashable, Sendable,
+                public enum feedsPayloadPayload: String, Codable, Hashable, Sendable,
                     _AutoLosslessStringConvertible, CaseIterable
                 {
-                    case omnivore
-                    case carnivore
-                    case herbivore
-                    /// Parsed a raw value that was not defined in the OpenAPI document.
-                    case undocumented(String)
-                    public init?(rawValue: String) {
-                        switch rawValue {
-                        case "omnivore": self = .omnivore
-                        case "carnivore": self = .carnivore
-                        case "herbivore": self = .herbivore
-                        default: self = .undocumented(rawValue)
-                        }
-                    }
-                    public var rawValue: String {
-                        switch self {
-                        case let .undocumented(string): return string
-                        case .omnivore: return "omnivore"
-                        case .carnivore: return "carnivore"
-                        case .herbivore: return "herbivore"
-                        }
-                    }
-                    public static var allCases: [Self] { [.omnivore, .carnivore, .herbivore] }
+                    case omnivore = "omnivore"
+                    case carnivore = "carnivore"
+                    case herbivore = "herbivore"
                 }
                 /// - Remark: Generated from `#/paths/pets/GET/query/feeds`.
                 public typealias feedsPayload = [Operations.listPets.Input.Query
@@ -822,7 +734,7 @@ public enum Operations {
                 /// Supply this parameter to filter pets born since the provided date.
                 ///
                 /// - Remark: Generated from `#/paths/pets/GET/query/since`.
-                public var since: Components.Parameters.query_born_since?
+                public var since: Components.Parameters.query_period_born_hyphen_since?
                 /// Creates a new `Query`.
                 ///
                 /// - Parameters:
@@ -834,7 +746,7 @@ public enum Operations {
                     limit: Swift.Int32? = nil,
                     habitat: Operations.listPets.Input.Query.habitatPayload? = nil,
                     feeds: Operations.listPets.Input.Query.feedsPayload? = nil,
-                    since: Components.Parameters.query_born_since? = nil
+                    since: Components.Parameters.query_period_born_hyphen_since? = nil
                 ) {
                     self.limit = limit
                     self.habitat = habitat
@@ -848,7 +760,7 @@ public enum Operations {
                 /// Request identifier
                 ///
                 /// - Remark: Generated from `#/paths/pets/GET/header/My-Request-UUID`.
-                public var My_Request_UUID: Swift.String?
+                public var My_hyphen_Request_hyphen_UUID: Swift.String?
                 public var accept:
                     [OpenAPIRuntime.AcceptHeaderContentType<
                         Operations.listPets.AcceptableContentType
@@ -856,15 +768,15 @@ public enum Operations {
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
-                ///   - My_Request_UUID: Request identifier
+                ///   - My_hyphen_Request_hyphen_UUID: Request identifier
                 ///   - accept:
                 public init(
-                    My_Request_UUID: Swift.String? = nil,
+                    My_hyphen_Request_hyphen_UUID: Swift.String? = nil,
                     accept: [OpenAPIRuntime.AcceptHeaderContentType<
                         Operations.listPets.AcceptableContentType
                     >] = .defaultValues()
                 ) {
-                    self.My_Request_UUID = My_Request_UUID
+                    self.My_hyphen_Request_hyphen_UUID = My_hyphen_Request_hyphen_UUID
                     self.accept = accept
                 }
             }
@@ -907,22 +819,22 @@ public enum Operations {
                     /// Response identifier
                     ///
                     /// - Remark: Generated from `#/paths/pets/GET/responses/200/headers/My-Response-UUID`.
-                    public var My_Response_UUID: Swift.String
+                    public var My_hyphen_Response_hyphen_UUID: Swift.String
                     /// A description here.
                     ///
                     /// - Remark: Generated from `#/paths/pets/GET/responses/200/headers/My-Tracing-Header`.
-                    public var My_Tracing_Header: Components.Headers.TracingHeader?
+                    public var My_hyphen_Tracing_hyphen_Header: Components.Headers.TracingHeader?
                     /// Creates a new `Headers`.
                     ///
                     /// - Parameters:
-                    ///   - My_Response_UUID: Response identifier
-                    ///   - My_Tracing_Header: A description here.
+                    ///   - My_hyphen_Response_hyphen_UUID: Response identifier
+                    ///   - My_hyphen_Tracing_hyphen_Header: A description here.
                     public init(
-                        My_Response_UUID: Swift.String,
-                        My_Tracing_Header: Components.Headers.TracingHeader? = nil
+                        My_hyphen_Response_hyphen_UUID: Swift.String,
+                        My_hyphen_Tracing_hyphen_Header: Components.Headers.TracingHeader? = nil
                     ) {
-                        self.My_Response_UUID = My_Response_UUID
-                        self.My_Tracing_Header = My_Tracing_Header
+                        self.My_hyphen_Response_hyphen_UUID = My_hyphen_Response_hyphen_UUID
+                        self.My_hyphen_Tracing_hyphen_Header = My_hyphen_Tracing_hyphen_Header
                     }
                 }
                 /// Received HTTP response headers
@@ -1030,7 +942,7 @@ public enum Operations {
                 /// A description here.
                 ///
                 /// - Remark: Generated from `#/paths/pets/POST/header/X-Extra-Arguments`.
-                public var X_Extra_Arguments: Components.Schemas.CodeError?
+                public var X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError?
                 public var accept:
                     [OpenAPIRuntime.AcceptHeaderContentType<
                         Operations.createPet.AcceptableContentType
@@ -1038,15 +950,15 @@ public enum Operations {
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
-                ///   - X_Extra_Arguments: A description here.
+                ///   - X_hyphen_Extra_hyphen_Arguments: A description here.
                 ///   - accept:
                 public init(
-                    X_Extra_Arguments: Components.Schemas.CodeError? = nil,
+                    X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError? = nil,
                     accept: [OpenAPIRuntime.AcceptHeaderContentType<
                         Operations.createPet.AcceptableContentType
                     >] = .defaultValues()
                 ) {
-                    self.X_Extra_Arguments = X_Extra_Arguments
+                    self.X_hyphen_Extra_hyphen_Arguments = X_hyphen_Extra_hyphen_Arguments
                     self.accept = accept
                 }
             }
@@ -1092,14 +1004,14 @@ public enum Operations {
                     /// A description here.
                     ///
                     /// - Remark: Generated from `#/paths/pets/POST/responses/201/headers/X-Extra-Arguments`.
-                    public var X_Extra_Arguments: Components.Schemas.CodeError?
+                    public var X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError?
                     /// Creates a new `Headers`.
                     ///
                     /// - Parameters:
-                    ///   - X_Extra_Arguments: A description here.
-                    public init(X_Extra_Arguments: Components.Schemas.CodeError? = nil) {
-                        self.X_Extra_Arguments = X_Extra_Arguments
-                    }
+                    ///   - X_hyphen_Extra_hyphen_Arguments: A description here.
+                    public init(
+                        X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError? = nil
+                    ) { self.X_hyphen_Extra_hyphen_Arguments = X_hyphen_Extra_hyphen_Arguments }
                 }
                 /// Received HTTP response headers
                 public var headers: Operations.createPet.Output.Created.Headers
@@ -1236,6 +1148,10 @@ public enum Operations {
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/content/application\/json`.
                     case json(Components.Schemas.PetStats)
+                    /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/content/text\/plain`.
+                    case plainText(Swift.String)
+                    /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/content/application\/octet-stream`.
+                    case binary(Foundation.Data)
                 }
                 /// Received HTTP response body
                 public var body: Operations.getStats.Output.Ok.Body
@@ -1265,10 +1181,14 @@ public enum Operations {
         }
         @frozen public enum AcceptableContentType: AcceptableProtocol {
             case json
+            case plainText
+            case binary
             case other(String)
             public init?(rawValue: String) {
                 switch rawValue.lowercased() {
                 case "application/json": self = .json
+                case "text/plain": self = .plainText
+                case "application/octet-stream": self = .binary
                 default: self = .other(rawValue)
                 }
             }
@@ -1276,9 +1196,11 @@ public enum Operations {
                 switch self {
                 case let .other(string): return string
                 case .json: return "application/json"
+                case .plainText: return "text/plain"
+                case .binary: return "application/octet-stream"
                 }
             }
-            public static var allCases: [Self] { [.json] }
+            public static var allCases: [Self] { [.json, .plainText, .binary] }
         }
     }
     /// - Remark: HTTP `POST /pets/stats`.
@@ -1314,6 +1236,10 @@ public enum Operations {
             @frozen public enum Body: Sendable, Hashable {
                 /// - Remark: Generated from `#/paths/pets/stats/POST/requestBody/content/application\/json`.
                 case json(Components.Schemas.PetStats)
+                /// - Remark: Generated from `#/paths/pets/stats/POST/requestBody/content/text\/plain`.
+                case plainText(Swift.String)
+                /// - Remark: Generated from `#/paths/pets/stats/POST/requestBody/content/application\/octet-stream`.
+                case binary(Foundation.Data)
             }
             public var body: Operations.postStats.Input.Body
             /// Creates a new `Input`.
@@ -1652,12 +1578,12 @@ public enum Operations {
                 /// The id of the pet to retrieve
                 ///
                 /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/path/petId`.
-                public var petId: Components.Parameters.path_petId
+                public var petId: Components.Parameters.path_period_petId
                 /// Creates a new `Path`.
                 ///
                 /// - Parameters:
                 ///   - petId: The id of the pet to retrieve
-                public init(petId: Components.Parameters.path_petId) { self.petId = petId }
+                public init(petId: Components.Parameters.path_period_petId) { self.petId = petId }
             }
             public var path: Operations.uploadAvatarForPet.Input.Path
             /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/query`.
@@ -1798,7 +1724,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/500/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/500/content/text\/plain`.
-                    case text(Swift.String)
+                    case plainText(Swift.String)
                 }
                 /// Received HTTP response body
                 public var body: Operations.uploadAvatarForPet.Output.InternalServerError.Body
@@ -1830,13 +1756,13 @@ public enum Operations {
         @frozen public enum AcceptableContentType: AcceptableProtocol {
             case binary
             case json
-            case text
+            case plainText
             case other(String)
             public init?(rawValue: String) {
                 switch rawValue.lowercased() {
                 case "application/octet-stream": self = .binary
                 case "application/json": self = .json
-                case "text/plain": self = .text
+                case "text/plain": self = .plainText
                 default: self = .other(rawValue)
                 }
             }
@@ -1845,10 +1771,10 @@ public enum Operations {
                 case let .other(string): return string
                 case .binary: return "application/octet-stream"
                 case .json: return "application/json"
-                case .text: return "text/plain"
+                case .plainText: return "text/plain"
                 }
             }
-            public static var allCases: [Self] { [.binary, .json, .text] }
+            public static var allCases: [Self] { [.binary, .json, .plainText] }
         }
     }
 }

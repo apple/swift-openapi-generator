@@ -76,7 +76,7 @@ final class Test_Client: XCTestCase {
                     since: .test
                 ),
                 headers: .init(
-                    My_Request_UUID: "abcd-1234"
+                    My_hyphen_Request_hyphen_UUID: "abcd-1234"
                 )
             )
         )
@@ -84,8 +84,8 @@ final class Test_Client: XCTestCase {
             XCTFail("Unexpected response: \(response)")
             return
         }
-        XCTAssertEqual(value.headers.My_Response_UUID, "abcd")
-        XCTAssertEqual(value.headers.My_Tracing_Header, "1234")
+        XCTAssertEqual(value.headers.My_hyphen_Response_hyphen_UUID, "abcd")
+        XCTAssertEqual(value.headers.My_hyphen_Tracing_hyphen_Header, "1234")
         switch value.body {
         case .json(let pets):
             XCTAssertEqual(pets, [.init(id: 1, name: "Fluffz")])
@@ -136,7 +136,7 @@ final class Test_Client: XCTestCase {
                 error,
                 .init(
                     code: 1,
-                    me_sage: "Oh no!",
+                    me_dollar_sage: "Oh no!",
                     userData: try .init(unvalidatedValue: ["one": 1])
                 )
             )
@@ -183,7 +183,7 @@ final class Test_Client: XCTestCase {
         let response = try await client.createPet(
             .init(
                 headers: .init(
-                    X_Extra_Arguments: .init(code: 1)
+                    X_hyphen_Extra_hyphen_Arguments: .init(code: 1)
                 ),
                 body: .json(.init(name: "Fluffz"))
             )
@@ -192,7 +192,7 @@ final class Test_Client: XCTestCase {
             XCTFail("Unexpected response: \(response)")
             return
         }
-        XCTAssertEqual(value.headers.X_Extra_Arguments, .init(code: 1))
+        XCTAssertEqual(value.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
         switch value.body {
         case .json(let pets):
             XCTAssertEqual(pets, .init(id: 1, name: "Fluffz"))
@@ -222,7 +222,7 @@ final class Test_Client: XCTestCase {
             return
         }
         XCTAssertEqual(statusCode, 400)
-        XCTAssertEqual(value.headers.X_Reason, "bad luck")
+        XCTAssertEqual(value.headers.X_hyphen_Reason, "bad luck")
         switch value.body {
         case .json(let body):
             XCTAssertEqual(body, .init(code: 1))
@@ -351,7 +351,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(
                 request.headerFields,
                 [
-                    .init(name: "accept", value: "application/json")
+                    .init(name: "accept", value: "application/json, text/plain, application/octet-stream")
                 ]
             )
             XCTAssertNil(request.body)
@@ -375,6 +375,8 @@ final class Test_Client: XCTestCase {
         switch value.body {
         case .json(let stats):
             XCTAssertEqual(stats, .init(count: 1))
+        default:
+            XCTFail("Unexpected content type")
         }
     }
 
@@ -402,6 +404,156 @@ final class Test_Client: XCTestCase {
         switch value.body {
         case .json(let stats):
             XCTAssertEqual(stats, .init(count: 1))
+        default:
+            XCTFail("Unexpected content type")
+        }
+    }
+
+    func testGetStats_200_text() async throws {
+        transport = .init { request, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
+            XCTAssertEqual(request.path, "/pets/stats")
+            XCTAssertEqual(request.method, .get)
+            XCTAssertEqual(
+                request.headerFields,
+                [
+                    .init(name: "accept", value: "application/json, text/plain, application/octet-stream")
+                ]
+            )
+            XCTAssertNil(request.body)
+            return .init(
+                statusCode: 200,
+                headers: [
+                    .init(name: "content-type", value: "text/plain")
+                ],
+                encodedBody: #"""
+                    count is 1
+                    """#
+            )
+        }
+        let response = try await client.getStats(.init())
+        guard case let .ok(value) = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+        switch value.body {
+        case .plainText(let stats):
+            XCTAssertEqual(stats, "count is 1")
+        default:
+            XCTFail("Unexpected content type")
+        }
+    }
+
+    func testGetStats_200_text_requestedSpecific() async throws {
+        transport = .init { request, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
+            XCTAssertEqual(request.path, "/pets/stats")
+            XCTAssertEqual(request.method, .get)
+            XCTAssertEqual(
+                request.headerFields,
+                [
+                    .init(name: "accept", value: "text/plain, application/json; q=0.500")
+                ]
+            )
+            XCTAssertNil(request.body)
+            return .init(
+                statusCode: 200,
+                headers: [
+                    .init(name: "content-type", value: "text/plain")
+                ],
+                encodedBody: #"""
+                    count is 1
+                    """#
+            )
+        }
+        let response = try await client.getStats(
+            .init(
+                headers: .init(accept: [
+                    .init(contentType: .plainText),
+                    .init(contentType: .json, quality: 0.5),
+                ])
+            )
+        )
+        guard case let .ok(value) = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+        switch value.body {
+        case .plainText(let stats):
+            XCTAssertEqual(stats, "count is 1")
+        default:
+            XCTFail("Unexpected content type")
+        }
+    }
+
+    func testGetStats_200_text_customAccept() async throws {
+        transport = .init { request, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
+            XCTAssertEqual(request.path, "/pets/stats")
+            XCTAssertEqual(request.method, .get)
+            XCTAssertEqual(
+                request.headerFields,
+                [
+                    .init(name: "accept", value: "application/json; q=0.800, text/plain")
+                ]
+            )
+            XCTAssertNil(request.body)
+            return .init(
+                statusCode: 200,
+                headers: [
+                    .init(name: "content-type", value: "text/plain")
+                ],
+                encodedBody: #"""
+                    count is 1
+                    """#
+            )
+        }
+        let response = try await client.getStats(
+            .init(
+                headers: .init(accept: [
+                    .init(contentType: .json, quality: 0.8),
+                    .init(contentType: .plainText),
+                ])
+            )
+        )
+        guard case let .ok(value) = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+        switch value.body {
+        case .plainText(let stats):
+            XCTAssertEqual(stats, "count is 1")
+        default:
+            XCTFail("Unexpected content type")
+        }
+    }
+
+    func testGetStats_200_binary() async throws {
+        transport = .init { request, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
+            XCTAssertEqual(request.path, "/pets/stats")
+            XCTAssertEqual(request.method, .get)
+            XCTAssertNil(request.body)
+            return .init(
+                statusCode: 200,
+                headers: [
+                    .init(name: "content-type", value: "application/octet-stream")
+                ],
+                encodedBody: #"""
+                    count_is_1
+                    """#
+            )
+        }
+        let response = try await client.getStats(.init())
+        guard case let .ok(value) = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+        switch value.body {
+        case .binary(let stats):
+            XCTAssertEqual(String(decoding: stats, as: UTF8.self), "count_is_1")
+        default:
+            XCTFail("Unexpected content type")
         }
     }
 
@@ -452,6 +604,66 @@ final class Test_Client: XCTestCase {
         }
         let response = try await client.postStats(
             .init(body: .json(.init(count: 1)))
+        )
+        guard case .accepted = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+    }
+
+    func testPostStats_202_text() async throws {
+        transport = .init { request, baseURL, operationID in
+            XCTAssertEqual(operationID, "postStats")
+            XCTAssertEqual(request.path, "/pets/stats")
+            XCTAssertNil(request.query)
+            XCTAssertEqual(baseURL.absoluteString, "/api")
+            XCTAssertEqual(request.method, .post)
+            XCTAssertEqual(
+                request.headerFields,
+                [
+                    .init(name: "content-type", value: "text/plain")
+                ]
+            )
+            XCTAssertEqual(
+                request.body?.pretty,
+                #"""
+                count is 1
+                """#
+            )
+            return .init(statusCode: 202)
+        }
+        let response = try await client.postStats(
+            .init(body: .plainText("count is 1"))
+        )
+        guard case .accepted = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+    }
+
+    func testPostStats_202_binary() async throws {
+        transport = .init { request, baseURL, operationID in
+            XCTAssertEqual(operationID, "postStats")
+            XCTAssertEqual(request.path, "/pets/stats")
+            XCTAssertNil(request.query)
+            XCTAssertEqual(baseURL.absoluteString, "/api")
+            XCTAssertEqual(request.method, .post)
+            XCTAssertEqual(
+                request.headerFields,
+                [
+                    .init(name: "content-type", value: "application/octet-stream")
+                ]
+            )
+            XCTAssertEqual(
+                request.body?.pretty,
+                #"""
+                count_is_1
+                """#
+            )
+            return .init(statusCode: 202)
+        }
+        let response = try await client.postStats(
+            .init(body: .binary(Data("count_is_1".utf8)))
         )
         guard case .accepted = response else {
             XCTFail("Unexpected response: \(response)")
@@ -590,7 +802,7 @@ final class Test_Client: XCTestCase {
             return
         }
         switch value.body {
-        case .text(let text):
+        case .plainText(let text):
             XCTAssertEqual(text, Data.efghString)
         }
     }

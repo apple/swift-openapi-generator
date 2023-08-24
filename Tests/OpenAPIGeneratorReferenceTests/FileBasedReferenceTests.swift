@@ -46,25 +46,7 @@ class FileBasedReferenceTests: XCTestCase {
 
     func testPetstore() throws {
         try _test(
-            referenceProject: .init(name: .petstore),
-            ignoredDiagnosticMessages: [
-                #"Feature "Multiple content types" is not supported, skipping"#
-            ]
-        )
-    }
-
-    func testPetstoreFFMultipleContentTypes() throws {
-        try _test(
-            referenceProject: .init(
-                name: .petstore,
-                customDirectoryName: "Petstore_FF_MultipleContentTypes"
-            ),
-            featureFlags: [
-                .multipleContentTypes,
-                .proposal0001,
-                .strictOpenAPIValidation,
-                .closedEnumsAndOneOfs,
-            ]
+            referenceProject: .init(name: .petstore)
         )
     }
 
