@@ -254,7 +254,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressUnusedWarning(value)
                     var response = Response(statusCode: statusCode)
                     suppressMutabilityWarning(&response)
-                    try converter.setHeaderFieldAsText(
+                    try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
                         name: "X-Reason",
                         value: value.headers.X_hyphen_Reason

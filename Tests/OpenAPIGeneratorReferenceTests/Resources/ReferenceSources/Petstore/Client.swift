@@ -71,7 +71,7 @@ public struct Client: APIProtocol {
                     name: "feeds",
                     value: input.query.feeds
                 )
-                try converter.setHeaderFieldAsText(
+                try converter.setHeaderFieldAsURI(
                     in: &request.headerFields,
                     name: "My-Request-UUID",
                     value: input.headers.My_Request_UUID
@@ -93,12 +93,12 @@ public struct Client: APIProtocol {
                 switch response.statusCode {
                 case 200:
                     let headers: Operations.listPets.Output.Ok.Headers = .init(
-                        My_Response_UUID: try converter.getRequiredHeaderFieldAsText(
+                        My_Response_UUID: try converter.getRequiredHeaderFieldAsURI(
                             in: response.headerFields,
                             name: "My-Response-UUID",
                             as: Swift.String.self
                         ),
-                        My_Tracing_Header: try converter.getOptionalHeaderFieldAsText(
+                        My_Tracing_Header: try converter.getOptionalHeaderFieldAsURI(
                             in: response.headerFields,
                             name: "My-Tracing-Header",
                             as: Components.Headers.TracingHeader.self
@@ -215,7 +215,7 @@ public struct Client: APIProtocol {
                     return .created(.init(headers: headers, body: body))
                 case 400...499:
                     let headers: Components.Responses.ErrorBadRequest.Headers = .init(
-                        X_Reason: try converter.getOptionalHeaderFieldAsText(
+                        X_Reason: try converter.getOptionalHeaderFieldAsURI(
                             in: response.headerFields,
                             name: "X-Reason",
                             as: Swift.String.self

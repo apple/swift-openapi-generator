@@ -215,7 +215,7 @@ public struct Client: APIProtocol {
                     return .created(.init(headers: headers, body: body))
                 case 400...499:
                     let headers: Components.Responses.ErrorBadRequest.Headers = .init(
-                        X_hyphen_Reason: try converter.getOptionalHeaderFieldAsText(
+                        X_hyphen_Reason: try converter.getOptionalHeaderFieldAsURI(
                             in: response.headerFields,
                             name: "X-Reason",
                             as: Swift.String.self
