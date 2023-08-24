@@ -191,11 +191,9 @@ extension FileTranslator {
 
         let caseNames = cases.map(\.0)
 
-        let undocumentedType: TypeName
         let codingKeysDecls: [Declaration]
         let decoder: Declaration
         if let discriminator {
-            undocumentedType = .objectContainer
             let originalName = discriminator.propertyName
             let swiftName = swiftSafeName(for: originalName)
             codingKeysDecls = [
@@ -219,7 +217,6 @@ extension FileTranslator {
                 cases: mappedTypes
             )
         } else {
-            undocumentedType = .valueContainer
             codingKeysDecls = []
             decoder = translateOneOfWithoutDiscriminatorDecoder(
                 caseNames: caseNames
