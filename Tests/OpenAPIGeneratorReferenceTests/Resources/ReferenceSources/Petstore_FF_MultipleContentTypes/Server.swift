@@ -455,7 +455,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             using: { APIHandler.updatePet($0) },
             deserializer: { request, metadata in
                 let path: Operations.updatePet.Input.Path = .init(
-                    petId: try converter.getPathParameterAsText(
+                    petId: try converter.getPathParameterAsURI(
                         in: metadata.pathParameters,
                         name: "petId",
                         as: Swift.Int64.self
@@ -533,7 +533,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             using: { APIHandler.uploadAvatarForPet($0) },
             deserializer: { request, metadata in
                 let path: Operations.uploadAvatarForPet.Input.Path = .init(
-                    petId: try converter.getPathParameterAsText(
+                    petId: try converter.getPathParameterAsURI(
                         in: metadata.pathParameters,
                         name: "petId",
                         as: Components.Parameters.path_period_petId.self
