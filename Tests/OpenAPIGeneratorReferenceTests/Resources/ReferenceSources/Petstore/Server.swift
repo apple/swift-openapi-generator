@@ -576,7 +576,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             "text/plain",
                             in: request.headerFields
                         )
-                        response.body = try converter.setResponseBodyAsText(
+                        response.body = try converter.setResponseBodyAsString(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "text/plain"

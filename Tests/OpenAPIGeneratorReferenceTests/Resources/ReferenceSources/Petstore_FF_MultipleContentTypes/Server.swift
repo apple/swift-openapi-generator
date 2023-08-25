@@ -85,29 +85,29 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             using: { APIHandler.listPets($0) },
             deserializer: { request, metadata in let path: Operations.listPets.Input.Path = .init()
                 let query: Operations.listPets.Input.Query = .init(
-                    limit: try converter.getOptionalQueryItemAsText(
-                        in: metadata.queryParameters,
+                    limit: try converter.getOptionalQueryItemAsURI(
+                        in: request.query,
                         style: .form,
                         explode: true,
                         name: "limit",
                         as: Swift.Int32.self
                     ),
-                    habitat: try converter.getOptionalQueryItemAsText(
-                        in: metadata.queryParameters,
+                    habitat: try converter.getOptionalQueryItemAsURI(
+                        in: request.query,
                         style: .form,
                         explode: true,
                         name: "habitat",
                         as: Operations.listPets.Input.Query.habitatPayload.self
                     ),
-                    feeds: try converter.getOptionalQueryItemAsText(
-                        in: metadata.queryParameters,
+                    feeds: try converter.getOptionalQueryItemAsURI(
+                        in: request.query,
                         style: .form,
                         explode: true,
                         name: "feeds",
                         as: Operations.listPets.Input.Query.feedsPayload.self
                     ),
-                    since: try converter.getOptionalQueryItemAsText(
-                        in: metadata.queryParameters,
+                    since: try converter.getOptionalQueryItemAsURI(
+                        in: request.query,
                         style: .form,
                         explode: true,
                         name: "since",
@@ -115,7 +115,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     )
                 )
                 let headers: Operations.listPets.Input.Headers = .init(
-                    My_hyphen_Request_hyphen_UUID: try converter.getOptionalHeaderFieldAsText(
+                    My_hyphen_Request_hyphen_UUID: try converter.getOptionalHeaderFieldAsURI(
                         in: request.headerFields,
                         name: "My-Request-UUID",
                         as: Swift.String.self
@@ -137,12 +137,12 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressUnusedWarning(value)
                     var response = Response(statusCode: 200)
                     suppressMutabilityWarning(&response)
-                    try converter.setHeaderFieldAsText(
+                    try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
                         name: "My-Response-UUID",
                         value: value.headers.My_hyphen_Response_hyphen_UUID
                     )
-                    try converter.setHeaderFieldAsText(
+                    try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
                         name: "My-Tracing-Header",
                         value: value.headers.My_hyphen_Tracing_hyphen_Header
@@ -321,7 +321,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             "text/plain",
                             in: request.headerFields
                         )
-                        response.body = try converter.setResponseBodyAsText(
+                        response.body = try converter.setResponseBodyAsString(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "text/plain"
@@ -372,7 +372,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     received: contentType,
                     expectedRaw: "text/plain"
                 ) {
-                    body = try converter.getRequiredRequestBodyAsText(
+                    body = try converter.getRequiredRequestBodyAsString(
                         Swift.String.self,
                         from: request.body,
                         transforming: { value in .plainText(value) }
@@ -614,7 +614,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             "text/plain",
                             in: request.headerFields
                         )
-                        response.body = try converter.setResponseBodyAsText(
+                        response.body = try converter.setResponseBodyAsString(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "text/plain"
