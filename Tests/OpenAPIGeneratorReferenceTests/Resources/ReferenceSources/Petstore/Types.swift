@@ -99,9 +99,7 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/schemas/PetKind`.
         @frozen
-        public enum PetKind: RawRepresentable, Codable, Hashable, Sendable,
-            _AutoLosslessStringConvertible, CaseIterable
-        {
+        public enum PetKind: RawRepresentable, Codable, Hashable, Sendable {
             case cat
             case dog
             case ELEPHANT
@@ -226,9 +224,7 @@ public enum Components {
         public struct PetFeeding: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/PetFeeding/schedule`.
             @frozen
-            public enum schedulePayload: RawRepresentable, Codable, Hashable, Sendable,
-                _AutoLosslessStringConvertible, CaseIterable
-            {
+            public enum schedulePayload: RawRepresentable, Codable, Hashable, Sendable {
                 case hourly
                 case daily
                 case weekly
@@ -755,9 +751,7 @@ public enum Operations {
                 public var limit: Swift.Int32?
                 /// - Remark: Generated from `#/paths/pets/GET/query/habitat`.
                 @frozen
-                public enum habitatPayload: RawRepresentable, Codable, Hashable, Sendable,
-                    _AutoLosslessStringConvertible, CaseIterable
-                {
+                public enum habitatPayload: RawRepresentable, Codable, Hashable, Sendable {
                     case water
                     case land
                     case air
@@ -788,9 +782,7 @@ public enum Operations {
                 public var habitat: Operations.listPets.Input.Query.habitatPayload?
                 /// - Remark: Generated from `#/paths/pets/GET/query/feedsPayload`.
                 @frozen
-                public enum feedsPayloadPayload: RawRepresentable, Codable, Hashable, Sendable,
-                    _AutoLosslessStringConvertible, CaseIterable
-                {
+                public enum feedsPayloadPayload: RawRepresentable, Codable, Hashable, Sendable {
                     case omnivore
                     case carnivore
                     case herbivore

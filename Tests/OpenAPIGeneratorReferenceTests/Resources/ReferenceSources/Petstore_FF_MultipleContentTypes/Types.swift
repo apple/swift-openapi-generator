@@ -703,7 +703,7 @@ public enum Operations {
                 public var limit: Swift.Int32?
                 /// - Remark: Generated from `#/paths/pets/GET/query/habitat`.
                 @frozen
-                public enum habitatPayload: String, Codable, Hashable, Sendable, _AutoLosslessStringConvertible {
+                public enum habitatPayload: String, Codable, Hashable, Sendable {
                     case water = "water"
                     case land = "land"
                     case air = "air"
@@ -713,7 +713,7 @@ public enum Operations {
                 public var habitat: Operations.listPets.Input.Query.habitatPayload?
                 /// - Remark: Generated from `#/paths/pets/GET/query/feedsPayload`.
                 @frozen
-                public enum feedsPayloadPayload: String, Codable, Hashable, Sendable, _AutoLosslessStringConvertible {
+                public enum feedsPayloadPayload: String, Codable, Hashable, Sendable {
                     case omnivore = "omnivore"
                     case carnivore = "carnivore"
                     case herbivore = "herbivore"
