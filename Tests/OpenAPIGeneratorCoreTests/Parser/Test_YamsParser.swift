@@ -21,13 +21,14 @@ final class Test_YamsParser: Test_Core {
         XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.1"))
         XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.2"))
         XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.3"))
+        XCTAssertNoThrow(try _test(openAPIVersionString: "3.1.0"))
 
         let expected1 =
-            "/foo.yaml: error: Unsupported document version: openapi: 3.1.0. Please provide a document with OpenAPI versions in the 3.0.x set."
-        assertThrownError(try _test(openAPIVersionString: "3.1.0"), expectedDiagnostic: expected1)
+            "/foo.yaml: error: Unsupported document version: openapi: 3.2.0. Please provide a document with OpenAPI versions in the 3.0.x or 3.1.x sets."
+        assertThrownError(try _test(openAPIVersionString: "3.2.0"), expectedDiagnostic: expected1)
 
         let expected2 =
-            "/foo.yaml: error: Unsupported document version: openapi: 2.0. Please provide a document with OpenAPI versions in the 3.0.x set."
+            "/foo.yaml: error: Unsupported document version: openapi: 2.0. Please provide a document with OpenAPI versions in the 3.0.x or 3.1.x sets."
         assertThrownError(try _test(openAPIVersionString: "2.0"), expectedDiagnostic: expected2)
     }
 
@@ -53,7 +54,7 @@ final class Test_YamsParser: Test_Core {
             """
 
         let expected =
-            "/foo.yaml: error: No openapi key found, please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x set."
+            "/foo.yaml: error: No openapi key found, please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x or 3.1.x sets."
         assertThrownError(try _test(yaml), expectedDiagnostic: expected)
     }
 

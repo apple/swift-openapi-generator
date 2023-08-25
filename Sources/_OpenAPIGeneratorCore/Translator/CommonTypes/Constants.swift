@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// Constant values used in generated code, some of which refer to type names
 /// in the Runtime library, so they need to be kept in sync.
