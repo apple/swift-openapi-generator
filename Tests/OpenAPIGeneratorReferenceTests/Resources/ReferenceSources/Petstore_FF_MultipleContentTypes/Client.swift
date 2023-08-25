@@ -47,36 +47,36 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.listPets.id,
             serializer: { input in
-                let path = try converter.renderedRequestPath(template: "/pets", parameters: [])
+                let path = try converter.renderedPath(template: "/pets", parameters: [])
                 var request: OpenAPIRuntime.Request = .init(path: path, method: .get)
                 suppressMutabilityWarning(&request)
-                try converter.setQueryItemAsText(
+                try converter.setQueryItemAsURI(
                     in: &request,
                     style: .form,
                     explode: true,
                     name: "limit",
                     value: input.query.limit
                 )
-                try converter.setQueryItemAsText(
+                try converter.setQueryItemAsURI(
                     in: &request,
                     style: .form,
                     explode: true,
                     name: "habitat",
                     value: input.query.habitat
                 )
-                try converter.setQueryItemAsText(
+                try converter.setQueryItemAsURI(
                     in: &request,
                     style: .form,
                     explode: true,
                     name: "feeds",
                     value: input.query.feeds
                 )
-                try converter.setHeaderFieldAsText(
+                try converter.setHeaderFieldAsURI(
                     in: &request.headerFields,
                     name: "My-Request-UUID",
                     value: input.headers.My_hyphen_Request_hyphen_UUID
                 )
-                try converter.setQueryItemAsText(
+                try converter.setQueryItemAsURI(
                     in: &request,
                     style: .form,
                     explode: true,
@@ -93,12 +93,12 @@ public struct Client: APIProtocol {
                 switch response.statusCode {
                 case 200:
                     let headers: Operations.listPets.Output.Ok.Headers = .init(
-                        My_hyphen_Response_hyphen_UUID: try converter.getRequiredHeaderFieldAsText(
+                        My_hyphen_Response_hyphen_UUID: try converter.getRequiredHeaderFieldAsURI(
                             in: response.headerFields,
                             name: "My-Response-UUID",
                             as: Swift.String.self
                         ),
-                        My_hyphen_Tracing_hyphen_Header: try converter.getOptionalHeaderFieldAsText(
+                        My_hyphen_Tracing_hyphen_Header: try converter.getOptionalHeaderFieldAsURI(
                             in: response.headerFields,
                             name: "My-Tracing-Header",
                             as: Components.Headers.TracingHeader.self
@@ -162,7 +162,7 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.createPet.id,
             serializer: { input in
-                let path = try converter.renderedRequestPath(template: "/pets", parameters: [])
+                let path = try converter.renderedPath(template: "/pets", parameters: [])
                 var request: OpenAPIRuntime.Request = .init(path: path, method: .post)
                 suppressMutabilityWarning(&request)
                 try converter.setHeaderFieldAsJSON(
@@ -257,7 +257,7 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.getStats.id,
             serializer: { input in
-                let path = try converter.renderedRequestPath(
+                let path = try converter.renderedPath(
                     template: "/pets/stats",
                     parameters: []
                 )
@@ -292,7 +292,7 @@ public struct Client: APIProtocol {
                         received: contentType,
                         expectedRaw: "text/plain"
                     ) {
-                        body = try converter.getResponseBodyAsText(
+                        body = try converter.getResponseBodyAsString(
                             Swift.String.self,
                             from: response.body,
                             transforming: { value in .plainText(value) }
@@ -324,7 +324,7 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.postStats.id,
             serializer: { input in
-                let path = try converter.renderedRequestPath(
+                let path = try converter.renderedPath(
                     template: "/pets/stats",
                     parameters: []
                 )
@@ -338,7 +338,7 @@ public struct Client: APIProtocol {
                         contentType: "application/json; charset=utf-8"
                     )
                 case let .plainText(value):
-                    request.body = try converter.setRequiredRequestBodyAsText(
+                    request.body = try converter.setRequiredRequestBodyAsString(
                         value,
                         headerFields: &request.headerFields,
                         contentType: "text/plain"
@@ -397,7 +397,7 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.updatePet.id,
             serializer: { input in
-                let path = try converter.renderedRequestPath(
+                let path = try converter.renderedPath(
                     template: "/pets/{}",
                     parameters: [input.path.petId]
                 )
@@ -460,7 +460,7 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.uploadAvatarForPet.id,
             serializer: { input in
-                let path = try converter.renderedRequestPath(
+                let path = try converter.renderedPath(
                     template: "/pets/{}/avatar",
                     parameters: [input.path.petId]
                 )
@@ -538,7 +538,7 @@ public struct Client: APIProtocol {
                             expectedRaw: "text/plain"
                         )
                     {
-                        body = try converter.getResponseBodyAsText(
+                        body = try converter.getResponseBodyAsString(
                             Swift.String.self,
                             from: response.body,
                             transforming: { value in .plainText(value) }
