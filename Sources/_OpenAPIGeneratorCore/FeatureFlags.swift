@@ -50,7 +50,7 @@ public enum FeatureFlag: String, Hashable, Codable, CaseIterable {
     /// Tracking issue:
     /// - https://github.com/apple/swift-openapi-generator/issues/204
     case closedEnumsAndOneOfs
-    
+
     /// Removed `_StringConvertible and friends, relying on the types' Codable
     /// conformances at all times.
     ///

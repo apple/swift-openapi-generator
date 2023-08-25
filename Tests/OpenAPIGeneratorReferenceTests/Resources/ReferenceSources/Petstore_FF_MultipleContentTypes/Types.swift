@@ -99,8 +99,7 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/schemas/PetKind`.
         @frozen
-        public enum PetKind: String, Codable, Hashable, Sendable
-        {
+        public enum PetKind: String, Codable, Hashable, Sendable {
             case cat = "cat"
             case dog = "dog"
             case ELEPHANT = "ELEPHANT"
