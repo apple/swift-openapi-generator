@@ -61,7 +61,7 @@ final class Test_YamsParser: Test_Core {
     func testEmitsYamsParsingError() throws {
         // The `title: "Test"` line is indented the wrong amount to make the YAML invalid for the parser
         let yaml = """
-            openapi: "3.0.0"
+            openapi: "3.1.0"
             info:
              title: "Test"
               version: 1.0.0
@@ -76,7 +76,7 @@ final class Test_YamsParser: Test_Core {
     func testEmitsYamsScanningError() throws {
         // The `version:"1.0.0"` line is missing a space after the colon to make it invalid YAML for the scanner
         let yaml = """
-            openapi: "3.0.0"
+            openapi: "3.1.0"
             info:
               title: "Test"
               version:"1.0.0"
@@ -91,7 +91,7 @@ final class Test_YamsParser: Test_Core {
     func testEmitsMissingInfoKeyOpenAPIParsingError() throws {
         // The `smurf` line should be `info` in a real OpenAPI document.
         let yaml = """
-            openapi: "3.0.0"
+            openapi: "3.1.0"
             smurf:
               title: "Test"
               version: "1.0.0"
@@ -106,7 +106,7 @@ final class Test_YamsParser: Test_Core {
     func testEmitsComplexOpenAPIParsingError() throws {
         // The `resonance` line should be `response` in a real OpenAPI document.
         let yaml = """
-            openapi: "3.0.0"
+            openapi: "3.1.0"
             info:
               title: "Test"
               version: "1.0.0"
