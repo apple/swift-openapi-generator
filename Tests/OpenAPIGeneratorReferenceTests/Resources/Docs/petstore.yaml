@@ -297,9 +297,8 @@ components:
         me$sage:
           type: string
         extraInfo:
+          $ref: '#/components/schemas/ExtraInfo'
           description: Extra information about the error.
-          allOf:
-            - $ref: '#/components/schemas/ExtraInfo'
         userData:
           description: Custom user-provided key-value pairs.
           type: object
