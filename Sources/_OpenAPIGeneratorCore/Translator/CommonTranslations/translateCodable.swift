@@ -420,23 +420,20 @@ extension FileTranslator {
     }
 
     /// Returns a declaration of a oneOf with a discriminator decoder implementation.
-    /// - Parameters:
-    ///   - caseNames: The cases to decode, first element is the raw string to check for, the second
-    ///     element is the case name (without the leading dot).
     func translateOneOfWithDiscriminatorDecoder(
         discriminatorName: String,
-        cases: [OneOfMappedType]
+        cases: [(caseName: String, rawNames: [String])]
     ) -> Declaration {
         let cases: [SwitchCaseDescription] =
             cases
-            .map { caseInfo in
+            .map { caseName, rawNames in
                 .init(
-                    kind: .case(.literal(caseInfo.rawName)),
+                    kind: .multiCase(rawNames.map { .literal($0) }),
                     body: [
                         .expression(
                             .assignment(
                                 left: .identifier("self"),
-                                right: .dot(safeSwiftNameForOneOfMappedType(caseInfo))
+                                right: .dot(caseName)
                                     .call([
                                         .init(
                                             label: nil,

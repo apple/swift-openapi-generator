@@ -17,103 +17,79 @@ import OpenAPIKit30
 
 final class Test_DiscriminatorExtensions: Test_Core {
 
-    func testMappedTypes() throws {
-        let translator = makeTranslator()
-        let types = _testTypes()
+    struct Output: Equatable, CustomStringConvertible {
+        var rawNames: [String]
+        var typeName: String
 
-        do {
-            let mapped = try _testMappedTypes(
-                mapping: nil,
-                types: types
-            )
-            XCTAssertEqual(types, mapped.map(\.typeName))
-            XCTAssertEqual(
-                [
-                    "Foo",
-                    "Bar",
-                    "B$z",
-                ],
-                mapped.map(\.rawName)
-            )
-            XCTAssertEqual(
-                [
-                    "Foo",
-                    "Bar",
-                    "B_z",
-                ],
-                mapped.map(translator.safeSwiftNameForOneOfMappedType)
-            )
-        }
-
-        do {
-            let mapped = try _testMappedTypes(
-                mapping: [
-                    "bar": "Bar",
-                    "bar2": "Bar",
-                    "baz": "#/components/schemas/B$z",
-                ],
-                types: types
-            )
-            XCTAssertEqual(types, mapped.map(\.typeName))
-            XCTAssertEqual(
-                [
-                    "Foo",
-                    "bar",
-                    "baz",
-                ],
-                mapped.map(\.rawName)
-            )
-            XCTAssertEqual(
-                [
-                    "Foo",
-                    "Bar",
-                    "B_z",
-                ],
-                mapped.map(translator.safeSwiftNameForOneOfMappedType)
-            )
+        var description: String {
+            "rawNames: \(rawNames.joined(separator: ", ")), typeName: \(typeName)"
         }
     }
 
-    func _testMappedTypes(
-        mapping: [String: String]?,
-        types: [TypeName]
-    ) throws -> [OneOfMappedType] {
-        try OpenAPI
-            .Discriminator(
-                propertyName: "kind",
+    func testMappedTypes() throws {
+        let typeAssigner = makeTranslator().typeAssigner
+        func _test(
+            mapping: [String: String]?,
+            schemaNames: [String],
+            expectedOutputs: [Output],
+            file: StaticString = #file,
+            line: UInt = #line
+        ) throws {
+            let discriminator = OpenAPI.Discriminator(
+                propertyName: "which",
                 mapping: mapping
             )
-            .mappedTypes(types)
-    }
+            let types = try discriminator.allTypes(
+                schemas: schemaNames.map { JSONReference<JSONSchema>.component(named: $0) },
+                typeAssigner: typeAssigner
+            )
+            let actualOutputs = types.map { type in
+                Output(rawNames: type.rawNames, typeName: type.typeName.shortSwiftName)
+            }
+            XCTAssertEqual(actualOutputs, expectedOutputs, file: file, line: line)
+        }
 
-    func _testTypes() -> [TypeName] {
-        let typeShortNames: [String] = [
-            "Foo",
-            "Bar",
-            "B$z",
-        ]
-        let types: [TypeName] = typeShortNames.map {
-            typeAssigner.typeName(
-                forComponentOriginallyNamed: $0,
-                in: .schemas
+        do {
+            // no mapping
+            try _test(
+                mapping: nil,
+                schemaNames: ["A", "B"],
+                expectedOutputs: [
+                    .init(rawNames: ["A", "#/components/schemas/A"], typeName: "A"),
+                    .init(rawNames: ["B", "#/components/schemas/B"], typeName: "B"),
+                ]
             )
         }
-        XCTAssertEqual(
-            [
-                "Components.Schemas.Foo",
-                "Components.Schemas.Bar",
-                "Components.Schemas.B_z",
-            ],
-            types.map(\.fullyQualifiedSwiftName)
-        )
-        XCTAssertEqual(
-            [
-                "#/components/schemas/Foo",
-                "#/components/schemas/Bar",
-                "#/components/schemas/B$z",
-            ],
-            types.compactMap(\.fullyQualifiedJSONPath)
-        )
-        return types
+
+        do {
+            // with mapping, all overlap
+            try _test(
+                mapping: [
+                    "a": "#/components/schemas/A",
+                    "b": "#/components/schemas/B",
+                ],
+                schemaNames: ["A", "B"],
+                expectedOutputs: [
+                    .init(rawNames: ["a"], typeName: "A"),
+                    .init(rawNames: ["b"], typeName: "B"),
+                ]
+            )
+        }
+
+        do {
+            // with mapping, some overlap, duplicate for A
+            try _test(
+                mapping: [
+                    "a": "#/components/schemas/A",
+                    "a2": "#/components/schemas/A",
+                ],
+                schemaNames: ["A", "B"],
+                expectedOutputs: [
+                    .init(rawNames: ["a"], typeName: "A"),
+                    .init(rawNames: ["a2"], typeName: "A"),
+                    .init(rawNames: ["B", "#/components/schemas/B"], typeName: "B"),
+                ]
+            )
+        }
     }
 }

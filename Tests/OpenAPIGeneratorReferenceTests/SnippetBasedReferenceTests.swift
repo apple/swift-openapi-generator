@@ -505,7 +505,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case "a": self = .a(try .init(from: decoder))
                         case "a2": self = .a2(try .init(from: decoder))
                         case "b": self = .b(try .init(from: decoder))
-                        case "C", "#/components/schemas/C": self = .c(try .init(from: decoder))
+                        case "C", "#/components/schemas/C": self = .C(try .init(from: decoder))
                         default:
                             throw DecodingError.failedToDecodeOneOfSchema(
                                 type: Self.self,

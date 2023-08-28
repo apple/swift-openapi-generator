@@ -512,17 +512,18 @@ public enum Components {
         }
         /// - Remark: Generated from `#/components/schemas/OneOfObjectsWithDiscriminator`.
         @frozen public enum OneOfObjectsWithDiscriminator: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/OneOfObjectsWithDiscriminator/case1`.
+            /// - Remark: Generated from `#/components/schemas/OneOfObjectsWithDiscriminator/Walk`.
             case Walk(Components.Schemas.Walk)
-            /// - Remark: Generated from `#/components/schemas/OneOfObjectsWithDiscriminator/case2`.
+            /// - Remark: Generated from `#/components/schemas/OneOfObjectsWithDiscriminator/MessagedExercise`.
             case MessagedExercise(Components.Schemas.MessagedExercise)
             public enum CodingKeys: String, CodingKey { case kind }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 let discriminator = try container.decode(String.self, forKey: .kind)
                 switch discriminator {
-                case "Walk": self = .Walk(try .init(from: decoder))
-                case "MessagedExercise": self = .MessagedExercise(try .init(from: decoder))
+                case "Walk", "#/components/schemas/Walk": self = .Walk(try .init(from: decoder))
+                case "MessagedExercise", "#/components/schemas/MessagedExercise":
+                    self = .MessagedExercise(try .init(from: decoder))
                 default:
                     throw DecodingError.failedToDecodeOneOfSchema(
                         type: Self.self,

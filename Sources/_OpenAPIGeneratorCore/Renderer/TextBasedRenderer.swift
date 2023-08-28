@@ -152,6 +152,9 @@ struct TextBasedRenderer: RendererProtocol {
                 maybeLet = ""
             }
             return "case \(maybeLet)\(renderedExpression(expression))\(associatedValues)"
+        case .multiCase(let expressions):
+            let expressions = expressions.map(renderedExpression).joined(separator: ", ")
+            return "case \(expressions)"
         case .`default`:
             return "default"
         }

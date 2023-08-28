@@ -636,6 +636,11 @@ enum SwitchCaseKind: Equatable, Codable {
     /// For example: `case let foo(bar):`.
     case `case`(Expression, [String])
 
+    /// A case with multiple comma-separated expressions.
+    ///
+    /// For example: `case "foo", "bar":`.
+    case multiCase([Expression])
+
     /// A default. Spelled as `default:`.
     case `default`
 }
