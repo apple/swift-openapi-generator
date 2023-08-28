@@ -17,7 +17,7 @@ import Foundation
 /// A child schema of a oneOf with a discriminator.
 ///
 /// Details: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#fixed-fields-21
-struct OneOfMappedType: Equatable {
+struct OneOfMappedType: Hashable {
 
     /// The raw name expected in the discriminator for this type.
     ///
@@ -30,15 +30,6 @@ struct OneOfMappedType: Equatable {
 
     /// The type name for this child schema.
     var typeName: TypeName
-
-    /// The case name, safe for Swift code.
-    ///
-    /// Does not include the leading dot.
-    ///
-    /// Derived from the type name, as the last path component.
-    var caseName: String {
-        typeName.shortSwiftName
-    }
 
     /// An error thrown during oneOf type mapping.
     enum MappingError: Swift.Error, LocalizedError, CustomStringConvertible {
@@ -57,10 +48,23 @@ struct OneOfMappedType: Equatable {
     }
 }
 
+extension FileTranslator {
+
+    /// The case name, safe for Swift code.
+    ///
+    /// Does not include the leading dot.
+    ///
+    /// Derived from the mapping key, or the type name, as the last path
+    /// component.
+    func safeSwiftNameForOneOfMappedType(_ type: OneOfMappedType) -> String {
+        swiftSafeName(for: type.rawName)
+    }
+}
+
 extension OpenAPI.Discriminator {
 
-    /// Returns the mapped type for the provided child schema, taking the optional
-    /// mapping into consideration.
+    /// Returns the mapped types for the provided child schema, taking
+    /// the optional mapping into consideration.
     /// - Throws: When an inconsistency is detected.
     func mappedTypes(_ types: [TypeName]) throws -> [OneOfMappedType] {
         guard let mapping else {

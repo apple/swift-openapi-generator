@@ -436,7 +436,7 @@ extension FileTranslator {
                         .expression(
                             .assignment(
                                 left: .identifier("self"),
-                                right: .dot(caseInfo.caseName)
+                                right: .dot(safeSwiftNameForOneOfMappedType(caseInfo))
                                     .call([
                                         .init(
                                             label: nil,

@@ -18,6 +18,7 @@ import OpenAPIKit30
 final class Test_DiscriminatorExtensions: Test_Core {
 
     func testMappedTypes() throws {
+        let translator = makeTranslator()
         let types = _testTypes()
 
         do {
@@ -40,7 +41,7 @@ final class Test_DiscriminatorExtensions: Test_Core {
                     "Bar",
                     "B_z",
                 ],
-                mapped.map(\.caseName)
+                mapped.map(translator.safeSwiftNameForOneOfMappedType)
             )
         }
 
@@ -48,6 +49,7 @@ final class Test_DiscriminatorExtensions: Test_Core {
             let mapped = try _testMappedTypes(
                 mapping: [
                     "bar": "Bar",
+                    "bar2": "Bar",
                     "baz": "#/components/schemas/B$z",
                 ],
                 types: types
@@ -67,7 +69,7 @@ final class Test_DiscriminatorExtensions: Test_Core {
                     "Bar",
                     "B_z",
                 ],
-                mapped.map(\.caseName)
+                mapped.map(translator.safeSwiftNameForOneOfMappedType)
             )
         }
     }

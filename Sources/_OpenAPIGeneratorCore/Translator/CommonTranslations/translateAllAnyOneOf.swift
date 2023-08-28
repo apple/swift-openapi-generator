@@ -133,6 +133,26 @@ extension FileTranslator {
             includedSchemas = schemas
         }
 
+        // The list of cases isn't dependent only on the list of subschemas, but
+        // also on the optional discriminator.mapping property, which can
+        // actually map from multiple keys to the same value.
+        // At the same time, the mapping doesn't have to mention all the
+        // subschemas, in which case the default behavior (use the JSON
+        // path of the schema) is used.
+        // This means that we have two sources of cases:
+        // - list of subschemas
+        // - discriminator.mapping
+        // And the final list of cases is a union of these two sources.
+        // Regarding order, somewhat arbitrarily, let's put the cases from
+        // the mapping first, and all the other ones second.
+
+        let casesFromDiscriminatorMapping: [OneOfMappedType]
+        if let mapping = discriminator?.mapping {
+
+        } else {
+            casesFromDiscriminatorMapping = []
+        }
+
         let cases: [(String, Comment?, TypeUsage, [Declaration])] =
             try includedSchemas
             .enumerated()
