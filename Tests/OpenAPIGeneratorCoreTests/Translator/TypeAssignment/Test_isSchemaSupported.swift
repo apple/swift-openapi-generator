@@ -25,6 +25,15 @@ class Test_isSchemaSupported: XCTestCase {
                 "Foo": .string,
                 "MyObj": .object,
                 "MyObj2": .object,
+                "MyNestedObjectishOneOf": .one(of: [
+                    .object(properties: ["foo": .string])
+                ]),
+                "MyNestedAllOf": .all(of: [
+                    .object(properties: ["foo": .string])
+                ]),
+                "MyNestedAnyOf": .any(of: [
+                    .object(properties: ["foo": .string])
+                ]),
             ])
         )
     }
@@ -71,10 +80,14 @@ class Test_isSchemaSupported: XCTestCase {
             .array(items: .string),
         ]),
 
-        // oneOf with a discriminator with two objectish schemas and two (ignored) inline schemas
+        // oneOf with a discriminator with a few objectish schemas and two (ignored) inline schemas
         .one(
             of: .reference(.component(named: "MyObj")),
             .reference(.component(named: "MyObj2")),
+            .reference(.component(named: "MyNestedAllOf")),
+            .reference(.component(named: "MyNestedAnyOf")),
+            .reference(.component(named: "MyNestedObjectishOneOf")),
+
             .object,
             .boolean,
             discriminator: .init(propertyName: "foo")
