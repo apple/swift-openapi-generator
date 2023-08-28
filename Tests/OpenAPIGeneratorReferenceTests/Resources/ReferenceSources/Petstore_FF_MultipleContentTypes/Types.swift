@@ -147,23 +147,7 @@ public enum Components {
             /// Extra information about the error.
             ///
             /// - Remark: Generated from `#/components/schemas/Error/extraInfo`.
-            public struct extraInfoPayload: Codable, Hashable, Sendable {
-                /// - Remark: Generated from `#/components/schemas/Error/extraInfo/value1`.
-                public var value1: Components.Schemas.ExtraInfo
-                /// Creates a new `extraInfoPayload`.
-                ///
-                /// - Parameters:
-                ///   - value1:
-                public init(value1: Components.Schemas.ExtraInfo) { self.value1 = value1 }
-                public init(from decoder: any Decoder) throws { value1 = try .init(from: decoder) }
-                public func encode(to encoder: any Encoder) throws {
-                    try value1.encode(to: encoder)
-                }
-            }
-            /// Extra information about the error.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Error/extraInfo`.
-            public var extraInfo: Components.Schemas._Error.extraInfoPayload?
+            public var extraInfo: Components.Schemas.ExtraInfo?
             /// Custom user-provided key-value pairs.
             ///
             /// - Remark: Generated from `#/components/schemas/Error/userData`.
@@ -178,7 +162,7 @@ public enum Components {
             public init(
                 code: Swift.Int32,
                 me_dollar_sage: Swift.String,
-                extraInfo: Components.Schemas._Error.extraInfoPayload? = nil,
+                extraInfo: Components.Schemas.ExtraInfo? = nil,
                 userData: OpenAPIRuntime.OpenAPIObjectContainer? = nil
             ) {
                 self.code = code

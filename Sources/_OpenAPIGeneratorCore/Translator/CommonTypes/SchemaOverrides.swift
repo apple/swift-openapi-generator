@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A container of properties that can be defined at multiple levels in
 /// the OpenAPI document. If a property is filled in, the value is used instead

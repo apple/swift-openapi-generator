@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension FileTranslator {
 
@@ -38,7 +38,7 @@ extension FileTranslator {
             switch schema {
             case let .a(ref):
                 // reference, wrap that into JSONSchema
-                unwrappedSchema = .reference(ref)
+                unwrappedSchema = .reference(ref.jsonReference)
             case let .b(schema):
                 unwrappedSchema = schema
             }

@@ -12,28 +12,28 @@
 //
 //===----------------------------------------------------------------------===//
 import XCTest
-import OpenAPIKit30
+import OpenAPIKit
 @testable import _OpenAPIGeneratorCore
 
 class Test_TypeAssigner: Test_Core {
 
     func testTypeNameForReferences() throws {
         try XCTAssertEqual(
-            typeAssigner.typeName(for: JSONReference<JSONSchema>.component(named: "mumble")),
+            typeAssigner.typeName(for: OpenAPI.Reference<JSONSchema>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.Schemas.mumble",
                 jsonFQName: "#/components/schemas/mumble"
             )
         )
         try XCTAssertEqual(
-            typeAssigner.typeName(for: JSONReference<OpenAPI.Parameter>.component(named: "mumble")),
+            typeAssigner.typeName(for: OpenAPI.Reference<OpenAPI.Parameter>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.Parameters.mumble",
                 jsonFQName: "#/components/parameters/mumble"
             )
         )
         try XCTAssertEqual(
-            typeAssigner.typeName(for: JSONReference<OpenAPI.Header>.component(named: "mumble")),
+            typeAssigner.typeName(for: OpenAPI.Reference<OpenAPI.Header>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.Headers.mumble",
                 jsonFQName: "#/components/headers/mumble"
@@ -41,7 +41,7 @@ class Test_TypeAssigner: Test_Core {
 
         )
         try XCTAssertEqual(
-            typeAssigner.typeName(for: JSONReference<OpenAPI.Request>.component(named: "mumble")),
+            typeAssigner.typeName(for: OpenAPI.Reference<OpenAPI.Request>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.RequestBodies.mumble",
                 jsonFQName: "#/components/requestBodies/mumble"
@@ -49,7 +49,7 @@ class Test_TypeAssigner: Test_Core {
 
         )
         try XCTAssertEqual(
-            typeAssigner.typeName(for: JSONReference<OpenAPI.Response>.component(named: "mumble")),
+            typeAssigner.typeName(for: OpenAPI.Reference<OpenAPI.Response>.component(named: "mumble")),
             newTypeName(
                 swiftFQName: "Components.Responses.mumble",
                 jsonFQName: "#/components/responses/mumble"

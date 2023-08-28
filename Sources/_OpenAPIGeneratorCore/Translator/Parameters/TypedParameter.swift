@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A container for an OpenAPI parameter and its computed Swift type usage.
 struct TypedParameter {
@@ -258,7 +258,7 @@ extension FileTranslator {
 /// An unresolved OpenAPI parameter.
 ///
 /// Can be either a reference or an inline parameter.
-typealias UnresolvedParameter = Either<JSONReference<OpenAPI.Parameter>, OpenAPI.Parameter>
+typealias UnresolvedParameter = Either<OpenAPI.Reference<OpenAPI.Parameter>, OpenAPI.Parameter>
 
 extension OpenAPI.Parameter.Context.Location {
 

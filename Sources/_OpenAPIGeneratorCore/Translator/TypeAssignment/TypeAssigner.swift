@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 import Foundation
 
 /// A set of functions that compute the deterministic, unique, and global
@@ -366,6 +366,25 @@ struct TypeAssigner {
             throw JSONReferenceParsingError.externalPathsUnsupported(reference.absoluteString)
         }
         return try typeName(for: internalReference, in: componentType)
+    }
+
+    /// Returns a type name for an OpenAPI reference.
+    ///
+    /// Behaves similarly to JSONReference.
+    ///
+    /// - NOTE: Only internal references are currently supported; throws an error for external references.
+    /// - Parameters:
+    ///   - reference: The reference to compute a type name for.
+    ///   - componentType: The type of the component to which the reference
+    ///   points.
+    func typeName<Component: ComponentDictionaryLocatable>(
+        for reference: OpenAPI.Reference<Component>,
+        in componentType: Component.Type = Component.self
+    ) throws -> TypeName {
+        try typeName(
+            for: reference.jsonReference,
+            in: componentType
+        )
     }
 
     /// Returns a type name for an internal reference to a component.
