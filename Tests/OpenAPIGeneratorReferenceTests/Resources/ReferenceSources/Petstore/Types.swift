@@ -28,8 +28,7 @@ public protocol APIProtocol: Sendable {
     func postStats(_ input: Operations.postStats.Input) async throws -> Operations.postStats.Output
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    @available(*, deprecated) func probe(_ input: Operations.probe.Input) async throws
-        -> Operations.probe.Output
+    @available(*, deprecated) func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output
     /// Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
     ///
     /// - Remark: HTTP `PATCH /pets/{petId}`.
@@ -45,9 +44,7 @@ public protocol APIProtocol: Sendable {
 /// Server URLs defined in the OpenAPI document.
 public enum Servers {
     /// Example Petstore implementation service
-    public static func server1() throws -> URL {
-        try URL(validatingOpenAPIServerURL: "https://example.com/api")
-    }
+    public static func server1() throws -> URL { try URL(validatingOpenAPIServerURL: "https://example.com/api") }
     public static func server2() throws -> URL { try URL(validatingOpenAPIServerURL: "/api") }
 }
 /// Types generated from the components section of the OpenAPI document.
@@ -98,8 +95,7 @@ public enum Components {
         /// Kind of pet
         ///
         /// - Remark: Generated from `#/components/schemas/PetKind`.
-        @frozen
-        public enum PetKind: RawRepresentable, Codable, Hashable, Sendable {
+        @frozen public enum PetKind: RawRepresentable, Codable, Hashable, Sendable, CaseIterable {
             case cat
             case dog
             case ELEPHANT
@@ -130,9 +126,7 @@ public enum Components {
                 case ._public: return "public"
                 }
             }
-            public static var allCases: [Self] {
-                [.cat, .dog, .ELEPHANT, .BIG_ELEPHANT_1, ._nake, ._public]
-            }
+            public static var allCases: [Self] { [.cat, .dog, .ELEPHANT, .BIG_ELEPHANT_1, ._nake, ._public] }
         }
         /// - Remark: Generated from `#/components/schemas/CreatePetRequest`.
         public struct CreatePetRequest: Codable, Hashable, Sendable {
@@ -148,11 +142,7 @@ public enum Components {
             ///   - name:
             ///   - kind:
             ///   - tag:
-            public init(
-                name: Swift.String,
-                kind: Components.Schemas.PetKind? = nil,
-                tag: Swift.String? = nil
-            ) {
+            public init(name: Swift.String, kind: Components.Schemas.PetKind? = nil, tag: Swift.String? = nil) {
                 self.name = name
                 self.kind = kind
                 self.tag = tag
@@ -207,8 +197,7 @@ public enum Components {
         /// - Remark: Generated from `#/components/schemas/PetFeeding`.
         public struct PetFeeding: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/PetFeeding/schedule`.
-            @frozen
-            public enum schedulePayload: RawRepresentable, Codable, Hashable, Sendable {
+            @frozen public enum schedulePayload: RawRepresentable, Codable, Hashable, Sendable, CaseIterable {
                 case hourly
                 case daily
                 case weekly
@@ -238,9 +227,7 @@ public enum Components {
             ///
             /// - Parameters:
             ///   - schedule:
-            public init(schedule: Components.Schemas.PetFeeding.schedulePayload? = nil) {
-                self.schedule = schedule
-            }
+            public init(schedule: Components.Schemas.PetFeeding.schedulePayload? = nil) { self.schedule = schedule }
             public enum CodingKeys: String, CodingKey { case schedule }
         }
         /// - Remark: Generated from `#/components/schemas/DOB`.
@@ -274,10 +261,8 @@ public enum Components {
             /// - Parameters:
             ///   - foo:
             ///   - additionalProperties: A container of undocumented properties.
-            public init(
-                foo: Swift.String? = nil,
-                additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer = .init()
-            ) {
+            public init(foo: Swift.String? = nil, additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer = .init())
+            {
                 self.foo = foo
                 self.additionalProperties = additionalProperties
             }
@@ -304,10 +289,7 @@ public enum Components {
             /// - Parameters:
             ///   - foo:
             ///   - additionalProperties: A container of undocumented properties.
-            public init(
-                foo: Swift.String? = nil,
-                additionalProperties: [String: Swift.Int] = .init()
-            ) {
+            public init(foo: Swift.String? = nil, additionalProperties: [String: Swift.Int] = .init()) {
                 self.foo = foo
                 self.additionalProperties = additionalProperties
             }
@@ -356,10 +338,7 @@ public enum Components {
             /// - Parameters:
             ///   - value1:
             ///   - value2:
-            public init(
-                value1: Components.Schemas.AllOfObjects.Value1Payload,
-                value2: Components.Schemas.CodeError
-            ) {
+            public init(value1: Components.Schemas.AllOfObjects.Value1Payload, value2: Components.Schemas.CodeError) {
                 self.value1 = value1
                 self.value2 = value2
             }
@@ -571,9 +550,7 @@ public enum Components {
         @available(*, deprecated) public struct DeprecatedObject: Codable, Hashable, Sendable {
             /// Creates a new `DeprecatedObject`.
             public init() {}
-            public init(from decoder: any Decoder) throws {
-                try decoder.ensureNoAdditionalProperties(knownKeys: [])
-            }
+            public init(from decoder: any Decoder) throws { try decoder.ensureNoAdditionalProperties(knownKeys: []) }
         }
         /// - Remark: Generated from `#/components/schemas/ObjectWithDeprecatedProperty`.
         public struct ObjectWithDeprecatedProperty: Codable, Hashable, Sendable {
@@ -734,8 +711,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/pets/GET/query/limit`.
                 public var limit: Swift.Int32?
                 /// - Remark: Generated from `#/paths/pets/GET/query/habitat`.
-                @frozen
-                public enum habitatPayload: RawRepresentable, Codable, Hashable, Sendable {
+                @frozen public enum habitatPayload: RawRepresentable, Codable, Hashable, Sendable, CaseIterable {
                     case water
                     case land
                     case air
@@ -765,8 +741,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/pets/GET/query/habitat`.
                 public var habitat: Operations.listPets.Input.Query.habitatPayload?
                 /// - Remark: Generated from `#/paths/pets/GET/query/feedsPayload`.
-                @frozen
-                public enum feedsPayloadPayload: RawRepresentable, Codable, Hashable, Sendable {
+                @frozen public enum feedsPayloadPayload: RawRepresentable, Codable, Hashable, Sendable, CaseIterable {
                     case omnivore
                     case carnivore
                     case herbivore
@@ -791,8 +766,7 @@ public enum Operations {
                     public static var allCases: [Self] { [.omnivore, .carnivore, .herbivore] }
                 }
                 /// - Remark: Generated from `#/paths/pets/GET/query/feeds`.
-                public typealias feedsPayload = [Operations.listPets.Input.Query
-                    .feedsPayloadPayload]
+                public typealias feedsPayload = [Operations.listPets.Input.Query.feedsPayloadPayload]
                 /// - Remark: Generated from `#/paths/pets/GET/query/feeds`.
                 public var feeds: Operations.listPets.Input.Query.feedsPayload?
                 /// Supply this parameter to filter pets born since the provided date.
@@ -825,10 +799,7 @@ public enum Operations {
                 ///
                 /// - Remark: Generated from `#/paths/pets/GET/header/My-Request-UUID`.
                 public var My_Request_UUID: Swift.String?
-                public var accept:
-                    [OpenAPIRuntime.AcceptHeaderContentType<
-                        Operations.listPets.AcceptableContentType
-                    >]
+                public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.listPets.AcceptableContentType>]
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
@@ -836,9 +807,8 @@ public enum Operations {
                 ///   - accept:
                 public init(
                     My_Request_UUID: Swift.String? = nil,
-                    accept: [OpenAPIRuntime.AcceptHeaderContentType<
-                        Operations.listPets.AcceptableContentType
-                    >] = .defaultValues()
+                    accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.listPets.AcceptableContentType>] =
+                        .defaultValues()
                 ) {
                     self.My_Request_UUID = My_Request_UUID
                     self.accept = accept
@@ -915,10 +885,7 @@ public enum Operations {
                 /// - Parameters:
                 ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
-                public init(
-                    headers: Operations.listPets.Output.Ok.Headers,
-                    body: Operations.listPets.Output.Ok.Body
-                ) {
+                public init(headers: Operations.listPets.Output.Ok.Headers, body: Operations.listPets.Output.Ok.Body) {
                     self.headers = headers
                     self.body = body
                 }
@@ -1007,10 +974,7 @@ public enum Operations {
                 ///
                 /// - Remark: Generated from `#/paths/pets/POST/header/X-Extra-Arguments`.
                 public var X_Extra_Arguments: Components.Schemas.CodeError?
-                public var accept:
-                    [OpenAPIRuntime.AcceptHeaderContentType<
-                        Operations.createPet.AcceptableContentType
-                    >]
+                public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.createPet.AcceptableContentType>]
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
@@ -1018,9 +982,8 @@ public enum Operations {
                 ///   - accept:
                 public init(
                     X_Extra_Arguments: Components.Schemas.CodeError? = nil,
-                    accept: [OpenAPIRuntime.AcceptHeaderContentType<
-                        Operations.createPet.AcceptableContentType
-                    >] = .defaultValues()
+                    accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.createPet.AcceptableContentType>] =
+                        .defaultValues()
                 ) {
                     self.X_Extra_Arguments = X_Extra_Arguments
                     self.accept = accept
@@ -1153,18 +1116,14 @@ public enum Operations {
             public var query: Operations.getStats.Input.Query
             /// - Remark: Generated from `#/paths/pets/stats/GET/header`.
             public struct Headers: Sendable, Hashable {
-                public var accept:
-                    [OpenAPIRuntime.AcceptHeaderContentType<
-                        Operations.getStats.AcceptableContentType
-                    >]
+                public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.getStats.AcceptableContentType>]
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
                 ///   - accept:
                 public init(
-                    accept: [OpenAPIRuntime.AcceptHeaderContentType<
-                        Operations.getStats.AcceptableContentType
-                    >] = .defaultValues()
+                    accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.getStats.AcceptableContentType>] =
+                        .defaultValues()
                 ) { self.accept = accept }
             }
             public var headers: Operations.getStats.Input.Headers
@@ -1472,18 +1431,14 @@ public enum Operations {
             public var query: Operations.updatePet.Input.Query
             /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/header`.
             public struct Headers: Sendable, Hashable {
-                public var accept:
-                    [OpenAPIRuntime.AcceptHeaderContentType<
-                        Operations.updatePet.AcceptableContentType
-                    >]
+                public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.updatePet.AcceptableContentType>]
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
                 ///   - accept:
                 public init(
-                    accept: [OpenAPIRuntime.AcceptHeaderContentType<
-                        Operations.updatePet.AcceptableContentType
-                    >] = .defaultValues()
+                    accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.updatePet.AcceptableContentType>] =
+                        .defaultValues()
                 ) { self.accept = accept }
             }
             public var headers: Operations.updatePet.Input.Headers
@@ -1645,9 +1600,7 @@ public enum Operations {
             /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/header`.
             public struct Headers: Sendable, Hashable {
                 public var accept:
-                    [OpenAPIRuntime.AcceptHeaderContentType<
-                        Operations.uploadAvatarForPet.AcceptableContentType
-                    >]
+                    [OpenAPIRuntime.AcceptHeaderContentType<Operations.uploadAvatarForPet.AcceptableContentType>]
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
@@ -1749,8 +1702,7 @@ public enum Operations {
                 ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
                 public init(
-                    headers: Operations.uploadAvatarForPet.Output.PreconditionFailed.Headers =
-                        .init(),
+                    headers: Operations.uploadAvatarForPet.Output.PreconditionFailed.Headers = .init(),
                     body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body
                 ) {
                     self.headers = headers
@@ -1784,8 +1736,7 @@ public enum Operations {
                 ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
                 public init(
-                    headers: Operations.uploadAvatarForPet.Output.InternalServerError.Headers =
-                        .init(),
+                    headers: Operations.uploadAvatarForPet.Output.InternalServerError.Headers = .init(),
                     body: Operations.uploadAvatarForPet.Output.InternalServerError.Body
                 ) {
                     self.headers = headers

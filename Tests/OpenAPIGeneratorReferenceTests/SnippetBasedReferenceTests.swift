@@ -692,7 +692,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 @frozen
                 public enum MyEnum: RawRepresentable, Codable, Hashable, Sendable,
-                    _AutoLosslessStringConvertible, CaseIterable
+                    CaseIterable
                 {
                     case one
                     case _empty
@@ -740,9 +740,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Schemas {
                 @frozen
-                public enum MyEnum: String, Codable, Hashable, Sendable,
-                    _AutoLosslessStringConvertible, CaseIterable
-                {
+                public enum MyEnum: String, Codable, Hashable, Sendable {
                     case one = "one"
                     case _empty = ""
                     case _tart = "$tart"
@@ -770,9 +768,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public struct MyOpenEnum: Codable, Hashable, Sendable {
                     @frozen
-                    public enum Value1Payload: String, Codable, Hashable, Sendable,
-                        _AutoLosslessStringConvertible, CaseIterable
-                    {
+                    public enum Value1Payload: String, Codable, Hashable, Sendable {
                         case one = "one"
                         case two = "two"
                     }
@@ -1406,24 +1402,24 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 }
                 """,
             client: """
-                { input in let path = try converter.renderedRequestPath(template: "/foo", parameters: [])
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
                     var request: OpenAPIRuntime.Request = .init(path: path, method: .get)
                     suppressMutabilityWarning(&request)
-                    try converter.setQueryItemAsText(
+                    try converter.setQueryItemAsURI(
                         in: &request,
                         style: .form,
                         explode: true,
                         name: "single",
                         value: input.query.single
                     )
-                    try converter.setQueryItemAsText(
+                    try converter.setQueryItemAsURI(
                         in: &request,
                         style: .form,
                         explode: true,
                         name: "manyExploded",
                         value: input.query.manyExploded
                     )
-                    try converter.setQueryItemAsText(
+                    try converter.setQueryItemAsURI(
                         in: &request,
                         style: .form,
                         explode: false,
@@ -1436,22 +1432,22 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, metadata in let path: Operations.get_foo.Input.Path = .init()
                     let query: Operations.get_foo.Input.Query = .init(
-                        single: try converter.getOptionalQueryItemAsText(
-                            in: metadata.queryParameters,
+                        single: try converter.getOptionalQueryItemAsURI(
+                            in: request.query,
                             style: .form,
                             explode: true,
                             name: "single",
                             as: Swift.String.self
                         ),
-                        manyExploded: try converter.getOptionalQueryItemAsText(
-                            in: metadata.queryParameters,
+                        manyExploded: try converter.getOptionalQueryItemAsURI(
+                            in: request.query,
                             style: .form,
                             explode: true,
                             name: "manyExploded",
                             as: [Swift.String].self
                         ),
-                        manyUnexploded: try converter.getOptionalQueryItemAsText(
-                            in: metadata.queryParameters,
+                        manyUnexploded: try converter.getOptionalQueryItemAsURI(
+                            in: request.query,
                             style: .form,
                             explode: false,
                             name: "manyUnexploded",

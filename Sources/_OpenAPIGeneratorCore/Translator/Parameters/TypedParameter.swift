@@ -158,7 +158,7 @@ extension FileTranslator {
             schema = schemaContext.schema
             style = schemaContext.style
             explode = schemaContext.explode
-            codingStrategy = .text
+            codingStrategy = .uri
 
             // Check supported exploded/style types
             let location = parameter.location

@@ -32,6 +32,7 @@ extension String {
             configuration.lineBreakAroundMultilineExpressionChainComponents = true
             configuration.indentConditionalCompilationBlocks = false
             configuration.maximumBlankLines = 0
+            configuration.lineLength = 120
             let formatter = SwiftFormatter(configuration: configuration)
             try formatter.format(
                 source: self,

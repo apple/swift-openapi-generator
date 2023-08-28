@@ -113,7 +113,7 @@ extension FileTranslator {
         switch header.schemaOrContent {
         case let .a(schemaContext):
             schema = schemaContext.schema
-            codingStrategy = .text
+            codingStrategy = .uri
         case let .b(contentMap):
             guard
                 let typedContent = try bestSingleTypedContent(

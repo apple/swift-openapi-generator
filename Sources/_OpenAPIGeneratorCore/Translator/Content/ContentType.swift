@@ -70,7 +70,7 @@ struct ContentType: Hashable {
             case .json:
                 return .json
             case .text:
-                return .text
+                return .string
             case .binary:
                 return .binary
             }

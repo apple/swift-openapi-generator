@@ -18,8 +18,11 @@ enum CodingStrategy: String, Hashable, Sendable {
     /// A strategy using JSONEncoder/JSONDecoder.
     case json
 
-    /// A strategy using LosslessStringConvertible.
-    case text
+    /// A strategy using URIEncoder/URIDecoder.
+    case uri
+
+    /// A strategy using StringEncoder/StringDecoder.
+    case string
 
     /// A strategy that passes through the data unmodified.
     case binary
@@ -29,8 +32,10 @@ enum CodingStrategy: String, Hashable, Sendable {
         switch self {
         case .json:
             return Constants.CodingStrategy.json
-        case .text:
-            return Constants.CodingStrategy.text
+        case .uri:
+            return Constants.CodingStrategy.uri
+        case .string:
+            return Constants.CodingStrategy.string
         case .binary:
             return Constants.CodingStrategy.binary
         }
