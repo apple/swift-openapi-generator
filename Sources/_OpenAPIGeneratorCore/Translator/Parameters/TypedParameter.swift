@@ -164,17 +164,17 @@ extension FileTranslator {
             let location = parameter.location
             switch location {
             case .query:
-                guard case .form = schemaContext.style else {
+                guard case .form = style else {
                     diagnostics.emitUnsupported(
-                        "Non-form style query params",
+                        "Query params of style \(style.rawValue), explode: \(explode)",
                         foundIn: foundIn
                     )
                     return nil
                 }
             case .header, .path:
-                guard case .simple = schemaContext.style else {
+                guard case .simple = style else {
                     diagnostics.emitUnsupported(
-                        "Non-simple style \(location.rawValue) params",
+                        "\(location.rawValue) params of style \(style.rawValue), explode: \(explode)",
                         foundIn: foundIn
                     )
                     return nil
