@@ -482,11 +482,7 @@ public enum Components {
                 case "Walk", "#/components/schemas/Walk": self = .Walk(try .init(from: decoder))
                 case "MessagedExercise", "#/components/schemas/MessagedExercise":
                     self = .MessagedExercise(try .init(from: decoder))
-                default:
-                    throw DecodingError.failedToDecodeOneOfSchema(
-                        type: Self.self,
-                        codingPath: decoder.codingPath
-                    )
+                default: throw DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
                 }
             }
             public func encode(to encoder: any Encoder) throws {
