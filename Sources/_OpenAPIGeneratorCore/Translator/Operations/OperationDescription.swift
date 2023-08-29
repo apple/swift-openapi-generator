@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A wrapper of an OpenAPI operation that includes the information
 /// about the parent containers of the operation, such as its path

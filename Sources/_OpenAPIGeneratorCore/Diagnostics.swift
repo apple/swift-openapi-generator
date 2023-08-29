@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import Foundation
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A message emitted by the generator.
 public struct Diagnostic: Error, Codable {

@@ -14,7 +14,7 @@
 import ArgumentParser
 import Foundation
 import Yams
-import OpenAPIKit30
+import OpenAPIKit
 import _OpenAPIGeneratorCore
 
 struct _GenerateOptions: ParsableArguments {
