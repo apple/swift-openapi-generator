@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// An OpenAPIKit document that contains the operations and types for which the generator emits Swift types.
 typealias ParsedOpenAPIRepresentation = OpenAPI.Document

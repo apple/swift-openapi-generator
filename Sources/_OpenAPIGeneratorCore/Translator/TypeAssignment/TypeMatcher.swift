@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A set of functions that match Swift types onto OpenAPI types.
 struct TypeMatcher {
@@ -71,7 +71,7 @@ struct TypeMatcher {
     ) throws -> TypeUsage? {
         try Self._tryMatchRecursive(
             for: schema.value,
-            test: { schema in
+            test: { (schema) -> TypeUsage? in
                 if let builtinType = Self._tryMatchBuiltinNonRecursive(for: schema) {
                     return builtinType
                 }
@@ -238,7 +238,7 @@ struct TypeMatcher {
             // arrays are already recursed-into by _tryMatchTypeRecursive
             // so just return nil here
             return nil
-        case .reference, .not, .all, .any, .one:
+        case .reference, .not, .all, .any, .one, .null:
             // never built-in
             return nil
         }

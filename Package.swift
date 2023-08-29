@@ -64,7 +64,7 @@ let package = Package(
         // Read OpenAPI documents
         .package(
             url: "https://github.com/mattpolzin/OpenAPIKit.git",
-            exact: "3.0.0-beta.1"
+            exact: "3.0.0-beta.2"
         ),
         .package(
             url: "https://github.com/jpsim/Yams.git",
@@ -91,7 +91,9 @@ let package = Package(
         .target(
             name: "_OpenAPIGeneratorCore",
             dependencies: [
+                .product(name: "OpenAPIKit", package: "OpenAPIKit"),
                 .product(name: "OpenAPIKit30", package: "OpenAPIKit"),
+                .product(name: "OpenAPIKitCompat", package: "OpenAPIKit"),
                 .product(name: "Algorithms", package: "swift-algorithms"),
                 .product(name: "Yams", package: "Yams"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),

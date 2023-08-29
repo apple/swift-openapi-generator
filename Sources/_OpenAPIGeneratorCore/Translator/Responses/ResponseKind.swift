@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A type of an OpenAPI operation response: a specific HTTP status code,
 /// a range of HTTP status codes, or default.
