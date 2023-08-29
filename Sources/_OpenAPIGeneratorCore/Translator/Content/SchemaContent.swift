@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A type representing OpenAPI content that contains both a content type
 /// and the optional JSON schema.
@@ -48,4 +48,4 @@ struct TypedSchemaContent {
 /// An unresolved OpenAPI schema.
 ///
 /// Can be either a reference or an inline schema.
-typealias UnresolvedSchema = Either<JSONReference<JSONSchema>, JSONSchema>
+typealias UnresolvedSchema = Either<OpenAPI.Reference<JSONSchema>, JSONSchema>

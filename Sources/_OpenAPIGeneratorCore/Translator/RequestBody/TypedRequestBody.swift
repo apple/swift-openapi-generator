@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A container for an OpenAPI request body and its computed Swift type usage.
 struct TypedRequestBody {
@@ -117,4 +117,4 @@ extension FileTranslator {
 /// An unresolved OpenAPI request.
 ///
 /// Can be either a reference or an inline request.
-typealias UnresolvedRequest = Either<JSONReference<OpenAPI.Request>, OpenAPI.Request>
+typealias UnresolvedRequest = Either<OpenAPI.Reference<OpenAPI.Request>, OpenAPI.Request>

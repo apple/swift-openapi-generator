@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 import XCTest
 import Yams
 @testable import _OpenAPIGeneratorCore
@@ -1561,7 +1561,7 @@ extension SnippetBasedReferenceTests {
             } ?? OpenAPI.Components.noComponents
         let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
         let document = OpenAPI.Document(
-            openAPIVersion: .v3_0_3,
+            openAPIVersion: .v3_1_0,
             info: .init(title: "Test", version: "1.0.0"),
             servers: [],
             paths: paths,

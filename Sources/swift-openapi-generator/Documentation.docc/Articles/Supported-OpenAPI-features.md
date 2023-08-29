@@ -4,9 +4,9 @@ Learn which OpenAPI features are supported by Swift OpenAPI Generator.
 
 ## Overview
 
-Swift OpenAPI Generator is currently focused on supporting [OpenAPI 3.0.3][0].
+Swift OpenAPI Generator is currently focused on supporting [OpenAPI 3.0.3][0] and [OpenAPI 3.1.0][1]. 
 
-As the project evolves, support may be added [OpenAPI 3.1.0][1].
+> Note: Internally, documents are converted from 3.0.3 to 3.1.0 to allow the generator to only work with a single set of parsed OpenAPI types.
 
 Supported features are always provided on _both_ client and server.
 
@@ -155,7 +155,7 @@ Supported features are always provided on _both_ client and server.
 - [x] description
 - [x] format
 - [ ] default
-- [ ] nullable
+- [ ] nullable (only in 3.0, removed in 3.1)
 - [x] discriminator
 - [ ] readOnly
 - [ ] writeOnly
