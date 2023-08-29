@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 import XCTest
 import Yams
 @testable import _OpenAPIGeneratorCore
@@ -350,9 +350,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         type: integer
                 discriminator:
                   propertyName: which
-                  mapping:
-                    a: '#/components/schemas/A'
-                    b: '#/components/schemas/B'
             """,
             """
             public enum Schemas {
@@ -374,8 +371,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
                         let discriminator = try container.decode(String.self, forKey: .which)
                         switch discriminator {
-                        case "a": self = .A(try .init(from: decoder))
-                        case "b": self = .B(try .init(from: decoder))
+                        case "A", "#/components/schemas/A": self = .A(try .init(from: decoder))
+                        case "B", "#/components/schemas/B": self = .B(try .init(from: decoder))
                         default:
                             throw DecodingError.failedToDecodeOneOfSchema(
                                 type: Self.self,
@@ -395,7 +392,90 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-    func testComponentsSchemasOneOf() throws {
+    func testComponentsSchemasOneOfWithDiscriminatorWithMapping() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              A:
+                type: object
+                properties:
+                  which:
+                    type: string
+              B:
+                type: object
+                properties:
+                  which:
+                    type: string
+              C:
+                type: object
+                properties:
+                  which:
+                    type: string
+              MyOneOf:
+                oneOf:
+                  - $ref: '#/components/schemas/A'
+                  - $ref: '#/components/schemas/B'
+                  - $ref: '#/components/schemas/C'
+                discriminator:
+                  propertyName: which
+                  mapping:
+                    a: '#/components/schemas/A'
+                    a2: '#/components/schemas/A'
+                    b: '#/components/schemas/B'
+            """,
+            """
+            public enum Schemas {
+                public struct A: Codable, Hashable, Sendable {
+                    public var which: Swift.String?
+                    public init(which: Swift.String? = nil) { self.which = which }
+                    public enum CodingKeys: String, CodingKey { case which }
+                }
+                public struct B: Codable, Hashable, Sendable {
+                    public var which: Swift.String?
+                    public init(which: Swift.String? = nil) { self.which = which }
+                    public enum CodingKeys: String, CodingKey { case which }
+                }
+                public struct C: Codable, Hashable, Sendable {
+                    public var which: Swift.String?
+                    public init(which: Swift.String? = nil) { self.which = which }
+                    public enum CodingKeys: String, CodingKey { case which }
+                }
+                @frozen public enum MyOneOf: Codable, Hashable, Sendable {
+                    case a(Components.Schemas.A)
+                    case a2(Components.Schemas.A)
+                    case b(Components.Schemas.B)
+                    case C(Components.Schemas.C)
+                    public enum CodingKeys: String, CodingKey { case which }
+                    public init(from decoder: any Decoder) throws {
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        let discriminator = try container.decode(String.self, forKey: .which)
+                        switch discriminator {
+                        case "a": self = .a(try .init(from: decoder))
+                        case "a2": self = .a2(try .init(from: decoder))
+                        case "b": self = .b(try .init(from: decoder))
+                        case "C", "#/components/schemas/C": self = .C(try .init(from: decoder))
+                        default:
+                            throw DecodingError.failedToDecodeOneOfSchema(
+                                type: Self.self,
+                                codingPath: decoder.codingPath
+                            )
+                        }
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        switch self {
+                        case let .a(value): try value.encode(to: encoder)
+                        case let .a2(value): try value.encode(to: encoder)
+                        case let .b(value): try value.encode(to: encoder)
+                        case let .C(value): try value.encode(to: encoder)
+                        }
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasOneOf_closed() throws {
         try self.assertSchemasTranslation(
             """
             schemas:
@@ -637,10 +717,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                @frozen
-                public enum MyEnum: String, Codable, Hashable, Sendable,
-                    _AutoLosslessStringConvertible, CaseIterable
-                {
+                @frozen public enum MyEnum: String, Codable, Hashable, Sendable {
                     case one = "one"
                     case _empty = ""
                     case _dollar_tart = "$tart"
@@ -667,9 +744,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public struct MyOpenEnum: Codable, Hashable, Sendable {
                     @frozen
-                    public enum Value1Payload: String, Codable, Hashable, Sendable,
-                        _AutoLosslessStringConvertible, CaseIterable
-                    {
+                    public enum Value1Payload: String, Codable, Hashable, Sendable {
                         case one = "one"
                         case two = "two"
                     }
@@ -1240,24 +1315,24 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 }
                 """,
             client: """
-                { input in let path = try converter.renderedRequestPath(template: "/foo", parameters: [])
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
                     var request: OpenAPIRuntime.Request = .init(path: path, method: .get)
                     suppressMutabilityWarning(&request)
-                    try converter.setQueryItemAsText(
+                    try converter.setQueryItemAsURI(
                         in: &request,
                         style: .form,
                         explode: true,
                         name: "single",
                         value: input.query.single
                     )
-                    try converter.setQueryItemAsText(
+                    try converter.setQueryItemAsURI(
                         in: &request,
                         style: .form,
                         explode: true,
                         name: "manyExploded",
                         value: input.query.manyExploded
                     )
-                    try converter.setQueryItemAsText(
+                    try converter.setQueryItemAsURI(
                         in: &request,
                         style: .form,
                         explode: false,
@@ -1270,22 +1345,22 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, metadata in let path: Operations.get_sol_foo.Input.Path = .init()
                     let query: Operations.get_sol_foo.Input.Query = .init(
-                        single: try converter.getOptionalQueryItemAsText(
-                            in: metadata.queryParameters,
+                        single: try converter.getOptionalQueryItemAsURI(
+                            in: request.query,
                             style: .form,
                             explode: true,
                             name: "single",
                             as: Swift.String.self
                         ),
-                        manyExploded: try converter.getOptionalQueryItemAsText(
-                            in: metadata.queryParameters,
+                        manyExploded: try converter.getOptionalQueryItemAsURI(
+                            in: request.query,
                             style: .form,
                             explode: true,
                             name: "manyExploded",
                             as: [Swift.String].self
                         ),
-                        manyUnexploded: try converter.getOptionalQueryItemAsText(
-                            in: metadata.queryParameters,
+                        manyUnexploded: try converter.getOptionalQueryItemAsURI(
+                            in: request.query,
                             style: .form,
                             explode: false,
                             name: "manyUnexploded",
@@ -1395,7 +1470,7 @@ extension SnippetBasedReferenceTests {
             } ?? OpenAPI.Components.noComponents
         let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
         let document = OpenAPI.Document(
-            openAPIVersion: .v3_0_3,
+            openAPIVersion: .v3_1_0,
             info: .init(title: "Test", version: "1.0.0"),
             servers: [],
             paths: paths,

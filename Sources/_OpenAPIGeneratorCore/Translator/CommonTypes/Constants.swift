@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// Constant values used in generated code, some of which refer to type names
 /// in the Runtime library, so they need to be kept in sync.
@@ -149,8 +149,6 @@ enum Constants {
             "Codable",
             "Hashable",
             "Sendable",
-            "_AutoLosslessStringConvertible",
-            "CaseIterable",
         ]
     }
 
@@ -361,8 +359,11 @@ enum Constants {
         /// The substring used in method names for the JSON coding strategy.
         static let json: String = "JSON"
 
-        /// The substring used in method names for the text coding strategy.
-        static let text: String = "Text"
+        /// The substring used in method names for the URI coding strategy.
+        static let uri: String = "URI"
+
+        /// The substring used in method names for the string coding strategy.
+        static let string: String = "String"
 
         /// The substring used in method names for the binary coding strategy.
         static let binary: String = "Binary"

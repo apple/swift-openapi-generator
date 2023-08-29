@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension ClientFileTranslator {
 
@@ -30,7 +30,7 @@ extension ClientFileTranslator {
             left: "path",
             right: .try(
                 .identifier("converter")
-                    .dot("renderedRequestPath")
+                    .dot("renderedPath")
                     .call([
                         .init(label: "template", expression: .literal(pathTemplate)),
                         .init(label: "parameters", expression: pathParamsArrayExpr),

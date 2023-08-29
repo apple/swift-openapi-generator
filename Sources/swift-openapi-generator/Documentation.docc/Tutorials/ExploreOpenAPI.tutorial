@@ -16,7 +16,7 @@
 
         @Steps {
             @Step {
-                Every OpenAPI document needs to declare its format version using the `openapi` key. Use the version `3.0.3` for this document.
+                Every OpenAPI document needs to declare its format version using the `openapi` key. Use the version `3.1.0` for this document.
                 @Code(name: "openapi.yaml", file: exploring-openapi.openapi.0.yaml, reset: true)
             }
             @Step {

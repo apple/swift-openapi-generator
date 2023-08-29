@@ -38,7 +38,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(request.path, "/pets")
             XCTAssertEqual(
                 request.query,
-                "limit=24&habitat=water&feeds=herbivore&feeds=carnivore&since=2023-01-18T10:04:11Z"
+                "limit=24&habitat=water&feeds=herbivore&feeds=carnivore&since=2023-01-18T10%3A04%3A11Z"
             )
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .get)

@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// Utilities for asking questions about OpenAPI.Content
 extension FileTranslator {
@@ -195,7 +195,7 @@ extension FileTranslator {
             {
                 diagnostics.emitUnsupportedIfNotNil(
                     chosenContent.1.encoding,
-                    "Custom encoding for JSON content",
+                    "Custom encoding for multipart/formEncoded content",
                     foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
                 )
             }
@@ -226,11 +226,15 @@ extension FileTranslator {
     ) -> SchemaContent? {
         if contentKey.isJSON {
             let contentType = ContentType(contentKey.typeAndSubtype)
-            diagnostics.emitUnsupportedIfNotNil(
-                contentValue.encoding,
-                "Custom encoding for JSON content",
-                foundIn: "\(foundIn), content \(contentKey.rawValue)"
-            )
+            if contentType.lowercasedType == "multipart"
+                || contentType.lowercasedTypeAndSubtype.contains("application/x-www-form-urlencoded")
+            {
+                diagnostics.emitUnsupportedIfNotNil(
+                    contentValue.encoding,
+                    "Custom encoding for multipart/formEncoded content",
+                    foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
+                )
+            }
             return .init(
                 contentType: contentType,
                 schema: contentValue.schema

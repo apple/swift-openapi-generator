@@ -54,20 +54,13 @@ final class Test_Server: XCTestCase {
         let response = try await server.listPets(
             .init(
                 path: "/api/pets",
+                query: "limit=24&habitat=water&feeds=carnivore&feeds=herbivore&since=\(Date.testString)",
                 method: .get,
                 headerFields: [
                     .init(name: "My-Request-UUID", value: "abcd-1234")
                 ]
             ),
-            .init(
-                queryParameters: [
-                    .init(name: "limit", value: "24"),
-                    .init(name: "habitat", value: "water"),
-                    .init(name: "feeds", value: "carnivore"),
-                    .init(name: "feeds", value: "herbivore"),
-                    .init(name: "since", value: Date.testString),
-                ]
-            )
+            .init()
         )
         XCTAssertEqual(response.statusCode, 200)
         XCTAssertEqual(
@@ -218,7 +211,7 @@ final class Test_Server: XCTestCase {
         XCTAssertEqual(
             response.headerFields,
             [
-                .init(name: "X-Reason", value: "bad luck"),
+                .init(name: "X-Reason", value: "bad%20luck"),
                 .init(name: "content-type", value: "application/json; charset=utf-8"),
             ]
         )

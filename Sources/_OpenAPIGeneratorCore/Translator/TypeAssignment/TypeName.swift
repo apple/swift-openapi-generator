@@ -18,7 +18,7 @@ import Foundation
 ///
 /// Use the type name to define a type, see also `TypeUsage` when referring
 /// to a type.
-struct TypeName: Equatable {
+struct TypeName: Hashable {
 
     /// Describes a single component of both the Swift and JSON  paths.
     ///
@@ -27,7 +27,7 @@ struct TypeName: Equatable {
     /// This type preserves the information about which Swift path component
     /// maps to which JSON path component, and vice versa, and allows
     /// reliably adding and removing extra path components.
-    struct Component: Equatable {
+    struct Component: Hashable {
 
         /// The name of the Swift path component.
         var swift: String?

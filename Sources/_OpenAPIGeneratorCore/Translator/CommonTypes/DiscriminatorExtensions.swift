@@ -11,43 +11,58 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 import Foundation
 
 /// A child schema of a oneOf with a discriminator.
 ///
 /// Details: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#fixed-fields-21
-struct OneOfMappedType: Equatable {
+struct OneOfMappedType: Hashable {
 
-    /// The raw name expected in the discriminator for this type.
+    /// The raw names expected in the discriminator for this type.
     ///
     /// Usually matches the raw name from the OpenAPI document, either the last
     /// path component of the `#/components/schemas/Foo` name, or the raw key
-    /// value in a discriminator's mapping.
+    /// value in a discriminator's mapping. That's why it's an array.
     ///
     /// Not automatically safe to be used as a Swift identifier.
-    var rawName: String
+    ///
+    /// Never empty.
+    let rawNames: [String]
 
     /// The type name for this child schema.
-    var typeName: TypeName
+    let typeName: TypeName
 
-    /// The case name, safe for Swift code.
-    ///
-    /// Does not include the leading dot.
-    ///
-    /// Derived from the type name, as the last path component.
-    var caseName: String {
-        typeName.shortSwiftName
+    /// The JSON reference.
+    let reference: JSONReference<JSONSchema>
+
+    /// Creates a new type.
+    /// - Parameters:
+    ///   - rawNames: The raw names to match for during decoding.
+    ///   - typeName: The type name.
+    ///   - reference: JSONReference<JSONSchema>.InternalReference.
+    init(rawNames: [String], typeName: TypeName, reference: JSONReference<JSONSchema>) {
+        precondition(!rawNames.isEmpty, "Must specify at least one raw name")
+        self.rawNames = rawNames
+        self.typeName = typeName
+        self.reference = reference
     }
 
     /// An error thrown during oneOf type mapping.
     enum MappingError: Swift.Error, LocalizedError, CustomStringConvertible {
-        case nonUniqueMapping
+
+        /// The value in the mapping is not a valid JSON reference.
+        case invalidMappingValue(String)
+
+        /// The reference isn't a valid `#/components/schemas/` reference.
+        case invalidReference(String)
 
         var description: String {
             switch self {
-            case .nonUniqueMapping:
-                return "In discriminator.mapping, found multiple keys for the same value."
+            case .invalidMappingValue(let value):
+                return "Invalid discriminator.mapping value: '\(value)', must be an internal JSON reference."
+            case .invalidReference(let reference):
+                return "Invalid reference: '\(reference)'."
             }
         }
 
@@ -57,51 +72,118 @@ struct OneOfMappedType: Equatable {
     }
 }
 
+extension FileTranslator {
+
+    /// The case name, safe for Swift code.
+    ///
+    /// Does not include the leading dot.
+    ///
+    /// Derived from the mapping key, or the type name, as the last path
+    /// component.
+    func safeSwiftNameForOneOfMappedType(_ type: OneOfMappedType) -> String {
+        swiftSafeName(for: type.rawNames[0])
+    }
+}
+
 extension OpenAPI.Discriminator {
 
-    /// Returns the mapped type for the provided child schema, taking the optional
-    /// mapping into consideration.
-    /// - Throws: When an inconsistency is detected.
-    func mappedTypes(_ types: [TypeName]) throws -> [OneOfMappedType] {
-        guard let mapping else {
-            // Without a mapping, the raw name and case name are the same, which
-            // is the short name of the type itself.
-            return types.map { type in
-                .init(
-                    rawName: type.shortJSONName ?? type.shortSwiftName,
-                    typeName: type
-                )
+    /// Returns all the types discovered both in the provided list of schemas
+    /// and in the optional mapping.
+    ///
+    /// ## Background
+    /// The list of cases isn't dependent only on the list of subschemas, but
+    /// also on the optional discriminator.mapping property, which can
+    /// actually map from multiple keys to the same value.
+    /// At the same time, the mapping doesn't have to mention all the
+    /// subschemas, in which case the default behavior (use the JSON
+    /// path of the schema) is used.
+    ///
+    /// This means that we have two sources of cases:
+    ///   - list of subschemas
+    ///   - discriminator.mapping
+    ///
+    /// And the final list of cases is a union of these two sources.
+    /// Regarding order, somewhat arbitrarily, let's put the cases from
+    /// the mapping first, and all the other ones second.
+    /// - Parameters:
+    ///   - schemas: The subschemas of the oneOf with this discriminator.
+    ///   - typeAssigner: The current type assigner.
+    /// - Returns: The list of discovered types.
+    func allTypes(
+        schemas: [JSONReference<JSONSchema>],
+        typeAssigner: TypeAssigner
+    ) throws -> [OneOfMappedType] {
+        let mapped = try pairsFromMapping(typeAssigner: typeAssigner)
+        let mappedTypes = Set(mapped.map(\.typeName))
+        var merged = mapped
+        let subschemas = try pairsFromReferences(schemas, typeAssigner: typeAssigner)
+        // Now, we only include a type here if it's not already mentioned
+        // by the mapping.
+        for subschema in subschemas {
+            if mappedTypes.contains(subschema.typeName) {
+                continue
             }
+            merged.append(subschema)
         }
-        // Create a back-mapping, as we need to match the values with our
-        // types, and find the manually defined raw key for it.
-        // First ensure uniqueness of values, otherwise throw an error.
-        if Set(mapping.values).count < mapping.values.count {
-            throw OneOfMappedType.MappingError.nonUniqueMapping
+        return merged
+    }
+
+    /// Returns the mapped types provided by the discriminator's mapping.
+    /// - Parameter typeAssigner: The current type assigner, used to assign
+    ///   a Swift type to the found JSON reference.
+    /// - Returns: An array of found mapped types, but might also be empty.
+    private func pairsFromMapping(typeAssigner: TypeAssigner) throws -> [OneOfMappedType] {
+        guard let mapping else {
+            return []
         }
-        let backMapping = Dictionary(
-            uniqueKeysWithValues: mapping.map { ($1, $0) }
-        )
-        // If a type is found in the mapping, use the key as the raw value.
-        // Otherwise, fall back to as if the mapping was not present for that
-        // child schema.
-        return types.map { type in
-            let shortName = type.shortJSONName ?? type.shortSwiftName
+        // Mapping is a Swift dictionary, so order isn't defined. To produce
+        // stable output, sort by keys here before going through the pairs.
+        let pairs = mapping.sorted(by: { a, b in
+            a.key.localizedCaseInsensitiveCompare(b.key) == .orderedAscending
+        })
+        return try pairs.map { key, value in
+            // If a discriminator was specified, we know all the subschemas
+            // are references to objectish schemas. The reference is all we
+            // need to derive the Swift name.
+            // The value in the mapping is the raw JSON reference.
+            guard
+                let ref = JSONReference<JSONSchema>
+                    .InternalReference(
+                        rawValue: value
+                    )
+            else {
+                throw OneOfMappedType.MappingError.invalidMappingValue(value)
+            }
+            let typeName = try typeAssigner.typeName(for: ref)
+            return .init(
+                rawNames: [key],
+                typeName: typeName,
+                reference: .internal(ref)
+            )
+        }
+    }
+
+    /// Returns the mapped types for the provided subschema.
+    /// - Throws: When an inconsistency is detected.
+    private func pairsFromReferences(
+        _ refs: [JSONReference<JSONSchema>],
+        typeAssigner: TypeAssigner
+    ) throws -> [OneOfMappedType] {
+        try refs.map { ref in
+            guard case let .internal(internalRef) = ref else {
+                throw JSONReferenceParsingError.externalPathsUnsupported(ref.absoluteString)
+            }
             // Check both for "Foo" and "#/components/schemas/Foo", as both
             // are supported.
-            let rawKey: String?
-            if let rawName = backMapping[shortName] {
-                rawKey = rawName
-            } else if let jsonPath = type.fullyQualifiedJSONPath,
-                let rawName = backMapping[jsonPath]
-            {
-                rawKey = rawName
-            } else {
-                rawKey = nil
+            let jsonPath = internalRef.rawValue
+            guard let name = internalRef.name else {
+                throw OneOfMappedType.MappingError.invalidReference(jsonPath)
             }
-            return .init(
-                rawName: rawKey ?? shortName,
-                typeName: type
+            let typeName = try typeAssigner.typeName(for: internalRef)
+            return OneOfMappedType(
+                rawNames: [name, jsonPath],
+                typeName: typeName,
+                reference: ref
             )
         }
     }

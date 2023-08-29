@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension Either {
 
@@ -20,7 +20,7 @@ extension Either {
     /// - Parameter components: The Components section of the OpenAPI document.
     func resolve(
         in components: OpenAPI.Components
-    ) throws -> B where A == JSONReference<B> {
+    ) throws -> B where A == OpenAPI.Reference<B> {
         switch self {
         case let .a(a):
             return try components.lookup(a)
@@ -59,6 +59,8 @@ extension JSONSchema.Schema {
             return "reference"
         case .fragment:
             return "fragment"
+        case .null:
+            return "null"
         }
     }
 
@@ -89,6 +91,8 @@ extension JSONSchema.Schema {
             return nil
         case .fragment(let coreContext):
             return coreContext.formatString
+        case .null:
+            return nil
         }
     }
 

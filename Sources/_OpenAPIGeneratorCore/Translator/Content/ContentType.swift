@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A content type of a request, response, and other types.
 ///
@@ -70,7 +70,7 @@ struct ContentType: Hashable {
             case .json:
                 return .json
             case .text:
-                return .text
+                return .string
             case .binary:
                 return .binary
             }
