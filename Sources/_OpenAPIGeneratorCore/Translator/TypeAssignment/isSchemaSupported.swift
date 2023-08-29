@@ -212,7 +212,7 @@ extension FileTranslator {
         switch schema.value {
         case .object, .reference:
             return try isSchemaSupported(schema)
-        case .all(of: let schemas, _):
+        case .all(of: let schemas, _), .any(of: let schemas, _), .one(of: let schemas, _):
             return try areSchemasSupported(schemas)
         default:
             return .unsupported(

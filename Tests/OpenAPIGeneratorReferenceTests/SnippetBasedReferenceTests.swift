@@ -400,9 +400,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         type: integer
                 discriminator:
                   propertyName: which
-                  mapping:
-                    a: '#/components/schemas/A'
-                    b: '#/components/schemas/B'
             """,
             """
             public enum Schemas {
@@ -425,8 +422,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
                         let discriminator = try container.decode(String.self, forKey: .which)
                         switch discriminator {
-                        case "a": self = .A(try .init(from: decoder))
-                        case "b": self = .B(try .init(from: decoder))
+                        case "A", "#/components/schemas/A": self = .A(try .init(from: decoder))
+                        case "B", "#/components/schemas/B": self = .B(try .init(from: decoder))
                         default:
                             let container = try decoder.singleValueContainer()
                             let value = try container.decode(OpenAPIRuntime.OpenAPIObjectContainer.self)
@@ -438,6 +435,90 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case let .A(value): try value.encode(to: encoder)
                         case let .B(value): try value.encode(to: encoder)
                         case let .undocumented(value): try value.encode(to: encoder)
+                        }
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasOneOfWithDiscriminatorWithMapping() throws {
+        try self.assertSchemasTranslation(
+            featureFlags: [.closedEnumsAndOneOfs],
+            """
+            schemas:
+              A:
+                type: object
+                properties:
+                  which:
+                    type: string
+              B:
+                type: object
+                properties:
+                  which:
+                    type: string
+              C:
+                type: object
+                properties:
+                  which:
+                    type: string
+              MyOneOf:
+                oneOf:
+                  - $ref: '#/components/schemas/A'
+                  - $ref: '#/components/schemas/B'
+                  - $ref: '#/components/schemas/C'
+                discriminator:
+                  propertyName: which
+                  mapping:
+                    a: '#/components/schemas/A'
+                    a2: '#/components/schemas/A'
+                    b: '#/components/schemas/B'
+            """,
+            """
+            public enum Schemas {
+                public struct A: Codable, Hashable, Sendable {
+                    public var which: Swift.String?
+                    public init(which: Swift.String? = nil) { self.which = which }
+                    public enum CodingKeys: String, CodingKey { case which }
+                }
+                public struct B: Codable, Hashable, Sendable {
+                    public var which: Swift.String?
+                    public init(which: Swift.String? = nil) { self.which = which }
+                    public enum CodingKeys: String, CodingKey { case which }
+                }
+                public struct C: Codable, Hashable, Sendable {
+                    public var which: Swift.String?
+                    public init(which: Swift.String? = nil) { self.which = which }
+                    public enum CodingKeys: String, CodingKey { case which }
+                }
+                @frozen public enum MyOneOf: Codable, Hashable, Sendable {
+                    case a(Components.Schemas.A)
+                    case a2(Components.Schemas.A)
+                    case b(Components.Schemas.B)
+                    case C(Components.Schemas.C)
+                    public enum CodingKeys: String, CodingKey { case which }
+                    public init(from decoder: any Decoder) throws {
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        let discriminator = try container.decode(String.self, forKey: .which)
+                        switch discriminator {
+                        case "a": self = .a(try .init(from: decoder))
+                        case "a2": self = .a2(try .init(from: decoder))
+                        case "b": self = .b(try .init(from: decoder))
+                        case "C", "#/components/schemas/C": self = .C(try .init(from: decoder))
+                        default:
+                            throw DecodingError.failedToDecodeOneOfSchema(
+                                type: Self.self,
+                                codingPath: decoder.codingPath
+                            )
+                        }
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        switch self {
+                        case let .a(value): try value.encode(to: encoder)
+                        case let .a2(value): try value.encode(to: encoder)
+                        case let .b(value): try value.encode(to: encoder)
+                        case let .C(value): try value.encode(to: encoder)
                         }
                     }
                 }
