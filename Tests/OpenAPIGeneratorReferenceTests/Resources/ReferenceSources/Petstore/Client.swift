@@ -71,7 +71,7 @@ public struct Client: APIProtocol {
                 try converter.setHeaderFieldAsURI(
                     in: &request.headerFields,
                     name: "My-Request-UUID",
-                    value: input.headers.My_Request_UUID
+                    value: input.headers.My_hyphen_Request_hyphen_UUID
                 )
                 try converter.setQueryItemAsURI(
                     in: &request,
@@ -87,12 +87,12 @@ public struct Client: APIProtocol {
                 switch response.statusCode {
                 case 200:
                     let headers: Operations.listPets.Output.Ok.Headers = .init(
-                        My_Response_UUID: try converter.getRequiredHeaderFieldAsURI(
+                        My_hyphen_Response_hyphen_UUID: try converter.getRequiredHeaderFieldAsURI(
                             in: response.headerFields,
                             name: "My-Response-UUID",
                             as: Swift.String.self
                         ),
-                        My_Tracing_Header: try converter.getOptionalHeaderFieldAsURI(
+                        My_hyphen_Tracing_hyphen_Header: try converter.getOptionalHeaderFieldAsURI(
                             in: response.headerFields,
                             name: "My-Tracing-Header",
                             as: Components.Headers.TracingHeader.self
@@ -146,7 +146,7 @@ public struct Client: APIProtocol {
                 try converter.setHeaderFieldAsJSON(
                     in: &request.headerFields,
                     name: "X-Extra-Arguments",
-                    value: input.headers.X_Extra_Arguments
+                    value: input.headers.X_hyphen_Extra_hyphen_Arguments
                 )
                 converter.setAcceptHeader(in: &request.headerFields, contentTypes: input.headers.accept)
                 switch input.body {
@@ -163,7 +163,7 @@ public struct Client: APIProtocol {
                 switch response.statusCode {
                 case 201:
                     let headers: Operations.createPet.Output.Created.Headers = .init(
-                        X_Extra_Arguments: try converter.getOptionalHeaderFieldAsJSON(
+                        X_hyphen_Extra_hyphen_Arguments: try converter.getOptionalHeaderFieldAsJSON(
                             in: response.headerFields,
                             name: "X-Extra-Arguments",
                             as: Components.Schemas.CodeError.self
@@ -185,7 +185,7 @@ public struct Client: APIProtocol {
                     return .created(.init(headers: headers, body: body))
                 case 400...499:
                     let headers: Components.Responses.ErrorBadRequest.Headers = .init(
-                        X_Reason: try converter.getOptionalHeaderFieldAsURI(
+                        X_hyphen_Reason: try converter.getOptionalHeaderFieldAsURI(
                             in: response.headerFields,
                             name: "X-Reason",
                             as: Swift.String.self
@@ -236,6 +236,21 @@ public struct Client: APIProtocol {
                             from: response.body,
                             transforming: { value in .json(value) }
                         )
+                    } else if try converter.isMatchingContentType(received: contentType, expectedRaw: "text/plain") {
+                        body = try converter.getResponseBodyAsString(
+                            Swift.String.self,
+                            from: response.body,
+                            transforming: { value in .plainText(value) }
+                        )
+                    } else if try converter.isMatchingContentType(
+                        received: contentType,
+                        expectedRaw: "application/octet-stream"
+                    ) {
+                        body = try converter.getResponseBodyAsBinary(
+                            Foundation.Data.self,
+                            from: response.body,
+                            transforming: { value in .binary(value) }
+                        )
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
@@ -260,6 +275,18 @@ public struct Client: APIProtocol {
                         value,
                         headerFields: &request.headerFields,
                         contentType: "application/json; charset=utf-8"
+                    )
+                case let .plainText(value):
+                    request.body = try converter.setRequiredRequestBodyAsString(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "text/plain"
+                    )
+                case let .binary(value):
+                    request.body = try converter.setRequiredRequestBodyAsBinary(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "application/octet-stream"
                     )
                 }
                 return request
@@ -418,7 +445,7 @@ public struct Client: APIProtocol {
                         body = try converter.getResponseBodyAsString(
                             Swift.String.self,
                             from: response.body,
-                            transforming: { value in .text(value) }
+                            transforming: { value in .plainText(value) }
                         )
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)

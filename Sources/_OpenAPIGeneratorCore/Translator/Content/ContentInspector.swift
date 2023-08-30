@@ -113,14 +113,6 @@ extension FileTranslator {
         guard !contents.isEmpty else {
             return []
         }
-        guard config.featureFlags.contains(.multipleContentTypes) else {
-            return bestSingleContent(
-                contents,
-                excludeBinary: excludeBinary,
-                foundIn: foundIn
-            )
-            .flatMap { [$0] } ?? []
-        }
         return
             contents
             .compactMap { key, value in

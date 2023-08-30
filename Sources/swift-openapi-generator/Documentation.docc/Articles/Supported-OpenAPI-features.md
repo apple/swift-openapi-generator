@@ -204,7 +204,7 @@ Supported features are always provided on _both_ client and server.
 - [x] schema
 - [ ] example
 - [ ] examples
-- [x] content (chooses one from the map)
+- [x] content
 
 #### Style Values
 

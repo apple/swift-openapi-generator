@@ -207,11 +207,9 @@ extension FileTranslator {
 
         let caseNames = cases.map(\.0)
 
-        let undocumentedType: TypeName
         let codingKeysDecls: [Declaration]
         let decoder: Declaration
         if let discriminator {
-            undocumentedType = .objectContainer
             let originalName = discriminator.propertyName
             let swiftName = swiftSafeName(for: originalName)
             codingKeysDecls = [
@@ -232,31 +230,10 @@ extension FileTranslator {
                 cases: cases.map { ($0.0, $0.1!) }
             )
         } else {
-            undocumentedType = .valueContainer
             codingKeysDecls = []
             decoder = translateOneOfWithoutDiscriminatorDecoder(
                 caseNames: caseNames
             )
-        }
-
-        let generateUndocumentedCase = shouldGenerateUndocumentedCaseForEnumsAndOneOfs
-
-        let otherCases: [Declaration]
-        if generateUndocumentedCase {
-            let undocumentedCase: Declaration = .commentable(
-                .doc("Parsed a case that was not defined in the OpenAPI document."),
-                .enumCase(
-                    name: Constants.OneOf.undocumentedCaseName,
-                    kind: .nameWithAssociatedValues([
-                        .init(type: undocumentedType.fullyQualifiedSwiftName)
-                    ])
-                )
-            )
-            otherCases = [
-                undocumentedCase
-            ]
-        } else {
-            otherCases = []
         }
 
         let encoder = translateOneOfEncoder(caseNames: caseNames)
@@ -269,7 +246,7 @@ extension FileTranslator {
             accessModifier: config.access,
             name: typeName.shortSwiftName,
             conformances: Constants.ObjectStruct.conformances,
-            members: caseDecls + otherCases + codingKeysDecls + [
+            members: caseDecls + codingKeysDecls + [
                 decoder,
                 encoder,
             ]

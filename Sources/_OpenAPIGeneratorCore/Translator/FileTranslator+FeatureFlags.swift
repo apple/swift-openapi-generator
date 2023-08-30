@@ -14,14 +14,5 @@
 import OpenAPIKit
 
 extension FileTranslator {
-
-    /// Returns a Boolean value indicating whether an undocumented case should
-    /// be generated for enums and oneOfs.
-    var shouldGenerateUndocumentedCaseForEnumsAndOneOfs: Bool {
-        if config.featureFlags.contains(.closedEnumsAndOneOfs) {
-            return false
-        }
-        // The 0.1.x default.
-        return true
-    }
+    // Add helpers for reading feature flags below.
 }

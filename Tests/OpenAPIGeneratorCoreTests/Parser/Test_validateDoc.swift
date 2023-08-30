@@ -35,12 +35,7 @@ final class Test_validateDoc: Test_Core {
         )
         let diagnostics = try validateDoc(
             doc,
-            config: .init(
-                mode: .types,
-                featureFlags: [
-                    .strictOpenAPIValidation
-                ]
-            )
+            config: .init(mode: .types)
         )
         XCTAssertEqual(diagnostics.count, 1)
     }
@@ -66,12 +61,7 @@ final class Test_validateDoc: Test_Core {
         XCTAssertThrowsError(
             try validateDoc(
                 doc,
-                config: .init(
-                    mode: .types,
-                    featureFlags: [
-                        .strictOpenAPIValidation
-                    ]
-                )
+                config: .init(mode: .types)
             )
         )
     }

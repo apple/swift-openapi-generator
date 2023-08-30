@@ -45,19 +45,14 @@ extension FileTranslator {
             let caseName = swiftSafeName(for: rawValue)
             return (caseName, rawValue)
         }
-        let generateUnknownCases = shouldGenerateUndocumentedCaseForEnumsAndOneOfs
-        let baseConformance =
-            generateUnknownCases ? Constants.StringEnum.baseConformanceOpen : Constants.StringEnum.baseConformanceClosed
-        let conformances =
-            generateUnknownCases ? Constants.StringEnum.conformancesOpen : Constants.StringEnum.conformancesClosed
-        let unknownCaseName = generateUnknownCases ? Constants.StringEnum.undocumentedCaseName : nil
+        let conformances = [Constants.StringEnum.baseConformance] + Constants.StringEnum.conformances
         return try translateRawRepresentableEnum(
             typeName: typeName,
-            conformances: [baseConformance] + conformances,
+            conformances: conformances,
             userDescription: userDescription,
             cases: cases,
-            unknownCaseName: unknownCaseName,
-            unknownCaseDescription: "Parsed a raw value that was not defined in the OpenAPI document."
+            unknownCaseName: nil,
+            unknownCaseDescription: nil
         )
     }
 }
