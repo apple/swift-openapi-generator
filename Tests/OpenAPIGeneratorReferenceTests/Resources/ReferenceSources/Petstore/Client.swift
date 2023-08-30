@@ -113,7 +113,6 @@ public struct Client: APIProtocol {
                     }
                     return .ok(.init(headers: headers, body: body))
                 default:
-                    let headers: Operations.listPets.Output.Default.Headers = .init()
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.listPets.Output.Default.Body
                     if try contentType == nil
@@ -127,7 +126,7 @@ public struct Client: APIProtocol {
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
-                    return .`default`(statusCode: response.statusCode, .init(headers: headers, body: body))
+                    return .`default`(statusCode: response.statusCode, .init(body: body))
                 }
             }
         )
@@ -225,7 +224,6 @@ public struct Client: APIProtocol {
             deserializer: { response in
                 switch response.statusCode {
                 case 200:
-                    let headers: Operations.getStats.Output.Ok.Headers = .init()
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.getStats.Output.Ok.Body
                     if try contentType == nil
@@ -254,7 +252,7 @@ public struct Client: APIProtocol {
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
-                    return .ok(.init(headers: headers, body: body))
+                    return .ok(.init(body: body))
                 default: return .undocumented(statusCode: response.statusCode, .init())
                 }
             }
@@ -293,9 +291,7 @@ public struct Client: APIProtocol {
             },
             deserializer: { response in
                 switch response.statusCode {
-                case 202:
-                    let headers: Operations.postStats.Output.Accepted.Headers = .init()
-                    return .accepted(.init(headers: headers, body: nil))
+                case 202: return .accepted(.init())
                 default: return .undocumented(statusCode: response.statusCode, .init())
                 }
             }
@@ -315,9 +311,7 @@ public struct Client: APIProtocol {
             },
             deserializer: { response in
                 switch response.statusCode {
-                case 204:
-                    let headers: Operations.probe.Output.NoContent.Headers = .init()
-                    return .noContent(.init(headers: headers, body: nil))
+                case 204: return .noContent(.init())
                 default: return .undocumented(statusCode: response.statusCode, .init())
                 }
             }
@@ -349,11 +343,8 @@ public struct Client: APIProtocol {
             },
             deserializer: { response in
                 switch response.statusCode {
-                case 204:
-                    let headers: Operations.updatePet.Output.NoContent.Headers = .init()
-                    return .noContent(.init(headers: headers, body: nil))
+                case 204: return .noContent(.init())
                 case 400:
-                    let headers: Operations.updatePet.Output.BadRequest.Headers = .init()
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.updatePet.Output.BadRequest.Body
                     if try contentType == nil
@@ -367,7 +358,7 @@ public struct Client: APIProtocol {
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
-                    return .badRequest(.init(headers: headers, body: body))
+                    return .badRequest(.init(body: body))
                 default: return .undocumented(statusCode: response.statusCode, .init())
                 }
             }
@@ -401,7 +392,6 @@ public struct Client: APIProtocol {
             deserializer: { response in
                 switch response.statusCode {
                 case 200:
-                    let headers: Operations.uploadAvatarForPet.Output.Ok.Headers = .init()
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.uploadAvatarForPet.Output.Ok.Body
                     if try contentType == nil
@@ -418,9 +408,8 @@ public struct Client: APIProtocol {
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
-                    return .ok(.init(headers: headers, body: body))
+                    return .ok(.init(body: body))
                 case 412:
-                    let headers: Operations.uploadAvatarForPet.Output.PreconditionFailed.Headers = .init()
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body
                     if try contentType == nil
@@ -434,9 +423,8 @@ public struct Client: APIProtocol {
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
-                    return .preconditionFailed(.init(headers: headers, body: body))
+                    return .preconditionFailed(.init(body: body))
                 case 500:
-                    let headers: Operations.uploadAvatarForPet.Output.InternalServerError.Headers = .init()
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.uploadAvatarForPet.Output.InternalServerError.Body
                     if try contentType == nil
@@ -450,7 +438,7 @@ public struct Client: APIProtocol {
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
-                    return .internalServerError(.init(headers: headers, body: body))
+                    return .internalServerError(.init(body: body))
                 default: return .undocumented(statusCode: response.statusCode, .init())
                 }
             }

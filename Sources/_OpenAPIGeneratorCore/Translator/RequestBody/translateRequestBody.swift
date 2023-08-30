@@ -76,42 +76,31 @@ extension TypesFileTranslator {
     /// - Parameters:
     ///   - unresolvedRequestBody: An unresolved request body.
     ///   - parent: The type name of the parent structure.
+    /// - Returns: The property blueprint; nil if no body is specified.
     func parseRequestBodyAsProperty(
         for unresolvedRequestBody: UnresolvedRequest?,
         inParent parent: TypeName
-    ) throws -> PropertyBlueprint {
-        let bodyEnumTypeName: TypeName
-        let isRequestBodyOptional: Bool
-        let extraDecls: [Declaration]
-        if let _requestBody = unresolvedRequestBody,
+    ) throws -> PropertyBlueprint? {
+        guard let _requestBody = unresolvedRequestBody,
             let requestBody = try typedRequestBody(
                 from: _requestBody,
                 inParent: parent
             )
-        {
-            isRequestBodyOptional = !requestBody.request.required
-            bodyEnumTypeName = requestBody.typeUsage.typeName
-            if requestBody.isInlined {
-                extraDecls = [
-                    try translateRequestBodyInTypes(
-                        requestBody: requestBody
-                    )
-                ]
-            } else {
-                extraDecls = []
-            }
-        } else {
-            isRequestBodyOptional = true
-            bodyEnumTypeName = parent.appending(
-                swiftComponent: Constants.Operation.Body.typeName,
-                jsonComponent: "requestBody"
-            )
+        else {
+            return nil
+        }
+
+        let isRequestBodyOptional = !requestBody.request.required
+        let bodyEnumTypeName = requestBody.typeUsage.typeName
+        let extraDecls: [Declaration]
+        if requestBody.isInlined {
             extraDecls = [
-                translateRequestBodyInTypes(
-                    typeName: bodyEnumTypeName,
-                    members: []
+                try translateRequestBodyInTypes(
+                    requestBody: requestBody
                 )
             ]
+        } else {
+            extraDecls = []
         }
 
         let bodyEnumTypeUsage = bodyEnumTypeName.asUsage

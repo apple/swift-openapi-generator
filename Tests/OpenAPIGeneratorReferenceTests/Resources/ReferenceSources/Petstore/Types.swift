@@ -644,12 +644,6 @@ public enum Operations {
     public enum listPets {
         public static let id: String = "listPets"
         public struct Input: Sendable, Hashable {
-            /// - Remark: Generated from `#/paths/pets/GET/path`.
-            public struct Path: Sendable, Hashable {
-                /// Creates a new `Path`.
-                public init() {}
-            }
-            public var path: Operations.listPets.Input.Path
             /// - Remark: Generated from `#/paths/pets/GET/query`.
             public struct Query: Sendable, Hashable {
                 /// How many items to return at one time (max 100)
@@ -721,35 +715,17 @@ public enum Operations {
                 }
             }
             public var headers: Operations.listPets.Input.Headers
-            /// - Remark: Generated from `#/paths/pets/GET/cookie`.
-            public struct Cookies: Sendable, Hashable {
-                /// Creates a new `Cookies`.
-                public init() {}
-            }
-            public var cookies: Operations.listPets.Input.Cookies
-            /// - Remark: Generated from `#/paths/pets/GET/requestBody`.
-            @frozen public enum Body: Sendable, Hashable {}
-            public var body: Operations.listPets.Input.Body?
             /// Creates a new `Input`.
             ///
             /// - Parameters:
-            ///   - path:
             ///   - query:
             ///   - headers:
-            ///   - cookies:
-            ///   - body:
             public init(
-                path: Operations.listPets.Input.Path = .init(),
                 query: Operations.listPets.Input.Query = .init(),
-                headers: Operations.listPets.Input.Headers = .init(),
-                cookies: Operations.listPets.Input.Cookies = .init(),
-                body: Operations.listPets.Input.Body? = nil
+                headers: Operations.listPets.Input.Headers = .init()
             ) {
-                self.path = path
                 self.query = query
                 self.headers = headers
-                self.cookies = cookies
-                self.body = body
             }
         }
         @frozen public enum Output: Sendable, Hashable {
@@ -803,13 +779,6 @@ public enum Operations {
             /// HTTP response code: `200 ok`.
             case ok(Operations.listPets.Output.Ok)
             public struct Default: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/GET/responses/default/headers`.
-                public struct Headers: Sendable, Hashable {
-                    /// Creates a new `Headers`.
-                    public init() {}
-                }
-                /// Received HTTP response headers
-                public var headers: Operations.listPets.Output.Default.Headers
                 /// - Remark: Generated from `#/paths/pets/GET/responses/default/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/GET/responses/default/content/application\/json`.
@@ -820,15 +789,8 @@ public enum Operations {
                 /// Creates a new `Default`.
                 ///
                 /// - Parameters:
-                ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
-                public init(
-                    headers: Operations.listPets.Output.Default.Headers = .init(),
-                    body: Operations.listPets.Output.Default.Body
-                ) {
-                    self.headers = headers
-                    self.body = body
-                }
+                public init(body: Operations.listPets.Output.Default.Body) { self.body = body }
             }
             /// Unexpected error
             ///
@@ -862,18 +824,6 @@ public enum Operations {
     public enum createPet {
         public static let id: String = "createPet"
         public struct Input: Sendable, Hashable {
-            /// - Remark: Generated from `#/paths/pets/POST/path`.
-            public struct Path: Sendable, Hashable {
-                /// Creates a new `Path`.
-                public init() {}
-            }
-            public var path: Operations.createPet.Input.Path
-            /// - Remark: Generated from `#/paths/pets/POST/query`.
-            public struct Query: Sendable, Hashable {
-                /// Creates a new `Query`.
-                public init() {}
-            }
-            public var query: Operations.createPet.Input.Query
             /// - Remark: Generated from `#/paths/pets/POST/header`.
             public struct Headers: Sendable, Hashable {
                 /// A description here.
@@ -896,12 +846,6 @@ public enum Operations {
                 }
             }
             public var headers: Operations.createPet.Input.Headers
-            /// - Remark: Generated from `#/paths/pets/POST/cookie`.
-            public struct Cookies: Sendable, Hashable {
-                /// Creates a new `Cookies`.
-                public init() {}
-            }
-            public var cookies: Operations.createPet.Input.Cookies
             /// - Remark: Generated from `#/paths/pets/POST/requestBody`.
             @frozen public enum Body: Sendable, Hashable {
                 /// - Remark: Generated from `#/paths/pets/POST/requestBody/content/application\/json`.
@@ -911,22 +855,10 @@ public enum Operations {
             /// Creates a new `Input`.
             ///
             /// - Parameters:
-            ///   - path:
-            ///   - query:
             ///   - headers:
-            ///   - cookies:
             ///   - body:
-            public init(
-                path: Operations.createPet.Input.Path = .init(),
-                query: Operations.createPet.Input.Query = .init(),
-                headers: Operations.createPet.Input.Headers = .init(),
-                cookies: Operations.createPet.Input.Cookies = .init(),
-                body: Operations.createPet.Input.Body
-            ) {
-                self.path = path
-                self.query = query
+            public init(headers: Operations.createPet.Input.Headers = .init(), body: Operations.createPet.Input.Body) {
                 self.headers = headers
-                self.cookies = cookies
                 self.body = body
             }
         }
@@ -1008,18 +940,6 @@ public enum Operations {
     public enum getStats {
         public static let id: String = "getStats"
         public struct Input: Sendable, Hashable {
-            /// - Remark: Generated from `#/paths/pets/stats/GET/path`.
-            public struct Path: Sendable, Hashable {
-                /// Creates a new `Path`.
-                public init() {}
-            }
-            public var path: Operations.getStats.Input.Path
-            /// - Remark: Generated from `#/paths/pets/stats/GET/query`.
-            public struct Query: Sendable, Hashable {
-                /// Creates a new `Query`.
-                public init() {}
-            }
-            public var query: Operations.getStats.Input.Query
             /// - Remark: Generated from `#/paths/pets/stats/GET/header`.
             public struct Headers: Sendable, Hashable {
                 public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.getStats.AcceptableContentType>]
@@ -1033,46 +953,14 @@ public enum Operations {
                 ) { self.accept = accept }
             }
             public var headers: Operations.getStats.Input.Headers
-            /// - Remark: Generated from `#/paths/pets/stats/GET/cookie`.
-            public struct Cookies: Sendable, Hashable {
-                /// Creates a new `Cookies`.
-                public init() {}
-            }
-            public var cookies: Operations.getStats.Input.Cookies
-            /// - Remark: Generated from `#/paths/pets/stats/GET/requestBody`.
-            @frozen public enum Body: Sendable, Hashable {}
-            public var body: Operations.getStats.Input.Body?
             /// Creates a new `Input`.
             ///
             /// - Parameters:
-            ///   - path:
-            ///   - query:
             ///   - headers:
-            ///   - cookies:
-            ///   - body:
-            public init(
-                path: Operations.getStats.Input.Path = .init(),
-                query: Operations.getStats.Input.Query = .init(),
-                headers: Operations.getStats.Input.Headers = .init(),
-                cookies: Operations.getStats.Input.Cookies = .init(),
-                body: Operations.getStats.Input.Body? = nil
-            ) {
-                self.path = path
-                self.query = query
-                self.headers = headers
-                self.cookies = cookies
-                self.body = body
-            }
+            public init(headers: Operations.getStats.Input.Headers = .init()) { self.headers = headers }
         }
         @frozen public enum Output: Sendable, Hashable {
             public struct Ok: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/headers`.
-                public struct Headers: Sendable, Hashable {
-                    /// Creates a new `Headers`.
-                    public init() {}
-                }
-                /// Received HTTP response headers
-                public var headers: Operations.getStats.Output.Ok.Headers
                 /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/content/application\/json`.
@@ -1087,15 +975,8 @@ public enum Operations {
                 /// Creates a new `Ok`.
                 ///
                 /// - Parameters:
-                ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
-                public init(
-                    headers: Operations.getStats.Output.Ok.Headers = .init(),
-                    body: Operations.getStats.Output.Ok.Body
-                ) {
-                    self.headers = headers
-                    self.body = body
-                }
+                public init(body: Operations.getStats.Output.Ok.Body) { self.body = body }
             }
             /// A successful response.
             ///
@@ -1137,30 +1018,6 @@ public enum Operations {
     public enum postStats {
         public static let id: String = "postStats"
         public struct Input: Sendable, Hashable {
-            /// - Remark: Generated from `#/paths/pets/stats/POST/path`.
-            public struct Path: Sendable, Hashable {
-                /// Creates a new `Path`.
-                public init() {}
-            }
-            public var path: Operations.postStats.Input.Path
-            /// - Remark: Generated from `#/paths/pets/stats/POST/query`.
-            public struct Query: Sendable, Hashable {
-                /// Creates a new `Query`.
-                public init() {}
-            }
-            public var query: Operations.postStats.Input.Query
-            /// - Remark: Generated from `#/paths/pets/stats/POST/header`.
-            public struct Headers: Sendable, Hashable {
-                /// Creates a new `Headers`.
-                public init() {}
-            }
-            public var headers: Operations.postStats.Input.Headers
-            /// - Remark: Generated from `#/paths/pets/stats/POST/cookie`.
-            public struct Cookies: Sendable, Hashable {
-                /// Creates a new `Cookies`.
-                public init() {}
-            }
-            public var cookies: Operations.postStats.Input.Cookies
             /// - Remark: Generated from `#/paths/pets/stats/POST/requestBody`.
             @frozen public enum Body: Sendable, Hashable {
                 /// - Remark: Generated from `#/paths/pets/stats/POST/requestBody/content/application\/json`.
@@ -1174,50 +1031,13 @@ public enum Operations {
             /// Creates a new `Input`.
             ///
             /// - Parameters:
-            ///   - path:
-            ///   - query:
-            ///   - headers:
-            ///   - cookies:
             ///   - body:
-            public init(
-                path: Operations.postStats.Input.Path = .init(),
-                query: Operations.postStats.Input.Query = .init(),
-                headers: Operations.postStats.Input.Headers = .init(),
-                cookies: Operations.postStats.Input.Cookies = .init(),
-                body: Operations.postStats.Input.Body
-            ) {
-                self.path = path
-                self.query = query
-                self.headers = headers
-                self.cookies = cookies
-                self.body = body
-            }
+            public init(body: Operations.postStats.Input.Body) { self.body = body }
         }
         @frozen public enum Output: Sendable, Hashable {
             public struct Accepted: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/stats/POST/responses/202/headers`.
-                public struct Headers: Sendable, Hashable {
-                    /// Creates a new `Headers`.
-                    public init() {}
-                }
-                /// Received HTTP response headers
-                public var headers: Operations.postStats.Output.Accepted.Headers
-                /// - Remark: Generated from `#/paths/pets/stats/POST/responses/202/content`.
-                @frozen public enum Body: Sendable, Hashable {}
-                /// Received HTTP response body
-                public var body: Operations.postStats.Output.Accepted.Body?
                 /// Creates a new `Accepted`.
-                ///
-                /// - Parameters:
-                ///   - headers: Received HTTP response headers
-                ///   - body: Received HTTP response body
-                public init(
-                    headers: Operations.postStats.Output.Accepted.Headers = .init(),
-                    body: Operations.postStats.Output.Accepted.Body? = nil
-                ) {
-                    self.headers = headers
-                    self.body = body
-                }
+                public init() {}
             }
             /// Accepted data.
             ///
@@ -1236,80 +1056,13 @@ public enum Operations {
     public enum probe {
         public static let id: String = "probe"
         public struct Input: Sendable, Hashable {
-            /// - Remark: Generated from `#/paths/probe/POST/path`.
-            public struct Path: Sendable, Hashable {
-                /// Creates a new `Path`.
-                public init() {}
-            }
-            public var path: Operations.probe.Input.Path
-            /// - Remark: Generated from `#/paths/probe/POST/query`.
-            public struct Query: Sendable, Hashable {
-                /// Creates a new `Query`.
-                public init() {}
-            }
-            public var query: Operations.probe.Input.Query
-            /// - Remark: Generated from `#/paths/probe/POST/header`.
-            public struct Headers: Sendable, Hashable {
-                /// Creates a new `Headers`.
-                public init() {}
-            }
-            public var headers: Operations.probe.Input.Headers
-            /// - Remark: Generated from `#/paths/probe/POST/cookie`.
-            public struct Cookies: Sendable, Hashable {
-                /// Creates a new `Cookies`.
-                public init() {}
-            }
-            public var cookies: Operations.probe.Input.Cookies
-            /// - Remark: Generated from `#/paths/probe/POST/requestBody`.
-            @frozen public enum Body: Sendable, Hashable {}
-            public var body: Operations.probe.Input.Body?
             /// Creates a new `Input`.
-            ///
-            /// - Parameters:
-            ///   - path:
-            ///   - query:
-            ///   - headers:
-            ///   - cookies:
-            ///   - body:
-            public init(
-                path: Operations.probe.Input.Path = .init(),
-                query: Operations.probe.Input.Query = .init(),
-                headers: Operations.probe.Input.Headers = .init(),
-                cookies: Operations.probe.Input.Cookies = .init(),
-                body: Operations.probe.Input.Body? = nil
-            ) {
-                self.path = path
-                self.query = query
-                self.headers = headers
-                self.cookies = cookies
-                self.body = body
-            }
+            public init() {}
         }
         @frozen public enum Output: Sendable, Hashable {
             public struct NoContent: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/probe/POST/responses/204/headers`.
-                public struct Headers: Sendable, Hashable {
-                    /// Creates a new `Headers`.
-                    public init() {}
-                }
-                /// Received HTTP response headers
-                public var headers: Operations.probe.Output.NoContent.Headers
-                /// - Remark: Generated from `#/paths/probe/POST/responses/204/content`.
-                @frozen public enum Body: Sendable, Hashable {}
-                /// Received HTTP response body
-                public var body: Operations.probe.Output.NoContent.Body?
                 /// Creates a new `NoContent`.
-                ///
-                /// - Parameters:
-                ///   - headers: Received HTTP response headers
-                ///   - body: Received HTTP response body
-                public init(
-                    headers: Operations.probe.Output.NoContent.Headers = .init(),
-                    body: Operations.probe.Output.NoContent.Body? = nil
-                ) {
-                    self.headers = headers
-                    self.body = body
-                }
+                public init() {}
             }
             /// Ack
             ///
@@ -1343,12 +1096,6 @@ public enum Operations {
                 public init(petId: Swift.Int64) { self.petId = petId }
             }
             public var path: Operations.updatePet.Input.Path
-            /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/query`.
-            public struct Query: Sendable, Hashable {
-                /// Creates a new `Query`.
-                public init() {}
-            }
-            public var query: Operations.updatePet.Input.Query
             /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/header`.
             public struct Headers: Sendable, Hashable {
                 public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.updatePet.AcceptableContentType>]
@@ -1362,60 +1109,27 @@ public enum Operations {
                 ) { self.accept = accept }
             }
             public var headers: Operations.updatePet.Input.Headers
-            /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/cookie`.
-            public struct Cookies: Sendable, Hashable {
-                /// Creates a new `Cookies`.
-                public init() {}
-            }
-            public var cookies: Operations.updatePet.Input.Cookies
             public var body: Components.RequestBodies.UpdatePetRequest?
             /// Creates a new `Input`.
             ///
             /// - Parameters:
             ///   - path:
-            ///   - query:
             ///   - headers:
-            ///   - cookies:
             ///   - body:
             public init(
                 path: Operations.updatePet.Input.Path,
-                query: Operations.updatePet.Input.Query = .init(),
                 headers: Operations.updatePet.Input.Headers = .init(),
-                cookies: Operations.updatePet.Input.Cookies = .init(),
                 body: Components.RequestBodies.UpdatePetRequest? = nil
             ) {
                 self.path = path
-                self.query = query
                 self.headers = headers
-                self.cookies = cookies
                 self.body = body
             }
         }
         @frozen public enum Output: Sendable, Hashable {
             public struct NoContent: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/204/headers`.
-                public struct Headers: Sendable, Hashable {
-                    /// Creates a new `Headers`.
-                    public init() {}
-                }
-                /// Received HTTP response headers
-                public var headers: Operations.updatePet.Output.NoContent.Headers
-                /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/204/content`.
-                @frozen public enum Body: Sendable, Hashable {}
-                /// Received HTTP response body
-                public var body: Operations.updatePet.Output.NoContent.Body?
                 /// Creates a new `NoContent`.
-                ///
-                /// - Parameters:
-                ///   - headers: Received HTTP response headers
-                ///   - body: Received HTTP response body
-                public init(
-                    headers: Operations.updatePet.Output.NoContent.Headers = .init(),
-                    body: Operations.updatePet.Output.NoContent.Body? = nil
-                ) {
-                    self.headers = headers
-                    self.body = body
-                }
+                public init() {}
             }
             /// Successfully updated
             ///
@@ -1424,13 +1138,6 @@ public enum Operations {
             /// HTTP response code: `204 noContent`.
             case noContent(Operations.updatePet.Output.NoContent)
             public struct BadRequest: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/400/headers`.
-                public struct Headers: Sendable, Hashable {
-                    /// Creates a new `Headers`.
-                    public init() {}
-                }
-                /// Received HTTP response headers
-                public var headers: Operations.updatePet.Output.BadRequest.Headers
                 /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/400/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/400/content/json`.
@@ -1452,15 +1159,8 @@ public enum Operations {
                 /// Creates a new `BadRequest`.
                 ///
                 /// - Parameters:
-                ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
-                public init(
-                    headers: Operations.updatePet.Output.BadRequest.Headers = .init(),
-                    body: Operations.updatePet.Output.BadRequest.Body
-                ) {
-                    self.headers = headers
-                    self.body = body
-                }
+                public init(body: Operations.updatePet.Output.BadRequest.Body) { self.body = body }
             }
             /// Update input error
             ///
@@ -1511,12 +1211,6 @@ public enum Operations {
                 public init(petId: Components.Parameters.path_period_petId) { self.petId = petId }
             }
             public var path: Operations.uploadAvatarForPet.Input.Path
-            /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/query`.
-            public struct Query: Sendable, Hashable {
-                /// Creates a new `Query`.
-                public init() {}
-            }
-            public var query: Operations.uploadAvatarForPet.Input.Query
             /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/header`.
             public struct Headers: Sendable, Hashable {
                 public var accept:
@@ -1532,12 +1226,6 @@ public enum Operations {
                 ) { self.accept = accept }
             }
             public var headers: Operations.uploadAvatarForPet.Input.Headers
-            /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/cookie`.
-            public struct Cookies: Sendable, Hashable {
-                /// Creates a new `Cookies`.
-                public init() {}
-            }
-            public var cookies: Operations.uploadAvatarForPet.Input.Cookies
             /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/requestBody`.
             @frozen public enum Body: Sendable, Hashable {
                 /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/requestBody/content/application\/octet-stream`.
@@ -1548,33 +1236,20 @@ public enum Operations {
             ///
             /// - Parameters:
             ///   - path:
-            ///   - query:
             ///   - headers:
-            ///   - cookies:
             ///   - body:
             public init(
                 path: Operations.uploadAvatarForPet.Input.Path,
-                query: Operations.uploadAvatarForPet.Input.Query = .init(),
                 headers: Operations.uploadAvatarForPet.Input.Headers = .init(),
-                cookies: Operations.uploadAvatarForPet.Input.Cookies = .init(),
                 body: Operations.uploadAvatarForPet.Input.Body
             ) {
                 self.path = path
-                self.query = query
                 self.headers = headers
-                self.cookies = cookies
                 self.body = body
             }
         }
         @frozen public enum Output: Sendable, Hashable {
             public struct Ok: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/200/headers`.
-                public struct Headers: Sendable, Hashable {
-                    /// Creates a new `Headers`.
-                    public init() {}
-                }
-                /// Received HTTP response headers
-                public var headers: Operations.uploadAvatarForPet.Output.Ok.Headers
                 /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/200/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/200/content/application\/octet-stream`.
@@ -1585,15 +1260,8 @@ public enum Operations {
                 /// Creates a new `Ok`.
                 ///
                 /// - Parameters:
-                ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
-                public init(
-                    headers: Operations.uploadAvatarForPet.Output.Ok.Headers = .init(),
-                    body: Operations.uploadAvatarForPet.Output.Ok.Body
-                ) {
-                    self.headers = headers
-                    self.body = body
-                }
+                public init(body: Operations.uploadAvatarForPet.Output.Ok.Body) { self.body = body }
             }
             /// Echoes avatar back
             ///
@@ -1602,13 +1270,6 @@ public enum Operations {
             /// HTTP response code: `200 ok`.
             case ok(Operations.uploadAvatarForPet.Output.Ok)
             public struct PreconditionFailed: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/412/headers`.
-                public struct Headers: Sendable, Hashable {
-                    /// Creates a new `Headers`.
-                    public init() {}
-                }
-                /// Received HTTP response headers
-                public var headers: Operations.uploadAvatarForPet.Output.PreconditionFailed.Headers
                 /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/412/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/412/content/application\/json`.
@@ -1619,15 +1280,8 @@ public enum Operations {
                 /// Creates a new `PreconditionFailed`.
                 ///
                 /// - Parameters:
-                ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
-                public init(
-                    headers: Operations.uploadAvatarForPet.Output.PreconditionFailed.Headers = .init(),
-                    body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body
-                ) {
-                    self.headers = headers
-                    self.body = body
-                }
+                public init(body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body) { self.body = body }
             }
             /// Avatar is not acceptable
             ///
@@ -1636,13 +1290,6 @@ public enum Operations {
             /// HTTP response code: `412 preconditionFailed`.
             case preconditionFailed(Operations.uploadAvatarForPet.Output.PreconditionFailed)
             public struct InternalServerError: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/500/headers`.
-                public struct Headers: Sendable, Hashable {
-                    /// Creates a new `Headers`.
-                    public init() {}
-                }
-                /// Received HTTP response headers
-                public var headers: Operations.uploadAvatarForPet.Output.InternalServerError.Headers
                 /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/500/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/500/content/text\/plain`.
@@ -1653,15 +1300,8 @@ public enum Operations {
                 /// Creates a new `InternalServerError`.
                 ///
                 /// - Parameters:
-                ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
-                public init(
-                    headers: Operations.uploadAvatarForPet.Output.InternalServerError.Headers = .init(),
-                    body: Operations.uploadAvatarForPet.Output.InternalServerError.Body
-                ) {
-                    self.headers = headers
-                    self.body = body
-                }
+                public init(body: Operations.uploadAvatarForPet.Output.InternalServerError.Body) { self.body = body }
             }
             /// Server error
             ///
