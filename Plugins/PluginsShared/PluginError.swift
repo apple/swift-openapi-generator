@@ -29,8 +29,7 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
         case .generatorFailure(let targetName):
             return "The generator failed to generate OpenAPI files for target '\(targetName)'."
         case .noTargetsWithExpectedFiles(let targetNames):
-            let fileNames = FileError.Kind.allCases.map(\.name)
-                .joined(separator: ", ", lastSeparator: " or ")
+            let fileNames = FileError.Kind.allCases.map(\.name).joined(separator: ", ", lastSeparator: " or ")
             let targetNames = targetNames.joined(separator: ", ", lastSeparator: " and ")
             return
                 "Targets with names \(targetNames) don't contain any \(fileNames) files with expected names. See documentation for details."
@@ -42,23 +41,16 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
         }
     }
 
-    var errorDescription: String? {
-        description
-    }
+    var errorDescription: String? { description }
 
     /// The error is definitely due to misconfiguration of a target.
     var isMisconfigurationError: Bool {
         switch self {
-        case .incompatibleTarget:
-            return false
-        case .generatorFailure:
-            return false
-        case .noTargetsWithExpectedFiles:
-            return false
-        case .noTargetsMatchingTargetNames:
-            return false
-        case .fileErrors(let errors):
-            return errors.isMisconfigurationError
+        case .incompatibleTarget: return false
+        case .generatorFailure: return false
+        case .noTargetsWithExpectedFiles: return false
+        case .noTargetsMatchingTargetNames: return false
+        case .fileErrors(let errors): return errors.isMisconfigurationError
         }
     }
 }
@@ -74,10 +66,8 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
 
         var name: String {
             switch self {
-            case .config:
-                return "config"
-            case .document:
-                return "OpenAPI document"
+            case .config: return "config"
+            case .document: return "OpenAPI document"
             }
         }
     }
@@ -92,10 +82,8 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
         /// The error is definitely due to misconfiguration of a target.
         var isMisconfigurationError: Bool {
             switch self {
-            case .noFilesFound:
-                return false
-            case .multipleFilesFound:
-                return true
+            case .noFilesFound: return false
+            case .multipleFilesFound: return true
             }
         }
     }
@@ -127,9 +115,7 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
         }
     }
 
-    var errorDescription: String? {
-        description
-    }
+    var errorDescription: String? { description }
 }
 
 private extension Array where Element == FileError {

@@ -16,9 +16,7 @@ import Server
 import OpenAPIRuntime
 
 actor SimpleAPIImpl: APIProtocol {
-    func getGreeting(
-        _ input: Operations.getGreeting.Input
-    ) async throws -> Operations.getGreeting.Output {
+    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
         let message = "Hello, \(input.query.name ?? "Stranger")!"
         return .ok(.init(body: .json(.init(message: message))))
     }
@@ -41,8 +39,5 @@ class MockServerTransport: ServerTransport {
 func initializeServer() throws {
     let handler = SimpleAPIImpl()
     let transport = MockServerTransport()
-    try handler.registerHandlers(
-        on: transport,
-        serverURL: Servers.server1()
-    )
+    try handler.registerHandlers(on: transport, serverURL: Servers.server1())
 }

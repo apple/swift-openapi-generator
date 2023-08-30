@@ -20,24 +20,17 @@ import Yams
 /// A parser that uses the Yams library to parse the provided
 /// raw file into an OpenAPI document.
 struct YamsParser: ParserProtocol {
-    func parseOpenAPI(
-        _ input: InMemoryInputFile,
-        config: Config,
-        diagnostics: any DiagnosticCollector
-    ) throws -> ParsedOpenAPIRepresentation {
+    func parseOpenAPI(_ input: InMemoryInputFile, config: Config, diagnostics: any DiagnosticCollector) throws
+        -> ParsedOpenAPIRepresentation
+    {
         let decoder = YAMLDecoder()
         let openapiData = input.contents
 
-        struct OpenAPIVersionedDocument: Decodable {
-            var openapi: String?
-        }
+        struct OpenAPIVersionedDocument: Decodable { var openapi: String? }
 
         let versionedDocument: OpenAPIVersionedDocument
         do {
-            versionedDocument = try decoder.decode(
-                OpenAPIVersionedDocument.self,
-                from: openapiData
-            )
+            versionedDocument = try decoder.decode(OpenAPIVersionedDocument.self, from: openapiData)
         } catch DecodingError.dataCorrupted(let errorContext) {
             try checkParsingError(context: errorContext, input: input)
             throw DecodingError.dataCorrupted(errorContext)
@@ -50,16 +43,9 @@ struct YamsParser: ParserProtocol {
             let document: OpenAPIKit.OpenAPI.Document
             switch openAPIVersion {
             case "3.0.0", "3.0.1", "3.0.2", "3.0.3":
-                let openAPI30Document = try decoder.decode(
-                    OpenAPIKit30.OpenAPI.Document.self,
-                    from: input.contents
-                )
+                let openAPI30Document = try decoder.decode(OpenAPIKit30.OpenAPI.Document.self, from: input.contents)
                 document = openAPI30Document.convert(to: .v3_1_0)
-            case "3.1.0":
-                document = try decoder.decode(
-                    OpenAPIKit.OpenAPI.Document.self,
-                    from: input.contents
-                )
+            case "3.1.0": document = try decoder.decode(OpenAPIKit.OpenAPI.Document.self, from: input.contents)
             default:
                 throw Diagnostic.openAPIVersionError(
                     versionString: "openapi: \(openAPIVersion)",
@@ -78,10 +64,7 @@ struct YamsParser: ParserProtocol {
     ///   - context: The error context that triggered the `DecodingError`.
     ///   - input: The input file that was being worked on when the error was triggered.
     /// - Throws: Will throw a `Diagnostic` if the decoding error is a common parsing error.
-    private func checkParsingError(
-        context: DecodingError.Context,
-        input: InMemoryInputFile
-    ) throws {
+    private func checkParsingError(context: DecodingError.Context, input: InMemoryInputFile) throws {
         if let yamlError = context.underlyingError as? YamlError {
             if case .parser(let yamlContext, let yamlProblem, let yamlMark, _) = yamlError {
                 throw Diagnostic.error(

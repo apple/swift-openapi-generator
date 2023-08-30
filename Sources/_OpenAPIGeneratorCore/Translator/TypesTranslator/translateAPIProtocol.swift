@@ -22,14 +22,8 @@ extension TypesFileTranslator {
     /// - Throws: If `paths` contains any references.
     func translateAPIProtocol(_ paths: OpenAPI.PathItem.Map) throws -> Declaration {
 
-        let operations = try OperationDescription.all(
-            from: paths,
-            in: components,
-            asSwiftSafeName: swiftSafeName
-        )
-        let functionDecls =
-            operations
-            .map(translateAPIProtocolDeclaration(operation:))
+        let operations = try OperationDescription.all(from: paths, in: components, asSwiftSafeName: swiftSafeName)
+        let functionDecls = operations.map(translateAPIProtocolDeclaration(operation:))
 
         let protocolDescription = ProtocolDescription(
             accessModifier: config.access,
@@ -39,10 +33,7 @@ extension TypesFileTranslator {
         )
         let protocolComment: Comment = .doc("A type that performs HTTP operations defined by the OpenAPI document.")
 
-        return .commentable(
-            protocolComment,
-            .protocol(protocolDescription)
-        )
+        return .commentable(protocolComment, .protocol(protocolDescription))
     }
 
     /// Returns a declaration of a single method in the API protocol.
@@ -51,15 +42,10 @@ extension TypesFileTranslator {
     /// document.
     /// - Parameter description: The OpenAPI operation.
     /// - Returns: A function declaration.
-    func translateAPIProtocolDeclaration(
-        operation description: OperationDescription
-    ) -> Declaration {
+    func translateAPIProtocolDeclaration(operation description: OperationDescription) -> Declaration {
         let operationComment = description.comment
         let signature = description.protocolSignatureDescription
         let function = FunctionDescription(signature: signature)
-        return .commentable(
-            operationComment,
-            .function(function).deprecate(if: description.operation.deprecated)
-        )
+        return .commentable(operationComment, .function(function).deprecate(if: description.operation.deprecated))
     }
 }

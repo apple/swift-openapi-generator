@@ -24,55 +24,34 @@ public enum TestError: Swift.Error, LocalizedError, CustomStringConvertible, Sen
         switch self {
         case .noHandlerFound(let method, let path):
             return "No handler found for method \(method.name) and path \(path.stringPath)"
-        case .invalidURLString(let string):
-            return "Invalid URL string: \(string)"
-        case .unexpectedValue(let value):
-            return "Unexpected value: \(value)"
-        case .unexpectedMissingRequestBody:
-            return "Unexpected missing request body"
+        case .invalidURLString(let string): return "Invalid URL string: \(string)"
+        case .unexpectedValue(let value): return "Unexpected value: \(value)"
+        case .unexpectedMissingRequestBody: return "Unexpected missing request body"
         }
     }
 
-    public var errorDescription: String? {
-        description
-    }
+    public var errorDescription: String? { description }
 }
 
 public extension Date {
-    static var test: Date {
-        Date(timeIntervalSince1970: 1_674_036_251)
-    }
+    static var test: Date { Date(timeIntervalSince1970: 1_674_036_251) }
 
-    static var testString: String {
-        "2023-01-18T10:04:11Z"
-    }
+    static var testString: String { "2023-01-18T10:04:11Z" }
 }
 
 public extension Array where Element == RouterPathComponent {
-    var stringPath: String {
-        map(\.description).joined(separator: "/")
-    }
+    var stringPath: String { map(\.description).joined(separator: "/") }
 }
 
 public extension Response {
-    init(
-        statusCode: Int,
-        headers: [HeaderField] = [],
-        encodedBody: String
-    ) {
-        self.init(
-            statusCode: statusCode,
-            headerFields: headers,
-            body: Data(encodedBody.utf8)
-        )
+    init(statusCode: Int, headers: [HeaderField] = [], encodedBody: String) {
+        self.init(statusCode: statusCode, headerFields: headers, body: Data(encodedBody.utf8))
     }
 
     static var listPetsSuccess: Self {
         .init(
             statusCode: 200,
-            headers: [
-                .init(name: "content-type", value: "application/json")
-            ],
+            headers: [.init(name: "content-type", value: "application/json")],
             encodedBody: #"""
                 [
                   {
@@ -86,46 +65,24 @@ public extension Response {
 }
 
 public extension Data {
-    var pretty: String {
-        String(decoding: self, as: UTF8.self)
-    }
+    var pretty: String { String(decoding: self, as: UTF8.self) }
 
-    static var abcdString: String {
-        "abcd"
-    }
+    static var abcdString: String { "abcd" }
 
-    static var abcd: Data {
-        Data(abcdString.utf8)
-    }
+    static var abcd: Data { Data(abcdString.utf8) }
 
-    static var efghString: String {
-        "efgh"
-    }
+    static var efghString: String { "efgh" }
 
-    static var quotedEfghString: String {
-        #""efgh""#
-    }
+    static var quotedEfghString: String { #""efgh""# }
 
-    static var efgh: Data {
-        Data(efghString.utf8)
-    }
+    static var efgh: Data { Data(efghString.utf8) }
 }
 
 public extension Request {
-    init(
-        path: String,
-        query: String? = nil,
-        method: HTTPMethod,
-        headerFields: [HeaderField] = [],
-        encodedBody: String
-    ) throws {
+    init(path: String, query: String? = nil, method: HTTPMethod, headerFields: [HeaderField] = [], encodedBody: String)
+        throws
+    {
         let body = Data(encodedBody.utf8)
-        self.init(
-            path: path,
-            query: query,
-            method: method,
-            headerFields: headerFields,
-            body: body
-        )
+        self.init(path: path, query: query, method: method, headerFields: headerFields, body: body)
     }
 }

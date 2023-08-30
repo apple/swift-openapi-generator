@@ -19,9 +19,7 @@ import Vapor
 struct Handler: APIProtocol {
 
     // This function is a protocol requirement, derived from the operation in the OpenAPI document.
-    func getGreeting(
-        _ input: Operations.getGreeting.Input
-    ) async throws -> Operations.getGreeting.Output {
+    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
         // Extract the query parameter from the input, using generated type-safe property.
         let name = input.query.name ?? "Stranger"
 
@@ -30,8 +28,7 @@ struct Handler: APIProtocol {
     }
 }
 
-@main
-struct Main {
+@main struct Main {
     public static func main() throws {
         // Create a Vapor application.
         let app = Vapor.Application()

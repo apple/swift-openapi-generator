@@ -18,9 +18,7 @@
 ///   - config: The generator config.
 /// - Throws: An error if a fatal issue is found.
 func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [Diagnostic] {
-    guard config.featureFlags.contains(.strictOpenAPIValidation) else {
-        return []
-    }
+    guard config.featureFlags.contains(.strictOpenAPIValidation) else { return [] }
     // Run OpenAPIKit's built-in validation.
     // Pass `false` to `strict`, however, because we don't
     // want to turn schema loading warnings into errors.
@@ -35,8 +33,7 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [
         .warning(
             message: "Validation warning: \(warning.description)",
             context: [
-                "codingPath": warning.codingPathString ?? "<none>",
-                "contextString": warning.contextString ?? "<none>",
+                "codingPath": warning.codingPathString ?? "<none>", "contextString": warning.contextString ?? "<none>",
                 "subjectName": warning.subjectName ?? "<none>",
             ]
         )
@@ -50,20 +47,10 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [
     // that the generator uses. `locallyDereferenced()` above
     // only dereferences paths/operations, but not components.
     let components = doc.components
-    try components.schemas.forEach { schema in
-        _ = try schema.value.dereferenced(in: components)
-    }
-    try components.parameters.forEach { schema in
-        _ = try schema.value.dereferenced(in: components)
-    }
-    try components.headers.forEach { schema in
-        _ = try schema.value.dereferenced(in: components)
-    }
-    try components.requestBodies.forEach { schema in
-        _ = try schema.value.dereferenced(in: components)
-    }
-    try components.responses.forEach { schema in
-        _ = try schema.value.dereferenced(in: components)
-    }
+    try components.schemas.forEach { schema in _ = try schema.value.dereferenced(in: components) }
+    try components.parameters.forEach { schema in _ = try schema.value.dereferenced(in: components) }
+    try components.headers.forEach { schema in _ = try schema.value.dereferenced(in: components) }
+    try components.requestBodies.forEach { schema in _ = try schema.value.dereferenced(in: components) }
+    try components.responses.forEach { schema in _ = try schema.value.dereferenced(in: components) }
     return diagnostics
 }

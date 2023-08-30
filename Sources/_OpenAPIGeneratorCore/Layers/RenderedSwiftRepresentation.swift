@@ -58,9 +58,7 @@ public struct InMemoryOutputFile {
 
 extension InMemoryOutputFile: Comparable {
     public static func < (lhs: InMemoryOutputFile, rhs: InMemoryOutputFile) -> Bool {
-        guard lhs.baseName == rhs.baseName else {
-            return lhs.baseName < rhs.baseName
-        }
+        guard lhs.baseName == rhs.baseName else { return lhs.baseName < rhs.baseName }
         return lhs.contents.base64EncodedString() < rhs.contents.base64EncodedString()
     }
 }

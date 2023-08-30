@@ -31,13 +31,9 @@ class _YamlFileDiagnosticsCollector: DiagnosticCollector {
 
     /// Creates a new collector.
     /// - Parameter url: A file path where to persist the YAML file.
-    init(url: URL) {
-        self.url = url
-    }
+    init(url: URL) { self.url = url }
 
-    func emit(_ diagnostic: Diagnostic) {
-        diagnostics.append(diagnostic)
-    }
+    func emit(_ diagnostic: Diagnostic) { diagnostics.append(diagnostic) }
 
     /// Finishes writing to the collector by persisting the accumulated
     /// diagnostics to a YAML file.
@@ -45,12 +41,7 @@ class _YamlFileDiagnosticsCollector: DiagnosticCollector {
         let uniqueMessages = Set(diagnostics.map(\.message)).sorted()
         let encoder = YAMLEncoder()
         encoder.options.sortKeys = true
-        let container = _DiagnosticsYamlFileContent(
-            uniqueMessages: uniqueMessages,
-            diagnostics: diagnostics
-        )
-        try encoder
-            .encode(container)
-            .write(to: url, atomically: true, encoding: .utf8)
+        let container = _DiagnosticsYamlFileContent(uniqueMessages: uniqueMessages, diagnostics: diagnostics)
+        try encoder.encode(container).write(to: url, atomically: true, encoding: .utf8)
     }
 }

@@ -32,10 +32,7 @@ extension TypesFileTranslator {
         operationJSONPath: String
     ) throws -> (payloadStruct: Declaration?, enumCase: Declaration) {
 
-        let typedResponse = try typedResponse(
-            from: outcome,
-            operation: operation
-        )
+        let typedResponse = try typedResponse(from: outcome, operation: operation)
         let responseStructTypeName = typedResponse.typeUsage.typeName
         let responseKind = outcome.status.value.asKind
 
@@ -51,9 +48,7 @@ extension TypesFileTranslator {
 
         let optionalStatusCode: [EnumCaseAssociatedValueDescription]
         if responseKind.wantsStatusCode {
-            optionalStatusCode = [
-                .init(label: "statusCode", type: TypeName.int.shortSwiftName)
-            ]
+            optionalStatusCode = [.init(label: "statusCode", type: TypeName.int.shortSwiftName)]
         } else {
             optionalStatusCode = []
         }
@@ -61,9 +56,7 @@ extension TypesFileTranslator {
         let enumCaseDesc = EnumCaseDescription(
             name: responseKind.identifier,
             kind: .nameWithAssociatedValues(
-                optionalStatusCode + [
-                    .init(type: responseStructTypeName.fullyQualifiedSwiftName)
-                ]
+                optionalStatusCode + [.init(type: responseStructTypeName.fullyQualifiedSwiftName)]
             )
         )
         let enumCaseDecl: Declaration = .commentable(
@@ -85,22 +78,17 @@ extension ClientFileTranslator {
     ///   - outcome: The OpenAPI response.
     ///   - operation: The OpenAPI operation.
     /// - Returns: A switch case expression.
-    func translateResponseOutcomeInClient(
-        outcome: OpenAPI.Operation.ResponseOutcome,
-        operation: OperationDescription
-    ) throws -> SwitchCaseDescription {
+    func translateResponseOutcomeInClient(outcome: OpenAPI.Operation.ResponseOutcome, operation: OperationDescription)
+        throws -> SwitchCaseDescription
+    {
 
-        let typedResponse = try typedResponse(
-            from: outcome,
-            operation: operation
-        )
+        let typedResponse = try typedResponse(from: outcome, operation: operation)
         let responseStructTypeName = typedResponse.typeUsage.typeName
         let responseKind = outcome.status.value.asKind
 
         let caseKind: SwitchCaseKind
         switch responseKind {
-        case let .code(code):
-            caseKind = .`case`(.literal(code))
+        case let .code(code): caseKind = .`case`(.literal(code))
         case let .range(range):
             caseKind = .`case`(
                 .binaryOperation(
@@ -109,8 +97,7 @@ extension ClientFileTranslator {
                     right: .literal(range.upperBound)
                 )
             )
-        case .`default`:
-            caseKind = .`default`
+        case .`default`: caseKind = .`default`
         }
 
         var codeBlocks: [CodeBlock] = []
@@ -118,19 +105,11 @@ extension ClientFileTranslator {
         let headersTypeName = responseStructTypeName.appending(
             swiftComponent: Constants.Operation.Output.Payload.Headers.typeName
         )
-        let bodyTypeName = responseStructTypeName.appending(
-            swiftComponent: Constants.Operation.Body.typeName
-        )
+        let bodyTypeName = responseStructTypeName.appending(swiftComponent: Constants.Operation.Body.typeName)
 
-        let headers = try typedResponseHeaders(
-            from: typedResponse.response,
-            inParent: headersTypeName
-        )
+        let headers = try typedResponseHeaders(from: typedResponse.response, inParent: headersTypeName)
         let headerInitArgs: [FunctionArgumentDescription] = try headers.map { header in
-            try translateResponseHeaderInClient(
-                header,
-                responseVariableName: "response"
-            )
+            try translateResponseHeaderInClient(header, responseVariableName: "response")
         }
         let headersInitExpr: Expression = .dot("init").call(headerInitArgs)
         let headersVarDecl: Declaration = .variable(
@@ -142,51 +121,28 @@ extension ClientFileTranslator {
         codeBlocks.append(.declaration(headersVarDecl))
         let headersVarExpr: Expression = .identifier("headers")
 
-        let typedContents = try supportedTypedContents(
-            typedResponse.response.content,
-            inParent: bodyTypeName
-        )
+        let typedContents = try supportedTypedContents(typedResponse.response.content, inParent: bodyTypeName)
         let bodyVarExpr: Expression
         if !typedContents.isEmpty {
 
             let contentTypeDecl: Declaration = .variable(
                 kind: .let,
                 left: "contentType",
-                right: .identifier("converter")
-                    .dot("extractContentTypeIfPresent")
-                    .call([
-                        .init(
-                            label: "in",
-                            expression: .identifier("response")
-                                .dot("headerFields")
-                        )
-                    ])
+                right: .identifier("converter").dot("extractContentTypeIfPresent")
+                    .call([.init(label: "in", expression: .identifier("response").dot("headerFields"))])
             )
             codeBlocks.append(.declaration(contentTypeDecl))
 
-            let bodyDecl: Declaration = .variable(
-                kind: .let,
-                left: "body",
-                type: bodyTypeName.fullyQualifiedSwiftName
-            )
+            let bodyDecl: Declaration = .variable(kind: .let, left: "body", type: bodyTypeName.fullyQualifiedSwiftName)
             codeBlocks.append(.declaration(bodyDecl))
 
             func makeIfBranch(typedContent: TypedSchemaContent, isFirstBranch: Bool) -> IfBranch {
-                let isMatchingContentTypeExpr: Expression = .identifier("converter")
-                    .dot("isMatchingContentType")
+                let isMatchingContentTypeExpr: Expression = .identifier("converter").dot("isMatchingContentType")
                     .call([
-                        .init(
-                            label: "received",
-                            expression: .identifier("contentType")
-                        ),
+                        .init(label: "received", expression: .identifier("contentType")),
                         .init(
                             label: "expectedRaw",
-                            expression: .literal(
-                                typedContent
-                                    .content
-                                    .contentType
-                                    .headerValueForValidation
-                            )
+                            expression: .literal(typedContent.content.contentType.headerValueForValidation)
                         ),
                     ])
                 let condition: Expression
@@ -209,9 +165,7 @@ extension ClientFileTranslator {
                     body: [
                         .expression(
                             .dot(contentSwiftName(typedContent.content.contentType))
-                                .call([
-                                    .init(label: nil, expression: .identifier("value"))
-                                ])
+                                .call([.init(label: nil, expression: .identifier("value"))])
                         )
                     ]
                 )
@@ -222,40 +176,19 @@ extension ClientFileTranslator {
                             .init(
                                 label: nil,
                                 expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
-                            ),
-                            .init(label: "from", expression: .identifier("response").dot("body")),
-                            .init(
-                                label: "transforming",
-                                expression: transformExpr
-                            ),
+                            ), .init(label: "from", expression: .identifier("response").dot("body")),
+                            .init(label: "transforming", expression: transformExpr),
                         ])
                 )
                 return .init(
                     condition: .try(condition),
-                    body: [
-                        .expression(
-                            .assignment(
-                                left: .identifier("body"),
-                                right: bodyExpr
-                            )
-                        )
-                    ]
+                    body: [.expression(.assignment(left: .identifier("body"), right: bodyExpr))]
                 )
             }
 
-            let primaryIfBranch = makeIfBranch(
-                typedContent: typedContents[0],
-                isFirstBranch: true
-            )
-            let elseIfBranches =
-                typedContents
-                .dropFirst()
-                .map { typedContent in
-                    makeIfBranch(
-                        typedContent: typedContent,
-                        isFirstBranch: false
-                    )
-                }
+            let primaryIfBranch = makeIfBranch(typedContent: typedContents[0], isFirstBranch: true)
+            let elseIfBranches = typedContents.dropFirst()
+                .map { typedContent in makeIfBranch(typedContent: typedContent, isFirstBranch: false) }
 
             codeBlocks.append(
                 .expression(
@@ -266,14 +199,8 @@ extension ClientFileTranslator {
                             .expression(
                                 .unaryKeyword(
                                     kind: .throw,
-                                    expression: .identifier("converter")
-                                        .dot("makeUnexpectedContentTypeError")
-                                        .call([
-                                            .init(
-                                                label: "contentType",
-                                                expression: .identifier("contentType")
-                                            )
-                                        ])
+                                    expression: .identifier("converter").dot("makeUnexpectedContentTypeError")
+                                        .call([.init(label: "contentType", expression: .identifier("contentType"))])
                                 )
                             )
                         ]
@@ -288,43 +215,24 @@ extension ClientFileTranslator {
 
         let initExpr: Expression = .dot("init")
             .call([
-                .init(
-                    label: Constants.Operation.Output.Payload.Headers.variableName,
-                    expression: headersVarExpr
-                ),
-                .init(
-                    label: Constants.Operation.Body.variableName,
-                    expression: bodyVarExpr
-                ),
+                .init(label: Constants.Operation.Output.Payload.Headers.variableName, expression: headersVarExpr),
+                .init(label: Constants.Operation.Body.variableName, expression: bodyVarExpr),
             ])
 
         let optionalStatusCode: [FunctionArgumentDescription]
         if responseKind.wantsStatusCode {
-            optionalStatusCode = [
-                .init(
-                    label: "statusCode",
-                    expression: .identifier("response").dot("statusCode")
-                )
-            ]
+            optionalStatusCode = [.init(label: "statusCode", expression: .identifier("response").dot("statusCode"))]
         } else {
             optionalStatusCode = []
         }
 
         let returnExpr: Expression = .return(
-            .dot(responseKind.identifier)
-                .call(
-                    optionalStatusCode + [
-                        .init(label: nil, expression: initExpr)
-                    ]
-                )
+            .dot(responseKind.identifier).call(optionalStatusCode + [.init(label: nil, expression: initExpr)])
         )
 
         codeBlocks.append(.expression(returnExpr))
 
-        return .init(
-            kind: caseKind,
-            body: codeBlocks
-        )
+        return .init(kind: caseKind, body: codeBlocks)
     }
 }
 
@@ -336,15 +244,11 @@ extension ServerFileTranslator {
     ///   - outcome: The OpenAPI response.
     ///   - operation: The OpenAPI operation.
     /// - Returns: A switch case expression.
-    func translateResponseOutcomeInServer(
-        outcome: OpenAPI.Operation.ResponseOutcome,
-        operation: OperationDescription
-    ) throws -> SwitchCaseDescription {
+    func translateResponseOutcomeInServer(outcome: OpenAPI.Operation.ResponseOutcome, operation: OperationDescription)
+        throws -> SwitchCaseDescription
+    {
 
-        let typedResponse = try typedResponse(
-            from: outcome,
-            operation: operation
-        )
+        let typedResponse = try typedResponse(from: outcome, operation: operation)
         let responseStructTypeName = typedResponse.typeUsage.typeName
         let responseKind = outcome.status.value.asKind
 
@@ -360,39 +264,24 @@ extension ServerFileTranslator {
         let responseVarDecl: Declaration = .variable(
             kind: .var,
             left: "response",
-            right: .identifier("Response")
-                .call([
-                    .init(label: "statusCode", expression: statusCodeExpr)
-                ])
+            right: .identifier("Response").call([.init(label: "statusCode", expression: statusCodeExpr)])
         )
         codeBlocks.append(contentsOf: [
-            .declaration(responseVarDecl),
-            .expression(responseVarDecl.suppressMutabilityWarningExpr),
+            .declaration(responseVarDecl), .expression(responseVarDecl.suppressMutabilityWarningExpr),
         ])
 
-        let bodyTypeName = responseStructTypeName.appending(
-            swiftComponent: Constants.Operation.Body.typeName
-        )
+        let bodyTypeName = responseStructTypeName.appending(swiftComponent: Constants.Operation.Body.typeName)
         let headersTypeName = responseStructTypeName.appending(
             swiftComponent: Constants.Operation.Output.Payload.Headers.typeName
         )
 
-        let headers = try typedResponseHeaders(
-            from: typedResponse.response,
-            inParent: headersTypeName
-        )
+        let headers = try typedResponseHeaders(from: typedResponse.response, inParent: headersTypeName)
         let headerExprs: [Expression] = try headers.map { header in
-            try translateResponseHeaderInServer(
-                header,
-                responseVariableName: "response"
-            )
+            try translateResponseHeaderInServer(header, responseVariableName: "response")
         }
         codeBlocks.append(contentsOf: headerExprs.map { .expression($0) })
 
-        let typedContents = try supportedTypedContents(
-            typedResponse.response.content,
-            inParent: bodyTypeName
-        )
+        let typedContents = try supportedTypedContents(typedResponse.response.content, inParent: bodyTypeName)
 
         if !typedContents.isEmpty {
             let switchContentCases: [SwitchCaseDescription] = typedContents.map { typedContent in
@@ -413,69 +302,35 @@ extension ServerFileTranslator {
                 let assignBodyExpr: Expression = .assignment(
                     left: .identifier("response").dot("body"),
                     right: .try(
-                        .identifier("converter")
-                            .dot("setResponseBodyAs\(contentType.codingStrategy.runtimeName)")
+                        .identifier("converter").dot("setResponseBodyAs\(contentType.codingStrategy.runtimeName)")
                             .call([
                                 .init(label: nil, expression: .identifier("value")),
                                 .init(
                                     label: "headerFields",
-                                    expression: .inOut(
-                                        .identifier("response").dot("headerFields")
-                                    )
-                                ),
-                                .init(
-                                    label: "contentType",
-                                    expression: .literal(contentType.headerValueForSending)
-                                ),
+                                    expression: .inOut(.identifier("response").dot("headerFields"))
+                                ), .init(label: "contentType", expression: .literal(contentType.headerValueForSending)),
                             ])
                     )
                 )
                 caseCodeBlocks.append(.expression(assignBodyExpr))
 
-                return .init(
-                    kind: .case(.dot(contentSwiftName(contentType)), ["value"]),
-                    body: caseCodeBlocks
-                )
+                return .init(kind: .case(.dot(contentSwiftName(contentType)), ["value"]), body: caseCodeBlocks)
             }
 
             codeBlocks.append(
-                .expression(
-                    .switch(
-                        switchedExpression: .identifier("value").dot("body"),
-                        cases: switchContentCases
-                    )
-                )
+                .expression(.switch(switchedExpression: .identifier("value").dot("body"), cases: switchContentCases))
             )
         }
 
-        let returnExpr: Expression = .return(
-            .identifier("response")
-        )
+        let returnExpr: Expression = .return(.identifier("response"))
         codeBlocks.append(.expression(returnExpr))
 
         let caseKind: SwitchCaseKind
         let optionalStatusCode: [String]
-        if responseKind.wantsStatusCode {
-            optionalStatusCode = ["statusCode"]
-        } else {
-            optionalStatusCode = []
-        }
-        caseKind = .`case`(
-            .dot(responseKind.identifier),
-            optionalStatusCode + ["value"]
-        )
-        codeBlocks =
-            [
-                .expression(
-                    .suppressUnusedWarning(
-                        for: "value"
-                    )
-                )
-            ] + codeBlocks
+        if responseKind.wantsStatusCode { optionalStatusCode = ["statusCode"] } else { optionalStatusCode = [] }
+        caseKind = .`case`(.dot(responseKind.identifier), optionalStatusCode + ["value"])
+        codeBlocks = [.expression(.suppressUnusedWarning(for: "value"))] + codeBlocks
 
-        return .init(
-            kind: caseKind,
-            body: codeBlocks
-        )
+        return .init(kind: caseKind, body: codeBlocks)
     }
 }

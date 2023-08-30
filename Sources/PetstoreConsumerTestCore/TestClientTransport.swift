@@ -20,15 +20,9 @@ public struct TestClientTransport: ClientTransport {
 
     public let callHandler: CallHandler
 
-    public init(callHandler: @escaping CallHandler) {
-        self.callHandler = callHandler
-    }
+    public init(callHandler: @escaping CallHandler) { self.callHandler = callHandler }
 
-    public func send(
-        _ request: Request,
-        baseURL: URL,
-        operationID: String
-    ) async throws -> Response {
+    public func send(_ request: Request, baseURL: URL, operationID: String) async throws -> Response {
         try await callHandler(request, baseURL, operationID)
     }
 }

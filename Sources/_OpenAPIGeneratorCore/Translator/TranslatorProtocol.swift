@@ -25,9 +25,6 @@ protocol TranslatorProtocol {
     ///   - diagnostics: The collector to which the translator emits
     ///   diagnostics.
     /// - Returns: A structured Swift representation of the generated code.
-    func translate(
-        parsedOpenAPI: ParsedOpenAPIRepresentation,
-        config: Config,
-        diagnostics: any DiagnosticCollector
-    ) throws -> StructuredSwiftRepresentation
+    func translate(parsedOpenAPI: ParsedOpenAPIRepresentation, config: Config, diagnostics: any DiagnosticCollector)
+        throws -> StructuredSwiftRepresentation
 }

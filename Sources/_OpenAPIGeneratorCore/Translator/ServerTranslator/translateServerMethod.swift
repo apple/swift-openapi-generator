@@ -18,9 +18,7 @@ extension ServerFileTranslator {
     /// Returns an expression that converts a request into an Input type for
     /// a specified OpenAPI operation.
     /// - Parameter description: The OpenAPI operation.
-    func translateServerDeserializer(
-        _ operation: OperationDescription
-    ) throws -> Expression {
+    func translateServerDeserializer(_ operation: OperationDescription) throws -> Expression {
         var closureBody: [CodeBlock] = []
 
         let typedRequestBody = try typedRequestBody(in: operation)
@@ -40,14 +38,8 @@ extension ServerFileTranslator {
                 right: .dot("init")
                     .call(
                         try parameters
-                            .compactMap {
-                                try parseAsTypedParameter(
-                                    from: $0,
-                                    inParent: operation.inputTypeName
-                                )
-                            }
-                            .compactMap(translateParameterInServer(_:))
-                            + extraArguments
+                            .compactMap { try parseAsTypedParameter(from: $0, inParent: operation.inputTypeName) }
+                            .compactMap(translateParameterInServer(_:)) + extraArguments
                     )
             )
         }
@@ -61,43 +53,19 @@ extension ServerFileTranslator {
                 .init(
                     label: Constants.Operation.AcceptableContentType.variableName,
                     expression: .try(
-                        .identifier("converter")
-                            .dot("extractAcceptHeaderIfPresent")
-                            .call([
-                                .init(
-                                    label: "in",
-                                    expression: .identifier("request").dot("headerFields")
-                                )
-                            ])
+                        .identifier("converter").dot("extractAcceptHeaderIfPresent")
+                            .call([.init(label: "in", expression: .identifier("request").dot("headerFields"))])
                     )
                 )
             ]
         }
 
         var inputMemberCodeBlocks = try [
-            (
-                .path,
-                operation.allPathParameters,
-                []
-            ),
-            (
-                .query,
-                operation.allQueryParameters,
-                []
-            ),
-            (
-                .header,
-                operation.allHeaderParameters,
-                extraHeaderArguments
-            ),
-            (
-                .cookie,
-                operation.allCookieParameters,
-                []
-            ),
+            (.path, operation.allPathParameters, []), (.query, operation.allQueryParameters, []),
+            (.header, operation.allHeaderParameters, extraHeaderArguments),
+            (.cookie, operation.allCookieParameters, []),
         ]
-        .map(locationSpecificInputDecl)
-        .map(CodeBlock.declaration)
+        .map(locationSpecificInputDecl).map(CodeBlock.declaration)
 
         let requestBodyExpr: Expression
         if let typedRequestBody {
@@ -113,80 +81,42 @@ extension ServerFileTranslator {
             requestBodyExpr = .literal(.nil)
         }
 
-        func functionArgumentForLocation(
-            _ location: OpenAPI.Parameter.Context.Location
-        ) -> FunctionArgumentDescription {
-            .init(
-                label: location.shortVariableName,
-                expression: .identifier(location.shortVariableName)
-            )
-        }
+        func functionArgumentForLocation(_ location: OpenAPI.Parameter.Context.Location) -> FunctionArgumentDescription
+        { .init(label: location.shortVariableName, expression: .identifier(location.shortVariableName)) }
 
         let returnExpr: Expression = .return(
             .identifier(inputTypeName.fullyQualifiedSwiftName)
                 .call([
-                    functionArgumentForLocation(.path),
-                    functionArgumentForLocation(.query),
-                    functionArgumentForLocation(.header),
-                    functionArgumentForLocation(.cookie),
+                    functionArgumentForLocation(.path), functionArgumentForLocation(.query),
+                    functionArgumentForLocation(.header), functionArgumentForLocation(.cookie),
                     .init(label: "body", expression: requestBodyExpr),
                 ])
         )
 
-        closureBody.append(
-            contentsOf: inputMemberCodeBlocks + [.expression(returnExpr)]
-        )
-        return .closureInvocation(
-            argumentNames: ["request", "metadata"],
-            body: closureBody
-        )
+        closureBody.append(contentsOf: inputMemberCodeBlocks + [.expression(returnExpr)])
+        return .closureInvocation(argumentNames: ["request", "metadata"], body: closureBody)
     }
 
     /// Returns an expression that converts an Output type into a response
     /// for a specified OpenAPI operation.
     /// - Parameter description: The OpenAPI operation.
     func translateServerSerializer(_ description: OperationDescription) throws -> Expression {
-        var cases: [SwitchCaseDescription] =
-            try description
-            .responseOutcomes
-            .map { outcome in
-                try translateResponseOutcomeInServer(
-                    outcome: outcome,
-                    operation: description
-                )
-            }
+        var cases: [SwitchCaseDescription] = try description.responseOutcomes.map { outcome in
+            try translateResponseOutcomeInServer(outcome: outcome, operation: description)
+        }
         if !description.containsDefaultResponse {
             let undocumentedExpr: Expression = .return(
-                .dot("init")
-                    .call([
-                        .init(label: "statusCode", expression: .identifier("statusCode"))
-                    ])
+                .dot("init").call([.init(label: "statusCode", expression: .identifier("statusCode"))])
             )
             cases.append(
                 .init(
-                    kind: .case(
-                        .dot(Constants.Operation.Output.undocumentedCaseName),
-                        [
-                            "statusCode",
-                            "_",
-                        ]
-                    ),
-                    body: [
-                        .expression(undocumentedExpr)
-                    ]
+                    kind: .case(.dot(Constants.Operation.Output.undocumentedCaseName), ["statusCode", "_"]),
+                    body: [.expression(undocumentedExpr)]
                 )
             )
         }
-        let switchStatusCodeExpr: Expression = .switch(
-            switchedExpression: .identifier("output"),
-            cases: cases
-        )
-        return .closureInvocation(
-            argumentNames: ["output", "request"],
-            body: [
-                .expression(switchStatusCodeExpr)
-            ]
-        )
+        let switchStatusCodeExpr: Expression = .switch(switchedExpression: .identifier("output"), cases: cases)
+        return .closureInvocation(argumentNames: ["output", "request"], body: [.expression(switchStatusCodeExpr)])
     }
 
     /// Returns a declaration of a server method that handles a specified
@@ -196,41 +126,23 @@ extension ServerFileTranslator {
     ///   - serverUrlVariableName: The name of the server URL variable.
     /// - Returns: A declaration of a function, and an expression that registers
     /// the function with the router.
-    func translateServerMethod(
-        _ description: OperationDescription,
-        serverUrlVariableName: String
-    ) throws -> (registerCall: Expression, functionDecl: Declaration) {
+    func translateServerMethod(_ description: OperationDescription, serverUrlVariableName: String) throws -> (
+        registerCall: Expression, functionDecl: Declaration
+    ) {
 
-        let operationTypeExpr =
-            Expression
-            .identifier(Constants.Operations.namespace)
-            .dot(description.methodName)
+        let operationTypeExpr = Expression.identifier(Constants.Operations.namespace).dot(description.methodName)
 
-        let operationArg = FunctionArgumentDescription(
-            label: "forOperation",
-            expression: operationTypeExpr.dot("id")
-        )
-        let requestArg = FunctionArgumentDescription(
-            label: "request",
-            expression: .identifier("request")
-        )
-        let metadataArg = FunctionArgumentDescription(
-            label: "with",
-            expression: .identifier("metadata")
-        )
+        let operationArg = FunctionArgumentDescription(label: "forOperation", expression: operationTypeExpr.dot("id"))
+        let requestArg = FunctionArgumentDescription(label: "request", expression: .identifier("request"))
+        let metadataArg = FunctionArgumentDescription(label: "with", expression: .identifier("metadata"))
         let methodArg = FunctionArgumentDescription(
             label: "using",
-            expression: .closureInvocation(
-                body: [
-                    .expression(
-                        .identifier(Constants.Server.Universal.apiHandlerName)
-                            .dot(description.methodName)
-                            .call([
-                                .init(label: nil, expression: .identifier("$0"))
-                            ])
-                    )
-                ]
-            )
+            expression: .closureInvocation(body: [
+                .expression(
+                    .identifier(Constants.Server.Universal.apiHandlerName).dot(description.methodName)
+                        .call([.init(label: nil, expression: .identifier("$0"))])
+                )
+            ])
         )
         let deserializerArg = FunctionArgumentDescription(
             label: "deserializer",
@@ -241,22 +153,19 @@ extension ServerFileTranslator {
             expression: try translateServerSerializer(description)
         )
 
-        let wrapperClosureExpr: Expression = .closureInvocation(
-            body: [
-                .expression(
-                    .try(
-                        .await(
-                            .identifier(serverUrlVariableName)
-                                .dot(description.methodName)
-                                .call([
-                                    .init(label: "request", expression: .identifier("$0")),
-                                    .init(label: "metadata", expression: .identifier("$1")),
-                                ])
-                        )
+        let wrapperClosureExpr: Expression = .closureInvocation(body: [
+            .expression(
+                .try(
+                    .await(
+                        .identifier(serverUrlVariableName).dot(description.methodName)
+                            .call([
+                                .init(label: "request", expression: .identifier("$0")),
+                                .init(label: "metadata", expression: .identifier("$1")),
+                            ])
                     )
                 )
-            ]
-        )
+            )
+        ])
         let registerCall: Expression = .try(
             .identifier("transport").dot("register")
                 .call([
@@ -264,8 +173,7 @@ extension ServerFileTranslator {
                     .init(label: "method", expression: .dot(description.httpMethodLowercased)),
                     .init(
                         label: "path",
-                        expression: .identifier(serverUrlVariableName)
-                            .dot("apiPathComponentsWithServerPrefix")
+                        expression: .identifier(serverUrlVariableName).dot("apiPathComponentsWithServerPrefix")
                             .call([
                                 .init(
                                     label: nil,
@@ -277,11 +185,7 @@ extension ServerFileTranslator {
                     ),
                     .init(
                         label: "queryItemNames",
-                        expression: .literal(
-                            .array(
-                                try description.queryParameterNames.map { .literal($0) }
-                            )
-                        )
+                        expression: .literal(.array(try description.queryParameterNames.map { .literal($0) }))
                     ),
                 ])
         )
@@ -289,26 +193,14 @@ extension ServerFileTranslator {
         let handleExpr: Expression = .try(
             .await(
                 .identifier("handle")
-                    .call([
-                        requestArg,
-                        metadataArg,
-                        operationArg,
-                        methodArg,
-                        deserializerArg,
-                        serializerArg,
-                    ])
+                    .call([requestArg, metadataArg, operationArg, methodArg, deserializerArg, serializerArg])
             )
         )
 
         let functionDecl: Declaration = .commentable(
             description.comment,
-            .function(
-                signature: description.serverImplSignatureDescription,
-                body: [
-                    .expression(handleExpr)
-                ]
-            )
-            .deprecate(if: description.operation.deprecated)
+            .function(signature: description.serverImplSignatureDescription, body: [.expression(handleExpr)])
+                .deprecate(if: description.operation.deprecated)
         )
 
         return (registerCall, functionDecl)

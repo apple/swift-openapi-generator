@@ -24,7 +24,5 @@ public func XCTAssertEqualStringifiedData(
     do {
         let actualString = String(decoding: try expression1(), as: UTF8.self)
         XCTAssertEqual(actualString, try expression2(), file: file, line: line)
-    } catch {
-        XCTFail(error.localizedDescription, file: file, line: line)
-    }
+    } catch { XCTFail(error.localizedDescription, file: file, line: line) }
 }

@@ -26,11 +26,9 @@ extension FileTranslator {
     ///   document.
     ///   - arrayContext: The context for the array, including information such
     ///   as the element schema.
-    func translateArray(
-        typeName: TypeName,
-        openAPIDescription: String?,
-        arrayContext: JSONSchema.ArrayContext
-    ) throws -> [Declaration] {
+    func translateArray(typeName: TypeName, openAPIDescription: String?, arrayContext: JSONSchema.ArrayContext) throws
+        -> [Declaration]
+    {
 
         var inline: [Declaration] = []
 
@@ -40,24 +38,15 @@ extension FileTranslator {
             if let builtinType = try typeMatcher.tryMatchReferenceableType(for: items) {
                 elementType = builtinType
             } else {
-                elementType = try typeAssigner.typeUsage(
-                    forArrayElementWithSchema: items,
-                    inParent: typeName
-                )
-                let nestedDecls = try translateSchema(
-                    typeName: elementType.typeName,
-                    schema: items,
-                    overrides: .none
-                )
+                elementType = try typeAssigner.typeUsage(forArrayElementWithSchema: items, inParent: typeName)
+                let nestedDecls = try translateSchema(typeName: elementType.typeName, schema: items, overrides: .none)
                 inline.append(contentsOf: nestedDecls)
             }
         } else {
             elementType = TypeName.valueContainer.asUsage
         }
 
-        let typealiasComment: Comment? =
-            typeName
-            .docCommentWithUserDescription(openAPIDescription)
+        let typealiasComment: Comment? = typeName.docCommentWithUserDescription(openAPIDescription)
         let arrayDecl: Declaration = .commentable(
             typealiasComment,
             .`typealias`(

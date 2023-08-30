@@ -31,7 +31,5 @@ struct SchemaOverrides {
     var userDescription: String?
 
     /// Returns an empty overrides container.
-    static var none: Self {
-        .init(isOptional: nil, userDescription: nil)
-    }
+    static var none: Self { .init(isOptional: nil, userDescription: nil) }
 }

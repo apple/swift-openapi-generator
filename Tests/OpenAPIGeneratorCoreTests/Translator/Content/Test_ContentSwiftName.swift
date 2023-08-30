@@ -20,45 +20,26 @@ final class Test_ContentSwiftName: Test_Core {
     func testExisting() throws {
         let nameMaker = makeTranslator(featureFlags: []).contentSwiftName
         let cases: [(String, String)] = [
-            ("application/json", "json"),
-            ("application/x-www-form-urlencoded", "binary"),
-            ("multipart/form-data", "binary"),
-            ("text/plain", "text"),
-            ("*/*", "binary"),
-            ("application/xml", "binary"),
-            ("application/octet-stream", "binary"),
-            ("application/myformat+json", "json"),
-            ("foo/bar", "binary"),
+            ("application/json", "json"), ("application/x-www-form-urlencoded", "binary"),
+            ("multipart/form-data", "binary"), ("text/plain", "text"), ("*/*", "binary"), ("application/xml", "binary"),
+            ("application/octet-stream", "binary"), ("application/myformat+json", "json"), ("foo/bar", "binary"),
         ]
         try _testIdentifiers(cases: cases, nameMaker: nameMaker)
     }
 
     func testProposed_multipleContentTypes() throws {
-        let nameMaker = makeTranslator(featureFlags: [
-            .proposal0001,
-            .multipleContentTypes,
-        ])
-        .contentSwiftName
+        let nameMaker = makeTranslator(featureFlags: [.proposal0001, .multipleContentTypes]).contentSwiftName
         let cases: [(String, String)] = [
 
             // Short names.
-            ("application/json", "json"),
-            ("application/x-www-form-urlencoded", "urlEncodedForm"),
-            ("multipart/form-data", "multipartForm"),
-            ("text/plain", "plainText"),
-            ("*/*", "any"),
-            ("application/xml", "xml"),
-            ("application/octet-stream", "binary"),
-            ("text/html", "html"),
-            ("application/yaml", "yaml"),
-            ("text/csv", "csv"),
-            ("image/png", "png"),
-            ("application/pdf", "pdf"),
+            ("application/json", "json"), ("application/x-www-form-urlencoded", "urlEncodedForm"),
+            ("multipart/form-data", "multipartForm"), ("text/plain", "plainText"), ("*/*", "any"),
+            ("application/xml", "xml"), ("application/octet-stream", "binary"), ("text/html", "html"),
+            ("application/yaml", "yaml"), ("text/csv", "csv"), ("image/png", "png"), ("application/pdf", "pdf"),
             ("image/jpeg", "jpeg"),
 
             // Generic names.
-            ("application/myformat+json", "application_myformat_plus_json"),
-            ("foo/bar", "foo_bar"),
+            ("application/myformat+json", "application_myformat_plus_json"), ("foo/bar", "foo_bar"),
         ]
         try _testIdentifiers(cases: cases, nameMaker: nameMaker)
     }

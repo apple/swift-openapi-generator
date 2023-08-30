@@ -22,19 +22,12 @@ extension FileTranslator {
     /// - Parameter description: The OpenAPI operation.
     /// - Returns: A list of content types. Might be empty, in which case no
     /// Accept header should be sent in the request.
-    func acceptHeaderContentTypes(
-        for description: OperationDescription
-    ) throws -> [ContentType] {
-        let contentTypes =
-            try description
-            .responseOutcomes
-            .flatMap { outcome in
-                let response = try outcome.response.resolve(in: components)
+    func acceptHeaderContentTypes(for description: OperationDescription) throws -> [ContentType] {
+        let contentTypes = try description.responseOutcomes
+            .flatMap { outcome in let response = try outcome.response.resolve(in: components)
                 return supportedContents(response.content, foundIn: description.operationID)
             }
-            .map { content in
-                content.contentType
-            }
+            .map { content in content.contentType }
         return Array(contentTypes.uniqued())
     }
 }

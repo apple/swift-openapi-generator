@@ -3,18 +3,11 @@ import PackageDescription
 
 let package = Package(
     name: "GreetingServiceClient",
-    platforms: [
-        .macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6),
-    ],
+    platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", .upToNextMinor(from: "0.1.0")),
         .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.1.0")),
         .package(url: "https://github.com/apple/swift-openapi-urlsession", .upToNextMinor(from: "0.1.0")),
     ],
-    targets: [
-        .executableTarget(
-            name: "GreetingServiceClient",
-            path: "Sources"
-        )
-    ]
+    targets: [.executableTarget(name: "GreetingServiceClient", path: "Sources")]
 )

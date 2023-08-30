@@ -16,100 +16,39 @@ import Foundation
 import PetstoreConsumerTestCore
 
 extension APIProtocol {
-    func configuredServer(
-        for serverURLString: String = "/api"
-    ) throws -> TestServerTransport {
+    func configuredServer(for serverURLString: String = "/api") throws -> TestServerTransport {
         let transport = TestServerTransport()
-        try registerHandlers(
-            on: transport,
-            serverURL: try URL(validatingOpenAPIServerURL: serverURLString)
-        )
+        try registerHandlers(on: transport, serverURL: try URL(validatingOpenAPIServerURL: serverURLString))
         return transport
     }
 }
 
 extension TestServerTransport {
 
-    private func findHandler(
-        method: HTTPMethod,
-        path: [RouterPathComponent]
-    ) throws -> TestServerTransport.Handler {
+    private func findHandler(method: HTTPMethod, path: [RouterPathComponent]) throws -> TestServerTransport.Handler {
         guard
             let handler = registered.first(where: { operation in
-                guard operation.inputs.method == method else {
-                    return false
-                }
-                guard operation.inputs.path == path else {
-                    return false
-                }
+                guard operation.inputs.method == method else { return false }
+                guard operation.inputs.path == path else { return false }
                 return true
             })
-        else {
-            throw TestError.noHandlerFound(method: method, path: path)
-        }
+        else { throw TestError.noHandlerFound(method: method, path: path) }
         return handler.closure
     }
 
-    var listPets: Handler {
-        get throws {
-            try findHandler(
-                method: .get,
-                path: ["api", "pets"]
-            )
-        }
-    }
+    var listPets: Handler { get throws { try findHandler(method: .get, path: ["api", "pets"]) } }
 
-    var createPet: Handler {
-        get throws {
-            try findHandler(
-                method: .post,
-                path: ["api", "pets"]
-            )
-        }
-    }
+    var createPet: Handler { get throws { try findHandler(method: .post, path: ["api", "pets"]) } }
 
-    var updatePet: Handler {
-        get throws {
-            try findHandler(
-                method: .patch,
-                path: ["api", "pets", ":petId"]
-            )
-        }
-    }
+    var updatePet: Handler { get throws { try findHandler(method: .patch, path: ["api", "pets", ":petId"]) } }
 
-    var getStats: Handler {
-        get throws {
-            try findHandler(
-                method: .get,
-                path: ["api", "pets", "stats"]
-            )
-        }
-    }
+    var getStats: Handler { get throws { try findHandler(method: .get, path: ["api", "pets", "stats"]) } }
 
-    var postStats: Handler {
-        get throws {
-            try findHandler(
-                method: .post,
-                path: ["api", "pets", "stats"]
-            )
-        }
-    }
+    var postStats: Handler { get throws { try findHandler(method: .post, path: ["api", "pets", "stats"]) } }
 
-    var probe: Handler {
-        get throws {
-            try findHandler(
-                method: .post,
-                path: ["api", "probe"]
-            )
-        }
-    }
+    var probe: Handler { get throws { try findHandler(method: .post, path: ["api", "probe"]) } }
 
     var uploadAvatarForPet: Handler {
-        get throws {
-            try findHandler(
-                method: .put,
-                path: ["api", "pets", ":petId", "avatar"]
-            )
-        }
+        get throws { try findHandler(method: .put, path: ["api", "pets", ":petId", "avatar"]) }
     }
 }

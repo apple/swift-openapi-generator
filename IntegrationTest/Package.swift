@@ -16,19 +16,11 @@ import PackageDescription
 
 let package = Package(
     name: "swift-openapi-integration-test",
-    platforms: [
-        .macOS(.v13)
-    ],
+    platforms: [.macOS(.v13)],
     products: [
         .library(
             name: "IntegrationTestLibrary",
-            targets: [
-                "Types",
-                "Client",
-                "Server",
-                "MockTransportClient",
-                "MockTransportServer",
-            ]
+            targets: ["Types", "Client", "Server", "MockTransportClient", "MockTransportServer"]
         )
     ],
     dependencies: [
@@ -38,70 +30,26 @@ let package = Package(
     targets: [
         .target(
             name: "Types",
-            dependencies: [
-                .product(
-                    name: "OpenAPIRuntime",
-                    package: "swift-openapi-runtime"
-                )
-            ],
-            plugins: [
-                .plugin(
-                    name: "OpenAPIGenerator",
-                    package: "swift-openapi-generator"
-                )
-            ]
+            dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
+            plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         ),
         .target(
             name: "Client",
-            dependencies: [
-                "Types",
-                .product(
-                    name: "OpenAPIRuntime",
-                    package: "swift-openapi-runtime"
-                ),
-            ],
-            plugins: [
-                .plugin(
-                    name: "OpenAPIGenerator",
-                    package: "swift-openapi-generator"
-                )
-            ]
+            dependencies: ["Types", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
+            plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         ),
         .target(
             name: "Server",
-            dependencies: [
-                "Types",
-                .product(
-                    name: "OpenAPIRuntime",
-                    package: "swift-openapi-runtime"
-                ),
-            ],
-            plugins: [
-                .plugin(
-                    name: "OpenAPIGenerator",
-                    package: "swift-openapi-generator"
-                )
-            ]
+            dependencies: ["Types", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
+            plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         ),
         .target(
             name: "MockTransportClient",
-            dependencies: [
-                "Client",
-                .product(
-                    name: "OpenAPIRuntime",
-                    package: "swift-openapi-runtime"
-                ),
-            ]
+            dependencies: ["Client", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")]
         ),
         .target(
             name: "MockTransportServer",
-            dependencies: [
-                "Server",
-                .product(
-                    name: "OpenAPIRuntime",
-                    package: "swift-openapi-runtime"
-                ),
-            ]
+            dependencies: ["Server", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")]
         ),
     ]
 )

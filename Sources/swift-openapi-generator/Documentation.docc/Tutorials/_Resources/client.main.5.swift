@@ -1,19 +1,10 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 
-let client = Client(
-    serverURL: try Servers.server2(),
-    transport: URLSessionTransport()
-)
+let client = Client(serverURL: try Servers.server2(), transport: URLSessionTransport())
 
-let response = try await client.getGreeting(
-    .init(
-        query: .init(name: "CLI")
-    )
-)
+let response = try await client.getGreeting(.init(query: .init(name: "CLI")))
 switch response {
-case .ok(let okResponse):
-    print(okResponse)
-case .undocumented(statusCode: let statusCode, _):
-    print("🥺 undocumented response: \(statusCode)")
+case .ok(let okResponse): print(okResponse)
+case .undocumented(statusCode: let statusCode, _): print("🥺 undocumented response: \(statusCode)")
 }

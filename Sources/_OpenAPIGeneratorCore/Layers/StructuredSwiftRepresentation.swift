@@ -181,10 +181,7 @@ struct FunctionCallDescription: Equatable, Codable {
     ///   - calledExpression: An expression that returns the function to be called.
     ///   - arguments: Arguments to be passed to the function.
     init(calledExpression: Expression, arguments: [Expression]) {
-        self.init(
-            calledExpression: calledExpression,
-            arguments: arguments.map { .init(label: nil, expression: $0) }
-        )
+        self.init(calledExpression: calledExpression, arguments: arguments.map { .init(label: nil, expression: $0) })
     }
 }
 
@@ -1024,10 +1021,7 @@ extension Declaration {
     ///   - name: The name of the enum case.
     ///   - kind: The kind of the enum case.
     /// - Returns: An enum case declaration.
-    static func enumCase(
-        name: String,
-        kind: EnumCaseKind = .nameOnly
-    ) -> Self {
+    static func enumCase(name: String, kind: EnumCaseKind = .nameOnly) -> Self {
         .enumCase(.init(name: name, kind: kind))
     }
 
@@ -1040,18 +1034,8 @@ extension Declaration {
     ///   - existingType: The existing type that serves as the
     ///   underlying type of the alias.
     /// - Returns: A typealias declaration.
-    static func `typealias`(
-        accessModifier: AccessModifier? = nil,
-        name: String,
-        existingType: String
-    ) -> Self {
-        .typealias(
-            .init(
-                accessModifier: accessModifier,
-                name: name,
-                existingType: existingType
-            )
-        )
+    static func `typealias`(accessModifier: AccessModifier? = nil, name: String, existingType: String) -> Self {
+        .typealias(.init(accessModifier: accessModifier, name: name, existingType: existingType))
     }
 
     /// A description of a function definition.
@@ -1093,16 +1077,8 @@ extension Declaration {
     ///   - signature: The signature of the function.
     ///   - body: The body definition of the function.
     /// - Returns: A function declaration.
-    static func function(
-        signature: FunctionSignatureDescription,
-        body: [CodeBlock]? = nil
-    ) -> Self {
-        .function(
-            .init(
-                signature: signature,
-                body: body
-            )
-        )
+    static func function(signature: FunctionSignatureDescription, body: [CodeBlock]? = nil) -> Self {
+        .function(.init(signature: signature, body: body))
     }
 
     /// A description of an enum declaration.
@@ -1165,36 +1141,26 @@ extension Declaration {
 }
 
 extension IdentifierDescription: ExpressibleByStringLiteral {
-    init(stringLiteral value: String) {
-        self.init(name: value)
-    }
+    init(stringLiteral value: String) { self.init(name: value) }
 }
 
 extension FunctionKind {
     /// Returns a non-failable initializer, for example `init()`.
-    static var initializer: Self {
-        return .initializer(failable: false)
-    }
+    static var initializer: Self { return .initializer(failable: false) }
 
     /// Returns a non-static function kind.
-    static func function(name: String) -> Self {
-        .function(name: name, isStatic: false)
-    }
+    static func function(name: String) -> Self { .function(name: name, isStatic: false) }
 }
 
 extension CodeBlock {
 
     /// Returns a new declaration code block wrapping the provided declaration.
     /// - Parameter declaration: The declaration to wrap.
-    static func declaration(_ declaration: Declaration) -> Self {
-        return CodeBlock(item: .declaration(declaration))
-    }
+    static func declaration(_ declaration: Declaration) -> Self { return CodeBlock(item: .declaration(declaration)) }
 
     /// Returns a new expression code block wrapping the provided expression.
     /// - Parameter expression: The expression to wrap.
-    static func expression(_ expression: Expression) -> Self {
-        return CodeBlock(item: .expression(expression))
-    }
+    static func expression(_ expression: Expression) -> Self { return CodeBlock(item: .expression(expression)) }
 }
 
 extension Expression {
@@ -1203,24 +1169,18 @@ extension Expression {
     ///
     /// For example: `"hello"`.
     /// - Parameter value: The string value of the literal.
-    static func literal(_ value: String) -> Self {
-        .literal(.string(value))
-    }
+    static func literal(_ value: String) -> Self { .literal(.string(value)) }
 
     /// An integer literal.
     ///
     /// For example `42`.
     /// - Parameter value: The integer value of the literal.
-    static func literal(_ value: Int) -> Self {
-        .literal(.int(value))
-    }
+    static func literal(_ value: Int) -> Self { .literal(.int(value)) }
 
     /// Returns a new expression that accesses the member on the current
     /// expression.
     /// - Parameter member: The name of the member to access on the expression.
-    func dot(_ member: String) -> Expression {
-        return .memberAccess(.init(left: self, right: member))
-    }
+    func dot(_ member: String) -> Expression { return .memberAccess(.init(left: self, right: member)) }
 
     /// Returns a new expression that calls the current expression as a function
     /// with the specified arguments.
@@ -1234,31 +1194,19 @@ extension Expression {
     ///
     /// For example: `.foo`, where `member` is `foo`.
     /// - Parameter member: The name of the member to access.
-    static func dot(_ member: String) -> Self {
-        return Self.memberAccess(.init(right: member))
-    }
+    static func dot(_ member: String) -> Self { return Self.memberAccess(.init(right: member)) }
 
     /// Returns a new identifier expression for the provided name.
     /// - Parameter name: The name of the identifier.
-    static func identifier(_ name: String) -> Self {
-        .identifier(.init(name: name))
-    }
+    static func identifier(_ name: String) -> Self { .identifier(.init(name: name)) }
 
     /// Returns a new switch statement expression.
     /// - Parameters:
     ///   - switchedExpression: The expression evaluated by the switch
     ///    statement.
     ///   - cases: The cases defined in the switch statement.
-    static func `switch`(
-        switchedExpression: Expression,
-        cases: [SwitchCaseDescription]
-    ) -> Self {
-        .`switch`(
-            .init(
-                switchedExpression: switchedExpression,
-                cases: cases
-            )
-        )
+    static func `switch`(switchedExpression: Expression, cases: [SwitchCaseDescription]) -> Self {
+        .`switch`(.init(switchedExpression: switchedExpression, cases: cases))
     }
 
     /// Returns an if statement, with optional else if's and an else
@@ -1267,18 +1215,8 @@ extension Expression {
     ///   - ifBranch: The primary `if` branch.
     ///   - elseIfBranches: Additional `else if` branches.
     ///   - elseBody: The body of an else block.
-    static func ifStatement(
-        ifBranch: IfBranch,
-        elseIfBranches: [IfBranch] = [],
-        elseBody: [CodeBlock]? = nil
-    ) -> Self {
-        .ifStatement(
-            .init(
-                ifBranch: ifBranch,
-                elseIfBranches: elseIfBranches,
-                elseBody: elseBody
-            )
-        )
+    static func ifStatement(ifBranch: IfBranch, elseIfBranches: [IfBranch] = [], elseBody: [CodeBlock]? = nil) -> Self {
+        .ifStatement(.init(ifBranch: ifBranch, elseIfBranches: elseIfBranches, elseBody: elseBody))
     }
 
     /// Returns a new function call expression.
@@ -1287,16 +1225,8 @@ extension Expression {
     /// - Parameters:
     ///   - calledExpression: The expression to be called as a function.
     ///   - arguments: The arguments to be passed to the function call.
-    static func functionCall(
-        calledExpression: Expression,
-        arguments: [FunctionArgumentDescription] = []
-    ) -> Self {
-        .functionCall(
-            .init(
-                calledExpression: calledExpression,
-                arguments: arguments
-            )
-        )
+    static func functionCall(calledExpression: Expression, arguments: [FunctionArgumentDescription] = []) -> Self {
+        .functionCall(.init(calledExpression: calledExpression, arguments: arguments))
     }
 
     /// Returns a new function call expression.
@@ -1305,15 +1235,9 @@ extension Expression {
     /// - Parameters:
     ///   - calledExpression: The expression called as a function.
     ///   - arguments: The arguments passed to the function call.
-    static func functionCall(
-        calledExpression: Expression,
-        arguments: [Expression]
-    ) -> Self {
+    static func functionCall(calledExpression: Expression, arguments: [Expression]) -> Self {
         .functionCall(
-            .init(
-                calledExpression: calledExpression,
-                arguments: arguments.map { .init(label: nil, expression: $0) }
-            )
+            .init(calledExpression: calledExpression, arguments: arguments.map { .init(label: nil, expression: $0) })
         )
     }
 
@@ -1321,10 +1245,7 @@ extension Expression {
     /// - Parameters:
     ///   - kind: The keyword to place before the expression.
     ///   - expression: The expression prefixed by the keyword.
-    static func unaryKeyword(
-        kind: KeywordKind,
-        expression: Expression? = nil
-    ) -> Self {
+    static func unaryKeyword(kind: KeywordKind, expression: Expression? = nil) -> Self {
         .unaryKeyword(.init(kind: kind, expression: expression))
     }
 
@@ -1338,26 +1259,19 @@ extension Expression {
     /// Returns a new expression that puts the try keyword before
     /// an expression.
     /// - Parameter expression: The expression to prepend.
-    static func `try`(_ expression: Expression) -> Self {
-        .unaryKeyword(kind: .try, expression: expression)
-    }
+    static func `try`(_ expression: Expression) -> Self { .unaryKeyword(kind: .try, expression: expression) }
 
     /// Returns a new expression that puts the try? keyword before
     /// an expression.
     /// - Parameter expression: The expression to prepend.
     static func optionalTry(_ expression: Expression) -> Self {
-        .unaryKeyword(
-            kind: .try(hasPostfixQuestionMark: true),
-            expression: expression
-        )
+        .unaryKeyword(kind: .try(hasPostfixQuestionMark: true), expression: expression)
     }
 
     /// Returns a new expression that puts the await keyword before
     /// an expression.
     /// - Parameter expression: The expression to prepend.
-    static func `await`(_ expression: Expression) -> Self {
-        .unaryKeyword(kind: .await, expression: expression)
-    }
+    static func `await`(_ expression: Expression) -> Self { .unaryKeyword(kind: .await, expression: expression) }
 
     /// Returns a new value binding used in enums with associated values.
     ///
@@ -1365,10 +1279,7 @@ extension Expression {
     /// - Parameters:
     ///   - kind: The binding kind: `let` or `var`.
     ///   - value: The bound values in a function call expression syntax.
-    static func valueBinding(
-        kind: BindingKind,
-        value: FunctionCallDescription
-    ) -> Self {
+    static func valueBinding(kind: BindingKind, value: FunctionCallDescription) -> Self {
         .valueBinding(.init(kind: kind, value: value))
     }
 
@@ -1378,10 +1289,7 @@ extension Expression {
     /// - Parameters:
     ///   - argumentNames: The names of the arguments taken by the closure.
     ///   - body: The code blocks of the closure body.
-    static func `closureInvocation`(
-        argumentNames: [String] = [],
-        body: [CodeBlock]? = nil
-    ) -> Self {
+    static func `closureInvocation`(argumentNames: [String] = [], body: [CodeBlock]? = nil) -> Self {
         .closureInvocation(.init(argumentNames: argumentNames, body: body))
     }
 
@@ -1392,11 +1300,7 @@ extension Expression {
     ///   - left: The left-hand side expression of the operation.
     ///   - operation: The binary operator tying the two expressions together.
     ///   - right: The right-hand side expression of the operation.
-    static func `binaryOperation`(
-        left: Expression,
-        operation: BinaryOperator,
-        right: Expression
-    ) -> Self {
+    static func `binaryOperation`(left: Expression, operation: BinaryOperator, right: Expression) -> Self {
         .binaryOperation(.init(left: left, operation: operation, right: right))
     }
 
@@ -1405,9 +1309,7 @@ extension Expression {
     ///
     /// For example, `&foo` passes a reference to the `foo` variable.
     /// - Parameter referencedExpr: The referenced expression.
-    static func inOut(_ referencedExpr: Expression) -> Self {
-        .inOut(.init(referencedExpr: referencedExpr))
-    }
+    static func inOut(_ referencedExpr: Expression) -> Self { .inOut(.init(referencedExpr: referencedExpr)) }
 
     /// Creates a new assignment expression.
     ///
@@ -1416,17 +1318,13 @@ extension Expression {
     ///   - left: The left-hand side expression, the variable to assign to.
     ///   - right: The right-hand side expression, the value to assign.
     /// - Returns: Assignment expression.
-    static func assignment(left: Expression, right: Expression) -> Self {
-        .assignment(.init(left: left, right: right))
-    }
+    static func assignment(left: Expression, right: Expression) -> Self { .assignment(.init(left: left, right: right)) }
 
     /// Returns a new optional chaining expression wrapping the current
     /// expression.
     ///
     /// For example, for the current expression `foo`, returns `foo?`.
-    func optionallyChained() -> Self {
-        .optionalChaining(.init(referencedExpr: self))
-    }
+    func optionallyChained() -> Self { .optionalChaining(.init(referencedExpr: self)) }
 }
 
 extension MemberAccessDescription {
@@ -1435,37 +1333,23 @@ extension MemberAccessDescription {
     ///
     /// For example, `.foo`, where `member` is `foo`.
     /// - Parameter member: The name of the member to access.
-    static func dot(_ member: String) -> Self {
-        .init(right: member)
-    }
+    static func dot(_ member: String) -> Self { .init(right: member) }
 }
 
 extension Expression: ExpressibleByStringLiteral, ExpressibleByNilLiteral, ExpressibleByArrayLiteral {
-    init(arrayLiteral elements: Expression...) {
-        self = .literal(.array(elements))
-    }
+    init(arrayLiteral elements: Expression...) { self = .literal(.array(elements)) }
 
-    init(stringLiteral value: String) {
-        self = .literal(.string(value))
-    }
+    init(stringLiteral value: String) { self = .literal(.string(value)) }
 
-    init(nilLiteral: ()) {
-        self = .literal(.nil)
-    }
+    init(nilLiteral: ()) { self = .literal(.nil) }
 }
 
 extension LiteralDescription: ExpressibleByStringLiteral, ExpressibleByNilLiteral, ExpressibleByArrayLiteral {
-    init(arrayLiteral elements: Expression...) {
-        self = .array(elements)
-    }
+    init(arrayLiteral elements: Expression...) { self = .array(elements) }
 
-    init(stringLiteral value: String) {
-        self = .string(value)
-    }
+    init(stringLiteral value: String) { self = .string(value) }
 
-    init(nilLiteral: ()) {
-        self = .nil
-    }
+    init(nilLiteral: ()) { self = .nil }
 }
 
 extension VariableDescription {
@@ -1474,17 +1358,13 @@ extension VariableDescription {
     ///
     /// For example `var foo = 42`.
     /// - Parameter name: The name of the variable.
-    static func `var`(_ name: String) -> Self {
-        Self.init(kind: .var, left: name)
-    }
+    static func `var`(_ name: String) -> Self { Self.init(kind: .var, left: name) }
 
     /// Returns a new immutable variable declaration.
     ///
     /// For example `let foo = 42`.
     /// - Parameter name: The name of the variable.
-    static func `let`(_ name: String) -> Self {
-        Self.init(kind: .let, left: name)
-    }
+    static func `let`(_ name: String) -> Self { Self.init(kind: .let, left: name) }
 }
 
 extension Expression {
@@ -1492,15 +1372,11 @@ extension Expression {
     /// Creates a new assignment description where the called expression is
     /// assigned the value of the specified expression.
     /// - Parameter rhs: The right-hand side of the assignment expression.
-    func equals(_ rhs: Expression) -> AssignmentDescription {
-        .init(left: self, right: rhs)
-    }
+    func equals(_ rhs: Expression) -> AssignmentDescription { .init(left: self, right: rhs) }
 }
 
 extension FunctionArgumentDescription: ExpressibleByStringLiteral {
-    init(stringLiteral value: String) {
-        self = .init(expression: .literal(.string(value)))
-    }
+    init(stringLiteral value: String) { self = .init(expression: .literal(.string(value))) }
 }
 
 extension FunctionSignatureDescription {
@@ -1518,25 +1394,19 @@ extension SwitchCaseKind {
     /// Returns a new switch case kind with no argument names, only the
     /// specified expression as the name.
     /// - Parameter expression: The expression for the switch case label.
-    static func `case`(_ expression: Expression) -> Self {
-        .case(expression, [])
-    }
+    static func `case`(_ expression: Expression) -> Self { .case(expression, []) }
 }
 
 extension KeywordKind {
 
     /// Returns the try keyword without the postfix question mark.
-    static var `try`: Self {
-        .try(hasPostfixQuestionMark: false)
-    }
+    static var `try`: Self { .try(hasPostfixQuestionMark: false) }
 }
 
 extension Declaration {
     /// Returns a new deprecated variant of the declaration if `shouldDeprecate` is true.
     func deprecate(if shouldDeprecate: Bool) -> Self {
-        if shouldDeprecate {
-            return .deprecated(.init(), self)
-        }
+        if shouldDeprecate { return .deprecated(.init(), self) }
         return self
     }
 }

@@ -25,21 +25,13 @@ extension _GenerateOptions {
     ///   - isDryRun: A Boolean value that indicates whether this invocation should
     ///   be run in a testing mode to preview all the operations being carried out without
     ///   making any actual changes.
-    func runGenerator(
-        outputDirectory: URL,
-        pluginSource: PluginSource?,
-        isDryRun: Bool
-    ) throws {
+    func runGenerator(outputDirectory: URL, pluginSource: PluginSource?, isDryRun: Bool) throws {
         let config = try loadedConfig()
         let sortedModes = try resolvedModes(config)
         let resolvedAdditionalImports = resolvedAdditionalImports(config)
         let resolvedFeatureFlags = resolvedFeatureFlags(config)
         let configs: [Config] = sortedModes.map {
-            .init(
-                mode: $0,
-                additionalImports: resolvedAdditionalImports,
-                featureFlags: resolvedFeatureFlags
-            )
+            .init(mode: $0, additionalImports: resolvedAdditionalImports, featureFlags: resolvedFeatureFlags)
         }
         let diagnostics: any DiagnosticCollector
         let finalizeDiagnostics: () throws -> Void

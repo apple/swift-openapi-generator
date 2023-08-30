@@ -3,10 +3,5 @@ import PackageDescription
 
 let package = Package(
     name: "GreetingServiceClient",
-    targets: [
-        .executableTarget(
-            name: "GreetingServiceClient",
-            path: "Sources"
-        )
-    ]
+    targets: [.executableTarget(name: "GreetingServiceClient", path: "Sources")]
 )

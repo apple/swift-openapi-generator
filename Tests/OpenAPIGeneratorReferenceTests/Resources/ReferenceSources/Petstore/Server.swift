@@ -149,10 +149,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     )
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -166,10 +163,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -205,10 +199,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.createPet.Input.Body
                 if try contentType == nil
-                    || converter.isMatchingContentType(
-                        received: contentType,
-                        expectedRaw: "application/json"
-                    )
+                    || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                 {
                     body = try converter.getRequiredRequestBodyAsJSON(
                         Components.Schemas.CreatePetRequest.self,
@@ -239,10 +230,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     )
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -261,10 +249,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     )
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -307,10 +292,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -338,10 +320,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.postStats.Input.Body
                 if try contentType == nil
-                    || converter.isMatchingContentType(
-                        received: contentType,
-                        expectedRaw: "application/json"
-                    )
+                    || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                 {
                     body = try converter.getRequiredRequestBodyAsJSON(
                         Components.Schemas.PetStats.self,
@@ -373,9 +352,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    @available(*, deprecated) func probe(request: Request, metadata: ServerRequestMetadata)
-        async throws -> Response
-    {
+    @available(*, deprecated) func probe(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
         try await handle(
             request: request,
             with: metadata,
@@ -385,13 +362,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let query: Operations.probe.Input.Query = .init()
                 let headers: Operations.probe.Input.Headers = .init()
                 let cookies: Operations.probe.Input.Cookies = .init()
-                return Operations.probe.Input(
-                    path: path,
-                    query: query,
-                    headers: headers,
-                    cookies: cookies,
-                    body: nil
-                )
+                return Operations.probe.Input(path: path, query: query, headers: headers, cookies: cookies, body: nil)
             },
             serializer: { output, request in
                 switch output {
@@ -431,10 +402,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Components.RequestBodies.UpdatePetRequest?
                 if try contentType == nil
-                    || converter.isMatchingContentType(
-                        received: contentType,
-                        expectedRaw: "application/json"
-                    )
+                    || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                 {
                     body = try converter.getOptionalRequestBodyAsJSON(
                         Components.RequestBodies.UpdatePetRequest.jsonPayload.self,
@@ -465,10 +433,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -485,9 +450,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
-    func uploadAvatarForPet(request: Request, metadata: ServerRequestMetadata) async throws
-        -> Response
-    {
+    func uploadAvatarForPet(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
         try await handle(
             request: request,
             with: metadata,
@@ -509,10 +472,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.uploadAvatarForPet.Input.Body
                 if try contentType == nil
-                    || converter.isMatchingContentType(
-                        received: contentType,
-                        expectedRaw: "application/octet-stream"
-                    )
+                    || converter.isMatchingContentType(received: contentType, expectedRaw: "application/octet-stream")
                 {
                     body = try converter.getRequiredRequestBodyAsBinary(
                         Foundation.Data.self,
@@ -538,10 +498,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .binary(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/octet-stream",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/octet-stream", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsBinary(
                             value,
                             headerFields: &response.headerFields,
@@ -555,10 +512,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -572,10 +526,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .text(value):
-                        try converter.validateAcceptIfPresent(
-                            "text/plain",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("text/plain", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsText(
                             value,
                             headerFields: &response.headerFields,

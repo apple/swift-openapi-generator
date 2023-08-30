@@ -13,13 +13,10 @@
 //===----------------------------------------------------------------------===//
 import ArgumentParser
 
-@main
-struct _Tool: AsyncParsableCommand {
+@main struct _Tool: AsyncParsableCommand {
     static var configuration: CommandConfiguration = .init(
         commandName: "swift-openapi-generator",
         abstract: "Generate Swift client and server code from an OpenAPI document",
-        subcommands: [
-            _GenerateCommand.self
-        ]
+        subcommands: [_GenerateCommand.self]
     )
 }

@@ -33,11 +33,9 @@ extension String {
             configuration.indentConditionalCompilationBlocks = false
             configuration.maximumBlankLines = 0
             let formatter = SwiftFormatter(configuration: configuration)
-            try formatter.format(
-                source: self,
-                assumingFileURL: nil,
-                to: &formattedString
-            ) { diagnostic, sourceLocation in
+            try formatter.format(source: self, assumingFileURL: nil, to: &formattedString) {
+                diagnostic,
+                sourceLocation in
                 print(
                     """
                     ===

@@ -3,9 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "GreetingService",
-    platforms: [
-        .macOS(.v10_15)
-    ],
+    platforms: [.macOS(.v10_15)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", .upToNextMinor(from: "0.1.0")),
         .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.1.0")),
@@ -16,26 +14,12 @@ let package = Package(
         .executableTarget(
             name: "GreetingService",
             dependencies: [
-                .product(
-                    name: "OpenAPIRuntime",
-                    package: "swift-openapi-runtime"
-                ),
-                .product(
-                    name: "OpenAPIVapor",
-                    package: "swift-openapi-vapor"
-                ),
-                .product(
-                    name: "Vapor",
-                    package: "vapor"
-                ),
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
+                .product(name: "Vapor", package: "vapor"),
             ],
             path: "Sources",
-            plugins: [
-                .plugin(
-                    name: "OpenAPIGenerator",
-                    package: "swift-openapi-generator"
-                )
-            ]
+            plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         )
     ]
 )

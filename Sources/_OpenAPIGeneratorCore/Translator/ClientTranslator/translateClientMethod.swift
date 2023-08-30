@@ -18,19 +18,14 @@ extension ClientFileTranslator {
     /// Returns an expression that converts an Input type into a request for
     /// a specified OpenAPI operation.
     /// - Parameter description: The OpenAPI operation.
-    func translateClientSerializer(
-        _ description: OperationDescription
-    ) throws -> Expression {
+    func translateClientSerializer(_ description: OperationDescription) throws -> Expression {
 
-        let (pathTemplate, pathParamsArrayExpr) = try translatePathParameterInClient(
-            description: description
-        )
+        let (pathTemplate, pathParamsArrayExpr) = try translatePathParameterInClient(description: description)
         let pathDecl: Declaration = .variable(
             kind: .let,
             left: "path",
             right: .try(
-                .identifier("converter")
-                    .dot("renderedRequestPath")
+                .identifier("converter").dot("renderedRequestPath")
                     .call([
                         .init(label: "template", expression: .literal(pathTemplate)),
                         .init(label: "parameters", expression: pathParamsArrayExpr),
@@ -48,41 +43,21 @@ extension ClientFileTranslator {
                 ])
         )
 
-        let typedParameters = try typedParameters(
-            from: description
-        )
+        let typedParameters = try typedParameters(from: description)
         var requestExprs: [Expression] = []
 
-        let nonPathParameters =
-            typedParameters
-            .filter { $0.location != .path }
-        let nonPathParamExprs: [Expression] =
-            try nonPathParameters
-            .compactMap { parameter in
-                try translateNonPathParameterInClient(
-                    parameter,
-                    requestVariableName: "request",
-                    inputVariableName: "input"
-                )
-            }
+        let nonPathParameters = typedParameters.filter { $0.location != .path }
+        let nonPathParamExprs: [Expression] = try nonPathParameters.compactMap { parameter in
+            try translateNonPathParameterInClient(parameter, requestVariableName: "request", inputVariableName: "input")
+        }
         requestExprs.append(contentsOf: nonPathParamExprs)
 
-        let acceptContent = try acceptHeaderContentTypes(
-            for: description
-        )
+        let acceptContent = try acceptHeaderContentTypes(for: description)
         if !acceptContent.isEmpty {
-            let setAcceptHeaderExpr: Expression =
-                .identifier("converter")
-                .dot("setAcceptHeader")
+            let setAcceptHeaderExpr: Expression = .identifier("converter").dot("setAcceptHeader")
                 .call([
-                    .init(
-                        label: "in",
-                        expression: .inOut(.identifier("request").dot("headerFields"))
-                    ),
-                    .init(
-                        label: "contentTypes",
-                        expression: .identifier("input").dot("headers").dot("accept")
-                    ),
+                    .init(label: "in", expression: .inOut(.identifier("request").dot("headerFields"))),
+                    .init(label: "contentTypes", expression: .identifier("input").dot("headers").dot("accept")),
                 ])
             requestExprs.append(setAcceptHeaderExpr)
         }
@@ -99,34 +74,21 @@ extension ClientFileTranslator {
         let returnRequestExpr: Expression = .return(.identifier("request"))
 
         return .closureInvocation(
-            argumentNames: [
-                "input"
-            ],
+            argumentNames: ["input"],
             body: [
-                .declaration(pathDecl),
-                .declaration(requestDecl),
+                .declaration(pathDecl), .declaration(requestDecl),
                 .expression(requestDecl.suppressMutabilityWarningExpr),
-            ] + requestExprs.map { .expression($0) } + [
-                .expression(returnRequestExpr)
-            ]
+            ] + requestExprs.map { .expression($0) } + [.expression(returnRequestExpr)]
         )
     }
 
     /// Returns an expression that converts a Response into an Output for
     /// a specified OpenAPI operation.
     /// - Parameter description: The OpenAPI operation.
-    func translateClientDeserializer(
-        _ description: OperationDescription
-    ) throws -> Expression {
-        var cases: [SwitchCaseDescription] =
-            try description
-            .responseOutcomes
-            .map { outcome in
-                try translateResponseOutcomeInClient(
-                    outcome: outcome,
-                    operation: description
-                )
-            }
+    func translateClientDeserializer(_ description: OperationDescription) throws -> Expression {
+        var cases: [SwitchCaseDescription] = try description.responseOutcomes.map { outcome in
+            try translateResponseOutcomeInClient(outcome: outcome, operation: description)
+        }
         if !description.containsDefaultResponse {
             let undocumentedExpr: Expression = .return(
                 .dot(Constants.Operation.Output.undocumentedCaseName)
@@ -135,43 +97,23 @@ extension ClientFileTranslator {
                         .init(label: nil, expression: .dot("init").call([])),
                     ])
             )
-            cases.append(
-                .init(
-                    kind: .default,
-                    body: [
-                        .expression(undocumentedExpr)
-                    ]
-                )
-            )
+            cases.append(.init(kind: .default, body: [.expression(undocumentedExpr)]))
         }
         let switchStatusCodeExpr: Expression = .switch(
             switchedExpression: .identifier("response").dot("statusCode"),
             cases: cases
         )
-        return .closureInvocation(
-            argumentNames: ["response"],
-            body: [
-                .expression(switchStatusCodeExpr)
-            ]
-        )
+        return .closureInvocation(argumentNames: ["response"], body: [.expression(switchStatusCodeExpr)])
     }
 
     /// Returns a declaration of a client method that invokes a specified
     /// OpenAPI operation.
     /// - Parameter description: The OpenAPI operation.
-    func translateClientMethod(
-        _ description: OperationDescription
-    ) throws -> Declaration {
+    func translateClientMethod(_ description: OperationDescription) throws -> Declaration {
 
-        let operationTypeExpr =
-            Expression
-            .identifier(Constants.Operations.namespace)
-            .dot(description.methodName)
+        let operationTypeExpr = Expression.identifier(Constants.Operations.namespace).dot(description.methodName)
 
-        let operationArg = FunctionArgumentDescription(
-            label: "forOperation",
-            expression: operationTypeExpr.dot("id")
-        )
+        let operationArg = FunctionArgumentDescription(label: "forOperation", expression: operationTypeExpr.dot("id"))
         let inputArg = FunctionArgumentDescription(
             label: "input",
             expression: .identifier(Constants.Operation.Input.variableName)
@@ -189,24 +131,15 @@ extension ClientFileTranslator {
             .await(
                 .functionCall(
                     calledExpression: .identifier("client").dot("send"),
-                    arguments: [
-                        inputArg,
-                        operationArg,
-                        serializerArg,
-                        deserializerArg,
-                    ]
+                    arguments: [inputArg, operationArg, serializerArg, deserializerArg]
                 )
             )
         )
         return .commentable(
             description.comment,
             .function(
-                signature: description
-                    .protocolSignatureDescription
-                    .withAccessModifier(config.access),
-                body: [
-                    .expression(sendExpr)
-                ]
+                signature: description.protocolSignatureDescription.withAccessModifier(config.access),
+                body: [.expression(sendExpr)]
             )
             .deprecate(if: description.operation.deprecated)
         )

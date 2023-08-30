@@ -18,11 +18,7 @@ import PetstoreConsumerTestCore
 final class Test_Server: XCTestCase {
 
     var client: TestClient!
-    var server: TestServerTransport {
-        get throws {
-            try client.configuredServer()
-        }
-    }
+    var server: TestServerTransport { get throws { try client.configuredServer() } }
 
     override func setUp() async throws {
         try await super.setUp()
@@ -30,28 +26,17 @@ final class Test_Server: XCTestCase {
     }
 
     func testGetStats_200_text() async throws {
-        client = .init(
-            getStatsBlock: { input in
-                return .ok(.init(body: .plainText("count is 1")))
-            }
-        )
+        client = .init(getStatsBlock: { input in return .ok(.init(body: .plainText("count is 1"))) })
         let response = try await server.getStats(
             .init(
                 path: "/api/pets/stats",
                 method: .patch,
-                headerFields: [
-                    .init(name: "accept", value: "application/json, text/plain, application/octet-stream")
-                ]
+                headerFields: [.init(name: "accept", value: "application/json, text/plain, application/octet-stream")]
             ),
             .init()
         )
         XCTAssertEqual(response.statusCode, 200)
-        XCTAssertEqual(
-            response.headerFields,
-            [
-                .init(name: "content-type", value: "text/plain")
-            ]
-        )
+        XCTAssertEqual(response.headerFields, [.init(name: "content-type", value: "text/plain")])
         XCTAssertEqualStringifiedData(
             response.body,
             #"""
@@ -61,35 +46,23 @@ final class Test_Server: XCTestCase {
     }
 
     func testGetStats_200_text_requestedSpecific() async throws {
-        client = .init(
-            getStatsBlock: { input in
-                XCTAssertEqual(
-                    input.headers.accept,
-                    [
-                        .init(contentType: .plainText),
-                        .init(contentType: .json, quality: 0.5),
-                    ]
-                )
-                return .ok(.init(body: .plainText("count is 1")))
-            }
-        )
+        client = .init(getStatsBlock: { input in
+            XCTAssertEqual(
+                input.headers.accept,
+                [.init(contentType: .plainText), .init(contentType: .json, quality: 0.5)]
+            )
+            return .ok(.init(body: .plainText("count is 1")))
+        })
         let response = try await server.getStats(
             .init(
                 path: "/api/pets/stats",
                 method: .patch,
-                headerFields: [
-                    .init(name: "accept", value: "text/plain, application/json; q=0.500")
-                ]
+                headerFields: [.init(name: "accept", value: "text/plain, application/json; q=0.500")]
             ),
             .init()
         )
         XCTAssertEqual(response.statusCode, 200)
-        XCTAssertEqual(
-            response.headerFields,
-            [
-                .init(name: "content-type", value: "text/plain")
-            ]
-        )
+        XCTAssertEqual(response.headerFields, [.init(name: "content-type", value: "text/plain")])
         XCTAssertEqualStringifiedData(
             response.body,
             #"""
@@ -99,35 +72,23 @@ final class Test_Server: XCTestCase {
     }
 
     func testGetStats_200_text_customAccept() async throws {
-        client = .init(
-            getStatsBlock: { input in
-                XCTAssertEqual(
-                    input.headers.accept,
-                    [
-                        .init(contentType: .json, quality: 0.8),
-                        .init(contentType: .plainText),
-                    ]
-                )
-                return .ok(.init(body: .plainText("count is 1")))
-            }
-        )
+        client = .init(getStatsBlock: { input in
+            XCTAssertEqual(
+                input.headers.accept,
+                [.init(contentType: .json, quality: 0.8), .init(contentType: .plainText)]
+            )
+            return .ok(.init(body: .plainText("count is 1")))
+        })
         let response = try await server.getStats(
             .init(
                 path: "/api/pets/stats",
                 method: .patch,
-                headerFields: [
-                    .init(name: "accept", value: "application/json; q=0.8, text/plain")
-                ]
+                headerFields: [.init(name: "accept", value: "application/json; q=0.8, text/plain")]
             ),
             .init()
         )
         XCTAssertEqual(response.statusCode, 200)
-        XCTAssertEqual(
-            response.headerFields,
-            [
-                .init(name: "content-type", value: "text/plain")
-            ]
-        )
+        XCTAssertEqual(response.headerFields, [.init(name: "content-type", value: "text/plain")])
         XCTAssertEqualStringifiedData(
             response.body,
             #"""
@@ -137,28 +98,17 @@ final class Test_Server: XCTestCase {
     }
 
     func testGetStats_200_binary() async throws {
-        client = .init(
-            getStatsBlock: { input in
-                return .ok(.init(body: .binary(Data("count_is_1".utf8))))
-            }
-        )
+        client = .init(getStatsBlock: { input in return .ok(.init(body: .binary(Data("count_is_1".utf8)))) })
         let response = try await server.getStats(
             .init(
                 path: "/api/pets/stats",
                 method: .patch,
-                headerFields: [
-                    .init(name: "accept", value: "application/json, text/plain, application/octet-stream")
-                ]
+                headerFields: [.init(name: "accept", value: "application/json, text/plain, application/octet-stream")]
             ),
             .init()
         )
         XCTAssertEqual(response.statusCode, 200)
-        XCTAssertEqual(
-            response.headerFields,
-            [
-                .init(name: "content-type", value: "application/octet-stream")
-            ]
-        )
+        XCTAssertEqual(response.headerFields, [.init(name: "content-type", value: "application/octet-stream")])
         XCTAssertEqualStringifiedData(
             response.body,
             #"""
@@ -168,22 +118,16 @@ final class Test_Server: XCTestCase {
     }
 
     func testPostStats_202_text() async throws {
-        client = .init(
-            postStatsBlock: { input in
-                guard case let .plainText(stats) = input.body else {
-                    throw TestError.unexpectedValue(input.body)
-                }
-                XCTAssertEqual(stats, "count is 1")
-                return .accepted(.init())
-            }
-        )
+        client = .init(postStatsBlock: { input in
+            guard case let .plainText(stats) = input.body else { throw TestError.unexpectedValue(input.body) }
+            XCTAssertEqual(stats, "count is 1")
+            return .accepted(.init())
+        })
         let response = try await server.postStats(
             .init(
                 path: "/api/pets/stats",
                 method: .post,
-                headerFields: [
-                    .init(name: "content-type", value: "text/plain")
-                ],
+                headerFields: [.init(name: "content-type", value: "text/plain")],
                 encodedBody: #"""
                     count is 1
                     """#
@@ -191,30 +135,21 @@ final class Test_Server: XCTestCase {
             .init()
         )
         XCTAssertEqual(response.statusCode, 202)
-        XCTAssertEqual(
-            response.headerFields,
-            []
-        )
+        XCTAssertEqual(response.headerFields, [])
         XCTAssert(response.body.isEmpty)
     }
 
     func testPostStats_202_binary() async throws {
-        client = .init(
-            postStatsBlock: { input in
-                guard case let .binary(stats) = input.body else {
-                    throw TestError.unexpectedValue(input.body)
-                }
-                XCTAssertEqualStringifiedData(stats, "count_is_1")
-                return .accepted(.init())
-            }
-        )
+        client = .init(postStatsBlock: { input in
+            guard case let .binary(stats) = input.body else { throw TestError.unexpectedValue(input.body) }
+            XCTAssertEqualStringifiedData(stats, "count_is_1")
+            return .accepted(.init())
+        })
         let response = try await server.postStats(
             .init(
                 path: "/api/pets/stats",
                 method: .post,
-                headerFields: [
-                    .init(name: "content-type", value: "application/octet-stream")
-                ],
+                headerFields: [.init(name: "content-type", value: "application/octet-stream")],
                 encodedBody: #"""
                     count_is_1
                     """#
@@ -222,10 +157,7 @@ final class Test_Server: XCTestCase {
             .init()
         )
         XCTAssertEqual(response.statusCode, 202)
-        XCTAssertEqual(
-            response.headerFields,
-            []
-        )
+        XCTAssertEqual(response.headerFields, [])
         XCTAssert(response.body.isEmpty)
     }
 }

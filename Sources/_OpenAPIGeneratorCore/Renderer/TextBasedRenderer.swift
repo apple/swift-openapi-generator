@@ -17,24 +17,17 @@ import Foundation
 /// to convert the provided structure code into raw string form.
 struct TextBasedRenderer: RendererProtocol {
 
-    func render(
-        structured: StructuredSwiftRepresentation,
-        config: Config,
-        diagnostics: any DiagnosticCollector
-    ) throws -> InMemoryOutputFile {
+    func render(structured: StructuredSwiftRepresentation, config: Config, diagnostics: any DiagnosticCollector) throws
+        -> InMemoryOutputFile
+    {
         let namedFile = structured.file
-        return InMemoryOutputFile(
-            baseName: namedFile.name,
-            contents: renderFile(namedFile.contents)
-        )
+        return InMemoryOutputFile(baseName: namedFile.name, contents: renderFile(namedFile.contents))
     }
 
     // MARK: - Internals
 
     /// Renders the specified Swift file.
-    func renderFile(_ description: FileDescription) -> Data {
-        Data(renderedFile(description).utf8)
-    }
+    func renderFile(_ description: FileDescription) -> Data { Data(renderedFile(description).utf8) }
 
     /// Renders the specified comment.
     func renderedComment(_ comment: Comment) -> String {
@@ -54,21 +47,14 @@ struct TextBasedRenderer: RendererProtocol {
             prefix = "// MARK:"
             commentString = string
         }
-        return
-            commentString
-            .transformingLines { line in
-                if line.isEmpty {
-                    return prefix
-                }
-                return "\(prefix) \(line)"
-            }
+        return commentString.transformingLines { line in if line.isEmpty { return prefix }
+            return "\(prefix) \(line)"
+        }
     }
 
     /// Renders the specified import statements.
     func renderedImports(_ imports: [ImportDescription]?) -> String {
-        (imports ?? [])
-            .map(renderImport(_:))
-            .joinedLines()
+        (imports ?? []).map(renderImport(_:)).joinedLines()
     }
 
     /// Renders a single import statement.
@@ -80,10 +66,8 @@ struct TextBasedRenderer: RendererProtocol {
         }
 
         switch description.preconcurrency {
-        case .always:
-            return render(moduleName: description.moduleName, spi: description.spi, preconcurrency: true)
-        case .never:
-            return render(moduleName: description.moduleName, spi: description.spi, preconcurrency: false)
+        case .always: return render(moduleName: description.moduleName, spi: description.spi, preconcurrency: true)
+        case .never: return render(moduleName: description.moduleName, spi: description.spi, preconcurrency: false)
         case .onOS(let operatingSystems):
             var lines = [String]()
             lines.append("#if \(operatingSystems.map { "os(\($0))" }.joined(separator: " || "))")
@@ -98,21 +82,15 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified access modifier.
     func renderedAccessModifier(_ accessModifier: AccessModifier) -> String {
         switch accessModifier {
-        case .public:
-            return "public"
-        case .internal:
-            return "internal"
-        case .fileprivate:
-            return "fileprivate"
-        case .private:
-            return "private"
+        case .public: return "public"
+        case .internal: return "internal"
+        case .fileprivate: return "fileprivate"
+        case .private: return "private"
         }
     }
 
     /// Renders the specified identifier.
-    func renderedIdentifier(_ identifier: IdentifierDescription) -> String {
-        return identifier.name
-    }
+    func renderedIdentifier(_ identifier: IdentifierDescription) -> String { return identifier.name }
 
     /// Renders the specified member access expression.
     func renderedMemberAccess(_ memberAccess: MemberAccessDescription) -> String {
@@ -155,8 +133,7 @@ struct TextBasedRenderer: RendererProtocol {
         case .multiCase(let expressions):
             let expressions = expressions.map(renderedExpression).joined(separator: ", ")
             return "case \(expressions)"
-        case .`default`:
-            return "default"
+        case .`default`: return "default"
         }
     }
 
@@ -171,9 +148,7 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified switch expression.
     func renderedSwitch(_ switchDesc: SwitchDescription) -> String {
         var lines: [String] = ["switch \(renderedExpression(switchDesc.switchedExpression)) {"]
-        for caseDesc in switchDesc.cases {
-            lines.append(renderedSwitchCase(caseDesc))
-        }
+        for caseDesc in switchDesc.cases { lines.append(renderedSwitchCase(caseDesc)) }
         lines.append("}")
         return lines.joinedLines()
     }
@@ -218,23 +193,17 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified keyword.
     func renderedKeywordKind(_ kind: KeywordKind) -> String {
         switch kind {
-        case .return:
-            return "return"
-        case .try(hasPostfixQuestionMark: let hasPostfixQuestionMark):
-            return "try\(hasPostfixQuestionMark ? "?" : "")"
-        case .await:
-            return "await"
-        case .throw:
-            return "throw"
+        case .return: return "return"
+        case .try(hasPostfixQuestionMark: let hasPostfixQuestionMark): return "try\(hasPostfixQuestionMark ? "?" : "")"
+        case .await: return "await"
+        case .throw: return "throw"
         }
     }
 
     /// Renders the specified unary keyword expression.
     func renderedUnaryKeywordExpression(_ expression: UnaryKeywordDescription) -> String {
         let keyword = renderedKeywordKind(expression.kind)
-        guard let expr = expression.expression else {
-            return keyword
-        }
+        guard let expr = expression.expression else { return keyword }
         return "\(keyword) \(renderedExpression(expr))"
     }
 
@@ -247,22 +216,17 @@ struct TextBasedRenderer: RendererProtocol {
             signatureWords.append("in")
         }
         lines.append(signatureWords.joinedWords())
-        if let body = invocation.body {
-            lines.append(renderedCodeBlocks(body))
-        }
+        if let body = invocation.body { lines.append(renderedCodeBlocks(body)) }
         lines.append("}")
         return lines.joinedLines()
     }
 
     /// Renders the specified binary operator.
-    func renderedBinaryOperator(_ op: BinaryOperator) -> String {
-        op.rawValue
-    }
+    func renderedBinaryOperator(_ op: BinaryOperator) -> String { op.rawValue }
 
     /// Renders the specified binary operation.
     func renderedBinaryOperation(_ operation: BinaryOperationDescription) -> String {
-        renderedExpression(operation.left) + " "
-            + renderedBinaryOperator(operation.operation) + " "
+        renderedExpression(operation.left) + " " + renderedBinaryOperator(operation.operation) + " "
             + renderedExpression(operation.right)
     }
 
@@ -272,67 +236,45 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     /// Renders the specified optinal chaining expression.
-    func renderedOptionalChainingDescription(
-        _ description: OptionalChainingDescription
-    ) -> String {
+    func renderedOptionalChainingDescription(_ description: OptionalChainingDescription) -> String {
         renderedExpression(description.referencedExpr) + "?"
     }
 
     /// Renders the specified expression.
     func renderedExpression(_ expression: Expression) -> String {
         switch expression {
-        case .literal(let literalDescription):
-            return renderedLiteral(literalDescription)
-        case .identifier(let identifierDescription):
-            return renderedIdentifier(identifierDescription)
-        case .memberAccess(let memberAccessDescription):
-            return renderedMemberAccess(memberAccessDescription)
-        case .functionCall(let functionCallDescription):
-            return renderedFunctionCall(functionCallDescription)
-        case .assignment(let assignment):
-            return renderedAssignment(assignment)
-        case .switch(let switchDesc):
-            return renderedSwitch(switchDesc)
-        case .ifStatement(let ifDesc):
-            return renderedIf(ifDesc)
-        case .doStatement(let doStmt):
-            return renderedDoStatement(doStmt)
-        case .valueBinding(let valueBinding):
-            return renderedValueBinding(valueBinding)
-        case .unaryKeyword(let unaryKeyword):
-            return renderedUnaryKeywordExpression(unaryKeyword)
-        case .closureInvocation(let closureInvocation):
-            return renderedClosureInvocation(closureInvocation)
-        case .binaryOperation(let binaryOperation):
-            return renderedBinaryOperation(binaryOperation)
-        case .inOut(let inOut):
-            return renderedInOutDescription(inOut)
-        case .optionalChaining(let optionalChaining):
-            return renderedOptionalChainingDescription(optionalChaining)
+        case .literal(let literalDescription): return renderedLiteral(literalDescription)
+        case .identifier(let identifierDescription): return renderedIdentifier(identifierDescription)
+        case .memberAccess(let memberAccessDescription): return renderedMemberAccess(memberAccessDescription)
+        case .functionCall(let functionCallDescription): return renderedFunctionCall(functionCallDescription)
+        case .assignment(let assignment): return renderedAssignment(assignment)
+        case .switch(let switchDesc): return renderedSwitch(switchDesc)
+        case .ifStatement(let ifDesc): return renderedIf(ifDesc)
+        case .doStatement(let doStmt): return renderedDoStatement(doStmt)
+        case .valueBinding(let valueBinding): return renderedValueBinding(valueBinding)
+        case .unaryKeyword(let unaryKeyword): return renderedUnaryKeywordExpression(unaryKeyword)
+        case .closureInvocation(let closureInvocation): return renderedClosureInvocation(closureInvocation)
+        case .binaryOperation(let binaryOperation): return renderedBinaryOperation(binaryOperation)
+        case .inOut(let inOut): return renderedInOutDescription(inOut)
+        case .optionalChaining(let optionalChaining): return renderedOptionalChainingDescription(optionalChaining)
         }
     }
 
     /// Renders the specified literal expression.
     func renderedLiteral(_ literal: LiteralDescription) -> String {
         switch literal {
-        case let .string(string):
-            return "\"\(string)\""
-        case let .int(int):
-            return "\(int)"
-        case let .bool(bool):
-            return bool ? "true" : "false"
-        case .nil:
-            return "nil"
-        case .array(let items):
-            return "[\(items.map { renderedExpression($0) }.joined(separator: ", "))]"
+        case let .string(string): return "\"\(string)\""
+        case let .int(int): return "\(int)"
+        case let .bool(bool): return bool ? "true" : "false"
+        case .nil: return "nil"
+        case .array(let items): return "[\(items.map { renderedExpression($0) }.joined(separator: ", "))]"
         }
     }
 
     /// Renders the specified where clause requirement.
     func renderedWhereClauseRequirement(_ requirement: WhereClauseRequirement) -> String {
         switch requirement {
-        case .conformance(let left, let right):
-            return "\(left): \(right)"
+        case .conformance(let left, let right): return "\(left): \(right)"
         }
     }
 
@@ -359,9 +301,7 @@ struct TextBasedRenderer: RendererProtocol {
         }
         var lines: [String] = []
         lines.append("\(signatureWords.joinedWords()) {")
-        for declaration in extensionDescription.declarations {
-            lines.append(renderedDeclaration(declaration))
-        }
+        for declaration in extensionDescription.declarations { lines.append(renderedDeclaration(declaration)) }
         lines.append("}")
         return lines.joinedLines()
     }
@@ -369,37 +309,24 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified typealias declaration.
     func renderedTypealias(_ alias: TypealiasDescription) -> String {
         var words: [String] = []
-        if let accessModifier = alias.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
-        }
-        words.append(contentsOf: [
-            "typealias",
-            alias.name,
-            "=",
-            alias.existingType,
-        ])
+        if let accessModifier = alias.accessModifier { words.append(renderedAccessModifier(accessModifier)) }
+        words.append(contentsOf: ["typealias", alias.name, "=", alias.existingType])
         return words.joinedWords()
     }
 
     /// Renders the specified binding kind.
     func renderedBindingKind(_ kind: BindingKind) -> String {
         switch kind {
-        case .var:
-            return "var"
-        case .let:
-            return "let"
+        case .var: return "var"
+        case .let: return "let"
         }
     }
 
     /// Renders the specified variable declaration.
     func renderedVariable(_ variable: VariableDescription) -> String {
         var words: [String] = []
-        if let accessModifier = variable.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
-        }
-        if variable.isStatic {
-            words.append("static")
-        }
+        if let accessModifier = variable.accessModifier { words.append(renderedAccessModifier(accessModifier)) }
+        if variable.isStatic { words.append("static") }
         words.append(renderedBindingKind(variable.kind))
         let labelWithOptionalType: String
         if let type = variable.type {
@@ -409,9 +336,7 @@ struct TextBasedRenderer: RendererProtocol {
         }
         words.append(labelWithOptionalType)
 
-        if let right = variable.right {
-            words.append("= \(renderedExpression(right))")
-        }
+        if let right = variable.right { words.append("= \(renderedExpression(right))") }
 
         var lines: [String] = [words.joinedWords()]
         if let body = variable.body {
@@ -425,9 +350,7 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified struct declaration.
     func renderedStruct(_ structDesc: StructDescription) -> String {
         var words: [String] = []
-        if let accessModifier = structDesc.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
-        }
+        if let accessModifier = structDesc.accessModifier { words.append(renderedAccessModifier(accessModifier)) }
         words.append("struct")
         words.append(structDesc.name)
         if !structDesc.conformances.isEmpty {
@@ -440,9 +363,7 @@ struct TextBasedRenderer: RendererProtocol {
         var lines: [String] = []
         lines.append(declarationLine)
 
-        for member in structDesc.members {
-            lines.append(contentsOf: renderedDeclaration(member).asLines())
-        }
+        for member in structDesc.members { lines.append(contentsOf: renderedDeclaration(member).asLines()) }
 
         lines.append("}")
         return lines.joinedLines()
@@ -451,9 +372,7 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified protocol declaration.
     func renderedProtocol(_ protocolDesc: ProtocolDescription) -> String {
         var words: [String] = []
-        if let accessModifier = protocolDesc.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
-        }
+        if let accessModifier = protocolDesc.accessModifier { words.append(renderedAccessModifier(accessModifier)) }
         words.append("protocol")
         words.append(protocolDesc.name)
         if !protocolDesc.conformances.isEmpty {
@@ -466,9 +385,7 @@ struct TextBasedRenderer: RendererProtocol {
         var lines: [String] = []
         lines.append(declarationLine)
 
-        for member in protocolDesc.members {
-            lines.append(contentsOf: renderedDeclaration(member).asLines())
-        }
+        for member in protocolDesc.members { lines.append(contentsOf: renderedDeclaration(member).asLines()) }
 
         lines.append("}")
         return lines.joinedLines()
@@ -477,12 +394,8 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified enum declaration.
     func renderedEnum(_ enumDesc: EnumDescription) -> String {
         var words: [String] = []
-        if enumDesc.isFrozen {
-            words.append("@frozen")
-        }
-        if let accessModifier = enumDesc.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
-        }
+        if enumDesc.isFrozen { words.append("@frozen") }
+        if let accessModifier = enumDesc.accessModifier { words.append(renderedAccessModifier(accessModifier)) }
         words.append("enum")
         words.append(enumDesc.name)
         if !enumDesc.conformances.isEmpty {
@@ -495,9 +408,7 @@ struct TextBasedRenderer: RendererProtocol {
         var lines: [String] = []
         lines.append(declarationLine)
 
-        for member in enumDesc.members {
-            lines.append(contentsOf: renderedDeclaration(member).asLines())
-        }
+        for member in enumDesc.members { lines.append(contentsOf: renderedDeclaration(member).asLines()) }
 
         lines.append("}")
         return lines.joinedLines()
@@ -517,18 +428,11 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified enum case kind.
     func renderedEnumCaseKind(_ kind: EnumCaseKind) -> String {
         switch kind {
-        case .nameOnly:
-            return ""
-        case .nameWithRawValue(let rawValue):
-            return " = \"\(rawValue)\""
+        case .nameOnly: return ""
+        case .nameWithRawValue(let rawValue): return " = \"\(rawValue)\""
         case .nameWithAssociatedValues(let values):
-            if values.isEmpty {
-                return ""
-            }
-            let associatedValues =
-                values
-                .map(renderedEnumCaseAssociatedValue)
-                .joined(separator: ", ")
+            if values.isEmpty { return "" }
+            let associatedValues = values.map(renderedEnumCaseAssociatedValue).joined(separator: ", ")
             return "(\(associatedValues))"
         }
     }
@@ -545,58 +449,42 @@ struct TextBasedRenderer: RendererProtocol {
             return renderedCommentableDeclaration(comment: comment, declaration: nestedDeclaration)
         case let .deprecated(deprecation, nestedDeclaration):
             return renderedDeprecatedDeclaration(deprecation: deprecation, declaration: nestedDeclaration)
-        case .variable(let variableDescription):
-            return renderedVariable(variableDescription)
-        case .extension(let extensionDescription):
-            return renderedExtension(extensionDescription)
-        case .struct(let structDescription):
-            return renderedStruct(structDescription)
-        case .protocol(let protocolDescription):
-            return renderedProtocol(protocolDescription)
-        case .enum(let enumDescription):
-            return renderedEnum(enumDescription)
-        case .typealias(let typealiasDescription):
-            return renderedTypealias(typealiasDescription)
-        case .function(let functionDescription):
-            return renderedFunction(functionDescription)
-        case .enumCase(let enumCase):
-            return renderedEnumCase(enumCase)
+        case .variable(let variableDescription): return renderedVariable(variableDescription)
+        case .extension(let extensionDescription): return renderedExtension(extensionDescription)
+        case .struct(let structDescription): return renderedStruct(structDescription)
+        case .protocol(let protocolDescription): return renderedProtocol(protocolDescription)
+        case .enum(let enumDescription): return renderedEnum(enumDescription)
+        case .typealias(let typealiasDescription): return renderedTypealias(typealiasDescription)
+        case .function(let functionDescription): return renderedFunction(functionDescription)
+        case .enumCase(let enumCase): return renderedEnumCase(enumCase)
         }
     }
 
     /// Renders the specified function kind.
     func renderedFunctionKind(_ functionKind: FunctionKind) -> String {
         switch functionKind {
-        case .initializer(let isFailable):
-            return "init\(isFailable ? "?" : "")"
-        case .function(let name, let isStatic):
-            return (isStatic ? "static " : "") + "func \(name)"
+        case .initializer(let isFailable): return "init\(isFailable ? "?" : "")"
+        case .function(let name, let isStatic): return (isStatic ? "static " : "") + "func \(name)"
         }
     }
 
     /// Renders the specified function keyword.
     func renderedFunctionKeyword(_ keyword: FunctionKeyword) -> String {
         switch keyword {
-        case .throws:
-            return "throws"
-        case .async:
-            return "async"
+        case .throws: return "throws"
+        case .async: return "async"
         }
     }
 
     /// Renders the specified function signature.
     func renderedFunctionSignature(_ signature: FunctionSignatureDescription) -> String {
         var words: [String] = []
-        if let accessModifier = signature.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
-        }
+        if let accessModifier = signature.accessModifier { words.append(renderedAccessModifier(accessModifier)) }
         words.append(renderedFunctionKind(signature.kind))
         words.append("(")
         words.append(signature.parameters.map(renderedParameter).joined(separator: ", "))
         words.append(")")
-        for keyword in signature.keywords {
-            words.append(renderedFunctionKeyword(keyword))
-        }
+        for keyword in signature.keywords { words.append(renderedFunctionKeyword(keyword)) }
         if let returnType = signature.returnType {
             words.append("->")
             words.append(returnType)
@@ -607,38 +495,24 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified function declaration.
     func renderedFunction(_ functionDescription: FunctionDescription) -> String {
         var lines: [String] = []
-        var words: [String] = [
-            renderedFunctionSignature(functionDescription.signature)
-        ]
-        if functionDescription.body != nil {
-            words.append("{")
-        }
+        var words: [String] = [renderedFunctionSignature(functionDescription.signature)]
+        if functionDescription.body != nil { words.append("{") }
         lines.append(words.joinedWords())
 
-        if let body = functionDescription.body {
-            lines.append(contentsOf: body.map(renderedCodeBlock))
-        }
+        if let body = functionDescription.body { lines.append(contentsOf: body.map(renderedCodeBlock)) }
 
-        if functionDescription.body != nil {
-            lines.append("}")
-        }
+        if functionDescription.body != nil { lines.append("}") }
         return lines.joinedLines()
     }
 
     /// Renders the specified parameter declaration.
     func renderedParameter(_ parameterDescription: ParameterDescription) -> String {
         var words: [String] = []
-        if let label = parameterDescription.label {
-            words.append(label)
-        } else {
-            words.append("_")
-        }
+        if let label = parameterDescription.label { words.append(label) } else { words.append("_") }
         if let name = parameterDescription.name {
             // If the label and name are the same value, don't repeat it, otherwise
             // swift-format emits a warning.
-            if name != parameterDescription.label {
-                words.append(name)
-            }
+            if name != parameterDescription.label { words.append(name) }
         }
         words.append(":")
         words.append(parameterDescription.type)
@@ -651,27 +525,17 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders the specified declaration with a comment.
     func renderedCommentableDeclaration(comment: Comment?, declaration: Declaration) -> String {
-        return [
-            comment.map(renderedComment),
-            renderedDeclaration(declaration),
-        ]
-        .compactMap({ $0 }).joinedLines()
+        return [comment.map(renderedComment), renderedDeclaration(declaration)].compactMap({ $0 }).joinedLines()
     }
 
     /// Renders the specified declaration with a deprecation annotation.
     func renderedDeprecatedDeclaration(deprecation: DeprecationDescription, declaration: Declaration) -> String {
-        return [
-            renderedDeprecation(deprecation),
-            renderedDeclaration(declaration),
-        ]
-        .joinedLines()
+        return [renderedDeprecation(deprecation), renderedDeclaration(declaration)].joinedLines()
     }
 
     func renderedDeprecation(_ deprecation: DeprecationDescription) -> String {
         let things: [String] = [
-            "*",
-            "deprecated",
-            deprecation.message.map { "message: \"\($0)\"" },
+            "*", "deprecated", deprecation.message.map { "message: \"\($0)\"" },
             deprecation.renamed.map { "renamed: \"\($0)\"" },
         ]
         .compactMap({ $0 })
@@ -681,38 +545,28 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified code block item.
     func renderedCodeBlockItem(_ description: CodeBlockItem) -> String {
         switch description {
-        case .declaration(let declaration):
-            return renderedDeclaration(declaration)
-        case .expression(let expression):
-            return renderedExpression(expression)
+        case .declaration(let declaration): return renderedDeclaration(declaration)
+        case .expression(let expression): return renderedExpression(expression)
         }
     }
 
     /// Renders the specified code block.
     func renderedCodeBlock(_ description: CodeBlock) -> String {
         var lines: [String] = []
-        if let comment = description.comment {
-            lines.append(contentsOf: renderedComment(comment).asLines())
-        }
+        if let comment = description.comment { lines.append(contentsOf: renderedComment(comment).asLines()) }
         let item = description.item
         lines.append(contentsOf: renderedCodeBlockItem(item).asLines())
         return lines.joinedLines()
     }
 
     /// Renders the specified code blocks.
-    func renderedCodeBlocks(_ blocks: [CodeBlock]) -> String {
-        blocks.map(renderedCodeBlock).joinedLines()
-    }
+    func renderedCodeBlocks(_ blocks: [CodeBlock]) -> String { blocks.map(renderedCodeBlock).joinedLines() }
 
     /// Renders the specified file.
     func renderedFile(_ description: FileDescription) -> String {
         var lines: [String] = []
-        if let topComment = description.topComment {
-            lines.appendLines(from: renderedComment(topComment))
-        }
-        if let imports = description.imports {
-            lines.appendLines(from: renderedImports(imports))
-        }
+        if let topComment = description.topComment { lines.appendLines(from: renderedComment(topComment)) }
+        if let imports = description.imports { lines.appendLines(from: renderedImports(imports)) }
         let renderedCodeBlocks = description.codeBlocks.map(renderedCodeBlock)
         for block in renderedCodeBlocks {
             lines.append(block)
@@ -726,9 +580,7 @@ fileprivate extension Array where Element == String {
 
     /// Appends the lines from the specified string.
     /// - Parameter string: The string whose lines to append.
-    mutating func appendLines(from string: String) {
-        append(contentsOf: string.asLines())
-    }
+    mutating func appendLines(from string: String) { append(contentsOf: string.asLines()) }
 
     /// Returns a string where the elements of the array are
     /// joined by a newline character, with optionally omitting
@@ -736,30 +588,22 @@ fileprivate extension Array where Element == String {
     /// - Parameter omittingEmptyLines: If `true`, omits empty lines in the
     /// output. Otherwise, all lines are included in the output.
     func joinedLines(omittingEmptyLines: Bool = true) -> String {
-        filter { !omittingEmptyLines || !$0.isEmpty }
-            .joined(separator: "\n")
+        filter { !omittingEmptyLines || !$0.isEmpty }.joined(separator: "\n")
     }
 
     /// Returns a string where the elements of the array are joined
     /// by a space character.
-    func joinedWords() -> String {
-        joined(separator: " ")
-    }
+    func joinedWords() -> String { joined(separator: " ") }
 }
 
 fileprivate extension String {
 
     /// Returns an array of strings, where each string represents one line
     /// in the current string.
-    func asLines() -> [String] {
-        split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
-            .map(String.init)
-    }
+    func asLines() -> [String] { split(omittingEmptySubsequences: false, whereSeparator: \.isNewline).map(String.init) }
 
     /// Returns a new string where the provided closure transforms each line.
     /// The closure takes a string representing one line as a parameter.
     /// - Parameter work: The closure that transforms each line.
-    func transformingLines(_ work: (String) -> String) -> String {
-        asLines().map(work).joinedLines()
-    }
+    func transformingLines(_ work: (String) -> String) -> String { asLines().map(work).joinedLines() }
 }

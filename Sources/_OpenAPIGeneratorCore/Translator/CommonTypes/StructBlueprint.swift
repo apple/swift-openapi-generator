@@ -154,32 +154,22 @@ struct PropertyBlueprint {
 extension PropertyBlueprint {
 
     /// A name that is verified to be a valid Swift identifier.
-    var swiftSafeName: String {
-        asSwiftSafeName(originalName)
-    }
+    var swiftSafeName: String { asSwiftSafeName(originalName) }
 
     /// A human-readable, fully qualified name of the Swift property.
-    var renderedFullyQualifiedSwiftName: String {
-        typeUsage.fullyQualifiedSwiftName
-    }
+    var renderedFullyQualifiedSwiftName: String { typeUsage.fullyQualifiedSwiftName }
 
     /// The JSON path to the property.
     ///
     /// Nil if the parent JSON path is nil.
-    var jsonPath: String? {
-        typeUsage.typeName.fullyQualifiedJSONPath?.appending("/\(originalName)")
-    }
+    var jsonPath: String? { typeUsage.typeName.fullyQualifiedJSONPath?.appending("/\(originalName)") }
 
     /// The default value in the initializer.
     ///
     /// Nil if the property is required.
     var defaultValue: DefaultValue? {
-        if let explicitDefaultValue = `default` {
-            return explicitDefaultValue
-        }
-        guard typeUsage.isOptional else {
-            return nil
-        }
+        if let explicitDefaultValue = `default` { return explicitDefaultValue }
+        guard typeUsage.isOptional else { return nil }
         return .nil
     }
 }
@@ -189,12 +179,9 @@ extension PropertyBlueprint.DefaultValue {
     /// Returns an expression for the default value.
     var asExpression: Expression {
         switch self {
-        case .nil:
-            return .literal(.nil)
-        case .emptyInit:
-            return .functionCall(calledExpression: .dot("init"))
-        case let .expression(expression):
-            return expression
+        case .nil: return .literal(.nil)
+        case .emptyInit: return .functionCall(calledExpression: .dot("init"))
+        case let .expression(expression): return expression
         }
     }
 }

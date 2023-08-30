@@ -19,28 +19,17 @@ extension TypesFileTranslator {
     /// - Parameters:
     ///   - typedResponse: The typed response to declare.
     /// - Returns: A structure declaration.
-    func translateResponseInTypes(
-        typeName: TypeName,
-        response: TypedResponse
-    ) throws -> Declaration {
+    func translateResponseInTypes(typeName: TypeName, response: TypedResponse) throws -> Declaration {
         let response = response.response
         let headersTypeName = typeName.appending(
             swiftComponent: Constants.Operation.Output.Payload.Headers.typeName,
             jsonComponent: "headers"
         )
-        let headers = try typedResponseHeaders(
-            from: response,
-            inParent: headersTypeName
-        )
+        let headers = try typedResponseHeaders(from: response, inParent: headersTypeName)
         let headerProperties: [PropertyBlueprint] = try headers.map { header in
-            try parseResponseHeaderAsProperty(
-                for: header,
-                parent: headersTypeName
-            )
+            try parseResponseHeaderAsProperty(for: header, parent: headersTypeName)
         }
-        let headerStructComment: Comment? =
-            headersTypeName
-            .docCommentWithUserDescription(nil)
+        let headerStructComment: Comment? = headersTypeName.docCommentWithUserDescription(nil)
         let headersStructBlueprint: StructBlueprint = .init(
             comment: headerStructComment,
             access: config.access,
@@ -48,17 +37,13 @@ extension TypesFileTranslator {
             conformances: Constants.Operation.Output.Payload.Headers.conformances,
             properties: headerProperties
         )
-        let headersStructDecl = translateStructBlueprint(
-            headersStructBlueprint
-        )
+        let headersStructDecl = translateStructBlueprint(headersStructBlueprint)
         let headersProperty = PropertyBlueprint(
             comment: .doc("Received HTTP response headers"),
             originalName: Constants.Operation.Output.Payload.Headers.variableName,
             typeUsage: headersTypeName.asUsage,
             default: headersStructBlueprint.hasEmptyInit ? .emptyInit : nil,
-            associatedDeclarations: [
-                headersStructDecl
-            ],
+            associatedDeclarations: [headersStructDecl],
             asSwiftSafeName: swiftSafeName
         )
 
@@ -66,10 +51,7 @@ extension TypesFileTranslator {
             swiftComponent: Constants.Operation.Body.typeName,
             jsonComponent: "content"
         )
-        let typedContents = try supportedTypedContents(
-            response.content,
-            inParent: bodyTypeName
-        )
+        let typedContents = try supportedTypedContents(response.content, inParent: bodyTypeName)
         var bodyCases: [Declaration] = []
         for typedContent in typedContents {
             let contentType = typedContent.content.contentType
@@ -88,9 +70,7 @@ extension TypesFileTranslator {
                 contentType.docComment(typeName: bodyTypeName),
                 .enumCase(
                     name: identifier,
-                    kind: .nameWithAssociatedValues([
-                        .init(type: associatedType.fullyQualifiedSwiftName)
-                    ])
+                    kind: .nameWithAssociatedValues([.init(type: associatedType.fullyQualifiedSwiftName)])
                 )
             )
             bodyCases.append(bodyCase)
@@ -113,9 +93,7 @@ extension TypesFileTranslator {
             originalName: Constants.Operation.Body.variableName,
             typeUsage: contentTypeUsage,
             default: hasNoContent ? .nil : nil,
-            associatedDeclarations: [
-                contentEnumDecl
-            ],
+            associatedDeclarations: [contentEnumDecl],
             asSwiftSafeName: swiftSafeName
         )
 
@@ -125,10 +103,7 @@ extension TypesFileTranslator {
                 access: config.access,
                 typeName: typeName,
                 conformances: Constants.Operation.Output.Payload.conformances,
-                properties: [
-                    headersProperty,
-                    contentProperty,
-                ]
+                properties: [headersProperty, contentProperty]
             )
         )
 
@@ -142,17 +117,10 @@ extension TypesFileTranslator {
     ///   in the OpenAPI document.
     ///   - response: The response to declare.
     /// - Returns: A structure declaration.
-    func translateResponseHeaderInTypes(
-        componentKey: OpenAPI.ComponentKey,
-        response: TypedResponse
-    ) throws -> Declaration {
-        let typeName = typeAssigner.typeName(
-            for: componentKey,
-            of: OpenAPI.Response.self
-        )
-        return try translateResponseInTypes(
-            typeName: typeName,
-            response: response
-        )
+    func translateResponseHeaderInTypes(componentKey: OpenAPI.ComponentKey, response: TypedResponse) throws
+        -> Declaration
+    {
+        let typeName = typeAssigner.typeName(for: componentKey, of: OpenAPI.Response.self)
+        return try translateResponseInTypes(typeName: typeName, response: response)
     }
 }

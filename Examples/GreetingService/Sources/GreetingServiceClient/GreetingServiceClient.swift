@@ -14,8 +14,7 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 
-@main
-struct GreetingServiceClient {
+@main struct GreetingServiceClient {
 
     static func main() async throws {
         // Create an instance of the generated client type.

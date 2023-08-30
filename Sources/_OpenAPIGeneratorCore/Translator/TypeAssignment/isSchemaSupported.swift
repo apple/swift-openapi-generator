@@ -37,14 +37,10 @@ enum IsSchemaSupportedResult: Equatable {
 
         var description: String {
             switch self {
-            case .noSubschemas:
-                return "no subschemas"
-            case .notObjectish:
-                return "not an object-ish schema (object, ref, allOf)"
-            case .notRef:
-                return "not a reference"
-            case .schemaType:
-                return "schema type"
+            case .noSubschemas: return "no subschemas"
+            case .notObjectish: return "not an object-ish schema (object, ref, allOf)"
+            case .notRef: return "not a reference"
+            case .schemaType: return "schema type"
             }
         }
     }
@@ -62,19 +58,11 @@ extension FileTranslator {
     ///   - schema: The schema to validate.
     ///   - foundIn: A description of the schema's context.
     /// - Returns: `true` if the schema is supported; `false` otherwise.
-    func validateSchemaIsSupported(
-        _ schema: JSONSchema,
-        foundIn: String
-    ) throws -> Bool {
+    func validateSchemaIsSupported(_ schema: JSONSchema, foundIn: String) throws -> Bool {
         switch try isSchemaSupported(schema) {
-        case .supported:
-            return true
+        case .supported: return true
         case .unsupported(reason: let reason, schema: let schema):
-            diagnostics.emitUnsupportedSchema(
-                reason: reason.description,
-                schema: schema,
-                foundIn: foundIn
-            )
+            diagnostics.emitUnsupportedSchema(reason: reason.description, schema: schema, foundIn: foundIn)
             return false
         }
     }
@@ -86,19 +74,11 @@ extension FileTranslator {
     ///   - schema: The schema to validate.
     ///   - foundIn: A description of the schema's context.
     /// - Returns: `true` if the schema is supported; `false` otherwise.
-    func validateSchemaIsSupported(
-        _ schema: UnresolvedSchema?,
-        foundIn: String
-    ) throws -> Bool {
+    func validateSchemaIsSupported(_ schema: UnresolvedSchema?, foundIn: String) throws -> Bool {
         switch try isSchemaSupported(schema) {
-        case .supported:
-            return true
+        case .supported: return true
         case .unsupported(reason: let reason, schema: let schema):
-            diagnostics.emitUnsupportedSchema(
-                reason: reason.description,
-                schema: schema,
-                foundIn: foundIn
-            )
+            diagnostics.emitUnsupportedSchema(reason: reason.description, schema: schema, foundIn: foundIn)
             return false
         }
     }
@@ -108,20 +88,14 @@ extension FileTranslator {
     /// If a schema is not supported, no references to it should be emitted.
     /// - Parameters:
     ///   - schema: The schema to validate.
-    func isSchemaSupported(
-        _ schema: JSONSchema
-    ) throws -> IsSchemaSupportedResult {
+    func isSchemaSupported(_ schema: JSONSchema) throws -> IsSchemaSupportedResult {
         switch schema.value {
-        case .string,
-            .integer,
-            .number,
-            .boolean,
+        case .string, .integer, .number, .boolean,
             // We mark any object as supported, even if it
             // has unsupported properties.
             // The code responsible for emitting an object is
             // responsible for picking only supported properties.
-            .object,
-            .fragment:
+            .object, .fragment:
             return .supported
         case .reference(let ref, _):
             // reference is supported iff the existing type is supported
@@ -135,39 +109,18 @@ extension FileTranslator {
             // an array is supported iff its element schema is supported
             return try isSchemaSupported(items)
         case .all(of: let schemas, _):
-            guard !schemas.isEmpty else {
-                return .unsupported(
-                    reason: .noSubschemas,
-                    schema: schema
-                )
-            }
+            guard !schemas.isEmpty else { return .unsupported(reason: .noSubschemas, schema: schema) }
             return try areSchemasSupported(schemas)
         case .any(of: let schemas, _):
-            guard !schemas.isEmpty else {
-                return .unsupported(
-                    reason: .noSubschemas,
-                    schema: schema
-                )
-            }
+            guard !schemas.isEmpty else { return .unsupported(reason: .noSubschemas, schema: schema) }
             return try areSchemasSupported(schemas)
         case .one(of: let schemas, let context):
-            guard !schemas.isEmpty else {
-                return .unsupported(
-                    reason: .noSubschemas,
-                    schema: schema
-                )
-            }
-            guard context.discriminator != nil else {
-                return try areSchemasSupported(schemas)
-            }
+            guard !schemas.isEmpty else { return .unsupported(reason: .noSubschemas, schema: schema) }
+            guard context.discriminator != nil else { return try areSchemasSupported(schemas) }
             // > When using the discriminator, inline schemas will not be considered.
             // > — https://spec.openapis.org/oas/v3.0.3#discriminator-object
             return try areRefsToObjectishSchemaAndSupported(schemas.filter(\.isReference))
-        case .not, .null:
-            return .unsupported(
-                reason: .schemaType,
-                schema: schema
-            )
+        case .not, .null: return .unsupported(reason: .schemaType, schema: schema)
         }
     }
 
@@ -176,9 +129,7 @@ extension FileTranslator {
     /// If a schema is not supported, no references to it should be emitted.
     /// - Parameters:
     ///   - schema: The schema to validate.
-    func isSchemaSupported(
-        _ schema: UnresolvedSchema?
-    ) throws -> IsSchemaSupportedResult {
+    func isSchemaSupported(_ schema: UnresolvedSchema?) throws -> IsSchemaSupportedResult {
         guard let schema else {
             // fragment type is supported
             return .supported
@@ -187,8 +138,7 @@ extension FileTranslator {
         case .a:
             // references are supported
             return .supported
-        case let .b(schema):
-            return try isSchemaSupported(schema)
+        case let .b(schema): return try isSchemaSupported(schema)
         }
     }
 
@@ -198,9 +148,7 @@ extension FileTranslator {
     func areSchemasSupported(_ schemas: [JSONSchema]) throws -> IsSchemaSupportedResult {
         for schema in schemas {
             let result = try isSchemaSupported(schema)
-            guard result == .supported else {
-                return result
-            }
+            guard result == .supported else { return result }
         }
         return .supported
     }
@@ -210,15 +158,10 @@ extension FileTranslator {
     /// - Parameter schema: A schemas to check.
     func isObjectishSchemaAndSupported(_ schema: JSONSchema) throws -> IsSchemaSupportedResult {
         switch schema.value {
-        case .object, .reference:
-            return try isSchemaSupported(schema)
+        case .object, .reference: return try isSchemaSupported(schema)
         case .all(of: let schemas, _), .any(of: let schemas, _), .one(of: let schemas, _):
             return try areSchemasSupported(schemas)
-        default:
-            return .unsupported(
-                reason: .notObjectish,
-                schema: schema
-            )
+        default: return .unsupported(reason: .notObjectish, schema: schema)
         }
     }
 
@@ -229,9 +172,7 @@ extension FileTranslator {
     func areRefsToObjectishSchemaAndSupported(_ schemas: [JSONSchema]) throws -> IsSchemaSupportedResult {
         for schema in schemas {
             let result = try isRefToObjectishSchemaAndSupported(schema)
-            guard result == .supported else {
-                return result
-            }
+            guard result == .supported else { return result }
         }
         return .supported
     }
@@ -244,11 +185,7 @@ extension FileTranslator {
         case let .reference(ref, _):
             let referencedSchema = try components.lookup(ref)
             return try isObjectishSchemaAndSupported(referencedSchema)
-        default:
-            return .unsupported(
-                reason: .notRef,
-                schema: schema
-            )
+        default: return .unsupported(reason: .notRef, schema: schema)
         }
     }
 }

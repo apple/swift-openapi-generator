@@ -49,10 +49,7 @@ public final class TestServerTransport: ServerTransport {
         queryItemNames: Set<String>
     ) throws {
         registered.append(
-            Operation(
-                inputs: .init(method: method, path: path, queryItemNames: queryItemNames),
-                closure: handler
-            )
+            Operation(inputs: .init(method: method, path: path, queryItemNames: queryItemNames), closure: handler)
         )
     }
 }

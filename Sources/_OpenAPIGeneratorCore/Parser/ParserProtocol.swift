@@ -24,9 +24,6 @@ protocol ParserProtocol {
     ///   - config: The configuration of the generator.
     ///   - diagnostics: The collector to which to emit diagnostics.
     /// - Returns: A parsed and validated OpenAPI document.
-    func parseOpenAPI(
-        _ input: InMemoryInputFile,
-        config: Config,
-        diagnostics: any DiagnosticCollector
-    ) throws -> ParsedOpenAPIRepresentation
+    func parseOpenAPI(_ input: InMemoryInputFile, config: Config, diagnostics: any DiagnosticCollector) throws
+        -> ParsedOpenAPIRepresentation
 }

@@ -36,16 +36,9 @@ extension FileTranslator {
     ///   - operation: The parent operation of the request body.
     /// - Returns: Typed request content; nil if the request body is nil or
     /// unsupported.
-    func typedRequestBody(
-        in operation: OperationDescription
-    ) throws -> TypedRequestBody? {
-        guard let requestBody = operation.operation.requestBody else {
-            return nil
-        }
-        return try typedRequestBody(
-            from: requestBody,
-            inParent: operation.inputTypeName
-        )
+    func typedRequestBody(in operation: OperationDescription) throws -> TypedRequestBody? {
+        guard let requestBody = operation.operation.requestBody else { return nil }
+        return try typedRequestBody(from: requestBody, inParent: operation.inputTypeName)
     }
 
     /// Returns typed request body for the specified request body.
@@ -54,24 +47,16 @@ extension FileTranslator {
     ///   - parent: The parent type of the request body.
     /// - Returns: Typed request content; nil if the request body is
     /// unsupported.
-    func typedRequestBody(
-        from unresolvedRequest: UnresolvedRequest,
-        inParent parent: TypeName
-    ) throws -> TypedRequestBody? {
+    func typedRequestBody(from unresolvedRequest: UnresolvedRequest, inParent parent: TypeName) throws
+        -> TypedRequestBody?
+    {
         let type: TypeName
         switch unresolvedRequest {
-        case .a(let reference):
-            type = try typeAssigner.typeName(for: reference)
+        case .a(let reference): type = try typeAssigner.typeName(for: reference)
         case .b:
-            type = parent.appending(
-                swiftComponent: Constants.Operation.Body.typeName,
-                jsonComponent: "requestBody"
-            )
+            type = parent.appending(swiftComponent: Constants.Operation.Body.typeName, jsonComponent: "requestBody")
         }
-        return try typedRequestBody(
-            typeName: type,
-            from: unresolvedRequest
-        )
+        return try typedRequestBody(typeName: type, from: unresolvedRequest)
     }
 
     /// Returns typed request body for the specified request body.
@@ -80,10 +65,7 @@ extension FileTranslator {
     ///   - unresolvedRequest: An unresolved request body.
     /// - Returns: Typed request content; nil if the request body is
     /// unsupported.
-    func typedRequestBody(
-        typeName: TypeName,
-        from unresolvedRequest: UnresolvedRequest
-    ) throws -> TypedRequestBody? {
+    func typedRequestBody(typeName: TypeName, from unresolvedRequest: UnresolvedRequest) throws -> TypedRequestBody? {
 
         let request: OpenAPI.Request
         let isInlined: Bool
@@ -96,21 +78,11 @@ extension FileTranslator {
             isInlined = true
         }
 
-        let contents = try supportedTypedContents(
-            request.content,
-            inParent: typeName
-        )
-        if contents.isEmpty {
-            return nil
-        }
+        let contents = try supportedTypedContents(request.content, inParent: typeName)
+        if contents.isEmpty { return nil }
 
         let usage = typeName.asUsage.withOptional(!request.required)
-        return TypedRequestBody(
-            request: request,
-            typeUsage: usage,
-            isInlined: isInlined,
-            contents: contents
-        )
+        return TypedRequestBody(request: request, typeUsage: usage, isInlined: isInlined, contents: contents)
     }
 }
 

@@ -68,13 +68,7 @@ struct GeneratorPipeline {
     /// - Parameter input: The input of the parsing stage.
     /// - Returns: The output of the rendering stage.
     func run(_ input: RawInput) throws -> RenderedOutput {
-        try renderSwiftFilesStage.run(
-            translateOpenAPIToStructuredSwiftStage.run(
-                parseOpenAPIFileStage.run(
-                    input
-                )
-            )
-        )
+        try renderSwiftFilesStage.run(translateOpenAPIToStructuredSwiftStage.run(parseOpenAPIFileStage.run(input)))
     }
 }
 
@@ -86,13 +80,9 @@ struct GeneratorPipeline {
 /// - Throws: When encountering a non-recoverable error. For recoverable
 /// issues, emits issues into the diagnostics collector.
 /// - Returns: The raw contents of the generated Swift file.
-public func runGenerator(
-    input: InMemoryInputFile,
-    config: Config,
-    diagnostics: any DiagnosticCollector
-) throws -> InMemoryOutputFile {
-    try makeGeneratorPipeline(config: config, diagnostics: diagnostics).run(input)
-}
+public func runGenerator(input: InMemoryInputFile, config: Config, diagnostics: any DiagnosticCollector) throws
+    -> InMemoryOutputFile
+{ try makeGeneratorPipeline(config: config, diagnostics: diagnostics).run(input) }
 
 /// Creates a new pipeline instance.
 /// - Parameters:
@@ -116,19 +106,10 @@ func makeGeneratorPipeline(
     return .init(
         parseOpenAPIFileStage: .init(
             preTransitionHooks: [],
-            transition: { input in
-                try parser.parseOpenAPI(
-                    input,
-                    config: config,
-                    diagnostics: diagnostics
-                )
-            },
+            transition: { input in try parser.parseOpenAPI(input, config: config, diagnostics: diagnostics) },
             postTransitionHooks: [
-                { doc in
-                    let validationDiagnostics = try validator(doc, config)
-                    for diagnostic in validationDiagnostics {
-                        diagnostics.emit(diagnostic)
-                    }
+                { doc in let validationDiagnostics = try validator(doc, config)
+                    for diagnostic in validationDiagnostics { diagnostics.emit(diagnostic) }
                     return doc
                 }
             ]
@@ -136,26 +117,14 @@ func makeGeneratorPipeline(
         translateOpenAPIToStructuredSwiftStage: .init(
             preTransitionHooks: [],
             transition: { input in
-                try translator.translate(
-                    parsedOpenAPI: input,
-                    config: config,
-                    diagnostics: diagnostics
-                )
+                try translator.translate(parsedOpenAPI: input, config: config, diagnostics: diagnostics)
             },
             postTransitionHooks: []
         ),
         renderSwiftFilesStage: .init(
             preTransitionHooks: [],
-            transition: { input in
-                try renderer.render(
-                    structured: input,
-                    config: config,
-                    diagnostics: diagnostics
-                )
-            },
-            postTransitionHooks: [
-                formatter
-            ]
+            transition: { input in try renderer.render(structured: input, config: config, diagnostics: diagnostics) },
+            postTransitionHooks: [formatter]
         )
     )
 }

@@ -16,14 +16,10 @@ import Foundation
 extension String {
 
     /// Returns a copy of the string with the first letter uppercased.
-    var uppercasingFirstLetter: String {
-        transformingFirstLetter { $0.uppercased() }
-    }
+    var uppercasingFirstLetter: String { transformingFirstLetter { $0.uppercased() } }
 
     /// Returns a copy of the string with the first letter lowercased.
-    var lowercasingFirstLetter: String {
-        transformingFirstLetter { $0.lowercased() }
-    }
+    var lowercasingFirstLetter: String { transformingFirstLetter { $0.lowercased() } }
 }
 
 fileprivate extension String {
@@ -32,9 +28,7 @@ fileprivate extension String {
     /// the specified closure.
     /// - Parameter transformation: A closure that modifies the first letter.
     func transformingFirstLetter<T>(_ transformation: (Character) -> T) -> String where T: StringProtocol {
-        guard let firstLetterIndex = self.firstIndex(where: \.isLetter) else {
-            return self
-        }
+        guard let firstLetterIndex = self.firstIndex(where: \.isLetter) else { return self }
         return self.replacingCharacters(
             in: firstLetterIndex..<self.index(after: firstLetterIndex),
             with: transformation(self[firstLetterIndex])

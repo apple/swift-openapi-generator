@@ -28,26 +28,16 @@ struct ClientFileTranslator: FileTranslator {
     var diagnostics: any DiagnosticCollector
     var components: OpenAPI.Components
 
-    func translateFile(
-        parsedOpenAPI: ParsedOpenAPIRepresentation
-    ) throws -> StructuredSwiftRepresentation {
+    func translateFile(parsedOpenAPI: ParsedOpenAPIRepresentation) throws -> StructuredSwiftRepresentation {
 
         let doc = parsedOpenAPI
 
         let topComment: Comment = .inline(Constants.File.topComment)
 
-        let imports =
-            Constants.File.imports
-            + config.additionalImports
-            .map { ImportDescription(moduleName: $0) }
+        let imports = Constants.File.imports + config.additionalImports.map { ImportDescription(moduleName: $0) }
 
         let clientMethodDecls =
-            try OperationDescription
-            .all(
-                from: doc.paths,
-                in: components,
-                asSwiftSafeName: swiftSafeName
-            )
+            try OperationDescription.all(from: doc.paths, in: components, asSwiftSafeName: swiftSafeName)
             .map(translateClientMethod(_:))
 
         let clientStructPropertyDecl: Declaration = .commentable(
@@ -82,11 +72,7 @@ struct ClientFileTranslator: FileTranslator {
                         label: "configuration",
                         type: Constants.Configuration.typeName,
                         defaultValue: .dot("init").call([])
-                    ),
-                    .init(
-                        label: "transport",
-                        type: Constants.Client.Transport.typeName
-                    ),
+                    ), .init(label: "transport", type: Constants.Client.Transport.typeName),
                     .init(
                         label: "middlewares",
                         type: "[\(Constants.Client.Middleware.typeName)]",
@@ -99,22 +85,10 @@ struct ClientFileTranslator: FileTranslator {
                             left: .identifier("self").dot(Constants.Client.Universal.propertyName),
                             right: .dot("init")
                                 .call([
-                                    .init(
-                                        label: "serverURL",
-                                        expression: .identifier("serverURL")
-                                    ),
-                                    .init(
-                                        label: "configuration",
-                                        expression: .identifier("configuration")
-                                    ),
-                                    .init(
-                                        label: "transport",
-                                        expression: .identifier("transport")
-                                    ),
-                                    .init(
-                                        label: "middlewares",
-                                        expression: .identifier("middlewares")
-                                    ),
+                                    .init(label: "serverURL", expression: .identifier("serverURL")),
+                                    .init(label: "configuration", expression: .identifier("configuration")),
+                                    .init(label: "transport", expression: .identifier("transport")),
+                                    .init(label: "middlewares", expression: .identifier("middlewares")),
                                 ])
                         )
                     )
@@ -127,12 +101,7 @@ struct ClientFileTranslator: FileTranslator {
             kind: .var,
             left: "converter",
             type: Constants.Converter.typeName,
-            body: [
-                .expression(
-                    .identifier(Constants.Client.Universal.propertyName)
-                        .dot("converter")
-                )
-            ]
+            body: [.expression(.identifier(Constants.Client.Universal.propertyName).dot("converter"))]
         )
 
         let clientStructDecl: Declaration = .commentable(
@@ -141,14 +110,9 @@ struct ClientFileTranslator: FileTranslator {
                 .init(
                     accessModifier: config.access,
                     name: Constants.Client.typeName,
-                    conformances: [
-                        Constants.APIProtocol.typeName
-                    ],
-                    members: [
-                        clientStructPropertyDecl,
-                        clientStructInitDecl,
-                        clientStructConverterPropertyDecl,
-                    ] + clientMethodDecls
+                    conformances: [Constants.APIProtocol.typeName],
+                    members: [clientStructPropertyDecl, clientStructInitDecl, clientStructConverterPropertyDecl]
+                        + clientMethodDecls
                 )
             )
         )
@@ -156,13 +120,7 @@ struct ClientFileTranslator: FileTranslator {
         return StructuredSwiftRepresentation(
             file: .init(
                 name: GeneratorMode.client.outputFileName,
-                contents: .init(
-                    topComment: topComment,
-                    imports: imports,
-                    codeBlocks: [
-                        .declaration(clientStructDecl)
-                    ]
-                )
+                contents: .init(topComment: topComment, imports: imports, codeBlocks: [.declaration(clientStructDecl)])
             )
         )
     }

@@ -1045,10 +1045,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
         try self.assertResponsesTranslation(
-            featureFlags: [
-                .multipleContentTypes,
-                .proposal0001,
-            ],
+            featureFlags: [.multipleContentTypes, .proposal0001],
             """
             responses:
               MultipleContentTypes:
@@ -1218,10 +1215,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
         try self.assertRequestBodiesTranslation(
-            featureFlags: [
-                .multipleContentTypes,
-                .proposal0001,
-            ],
+            featureFlags: [.multipleContentTypes, .proposal0001],
             """
             requestBodies:
               MyResponseBody:
@@ -1671,10 +1665,7 @@ extension SnippetBasedReferenceTests {
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
-        let translator = try makeTypesTranslator(
-            featureFlags: featureFlags,
-            componentsYAML: componentsYAML
-        )
+        let translator = try makeTypesTranslator(featureFlags: featureFlags, componentsYAML: componentsYAML)
         let translation = try translator.translateSchemas(translator.components.schemas)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
@@ -1807,8 +1798,7 @@ private func diff(expected: String, actual: String) throws -> String {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
     process.arguments = [
-        "bash", "-c",
-        "diff -U5 --label=expected <(echo '\(expected)') --label=actual <(echo '\(actual)')",
+        "bash", "-c", "diff -U5 --label=expected <(echo '\(expected)') --label=actual <(echo '\(actual)')",
     ]
     let pipe = Pipe()
     process.standardOutput = pipe
@@ -1829,10 +1819,8 @@ fileprivate extension Declaration {
 
     func stripComments(_ decl: Declaration) -> Declaration {
         switch decl {
-        case let .commentable(_, d):
-            return stripComments(d)
-        case let .deprecated(a, b):
-            return .deprecated(a, stripComments(b))
+        case let .commentable(_, d): return stripComments(d)
+        case let .deprecated(a, b): return .deprecated(a, stripComments(b))
         case var .protocol(p):
             p.members = p.members.map(stripComments(_:))
             return .protocol(p)
@@ -1851,20 +1839,14 @@ fileprivate extension Declaration {
         case var .variable(v):
             v.body = stripComments(v.body)
             return .variable(v)
-        case let .typealias(t):
-            return .typealias(t)
-        case let .enumCase(e):
-            return .enumCase(e)
+        case let .typealias(t): return .typealias(t)
+        case let .enumCase(e): return .enumCase(e)
         }
     }
 
-    func stripComments(_ body: [CodeBlock]?) -> [CodeBlock]? {
-        body.map(stripComments(_:))
-    }
+    func stripComments(_ body: [CodeBlock]?) -> [CodeBlock]? { body.map(stripComments(_:)) }
 
-    func stripComments(_ body: [CodeBlock]) -> [CodeBlock] {
-        body.map(stripComments(_:))
-    }
+    func stripComments(_ body: [CodeBlock]) -> [CodeBlock] { body.map(stripComments(_:)) }
 
     func stripComments(_ codeBlock: CodeBlock) -> CodeBlock {
         CodeBlock(comment: nil, item: stripComments(codeBlock.item))

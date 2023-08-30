@@ -26,45 +26,33 @@ struct ServerFileTranslator: FileTranslator {
     var diagnostics: any DiagnosticCollector
     var components: OpenAPI.Components
 
-    func translateFile(
-        parsedOpenAPI: ParsedOpenAPIRepresentation
-    ) throws -> StructuredSwiftRepresentation {
+    func translateFile(parsedOpenAPI: ParsedOpenAPIRepresentation) throws -> StructuredSwiftRepresentation {
 
         let doc = parsedOpenAPI
 
         let topComment: Comment = .inline(Constants.File.topComment)
 
-        let imports =
-            Constants.File.imports
-            + config.additionalImports
-            .map { ImportDescription(moduleName: $0) }
+        let imports = Constants.File.imports + config.additionalImports.map { ImportDescription(moduleName: $0) }
 
-        let allOperations =
-            try OperationDescription
-            .all(
-                from: doc.paths,
-                in: components,
-                asSwiftSafeName: swiftSafeName
-            )
+        let allOperations = try OperationDescription.all(
+            from: doc.paths,
+            in: components,
+            asSwiftSafeName: swiftSafeName
+        )
 
         let (registerHandlersDecl, serverMethodDecls) = try translateRegisterHandlers(allOperations)
 
         let protocolExtensionDecl: Declaration = .extension(
             accessModifier: nil,
             onType: Constants.APIProtocol.typeName,
-            declarations: [
-                registerHandlersDecl
-            ]
+            declarations: [registerHandlersDecl]
         )
 
         let serverExtensionDecl: Declaration = .extension(
             accessModifier: .fileprivate,
             onType: Constants.Server.Universal.typeName,
             whereClause: .init(requirements: [
-                .conformance(
-                    Constants.Server.Universal.apiHandlerName,
-                    Constants.APIProtocol.typeName
-                )
+                .conformance(Constants.Server.Universal.apiHandlerName, Constants.APIProtocol.typeName)
             ]),
             declarations: serverMethodDecls
         )
@@ -75,10 +63,7 @@ struct ServerFileTranslator: FileTranslator {
                 contents: .init(
                     topComment: topComment,
                     imports: imports,
-                    codeBlocks: [
-                        .declaration(protocolExtensionDecl),
-                        .declaration(serverExtensionDecl),
-                    ]
+                    codeBlocks: [.declaration(protocolExtensionDecl), .declaration(serverExtensionDecl)]
                 )
             )
         )
@@ -87,15 +72,11 @@ struct ServerFileTranslator: FileTranslator {
     /// Returns a declaration of the registerHandlers method and
     /// the declarations of the individual operation methods.
     /// - Parameter operations: The operations found in the OpenAPI document.
-    func translateRegisterHandlers(
-        _ operations: [OperationDescription]
-    ) throws -> (Declaration, [Declaration]) {
+    func translateRegisterHandlers(_ operations: [OperationDescription]) throws -> (Declaration, [Declaration]) {
         var registerHandlersDeclBody: [CodeBlock] = []
-        let serverMethodDeclPairs =
-            try operations
-            .map { operation in
-                try translateServerMethod(operation, serverUrlVariableName: "server")
-            }
+        let serverMethodDeclPairs = try operations.map { operation in
+            try translateServerMethod(operation, serverUrlVariableName: "server")
+        }
         let serverMethodDecls = serverMethodDeclPairs.map(\.functionDecl)
 
         // To avoid an unused variable warning, we add the server variable declaration
@@ -135,11 +116,7 @@ struct ServerFileTranslator: FileTranslator {
                 accessModifier: config.access,
                 kind: .function(name: "registerHandlers"),
                 parameters: [
-                    .init(
-                        label: "on",
-                        name: "transport",
-                        type: Constants.Server.Transport.typeName
-                    ),
+                    .init(label: "on", name: "transport", type: Constants.Server.Transport.typeName),
                     .init(
                         label: "serverURL",
                         type: "\(Constants.ServerURL.underlyingType)",
@@ -156,9 +133,7 @@ struct ServerFileTranslator: FileTranslator {
                         defaultValue: .literal(.array([]))
                     ),
                 ],
-                keywords: [
-                    .throws
-                ],
+                keywords: [.throws],
                 body: registerHandlersDeclBody
             )
         )

@@ -35,9 +35,7 @@ extension _Tool {
         diagnostics: any DiagnosticCollector
     ) throws {
         let docData: Data
-        do {
-            docData = try Data(contentsOf: doc)
-        } catch {
+        do { docData = try Data(contentsOf: doc) } catch {
             throw ValidationError("Failed to load the OpenAPI document at path \(doc.path), error: \(error)")
         }
         for config in configs {
@@ -130,10 +128,7 @@ extension _Tool {
         }
         print("Writing data to file \(path.lastPathComponent)...")
         if !isDryRun {
-            try fileManager.createDirectory(
-                at: outputDirectory,
-                withIntermediateDirectories: true
-            )
+            try fileManager.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
             try data.write(to: path)
         }
     }

@@ -30,9 +30,7 @@ extension Data {
 extension InMemoryInputFile {
     /// Creates a new in-memory file by reading the contents at the specified path.
     /// - Parameter url: The path to the file to read.
-    init(fromFileAt url: URL) throws {
-        try self.init(absolutePath: url, contents: Data(contentsOf: url))
-    }
+    init(fromFileAt url: URL) throws { try self.init(absolutePath: url, contents: Data(contentsOf: url)) }
 }
 
 extension InMemoryOutputFile {
@@ -49,8 +47,4 @@ extension InMemoryOutputFile {
 /// File handle to stderr.
 let stdErrHandle = FileHandle.standardError
 
-extension FileHandle: TextOutputStream {
-    public func write(_ string: String) {
-        write(Data(string.utf8))
-    }
-}
+extension FileHandle: TextOutputStream { public func write(_ string: String) { write(Data(string.utf8)) } }

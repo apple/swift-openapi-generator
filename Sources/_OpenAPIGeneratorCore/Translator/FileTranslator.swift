@@ -40,7 +40,5 @@ protocol FileTranslator {
     /// requested by the generator mode.
     /// - Parameter parsedOpenAPI: The OpenAPI document.
     /// - Returns: Structured representation of the generated Swift file.
-    func translateFile(
-        parsedOpenAPI: ParsedOpenAPIRepresentation
-    ) throws -> StructuredSwiftRepresentation
+    func translateFile(parsedOpenAPI: ParsedOpenAPIRepresentation) throws -> StructuredSwiftRepresentation
 }

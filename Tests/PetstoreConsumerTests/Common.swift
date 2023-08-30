@@ -14,7 +14,5 @@
 import XCTest
 
 extension Operations.listPets.Output {
-    static var success: Self {
-        .ok(.init(headers: .init(My_Response_UUID: "abcd"), body: .json([])))
-    }
+    static var success: Self { .ok(.init(headers: .init(My_Response_UUID: "abcd"), body: .json([]))) }
 }

@@ -22,32 +22,19 @@ extension FileTranslator {
     func contentSwiftName(_ contentType: ContentType) -> String {
         if config.featureFlags.contains(.multipleContentTypes) {
             switch contentType.lowercasedTypeAndSubtype {
-            case "application/json":
-                return "json"
-            case "application/x-www-form-urlencoded":
-                return "urlEncodedForm"
-            case "multipart/form-data":
-                return "multipartForm"
-            case "text/plain":
-                return "plainText"
-            case "*/*":
-                return "any"
-            case "application/xml":
-                return "xml"
-            case "application/octet-stream":
-                return "binary"
-            case "text/html":
-                return "html"
-            case "application/yaml":
-                return "yaml"
-            case "text/csv":
-                return "csv"
-            case "image/png":
-                return "png"
-            case "application/pdf":
-                return "pdf"
-            case "image/jpeg":
-                return "jpeg"
+            case "application/json": return "json"
+            case "application/x-www-form-urlencoded": return "urlEncodedForm"
+            case "multipart/form-data": return "multipartForm"
+            case "text/plain": return "plainText"
+            case "*/*": return "any"
+            case "application/xml": return "xml"
+            case "application/octet-stream": return "binary"
+            case "text/html": return "html"
+            case "application/yaml": return "yaml"
+            case "text/csv": return "csv"
+            case "image/png": return "png"
+            case "application/pdf": return "pdf"
+            case "image/jpeg": return "jpeg"
             default:
                 let safedType = swiftSafeName(for: contentType.originallyCasedType)
                 let safedSubtype = swiftSafeName(for: contentType.originallyCasedSubtype)
@@ -55,12 +42,9 @@ extension FileTranslator {
             }
         } else {
             switch contentType.category {
-            case .json:
-                return "json"
-            case .text:
-                return "text"
-            case .binary:
-                return "binary"
+            case .json: return "json"
+            case .text: return "text"
+            case .binary: return "binary"
             }
         }
     }

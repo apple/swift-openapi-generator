@@ -21,9 +21,7 @@ extension TypesFileTranslator {
     ///   - content: The typed schema content to declare.
     /// - Returns: A list of declarations; empty list if the content is
     /// unsupported.
-    func translateRequestBodyContentInTypes(
-        _ content: TypedSchemaContent
-    ) throws -> [Declaration] {
+    func translateRequestBodyContentInTypes(_ content: TypedSchemaContent) throws -> [Declaration] {
         let decl = try translateSchema(
             typeName: content.resolvedTypeUsage.typeName,
             schema: content.content.schema,
@@ -40,18 +38,14 @@ extension TypesFileTranslator {
     /// - Parameter requestBody: The request body to declare.
     /// - Returns: A list of declarations; empty if the request body is
     /// unsupported.
-    func requestBodyContentCases(
-        for requestBody: TypedRequestBody
-    ) throws -> [Declaration] {
+    func requestBodyContentCases(for requestBody: TypedRequestBody) throws -> [Declaration] {
         var bodyMembers: [Declaration] = []
         let typeName = requestBody.typeUsage.typeName
         let contentTypeName = typeName.appending(jsonComponent: "content")
         let contents = requestBody.contents
         for content in contents {
             if TypeMatcher.isInlinable(content.content.schema) {
-                let inlineTypeDecls = try translateRequestBodyContentInTypes(
-                    content
-                )
+                let inlineTypeDecls = try translateRequestBodyContentInTypes(content)
                 bodyMembers.append(contentsOf: inlineTypeDecls)
             }
             let contentType = content.content.contentType
@@ -61,9 +55,7 @@ extension TypesFileTranslator {
                 contentType.docComment(typeName: contentTypeName),
                 .enumCase(
                     name: identifier,
-                    kind: .nameWithAssociatedValues([
-                        .init(type: associatedType.fullyQualifiedNonOptionalSwiftName)
-                    ])
+                    kind: .nameWithAssociatedValues([.init(type: associatedType.fullyQualifiedNonOptionalSwiftName)])
                 )
             )
             bodyMembers.append(contentCase)
@@ -76,27 +68,19 @@ extension TypesFileTranslator {
     /// - Parameters:
     ///   - unresolvedRequestBody: An unresolved request body.
     ///   - parent: The type name of the parent structure.
-    func parseRequestBodyAsProperty(
-        for unresolvedRequestBody: UnresolvedRequest?,
-        inParent parent: TypeName
-    ) throws -> PropertyBlueprint {
+    func parseRequestBodyAsProperty(for unresolvedRequestBody: UnresolvedRequest?, inParent parent: TypeName) throws
+        -> PropertyBlueprint
+    {
         let bodyEnumTypeName: TypeName
         let isRequestBodyOptional: Bool
         let extraDecls: [Declaration]
         if let _requestBody = unresolvedRequestBody,
-            let requestBody = try typedRequestBody(
-                from: _requestBody,
-                inParent: parent
-            )
+            let requestBody = try typedRequestBody(from: _requestBody, inParent: parent)
         {
             isRequestBodyOptional = !requestBody.request.required
             bodyEnumTypeName = requestBody.typeUsage.typeName
             if requestBody.isInlined {
-                extraDecls = [
-                    try translateRequestBodyInTypes(
-                        requestBody: requestBody
-                    )
-                ]
+                extraDecls = [try translateRequestBodyInTypes(requestBody: requestBody)]
             } else {
                 extraDecls = []
             }
@@ -106,16 +90,10 @@ extension TypesFileTranslator {
                 swiftComponent: Constants.Operation.Body.typeName,
                 jsonComponent: "requestBody"
             )
-            extraDecls = [
-                translateRequestBodyInTypes(
-                    typeName: bodyEnumTypeName,
-                    members: []
-                )
-            ]
+            extraDecls = [translateRequestBodyInTypes(typeName: bodyEnumTypeName, members: [])]
         }
 
-        let bodyEnumTypeUsage = bodyEnumTypeName.asUsage
-            .withOptional(isRequestBodyOptional)
+        let bodyEnumTypeUsage = bodyEnumTypeName.asUsage.withOptional(isRequestBodyOptional)
         let bodyProperty = PropertyBlueprint(
             comment: nil,
             originalName: "body",
@@ -132,15 +110,10 @@ extension TypesFileTranslator {
     ///   - requestBody: The request body to declare.
     /// - Returns: A list of declarations; empty list if the request body is
     /// unsupported.
-    func translateRequestBodyInTypes(
-        requestBody: TypedRequestBody
-    ) throws -> Declaration {
+    func translateRequestBodyInTypes(requestBody: TypedRequestBody) throws -> Declaration {
         let type = requestBody.typeUsage.typeName
         let members = try requestBodyContentCases(for: requestBody)
-        return translateRequestBodyInTypes(
-            typeName: type,
-            members: members
-        )
+        return translateRequestBodyInTypes(typeName: type, members: members)
     }
 
     /// Returns a declaration that defines a Swift type for the request body.
@@ -148,10 +121,7 @@ extension TypesFileTranslator {
     ///   - typeName: The request body enum type name.
     ///   - members: The request body enum members to include.
     /// - Returns: A declaration of the enum.
-    func translateRequestBodyInTypes(
-        typeName: TypeName,
-        members: [Declaration]
-    ) -> Declaration {
+    func translateRequestBodyInTypes(typeName: TypeName, members: [Declaration]) -> Declaration {
         let bodyEnumDecl: Declaration = .enum(
             isFrozen: true,
             accessModifier: config.access,
@@ -160,10 +130,7 @@ extension TypesFileTranslator {
             members: members
         )
         let comment: Comment? = typeName.docCommentWithUserDescription(nil)
-        return .commentable(
-            comment,
-            bodyEnumDecl
-        )
+        return .commentable(comment, bodyEnumDecl)
     }
 }
 
@@ -182,8 +149,7 @@ extension ClientFileTranslator {
         inputVariableName: String
     ) throws -> Expression {
         let contents = requestBody.contents
-        var cases: [SwitchCaseDescription] = contents.map { typedContent in
-            let content = typedContent.content
+        var cases: [SwitchCaseDescription] = contents.map { typedContent in let content = typedContent.content
             let contentType = content.contentType
             let contentTypeIdentifier = contentSwiftName(contentType)
             let contentTypeHeaderValue = contentType.headerValueForSending
@@ -199,22 +165,14 @@ extension ClientFileTranslator {
                             .init(label: nil, expression: .identifier("value")),
                             .init(
                                 label: "headerFields",
-                                expression: .inOut(
-                                    .identifier(requestVariableName).dot("headerFields")
-                                )
-                            ),
-                            .init(
-                                label: "contentType",
-                                expression: .literal(contentTypeHeaderValue)
-                            ),
+                                expression: .inOut(.identifier(requestVariableName).dot("headerFields"))
+                            ), .init(label: "contentType", expression: .literal(contentTypeHeaderValue)),
                         ])
                 )
             )
             let caseDesc = SwitchCaseDescription(
                 kind: .case(.dot(contentTypeIdentifier), ["value"]),
-                body: [
-                    .expression(bodyAssignExpr)
-                ]
+                body: [.expression(bodyAssignExpr)]
             )
             return caseDesc
         }
@@ -222,20 +180,12 @@ extension ClientFileTranslator {
             let noneCase = SwitchCaseDescription(
                 kind: .case(.dot("none")),
                 body: [
-                    .expression(
-                        .assignment(
-                            left: .identifier(requestVariableName).dot("body"),
-                            right: .literal(.nil)
-                        )
-                    )
+                    .expression(.assignment(left: .identifier(requestVariableName).dot("body"), right: .literal(.nil)))
                 ]
             )
             cases.insert(noneCase, at: 0)
         }
-        return .switch(
-            switchedExpression: .identifier(inputVariableName).dot("body"),
-            cases: cases
-        )
+        return .switch(switchedExpression: .identifier(inputVariableName).dot("body"), cases: cases)
     }
 }
 
@@ -262,53 +212,29 @@ extension ServerFileTranslator {
         let contentTypeDecl: Declaration = .variable(
             kind: .let,
             left: "contentType",
-            right: .identifier("converter")
-                .dot("extractContentTypeIfPresent")
-                .call([
-                    .init(
-                        label: "in",
-                        expression: .identifier(requestVariableName)
-                            .dot("headerFields")
-                    )
-                ])
+            right: .identifier("converter").dot("extractContentTypeIfPresent")
+                .call([.init(label: "in", expression: .identifier(requestVariableName).dot("headerFields"))])
         )
         codeBlocks.append(.declaration(contentTypeDecl))
         codeBlocks.append(
             .declaration(
-                .variable(
-                    kind: .let,
-                    left: bodyVariableName,
-                    type: requestBody.typeUsage.fullyQualifiedSwiftName
-                )
+                .variable(kind: .let, left: bodyVariableName, type: requestBody.typeUsage.fullyQualifiedSwiftName)
             )
         )
 
         func makeIfBranch(typedContent: TypedSchemaContent, isFirstBranch: Bool) -> IfBranch {
-            let isMatchingContentTypeExpr: Expression = .identifier("converter")
-                .dot("isMatchingContentType")
+            let isMatchingContentTypeExpr: Expression = .identifier("converter").dot("isMatchingContentType")
                 .call([
-                    .init(
-                        label: "received",
-                        expression: .identifier("contentType")
-                    ),
+                    .init(label: "received", expression: .identifier("contentType")),
                     .init(
                         label: "expectedRaw",
-                        expression: .literal(
-                            typedContent
-                                .content
-                                .contentType
-                                .headerValueForValidation
-                        )
+                        expression: .literal(typedContent.content.contentType.headerValueForValidation)
                     ),
                 ])
             let condition: Expression
             if isFirstBranch {
                 condition = .binaryOperation(
-                    left: .binaryOperation(
-                        left: .identifier("contentType"),
-                        operation: .equals,
-                        right: .literal(.nil)
-                    ),
+                    left: .binaryOperation(left: .identifier("contentType"), operation: .equals, right: .literal(.nil)),
                     operation: .booleanOr,
                     right: isMatchingContentTypeExpr
                 )
@@ -324,9 +250,7 @@ extension ServerFileTranslator {
                 body: [
                     .expression(
                         .dot(contentSwiftName(typedContent.content.contentType))
-                            .call([
-                                .init(label: nil, expression: .identifier("value"))
-                            ])
+                            .call([.init(label: nil, expression: .identifier("value"))])
                     )
                 ]
             )
@@ -337,42 +261,21 @@ extension ServerFileTranslator {
                         .init(
                             label: nil,
                             expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
-                        ),
-                        .init(label: "from", expression: .identifier(requestVariableName).dot("body")),
-                        .init(
-                            label: "transforming",
-                            expression: transformExpr
-                        ),
+                        ), .init(label: "from", expression: .identifier(requestVariableName).dot("body")),
+                        .init(label: "transforming", expression: transformExpr),
                     ])
             )
             return .init(
                 condition: .try(condition),
-                body: [
-                    .expression(
-                        .assignment(
-                            left: .identifier("body"),
-                            right: bodyExpr
-                        )
-                    )
-                ]
+                body: [.expression(.assignment(left: .identifier("body"), right: bodyExpr))]
             )
         }
 
         let typedContents = requestBody.contents
 
-        let primaryIfBranch = makeIfBranch(
-            typedContent: typedContents[0],
-            isFirstBranch: true
-        )
-        let elseIfBranches =
-            typedContents
-            .dropFirst()
-            .map { typedContent in
-                makeIfBranch(
-                    typedContent: typedContent,
-                    isFirstBranch: false
-                )
-            }
+        let primaryIfBranch = makeIfBranch(typedContent: typedContents[0], isFirstBranch: true)
+        let elseIfBranches = typedContents.dropFirst()
+            .map { typedContent in makeIfBranch(typedContent: typedContent, isFirstBranch: false) }
 
         codeBlocks.append(
             .expression(
@@ -383,14 +286,8 @@ extension ServerFileTranslator {
                         .expression(
                             .unaryKeyword(
                                 kind: .throw,
-                                expression: .identifier("converter")
-                                    .dot("makeUnexpectedContentTypeError")
-                                    .call([
-                                        .init(
-                                            label: "contentType",
-                                            expression: .identifier("contentType")
-                                        )
-                                    ])
+                                expression: .identifier("converter").dot("makeUnexpectedContentTypeError")
+                                    .call([.init(label: "contentType", expression: .identifier("contentType"))])
                             )
                         )
                     ]

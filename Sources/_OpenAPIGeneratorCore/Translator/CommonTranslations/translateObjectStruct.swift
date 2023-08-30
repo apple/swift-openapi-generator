@@ -30,15 +30,8 @@ extension FileTranslator {
         isDeprecated: Bool
     ) throws -> Declaration {
 
-        let documentedProperties: [PropertyBlueprint] =
-            try objectContext
-            .properties
-            .filter { key, value in
-                try validateSchemaIsSupported(
-                    value,
-                    foundIn: "\(typeName.description)/\(key)"
-                )
-            }
+        let documentedProperties: [PropertyBlueprint] = try objectContext.properties
+            .filter { key, value in try validateSchemaIsSupported(value, foundIn: "\(typeName.description)/\(key)") }
             .map { key, value in
                 let propertyType = try typeAssigner.typeUsage(
                     forObjectPropertyNamed: key,
@@ -70,21 +63,12 @@ extension FileTranslator {
                 )
             }
 
-        let comment =
-            typeName
-            .docCommentWithUserDescription(openAPIDescription)
+        let comment = typeName.docCommentWithUserDescription(openAPIDescription)
 
-        let (codableStrategy, extraProperty) = try parseAdditionalProperties(
-            in: objectContext,
-            parent: typeName
-        )
+        let (codableStrategy, extraProperty) = try parseAdditionalProperties(in: objectContext, parent: typeName)
 
         let extraProperties: [PropertyBlueprint]
-        if let extraProperty {
-            extraProperties = [extraProperty]
-        } else {
-            extraProperties = []
-        }
+        if let extraProperty { extraProperties = [extraProperty] } else { extraProperties = [] }
 
         return translateStructBlueprint(
             StructBlueprint(
@@ -105,22 +89,17 @@ extension FileTranslator {
     /// - Parameter objectContext: The context describing the object.
     /// - Returns: The kind of Codable implementation required for the struct,
     /// and an extra property to be added to the struct, if needed.
-    func parseAdditionalProperties(
-        in objectContext: JSONSchema.ObjectContext,
-        parent: TypeName
-    ) throws -> (StructBlueprint.OpenAPICodableStrategy, PropertyBlueprint?) {
-        guard let additionalProperties = objectContext.additionalProperties else {
-            return (.synthesized, nil)
-        }
+    func parseAdditionalProperties(in objectContext: JSONSchema.ObjectContext, parent: TypeName) throws -> (
+        StructBlueprint.OpenAPICodableStrategy, PropertyBlueprint?
+    ) {
+        guard let additionalProperties = objectContext.additionalProperties else { return (.synthesized, nil) }
 
         let typeUsage: TypeUsage
         let associatedDeclarations: [Declaration]
 
         switch additionalProperties {
         case .a(let hasAdditionalProperties):
-            guard hasAdditionalProperties else {
-                return (.enforcingNoAdditionalProperties, nil)
-            }
+            guard hasAdditionalProperties else { return (.enforcingNoAdditionalProperties, nil) }
             typeUsage = TypeName.objectContainer.asUsage
             associatedDeclarations = []
         case .b(let schema):

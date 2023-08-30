@@ -43,11 +43,7 @@ class Test_translateSchemas: Test_Core {
         for (schema, diagnosticDescriptions) in cases {
             let collector = AccumulatingDiagnosticCollector()
             let translator = makeTranslator(diagnostics: collector)
-            _ = try translator.translateSchema(
-                typeName: typeName,
-                schema: schema,
-                overrides: .none
-            )
+            _ = try translator.translateSchema(typeName: typeName, schema: schema, overrides: .none)
             XCTAssertEqual(collector.diagnostics.map(\.description), diagnosticDescriptions)
         }
     }

@@ -18,23 +18,12 @@ import OpenAPIKit
 final class Test_translateStringEnum: Test_Core {
 
     func testCaseValues() throws {
-        let names = try _caseValues(
-            .string(
-                allowedValues: "a",
-                ""
-            )
-        )
+        let names = try _caseValues(.string(allowedValues: "a", ""))
         XCTAssertEqual(names, ["a", "_empty", "undocumented"])
     }
 
     func testCaseValuesForNullableSchema() throws {
-        let names = try _caseValues(
-            .string(
-                nullable: true,
-                allowedValues: "a",
-                nil
-            )
-        )
+        let names = try _caseValues(.string(nullable: true, allowedValues: "a", nil))
         XCTAssertEqual(names, ["a", "_empty", "undocumented"])
     }
 
@@ -53,9 +42,7 @@ final class Test_translateStringEnum: Test_Core {
         }
         XCTAssertEqual(enumDesc.name, "FooEnum")
         let names: [String] = enumDesc.members.compactMap { memberDecl in
-            guard case .enumCase(let caseDesc) = memberDecl.strippingTopComment else {
-                return nil
-            }
+            guard case .enumCase(let caseDesc) = memberDecl.strippingTopComment else { return nil }
             return caseDesc.name
         }
         return names

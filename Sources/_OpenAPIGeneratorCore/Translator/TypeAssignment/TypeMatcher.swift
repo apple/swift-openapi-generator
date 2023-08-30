@@ -43,15 +43,9 @@ struct TypeMatcher {
     func tryMatchBuiltinType(for schema: JSONSchema.Schema) -> TypeUsage? {
         Self._tryMatchRecursive(
             for: schema,
-            test: { schema in
-                Self._tryMatchBuiltinNonRecursive(for: schema)
-            },
-            matchedArrayHandler: { elementType in
-                elementType.asArray
-            },
-            genericArrayHandler: {
-                TypeName.arrayContainer.asUsage
-            }
+            test: { schema in Self._tryMatchBuiltinNonRecursive(for: schema) },
+            matchedArrayHandler: { elementType in elementType.asArray },
+            genericArrayHandler: { TypeName.arrayContainer.asUsage }
         )
     }
 
@@ -66,27 +60,16 @@ struct TypeMatcher {
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: A type usage for the schema if the schema is supported.
     /// Otherwise, returns nil.
-    func tryMatchReferenceableType(
-        for schema: JSONSchema
-    ) throws -> TypeUsage? {
+    func tryMatchReferenceableType(for schema: JSONSchema) throws -> TypeUsage? {
         try Self._tryMatchRecursive(
             for: schema.value,
             test: { (schema) -> TypeUsage? in
-                if let builtinType = Self._tryMatchBuiltinNonRecursive(for: schema) {
-                    return builtinType
-                }
-                guard case let .reference(ref, _) = schema else {
-                    return nil
-                }
-                return try TypeAssigner(asSwiftSafeName: asSwiftSafeName)
-                    .typeName(for: ref).asUsage
+                if let builtinType = Self._tryMatchBuiltinNonRecursive(for: schema) { return builtinType }
+                guard case let .reference(ref, _) = schema else { return nil }
+                return try TypeAssigner(asSwiftSafeName: asSwiftSafeName).typeName(for: ref).asUsage
             },
-            matchedArrayHandler: { elementType in
-                elementType.asArray
-            },
-            genericArrayHandler: {
-                TypeName.arrayContainer.asUsage
-            }
+            matchedArrayHandler: { elementType in elementType.asArray },
+            genericArrayHandler: { TypeName.arrayContainer.asUsage }
         )?
         .withOptional(!schema.required)
     }
@@ -103,21 +86,12 @@ struct TypeMatcher {
         // This logic should be kept in sync with `tryMatchReferenceableType`.
         _tryMatchRecursive(
             for: schema.value,
-            test: { schema in
-                if _tryMatchBuiltinNonRecursive(for: schema) != nil {
-                    return true
-                }
-                guard case .reference = schema else {
-                    return false
-                }
+            test: { schema in if _tryMatchBuiltinNonRecursive(for: schema) != nil { return true }
+                guard case .reference = schema else { return false }
                 return true
             },
-            matchedArrayHandler: { elementIsReferenceable in
-                elementIsReferenceable
-            },
-            genericArrayHandler: {
-                true
-            }
+            matchedArrayHandler: { elementIsReferenceable in elementIsReferenceable },
+            genericArrayHandler: { true }
         ) ?? false
     }
 
@@ -129,9 +103,7 @@ struct TypeMatcher {
     /// - A reference
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: `true` if the schema is referenceable; `false` otherwise.
-    static func isReferenceable(
-        _ schema: UnresolvedSchema?
-    ) -> Bool {
+    static func isReferenceable(_ schema: UnresolvedSchema?) -> Bool {
         guard let schema else {
             // fragment type is referenceable
             return true
@@ -140,8 +112,7 @@ struct TypeMatcher {
         case .a:
             // is a reference
             return true
-        case let .b(schema):
-            return isReferenceable(schema)
+        case let .b(schema): return isReferenceable(schema)
         }
     }
 
@@ -154,9 +125,7 @@ struct TypeMatcher {
     /// referenceable.
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: `true` if the schema is inlinable; `false` otherwise.
-    static func isInlinable(_ schema: JSONSchema) -> Bool {
-        !isReferenceable(schema)
-    }
+    static func isInlinable(_ schema: JSONSchema) -> Bool { !isReferenceable(schema) }
 
     /// Returns a Boolean value that indicates whether the schema
     /// needs to be defined inline..
@@ -167,11 +136,7 @@ struct TypeMatcher {
     /// referenceable.
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: `true` if the schema is inlinable; `false` otherwise.
-    static func isInlinable(
-        _ schema: UnresolvedSchema?
-    ) -> Bool {
-        !isReferenceable(schema)
-    }
+    static func isInlinable(_ schema: UnresolvedSchema?) -> Bool { !isReferenceable(schema) }
 
     // MARK: - Private
 
@@ -187,28 +152,20 @@ struct TypeMatcher {
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: A type usage for the schema if the schema is built-in.
     /// Otherwise, returns nil.
-    private static func _tryMatchBuiltinNonRecursive(
-        for schema: JSONSchema.Schema
-    ) -> TypeUsage? {
+    private static func _tryMatchBuiltinNonRecursive(for schema: JSONSchema.Schema) -> TypeUsage? {
         let typeName: TypeName
         switch schema {
-        case .boolean(_):
-            typeName = .swift("Bool")
+        case .boolean(_): typeName = .swift("Bool")
         case .number(let core, _):
             switch core.format {
-            case .float:
-                typeName = .swift("Float")
-            default:
-                typeName = .swift("Double")
+            case .float: typeName = .swift("Float")
+            default: typeName = .swift("Double")
             }
         case .integer(let core, _):
             switch core.format {
-            case .int32:
-                typeName = .swift("Int32")
-            case .int64:
-                typeName = .swift("Int64")
-            default:
-                typeName = .swift("Int")
+            case .int32: typeName = .swift("Int32")
+            case .int64: typeName = .swift("Int64")
+            default: typeName = .swift("Int")
             }
         case .string(let core, _):
             if core.allowedValues != nil {
@@ -216,17 +173,12 @@ struct TypeMatcher {
                 return nil
             }
             switch core.format {
-            case .byte:
-                typeName = .swift("String")
-            case .binary:
-                typeName = .foundation("Data")
-            case .dateTime:
-                typeName = .foundation("Date")
-            default:
-                typeName = .swift("String")
+            case .byte: typeName = .swift("String")
+            case .binary: typeName = .foundation("Data")
+            case .dateTime: typeName = .foundation("Date")
+            default: typeName = .swift("String")
             }
-        case .fragment:
-            typeName = .valueContainer
+        case .fragment: typeName = .valueContainer
         case let .object(_, objectContext):
             guard objectContext.properties.isEmpty && objectContext.additionalProperties == nil else {
                 // object with properties is not a builtin
@@ -267,9 +219,7 @@ struct TypeMatcher {
     ) rethrows -> R? {
         switch schema {
         case let .array(_, arrayContext):
-            guard let items = arrayContext.items else {
-                return genericArrayHandler()
-            }
+            guard let items = arrayContext.items else { return genericArrayHandler() }
             guard
                 let itemsResult = try _tryMatchRecursive(
                     for: items.value,
@@ -277,12 +227,9 @@ struct TypeMatcher {
                     matchedArrayHandler: matchedArrayHandler,
                     genericArrayHandler: genericArrayHandler
                 )
-            else {
-                return nil
-            }
+            else { return nil }
             return matchedArrayHandler(itemsResult)
-        default:
-            return try test(schema)
+        default: return try test(schema)
         }
     }
 }

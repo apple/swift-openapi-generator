@@ -28,24 +28,12 @@ extension TypesFileTranslator {
     /// list if the specified schema is unsupported. Returns multiple elements
     /// if the specified schema contains unnamed types that need to be declared
     /// inline.
-    func translateSchema(
-        componentKey: OpenAPI.ComponentKey,
-        schema: JSONSchema
-    ) throws -> [Declaration] {
-        guard
-            try validateSchemaIsSupported(
-                schema,
-                foundIn: "#/components/schemas/\(componentKey.rawValue)"
-            )
-        else {
+    func translateSchema(componentKey: OpenAPI.ComponentKey, schema: JSONSchema) throws -> [Declaration] {
+        guard try validateSchemaIsSupported(schema, foundIn: "#/components/schemas/\(componentKey.rawValue)") else {
             return []
         }
         let typeName = typeAssigner.typeName(for: (componentKey, schema))
-        return try translateSchema(
-            typeName: typeName,
-            schema: schema,
-            overrides: .none
-        )
+        return try translateSchema(typeName: typeName, schema: schema, overrides: .none)
     }
 
     /// Returns a declaration of the namespace that contains all the reusable
@@ -53,9 +41,7 @@ extension TypesFileTranslator {
     /// - Parameter schemas: The schemas from the OpenAPI document.
     /// - Returns: A declaration of the schemas namespace in the parent
     /// components namespace.
-    func translateSchemas(
-        _ schemas: OpenAPI.ComponentDictionary<JSONSchema>
-    ) throws -> Declaration {
+    func translateSchemas(_ schemas: OpenAPI.ComponentDictionary<JSONSchema>) throws -> Declaration {
 
         let decls: [Declaration] = try schemas.flatMap { key, value in
             try translateSchema(componentKey: key, schema: value)
@@ -63,11 +49,7 @@ extension TypesFileTranslator {
 
         let componentsSchemasEnum = Declaration.commentable(
             JSONSchema.sectionComment(),
-            .enum(
-                accessModifier: config.access,
-                name: Constants.Components.Schemas.namespace,
-                members: decls
-            )
+            .enum(accessModifier: config.access, name: Constants.Components.Schemas.namespace, members: decls)
         )
         return componentsSchemasEnum
     }

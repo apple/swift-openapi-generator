@@ -22,61 +22,33 @@ class Test_isSchemaSupported: XCTestCase {
             config: .init(mode: .types),
             diagnostics: PrintingDiagnosticCollector(),
             components: .init(schemas: [
-                "Foo": .string,
-                "MyObj": .object,
-                "MyObj2": .object,
-                "MyNestedObjectishOneOf": .one(of: [
-                    .object(properties: ["foo": .string])
-                ]),
-                "MyNestedAllOf": .all(of: [
-                    .object(properties: ["foo": .string])
-                ]),
-                "MyNestedAnyOf": .any(of: [
-                    .object(properties: ["foo": .string])
-                ]),
+                "Foo": .string, "MyObj": .object, "MyObj2": .object,
+                "MyNestedObjectishOneOf": .one(of: [.object(properties: ["foo": .string])]),
+                "MyNestedAllOf": .all(of: [.object(properties: ["foo": .string])]),
+                "MyNestedAnyOf": .any(of: [.object(properties: ["foo": .string])]),
             ])
         )
     }
 
     static let supportedTypes: [JSONSchema] = [
         // a string enum
-        .string(allowedValues: [
-            AnyCodable("Foo")
-        ]),
+        .string(allowedValues: [AnyCodable("Foo")]),
 
         // an object with at least one property
-        .object(properties: [
-            "Foo": .string
-        ]),
+        .object(properties: ["Foo": .string]),
 
         // a reference
         .reference(.component(named: "Foo")),
 
         // an array with a non-builtin type
-        .array(
-            .init(),
-            .init(items: .reference(.component(named: "Foo")))
-        ),
+        .array(.init(), .init(items: .reference(.component(named: "Foo")))),
 
         // double-nested array with non-builtin type
-        .array(
-            .init(),
-            .init(
-                items:
-                    .array(
-                        .init(),
-                        .init(items: .reference(.component(named: "Foo")))
-                    )
-            )
-        ),
+        .array(.init(), .init(items: .array(.init(), .init(items: .reference(.component(named: "Foo")))))),
 
         // allOf with many schemas
         .all(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .reference(.component(named: "MyObj")),
-            .string,
+            .object(properties: ["Foo": .string]), .reference(.component(named: "MyObj")), .string,
             .array(items: .string),
         ]),
 
@@ -95,21 +67,13 @@ class Test_isSchemaSupported: XCTestCase {
 
         // oneOf without a discriminator with various schemas
         .one(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .reference(.component(named: "MyObj")),
-            .string,
+            .object(properties: ["Foo": .string]), .reference(.component(named: "MyObj")), .string,
             .array(items: .string),
         ]),
 
         // anyOf with various schemas
         .any(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .reference(.component(named: "MyObj")),
-            .string,
+            .object(properties: ["Foo": .string]), .reference(.component(named: "MyObj")), .string,
             .array(items: .string),
         ]),
     ]

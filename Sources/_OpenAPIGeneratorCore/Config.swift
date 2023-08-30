@@ -34,11 +34,7 @@ public struct Config {
     ///   - mode: The mode to use for generation.
     ///   - additionalImports: Additional imports to add to each generated file.
     ///   - featureFlags: Additional pre-release features to enable.
-    public init(
-        mode: GeneratorMode,
-        additionalImports: [String] = [],
-        featureFlags: FeatureFlags = []
-    ) {
+    public init(mode: GeneratorMode, additionalImports: [String] = [], featureFlags: FeatureFlags = []) {
         self.mode = mode
         self.additionalImports = additionalImports
         self.featureFlags = featureFlags
@@ -47,7 +43,5 @@ public struct Config {
 
 extension Config {
     /// Returns the access modifier to use for generated declarations.
-    var access: AccessModifier? {
-        .public
-    }
+    var access: AccessModifier? { .public }
 }

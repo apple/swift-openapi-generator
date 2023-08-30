@@ -40,21 +40,15 @@ struct TypedResponseHeader {
 extension TypedResponseHeader {
 
     /// The name of the header sanitized to be a valid Swift identifier.
-    var variableName: String {
-        asSwiftSafeName(name)
-    }
+    var variableName: String { asSwiftSafeName(name) }
 
     /// A Boolean value that indicates whether the response header can
     /// be omitted in the HTTP response.
-    var isOptional: Bool {
-        !header.required
-    }
+    var isOptional: Bool { !header.required }
 }
 
 extension TypedResponseHeader: CustomStringConvertible {
-    var description: String {
-        typeUsage.description + "/header:\(name)"
-    }
+    var description: String { typeUsage.description + "/header:\(name)" }
 }
 
 extension FileTranslator {
@@ -68,19 +62,12 @@ extension FileTranslator {
     /// - Returns: A list of response headers; can be empty if no response
     /// headers are specified in the OpenAPI document, or if all headers are
     /// unsupported.
-    func typedResponseHeaders(
-        from response: OpenAPI.Response,
-        inParent parent: TypeName
-    ) throws -> [TypedResponseHeader] {
-        guard let headers = response.headers else {
-            return []
-        }
+    func typedResponseHeaders(from response: OpenAPI.Response, inParent parent: TypeName) throws
+        -> [TypedResponseHeader]
+    {
+        guard let headers = response.headers else { return [] }
         return try headers.compactMap { name, header in
-            try typedResponseHeader(
-                from: header,
-                named: name,
-                inParent: parent
-            )
+            try typedResponseHeader(from: header, named: name, inParent: parent)
         }
     }
 
@@ -90,19 +77,15 @@ extension FileTranslator {
     ///   - name: The name of the header.
     ///   - parent: The Swift type name of the parent type of the headers.
     /// - Returns: Typed response header if supported, nil otherwise.
-    func typedResponseHeader(
-        from unresolvedHeader: UnresolvedHeader,
-        named name: String,
-        inParent parent: TypeName
-    ) throws -> TypedResponseHeader? {
+    func typedResponseHeader(from unresolvedHeader: UnresolvedHeader, named name: String, inParent parent: TypeName)
+        throws -> TypedResponseHeader?
+    {
 
         // Collect the header
         let header: OpenAPI.Header
         switch unresolvedHeader {
-        case let .a(ref):
-            header = try components.lookup(ref)
-        case let .b(_header):
-            header = _header
+        case let .a(ref): header = try components.lookup(ref)
+        case let .b(_header): header = _header
         }
 
         let foundIn = "\(parent.description)/\(name)"
@@ -115,47 +98,23 @@ extension FileTranslator {
             schema = schemaContext.schema
             codingStrategy = .text
         case let .b(contentMap):
-            guard
-                let typedContent = try bestSingleTypedContent(
-                    contentMap,
-                    excludeBinary: true,
-                    inParent: parent
-                )
-            else {
-                return nil
-            }
+            guard let typedContent = try bestSingleTypedContent(contentMap, excludeBinary: true, inParent: parent)
+            else { return nil }
             schema = typedContent.content.schema ?? .b(.fragment)
-            codingStrategy =
-                typedContent
-                .content
-                .contentType
-                .codingStrategy
+            codingStrategy = typedContent.content.contentType.codingStrategy
         }
 
         // Check if schema is supported
-        guard
-            try validateSchemaIsSupported(
-                schema,
-                foundIn: foundIn
-            )
-        else {
-            return nil
-        }
+        guard try validateSchemaIsSupported(schema, foundIn: foundIn) else { return nil }
 
         let type: TypeUsage
         switch unresolvedHeader {
-        case let .a(ref):
-            type = try typeAssigner.typeName(for: ref).asUsage
+        case let .a(ref): type = try typeAssigner.typeName(for: ref).asUsage
         case .b:
             switch schema {
-            case let .a(reference):
-                type = try typeAssigner.typeName(for: reference).asUsage
+            case let .a(reference): type = try typeAssigner.typeName(for: reference).asUsage
             case let .b(schema):
-                type = try typeAssigner.typeUsage(
-                    forParameterNamed: name,
-                    withSchema: schema,
-                    inParent: parent
-                )
+                type = try typeAssigner.typeUsage(forParameterNamed: name, withSchema: schema, inParent: parent)
             }
         }
         let usage = type.withOptional(!header.required)

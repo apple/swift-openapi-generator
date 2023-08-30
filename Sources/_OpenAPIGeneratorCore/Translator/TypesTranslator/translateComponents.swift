@@ -21,9 +21,7 @@ extension TypesFileTranslator {
     /// - Parameter components: The components defined in the OpenAPI document.
     /// - Returns: A code block with the enum representing the components
     /// namespace.
-    func translateComponents(
-        _ components: OpenAPI.Components
-    ) throws -> CodeBlock {
+    func translateComponents(_ components: OpenAPI.Components) throws -> CodeBlock {
 
         let schemas = try translateSchemas(components.schemas)
         let parameters = try translateComponentParameters(components.parameters)
@@ -41,13 +39,7 @@ extension TypesFileTranslator {
                 .init(
                     accessModifier: config.access,
                     name: "Components",
-                    members: [
-                        schemas,
-                        parameters,
-                        requestBodies,
-                        responses,
-                        headers,
-                    ]
+                    members: [schemas, parameters, requestBodies, responses, headers]
                 )
             )
         )

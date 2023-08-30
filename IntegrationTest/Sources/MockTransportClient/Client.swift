@@ -17,19 +17,10 @@ import OpenAPIRuntime
 import Foundation
 
 struct MockClientTransport: ClientTransport {
-    func send(
-        _ request: Request,
-        baseURL: URL,
-        operationID: String
-    ) async throws -> Response {
-        .init(statusCode: 200)
-    }
+    func send(_ request: Request, baseURL: URL, operationID: String) async throws -> Response { .init(statusCode: 200) }
 }
 
 func run() async throws {
-    let client = Client(
-        serverURL: try Servers.server1(),
-        transport: MockClientTransport()
-    )
+    let client = Client(serverURL: try Servers.server1(), transport: MockClientTransport())
     _ = try await client.getGreeting(.init())
 }

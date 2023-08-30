@@ -23,18 +23,15 @@ final class Test_TypeMatcher: Test_Core {
     }
 
     static let builtinTypes: [(JSONSchema, String)] = [
-        (.string, "Swift.String"),
-        (.string(.init(format: .byte), .init()), "Swift.String"),
+        (.string, "Swift.String"), (.string(.init(format: .byte), .init()), "Swift.String"),
         (.string(.init(format: .binary), .init()), "Foundation.Data"),
         (.string(.init(format: .date), .init()), "Swift.String"),
         (.string(.init(format: .dateTime), .init()), "Foundation.Date"),
 
-        (.integer, "Swift.Int"),
-        (.integer(.init(format: .int32), .init()), "Swift.Int32"),
+        (.integer, "Swift.Int"), (.integer(.init(format: .int32), .init()), "Swift.Int32"),
         (.integer(.init(format: .int64), .init()), "Swift.Int64"),
 
-        (.number, "Swift.Double"),
-        (.number(.init(format: .float), .init()), "Swift.Float"),
+        (.number, "Swift.Double"), (.number(.init(format: .float), .init()), "Swift.Float"),
         (.number(.init(format: .double), .init()), "Swift.Double"),
 
         (.boolean, "Swift.Bool"),
@@ -48,88 +45,42 @@ final class Test_TypeMatcher: Test_Core {
         (.object, "OpenAPIRuntime.OpenAPIObjectContainer"),
 
         // an array with double nested string
-        (
-            .array(
-                .init(),
-                .init(
-                    items: .array(
-                        .init(),
-                        .init(items: .string)
-                    )
-                )
-            ), "[[Swift.String]]"
-        ),
+        (.array(.init(), .init(items: .array(.init(), .init(items: .string)))), "[[Swift.String]]"),
     ]
     func testBuiltinTypes() {
         for (schema, name) in Self.builtinTypes {
-            XCTAssertEqual(
-                typeMatcher.tryMatchBuiltinType(for: schema.value)?
-                    .fullyQualifiedSwiftName,
-                name
-            )
+            XCTAssertEqual(typeMatcher.tryMatchBuiltinType(for: schema.value)?.fullyQualifiedSwiftName, name)
         }
     }
 
     static let nonBuiltinTypes: [JSONSchema] = [
         // a string enum
-        .string(allowedValues: [
-            AnyCodable("Foo")
-        ]),
+        .string(allowedValues: [AnyCodable("Foo")]),
 
         // an object with at least one property
-        .object(properties: [
-            "Foo": .string
-        ]),
+        .object(properties: ["Foo": .string]),
 
         // an empty object with any non-nil additional properties value
-        .object(additionalProperties: .boolean(true)),
-        .object(additionalProperties: .boolean(false)),
+        .object(additionalProperties: .boolean(true)), .object(additionalProperties: .boolean(false)),
         .object(additionalProperties: .schema(.integer)),
 
         // allOf with two schemas
-        .all(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .reference(.component(named: "Bar")),
-        ]),
+        .all(of: [.object(properties: ["Foo": .string]), .reference(.component(named: "Bar"))]),
 
         // oneOf with two schemas
-        .one(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .reference(.component(named: "Bar")),
-        ]),
+        .one(of: [.object(properties: ["Foo": .string]), .reference(.component(named: "Bar"))]),
 
         // anyOf with two schemas
-        .any(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .reference(.component(named: "Bar")),
-        ]),
+        .any(of: [.object(properties: ["Foo": .string]), .reference(.component(named: "Bar"))]),
 
         // a reference
         .reference(.component(named: "Foo")),
 
         // an array with a non-builtin type
-        .array(
-            .init(),
-            .init(items: .reference(.component(named: "Foo")))
-        ),
+        .array(.init(), .init(items: .reference(.component(named: "Foo")))),
 
         // double-nested array with non-builtin type
-        .array(
-            .init(),
-            .init(
-                items:
-                    .array(
-                        .init(),
-                        .init(items: .reference(.component(named: "Foo")))
-                    )
-            )
-        ),
+        .array(.init(), .init(items: .array(.init(), .init(items: .reference(.component(named: "Foo")))))),
 
         // a not
         .not(.string),
@@ -161,12 +112,7 @@ final class Test_TypeMatcher: Test_Core {
             (.reference(.component(named: "Foo")), "Components.Schemas.Foo"),
 
             // an array of referenceable types
-            (
-                .array(
-                    .init(),
-                    .init(items: .reference(.component(named: "Foo")))
-                ), "[Components.Schemas.Foo]"
-            ),
+            (.array(.init(), .init(items: .reference(.component(named: "Foo")))), "[Components.Schemas.Foo]"),
         ]
     func testReferenceableTypes() {
         for (schema, name) in Self.referenceableTypes {
@@ -185,20 +131,10 @@ final class Test_TypeMatcher: Test_Core {
 
     static let nonReferenceableTypes: [JSONSchema] = [
         // a soundness check – string enum
-        .string(allowedValues: [
-            "Foo"
-        ]),
+        .string(allowedValues: ["Foo"]),
 
         // an array with a nested enum
-        .array(
-            .init(),
-            .init(
-                items: .string(
-                    .init(allowedValues: ["a", "b"]),
-                    .init()
-                )
-            )
-        ),
+        .array(.init(), .init(items: .string(.init(allowedValues: ["a", "b"]), .init()))),
     ]
     func testNonReferenceableTypes() {
         for schema in Self.nonReferenceableTypes {

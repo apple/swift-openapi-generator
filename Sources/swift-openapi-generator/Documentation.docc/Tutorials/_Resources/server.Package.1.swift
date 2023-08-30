@@ -3,13 +3,6 @@ import PackageDescription
 
 let package = Package(
     name: "GreetingService",
-    platforms: [
-        .macOS(.v10_15)
-    ],
-    targets: [
-        .executableTarget(
-            name: "GreetingService",
-            path: "Sources"
-        )
-    ]
+    platforms: [.macOS(.v10_15)],
+    targets: [.executableTarget(name: "GreetingService", path: "Sources")]
 )
