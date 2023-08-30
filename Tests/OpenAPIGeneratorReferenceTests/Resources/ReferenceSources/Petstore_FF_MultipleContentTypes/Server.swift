@@ -85,29 +85,29 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             using: { APIHandler.listPets($0) },
             deserializer: { request, metadata in let path: Operations.listPets.Input.Path = .init()
                 let query: Operations.listPets.Input.Query = .init(
-                    limit: try converter.getOptionalQueryItemAsText(
-                        in: metadata.queryParameters,
+                    limit: try converter.getOptionalQueryItemAsURI(
+                        in: request.query,
                         style: .form,
                         explode: true,
                         name: "limit",
                         as: Swift.Int32.self
                     ),
-                    habitat: try converter.getOptionalQueryItemAsText(
-                        in: metadata.queryParameters,
+                    habitat: try converter.getOptionalQueryItemAsURI(
+                        in: request.query,
                         style: .form,
                         explode: true,
                         name: "habitat",
                         as: Operations.listPets.Input.Query.habitatPayload.self
                     ),
-                    feeds: try converter.getOptionalQueryItemAsText(
-                        in: metadata.queryParameters,
+                    feeds: try converter.getOptionalQueryItemAsURI(
+                        in: request.query,
                         style: .form,
                         explode: true,
                         name: "feeds",
                         as: Operations.listPets.Input.Query.feedsPayload.self
                     ),
-                    since: try converter.getOptionalQueryItemAsText(
-                        in: metadata.queryParameters,
+                    since: try converter.getOptionalQueryItemAsURI(
+                        in: request.query,
                         style: .form,
                         explode: true,
                         name: "since",
@@ -115,7 +115,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     )
                 )
                 let headers: Operations.listPets.Input.Headers = .init(
-                    My_hyphen_Request_hyphen_UUID: try converter.getOptionalHeaderFieldAsText(
+                    My_hyphen_Request_hyphen_UUID: try converter.getOptionalHeaderFieldAsURI(
                         in: request.headerFields,
                         name: "My-Request-UUID",
                         as: Swift.String.self
@@ -137,22 +137,19 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressUnusedWarning(value)
                     var response = Response(statusCode: 200)
                     suppressMutabilityWarning(&response)
-                    try converter.setHeaderFieldAsText(
+                    try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
                         name: "My-Response-UUID",
                         value: value.headers.My_hyphen_Response_hyphen_UUID
                     )
-                    try converter.setHeaderFieldAsText(
+                    try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
                         name: "My-Tracing-Header",
                         value: value.headers.My_hyphen_Tracing_hyphen_Header
                     )
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -166,10 +163,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -205,10 +199,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.createPet.Input.Body
                 if try contentType == nil
-                    || converter.isMatchingContentType(
-                        received: contentType,
-                        expectedRaw: "application/json"
-                    )
+                    || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                 {
                     body = try converter.getRequiredRequestBodyAsJSON(
                         Components.Schemas.CreatePetRequest.self,
@@ -239,10 +230,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     )
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -254,17 +242,14 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressUnusedWarning(value)
                     var response = Response(statusCode: statusCode)
                     suppressMutabilityWarning(&response)
-                    try converter.setHeaderFieldAsText(
+                    try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
                         name: "X-Reason",
                         value: value.headers.X_hyphen_Reason
                     )
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -307,30 +292,21 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "application/json; charset=utf-8"
                         )
                     case let .plainText(value):
-                        try converter.validateAcceptIfPresent(
-                            "text/plain",
-                            in: request.headerFields
-                        )
-                        response.body = try converter.setResponseBodyAsText(
+                        try converter.validateAcceptIfPresent("text/plain", in: request.headerFields)
+                        response.body = try converter.setResponseBodyAsString(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "text/plain"
                         )
                     case let .binary(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/octet-stream",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/octet-stream", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsBinary(
                             value,
                             headerFields: &response.headerFields,
@@ -358,21 +334,15 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.postStats.Input.Body
                 if try contentType == nil
-                    || converter.isMatchingContentType(
-                        received: contentType,
-                        expectedRaw: "application/json"
-                    )
+                    || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                 {
                     body = try converter.getRequiredRequestBodyAsJSON(
                         Components.Schemas.PetStats.self,
                         from: request.body,
                         transforming: { value in .json(value) }
                     )
-                } else if try converter.isMatchingContentType(
-                    received: contentType,
-                    expectedRaw: "text/plain"
-                ) {
-                    body = try converter.getRequiredRequestBodyAsText(
+                } else if try converter.isMatchingContentType(received: contentType, expectedRaw: "text/plain") {
+                    body = try converter.getRequiredRequestBodyAsString(
                         Swift.String.self,
                         from: request.body,
                         transforming: { value in .plainText(value) }
@@ -411,9 +381,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    @available(*, deprecated) func probe(request: Request, metadata: ServerRequestMetadata)
-        async throws -> Response
-    {
+    @available(*, deprecated) func probe(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
         try await handle(
             request: request,
             with: metadata,
@@ -423,13 +391,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let query: Operations.probe.Input.Query = .init()
                 let headers: Operations.probe.Input.Headers = .init()
                 let cookies: Operations.probe.Input.Cookies = .init()
-                return Operations.probe.Input(
-                    path: path,
-                    query: query,
-                    headers: headers,
-                    cookies: cookies,
-                    body: nil
-                )
+                return Operations.probe.Input(path: path, query: query, headers: headers, cookies: cookies, body: nil)
             },
             serializer: { output, request in
                 switch output {
@@ -455,7 +417,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             using: { APIHandler.updatePet($0) },
             deserializer: { request, metadata in
                 let path: Operations.updatePet.Input.Path = .init(
-                    petId: try converter.getPathParameterAsText(
+                    petId: try converter.getPathParameterAsURI(
                         in: metadata.pathParameters,
                         name: "petId",
                         as: Swift.Int64.self
@@ -469,10 +431,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Components.RequestBodies.UpdatePetRequest?
                 if try contentType == nil
-                    || converter.isMatchingContentType(
-                        received: contentType,
-                        expectedRaw: "application/json"
-                    )
+                    || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                 {
                     body = try converter.getOptionalRequestBodyAsJSON(
                         Components.RequestBodies.UpdatePetRequest.jsonPayload.self,
@@ -503,10 +462,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -523,9 +479,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
-    func uploadAvatarForPet(request: Request, metadata: ServerRequestMetadata) async throws
-        -> Response
-    {
+    func uploadAvatarForPet(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
         try await handle(
             request: request,
             with: metadata,
@@ -533,7 +487,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             using: { APIHandler.uploadAvatarForPet($0) },
             deserializer: { request, metadata in
                 let path: Operations.uploadAvatarForPet.Input.Path = .init(
-                    petId: try converter.getPathParameterAsText(
+                    petId: try converter.getPathParameterAsURI(
                         in: metadata.pathParameters,
                         name: "petId",
                         as: Components.Parameters.path_period_petId.self
@@ -547,10 +501,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.uploadAvatarForPet.Input.Body
                 if try contentType == nil
-                    || converter.isMatchingContentType(
-                        received: contentType,
-                        expectedRaw: "application/octet-stream"
-                    )
+                    || converter.isMatchingContentType(received: contentType, expectedRaw: "application/octet-stream")
                 {
                     body = try converter.getRequiredRequestBodyAsBinary(
                         Foundation.Data.self,
@@ -576,10 +527,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .binary(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/octet-stream",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/octet-stream", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsBinary(
                             value,
                             headerFields: &response.headerFields,
@@ -593,10 +541,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent(
-                            "application/json",
-                            in: request.headerFields
-                        )
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
                         response.body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -610,11 +555,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressMutabilityWarning(&response)
                     switch value.body {
                     case let .plainText(value):
-                        try converter.validateAcceptIfPresent(
-                            "text/plain",
-                            in: request.headerFields
-                        )
-                        response.body = try converter.setResponseBodyAsText(
+                        try converter.validateAcceptIfPresent("text/plain", in: request.headerFields)
+                        response.body = try converter.setResponseBodyAsString(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "text/plain"

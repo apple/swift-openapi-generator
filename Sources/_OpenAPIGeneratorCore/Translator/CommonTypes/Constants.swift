@@ -151,12 +151,18 @@ enum Constants {
         static let baseConformanceClosed: String = "String"
 
         /// The types that every enum conforms to.
-        static let conformances: [String] = [
+        static let conformancesOpen: [String] = [
             "Codable",
             "Hashable",
             "Sendable",
-            "_AutoLosslessStringConvertible",
             "CaseIterable",
+        ]
+
+        /// The types that every enum conforms to.
+        static let conformancesClosed: [String] = [
+            "Codable",
+            "Hashable",
+            "Sendable",
         ]
     }
 
@@ -370,8 +376,11 @@ enum Constants {
         /// The substring used in method names for the JSON coding strategy.
         static let json: String = "JSON"
 
-        /// The substring used in method names for the text coding strategy.
-        static let text: String = "Text"
+        /// The substring used in method names for the URI coding strategy.
+        static let uri: String = "URI"
+
+        /// The substring used in method names for the string coding strategy.
+        static let string: String = "String"
 
         /// The substring used in method names for the binary coding strategy.
         static let binary: String = "Binary"

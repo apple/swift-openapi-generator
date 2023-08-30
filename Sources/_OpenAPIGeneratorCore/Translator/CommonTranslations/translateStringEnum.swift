@@ -48,10 +48,12 @@ extension FileTranslator {
         let generateUnknownCases = shouldGenerateUndocumentedCaseForEnumsAndOneOfs
         let baseConformance =
             generateUnknownCases ? Constants.StringEnum.baseConformanceOpen : Constants.StringEnum.baseConformanceClosed
+        let conformances =
+            generateUnknownCases ? Constants.StringEnum.conformancesOpen : Constants.StringEnum.conformancesClosed
         let unknownCaseName = generateUnknownCases ? Constants.StringEnum.undocumentedCaseName : nil
         return try translateRawRepresentableEnum(
             typeName: typeName,
-            conformances: [baseConformance] + Constants.StringEnum.conformances,
+            conformances: [baseConformance] + conformances,
             userDescription: userDescription,
             cases: cases,
             unknownCaseName: unknownCaseName,

@@ -210,10 +210,7 @@ Supported features are always provided on _both_ client and server.
 
 - [ ] matrix (in path)
 - [ ] label (in path)
-- [ ] form (in query)
-    - [x] primitive
-    - [x] array
-    - [ ] object
+- [x] form (in query)
 - [ ] form (in cookie)
 - [x] simple (in path)
 - [x] simple (in header)
@@ -221,10 +218,14 @@ Supported features are always provided on _both_ client and server.
 - [ ] pipeDelimited (in query)
 - [ ] deepObject (in query)
 
-Supported location + styles + exploded combinations:
-- path + simple + false
-- query + form + true/false
-- header + simple + false
+#### Supported combinations
+
+| Location | Style | Explode |
+| -------- | ----- | ------- |
+| path | `simple` | `false` |
+| query | `form` | `true` |
+| query | `form` | `false` |
+| header | `simple` | `false` |
 
 #### Reference Object
 
