@@ -64,7 +64,7 @@ let package = Package(
         // Read OpenAPI documents
         .package(
             url: "https://github.com/mattpolzin/OpenAPIKit.git",
-            exact: "3.0.0-beta.2"
+            exact: "3.0.0-beta.3"
         ),
         .package(
             url: "https://github.com/jpsim/Yams.git",
