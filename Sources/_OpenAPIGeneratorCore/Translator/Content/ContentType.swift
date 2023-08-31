@@ -100,7 +100,7 @@ struct ContentType: Hashable {
     /// Preserves the casing from the input, do not use this
     /// for equality comparisons, use `lowercasedSubtype` instead.
     let originallyCasedSubtype: String
-    
+
     /// The second component of the MIME type, as a lowercase string.
     ///
     /// The raw value in its original casing is only provided by `originallyCasedTypeAndSubtype`.
@@ -113,19 +113,19 @@ struct ContentType: Hashable {
     /// Preserves the casing from the input, do not use this
     /// for equality comparisons, use `lowercasedParameters` instead.
     let originallyCasedParameterPairs: [String]
-    
+
     /// The component after ';' of the MIME type, as a lowercase string.
     ///
     /// The raw value in its original casing is only provided by `originallyCasedParameters`.
     var lowercasedParameterPairs: [String] {
         originallyCasedParameterPairs.map { $0.lowercased() }
     }
-    
+
     /// The parameters string.
     var originallyCasedParametersString: String {
         originallyCasedParameterPairs.map { "; \($0)" }.joined()
     }
-    
+
     /// The parameters string, lowercased.
     var lowercasedParametersString: String {
         originallyCasedParametersString.lowercased()
@@ -140,13 +140,14 @@ struct ContentType: Hashable {
     var lowercasedTypeSubtypeAndParameters: String {
         originallyCasedTypeSubtypeAndParameters.lowercased()
     }
-    
+
     /// Creates a new content type by parsing the specified MIME type.
     /// - Parameter rawValue: A MIME type, for example "application/json". Must
     ///   not be empty.
     init(_ rawValue: String) {
         precondition(!rawValue.isEmpty, "rawValue of a ContentType cannot be empty.")
-        var semiComponents = rawValue
+        var semiComponents =
+            rawValue
             .split(separator: ";")
         let typeAndSubtypeComponent = semiComponents.removeFirst()
         self.originallyCasedParameterPairs = semiComponents.map { component in

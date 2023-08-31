@@ -57,7 +57,8 @@ extension FileTranslator {
             guard !params.isEmpty else {
                 return prefix
             }
-            let safedParams = params
+            let safedParams =
+                params
                 .map { pair in
                     pair
                         .split(separator: "=")
