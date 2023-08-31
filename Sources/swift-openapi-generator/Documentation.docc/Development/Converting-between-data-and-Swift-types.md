@@ -1,6 +1,6 @@
 # Converting between data and Swift types
 
-Learn about the type responsible for convertering between binary data and Swift types.
+Learn about the type responsible for converting between binary data and Swift types.
 
 ## Overview
 

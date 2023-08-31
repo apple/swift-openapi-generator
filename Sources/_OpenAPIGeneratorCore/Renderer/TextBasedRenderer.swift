@@ -271,7 +271,7 @@ struct TextBasedRenderer: RendererProtocol {
         "&" + renderedExpression(description.referencedExpr)
     }
 
-    /// Renders the specified optinal chaining expression.
+    /// Renders the specified optional chaining expression.
     func renderedOptionalChainingDescription(
         _ description: OptionalChainingDescription
     ) -> String {
