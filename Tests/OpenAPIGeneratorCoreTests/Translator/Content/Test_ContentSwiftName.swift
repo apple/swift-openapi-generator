@@ -39,6 +39,10 @@ final class Test_ContentSwiftName: Test_Core {
             // Generic names.
             ("application/myformat+json", "application_myformat_plus_json"),
             ("foo/bar", "foo_bar"),
+            
+            // Names with a parameter.
+            ("application/foo", "application_foo"),
+            ("application/foo; bar=baz; boo=foo", "application_foo_bar_baz_boo_foo"),
         ]
         for item in cases {
             let contentType = try XCTUnwrap(ContentType(item.0))

@@ -167,7 +167,7 @@ extension ContentType {
     func docComment(typeName: TypeName) -> Comment? {
         typeName.docCommentWithUserDescription(
             nil,
-            subPath: lowercasedTypeAndSubtypeWithEscape
+            subPath: lowercasedTypeSubtypeAndParametersWithEscape
         )
     }
 }

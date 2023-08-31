@@ -20,7 +20,8 @@ extension FileTranslator {
     ///
     /// - Parameter contentType: The content type for which to compute the name.
     func contentSwiftName(_ contentType: ContentType) -> String {
-        switch contentType.lowercasedTypeAndSubtype {
+        let rawContentType = contentType.lowercasedTypeSubtypeAndParameters
+        switch rawContentType {
         case "application/json":
             return "json"
         case "application/x-www-form-urlencoded":
@@ -50,7 +51,21 @@ extension FileTranslator {
         default:
             let safedType = swiftSafeName(for: contentType.originallyCasedType)
             let safedSubtype = swiftSafeName(for: contentType.originallyCasedSubtype)
-            return "\(safedType)_\(safedSubtype)"
+            let prefix = "\(safedType)_\(safedSubtype)"
+            let params = contentType
+                .lowercasedParameterPairs
+            guard !params.isEmpty else {
+                return prefix
+            }
+            let safedParams = params
+                .map { pair in
+                    pair
+                        .split(separator: "=")
+                        .map { swiftSafeName(for: String($0)) }
+                        .joined(separator: "_")
+                }
+                .joined(separator: "_")
+            return prefix + "_" + safedParams
         }
     }
 }

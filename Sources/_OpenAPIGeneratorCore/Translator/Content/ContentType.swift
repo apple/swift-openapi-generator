@@ -100,7 +100,7 @@ struct ContentType: Hashable {
     /// Preserves the casing from the input, do not use this
     /// for equality comparisons, use `lowercasedSubtype` instead.
     let originallyCasedSubtype: String
-
+    
     /// The second component of the MIME type, as a lowercase string.
     ///
     /// The raw value in its original casing is only provided by `originallyCasedTypeAndSubtype`.
@@ -108,14 +108,52 @@ struct ContentType: Hashable {
         originallyCasedSubtype.lowercased()
     }
 
+    /// The parameter section, if any.
+    ///
+    /// Preserves the casing from the input, do not use this
+    /// for equality comparisons, use `lowercasedParameters` instead.
+    let originallyCasedParameterPairs: [String]
+    
+    /// The component after ';' of the MIME type, as a lowercase string.
+    ///
+    /// The raw value in its original casing is only provided by `originallyCasedParameters`.
+    var lowercasedParameterPairs: [String] {
+        originallyCasedParameterPairs.map { $0.lowercased() }
+    }
+    
+    /// The parameters string.
+    var originallyCasedParametersString: String {
+        originallyCasedParameterPairs.map { "; \($0)" }.joined()
+    }
+    
+    /// The parameters string, lowercased.
+    var lowercasedParametersString: String {
+        originallyCasedParametersString.lowercased()
+    }
+
+    /// The type, subtype, and parameters components combined.
+    var originallyCasedTypeSubtypeAndParameters: String {
+        originallyCasedTypeAndSubtype + originallyCasedParametersString
+    }
+
+    /// The type, subtype, and parameters components normalized and combined.
+    var lowercasedTypeSubtypeAndParameters: String {
+        originallyCasedTypeSubtypeAndParameters.lowercased()
+    }
+    
     /// Creates a new content type by parsing the specified MIME type.
     /// - Parameter rawValue: A MIME type, for example "application/json". Must
     ///   not be empty.
     init(_ rawValue: String) {
         precondition(!rawValue.isEmpty, "rawValue of a ContentType cannot be empty.")
+        var semiComponents = rawValue
+            .split(separator: ";")
+        let typeAndSubtypeComponent = semiComponents.removeFirst()
+        self.originallyCasedParameterPairs = semiComponents.map { component in
+            component.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
         let rawTypeAndSubtype =
-            rawValue
-            .split(separator: ";")[0]
+            typeAndSubtypeComponent
             .trimmingCharacters(in: .whitespaces)
         let typeAndSubtype =
             rawTypeAndSubtype
@@ -143,21 +181,25 @@ struct ContentType: Hashable {
         "\(lowercasedType)/\(lowercasedSubtype)"
     }
 
-    /// Returns the type and subtype as a "<type>\/<subtype>" string.
+    /// Returns the type and subtype as a "<type>\/<subtype>[;<param>...]" string.
     ///
     /// Lowercased to ease case-insensitive comparisons, and escaped to show
     /// that the slash between type and subtype is not a path separator.
-    var lowercasedTypeAndSubtypeWithEscape: String {
-        "\(lowercasedType)\\/\(lowercasedSubtype)"
+    var lowercasedTypeSubtypeAndParametersWithEscape: String {
+        "\(lowercasedType)\\/\(lowercasedSubtype)" + lowercasedParametersString
     }
 
     /// The header value used when sending a content-type header.
     var headerValueForSending: String {
         guard case .json = category else {
-            return lowercasedTypeAndSubtype
+            return lowercasedTypeSubtypeAndParameters
         }
         // We always encode JSON using JSONEncoder which uses UTF-8.
-        return lowercasedTypeAndSubtype + "; charset=utf-8"
+        // Check if it's already present, if not, append it.
+        guard !lowercasedParameterPairs.contains("charset=") else {
+            return lowercasedTypeSubtypeAndParameters
+        }
+        return lowercasedTypeSubtypeAndParameters + "; charset=utf-8"
     }
 
     /// The header value used when validating a content-type header.
@@ -223,6 +265,6 @@ extension OpenAPI.ContentType {
     /// Returns the content type wrapped in the generator's representation
     /// of a content type, as opposed to the one from OpenAPIKit.
     var asGeneratorContentType: ContentType {
-        ContentType(typeAndSubtype)
+        ContentType(rawValue)
     }
 }
