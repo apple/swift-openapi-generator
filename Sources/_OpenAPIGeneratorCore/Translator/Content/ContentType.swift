@@ -108,15 +108,15 @@ struct ContentType: Hashable {
         originallyCasedSubtype.lowercased()
     }
 
-    /// The parameter section, if any.
+    /// The parameter key-value pairs.
     ///
     /// Preserves the casing from the input, do not use this
-    /// for equality comparisons, use `lowercasedParameters` instead.
+    /// for equality comparisons, use `lowercasedParameterPairs` instead.
     let originallyCasedParameterPairs: [String]
 
-    /// The component after ';' of the MIME type, as a lowercase string.
+    /// The parameter key-value pairs, lowercased.
     ///
-    /// The raw value in its original casing is only provided by `originallyCasedParameters`.
+    /// The raw value in its original casing is only provided by `originallyCasedParameterPairs`.
     var lowercasedParameterPairs: [String] {
         originallyCasedParameterPairs.map { $0.lowercased() }
     }
@@ -136,7 +136,7 @@ struct ContentType: Hashable {
         originallyCasedTypeAndSubtype + originallyCasedParametersString
     }
 
-    /// The type, subtype, and parameters components normalized and combined.
+    /// The type, subtype, and parameters components combined and lowercased.
     var lowercasedTypeSubtypeAndParameters: String {
         originallyCasedTypeSubtypeAndParameters.lowercased()
     }
