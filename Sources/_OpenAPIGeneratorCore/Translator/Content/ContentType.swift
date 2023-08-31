@@ -182,7 +182,7 @@ struct ContentType: Hashable {
         "\(lowercasedType)/\(lowercasedSubtype)"
     }
 
-    /// Returns the type and subtype as a "<type>\/<subtype>[;<param>...]" string.
+    /// Returns the type, subtype and parameters (if present) as a "<type>\/<subtype>[;<param>...]" string.
     ///
     /// Lowercased to ease case-insensitive comparisons, and escaped to show
     /// that the slash between type and subtype is not a path separator.
