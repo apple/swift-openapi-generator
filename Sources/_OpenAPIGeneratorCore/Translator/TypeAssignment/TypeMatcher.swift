@@ -29,7 +29,7 @@ struct TypeMatcher {
     ///
     /// # Examples
     ///
-    /// Examples of schemas that can be repreresented directly by builtin types:
+    /// Examples of schemas that can be represented directly by builtin types:
     /// - platform builtin types
     ///     - `type: string` -> `Swift.String`
     ///     - `type: string, format: date-time` -> `Foundation.Date`
