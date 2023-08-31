@@ -896,6 +896,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   application/json:
                     schema:
                       type: integer
+                  application/json; foo=bar:
+                    schema:
+                      type: integer
                   text/plain: {}
                   application/octet-stream: {}
             """,
@@ -904,6 +907,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct MultipleContentTypes: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.Int)
+                        case application_json_foo_bar(Swift.Int)
                         case plainText(Swift.String)
                         case binary(Foundation.Data)
                     }

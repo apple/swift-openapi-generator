@@ -108,14 +108,56 @@ struct ContentType: Hashable {
         originallyCasedSubtype.lowercased()
     }
 
+    /// The parameter key-value pairs.
+    ///
+    /// Preserves the casing from the input, do not use this
+    /// for equality comparisons, use `lowercasedParameterPairs` instead.
+    let originallyCasedParameterPairs: [String]
+
+    /// The parameter key-value pairs, lowercased.
+    ///
+    /// The raw value in its original casing is only provided by `originallyCasedParameterPairs`.
+    var lowercasedParameterPairs: [String] {
+        originallyCasedParameterPairs.map { $0.lowercased() }
+    }
+
+    /// The parameters string.
+    var originallyCasedParametersString: String {
+        originallyCasedParameterPairs.map { "; \($0)" }.joined()
+    }
+
+    /// The parameters string, lowercased.
+    var lowercasedParametersString: String {
+        originallyCasedParametersString.lowercased()
+    }
+
+    /// The type, subtype, and parameters components combined.
+    var originallyCasedTypeSubtypeAndParameters: String {
+        originallyCasedTypeAndSubtype + originallyCasedParametersString
+    }
+
+    /// The type, subtype, and parameters components combined and lowercased.
+    var lowercasedTypeSubtypeAndParameters: String {
+        originallyCasedTypeSubtypeAndParameters.lowercased()
+    }
+
     /// Creates a new content type by parsing the specified MIME type.
     /// - Parameter rawValue: A MIME type, for example "application/json". Must
     ///   not be empty.
     init(_ rawValue: String) {
         precondition(!rawValue.isEmpty, "rawValue of a ContentType cannot be empty.")
-        let rawTypeAndSubtype =
+        var semiComponents =
             rawValue
-            .split(separator: ";")[0]
+            .split(separator: ";")
+        let typeAndSubtypeComponent = semiComponents.removeFirst()
+        self.originallyCasedParameterPairs = semiComponents.map { component in
+            component
+                .split(separator: "=")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .joined(separator: "=")
+        }
+        let rawTypeAndSubtype =
+            typeAndSubtypeComponent
             .trimmingCharacters(in: .whitespaces)
         let typeAndSubtype =
             rawTypeAndSubtype
@@ -143,21 +185,25 @@ struct ContentType: Hashable {
         "\(lowercasedType)/\(lowercasedSubtype)"
     }
 
-    /// Returns the type and subtype as a "<type>\/<subtype>" string.
+    /// Returns the type, subtype and parameters (if present) as a "<type>\/<subtype>[;<param>...]" string.
     ///
     /// Lowercased to ease case-insensitive comparisons, and escaped to show
     /// that the slash between type and subtype is not a path separator.
-    var lowercasedTypeAndSubtypeWithEscape: String {
-        "\(lowercasedType)\\/\(lowercasedSubtype)"
+    var lowercasedTypeSubtypeAndParametersWithEscape: String {
+        "\(lowercasedType)\\/\(lowercasedSubtype)" + lowercasedParametersString
     }
 
     /// The header value used when sending a content-type header.
     var headerValueForSending: String {
         guard case .json = category else {
-            return lowercasedTypeAndSubtype
+            return lowercasedTypeSubtypeAndParameters
         }
         // We always encode JSON using JSONEncoder which uses UTF-8.
-        return lowercasedTypeAndSubtype + "; charset=utf-8"
+        // Check if it's already present, if not, append it.
+        guard !lowercasedParameterPairs.contains("charset=") else {
+            return lowercasedTypeSubtypeAndParameters
+        }
+        return lowercasedTypeSubtypeAndParameters + "; charset=utf-8"
     }
 
     /// The header value used when validating a content-type header.
@@ -223,6 +269,6 @@ extension OpenAPI.ContentType {
     /// Returns the content type wrapped in the generator's representation
     /// of a content type, as opposed to the one from OpenAPIKit.
     var asGeneratorContentType: ContentType {
-        ContentType(typeAndSubtype)
+        ContentType(rawValue)
     }
 }
