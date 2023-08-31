@@ -10,6 +10,9 @@ Swift OpenAPI Generator is a Swift package plugin that can generate the ceremony
 
 ## Repository organization
 
+
+
+
 The Swift OpenAPI Generator project is split across multiple repositories to enable extensibility and minimize dependencies in your project.
 
 **swift-openapi-generator** ([source][repo-generator], [docs][docs-generator]) provides the plugin.
