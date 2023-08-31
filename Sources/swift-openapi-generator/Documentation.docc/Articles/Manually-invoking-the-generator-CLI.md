@@ -10,7 +10,7 @@ The recommended workflow is to use the Swift package plugin, as described in our
 - <doc:ClientXcode>
 - <doc:ServerSwiftPM>
 
-When using the package plugin, the code is generated at build time and is not commited to your source repository.
+When using the package plugin, the code is generated at build time and is not committed to your source repository.
 
 If you need to commit the generated code to your source repository (for example, for auditing reasons) you can manually invoke the generator CLI to generate the Swift code.
 

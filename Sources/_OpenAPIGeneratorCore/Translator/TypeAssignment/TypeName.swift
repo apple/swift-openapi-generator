@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 
-/// A fully-qualitied type name that contains the components of both the Swift
+/// A fully-qualified type name that contains the components of both the Swift
 /// type name and the optional JSON reference.
 ///
 /// Use the type name to define a type, see also `TypeUsage` when referring

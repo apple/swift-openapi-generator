@@ -28,7 +28,7 @@ extension TypesFileTranslator {
             locatedIn location: OpenAPI.Parameter.Context.Location,
             withPropertiesFrom parameters: [UnresolvedParameter],
             extraProperties: [PropertyBlueprint] = []
-        ) throws -> PropertyBlueprint {
+        ) throws -> PropertyBlueprint? {
             let inputTypeName = description.inputTypeName
             let structTypeName = location.typeName(in: inputTypeName)
             let structProperties: [PropertyBlueprint] =
@@ -39,6 +39,9 @@ extension TypesFileTranslator {
                         inParent: inputTypeName
                     )
                 } + extraProperties
+            guard !structProperties.isEmpty else {
+                return nil
+            }
             let structDecl: Declaration = .commentable(
                 structTypeName.docCommentWithUserDescription(nil),
                 translateStructBlueprint(
@@ -126,6 +129,7 @@ extension TypesFileTranslator {
                     ),
                     bodyProperty,
                 ]
+                .compactMap { $0 }
             )
         )
         return inputStructDecl

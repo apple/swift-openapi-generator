@@ -26,7 +26,7 @@ extension FileTranslator {
     /// - Parameters:
     ///   - typeName: The name of the type to give to the declared type.
     ///   - schema: The JSON schema representing the type.
-    ///   - overrides: A structure with the properties that should be overriden
+    ///   - overrides: A structure with the properties that should be overridden
     ///   instead of extracted from the schema.
     func translateSchema(
         typeName: TypeName,
@@ -64,7 +64,7 @@ extension FileTranslator {
     /// - Parameters:
     ///   - typeName: The name of the type to give to the declared type.
     ///   - schema: The JSON schema representing the type.
-    ///   - overrides: A structure with the properties that should be overriden
+    ///   - overrides: A structure with the properties that should be overridden
     ///   instead of extracted from the schema.
     func translateSchema(
         typeName: TypeName,
