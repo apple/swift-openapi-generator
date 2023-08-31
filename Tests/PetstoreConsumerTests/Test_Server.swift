@@ -37,7 +37,6 @@ final class Test_Server: XCTestCase {
                 XCTAssertEqual(input.query.since, .test)
                 XCTAssertEqual(input.query.feeds, [.carnivore, .herbivore])
                 XCTAssertEqual(input.headers.My_hyphen_Request_hyphen_UUID, "abcd-1234")
-                XCTAssertNil(input.body)
                 return .ok(
                     .init(
                         headers: .init(
@@ -707,7 +706,6 @@ final class Test_Server: XCTestCase {
     func testProbe_204() async throws {
         client = .init(
             probeBlock: { input in
-                XCTAssertNil(input.body)
                 return .noContent(.init())
             }
         )

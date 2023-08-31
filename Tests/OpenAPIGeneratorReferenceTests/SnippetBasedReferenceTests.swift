@@ -850,17 +850,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Responses {
                 public struct BadRequest: Sendable, Hashable {
-                    public struct Headers: Sendable, Hashable { public init() {} }
-                    public var headers: Components.Responses.BadRequest.Headers
-                    @frozen public enum Body: Sendable, Hashable {}
-                    public var body: Components.Responses.BadRequest.Body?
-                    public init(
-                        headers: Components.Responses.BadRequest.Headers = .init(),
-                        body: Components.Responses.BadRequest.Body? = nil
-                    ) {
-                        self.headers = headers
-                        self.body = body
-                    }
+                    public init() {}
                 }
             }
             """
@@ -881,17 +871,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Responses {
                 public struct BadRequest: Sendable, Hashable {
-                    public struct Headers: Sendable, Hashable { public init() {} }
-                    public var headers: Components.Responses.BadRequest.Headers
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
                     }
                     public var body: Components.Responses.BadRequest.Body
                     public init(
-                        headers: Components.Responses.BadRequest.Headers = .init(),
                         body: Components.Responses.BadRequest.Body
                     ) {
-                        self.headers = headers
                         self.body = body
                     }
                 }
@@ -916,8 +902,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Responses {
                 public struct MultipleContentTypes: Sendable, Hashable {
-                    public struct Headers: Sendable, Hashable { public init() {} }
-                    public var headers: Components.Responses.MultipleContentTypes.Headers
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.Int)
                         case plainText(Swift.String)
@@ -925,10 +909,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public var body: Components.Responses.MultipleContentTypes.Body
                     public init(
-                        headers: Components.Responses.MultipleContentTypes.Headers = .init(),
                         body: Components.Responses.MultipleContentTypes.Body
                     ) {
-                        self.headers = headers
                         self.body = body
                     }
                 }
@@ -957,14 +939,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self.X_hyphen_Reason = X_hyphen_Reason }
                     }
                     public var headers: Components.Responses.BadRequest.Headers
-                    @frozen public enum Body: Sendable, Hashable {}
-                    public var body: Components.Responses.BadRequest.Body?
                     public init(
-                        headers: Components.Responses.BadRequest.Headers = .init(),
-                        body: Components.Responses.BadRequest.Body? = nil
+                        headers: Components.Responses.BadRequest.Headers = .init()
                     ) {
                         self.headers = headers
-                        self.body = body
                     }
                 }
             }
@@ -993,14 +971,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self.X_hyphen_Reason = X_hyphen_Reason }
                     }
                     public var headers: Components.Responses.BadRequest.Headers
-                    @frozen public enum Body: Sendable, Hashable {}
-                    public var body: Components.Responses.BadRequest.Body?
                     public init(
-                        headers: Components.Responses.BadRequest.Headers,
-                        body: Components.Responses.BadRequest.Body? = nil
+                        headers: Components.Responses.BadRequest.Headers
                     ) {
                         self.headers = headers
-                        self.body = body
                     }
                 }
             }
@@ -1191,17 +1165,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Responses {
                 public struct MyResponse: Sendable, Hashable {
-                    public struct Headers: Sendable, Hashable { public init() {} }
-                    public var headers: Components.Responses.MyResponse.Headers
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
                     }
                     public var body: Components.Responses.MyResponse.Body
                     public init(
-                        headers: Components.Responses.MyResponse.Headers = .init(),
                         body: Components.Responses.MyResponse.Body
                     ) {
-                        self.headers = headers
                         self.body = body
                     }
                 }
@@ -1227,17 +1197,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Responses {
                 public struct MyResponse: Sendable, Hashable {
-                    public struct Headers: Sendable, Hashable { public init() {} }
-                    public var headers: Components.Responses.MyResponse.Headers
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
                     }
                     public var body: Components.Responses.MyResponse.Body
                     public init(
-                        headers: Components.Responses.MyResponse.Headers = .init(),
                         body: Components.Responses.MyResponse.Body
                     ) {
-                        self.headers = headers
                         self.body = body
                     }
                 }
@@ -1276,8 +1242,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             types: """
                 public struct Input: Sendable, Hashable {
-                    public struct Path: Sendable, Hashable { public init() {} }
-                    public var path: Operations.get_sol_foo.Input.Path
                     public struct Query: Sendable, Hashable {
                         public var single: Swift.String?
                         public var manyExploded: [Swift.String]?
@@ -1293,24 +1257,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         }
                     }
                     public var query: Operations.get_sol_foo.Input.Query
-                    public struct Headers: Sendable, Hashable { public init() {} }
-                    public var headers: Operations.get_sol_foo.Input.Headers
-                    public struct Cookies: Sendable, Hashable { public init() {} }
-                    public var cookies: Operations.get_sol_foo.Input.Cookies
-                    @frozen public enum Body: Sendable, Hashable {}
-                    public var body: Operations.get_sol_foo.Input.Body?
-                    public init(
-                        path: Operations.get_sol_foo.Input.Path = .init(),
-                        query: Operations.get_sol_foo.Input.Query = .init(),
-                        headers: Operations.get_sol_foo.Input.Headers = .init(),
-                        cookies: Operations.get_sol_foo.Input.Cookies = .init(),
-                        body: Operations.get_sol_foo.Input.Body? = nil
-                    ) {
-                        self.path = path
+                    public init(query: Operations.get_sol_foo.Input.Query = .init()) {
                         self.query = query
-                        self.headers = headers
-                        self.cookies = cookies
-                        self.body = body
                     }
                 }
                 """,
@@ -1343,7 +1291,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 }
                 """,
             server: """
-                { request, metadata in let path: Operations.get_sol_foo.Input.Path = .init()
+                { request, metadata in
                     let query: Operations.get_sol_foo.Input.Query = .init(
                         single: try converter.getOptionalQueryItemAsURI(
                             in: request.query,
@@ -1367,15 +1315,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             as: [Swift.String].self
                         )
                     )
-                    let headers: Operations.get_sol_foo.Input.Headers = .init()
-                    let cookies: Operations.get_sol_foo.Input.Cookies = .init()
-                    return Operations.get_sol_foo.Input(
-                        path: path,
-                        query: query,
-                        headers: headers,
-                        cookies: cookies,
-                        body: nil
-                    )
+                    return Operations.get_sol_foo.Input(query: query)
                 }
                 """
         )

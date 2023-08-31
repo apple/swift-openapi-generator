@@ -83,7 +83,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             with: metadata,
             forOperation: Operations.listPets.id,
             using: { APIHandler.listPets($0) },
-            deserializer: { request, metadata in let path: Operations.listPets.Input.Path = .init()
+            deserializer: { request, metadata in
                 let query: Operations.listPets.Input.Query = .init(
                     limit: try converter.getOptionalQueryItemAsURI(
                         in: request.query,
@@ -122,14 +122,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     ),
                     accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
                 )
-                let cookies: Operations.listPets.Input.Cookies = .init()
-                return Operations.listPets.Input(
-                    path: path,
-                    query: query,
-                    headers: headers,
-                    cookies: cookies,
-                    body: nil
-                )
+                return Operations.listPets.Input(query: query, headers: headers)
             },
             serializer: { output, request in
                 switch output {
@@ -185,8 +178,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             with: metadata,
             forOperation: Operations.createPet.id,
             using: { APIHandler.createPet($0) },
-            deserializer: { request, metadata in let path: Operations.createPet.Input.Path = .init()
-                let query: Operations.createPet.Input.Query = .init()
+            deserializer: { request, metadata in
                 let headers: Operations.createPet.Input.Headers = .init(
                     X_hyphen_Extra_hyphen_Arguments: try converter.getOptionalHeaderFieldAsJSON(
                         in: request.headerFields,
@@ -195,7 +187,6 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     ),
                     accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
                 )
-                let cookies: Operations.createPet.Input.Cookies = .init()
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.createPet.Input.Body
                 if try contentType == nil
@@ -209,13 +200,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                 }
-                return Operations.createPet.Input(
-                    path: path,
-                    query: query,
-                    headers: headers,
-                    cookies: cookies,
-                    body: body
-                )
+                return Operations.createPet.Input(headers: headers, body: body)
             },
             serializer: { output, request in
                 switch output {
@@ -270,19 +255,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             with: metadata,
             forOperation: Operations.getStats.id,
             using: { APIHandler.getStats($0) },
-            deserializer: { request, metadata in let path: Operations.getStats.Input.Path = .init()
-                let query: Operations.getStats.Input.Query = .init()
+            deserializer: { request, metadata in
                 let headers: Operations.getStats.Input.Headers = .init(
                     accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
                 )
-                let cookies: Operations.getStats.Input.Cookies = .init()
-                return Operations.getStats.Input(
-                    path: path,
-                    query: query,
-                    headers: headers,
-                    cookies: cookies,
-                    body: nil
-                )
+                return Operations.getStats.Input(headers: headers)
             },
             serializer: { output, request in
                 switch output {
@@ -327,10 +304,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             with: metadata,
             forOperation: Operations.postStats.id,
             using: { APIHandler.postStats($0) },
-            deserializer: { request, metadata in let path: Operations.postStats.Input.Path = .init()
-                let query: Operations.postStats.Input.Query = .init()
-                let headers: Operations.postStats.Input.Headers = .init()
-                let cookies: Operations.postStats.Input.Cookies = .init()
+            deserializer: { request, metadata in
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.postStats.Input.Body
                 if try contentType == nil
@@ -359,13 +333,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                 }
-                return Operations.postStats.Input(
-                    path: path,
-                    query: query,
-                    headers: headers,
-                    cookies: cookies,
-                    body: body
-                )
+                return Operations.postStats.Input(body: body)
             },
             serializer: { output, request in
                 switch output {
@@ -387,12 +355,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             with: metadata,
             forOperation: Operations.probe.id,
             using: { APIHandler.probe($0) },
-            deserializer: { request, metadata in let path: Operations.probe.Input.Path = .init()
-                let query: Operations.probe.Input.Query = .init()
-                let headers: Operations.probe.Input.Headers = .init()
-                let cookies: Operations.probe.Input.Cookies = .init()
-                return Operations.probe.Input(path: path, query: query, headers: headers, cookies: cookies, body: nil)
-            },
+            deserializer: { request, metadata in return Operations.probe.Input() },
             serializer: { output, request in
                 switch output {
                 case let .noContent(value):
@@ -423,11 +386,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         as: Swift.Int64.self
                     )
                 )
-                let query: Operations.updatePet.Input.Query = .init()
                 let headers: Operations.updatePet.Input.Headers = .init(
                     accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
                 )
-                let cookies: Operations.updatePet.Input.Cookies = .init()
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Components.RequestBodies.UpdatePetRequest?
                 if try contentType == nil
@@ -441,13 +402,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                 }
-                return Operations.updatePet.Input(
-                    path: path,
-                    query: query,
-                    headers: headers,
-                    cookies: cookies,
-                    body: body
-                )
+                return Operations.updatePet.Input(path: path, headers: headers, body: body)
             },
             serializer: { output, request in
                 switch output {
@@ -493,11 +448,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         as: Components.Parameters.path_period_petId.self
                     )
                 )
-                let query: Operations.uploadAvatarForPet.Input.Query = .init()
                 let headers: Operations.uploadAvatarForPet.Input.Headers = .init(
                     accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
                 )
-                let cookies: Operations.uploadAvatarForPet.Input.Cookies = .init()
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.uploadAvatarForPet.Input.Body
                 if try contentType == nil
@@ -511,13 +464,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                 }
-                return Operations.uploadAvatarForPet.Input(
-                    path: path,
-                    query: query,
-                    headers: headers,
-                    cookies: cookies,
-                    body: body
-                )
+                return Operations.uploadAvatarForPet.Input(path: path, headers: headers, body: body)
             },
             serializer: { output, request in
                 switch output {
