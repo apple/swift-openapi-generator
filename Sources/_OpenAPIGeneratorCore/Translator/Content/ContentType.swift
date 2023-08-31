@@ -151,7 +151,10 @@ struct ContentType: Hashable {
             .split(separator: ";")
         let typeAndSubtypeComponent = semiComponents.removeFirst()
         self.originallyCasedParameterPairs = semiComponents.map { component in
-            component.trimmingCharacters(in: .whitespacesAndNewlines)
+            component
+                .split(separator: "=")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .joined(separator: "=")
         }
         let rawTypeAndSubtype =
             typeAndSubtypeComponent

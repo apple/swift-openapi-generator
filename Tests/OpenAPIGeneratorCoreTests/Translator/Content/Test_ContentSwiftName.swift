@@ -43,6 +43,7 @@ final class Test_ContentSwiftName: Test_Core {
             // Names with a parameter.
             ("application/foo", "application_foo"),
             ("application/foo; bar=baz; boo=foo", "application_foo_bar_baz_boo_foo"),
+            ("application/foo; bar = baz", "application_foo_bar_baz"),
         ]
         for item in cases {
             let contentType = try XCTUnwrap(ContentType(item.0))
