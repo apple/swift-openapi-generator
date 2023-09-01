@@ -202,6 +202,10 @@ struct TypeMatcher {
                 typeName = .swift("Double")
             }
         case .integer(let core, _):
+            if core.allowedValues != nil {
+                // custom enum isn't a builtin
+                return nil
+            }
             switch core.format {
             case .int32:
                 typeName = .swift("Int32")

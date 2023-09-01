@@ -112,7 +112,20 @@ extension FileTranslator {
             guard let allowedValues = coreContext.allowedValues else {
                 throw GenericError(message: "Unexpected non-global string for \(typeName)")
             }
-            let enumDecl = try translateStringEnum(
+            let enumDecl = try translateRawEnum(
+                backingType: .string,
+                typeName: typeName,
+                userDescription: overrides.userDescription ?? coreContext.description,
+                isNullable: coreContext.nullable,
+                allowedValues: allowedValues
+            )
+            return [enumDecl]
+        case let .integer(coreContext, _):
+            guard let allowedValues = coreContext.allowedValues else {
+                throw GenericError(message: "Unexpected non-global integer for \(typeName)")
+            }
+            let enumDecl = try translateRawEnum(
+                backingType: .integer,
                 typeName: typeName,
                 userDescription: overrides.userDescription ?? coreContext.description,
                 isNullable: coreContext.nullable,

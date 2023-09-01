@@ -520,7 +520,7 @@ struct TextBasedRenderer: RendererProtocol {
         case .nameOnly:
             return ""
         case .nameWithRawValue(let rawValue):
-            return " = \"\(rawValue)\""
+            return " = \(renderedLiteral(rawValue))"
         case .nameWithAssociatedValues(let values):
             if values.isEmpty {
                 return ""
