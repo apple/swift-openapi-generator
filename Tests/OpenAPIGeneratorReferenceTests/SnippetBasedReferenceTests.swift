@@ -703,7 +703,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-    func testComponentsSchemasEnum() throws {
+    func testComponentsSchemasStringEnum() throws {
         try self.assertSchemasTranslation(
             """
             schemas:
@@ -722,6 +722,29 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     case _empty = ""
                     case _dollar_tart = "$tart"
                     case _public = "public"
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasIntEnum() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyEnum:
+                type: integer
+                enum:
+                  - 0
+                  - 10
+                  - 20
+            """,
+            """
+            public enum Schemas {
+                @frozen public enum MyEnum: Int, Codable, Hashable, Sendable {
+                    case _0 = 0
+                    case _10 = 10
+                    case _20 = 20
                 }
             }
             """

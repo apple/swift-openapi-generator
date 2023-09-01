@@ -544,7 +544,7 @@ enum EnumCaseKind: Equatable, Codable {
     /// A case with a name and a raw value.
     ///
     /// For example: `case foo = "Foo"`.
-    case nameWithRawValue(String)
+    case nameWithRawValue(LiteralDescription)
 
     /// A case with a name and associated values.
     ///

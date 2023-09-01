@@ -220,7 +220,7 @@ extension FileTranslator {
                     members: [
                         .enumCase(
                             name: swiftName,
-                            kind: swiftName == originalName ? .nameOnly : .nameWithRawValue(originalName)
+                            kind: swiftName == originalName ? .nameOnly : .nameWithRawValue(.string(originalName))
                         )
                     ]
                 )

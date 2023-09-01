@@ -138,11 +138,14 @@ enum Constants {
         static let variableName: String = "additionalProperties"
     }
 
-    /// Constants related to all generated string-based enums.
-    enum StringEnum {
+    /// Constants related to all generated raw enums.
+    enum RawEnum {
 
-        /// The name of the base conformance.
-        static let baseConformance: String = "String"
+        /// The name of the base conformance for string-based enums.
+        static let baseConformanceString: String = "String"
+
+        /// The name of the base conformance for int-based enums.
+        static let baseConformanceInteger: String = "Int"
 
         /// The types that every enum conforms to.
         static let conformances: [String] = [

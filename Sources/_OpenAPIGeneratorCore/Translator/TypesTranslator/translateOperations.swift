@@ -210,10 +210,10 @@ extension TypesFileTranslator {
         guard !contentTypes.isEmpty else {
             return nil
         }
-        let cases: [(caseName: String, rawValue: String)] =
+        let cases: [(caseName: String, rawExpr: LiteralDescription)] =
             contentTypes
             .map { contentType in
-                (contentSwiftName(contentType), contentType.lowercasedTypeAndSubtype)
+                (contentSwiftName(contentType), .string(contentType.lowercasedTypeAndSubtype))
             }
         return try translateRawRepresentableEnum(
             typeName: acceptableContentTypeName,

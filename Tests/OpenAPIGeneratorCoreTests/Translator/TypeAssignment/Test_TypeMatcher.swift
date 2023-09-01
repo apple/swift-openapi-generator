@@ -75,6 +75,10 @@ final class Test_TypeMatcher: Test_Core {
         .string(allowedValues: [
             AnyCodable("Foo")
         ]),
+        // an int enum
+        .integer(allowedValues: [
+            AnyCodable(1)
+        ]),
 
         // an object with at least one property
         .object(properties: [

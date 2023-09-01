@@ -31,7 +31,7 @@ extension FileTranslator {
         typeName: TypeName,
         conformances: [String],
         userDescription: String?,
-        cases: [(caseName: String, rawValue: String)],
+        cases: [(caseName: String, rawExpr: LiteralDescription)],
         unknownCaseName: String?,
         unknownCaseDescription: String?,
         customSwitchedExpression: (Expression) -> Expression = { $0 }
@@ -40,10 +40,10 @@ extension FileTranslator {
         let generateUnknownCases = unknownCaseName != nil
         let knownCases: [Declaration] =
             cases
-            .map { caseName, rawValue in
+            .map { caseName, rawExpr in
                 .enumCase(
                     name: caseName,
-                    kind: generateUnknownCases ? .nameOnly : .nameWithRawValue(rawValue)
+                    kind: generateUnknownCases ? .nameOnly : .nameWithRawValue(rawExpr)
                 )
             }
 

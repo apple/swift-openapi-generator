@@ -157,7 +157,7 @@ extension FileTranslator {
                 let rawName = property.originalName
                 return .enumCase(
                     name: swiftName,
-                    kind: swiftName == rawName ? .nameOnly : .nameWithRawValue(property.originalName)
+                    kind: swiftName == rawName ? .nameOnly : .nameWithRawValue(.string(property.originalName))
                 )
             }
         return .enum(

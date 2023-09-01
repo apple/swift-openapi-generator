@@ -13,39 +13,66 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
+/// The backing type of a raw enum.
+enum RawEnumBackingType {
+
+    /// Backed by a `String`.
+    case string
+
+    /// Backed by an `Int`.
+    case integer
+}
+
 extension FileTranslator {
 
-    /// Returns a declaration of the specified string-based enum schema.
+    /// Returns a declaration of the specified raw value-based enum schema.
     /// - Parameters:
+    ///   - backingType: The backing type of the enum.
     ///   - typeName: The name of the type to give to the declared enum.
     ///   - userDescription: A user-specified description from the OpenAPI
     ///   document.
     ///   - isNullable: Whether the enum schema is nullable.
     ///   - allowedValues: The enumerated allowed values.
-    func translateStringEnum(
+    func translateRawEnum(
+        backingType: RawEnumBackingType,
         typeName: TypeName,
         userDescription: String?,
         isNullable: Bool,
         allowedValues: [AnyCodable]
     ) throws -> Declaration {
-        let rawValues = try allowedValues.map(\.value)
+        let cases: [(String, LiteralDescription)] =
+            try allowedValues
+            .map(\.value)
             .map { anyValue in
-                // In nullable enum schemas, empty strings are parsed as Void.
-                // This is unlikely to be fixed, so handling that case here.
-                // https://github.com/apple/swift-openapi-generator/issues/118
-                if isNullable && anyValue is Void {
-                    return ""
+                switch backingType {
+                case .string:
+                    // In nullable enum schemas, empty strings are parsed as Void.
+                    // This is unlikely to be fixed, so handling that case here.
+                    // https://github.com/apple/swift-openapi-generator/issues/118
+                    if isNullable && anyValue is Void {
+                        return (swiftSafeName(for: ""), .string(""))
+                    }
+                    guard let rawValue = anyValue as? String else {
+                        throw GenericError(message: "Disallowed value for a string enum '\(typeName)': \(anyValue)")
+                    }
+                    let caseName = swiftSafeName(for: rawValue)
+                    return (caseName, .string(rawValue))
+                case .integer:
+                    guard let rawValue = anyValue as? Int else {
+                        throw GenericError(message: "Disallowed value for an integer enum '\(typeName)': \(anyValue)")
+                    }
+                    let caseName = "_\(rawValue)"
+                    return (caseName, .int(rawValue))
                 }
-                guard let string = anyValue as? String else {
-                    throw GenericError(message: "Disallowed value for a string enum '\(typeName)': \(anyValue)")
-                }
-                return string
             }
-        let cases = rawValues.map { rawValue in
-            let caseName = swiftSafeName(for: rawValue)
-            return (caseName, rawValue)
+        let baseConformance: String
+        switch backingType {
+        case .string:
+            baseConformance = Constants.RawEnum.baseConformanceString
+        case .integer:
+            baseConformance = Constants.RawEnum.baseConformanceInteger
         }
-        let conformances = [Constants.StringEnum.baseConformance] + Constants.StringEnum.conformances
+        let conformances = [baseConformance] + Constants.RawEnum.conformances
         return try translateRawRepresentableEnum(
             typeName: typeName,
             conformances: conformances,
