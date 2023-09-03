@@ -139,7 +139,7 @@ Supported features are always provided on _both_ client and server.
 - [ ] maxProperties
 - [ ] minProperties
 - [x] required
-- [x] enum
+- [x] enum (when type is string or integer)
 - [x] type
 - [x] allOf
     - a wrapper struct is generated, children can be any schema
