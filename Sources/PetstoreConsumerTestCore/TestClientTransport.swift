@@ -17,7 +17,9 @@ import HTTPTypes
 
 public struct TestClientTransport: ClientTransport {
 
-    public typealias CallHandler = @Sendable (HTTPRequest, HTTPBody?, URL, String) async throws -> (HTTPResponse, HTTPBody)
+    public typealias CallHandler = @Sendable (HTTPRequest, HTTPBody?, URL, String) async throws -> (
+        HTTPResponse, HTTPBody
+    )
 
     public let callHandler: CallHandler
 

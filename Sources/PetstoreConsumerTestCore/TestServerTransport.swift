@@ -26,7 +26,9 @@ public final class TestServerTransport: ServerTransport {
         }
     }
 
-    public typealias Handler = @Sendable (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (HTTPResponse, HTTPBody)
+    public typealias Handler = @Sendable (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody
+    )
 
     public struct Operation {
         public var inputs: OperationInputs
@@ -42,7 +44,9 @@ public final class TestServerTransport: ServerTransport {
     public private(set) var registered: [Operation] = []
 
     public func register(
-        _ handler: @Sendable @escaping (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (HTTPResponse, HTTPBody),
+        _ handler: @Sendable @escaping (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (
+            HTTPResponse, HTTPBody
+        ),
         method: HTTPRequest.Method,
         path: String
     ) throws {

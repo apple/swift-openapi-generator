@@ -84,776 +84,820 @@ final class Test_Server: XCTestCase {
         )
     }
 
-//    func testListPets_default() async throws {
-//        client = .init(
-//            listPetsBlock: { input in
-//                return .default(
-//                    statusCode: 400,
-//                    .init(body: .json(.init(code: 1, me_dollar_sage: "Oh no!")))
-//                )
-//            }
-//        )
-//        let response = try await server.listPets(
-//            .init(
-//                path: "/api/pets",
-//                method: .get
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 400)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            [
-//                .init(name: "content-type", value: "application/json; charset=utf-8")
-//            ]
-//        )
-//        let bodyString = String(decoding: response.body, as: UTF8.self)
-//        XCTAssertEqual(
-//            bodyString,
-//            #"""
-//            {
-//              "code" : 1,
-//              "me$sage" : "Oh no!"
-//            }
-//            """#
-//        )
-//    }
-//
-//    func testCreatePet_201() async throws {
-//        client = .init(
-//            createPetBlock: { input in
-//                XCTAssertEqual(input.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
-//                guard case let .json(createPet) = input.body else {
-//                    throw TestError.unexpectedValue(input.body)
-//                }
-//                XCTAssertEqual(createPet, .init(name: "Fluffz"))
-//                return .created(
-//                    .init(
-//                        headers: .init(
-//                            X_hyphen_Extra_hyphen_Arguments: .init(code: 1)
-//                        ),
-//                        body: .json(
-//                            .init(id: 1, name: "Fluffz")
-//                        )
-//                    )
-//                )
-//            }
-//        )
-//        let response = try await server.createPet(
-//            .init(
-//                path: "/api/pets",
-//                method: .post,
-//                headerFields: [
-//                    .init(name: "x-extra-arguments", value: #"{"code":1}"#),
-//                    .init(name: "content-type", value: "application/json; charset=utf-8"),
-//                ],
-//                encodedBody: #"""
-//                    {
-//                      "name" : "Fluffz"
-//                    }
-//                    """#
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 201)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            [
-//                .init(name: "X-Extra-Arguments", value: #"{"code":1}"#),
-//                .init(name: "content-type", value: "application/json; charset=utf-8"),
-//            ]
-//        )
-//        let bodyString = String(decoding: response.body, as: UTF8.self)
-//        XCTAssertEqual(
-//            bodyString,
-//            #"""
-//            {
-//              "id" : 1,
-//              "name" : "Fluffz"
-//            }
-//            """#
-//        )
-//    }
-//
-//    func testCreatePet_400() async throws {
-//        client = .init(
-//            createPetBlock: { input in
-//                .clientError(
-//                    statusCode: 400,
-//                    .init(
-//                        headers: .init(
-//                            X_hyphen_Reason: "bad luck"
-//                        ),
-//                        body: .json(
-//                            .init(code: 1)
-//                        )
-//                    )
-//                )
-//            }
-//        )
-//        let response = try await server.createPet(
-//            .init(
-//                path: "/api/pets",
-//                method: .post,
-//                headerFields: [
-//                    .init(name: "content-type", value: "application/json; charset=utf-8")
-//                ],
-//                encodedBody: #"""
-//                    {
-//                      "name" : "Fluffz"
-//                    }
-//                    """#
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 400)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            [
-//                .init(name: "X-Reason", value: "bad%20luck"),
-//                .init(name: "content-type", value: "application/json; charset=utf-8"),
-//            ]
-//        )
-//        let bodyString = String(decoding: response.body, as: UTF8.self)
-//        XCTAssertEqual(
-//            bodyString,
-//            #"""
-//            {
-//              "code" : 1
-//            }
-//            """#
-//        )
-//    }
-//
-//    func testCreatePet_withIncorrectContentType() async throws {
-//        client = .init(
-//            createPetBlock: { input in
-//                XCTFail("The handler should not have been called")
-//                fatalError("Unreachable")
-//            }
-//        )
-//        do {
-//            _ = try await server.createPet(
-//                .init(
-//                    path: "/api/pets",
-//                    method: .post,
-//                    headerFields: [
-//                        .init(name: "x-extra-arguments", value: #"{"code":1}"#),
-//                        .init(name: "content-type", value: "text/plain; charset=utf-8"),
-//                    ],
-//                    encodedBody: #"""
-//                        {
-//                          "name" : "Fluffz"
-//                        }
-//                        """#
-//                ),
-//                .init()
-//            )
-//            XCTFail("The method should have thrown an error.")
-//        } catch {}
-//    }
-//
-//    func testUpdatePet_204_withBody() async throws {
-//        client = .init(
-//            updatePetBlock: { input in
-//                XCTAssertEqual(input.path.petId, 1)
-//                guard let body = input.body else {
-//                    throw TestError.unexpectedMissingRequestBody
-//                }
-//                guard case let .json(updatePet) = body else {
-//                    throw TestError.unexpectedValue(body)
-//                }
-//                XCTAssertEqual(updatePet, .init(name: "Fluffz"))
-//                return .noContent(.init())
-//            }
-//        )
-//        let response = try await server.updatePet(
-//            .init(
-//                path: "/api/pets/1",
-//                method: .patch,
-//                headerFields: [
-//                    .init(name: "accept", value: "application/json"),
-//                    .init(name: "content-type", value: "application/json"),
-//                ],
-//                encodedBody: #"""
-//                    {
-//                      "name" : "Fluffz"
-//                    }
-//                    """#
-//            ),
-//            .init(
-//                pathParameters: [
-//                    "petId": "1"
-//                ]
-//            )
-//        )
-//        XCTAssertEqual(response.statusCode, 204)
-//        XCTAssertEqual(response.headerFields, [])
-//    }
-//
-//    func testUpdatePet_204_withBody_default_json() async throws {
-//        client = .init(
-//            updatePetBlock: { input in
-//                XCTAssertEqual(input.path.petId, 1)
-//                guard let body = input.body else {
-//                    throw TestError.unexpectedMissingRequestBody
-//                }
-//                guard case let .json(updatePet) = body else {
-//                    throw TestError.unexpectedValue(body)
-//                }
-//                XCTAssertEqual(updatePet, .init(name: "Fluffz"))
-//                return .noContent(.init())
-//            }
-//        )
-//        let response = try await server.updatePet(
-//            .init(
-//                path: "/api/pets/1",
-//                method: .patch,
-//                headerFields: [],
-//                encodedBody: #"""
-//                    {
-//                      "name" : "Fluffz"
-//                    }
-//                    """#
-//            ),
-//            .init(
-//                pathParameters: [
-//                    "petId": "1"
-//                ]
-//            )
-//        )
-//        XCTAssertEqual(response.statusCode, 204)
-//        XCTAssertEqual(response.headerFields, [])
-//    }
-//
-//    func testUpdatePet_204_withoutBody() async throws {
-//        client = .init(
-//            updatePetBlock: { input in
-//                XCTAssertEqual(input.path.petId, 1)
-//                XCTAssertNil(input.body)
-//                return .noContent(.init())
-//            }
-//        )
-//        let response = try await server.updatePet(
-//            .init(
-//                path: "/api/pets/1",
-//                method: .patch
-//            ),
-//            .init(
-//                pathParameters: [
-//                    "petId": "1"
-//                ]
-//            )
-//        )
-//        XCTAssertEqual(response.statusCode, 204)
-//        XCTAssertEqual(response.headerFields, [])
-//    }
-//
-//    func testUpdatePet_400() async throws {
-//        client = .init(
-//            updatePetBlock: { input in
-//                XCTAssertEqual(input.path.petId, 1)
-//                XCTAssertNil(input.body)
-//                return .badRequest(.init(body: .json(.init(message: "Oh no!"))))
-//            }
-//        )
-//        let response = try await server.updatePet(
-//            .init(
-//                path: "/api/pets/1",
-//                method: .patch
-//            ),
-//            .init(
-//                pathParameters: [
-//                    "petId": "1"
-//                ]
-//            )
-//        )
-//        XCTAssertEqual(response.statusCode, 400)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            [
-//                .init(name: "content-type", value: "application/json; charset=utf-8")
-//            ]
-//        )
-//        XCTAssertEqualStringifiedData(
-//            response.body,
-//            #"""
-//            {
-//              "message" : "Oh no!"
-//            }
-//            """#
-//        )
-//    }
-//
-//    func testGetStats_200_json() async throws {
-//        client = .init(
-//            getStatsBlock: { input in
-//                return .ok(.init(body: .json(.init(count: 1))))
-//            }
-//        )
-//        let response = try await server.getStats(
-//            .init(
-//                path: "/api/pets/stats",
-//                method: .patch,
-//                headerFields: [
-//                    .init(name: "accept", value: "application/json, text/plain, application/octet-stream")
-//                ]
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 200)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            [
-//                .init(name: "content-type", value: "application/json; charset=utf-8")
-//            ]
-//        )
-//        XCTAssertEqualStringifiedData(
-//            response.body,
-//            #"""
-//            {
-//              "count" : 1
-//            }
-//            """#
-//        )
-//    }
-//
-//    func testGetStats_200_unexpectedAccept() async throws {
-//        client = .init(
-//            getStatsBlock: { input in
-//                return .ok(.init(body: .json(.init(count: 1))))
-//            }
-//        )
-//        do {
-//            _ = try await server.getStats(
-//                .init(
-//                    path: "/api/pets/stats",
-//                    method: .patch,
-//                    headerFields: [
-//                        .init(name: "accept", value: "foo/bar")
-//                    ]
-//                ),
-//                .init()
-//            )
-//            XCTFail("Should have thrown an error.")
-//        } catch {}
-//    }
-//
-//    func testGetStats_200_text() async throws {
-//        client = .init(
-//            getStatsBlock: { input in
-//                return .ok(.init(body: .plainText("count is 1")))
-//            }
-//        )
-//        let response = try await server.getStats(
-//            .init(
-//                path: "/api/pets/stats",
-//                method: .patch,
-//                headerFields: [
-//                    .init(name: "accept", value: "application/json, text/plain, application/octet-stream")
-//                ]
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 200)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            [
-//                .init(name: "content-type", value: "text/plain")
-//            ]
-//        )
-//        XCTAssertEqualStringifiedData(
-//            response.body,
-//            #"""
-//            count is 1
-//            """#
-//        )
-//    }
-//
-//    func testGetStats_200_text_requestedSpecific() async throws {
-//        client = .init(
-//            getStatsBlock: { input in
-//                XCTAssertEqual(
-//                    input.headers.accept,
-//                    [
-//                        .init(contentType: .plainText),
-//                        .init(contentType: .json, quality: 0.5),
-//                    ]
-//                )
-//                return .ok(.init(body: .plainText("count is 1")))
-//            }
-//        )
-//        let response = try await server.getStats(
-//            .init(
-//                path: "/api/pets/stats",
-//                method: .patch,
-//                headerFields: [
-//                    .init(name: "accept", value: "text/plain, application/json; q=0.500")
-//                ]
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 200)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            [
-//                .init(name: "content-type", value: "text/plain")
-//            ]
-//        )
-//        XCTAssertEqualStringifiedData(
-//            response.body,
-//            #"""
-//            count is 1
-//            """#
-//        )
-//    }
-//
-//    func testGetStats_200_text_customAccept() async throws {
-//        client = .init(
-//            getStatsBlock: { input in
-//                XCTAssertEqual(
-//                    input.headers.accept,
-//                    [
-//                        .init(contentType: .json, quality: 0.8),
-//                        .init(contentType: .plainText),
-//                    ]
-//                )
-//                return .ok(.init(body: .plainText("count is 1")))
-//            }
-//        )
-//        let response = try await server.getStats(
-//            .init(
-//                path: "/api/pets/stats",
-//                method: .patch,
-//                headerFields: [
-//                    .init(name: "accept", value: "application/json; q=0.8, text/plain")
-//                ]
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 200)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            [
-//                .init(name: "content-type", value: "text/plain")
-//            ]
-//        )
-//        XCTAssertEqualStringifiedData(
-//            response.body,
-//            #"""
-//            count is 1
-//            """#
-//        )
-//    }
-//
-//    func testGetStats_200_binary() async throws {
-//        client = .init(
-//            getStatsBlock: { input in
-//                return .ok(.init(body: .binary(Data("count_is_1".utf8))))
-//            }
-//        )
-//        let response = try await server.getStats(
-//            .init(
-//                path: "/api/pets/stats",
-//                method: .patch,
-//                headerFields: [
-//                    .init(name: "accept", value: "application/json, text/plain, application/octet-stream")
-//                ]
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 200)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            [
-//                .init(name: "content-type", value: "application/octet-stream")
-//            ]
-//        )
-//        XCTAssertEqualStringifiedData(
-//            response.body,
-//            #"""
-//            count_is_1
-//            """#
-//        )
-//    }
-//
-//    func testPostStats_202_json() async throws {
-//        client = .init(
-//            postStatsBlock: { input in
-//                guard case let .json(stats) = input.body else {
-//                    throw TestError.unexpectedValue(input.body)
-//                }
-//                XCTAssertEqual(stats, .init(count: 1))
-//                return .accepted(.init())
-//            }
-//        )
-//        let response = try await server.postStats(
-//            .init(
-//                path: "/api/pets/stats",
-//                method: .post,
-//                headerFields: [
-//                    .init(name: "content-type", value: "application/json; charset=utf-8")
-//                ],
-//                encodedBody: #"""
-//                    {
-//                      "count" : 1
-//                    }
-//                    """#
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 202)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            []
-//        )
-//        XCTAssert(response.body.isEmpty)
-//    }
-//
-//    func testPostStats_202_default_json() async throws {
-//        client = .init(
-//            postStatsBlock: { input in
-//                guard case let .json(stats) = input.body else {
-//                    throw TestError.unexpectedValue(input.body)
-//                }
-//                XCTAssertEqual(stats, .init(count: 1))
-//                return .accepted(.init())
-//            }
-//        )
-//        let response = try await server.postStats(
-//            .init(
-//                path: "/api/pets/stats",
-//                method: .post,
-//                headerFields: [],
-//                encodedBody: #"""
-//                    {
-//                      "count" : 1
-//                    }
-//                    """#
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 202)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            []
-//        )
-//        XCTAssert(response.body.isEmpty)
-//    }
-//
-//    func testPostStats_202_text() async throws {
-//        client = .init(
-//            postStatsBlock: { input in
-//                guard case let .plainText(stats) = input.body else {
-//                    throw TestError.unexpectedValue(input.body)
-//                }
-//                XCTAssertEqual(stats, "count is 1")
-//                return .accepted(.init())
-//            }
-//        )
-//        let response = try await server.postStats(
-//            .init(
-//                path: "/api/pets/stats",
-//                method: .post,
-//                headerFields: [
-//                    .init(name: "content-type", value: "text/plain")
-//                ],
-//                encodedBody: #"""
-//                    count is 1
-//                    """#
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 202)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            []
-//        )
-//        XCTAssert(response.body.isEmpty)
-//    }
-//
-//    func testPostStats_202_binary() async throws {
-//        client = .init(
-//            postStatsBlock: { input in
-//                guard case let .binary(stats) = input.body else {
-//                    throw TestError.unexpectedValue(input.body)
-//                }
-//                XCTAssertEqualStringifiedData(stats, "count_is_1")
-//                return .accepted(.init())
-//            }
-//        )
-//        let response = try await server.postStats(
-//            .init(
-//                path: "/api/pets/stats",
-//                method: .post,
-//                headerFields: [
-//                    .init(name: "content-type", value: "application/octet-stream")
-//                ],
-//                encodedBody: #"""
-//                    count_is_1
-//                    """#
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 202)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            []
-//        )
-//        XCTAssert(response.body.isEmpty)
-//    }
-//
-//    func testProbe_204() async throws {
-//        client = .init(
-//            probeBlock: { input in
-//                return .noContent(.init())
-//            }
-//        )
-//        let response = try await server.probe(
-//            .init(
-//                path: "/api/probe",
-//                method: .post
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 204)
-//        XCTAssertEqual(response.headerFields, [])
-//        XCTAssertEqual(response.body, .init())
-//    }
-//
-//    func testProbe_undocumented() async throws {
-//        client = .init(
-//            probeBlock: { input in
-//                .undocumented(statusCode: 503, .init())
-//            }
-//        )
-//        let response = try await server.probe(
-//            .init(
-//                path: "/api/probe",
-//                method: .post
-//            ),
-//            .init()
-//        )
-//        XCTAssertEqual(response.statusCode, 503)
-//        XCTAssertEqual(response.headerFields, [])
-//        XCTAssertEqual(response.body, .init())
-//    }
-//
-//    func testUploadAvatarForPet_200() async throws {
-//        client = .init(
-//            uploadAvatarForPetBlock: { input in
-//                guard case let .binary(avatar) = input.body else {
-//                    throw TestError.unexpectedValue(input.body)
-//                }
-//                XCTAssertEqualStringifiedData(avatar, Data.abcdString)
-//                return .ok(.init(body: .binary(.efgh)))
-//            }
-//        )
-//        let response = try await server.uploadAvatarForPet(
-//            .init(
-//                path: "/api/pets/1/avatar",
-//                method: .put,
-//                headerFields: [
-//                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
-//                    .init(name: "content-type", value: "application/octet-stream"),
-//                ],
-//                encodedBody: Data.abcdString
-//            ),
-//            .init(
-//                pathParameters: [
-//                    "petId": "1"
-//                ]
-//            )
-//        )
-//        XCTAssertEqual(response.statusCode, 200)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            [
-//                .init(name: "content-type", value: "application/octet-stream")
-//            ]
-//        )
-//        XCTAssertEqualStringifiedData(
-//            response.body,
-//            Data.efghString
-//        )
-//    }
-//
-//    func testUploadAvatarForPet_412() async throws {
-//        client = .init(
-//            uploadAvatarForPetBlock: { input in
-//                guard case let .binary(avatar) = input.body else {
-//                    throw TestError.unexpectedValue(input.body)
-//                }
-//                XCTAssertEqualStringifiedData(avatar, Data.abcdString)
-//                return .preconditionFailed(.init(body: .json(Data.efghString)))
-//            }
-//        )
-//        let response = try await server.uploadAvatarForPet(
-//            .init(
-//                path: "/api/pets/1/avatar",
-//                method: .put,
-//                headerFields: [
-//                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
-//                    .init(name: "content-type", value: "application/octet-stream"),
-//                ],
-//                encodedBody: Data.abcdString
-//            ),
-//            .init(
-//                pathParameters: [
-//                    "petId": "1"
-//                ]
-//            )
-//        )
-//        XCTAssertEqual(response.statusCode, 412)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            [
-//                .init(name: "content-type", value: "application/json; charset=utf-8")
-//            ]
-//        )
-//        XCTAssertEqualStringifiedData(
-//            response.body,
-//            Data.quotedEfghString
-//        )
-//    }
-//
-//    func testUploadAvatarForPet_500() async throws {
-//        client = .init(
-//            uploadAvatarForPetBlock: { input in
-//                guard case let .binary(avatar) = input.body else {
-//                    throw TestError.unexpectedValue(input.body)
-//                }
-//                XCTAssertEqualStringifiedData(avatar, Data.abcdString)
-//                return .internalServerError(.init(body: .plainText(Data.efghString)))
-//            }
-//        )
-//        let response = try await server.uploadAvatarForPet(
-//            .init(
-//                path: "/api/pets/1/avatar",
-//                method: .put,
-//                headerFields: [
-//                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
-//                    .init(name: "content-type", value: "application/octet-stream"),
-//                ],
-//                encodedBody: Data.abcdString
-//            ),
-//            .init(
-//                pathParameters: [
-//                    "petId": "1"
-//                ]
-//            )
-//        )
-//        XCTAssertEqual(response.statusCode, 500)
-//        XCTAssertEqual(
-//            response.headerFields,
-//            [
-//                .init(name: "content-type", value: "text/plain")
-//            ]
-//        )
-//        XCTAssertEqualStringifiedData(
-//            response.body,
-//            Data.efghString
-//        )
-//    }
+    //    func testListPets_default() async throws {
+    //        client = .init(
+    //            listPetsBlock: { input in
+    //                return .default(
+    //                    statusCode: 400,
+    //                    .init(body: .json(.init(code: 1, me_dollar_sage: "Oh no!")))
+    //                )
+    //            }
+    //        )
+    //        let response = try await server.listPets(
+    //            .init(
+    //                path: "/api/pets",
+    //                method: .get
+    //            ),
+    //            .init()
+    //        )
+    //        XCTAssertEqual(response.statusCode, 400)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            [
+    //                .init(name: "content-type", value: "application/json; charset=utf-8")
+    //            ]
+    //        )
+    //        let bodyString = String(decoding: response.body, as: UTF8.self)
+    //        XCTAssertEqual(
+    //            bodyString,
+    //            #"""
+    //            {
+    //              "code" : 1,
+    //              "me$sage" : "Oh no!"
+    //            }
+    //            """#
+    //        )
+    //    }
+    //
+    //    func testCreatePet_201() async throws {
+    //        client = .init(
+    //            createPetBlock: { input in
+    //                XCTAssertEqual(input.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
+    //                guard case let .json(createPet) = input.body else {
+    //                    throw TestError.unexpectedValue(input.body)
+    //                }
+    //                XCTAssertEqual(createPet, .init(name: "Fluffz"))
+    //                return .created(
+    //                    .init(
+    //                        headers: .init(
+    //                            X_hyphen_Extra_hyphen_Arguments: .init(code: 1)
+    //                        ),
+    //                        body: .json(
+    //                            .init(id: 1, name: "Fluffz")
+    //                        )
+    //                    )
+    //                )
+    //            }
+    //        )
+    //        let response = try await server.createPet(
+    //            .init(
+    //                path: "/api/pets",
+    //                method: .post,
+    //                headerFields: [
+    //                    .init(name: "x-extra-arguments", value: #"{"code":1}"#),
+    //                    .init(name: "content-type", value: "application/json; charset=utf-8"),
+    //                ],
+    //                encodedBody: #"""
+    //                    {
+    //                      "name" : "Fluffz"
+    //                    }
+    //                    """#
+    //            ),
+    //            .init()
+    //        )
+    //        XCTAssertEqual(response.statusCode, 201)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            [
+    //                .init(name: "X-Extra-Arguments", value: #"{"code":1}"#),
+    //                .init(name: "content-type", value: "application/json; charset=utf-8"),
+    //            ]
+    //        )
+    //        let bodyString = String(decoding: response.body, as: UTF8.self)
+    //        XCTAssertEqual(
+    //            bodyString,
+    //            #"""
+    //            {
+    //              "id" : 1,
+    //              "name" : "Fluffz"
+    //            }
+    //            """#
+    //        )
+    //    }
+    //
+    //    func testCreatePet_400() async throws {
+    //        client = .init(
+    //            createPetBlock: { input in
+    //                .clientError(
+    //                    statusCode: 400,
+    //                    .init(
+    //                        headers: .init(
+    //                            X_hyphen_Reason: "bad luck"
+    //                        ),
+    //                        body: .json(
+    //                            .init(code: 1)
+    //                        )
+    //                    )
+    //                )
+    //            }
+    //        )
+    //        let response = try await server.createPet(
+    //            .init(
+    //                path: "/api/pets",
+    //                method: .post,
+    //                headerFields: [
+    //                    .init(name: "content-type", value: "application/json; charset=utf-8")
+    //                ],
+    //                encodedBody: #"""
+    //                    {
+    //                      "name" : "Fluffz"
+    //                    }
+    //                    """#
+    //            ),
+    //            .init()
+    //        )
+    //        XCTAssertEqual(response.statusCode, 400)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            [
+    //                .init(name: "X-Reason", value: "bad%20luck"),
+    //                .init(name: "content-type", value: "application/json; charset=utf-8"),
+    //            ]
+    //        )
+    //        let bodyString = String(decoding: response.body, as: UTF8.self)
+    //        XCTAssertEqual(
+    //            bodyString,
+    //            #"""
+    //            {
+    //              "code" : 1
+    //            }
+    //            """#
+    //        )
+    //    }
+    //
+    //    func testCreatePet_withIncorrectContentType() async throws {
+    //        client = .init(
+    //            createPetBlock: { input in
+    //                XCTFail("The handler should not have been called")
+    //                fatalError("Unreachable")
+    //            }
+    //        )
+    //        do {
+    //            _ = try await server.createPet(
+    //                .init(
+    //                    path: "/api/pets",
+    //                    method: .post,
+    //                    headerFields: [
+    //                        .init(name: "x-extra-arguments", value: #"{"code":1}"#),
+    //                        .init(name: "content-type", value: "text/plain; charset=utf-8"),
+    //                    ],
+    //                    encodedBody: #"""
+    //                        {
+    //                          "name" : "Fluffz"
+    //                        }
+    //                        """#
+    //                ),
+    //                .init()
+    //            )
+    //            XCTFail("The method should have thrown an error.")
+    //        } catch {}
+    //    }
+    //
+    //    func testUpdatePet_204_withBody() async throws {
+    //        client = .init(
+    //            updatePetBlock: { input in
+    //                XCTAssertEqual(input.path.petId, 1)
+    //                guard let body = input.body else {
+    //                    throw TestError.unexpectedMissingRequestBody
+    //                }
+    //                guard case let .json(updatePet) = body else {
+    //                    throw TestError.unexpectedValue(body)
+    //                }
+    //                XCTAssertEqual(updatePet, .init(name: "Fluffz"))
+    //                return .noContent(.init())
+    //            }
+    //        )
+    //        let response = try await server.updatePet(
+    //            .init(
+    //                path: "/api/pets/1",
+    //                method: .patch,
+    //                headerFields: [
+    //                    .init(name: "accept", value: "application/json"),
+    //                    .init(name: "content-type", value: "application/json"),
+    //                ],
+    //                encodedBody: #"""
+    //                    {
+    //                      "name" : "Fluffz"
+    //                    }
+    //                    """#
+    //            ),
+    //            .init(
+    //                pathParameters: [
+    //                    "petId": "1"
+    //                ]
+    //            )
+    //        )
+    //        XCTAssertEqual(response.statusCode, 204)
+    //        XCTAssertEqual(response.headerFields, [])
+    //    }
+    //
+    //    func testUpdatePet_204_withBody_default_json() async throws {
+    //        client = .init(
+    //            updatePetBlock: { input in
+    //                XCTAssertEqual(input.path.petId, 1)
+    //                guard let body = input.body else {
+    //                    throw TestError.unexpectedMissingRequestBody
+    //                }
+    //                guard case let .json(updatePet) = body else {
+    //                    throw TestError.unexpectedValue(body)
+    //                }
+    //                XCTAssertEqual(updatePet, .init(name: "Fluffz"))
+    //                return .noContent(.init())
+    //            }
+    //        )
+    //        let response = try await server.updatePet(
+    //            .init(
+    //                path: "/api/pets/1",
+    //                method: .patch,
+    //                headerFields: [],
+    //                encodedBody: #"""
+    //                    {
+    //                      "name" : "Fluffz"
+    //                    }
+    //                    """#
+    //            ),
+    //            .init(
+    //                pathParameters: [
+    //                    "petId": "1"
+    //                ]
+    //            )
+    //        )
+    //        XCTAssertEqual(response.statusCode, 204)
+    //        XCTAssertEqual(response.headerFields, [])
+    //    }
+    //
+    //    func testUpdatePet_204_withoutBody() async throws {
+    //        client = .init(
+    //            updatePetBlock: { input in
+    //                XCTAssertEqual(input.path.petId, 1)
+    //                XCTAssertNil(input.body)
+    //                return .noContent(.init())
+    //            }
+    //        )
+    //        let response = try await server.updatePet(
+    //            .init(
+    //                path: "/api/pets/1",
+    //                method: .patch
+    //            ),
+    //            .init(
+    //                pathParameters: [
+    //                    "petId": "1"
+    //                ]
+    //            )
+    //        )
+    //        XCTAssertEqual(response.statusCode, 204)
+    //        XCTAssertEqual(response.headerFields, [])
+    //    }
+    //
+    //    func testUpdatePet_400() async throws {
+    //        client = .init(
+    //            updatePetBlock: { input in
+    //                XCTAssertEqual(input.path.petId, 1)
+    //                XCTAssertNil(input.body)
+    //                return .badRequest(.init(body: .json(.init(message: "Oh no!"))))
+    //            }
+    //        )
+    //        let response = try await server.updatePet(
+    //            .init(
+    //                path: "/api/pets/1",
+    //                method: .patch
+    //            ),
+    //            .init(
+    //                pathParameters: [
+    //                    "petId": "1"
+    //                ]
+    //            )
+    //        )
+    //        XCTAssertEqual(response.statusCode, 400)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            [
+    //                .init(name: "content-type", value: "application/json; charset=utf-8")
+    //            ]
+    //        )
+    //        XCTAssertEqualStringifiedData(
+    //            response.body,
+    //            #"""
+    //            {
+    //              "message" : "Oh no!"
+    //            }
+    //            """#
+    //        )
+    //    }
+    //
+    //    func testGetStats_200_json() async throws {
+    //        client = .init(
+    //            getStatsBlock: { input in
+    //                return .ok(.init(body: .json(.init(count: 1))))
+    //            }
+    //        )
+    //        let response = try await server.getStats(
+    //            .init(
+    //                path: "/api/pets/stats",
+    //                method: .patch,
+    //                headerFields: [
+    //                    .init(name: "accept", value: "application/json, text/plain, application/octet-stream")
+    //                ]
+    //            ),
+    //            .init()
+    //        )
+    //        XCTAssertEqual(response.statusCode, 200)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            [
+    //                .init(name: "content-type", value: "application/json; charset=utf-8")
+    //            ]
+    //        )
+    //        XCTAssertEqualStringifiedData(
+    //            response.body,
+    //            #"""
+    //            {
+    //              "count" : 1
+    //            }
+    //            """#
+    //        )
+    //    }
+    //
+    //    func testGetStats_200_unexpectedAccept() async throws {
+    //        client = .init(
+    //            getStatsBlock: { input in
+    //                return .ok(.init(body: .json(.init(count: 1))))
+    //            }
+    //        )
+    //        do {
+    //            _ = try await server.getStats(
+    //                .init(
+    //                    path: "/api/pets/stats",
+    //                    method: .patch,
+    //                    headerFields: [
+    //                        .init(name: "accept", value: "foo/bar")
+    //                    ]
+    //                ),
+    //                .init()
+    //            )
+    //            XCTFail("Should have thrown an error.")
+    //        } catch {}
+    //    }
+
+    func testGetStats_200_text() async throws {
+        client = .init(
+            getStatsBlock: { input in
+                return .ok(.init(body: .plainText("count is 1")))
+            }
+        )
+        let (response, responseBody) = try await server.getStats(
+            .init(
+                path: "/api/pets/stats",
+                method: .patch,
+                headerFields: [
+                    .accept: "application/json, text/plain, application/octet-stream"
+                ]
+            ),
+            .init(),
+            .init()
+        )
+        XCTAssertEqual(response.status.code, 200)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .contentType: "text/plain"
+            ]
+        )
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
+            #"""
+            count is 1
+            """#
+        )
+    }
+
+    func testGetStats_200_streaming_text() async throws {
+        client = .init(
+            getStatsBlock: { input in
+                let body = HTTPBody(
+                    stream: AsyncStream { continuation in
+                        continuation.yield([72])
+                        continuation.yield([69])
+                        continuation.yield([76])
+                        continuation.yield([76])
+                        continuation.yield([79])
+                        continuation.finish()
+                    },
+                    length: .unknown
+                )
+                return .ok(.init(body: .plainText(body)))
+            }
+        )
+        let (response, responseBody) = try await server.getStats(
+            .init(
+                path: "/api/pets/stats",
+                method: .patch,
+                headerFields: [
+                    .accept: "application/json, text/plain, application/octet-stream"
+                ]
+            ),
+            .init(),
+            .init()
+        )
+        XCTAssertEqual(response.status.code, 200)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .contentType: "text/plain"
+            ]
+        )
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
+            #"""
+            HELLO
+            """#
+        )
+    }
+
+    //    func testGetStats_200_text_requestedSpecific() async throws {
+    //        client = .init(
+    //            getStatsBlock: { input in
+    //                XCTAssertEqual(
+    //                    input.headers.accept,
+    //                    [
+    //                        .init(contentType: .plainText),
+    //                        .init(contentType: .json, quality: 0.5),
+    //                    ]
+    //                )
+    //                return .ok(.init(body: .plainText("count is 1")))
+    //            }
+    //        )
+    //        let response = try await server.getStats(
+    //            .init(
+    //                path: "/api/pets/stats",
+    //                method: .patch,
+    //                headerFields: [
+    //                    .init(name: "accept", value: "text/plain, application/json; q=0.500")
+    //                ]
+    //            ),
+    //            .init()
+    //        )
+    //        XCTAssertEqual(response.statusCode, 200)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            [
+    //                .init(name: "content-type", value: "text/plain")
+    //            ]
+    //        )
+    //        XCTAssertEqualStringifiedData(
+    //            response.body,
+    //            #"""
+    //            count is 1
+    //            """#
+    //        )
+    //    }
+    //
+    //    func testGetStats_200_text_customAccept() async throws {
+    //        client = .init(
+    //            getStatsBlock: { input in
+    //                XCTAssertEqual(
+    //                    input.headers.accept,
+    //                    [
+    //                        .init(contentType: .json, quality: 0.8),
+    //                        .init(contentType: .plainText),
+    //                    ]
+    //                )
+    //                return .ok(.init(body: .plainText("count is 1")))
+    //            }
+    //        )
+    //        let response = try await server.getStats(
+    //            .init(
+    //                path: "/api/pets/stats",
+    //                method: .patch,
+    //                headerFields: [
+    //                    .init(name: "accept", value: "application/json; q=0.8, text/plain")
+    //                ]
+    //            ),
+    //            .init()
+    //        )
+    //        XCTAssertEqual(response.statusCode, 200)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            [
+    //                .init(name: "content-type", value: "text/plain")
+    //            ]
+    //        )
+    //        XCTAssertEqualStringifiedData(
+    //            response.body,
+    //            #"""
+    //            count is 1
+    //            """#
+    //        )
+    //    }
+    //
+    //    func testGetStats_200_binary() async throws {
+    //        client = .init(
+    //            getStatsBlock: { input in
+    //                return .ok(.init(body: .binary(Data("count_is_1".utf8))))
+    //            }
+    //        )
+    //        let response = try await server.getStats(
+    //            .init(
+    //                path: "/api/pets/stats",
+    //                method: .patch,
+    //                headerFields: [
+    //                    .init(name: "accept", value: "application/json, text/plain, application/octet-stream")
+    //                ]
+    //            ),
+    //            .init()
+    //        )
+    //        XCTAssertEqual(response.statusCode, 200)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            [
+    //                .init(name: "content-type", value: "application/octet-stream")
+    //            ]
+    //        )
+    //        XCTAssertEqualStringifiedData(
+    //            response.body,
+    //            #"""
+    //            count_is_1
+    //            """#
+    //        )
+    //    }
+    //
+    //    func testPostStats_202_json() async throws {
+    //        client = .init(
+    //            postStatsBlock: { input in
+    //                guard case let .json(stats) = input.body else {
+    //                    throw TestError.unexpectedValue(input.body)
+    //                }
+    //                XCTAssertEqual(stats, .init(count: 1))
+    //                return .accepted(.init())
+    //            }
+    //        )
+    //        let response = try await server.postStats(
+    //            .init(
+    //                path: "/api/pets/stats",
+    //                method: .post,
+    //                headerFields: [
+    //                    .init(name: "content-type", value: "application/json; charset=utf-8")
+    //                ],
+    //                encodedBody: #"""
+    //                    {
+    //                      "count" : 1
+    //                    }
+    //                    """#
+    //            ),
+    //            .init()
+    //        )
+    //        XCTAssertEqual(response.statusCode, 202)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            []
+    //        )
+    //        XCTAssert(response.body.isEmpty)
+    //    }
+    //
+    //    func testPostStats_202_default_json() async throws {
+    //        client = .init(
+    //            postStatsBlock: { input in
+    //                guard case let .json(stats) = input.body else {
+    //                    throw TestError.unexpectedValue(input.body)
+    //                }
+    //                XCTAssertEqual(stats, .init(count: 1))
+    //                return .accepted(.init())
+    //            }
+    //        )
+    //        let response = try await server.postStats(
+    //            .init(
+    //                path: "/api/pets/stats",
+    //                method: .post,
+    //                headerFields: [],
+    //                encodedBody: #"""
+    //                    {
+    //                      "count" : 1
+    //                    }
+    //                    """#
+    //            ),
+    //            .init()
+    //        )
+    //        XCTAssertEqual(response.statusCode, 202)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            []
+    //        )
+    //        XCTAssert(response.body.isEmpty)
+    //    }
+    //
+    //    func testPostStats_202_text() async throws {
+    //        client = .init(
+    //            postStatsBlock: { input in
+    //                guard case let .plainText(stats) = input.body else {
+    //                    throw TestError.unexpectedValue(input.body)
+    //                }
+    //                XCTAssertEqual(stats, "count is 1")
+    //                return .accepted(.init())
+    //            }
+    //        )
+    //        let response = try await server.postStats(
+    //            .init(
+    //                path: "/api/pets/stats",
+    //                method: .post,
+    //                headerFields: [
+    //                    .init(name: "content-type", value: "text/plain")
+    //                ],
+    //                encodedBody: #"""
+    //                    count is 1
+    //                    """#
+    //            ),
+    //            .init()
+    //        )
+    //        XCTAssertEqual(response.statusCode, 202)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            []
+    //        )
+    //        XCTAssert(response.body.isEmpty)
+    //    }
+    //
+    //    func testPostStats_202_binary() async throws {
+    //        client = .init(
+    //            postStatsBlock: { input in
+    //                guard case let .binary(stats) = input.body else {
+    //                    throw TestError.unexpectedValue(input.body)
+    //                }
+    //                XCTAssertEqualStringifiedData(stats, "count_is_1")
+    //                return .accepted(.init())
+    //            }
+    //        )
+    //        let response = try await server.postStats(
+    //            .init(
+    //                path: "/api/pets/stats",
+    //                method: .post,
+    //                headerFields: [
+    //                    .init(name: "content-type", value: "application/octet-stream")
+    //                ],
+    //                encodedBody: #"""
+    //                    count_is_1
+    //                    """#
+    //            ),
+    //            .init()
+    //        )
+    //        XCTAssertEqual(response.statusCode, 202)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            []
+    //        )
+    //        XCTAssert(response.body.isEmpty)
+    //    }
+    //
+    //    func testProbe_204() async throws {
+    //        client = .init(
+    //            probeBlock: { input in
+    //                return .noContent(.init())
+    //            }
+    //        )
+    //        let response = try await server.probe(
+    //            .init(
+    //                path: "/api/probe",
+    //                method: .post
+    //            ),
+    //            .init()
+    //        )
+    //        XCTAssertEqual(response.statusCode, 204)
+    //        XCTAssertEqual(response.headerFields, [])
+    //        XCTAssertEqual(response.body, .init())
+    //    }
+    //
+    //    func testProbe_undocumented() async throws {
+    //        client = .init(
+    //            probeBlock: { input in
+    //                .undocumented(statusCode: 503, .init())
+    //            }
+    //        )
+    //        let response = try await server.probe(
+    //            .init(
+    //                path: "/api/probe",
+    //                method: .post
+    //            ),
+    //            .init()
+    //        )
+    //        XCTAssertEqual(response.statusCode, 503)
+    //        XCTAssertEqual(response.headerFields, [])
+    //        XCTAssertEqual(response.body, .init())
+    //    }
+    //
+    //    func testUploadAvatarForPet_200() async throws {
+    //        client = .init(
+    //            uploadAvatarForPetBlock: { input in
+    //                guard case let .binary(avatar) = input.body else {
+    //                    throw TestError.unexpectedValue(input.body)
+    //                }
+    //                XCTAssertEqualStringifiedData(avatar, Data.abcdString)
+    //                return .ok(.init(body: .binary(.efgh)))
+    //            }
+    //        )
+    //        let response = try await server.uploadAvatarForPet(
+    //            .init(
+    //                path: "/api/pets/1/avatar",
+    //                method: .put,
+    //                headerFields: [
+    //                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
+    //                    .init(name: "content-type", value: "application/octet-stream"),
+    //                ],
+    //                encodedBody: Data.abcdString
+    //            ),
+    //            .init(
+    //                pathParameters: [
+    //                    "petId": "1"
+    //                ]
+    //            )
+    //        )
+    //        XCTAssertEqual(response.statusCode, 200)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            [
+    //                .init(name: "content-type", value: "application/octet-stream")
+    //            ]
+    //        )
+    //        XCTAssertEqualStringifiedData(
+    //            response.body,
+    //            Data.efghString
+    //        )
+    //    }
+    //
+    //    func testUploadAvatarForPet_412() async throws {
+    //        client = .init(
+    //            uploadAvatarForPetBlock: { input in
+    //                guard case let .binary(avatar) = input.body else {
+    //                    throw TestError.unexpectedValue(input.body)
+    //                }
+    //                XCTAssertEqualStringifiedData(avatar, Data.abcdString)
+    //                return .preconditionFailed(.init(body: .json(Data.efghString)))
+    //            }
+    //        )
+    //        let response = try await server.uploadAvatarForPet(
+    //            .init(
+    //                path: "/api/pets/1/avatar",
+    //                method: .put,
+    //                headerFields: [
+    //                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
+    //                    .init(name: "content-type", value: "application/octet-stream"),
+    //                ],
+    //                encodedBody: Data.abcdString
+    //            ),
+    //            .init(
+    //                pathParameters: [
+    //                    "petId": "1"
+    //                ]
+    //            )
+    //        )
+    //        XCTAssertEqual(response.statusCode, 412)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            [
+    //                .init(name: "content-type", value: "application/json; charset=utf-8")
+    //            ]
+    //        )
+    //        XCTAssertEqualStringifiedData(
+    //            response.body,
+    //            Data.quotedEfghString
+    //        )
+    //    }
+    //
+    //    func testUploadAvatarForPet_500() async throws {
+    //        client = .init(
+    //            uploadAvatarForPetBlock: { input in
+    //                guard case let .binary(avatar) = input.body else {
+    //                    throw TestError.unexpectedValue(input.body)
+    //                }
+    //                XCTAssertEqualStringifiedData(avatar, Data.abcdString)
+    //                return .internalServerError(.init(body: .plainText(Data.efghString)))
+    //            }
+    //        )
+    //        let response = try await server.uploadAvatarForPet(
+    //            .init(
+    //                path: "/api/pets/1/avatar",
+    //                method: .put,
+    //                headerFields: [
+    //                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
+    //                    .init(name: "content-type", value: "application/octet-stream"),
+    //                ],
+    //                encodedBody: Data.abcdString
+    //            ),
+    //            .init(
+    //                pathParameters: [
+    //                    "petId": "1"
+    //                ]
+    //            )
+    //        )
+    //        XCTAssertEqual(response.statusCode, 500)
+    //        XCTAssertEqual(
+    //            response.headerFields,
+    //            [
+    //                .init(name: "content-type", value: "text/plain")
+    //            ]
+    //        )
+    //        XCTAssertEqualStringifiedData(
+    //            response.body,
+    //            Data.efghString
+    //        )
+    //    }
 
 }

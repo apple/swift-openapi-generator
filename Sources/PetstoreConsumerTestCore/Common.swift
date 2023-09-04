@@ -50,18 +50,18 @@ public extension Date {
 }
 
 public extension HTTPResponse {
-    
+
     init(
         statusCode: Int,
         headers: HTTPFields = .init()
     ) {
         self.init(status: .init(code: statusCode), headerFields: headers)
     }
-    
+
     func withEncodedBody(_ encodedBody: String) throws -> (HTTPResponse, HTTPBody) {
         (self, .init(data: Data(encodedBody.utf8)))
     }
-    
+
     static var listPetsSuccess: (HTTPResponse, HTTPBody) {
         get throws {
             try Self(
@@ -70,14 +70,15 @@ public extension HTTPResponse {
                     .contentType: "application/json"
                 ]
             )
-            .withEncodedBody(#"""
-                    [
-                      {
-                        "id": 1,
-                        "name": "Fluffz"
-                      }
-                    ]
-                    """#
+            .withEncodedBody(
+                #"""
+                [
+                  {
+                    "id": 1,
+                    "name": "Fluffz"
+                  }
+                ]
+                """#
             )
         }
     }
@@ -123,7 +124,7 @@ public extension HTTPRequest {
             headerFields: headerFields
         )
     }
-    
+
     func withEncodedBody(_ encodedBody: String) -> (HTTPRequest, HTTPBody) {
         (self, .init(data: Data(encodedBody.utf8)))
     }

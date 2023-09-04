@@ -335,7 +335,7 @@ public struct Client: APIProtocol {
                 converter.setAcceptHeader(in: &request.headerFields, contentTypes: input.headers.accept)
                 let body: HTTPBody?
                 switch input.body {
-                case .none: 
+                case .none:
                     body = nil
                 case let .json(value):
                     body = try converter.setOptionalRequestBodyAsJSON(

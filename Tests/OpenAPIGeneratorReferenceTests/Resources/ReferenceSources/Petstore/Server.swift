@@ -71,7 +71,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
-    func listPets(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (HTTPResponse, HTTPBody) {
+    func listPets(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody
+    ) {
         try await handle(
             request: request,
             requestBody: body,
@@ -169,7 +171,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
-    func createPet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (HTTPResponse, HTTPBody) {
+    func createPet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody
+    ) {
         try await handle(
             request: request,
             requestBody: body,
@@ -242,7 +246,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): 
+                case let .undocumented(statusCode, _):
                     return (.init(statusCode: statusCode), .init())
                 }
             }
@@ -250,7 +254,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     }
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
-    func getStats(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (HTTPResponse, HTTPBody) {
+    func getStats(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody
+    ) {
         try await handle(
             request: request,
             requestBody: body,
@@ -294,7 +300,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): 
+                case let .undocumented(statusCode, _):
                     return (.init(statusCode: statusCode), .init())
                 }
             }
@@ -302,7 +308,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     }
     /// - Remark: HTTP `POST /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/post(postStats)`.
-    func postStats(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (HTTPResponse, HTTPBody) {
+    func postStats(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody
+    ) {
         try await handle(
             request: request,
             requestBody: body,
@@ -355,7 +363,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    @available(*, deprecated) func probe(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (HTTPResponse, HTTPBody) {
+    @available(*, deprecated) func probe(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata)
+        async throws -> (HTTPResponse, HTTPBody)
+    {
         try await handle(
             request: request,
             requestBody: body,
@@ -380,7 +390,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `PATCH /pets/{petId}`.
     /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)`.
-    func updatePet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (HTTPResponse, HTTPBody) {
+    func updatePet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody
+    ) {
         try await handle(
             request: request,
             requestBody: body,
@@ -445,7 +457,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
-    func uploadAvatarForPet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (HTTPResponse, HTTPBody) {
+    func uploadAvatarForPet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody
+    ) {
         try await handle(
             request: request,
             requestBody: body,
@@ -525,7 +539,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): 
+                case let .undocumented(statusCode, _):
                     return (.init(statusCode: statusCode), .init())
                 }
             }

@@ -13,6 +13,7 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 import XCTest
+import OpenAPIRuntime
 
 public func XCTAssertEqualStringifiedData(
     _ expression1: @autoclosure () throws -> Data,
@@ -27,4 +28,15 @@ public func XCTAssertEqualStringifiedData(
     } catch {
         XCTFail(error.localizedDescription, file: file, line: line)
     }
+}
+
+public func XCTAssertEqualStringifiedData(
+    _ expression1: @autoclosure () throws -> HTTPBody,
+    _ expression2: @autoclosure () throws -> String,
+    _ message: @autoclosure () -> String = "",
+    file: StaticString = #filePath,
+    line: UInt = #line
+) async throws {
+    let data = try await expression1().collectAsData(upTo: .max)
+    XCTAssertEqualStringifiedData(data, try expression2(), message(), file: file, line: line)
 }
