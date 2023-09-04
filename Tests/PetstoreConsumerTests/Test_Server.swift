@@ -782,46 +782,107 @@ final class Test_Server: XCTestCase {
     //        XCTAssertEqual(response.headerFields, [])
     //        XCTAssertEqual(response.body, .init())
     //    }
-    //
-    //    func testUploadAvatarForPet_200() async throws {
-    //        client = .init(
-    //            uploadAvatarForPetBlock: { input in
-    //                guard case let .binary(avatar) = input.body else {
-    //                    throw TestError.unexpectedValue(input.body)
-    //                }
-    //                XCTAssertEqualStringifiedData(avatar, Data.abcdString)
-    //                return .ok(.init(body: .binary(.efgh)))
-    //            }
-    //        )
-    //        let response = try await server.uploadAvatarForPet(
-    //            .init(
-    //                path: "/api/pets/1/avatar",
-    //                method: .put,
-    //                headerFields: [
-    //                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
-    //                    .init(name: "content-type", value: "application/octet-stream"),
-    //                ],
-    //                encodedBody: Data.abcdString
-    //            ),
-    //            .init(
-    //                pathParameters: [
-    //                    "petId": "1"
-    //                ]
-    //            )
-    //        )
-    //        XCTAssertEqual(response.statusCode, 200)
-    //        XCTAssertEqual(
-    //            response.headerFields,
-    //            [
-    //                .init(name: "content-type", value: "application/octet-stream")
-    //            ]
-    //        )
-    //        XCTAssertEqualStringifiedData(
-    //            response.body,
-    //            Data.efghString
-    //        )
-    //    }
-    //
+
+    func testUploadAvatarForPet_200_buffered() async throws {
+        client = .init(
+            uploadAvatarForPetBlock: { input in
+                guard case let .binary(avatar) = input.body else {
+                    throw TestError.unexpectedValue(input.body)
+                }
+                try await XCTAssertEqualStringifiedData(avatar, Data.abcdString)
+                return .ok(.init(body: .binary(.init(data: .efgh))))
+            }
+        )
+        let (response, responseBody) = try await server.uploadAvatarForPet(
+            .init(
+                path: "/api/pets/1/avatar",
+                method: .put,
+                headerFields: [
+                    .accept: "application/octet-stream, application/json, text/plain",
+                    .contentType: "application/octet-stream",
+                ]
+            ),
+            .init(data: Data.abcdString),
+            .init(
+                pathParameters: [
+                    "petId": "1"
+                ]
+            )
+        )
+        XCTAssertEqual(response.status.code, 200)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .contentType: "application/octet-stream"
+            ]
+        )
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
+            Data.efghString
+        )
+    }
+
+    func testUploadAvatarForPet_200_streaming() async throws {
+        actor CollectedChunks {
+            private(set) var sizes: [Int] = []
+            func record(size: Int) {
+                sizes.append(size)
+            }
+        }
+        let recorder = CollectedChunks()
+        client = .init(
+            uploadAvatarForPetBlock: { input in
+                guard case let .binary(avatar) = input.body else {
+                    throw TestError.unexpectedValue(input.body)
+                }
+                let responseSequence = avatar.map { chunk in
+                    await recorder.record(size: chunk.count)
+                    return chunk
+                }
+                return .ok(
+                    .init(
+                        body: .binary(
+                            .init(
+                                sequence: responseSequence,
+                                length: avatar.length,
+                                iterationBehavior: avatar.iterationBehavior
+                            )
+                        )
+                    )
+                )
+            }
+        )
+        let (response, responseBody) = try await server.uploadAvatarForPet(
+            .init(
+                path: "/api/pets/1/avatar",
+                method: .put,
+                headerFields: [
+                    .accept: "application/octet-stream, application/json, text/plain",
+                    .contentType: "application/octet-stream",
+                ]
+            ),
+            .init(dataChunks: [[97, 98], [99, 100]], length: .known(4)),
+            .init(
+                pathParameters: [
+                    "petId": "1"
+                ]
+            )
+        )
+        XCTAssertEqual(response.status.code, 200)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .contentType: "application/octet-stream"
+            ]
+        )
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
+            Data.abcdString
+        )
+        let sizes = await recorder.sizes
+        XCTAssertEqual(sizes, [2, 2])
+    }
+
     //    func testUploadAvatarForPet_412() async throws {
     //        client = .init(
     //            uploadAvatarForPetBlock: { input in
