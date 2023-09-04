@@ -966,9 +966,9 @@ public enum Operations {
                     /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/content/application\/json`.
                     case json(Components.Schemas.PetStats)
                     /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/content/text\/plain`.
-                    case plainText(Swift.String)
+                    case plainText(OpenAPIRuntime.HTTPBody)
                     /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/content/application\/octet-stream`.
-                    case binary(Foundation.Data)
+                    case binary(OpenAPIRuntime.HTTPBody)
                 }
                 /// Received HTTP response body
                 public var body: Operations.getStats.Output.Ok.Body
@@ -1023,9 +1023,9 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/pets/stats/POST/requestBody/content/application\/json`.
                 case json(Components.Schemas.PetStats)
                 /// - Remark: Generated from `#/paths/pets/stats/POST/requestBody/content/text\/plain`.
-                case plainText(Swift.String)
+                case plainText(OpenAPIRuntime.HTTPBody)
                 /// - Remark: Generated from `#/paths/pets/stats/POST/requestBody/content/application\/octet-stream`.
-                case binary(Foundation.Data)
+                case binary(OpenAPIRuntime.HTTPBody)
             }
             public var body: Operations.postStats.Input.Body
             /// Creates a new `Input`.
@@ -1229,7 +1229,7 @@ public enum Operations {
             /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/requestBody`.
             @frozen public enum Body: Sendable, Hashable {
                 /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/requestBody/content/application\/octet-stream`.
-                case binary(Foundation.Data)
+                case binary(OpenAPIRuntime.HTTPBody)
             }
             public var body: Operations.uploadAvatarForPet.Input.Body
             /// Creates a new `Input`.
@@ -1253,7 +1253,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/200/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/200/content/application\/octet-stream`.
-                    case binary(Foundation.Data)
+                    case binary(OpenAPIRuntime.HTTPBody)
                 }
                 /// Received HTTP response body
                 public var body: Operations.uploadAvatarForPet.Output.Ok.Body
@@ -1293,7 +1293,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/500/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/500/content/text\/plain`.
-                    case plainText(Swift.String)
+                    case plainText(OpenAPIRuntime.HTTPBody)
                 }
                 /// Received HTTP response body
                 public var body: Operations.uploadAvatarForPet.Output.InternalServerError.Body

@@ -30,11 +30,6 @@ struct ContentType: Hashable {
         /// The bytes are provided to a JSON encoder or decoder.
         case json
 
-        /// A content type for any plain text.
-        ///
-        /// The bytes are encoded or decoded as a UTF-8 string.
-        case text
-
         /// A content type for raw binary data.
         ///
         /// This case covers both explicit binary data content types, such
@@ -57,8 +52,6 @@ struct ContentType: Hashable {
             if (lowercasedType == "application" && lowercasedSubtype == "json") || lowercasedSubtype.hasSuffix("+json")
             {
                 self = .json
-            } else if lowercasedType == "text" {
-                self = .text
             } else {
                 self = .binary
             }
@@ -69,8 +62,6 @@ struct ContentType: Hashable {
             switch self {
             case .json:
                 return .json
-            case .text:
-                return .string
             case .binary:
                 return .binary
             }
@@ -225,12 +216,6 @@ struct ContentType: Hashable {
     }
 
     /// A Boolean value that indicates whether the content type
-    /// is a type of plain text.
-    var isText: Bool {
-        category == .text
-    }
-
-    /// A Boolean value that indicates whether the content type
     /// is just binary data.
     var isBinary: Bool {
         category == .binary
@@ -252,12 +237,6 @@ extension OpenAPI.ContentType {
     /// is a type of JSON.
     var isJSON: Bool {
         asGeneratorContentType.isJSON
-    }
-
-    /// A Boolean value that indicates whether the content type
-    /// is a type of plain text.
-    var isText: Bool {
-        asGeneratorContentType.isText
     }
 
     /// A Boolean value that indicates whether the content type

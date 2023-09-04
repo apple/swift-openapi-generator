@@ -163,15 +163,6 @@ extension FileTranslator {
                 ),
                 contentValue
             )
-        } else if let (contentKey, contentValue) = map.first(where: { $0.key.isText }) {
-            let contentType = contentKey.asGeneratorContentType
-            chosenContent = (
-                .init(
-                    contentType: contentType,
-                    schema: .b(.string)
-                ),
-                contentValue
-            )
         } else if !excludeBinary, let (contentKey, contentValue) = map.first(where: { $0.key.isBinary }) {
             let contentType = contentKey.asGeneratorContentType
             chosenContent = (
@@ -238,13 +229,6 @@ extension FileTranslator {
             return .init(
                 contentType: contentType,
                 schema: contentValue.schema
-            )
-        }
-        if contentKey.isText {
-            let contentType = contentKey.asGeneratorContentType
-            return .init(
-                contentType: contentType,
-                schema: .b(.string)
             )
         }
         if !excludeBinary, contentKey.isBinary {
