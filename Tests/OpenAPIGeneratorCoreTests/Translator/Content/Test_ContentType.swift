@@ -81,7 +81,7 @@ final class Test_ContentType: Test_Core {
                 ),
                 (
                     "text/plain",
-                    .text,
+                    .binary,
                     "text",
                     "plain",
                     "",

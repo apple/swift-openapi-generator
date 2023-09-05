@@ -46,12 +46,18 @@ final class Test_Playground: XCTestCase {
                     requestSequence = body
                 }
 
-                let responseSequence = requestSequence.mapChunks { chunk in
+                let responseSequence = requestSequence.map { chunk in
                     print("Server received a chunk: \(String(decoding: chunk, as: UTF8.self))")
                     return chunk.map { $0 - 1 }[...]
                 }
 
-                return .ok(.init(body: .binary(responseSequence)))
+                return .ok(.init(body: .binary(
+                    .init(
+                        sequence: responseSequence,
+                        length: requestSequence.length,
+                        iterationBehavior: requestSequence.iterationBehavior
+                    )
+                )))
             }
 
             func listPets(_ input: Operations.listPets.Input) async throws -> Operations.listPets.Output {
@@ -86,7 +92,7 @@ final class Test_Playground: XCTestCase {
 
         // Create the request stream.
         let (requestStream, requestContinuation) = AsyncStream.makeStream(
-            of: HTTPBody.DataType.self,
+            of: String.self,
             bufferingPolicy: .unbounded
         )
 
@@ -116,12 +122,12 @@ final class Test_Playground: XCTestCase {
 
         // Send a chunk into the request stream, get one from the response stream
         // verify the contents.
-        requestContinuation.yield(Array("hello".utf8)[...])
+        requestContinuation.yield("hello")
         let firstResponseChunk = try await responseIterator.next()
         XCTAssertEqualStringifiedData(firstResponseChunk, "gdkkn")
 
         // Send a second chunk.
-        requestContinuation.yield(Array("world".utf8)[...])
+        requestContinuation.yield("world")
         let secondResponseChunk = try await responseIterator.next()
         XCTAssertEqualStringifiedData(secondResponseChunk, "vnqkc")
 
@@ -145,11 +151,11 @@ final class Test_Playground: XCTestCase {
                 // and then sends a few chunks.
 
                 let responseStream = AsyncStream(
-                    HTTPBody.DataType.self,
+                    String.self,
                     bufferingPolicy: .unbounded
                 ) { continuation in
-                    continuation.yield(Array("hello".utf8)[...])
-                    continuation.yield(Array("world".utf8)[...])
+                    continuation.yield("hello")
+                    continuation.yield("world")
                     continuation.finish()
                 }
                 let responseBody = HTTPBody(stream: responseStream, length: .unknown)
@@ -233,16 +239,16 @@ final class Test_Playground: XCTestCase {
                 actor ChunkProducer {
                     private var chunks: [String] = ["hello", "world"]
 
-                    func produceNext() -> HTTPBody.DataType? {
+                    func produceNext() -> String? {
                         guard !chunks.isEmpty else {
                             return nil
                         }
-                        return Array(chunks.removeFirst().utf8)[...]
+                        return chunks.removeFirst()
                     }
                 }
                 let chunkProducer = ChunkProducer()
 
-                let responseStream = AsyncStream<HTTPBody.DataType>(
+                let responseStream = AsyncStream<String>(
                     unfolding: {
                         await chunkProducer.produceNext()
                     }
