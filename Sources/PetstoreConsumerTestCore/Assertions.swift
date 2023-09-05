@@ -34,6 +34,25 @@ public func XCTAssertEqualStringifiedData(
     }
 }
 
+public func XCTAssertEqualStringifiedData<S: Sequence>(
+    _ expression1: @autoclosure () throws -> S?,
+    _ expression2: @autoclosure () throws -> String,
+    _ message: @autoclosure () -> String = "",
+    file: StaticString = #filePath,
+    line: UInt = #line
+) where S.Element == UInt8 {
+    do {
+        guard let value1 = try expression1() else {
+            XCTFail("First value is nil", file: file, line: line)
+            return
+        }
+        let actualString = String(decoding: Array(value1), as: UTF8.self)
+        XCTAssertEqual(actualString, try expression2(), file: file, line: line)
+    } catch {
+        XCTFail(error.localizedDescription, file: file, line: line)
+    }
+}
+
 public func XCTAssertEqualStringifiedData(
     _ expression1: @autoclosure () throws -> HTTPBody?,
     _ expression2: @autoclosure () throws -> String,
