@@ -1123,10 +1123,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     middlewares: middlewares
                 )
                 try transport.register(
-                    { try await server.getHealth(request: $0, metadata: $1) },
+                    { try await server.getHealth(request: $0, body: $1, metadata: $2) },
                     method: .get,
-                    path: server.apiPathComponentsWithServerPrefix(["health"]),
-                    queryItemNames: []
+                    path: server.apiPathComponentsWithServerPrefix("/health")
                 )
             }
             """
@@ -1291,7 +1290,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """,
             client: """
                 { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
-                    var request: OpenAPIRuntime.Request = .init(path: path, method: .get)
+                    var request: HTTPTypes.HTTPRequest = .init(path: path, method: .get)
                     suppressMutabilityWarning(&request)
                     try converter.setQueryItemAsURI(
                         in: &request,
@@ -1314,11 +1313,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         name: "manyUnexploded",
                         value: input.query.manyUnexploded
                     )
-                    return request
+                    return (request, nil)
                 }
                 """,
             server: """
-                { request, metadata in
+                { request, requestBody, metadata in
                     let query: Operations.get_sol_foo.Input.Query = .init(
                         single: try converter.getOptionalQueryItemAsURI(
                             in: request.query,

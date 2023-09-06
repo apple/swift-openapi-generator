@@ -100,7 +100,7 @@ extension TestServerTransport {
         get throws {
             try findHandler(
                 method: .post,
-                path: "/api/probe"
+                path: "/api/probe/"
             )
         }
     }

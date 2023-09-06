@@ -769,7 +769,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.probe(
             .init(
-                path: "/api/probe",
+                path: "/api/probe/",
                 method: .post
             ),
             nil,
@@ -788,7 +788,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.probe(
             .init(
-                path: "/api/probe",
+                path: "/api/probe/",
                 method: .post
             ),
             nil,

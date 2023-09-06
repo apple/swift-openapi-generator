@@ -25,7 +25,7 @@ final class Test_TypeMatcher: Test_Core {
     static let builtinTypes: [(JSONSchema, String)] = [
         (.string, "Swift.String"),
         (.string(.init(format: .byte), .init()), "Swift.String"),
-        (.string(.init(format: .binary), .init()), "Foundation.Data"),
+        (.string(.init(format: .binary), .init()), "OpenAPIRuntime.HTTPBody"),
         (.string(.init(format: .date), .init()), "Swift.String"),
         (.string(.init(format: .dateTime), .init()), "Foundation.Date"),
 
