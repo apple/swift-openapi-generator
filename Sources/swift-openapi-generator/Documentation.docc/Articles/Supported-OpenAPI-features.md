@@ -155,7 +155,7 @@ Supported features are always provided on _both_ client and server.
 - [x] description
 - [x] format
 - [ ] default
-- [ ] nullable (only in 3.0, removed in 3.1)
+- [x] nullable (only in 3.0, removed in 3.1, add `null` in `types` instead)
 - [x] discriminator
 - [ ] readOnly
 - [ ] writeOnly
