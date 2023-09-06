@@ -931,8 +931,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.Int)
                         case application_json_foo_bar(Swift.Int)
-                        case plainText(Swift.String)
-                        case binary(Foundation.Data)
+                        case plainText(OpenAPIRuntime.HTTPBody)
+                        case binary(OpenAPIRuntime.HTTPBody)
                     }
                     public var body: Components.Responses.MultipleContentTypes.Body
                     public init(
@@ -1065,8 +1065,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum RequestBodies {
                 @frozen public enum MyResponseBody: Sendable, Hashable {
                     case json(Components.Schemas.MyBody)
-                    case plainText(Swift.String)
-                    case binary(Foundation.Data)
+                    case plainText(OpenAPIRuntime.HTTPBody)
+                    case binary(OpenAPIRuntime.HTTPBody)
                 }
             }
             """

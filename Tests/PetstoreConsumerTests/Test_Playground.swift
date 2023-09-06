@@ -51,13 +51,17 @@ final class Test_Playground: XCTestCase {
                     return chunk.map { $0 - 1 }[...]
                 }
 
-                return .ok(.init(body: .binary(
+                return .ok(
                     .init(
-                        sequence: responseSequence,
-                        length: requestSequence.length,
-                        iterationBehavior: requestSequence.iterationBehavior
+                        body: .binary(
+                            .init(
+                                sequence: responseSequence,
+                                length: requestSequence.length,
+                                iterationBehavior: requestSequence.iterationBehavior
+                            )
+                        )
                     )
-                )))
+                )
             }
 
             func listPets(_ input: Operations.listPets.Input) async throws -> Operations.listPets.Output {

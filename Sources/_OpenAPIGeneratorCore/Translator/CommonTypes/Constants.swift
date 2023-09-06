@@ -28,6 +28,12 @@ enum Constants {
             ImportDescription(moduleName: "OpenAPIRuntime", spi: "Generated"),
             ImportDescription(moduleName: "Foundation", preconcurrency: .onOS(["Linux"])),
         ]
+
+        /// The descriptions of modules imported by client and server files.
+        static let clientServerImports: [ImportDescription] =
+            imports + [
+                ImportDescription(moduleName: "HTTPTypes")
+            ]
     }
 
     /// Constants related to the OpenAPI server object.

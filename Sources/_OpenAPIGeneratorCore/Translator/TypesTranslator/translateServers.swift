@@ -37,7 +37,7 @@ extension TypesFileTranslator {
                 keywords: [
                     .throws
                 ],
-                returnType: Constants.ServerURL.underlyingType,
+                returnType: .identifier(Constants.ServerURL.underlyingType),
                 body: [
                     .expression(
                         .try(

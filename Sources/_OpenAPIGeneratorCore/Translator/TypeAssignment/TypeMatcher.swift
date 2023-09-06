@@ -223,7 +223,7 @@ struct TypeMatcher {
             case .byte:
                 typeName = .swift("String")
             case .binary:
-                typeName = .foundation("Data")
+                typeName = .body
             case .dateTime:
                 typeName = .foundation("Date")
             default:

@@ -220,21 +220,26 @@ extension ClientFileTranslator {
                         )
                     ]
                 )
-                let bodyExpr: Expression = .try(
-                    .identifier("converter")
-                        .dot("getResponseBodyAs\(typedContent.content.contentType.codingStrategy.runtimeName)")
-                        .call([
-                            .init(
-                                label: nil,
-                                expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
-                            ),
-                            .init(label: "from", expression: .identifier("response").dot("body")),
-                            .init(
-                                label: "transforming",
-                                expression: transformExpr
-                            ),
-                        ])
-                )
+                let codingStrategy = typedContent.content.contentType.codingStrategy
+                let converterExpr: Expression = .identifier("converter")
+                    .dot("getResponseBodyAs\(codingStrategy.runtimeName)")
+                    .call([
+                        .init(
+                            label: nil,
+                            expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
+                        ),
+                        .init(label: "from", expression: .identifier("responseBody")),
+                        .init(
+                            label: "transforming",
+                            expression: transformExpr
+                        ),
+                    ])
+                let bodyExpr: Expression
+                if codingStrategy == .binary {
+                    bodyExpr = .try(converterExpr)
+                } else {
+                    bodyExpr = .try(.await(converterExpr))
+                }
                 return .init(
                     condition: .try(condition),
                     body: [
@@ -315,7 +320,7 @@ extension ClientFileTranslator {
             optionalStatusCode = [
                 .init(
                     label: "statusCode",
-                    expression: .identifier("response").dot("statusCode")
+                    expression: .identifier("response").dot("status").dot("code")
                 )
             ]
         } else {
@@ -372,7 +377,7 @@ extension ServerFileTranslator {
         let responseVarDecl: Declaration = .variable(
             kind: .var,
             left: "response",
-            right: .identifier("Response")
+            right: .identifier("HTTPResponse")
                 .call([
                     .init(label: "statusCode", expression: statusCodeExpr)
                 ])
@@ -401,12 +406,21 @@ extension ServerFileTranslator {
         }
         codeBlocks.append(contentsOf: headerExprs.map { .expression($0) })
 
+        let bodyReturnExpr: Expression
         let typedContents = try supportedTypedContents(
             typedResponse.response.content,
             inParent: bodyTypeName
         )
-
         if !typedContents.isEmpty {
+            codeBlocks.append(
+                .declaration(
+                    .variable(
+                        kind: .let,
+                        left: "body",
+                        type: "HTTPBody"
+                    )
+                )
+            )
             let switchContentCases: [SwitchCaseDescription] = typedContents.map { typedContent in
 
                 var caseCodeBlocks: [CodeBlock] = []
@@ -423,7 +437,7 @@ extension ServerFileTranslator {
 
                 let contentType = typedContent.content.contentType
                 let assignBodyExpr: Expression = .assignment(
-                    left: .identifier("response").dot("body"),
+                    left: .identifier("body"),
                     right: .try(
                         .identifier("converter")
                             .dot("setResponseBodyAs\(contentType.codingStrategy.runtimeName)")
@@ -458,10 +472,17 @@ extension ServerFileTranslator {
                     )
                 )
             )
+
+            bodyReturnExpr = .identifier("body")
+        } else {
+            bodyReturnExpr = .dot("init").call([])
         }
 
         let returnExpr: Expression = .return(
-            .identifier("response")
+            .tuple([
+                .identifier("response"),
+                bodyReturnExpr,
+            ])
         )
         codeBlocks.append(.expression(returnExpr))
 

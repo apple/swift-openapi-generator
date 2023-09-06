@@ -163,11 +163,13 @@ extension ClientFileTranslator {
     /// - Parameters:
     ///   - requestBody: The request body to extract.
     ///   - requestVariableName: The name of the request variable.
+    ///   - bodyVariableName: The name of the body variable.
     ///   - inputVariableName: The name of the Input variable.
     /// - Returns: An assignment expression.
     func translateRequestBodyInClient(
         _ requestBody: TypedRequestBody,
         requestVariableName: String,
+        bodyVariableName: String,
         inputVariableName: String
     ) throws -> Expression {
         let contents = requestBody.contents
@@ -178,7 +180,7 @@ extension ClientFileTranslator {
             let contentTypeHeaderValue = contentType.headerValueForSending
 
             let bodyAssignExpr: Expression = .assignment(
-                left: .identifier(requestVariableName).dot("body"),
+                left: .identifier(bodyVariableName),
                 right: .try(
                     .identifier("converter")
                         .dot(
@@ -213,7 +215,7 @@ extension ClientFileTranslator {
                 body: [
                     .expression(
                         .assignment(
-                            left: .identifier(requestVariableName).dot("body"),
+                            left: .identifier(bodyVariableName),
                             right: .literal(.nil)
                         )
                     )
@@ -307,7 +309,8 @@ extension ServerFileTranslator {
             let contentTypeUsage = typedContent.resolvedTypeUsage
             let content = typedContent.content
             let contentType = content.contentType
-            let codingStrategyName = contentType.codingStrategy.runtimeName
+            let codingStrategy = contentType.codingStrategy
+            let codingStrategyName = codingStrategy.runtimeName
             let transformExpr: Expression = .closureInvocation(
                 argumentNames: ["value"],
                 body: [
@@ -319,21 +322,26 @@ extension ServerFileTranslator {
                     )
                 ]
             )
-            let bodyExpr: Expression = .try(
+            let converterExpr: Expression =
                 .identifier("converter")
-                    .dot("get\(isOptional ? "Optional" : "Required")RequestBodyAs\(codingStrategyName)")
-                    .call([
-                        .init(
-                            label: nil,
-                            expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
-                        ),
-                        .init(label: "from", expression: .identifier(requestVariableName).dot("body")),
-                        .init(
-                            label: "transforming",
-                            expression: transformExpr
-                        ),
-                    ])
-            )
+                .dot("get\(isOptional ? "Optional" : "Required")RequestBodyAs\(codingStrategyName)")
+                .call([
+                    .init(
+                        label: nil,
+                        expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
+                    ),
+                    .init(label: "from", expression: .identifier("requestBody")),
+                    .init(
+                        label: "transforming",
+                        expression: transformExpr
+                    ),
+                ])
+            let bodyExpr: Expression
+            if codingStrategy == .binary {
+                bodyExpr = .try(converterExpr)
+            } else {
+                bodyExpr = .try(.await(converterExpr))
+            }
             return .init(
                 condition: .try(condition),
                 body: [
