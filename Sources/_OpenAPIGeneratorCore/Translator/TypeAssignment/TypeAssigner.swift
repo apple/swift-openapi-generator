@@ -45,6 +45,10 @@ struct TypeAssigner {
     /// safe to be used as a Swift identifier.
     var asSwiftSafeName: (String) -> String
 
+    /// A Boolean value indicating whether the `nullable` field on schemas
+    /// should be taken into account.
+    var supportNullableSchemas: Bool
+
     /// Returns a type name for an OpenAPI-named component type.
     ///
     /// A component type is any type in `#/components` in the OpenAPI document.
@@ -256,7 +260,10 @@ struct TypeAssigner {
         // Check if this type can be simply referenced without
         // creating a new inline type.
         if let referenceableType =
-            try TypeMatcher(asSwiftSafeName: asSwiftSafeName)
+            try TypeMatcher(
+                asSwiftSafeName: asSwiftSafeName,
+                supportNullableSchemas: supportNullableSchemas
+            )
             .tryMatchReferenceableType(for: schema)
         {
             return referenceableType
@@ -452,12 +459,18 @@ extension FileTranslator {
 
     /// A configured type assigner.
     var typeAssigner: TypeAssigner {
-        TypeAssigner(asSwiftSafeName: swiftSafeName)
+        TypeAssigner(
+            asSwiftSafeName: swiftSafeName,
+            supportNullableSchemas: supportNullableSchemas
+        )
     }
 
     /// A configured type matcher.
     var typeMatcher: TypeMatcher {
-        TypeMatcher(asSwiftSafeName: swiftSafeName)
+        TypeMatcher(
+            asSwiftSafeName: swiftSafeName,
+            supportNullableSchemas: supportNullableSchemas
+        )
     }
 }
 
