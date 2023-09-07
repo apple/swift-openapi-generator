@@ -228,7 +228,7 @@ extension Expression {
             return .init(name: value.referencedExpr.info.name, kind: .inOut)
         case .optionalChaining(let value):
             return .init(name: value.referencedExpr.info.name, kind: .optionalChaining)
-        case .tuple(let value):
+        case .tuple(_):
             return .init(name: nil, kind: .tuple)
         }
     }

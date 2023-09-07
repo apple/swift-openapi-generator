@@ -1320,21 +1320,21 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 { request, requestBody, metadata in
                     let query: Operations.get_sol_foo.Input.Query = .init(
                         single: try converter.getOptionalQueryItemAsURI(
-                            in: request.query,
+                            in: request.soar_query,
                             style: .form,
                             explode: true,
                             name: "single",
                             as: Swift.String.self
                         ),
                         manyExploded: try converter.getOptionalQueryItemAsURI(
-                            in: request.query,
+                            in: request.soar_query,
                             style: .form,
                             explode: true,
                             name: "manyExploded",
                             as: [Swift.String].self
                         ),
                         manyUnexploded: try converter.getOptionalQueryItemAsURI(
-                            in: request.query,
+                            in: request.soar_query,
                             style: .form,
                             explode: false,
                             name: "manyUnexploded",
