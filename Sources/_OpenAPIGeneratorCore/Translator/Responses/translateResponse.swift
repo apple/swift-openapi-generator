@@ -77,7 +77,7 @@ extension TypesFileTranslator {
             inParent: bodyTypeName
         )
 
-        let contentProperty: PropertyBlueprint?
+        let bodyProperty: PropertyBlueprint?
         if !typedContents.isEmpty {
             var bodyCases: [Declaration] = []
             for typedContent in typedContents {
@@ -117,7 +117,7 @@ extension TypesFileTranslator {
             )
 
             let contentTypeUsage = bodyTypeName.asUsage.withOptional(hasNoContent)
-            contentProperty = PropertyBlueprint(
+            bodyProperty = PropertyBlueprint(
                 comment: .doc("Received HTTP response body"),
                 originalName: Constants.Operation.Body.variableName,
                 typeUsage: contentTypeUsage,
@@ -128,7 +128,7 @@ extension TypesFileTranslator {
                 asSwiftSafeName: swiftSafeName
             )
         } else {
-            contentProperty = nil
+            bodyProperty = nil
         }
 
         let responseStructDecl = translateStructBlueprint(
@@ -139,7 +139,7 @@ extension TypesFileTranslator {
                 conformances: Constants.Operation.Output.Payload.conformances,
                 properties: [
                     headersProperty,
-                    contentProperty,
+                    bodyProperty,
                 ]
                 .compactMap { $0 }
             )
