@@ -70,7 +70,7 @@ final class Test_Server: XCTestCase {
                 .contentType: "application/json; charset=utf-8",
             ]
         )
-        let bodyString = try await responseBody.collectAsString(upTo: .max)
+        let bodyString = try await responseBody?.collectAsString(upTo: .max)
         XCTAssertEqual(
             bodyString,
             #"""
@@ -295,7 +295,7 @@ final class Test_Server: XCTestCase {
         )
         XCTAssertEqual(response.status.code, 204)
         XCTAssertEqual(response.headerFields, [:])
-        try await XCTAssertEqualStringifiedData(responseBody, "")
+        XCTAssertNil(responseBody)
     }
 
     func testUpdatePet_204_withBody_default_json() async throws {
@@ -333,7 +333,7 @@ final class Test_Server: XCTestCase {
         )
         XCTAssertEqual(response.status.code, 204)
         XCTAssertEqual(response.headerFields, [:])
-        try await XCTAssertEqualStringifiedData(responseBody, "")
+        XCTAssertNil(responseBody)
     }
 
     func testUpdatePet_204_withoutBody() async throws {
@@ -358,7 +358,7 @@ final class Test_Server: XCTestCase {
         )
         XCTAssertEqual(response.status.code, 204)
         XCTAssertEqual(response.headerFields, [:])
-        try await XCTAssertEqualStringifiedData(responseBody, "")
+        XCTAssertNil(responseBody)
     }
 
     func testUpdatePet_400() async throws {
@@ -668,7 +668,7 @@ final class Test_Server: XCTestCase {
         )
         XCTAssertEqual(response.status.code, 202)
         XCTAssertEqual(response.headerFields, [:])
-        try await XCTAssertEqualStringifiedData(responseBody, "")
+        XCTAssertNil(responseBody)
     }
 
     func testPostStats_202_default_json() async throws {
@@ -698,7 +698,7 @@ final class Test_Server: XCTestCase {
         )
         XCTAssertEqual(response.status.code, 202)
         XCTAssertEqual(response.headerFields, [:])
-        try await XCTAssertEqualStringifiedData(responseBody, "")
+        XCTAssertNil(responseBody)
     }
 
     func testPostStats_202_text() async throws {
@@ -728,7 +728,7 @@ final class Test_Server: XCTestCase {
         )
         XCTAssertEqual(response.status.code, 202)
         XCTAssertEqual(response.headerFields, [:])
-        try await XCTAssertEqualStringifiedData(responseBody, "")
+        XCTAssertNil(responseBody)
     }
 
     func testPostStats_202_binary() async throws {
@@ -758,7 +758,7 @@ final class Test_Server: XCTestCase {
         )
         XCTAssertEqual(response.status.code, 202)
         XCTAssertEqual(response.headerFields, [:])
-        try await XCTAssertEqualStringifiedData(responseBody, "")
+        XCTAssertNil(responseBody)
     }
 
     func testProbe_204() async throws {
@@ -777,7 +777,7 @@ final class Test_Server: XCTestCase {
         )
         XCTAssertEqual(response.status.code, 204)
         XCTAssertEqual(response.headerFields, [:])
-        try await XCTAssertEqualStringifiedData(responseBody, "")
+        XCTAssertNil(responseBody)
     }
 
     func testProbe_undocumented() async throws {
@@ -796,7 +796,7 @@ final class Test_Server: XCTestCase {
         )
         XCTAssertEqual(response.status.code, 503)
         XCTAssertEqual(response.headerFields, [:])
-        try await XCTAssertEqualStringifiedData(responseBody, "")
+        XCTAssertNil(responseBody)
     }
 
     func testUploadAvatarForPet_200_buffered() async throws {

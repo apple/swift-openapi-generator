@@ -280,7 +280,7 @@ extension OperationDescription {
                 .init(label: "metadata", type: "ServerRequestMetadata"),
             ],
             keywords: [.async, .throws],
-            returnType: .tuple([.identifier("HTTPResponse"), .identifier("HTTPBody")])
+            returnType: .tuple([.identifier("HTTPResponse"), .identifier("HTTPBody?")])
         )
     }
 

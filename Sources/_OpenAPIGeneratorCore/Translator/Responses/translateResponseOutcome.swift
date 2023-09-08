@@ -475,7 +475,7 @@ extension ServerFileTranslator {
 
             bodyReturnExpr = .identifier("body")
         } else {
-            bodyReturnExpr = .dot("init").call([])
+            bodyReturnExpr = nil
         }
 
         let returnExpr: Expression = .return(

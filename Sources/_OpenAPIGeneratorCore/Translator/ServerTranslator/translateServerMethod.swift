@@ -164,7 +164,7 @@ extension ServerFileTranslator {
                         .call([
                             .init(label: "statusCode", expression: .identifier("statusCode"))
                         ]),
-                    .dot("init").call([]),
+                    nil,
                 ])
             )
             cases.append(

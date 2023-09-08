@@ -72,7 +72,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
     func listPets(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody
+        HTTPResponse, HTTPBody?
     ) {
         try await handle(
             request: request,
@@ -172,7 +172,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
     func createPet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody
+        HTTPResponse, HTTPBody?
     ) {
         try await handle(
             request: request,
@@ -246,7 +246,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), .init())
+                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), nil)
                 }
             }
         )
@@ -254,7 +254,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
     func getStats(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody
+        HTTPResponse, HTTPBody?
     ) {
         try await handle(
             request: request,
@@ -299,7 +299,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), .init())
+                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), nil)
                 }
             }
         )
@@ -307,7 +307,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     /// - Remark: HTTP `POST /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/post(postStats)`.
     func postStats(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody
+        HTTPResponse, HTTPBody?
     ) {
         try await handle(
             request: request,
@@ -352,8 +352,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressUnusedWarning(value)
                     var response = HTTPResponse(statusCode: 202)
                     suppressMutabilityWarning(&response)
-                    return (response, .init())
-                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), .init())
+                    return (response, nil)
+                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), nil)
                 }
             }
         )
@@ -361,7 +361,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
     @available(*, deprecated) func probe(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata)
-        async throws -> (HTTPResponse, HTTPBody)
+        async throws -> (HTTPResponse, HTTPBody?)
     {
         try await handle(
             request: request,
@@ -376,8 +376,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressUnusedWarning(value)
                     var response = HTTPResponse(statusCode: 204)
                     suppressMutabilityWarning(&response)
-                    return (response, .init())
-                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), .init())
+                    return (response, nil)
+                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), nil)
                 }
             }
         )
@@ -387,7 +387,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     /// - Remark: HTTP `PATCH /pets/{petId}`.
     /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)`.
     func updatePet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody
+        HTTPResponse, HTTPBody?
     ) {
         try await handle(
             request: request,
@@ -427,7 +427,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     suppressUnusedWarning(value)
                     var response = HTTPResponse(statusCode: 204)
                     suppressMutabilityWarning(&response)
-                    return (response, .init())
+                    return (response, nil)
                 case let .badRequest(value):
                     suppressUnusedWarning(value)
                     var response = HTTPResponse(statusCode: 400)
@@ -443,7 +443,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), .init())
+                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), nil)
                 }
             }
         )
@@ -453,7 +453,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
     func uploadAvatarForPet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody
+        HTTPResponse, HTTPBody?
     ) {
         try await handle(
             request: request,
@@ -534,7 +534,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), .init())
+                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), nil)
                 }
             }
         )
