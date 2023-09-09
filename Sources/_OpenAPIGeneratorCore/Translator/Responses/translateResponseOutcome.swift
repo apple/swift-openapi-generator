@@ -379,7 +379,7 @@ extension ServerFileTranslator {
             left: "response",
             right: .identifier("HTTPResponse")
                 .call([
-                    .init(label: "statusCode", expression: statusCodeExpr)
+                    .init(label: "soar_statusCode", expression: statusCodeExpr)
                 ])
         )
         codeBlocks.append(contentsOf: [

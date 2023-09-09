@@ -162,7 +162,7 @@ extension ServerFileTranslator {
                 .tuple([
                     .dot("init")
                         .call([
-                            .init(label: "statusCode", expression: .identifier("statusCode"))
+                            .init(label: "soar_statusCode", expression: .identifier("statusCode"))
                         ]),
                     nil,
                 ])

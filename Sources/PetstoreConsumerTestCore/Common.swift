@@ -51,13 +51,6 @@ public extension Date {
 
 public extension HTTPResponse {
 
-    init(
-        statusCode: Int,
-        headers: HTTPFields = .init()
-    ) {
-        self.init(status: .init(code: statusCode), headerFields: headers)
-    }
-
     func withEncodedBody(_ encodedBody: String) throws -> (HTTPResponse, HTTPBody) {
         (self, .init(data: Data(encodedBody.utf8)))
     }
@@ -65,8 +58,8 @@ public extension HTTPResponse {
     static var listPetsSuccess: (HTTPResponse, HTTPBody) {
         get throws {
             try Self(
-                statusCode: 200,
-                headers: [
+                soar_statusCode: 200,
+                headerFields: [
                     .contentType: "application/json"
                 ]
             )
@@ -111,20 +104,6 @@ public extension Data {
 }
 
 public extension HTTPRequest {
-    init(
-        path: String,
-        method: HTTPRequest.Method,
-        headerFields: HTTPFields = .init()
-    ) {
-        self.init(
-            method: method,
-            scheme: nil,
-            authority: nil,
-            path: path,
-            headerFields: headerFields
-        )
-    }
-
     func withEncodedBody(_ encodedBody: String) -> (HTTPRequest, HTTPBody) {
         (self, .init(data: Data(encodedBody.utf8)))
     }

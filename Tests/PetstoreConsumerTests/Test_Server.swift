@@ -52,7 +52,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.listPets(
             .init(
-                path: "/api/pets?limit=24&habitat=water&feeds=carnivore&feeds=herbivore&since=\(Date.testString)",
+                soar_path: "/api/pets?limit=24&habitat=water&feeds=carnivore&feeds=herbivore&since=\(Date.testString)",
                 method: .get,
                 headerFields: [
                     .init("My-Request-UUID")!: "abcd-1234"
@@ -95,7 +95,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.listPets(
             .init(
-                path: "/api/pets",
+                soar_path: "/api/pets",
                 method: .get
             ),
             nil,
@@ -141,7 +141,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.createPet(
             .init(
-                path: "/api/pets",
+                soar_path: "/api/pets",
                 method: .post,
                 headerFields: [
                     .init("x-extra-arguments")!: #"{"code":1}"#,
@@ -194,7 +194,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.createPet(
             .init(
-                path: "/api/pets",
+                soar_path: "/api/pets",
                 method: .post,
                 headerFields: [
                     .contentType: "application/json; charset=utf-8"
@@ -237,7 +237,7 @@ final class Test_Server: XCTestCase {
         do {
             _ = try await server.createPet(
                 .init(
-                    path: "/api/pets",
+                    soar_path: "/api/pets",
                     method: .post,
                     headerFields: [
                         .init("x-extra-arguments")!: #"{"code":1}"#,
@@ -273,7 +273,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.updatePet(
             .init(
-                path: "/api/pets/1",
+                soar_path: "/api/pets/1",
                 method: .patch,
                 headerFields: [
                     .accept: "application/json",
@@ -314,7 +314,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.updatePet(
             .init(
-                path: "/api/pets/1",
+                soar_path: "/api/pets/1",
                 method: .patch,
                 headerFields: [:]
             ),
@@ -346,7 +346,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.updatePet(
             .init(
-                path: "/api/pets/1",
+                soar_path: "/api/pets/1",
                 method: .patch
             ),
             nil,
@@ -371,7 +371,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.updatePet(
             .init(
-                path: "/api/pets/1",
+                soar_path: "/api/pets/1",
                 method: .patch
             ),
             nil,
@@ -406,7 +406,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.getStats(
             .init(
-                path: "/api/pets/stats",
+                soar_path: "/api/pets/stats",
                 method: .patch,
                 headerFields: [
                     .accept: "application/json, text/plain, application/octet-stream"
@@ -441,7 +441,7 @@ final class Test_Server: XCTestCase {
         do {
             _ = try await server.getStats(
                 .init(
-                    path: "/api/pets/stats",
+                    soar_path: "/api/pets/stats",
                     method: .patch,
                     headerFields: [
                         .accept: "foo/bar"
@@ -462,7 +462,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.getStats(
             .init(
-                path: "/api/pets/stats",
+                soar_path: "/api/pets/stats",
                 method: .patch,
                 headerFields: [
                     .accept: "application/json, text/plain, application/octet-stream"
@@ -505,7 +505,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.getStats(
             .init(
-                path: "/api/pets/stats",
+                soar_path: "/api/pets/stats",
                 method: .patch,
                 headerFields: [
                     .accept: "application/json, text/plain, application/octet-stream"
@@ -544,7 +544,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.getStats(
             .init(
-                path: "/api/pets/stats",
+                soar_path: "/api/pets/stats",
                 method: .patch,
                 headerFields: [
                     .accept: "text/plain, application/json; q=0.500"
@@ -583,7 +583,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.getStats(
             .init(
-                path: "/api/pets/stats",
+                soar_path: "/api/pets/stats",
                 method: .patch,
                 headerFields: [
                     .accept: "application/json; q=0.8, text/plain"
@@ -615,7 +615,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.getStats(
             .init(
-                path: "/api/pets/stats",
+                soar_path: "/api/pets/stats",
                 method: .patch,
                 headerFields: [
                     .accept: "application/json, text/plain, application/octet-stream"
@@ -651,7 +651,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.postStats(
             .init(
-                path: "/api/pets/stats",
+                soar_path: "/api/pets/stats",
                 method: .post,
                 headerFields: [
                     .contentType: "application/json; charset=utf-8"
@@ -683,7 +683,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.postStats(
             .init(
-                path: "/api/pets/stats",
+                soar_path: "/api/pets/stats",
                 method: .post,
                 headerFields: [:]
             ),
@@ -713,7 +713,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.postStats(
             .init(
-                path: "/api/pets/stats",
+                soar_path: "/api/pets/stats",
                 method: .post,
                 headerFields: [
                     .contentType: "text/plain"
@@ -743,7 +743,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.postStats(
             .init(
-                path: "/api/pets/stats",
+                soar_path: "/api/pets/stats",
                 method: .post,
                 headerFields: [
                     .contentType: "application/octet-stream"
@@ -769,7 +769,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.probe(
             .init(
-                path: "/api/probe/",
+                soar_path: "/api/probe/",
                 method: .post
             ),
             nil,
@@ -788,7 +788,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.probe(
             .init(
-                path: "/api/probe/",
+                soar_path: "/api/probe/",
                 method: .post
             ),
             nil,
@@ -811,7 +811,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.uploadAvatarForPet(
             .init(
-                path: "/api/pets/1/avatar",
+                soar_path: "/api/pets/1/avatar",
                 method: .put,
                 headerFields: [
                     .accept: "application/octet-stream, application/json, text/plain",
@@ -870,7 +870,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.uploadAvatarForPet(
             .init(
-                path: "/api/pets/1/avatar",
+                soar_path: "/api/pets/1/avatar",
                 method: .put,
                 headerFields: [
                     .accept: "application/octet-stream, application/json, text/plain",
@@ -911,7 +911,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.uploadAvatarForPet(
             .init(
-                path: "/api/pets/1/avatar",
+                soar_path: "/api/pets/1/avatar",
                 method: .put,
                 headerFields: [
                     .accept: "application/octet-stream, application/json, text/plain",
@@ -954,7 +954,7 @@ final class Test_Server: XCTestCase {
         )
         let (response, responseBody) = try await server.uploadAvatarForPet(
             .init(
-                path: "/api/pets/1/avatar",
+                soar_path: "/api/pets/1/avatar",
                 method: .put,
                 headerFields: [
                     .accept: "application/octet-stream, application/json, text/plain",

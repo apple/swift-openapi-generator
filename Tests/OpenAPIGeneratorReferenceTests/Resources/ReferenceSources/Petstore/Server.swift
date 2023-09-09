@@ -125,7 +125,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .ok(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(statusCode: 200)
+                    var response = HTTPResponse(soar_statusCode: 200)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
@@ -150,7 +150,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     return (response, body)
                 case let .`default`(statusCode, value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(statusCode: statusCode)
+                    var response = HTTPResponse(soar_statusCode: statusCode)
                     suppressMutabilityWarning(&response)
                     let body: HTTPBody
                     switch value.body {
@@ -208,7 +208,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .created(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(statusCode: 201)
+                    var response = HTTPResponse(soar_statusCode: 201)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsJSON(
                         in: &response.headerFields,
@@ -228,7 +228,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     return (response, body)
                 case let .clientError(statusCode, value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(statusCode: statusCode)
+                    var response = HTTPResponse(soar_statusCode: statusCode)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
@@ -246,7 +246,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), nil)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
@@ -272,7 +272,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .ok(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(statusCode: 200)
+                    var response = HTTPResponse(soar_statusCode: 200)
                     suppressMutabilityWarning(&response)
                     let body: HTTPBody
                     switch value.body {
@@ -299,7 +299,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), nil)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
@@ -350,10 +350,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .accepted(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(statusCode: 202)
+                    var response = HTTPResponse(soar_statusCode: 202)
                     suppressMutabilityWarning(&response)
                     return (response, nil)
-                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), nil)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
@@ -374,10 +374,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .noContent(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(statusCode: 204)
+                    var response = HTTPResponse(soar_statusCode: 204)
                     suppressMutabilityWarning(&response)
                     return (response, nil)
-                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), nil)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
@@ -425,12 +425,12 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .noContent(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(statusCode: 204)
+                    var response = HTTPResponse(soar_statusCode: 204)
                     suppressMutabilityWarning(&response)
                     return (response, nil)
                 case let .badRequest(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(statusCode: 400)
+                    var response = HTTPResponse(soar_statusCode: 400)
                     suppressMutabilityWarning(&response)
                     let body: HTTPBody
                     switch value.body {
@@ -443,7 +443,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), nil)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
@@ -491,7 +491,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .ok(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(statusCode: 200)
+                    var response = HTTPResponse(soar_statusCode: 200)
                     suppressMutabilityWarning(&response)
                     let body: HTTPBody
                     switch value.body {
@@ -506,7 +506,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     return (response, body)
                 case let .preconditionFailed(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(statusCode: 412)
+                    var response = HTTPResponse(soar_statusCode: 412)
                     suppressMutabilityWarning(&response)
                     let body: HTTPBody
                     switch value.body {
@@ -521,7 +521,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     return (response, body)
                 case let .internalServerError(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(statusCode: 500)
+                    var response = HTTPResponse(soar_statusCode: 500)
                     suppressMutabilityWarning(&response)
                     let body: HTTPBody
                     switch value.body {
@@ -534,7 +534,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): return (.init(statusCode: statusCode), nil)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
