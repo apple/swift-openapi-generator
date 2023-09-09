@@ -43,7 +43,7 @@ extension ClientFileTranslator {
             type: TypeName.request.fullyQualifiedSwiftName,
             right: .dot("init")
                 .call([
-                    .init(label: "path", expression: .identifier("path")),
+                    .init(label: "soar_path", expression: .identifier("path")),
                     .init(label: "method", expression: .dot(description.httpMethodLowercased)),
                 ])
         )

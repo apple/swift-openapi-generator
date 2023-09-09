@@ -1290,7 +1290,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """,
             client: """
                 { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
-                    var request: HTTPTypes.HTTPRequest = .init(path: path, method: .get)
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
                     suppressMutabilityWarning(&request)
                     try converter.setQueryItemAsURI(
                         in: &request,

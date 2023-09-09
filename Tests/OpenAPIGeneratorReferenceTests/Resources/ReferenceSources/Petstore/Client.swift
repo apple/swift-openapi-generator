@@ -46,7 +46,7 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.listPets.id,
             serializer: { input in let path = try converter.renderedPath(template: "/pets", parameters: [])
-                var request: HTTPTypes.HTTPRequest = .init(path: path, method: .get)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
                 suppressMutabilityWarning(&request)
                 try converter.setQueryItemAsURI(
                     in: &request,
@@ -141,7 +141,7 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.createPet.id,
             serializer: { input in let path = try converter.renderedPath(template: "/pets", parameters: [])
-                var request: HTTPTypes.HTTPRequest = .init(path: path, method: .post)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .post)
                 suppressMutabilityWarning(&request)
                 try converter.setHeaderFieldAsJSON(
                     in: &request.headerFields,
@@ -218,7 +218,7 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.getStats.id,
             serializer: { input in let path = try converter.renderedPath(template: "/pets/stats", parameters: [])
-                var request: HTTPTypes.HTTPRequest = .init(path: path, method: .get)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
                 suppressMutabilityWarning(&request)
                 converter.setAcceptHeader(in: &request.headerFields, contentTypes: input.headers.accept)
                 return (request, nil)
@@ -267,7 +267,7 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.postStats.id,
             serializer: { input in let path = try converter.renderedPath(template: "/pets/stats", parameters: [])
-                var request: HTTPTypes.HTTPRequest = .init(path: path, method: .post)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .post)
                 suppressMutabilityWarning(&request)
                 let body: OpenAPIRuntime.HTTPBody?
                 switch input.body {
@@ -308,7 +308,7 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.probe.id,
             serializer: { input in let path = try converter.renderedPath(template: "/probe/", parameters: [])
-                var request: HTTPTypes.HTTPRequest = .init(path: path, method: .post)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .post)
                 suppressMutabilityWarning(&request)
                 return (request, nil)
             },
@@ -330,7 +330,7 @@ public struct Client: APIProtocol {
             forOperation: Operations.updatePet.id,
             serializer: { input in
                 let path = try converter.renderedPath(template: "/pets/{}", parameters: [input.path.petId])
-                var request: HTTPTypes.HTTPRequest = .init(path: path, method: .patch)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .patch)
                 suppressMutabilityWarning(&request)
                 converter.setAcceptHeader(in: &request.headerFields, contentTypes: input.headers.accept)
                 let body: OpenAPIRuntime.HTTPBody?
@@ -380,7 +380,7 @@ public struct Client: APIProtocol {
             forOperation: Operations.uploadAvatarForPet.id,
             serializer: { input in
                 let path = try converter.renderedPath(template: "/pets/{}/avatar", parameters: [input.path.petId])
-                var request: HTTPTypes.HTTPRequest = .init(path: path, method: .put)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .put)
                 suppressMutabilityWarning(&request)
                 converter.setAcceptHeader(in: &request.headerFields, contentTypes: input.headers.accept)
                 let body: OpenAPIRuntime.HTTPBody?
