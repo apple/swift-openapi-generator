@@ -103,14 +103,7 @@ struct TextBasedRenderer: RendererProtocol {
                 )
             )
             lines.append("#else")
-            lines.append(
-                render(
-                    moduleName: description.moduleName,
-                    moduleTypes: description.moduleTypes,
-                    spi: description.spi,
-                    preconcurrency: false
-                )
-            )
+            lines.append(render(moduleName: description.moduleName, spi: description.spi, preconcurrency: false))
             lines.append("#endif")
             return lines.joinedLines()
         }

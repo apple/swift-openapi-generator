@@ -22,6 +22,9 @@ struct ImportDescription: Equatable, Codable {
     /// For example, the `Foo` in `import Foo`.
     var moduleName: String
 
+    /// An array of module types imported from the module, if applicable.
+    ///
+    /// For example, if there are type imports like `import Foo.Bar`, they would be listed here.
     var moduleTypes: [String]?
 
     /// The name of the private interface for an `@_spi` import.

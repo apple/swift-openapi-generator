@@ -113,7 +113,7 @@ final class Test_TextBasedRenderer: XCTestCase {
         )
         try _test(
             [
-                ImportDescription(moduleName: "Foo", moduleTypes: ["Foo"], preconcurrency: .onOS(["Bar", "Baz"]))
+                ImportDescription(moduleName: "Foo", preconcurrency: .onOS(["Bar", "Baz"]))
             ],
             renderedBy: renderer.renderedImports,
             rendersAs:
