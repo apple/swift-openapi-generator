@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension ClientFileTranslator {
 
@@ -30,7 +30,7 @@ extension ClientFileTranslator {
             left: "path",
             right: .try(
                 .identifier("converter")
-                    .dot("renderedRequestPath")
+                    .dot("renderedPath")
                     .call([
                         .init(label: "template", expression: .literal(pathTemplate)),
                         .init(label: "parameters", expression: pathParamsArrayExpr),
@@ -71,23 +71,20 @@ extension ClientFileTranslator {
             for: description
         )
         if !acceptContent.isEmpty {
-            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept
-            let acceptValue =
-                acceptContent
-                .map(\.headerValueForValidation)
-                .joined(separator: ", ")
-            let addAcceptHeaderExpr: Expression = .try(
-                .identifier("converter").dot("setHeaderFieldAsText")
-                    .call([
-                        .init(
-                            label: "in",
-                            expression: .inOut(.identifier("request").dot("headerFields"))
-                        ),
-                        .init(label: "name", expression: "accept"),
-                        .init(label: "value", expression: .literal(acceptValue)),
-                    ])
-            )
-            requestExprs.append(addAcceptHeaderExpr)
+            let setAcceptHeaderExpr: Expression =
+                .identifier("converter")
+                .dot("setAcceptHeader")
+                .call([
+                    .init(
+                        label: "in",
+                        expression: .inOut(.identifier("request").dot("headerFields"))
+                    ),
+                    .init(
+                        label: "contentTypes",
+                        expression: .identifier("input").dot("headers").dot("accept")
+                    ),
+                ])
+            requestExprs.append(setAcceptHeaderExpr)
         }
 
         if let requestBody = try typedRequestBody(in: description) {
@@ -123,7 +120,6 @@ extension ClientFileTranslator {
     ) throws -> Expression {
         var cases: [SwitchCaseDescription] =
             try description
-            .operation
             .responseOutcomes
             .map { outcome in
                 try translateResponseOutcomeInClient(

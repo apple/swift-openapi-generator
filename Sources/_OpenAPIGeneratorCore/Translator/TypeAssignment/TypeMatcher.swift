@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A set of functions that match Swift types onto OpenAPI types.
 struct TypeMatcher {
@@ -19,6 +19,10 @@ struct TypeMatcher {
     /// A converted function from user-provided strings to strings
     /// safe to be used as a Swift identifier.
     var asSwiftSafeName: (String) -> String
+
+    /// A Boolean value indicating whether the `nullable` field on schemas
+    /// should be taken into account.
+    var supportNullableSchemas: Bool
 
     /// Returns the type name of a built-in type that matches the specified
     /// schema.
@@ -29,7 +33,7 @@ struct TypeMatcher {
     ///
     /// # Examples
     ///
-    /// Examples of schemas that can be repreresented directly by builtin types:
+    /// Examples of schemas that can be represented directly by builtin types:
     /// - platform builtin types
     ///     - `type: string` -> `Swift.String`
     ///     - `type: string, format: date-time` -> `Foundation.Date`
@@ -71,15 +75,18 @@ struct TypeMatcher {
     ) throws -> TypeUsage? {
         try Self._tryMatchRecursive(
             for: schema.value,
-            test: { schema in
+            test: { (schema) -> TypeUsage? in
                 if let builtinType = Self._tryMatchBuiltinNonRecursive(for: schema) {
                     return builtinType
                 }
                 guard case let .reference(ref, _) = schema else {
                     return nil
                 }
-                return try TypeAssigner(asSwiftSafeName: asSwiftSafeName)
-                    .typeName(for: ref).asUsage
+                return try TypeAssigner(
+                    asSwiftSafeName: asSwiftSafeName,
+                    supportNullableSchemas: supportNullableSchemas
+                )
+                .typeName(for: ref).asUsage
             },
             matchedArrayHandler: { elementType in
                 elementType.asArray
@@ -88,7 +95,7 @@ struct TypeMatcher {
                 TypeName.arrayContainer.asUsage
             }
         )?
-        .withOptional(!schema.required)
+        .withOptional(!schema.required || (supportNullableSchemas && schema.nullable))
     }
 
     /// Returns a Boolean value that indicates whether the schema
@@ -202,6 +209,10 @@ struct TypeMatcher {
                 typeName = .swift("Double")
             }
         case .integer(let core, _):
+            if core.allowedValues != nil {
+                // custom enum isn't a builtin
+                return nil
+            }
             switch core.format {
             case .int32:
                 typeName = .swift("Int32")
@@ -238,7 +249,7 @@ struct TypeMatcher {
             // arrays are already recursed-into by _tryMatchTypeRecursive
             // so just return nil here
             return nil
-        case .reference, .not, .all, .any, .one:
+        case .reference, .not, .all, .any, .one, .null:
             // never built-in
             return nil
         }

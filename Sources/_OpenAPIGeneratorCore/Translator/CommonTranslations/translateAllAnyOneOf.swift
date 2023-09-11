@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// Describes one of the two options: allOf or anyOf.
 enum AllOrAnyOf {
@@ -124,47 +124,71 @@ extension FileTranslator {
         discriminator: OpenAPI.Discriminator?,
         schemas: [JSONSchema]
     ) throws -> Declaration {
-
-        let cases: [(String, Comment?, TypeUsage, [Declaration])] =
-            try schemas
-            .enumerated()
-            .map { index, schema in
-                let key = "case\(index+1)"
-                let childType = try typeAssigner.typeUsage(
-                    forAllOrAnyOrOneOfChildSchemaNamed: key,
-                    withSchema: schema,
-                    inParent: typeName
-                )
-                let caseName: String
-                // Only use the type name for the case for references,
-                // as inline schemas have nothing that guarantees uniqueness.
-                if schema.isReference {
-                    // Use the type name.
-                    caseName = childType.typeName.shortSwiftName
-                } else {
-                    // Use a position-based key.
-                    caseName = key
+        let cases: [(String, [String]?, Comment?, TypeUsage, [Declaration])]
+        if let discriminator {
+            // > When using the discriminator, inline schemas will not be considered.
+            // > — https://spec.openapis.org/oas/v3.0.3#discriminator-object
+            let includedSchemas: [JSONReference<JSONSchema>] =
+                schemas
+                .compactMap { schema in
+                    guard case let .reference(ref, _) = schema.value else {
+                        return nil
+                    }
+                    return ref
                 }
+            let mappedTypes = try discriminator.allTypes(
+                schemas: includedSchemas,
+                typeAssigner: typeAssigner
+            )
+            cases = mappedTypes.map { mappedType in
                 let comment: Comment? = .child(
-                    originalName: key,
-                    userDescription: schema.description,
+                    originalName: mappedType.typeName.shortSwiftName,
+                    userDescription: nil,
                     parent: typeName
                 )
-                let associatedDeclarations: [Declaration]
-                if TypeMatcher.isInlinable(schema) {
-                    associatedDeclarations = try translateSchema(
-                        typeName: childType.typeName,
-                        schema: schema,
-                        overrides: .none
-                    )
-                } else {
-                    associatedDeclarations = []
-                }
-                return (caseName, comment, childType, associatedDeclarations)
+                let caseName = safeSwiftNameForOneOfMappedType(mappedType)
+                return (caseName, mappedType.rawNames, comment, mappedType.typeName.asUsage, [])
             }
+        } else {
+            cases = try schemas.enumerated()
+                .map { index, schema in
+                    let key = "case\(index+1)"
+                    let childType = try typeAssigner.typeUsage(
+                        forAllOrAnyOrOneOfChildSchemaNamed: key,
+                        withSchema: schema,
+                        inParent: typeName
+                    )
+                    let caseName: String
+                    // Only use the type name for the case for references,
+                    // as inline schemas have nothing that guarantees uniqueness.
+                    if schema.isReference {
+                        // Use the type name.
+                        caseName = childType.typeName.shortSwiftName
+                    } else {
+                        // Use a position-based key.
+                        caseName = key
+                    }
+                    let comment: Comment? = .child(
+                        originalName: key,
+                        userDescription: schema.description,
+                        parent: typeName
+                    )
+                    let associatedDeclarations: [Declaration]
+                    if TypeMatcher.isInlinable(schema) {
+                        associatedDeclarations = try translateSchema(
+                            typeName: childType.typeName,
+                            schema: schema,
+                            overrides: .none
+                        )
+                    } else {
+                        associatedDeclarations = []
+                    }
+                    return (caseName, nil, comment, childType, associatedDeclarations)
+                }
+        }
 
         let caseDecls: [Declaration] = cases.flatMap { caseInfo in
-            let (caseName, comment, childType, associatedDeclarations) = caseInfo
+            let (caseName, _, comment, childType, associatedDeclarations) = caseInfo
             return associatedDeclarations + [
                 .commentable(
                     comment,
@@ -183,11 +207,9 @@ extension FileTranslator {
 
         let caseNames = cases.map(\.0)
 
-        let undocumentedType: TypeName
         let codingKeysDecls: [Declaration]
         let decoder: Declaration
         if let discriminator {
-            undocumentedType = .objectContainer
             let originalName = discriminator.propertyName
             let swiftName = swiftSafeName(for: originalName)
             codingKeysDecls = [
@@ -198,35 +220,22 @@ extension FileTranslator {
                     members: [
                         .enumCase(
                             name: swiftName,
-                            kind: swiftName == originalName ? .nameOnly : .nameWithRawValue(originalName)
+                            kind: swiftName == originalName ? .nameOnly : .nameWithRawValue(.string(originalName))
                         )
                     ]
                 )
             ]
-
-            let allTypes = cases.map { $0.2.typeName }
-            let mappedTypes = try discriminator.mappedTypes(allTypes)
             decoder = translateOneOfWithDiscriminatorDecoder(
                 discriminatorName: swiftName,
-                cases: mappedTypes
+                cases: cases.map { ($0.0, $0.1!) }
             )
         } else {
-            undocumentedType = .valueContainer
             codingKeysDecls = []
             decoder = translateOneOfWithoutDiscriminatorDecoder(
                 caseNames: caseNames
             )
         }
 
-        let undocumentedCase: Declaration = .commentable(
-            .doc("Parsed a case that was not defined in the OpenAPI document."),
-            .enumCase(
-                name: Constants.OneOf.undocumentedCaseName,
-                kind: .nameWithAssociatedValues([
-                    .init(type: undocumentedType.fullyQualifiedSwiftName)
-                ])
-            )
-        )
         let encoder = translateOneOfEncoder(caseNames: caseNames)
 
         let comment: Comment? =
@@ -237,9 +246,7 @@ extension FileTranslator {
             accessModifier: config.access,
             name: typeName.shortSwiftName,
             conformances: Constants.ObjectStruct.conformances,
-            members: caseDecls + [
-                undocumentedCase
-            ] + codingKeysDecls + [
+            members: caseDecls + codingKeysDecls + [
                 decoder,
                 encoder,
             ]

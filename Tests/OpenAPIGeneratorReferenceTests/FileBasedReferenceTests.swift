@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import XCTest
-import OpenAPIKit30
+import OpenAPIKit
 import Yams
 @testable import _OpenAPIGeneratorCore
 
@@ -46,20 +46,7 @@ class FileBasedReferenceTests: XCTestCase {
 
     func testPetstore() throws {
         try _test(
-            referenceProject: .init(name: .petstore),
-            ignoredDiagnosticMessages: [
-                #"Feature "Multiple content types" is not supported, skipping"#
-            ]
-        )
-    }
-
-    func testPetstoreFFMultipleContentTypes() throws {
-        try _test(
-            referenceProject: .init(
-                name: .petstore,
-                customDirectoryName: "Petstore_FF_MultipleContentTypes"
-            ),
-            featureFlags: [.multipleContentTypes]
+            referenceProject: .init(name: .petstore)
         )
     }
 
@@ -141,7 +128,7 @@ class FileBasedReferenceTests: XCTestCase {
         }
     }
 
-    struct ReferenceProject: Hashable, Equatable {
+    struct ReferenceProject: Hashable {
         var name: ReferenceProjectName
         var customDirectoryName: String? = nil
 

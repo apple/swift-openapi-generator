@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 import Algorithms
 
 extension FileTranslator {
@@ -27,7 +27,6 @@ extension FileTranslator {
     ) throws -> [ContentType] {
         let contentTypes =
             try description
-            .operation
             .responseOutcomes
             .flatMap { outcome in
                 let response = try outcome.response.resolve(in: components)

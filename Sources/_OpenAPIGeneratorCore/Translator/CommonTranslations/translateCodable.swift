@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension FileTranslator {
 
@@ -338,73 +338,52 @@ extension FileTranslator {
                 )
             )
         }
-        let decodeUndocumentedExprs: [CodeBlock] = [
-            .declaration(
-                .variable(
-                    kind: .let,
-                    left: "container",
-                    right: .try(
-                        .identifier("decoder")
-                            .dot("singleValueContainer")
-                            .call([])
-                    )
-                )
-            ),
-            .declaration(
-                .variable(
-                    kind: .let,
-                    left: "value",
-                    right: .try(
-                        .identifier("container")
-                            .dot("decode")
-                            .call([
-                                .init(
-                                    label: nil,
-                                    expression:
-                                        .identifier(
-                                            TypeName
-                                                .valueContainer
-                                                .fullyQualifiedSwiftName
-                                        )
-                                        .dot("self")
-                                )
-                            ])
-                    )
-                )
-            ),
+
+        let otherExprs: [CodeBlock] = [
             .expression(
-                .assignment(
-                    left: .identifier("self"),
-                    right: .dot(Constants.OneOf.undocumentedCaseName)
-                        .call([
-                            .init(label: nil, expression: .identifier("value"))
-                        ])
-                )
-            ),
+                translateOneOfDecoderThrowOnUnknownExpr()
+            )
         ]
         return decoderInitializer(
-            body: (assignExprs).map { .expression($0) } + decodeUndocumentedExprs
+            body: (assignExprs).map { .expression($0) } + otherExprs
+        )
+    }
+
+    /// Returns an expression that throws an error when a oneOf failed
+    /// to match any documented cases.
+    func translateOneOfDecoderThrowOnUnknownExpr() -> Expression {
+        .unaryKeyword(
+            kind: .throw,
+            expression: .identifier("DecodingError")
+                .dot("failedToDecodeOneOfSchema")
+                .call([
+                    .init(
+                        label: "type",
+                        expression: .identifier("Self").dot("self")
+                    ),
+                    .init(
+                        label: "codingPath",
+                        expression: .identifier("decoder").dot("codingPath")
+                    ),
+                ])
         )
     }
 
     /// Returns a declaration of a oneOf with a discriminator decoder implementation.
-    /// - Parameters:
-    ///   - caseNames: The cases to decode, first element is the raw string to check for, the second
-    ///     element is the case name (without the leading dot).
     func translateOneOfWithDiscriminatorDecoder(
         discriminatorName: String,
-        cases: [OneOfMappedType]
+        cases: [(caseName: String, rawNames: [String])]
     ) -> Declaration {
         let cases: [SwitchCaseDescription] =
             cases
-            .map { caseInfo in
+            .map { caseName, rawNames in
                 .init(
-                    kind: .case(.literal(caseInfo.rawName)),
+                    kind: .multiCase(rawNames.map { .literal($0) }),
                     body: [
                         .expression(
                             .assignment(
                                 left: .identifier("self"),
-                                right: .dot(caseInfo.caseName)
+                                right: .dot(caseName)
                                     .call([
                                         .init(
                                             label: nil,
@@ -418,49 +397,10 @@ extension FileTranslator {
                     ]
                 )
             }
-        let decodeUndocumentedBody: [CodeBlock] = [
-            .declaration(
-                .variable(
-                    kind: .let,
-                    left: "container",
-                    right: .try(
-                        .identifier("decoder")
-                            .dot("singleValueContainer")
-                            .call([])
-                    )
-                )
-            ),
-            .declaration(
-                .variable(
-                    kind: .let,
-                    left: "value",
-                    right: .try(
-                        .identifier("container")
-                            .dot("decode")
-                            .call([
-                                .init(
-                                    label: nil,
-                                    expression:
-                                        .identifier(
-                                            TypeName
-                                                .objectContainer
-                                                .fullyQualifiedSwiftName
-                                        )
-                                        .dot("self")
-                                )
-                            ])
-                    )
-                )
-            ),
+        let otherExprs: [CodeBlock] = [
             .expression(
-                .assignment(
-                    left: .identifier("self"),
-                    right: .dot(Constants.OneOf.undocumentedCaseName)
-                        .call([
-                            .init(label: nil, expression: .identifier("value"))
-                        ])
-                )
-            ),
+                translateOneOfDecoderThrowOnUnknownExpr()
+            )
         ]
         let body: [CodeBlock] = [
             .declaration(.decoderContainerOfKeysVar()),
@@ -490,7 +430,7 @@ extension FileTranslator {
                     cases: cases + [
                         .init(
                             kind: .default,
-                            body: decodeUndocumentedBody
+                            body: otherExprs
                         )
                     ]
                 )
@@ -509,18 +449,17 @@ extension FileTranslator {
     ) -> Declaration {
         let switchExpr: Expression = .switch(
             switchedExpression: .identifier("self"),
-            cases: (caseNames + [Constants.OneOf.undocumentedCaseName])
-                .map { caseName in
-                    .init(
-                        kind: .case(.dot(caseName), ["value"]),
-                        body: [
-                            .expression(
-                                .identifier("value")
-                                    .encodeExpr()
-                            )
-                        ]
-                    )
-                }
+            cases: caseNames.map { caseName in
+                .init(
+                    kind: .case(.dot(caseName), ["value"]),
+                    body: [
+                        .expression(
+                            .identifier("value")
+                                .encodeExpr()
+                        )
+                    ]
+                )
+            }
         )
         return encoderFunction(body: [.expression(switchExpr)])
     }

@@ -546,7 +546,7 @@ enum EnumCaseKind: Equatable, Codable {
     /// A case with a name and a raw value.
     ///
     /// For example: `case foo = "Foo"`.
-    case nameWithRawValue(String)
+    case nameWithRawValue(LiteralDescription)
 
     /// A case with a name and associated values.
     ///
@@ -637,6 +637,11 @@ enum SwitchCaseKind: Equatable, Codable {
     ///
     /// For example: `case let foo(bar):`.
     case `case`(Expression, [String])
+
+    /// A case with multiple comma-separated expressions.
+    ///
+    /// For example: `case "foo", "bar":`.
+    case multiCase([Expression])
 
     /// A default. Spelled as `default:`.
     case `default`

@@ -1,4 +1,4 @@
-openapi: "3.0.3"
+openapi: "3.1.0"
 info:
   version: 1.0.0
   title: Petstore
@@ -111,7 +111,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pet'
-        '400':
+        '4XX':
           $ref: '#/components/responses/ErrorBadRequest'
   /pets/stats:
     get:
@@ -210,6 +210,7 @@ paths:
 components:
   headers:
     TracingHeader:
+      description: A description here.
       required: false
       schema:
         type: string
@@ -296,9 +297,8 @@ components:
         me$sage:
           type: string
         extraInfo:
+          $ref: '#/components/schemas/ExtraInfo'
           description: Extra information about the error.
-          allOf:
-            - $ref: '#/components/schemas/ExtraInfo'
         userData:
           description: Custom user-provided key-value pairs.
           type: object
@@ -426,6 +426,7 @@ components:
       description: Bad request
       headers:
         X-Reason:
+          description: A description here.
           schema:
             type: string
       content:
@@ -446,6 +447,7 @@ components:
             type: object
             properties:
               name:
+                description: "Pet name"
                 type: string
               kind:
                 $ref: '#/components/schemas/PetKind'

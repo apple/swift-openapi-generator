@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import XCTest
-import OpenAPIKit30
+import OpenAPIKit
 @testable import _OpenAPIGeneratorCore
 
 class Test_isSchemaSupported: XCTestCase {
@@ -25,6 +25,15 @@ class Test_isSchemaSupported: XCTestCase {
                 "Foo": .string,
                 "MyObj": .object,
                 "MyObj2": .object,
+                "MyNestedObjectishOneOf": .one(of: [
+                    .object(properties: ["foo": .string])
+                ]),
+                "MyNestedAllOf": .all(of: [
+                    .object(properties: ["foo": .string])
+                ]),
+                "MyNestedAnyOf": .any(of: [
+                    .object(properties: ["foo": .string])
+                ]),
             ])
         )
     }
@@ -33,6 +42,11 @@ class Test_isSchemaSupported: XCTestCase {
         // a string enum
         .string(allowedValues: [
             AnyCodable("Foo")
+        ]),
+
+        // an int enum
+        .integer(allowedValues: [
+            AnyCodable(1)
         ]),
 
         // an object with at least one property
@@ -71,10 +85,16 @@ class Test_isSchemaSupported: XCTestCase {
             .array(items: .string),
         ]),
 
-        // oneOf with a discriminator with two objectish schemas
+        // oneOf with a discriminator with a few objectish schemas and two (ignored) inline schemas
         .one(
             of: .reference(.component(named: "MyObj")),
             .reference(.component(named: "MyObj2")),
+            .reference(.component(named: "MyNestedAllOf")),
+            .reference(.component(named: "MyNestedAnyOf")),
+            .reference(.component(named: "MyNestedObjectishOneOf")),
+
+            .object,
+            .boolean,
             discriminator: .init(propertyName: "foo")
         ),
 
@@ -120,9 +140,6 @@ class Test_isSchemaSupported: XCTestCase {
             .one(of: .reference(.internal(.component(name: "Foo"))), discriminator: .init(propertyName: "foo")),
             .notObjectish
         ),
-
-        // a oneOf with a discriminator with an inline subschema
-        (.one(of: .object, discriminator: .init(propertyName: "foo")), .notRef),
     ]
     func testUnsupportedTypes() throws {
         let translator = self.translator

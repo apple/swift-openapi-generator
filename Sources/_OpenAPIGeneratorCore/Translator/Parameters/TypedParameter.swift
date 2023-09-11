@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A container for an OpenAPI parameter and its computed Swift type usage.
 struct TypedParameter {
@@ -135,6 +135,17 @@ extension FileTranslator {
             parameter = _parameter
         }
 
+        // OpenAPI 3.0.3: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#fixed-fields-10
+        // > If in is "header" and the name field is "Accept", "Content-Type" or "Authorization", the parameter definition SHALL be ignored.
+        if parameter.location == .header {
+            switch parameter.name.lowercased() {
+            case "accept", "content-type", "authorization":
+                return nil
+            default:
+                break
+            }
+        }
+
         let locationTypeName = parameter.location.typeName(in: parent)
         let foundIn = "\(locationTypeName.description)/\(parameter.name)"
 
@@ -147,23 +158,23 @@ extension FileTranslator {
             schema = schemaContext.schema
             style = schemaContext.style
             explode = schemaContext.explode
-            codingStrategy = .text
+            codingStrategy = .uri
 
             // Check supported exploded/style types
             let location = parameter.location
             switch location {
             case .query:
-                guard case .form = schemaContext.style else {
+                guard case .form = style else {
                     diagnostics.emitUnsupported(
-                        "Non-form style query params",
+                        "Query params of style \(style.rawValue), explode: \(explode)",
                         foundIn: foundIn
                     )
                     return nil
                 }
             case .header, .path:
-                guard case .simple = schemaContext.style else {
+                guard case .simple = style else {
                     diagnostics.emitUnsupported(
-                        "Non-simple style \(location.rawValue) params",
+                        "\(location.rawValue) params of style \(style.rawValue), explode: \(explode)",
                         foundIn: foundIn
                     )
                     return nil
@@ -247,7 +258,7 @@ extension FileTranslator {
 /// An unresolved OpenAPI parameter.
 ///
 /// Can be either a reference or an inline parameter.
-typealias UnresolvedParameter = Either<JSONReference<OpenAPI.Parameter>, OpenAPI.Parameter>
+typealias UnresolvedParameter = Either<OpenAPI.Reference<OpenAPI.Parameter>, OpenAPI.Parameter>
 
 extension OpenAPI.Parameter.Context.Location {
 

@@ -18,9 +18,6 @@
 ///   - config: The generator config.
 /// - Throws: An error if a fatal issue is found.
 func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [Diagnostic] {
-    guard config.featureFlags.contains(.strictOpenAPIValidation) else {
-        return []
-    }
     // Run OpenAPIKit's built-in validation.
     // Pass `false` to `strict`, however, because we don't
     // want to turn schema loading warnings into errors.

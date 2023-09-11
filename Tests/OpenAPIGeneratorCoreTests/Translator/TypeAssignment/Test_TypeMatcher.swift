@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import XCTest
-import OpenAPIKit30
+import OpenAPIKit
 @testable import _OpenAPIGeneratorCore
 
 final class Test_TypeMatcher: Test_Core {
@@ -74,6 +74,10 @@ final class Test_TypeMatcher: Test_Core {
         // a string enum
         .string(allowedValues: [
             AnyCodable("Foo")
+        ]),
+        // an int enum
+        .integer(allowedValues: [
+            AnyCodable(1)
         ]),
 
         // an object with at least one property

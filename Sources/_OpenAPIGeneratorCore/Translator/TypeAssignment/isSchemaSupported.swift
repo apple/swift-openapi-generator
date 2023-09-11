@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A result of checking whether a schema is supported.
 enum IsSchemaSupportedResult: Equatable {
@@ -157,14 +157,13 @@ extension FileTranslator {
                     schema: schema
                 )
             }
-            // If a discriminator is provided, only refs to object/allOf of
-            // object schemas are allowed.
-            // Otherwise, any schema is allowed.
             guard context.discriminator != nil else {
                 return try areSchemasSupported(schemas)
             }
-            return try areRefsToObjectishSchemaAndSupported(schemas)
-        case .not:
+            // > When using the discriminator, inline schemas will not be considered.
+            // > — https://spec.openapis.org/oas/v3.0.3#discriminator-object
+            return try areRefsToObjectishSchemaAndSupported(schemas.filter(\.isReference))
+        case .not, .null:
             return .unsupported(
                 reason: .schemaType,
                 schema: schema
@@ -213,7 +212,7 @@ extension FileTranslator {
         switch schema.value {
         case .object, .reference:
             return try isSchemaSupported(schema)
-        case .all(of: let schemas, _):
+        case .all(of: let schemas, _), .any(of: let schemas, _), .one(of: let schemas, _):
             return try areSchemasSupported(schemas)
         default:
             return .unsupported(

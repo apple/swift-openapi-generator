@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A container for an OpenAPI response header and its computed
 /// Swift type usage.
@@ -113,7 +113,7 @@ extension FileTranslator {
         switch header.schemaOrContent {
         case let .a(schemaContext):
             schema = schemaContext.schema
-            codingStrategy = .text
+            codingStrategy = .uri
         case let .b(contentMap):
             guard
                 let typedContent = try bestSingleTypedContent(
@@ -173,4 +173,4 @@ extension FileTranslator {
 /// An unresolved OpenAPI response header.
 ///
 /// Can be either a reference or an inline response header.
-typealias UnresolvedHeader = Either<JSONReference<OpenAPI.Header>, OpenAPI.Header>
+typealias UnresolvedHeader = Either<OpenAPI.Reference<OpenAPI.Header>, OpenAPI.Header>

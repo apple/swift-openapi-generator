@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import XCTest
-import OpenAPIKit30
+import OpenAPIKit
 @testable import _OpenAPIGeneratorCore
 
 final class Test_ContentType: Test_Core {
@@ -24,14 +24,18 @@ final class Test_ContentType: Test_Core {
                 category: ContentType.Category,
                 type: String,
                 subtype: String,
+                parameters: String,
                 lowercasedOutput: String,
-                originallyCasedOutput: String
+                originallyCasedOutput: String,
+                originallyCasedOutputWithParameters: String
             )] = [
                 (
                     "application/json",
                     .json,
                     "application",
                     "json",
+                    "",
+                    "application/json",
                     "application/json",
                     "application/json"
                 ),
@@ -40,7 +44,9 @@ final class Test_ContentType: Test_Core {
                     .json,
                     "application",
                     "json",
+                    "",
                     "application/json",
+                    "APPLICATION/JSON",
                     "APPLICATION/JSON"
                 ),
                 (
@@ -48,14 +54,18 @@ final class Test_ContentType: Test_Core {
                     .json,
                     "application",
                     "json",
+                    "; charset=utf-8",
                     "application/json",
-                    "application/json"
+                    "application/json",
+                    "application/json; charset=utf-8"
                 ),
                 (
                     "application/x-www-form-urlencoded",
                     .binary,
                     "application",
                     "x-www-form-urlencoded",
+                    "",
+                    "application/x-www-form-urlencoded",
                     "application/x-www-form-urlencoded",
                     "application/x-www-form-urlencoded"
                 ),
@@ -64,6 +74,8 @@ final class Test_ContentType: Test_Core {
                     .binary,
                     "multipart",
                     "form-data",
+                    "",
+                    "multipart/form-data",
                     "multipart/form-data",
                     "multipart/form-data"
                 ),
@@ -72,6 +84,8 @@ final class Test_ContentType: Test_Core {
                     .text,
                     "text",
                     "plain",
+                    "",
+                    "text/plain",
                     "text/plain",
                     "text/plain"
                 ),
@@ -80,6 +94,8 @@ final class Test_ContentType: Test_Core {
                     .binary,
                     "*",
                     "*",
+                    "",
+                    "*/*",
                     "*/*",
                     "*/*"
                 ),
@@ -88,6 +104,8 @@ final class Test_ContentType: Test_Core {
                     .binary,
                     "application",
                     "xml",
+                    "",
+                    "application/xml",
                     "application/xml",
                     "application/xml"
                 ),
@@ -96,6 +114,8 @@ final class Test_ContentType: Test_Core {
                     .binary,
                     "application",
                     "octet-stream",
+                    "",
+                    "application/octet-stream",
                     "application/octet-stream",
                     "application/octet-stream"
                 ),
@@ -104,6 +124,8 @@ final class Test_ContentType: Test_Core {
                     .json,
                     "application",
                     "myformat+json",
+                    "",
+                    "application/myformat+json",
                     "application/myformat+json",
                     "application/myformat+json"
                 ),
@@ -112,6 +134,8 @@ final class Test_ContentType: Test_Core {
                     .binary,
                     "foo",
                     "bar",
+                    "",
+                    "foo/bar",
                     "foo/bar",
                     "foo/bar"
                 ),
@@ -120,8 +144,20 @@ final class Test_ContentType: Test_Core {
                     .json,
                     "foo",
                     "bar+json",
+                    "",
+                    "foo/bar+json",
                     "foo/bar+json",
                     "foo/bar+json"
+                ),
+                (
+                    "foo/bar+json; param1=a; param2=b",
+                    .json,
+                    "foo",
+                    "bar+json",
+                    "; param1=a; param2=b",
+                    "foo/bar+json",
+                    "foo/bar+json",
+                    "foo/bar+json; param1=a; param2=b"
                 ),
             ]
         for (
@@ -129,15 +165,19 @@ final class Test_ContentType: Test_Core {
             category,
             type,
             subtype,
+            parameters,
             lowercasedTypeAndSubtype,
-            originallyCasedTypeAndSubtype
+            originallyCasedTypeAndSubtype,
+            originallyCasedOutputWithParameters
         ) in cases {
             let contentType = ContentType(rawValue)
             XCTAssertEqual(contentType.category, category)
             XCTAssertEqual(contentType.lowercasedType, type)
             XCTAssertEqual(contentType.lowercasedSubtype, subtype)
+            XCTAssertEqual(contentType.lowercasedParametersString, parameters)
             XCTAssertEqual(contentType.lowercasedTypeAndSubtype, lowercasedTypeAndSubtype)
             XCTAssertEqual(contentType.originallyCasedTypeAndSubtype, originallyCasedTypeAndSubtype)
+            XCTAssertEqual(contentType.originallyCasedTypeSubtypeAndParameters, originallyCasedOutputWithParameters)
         }
     }
 }

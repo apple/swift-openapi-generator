@@ -13,12 +13,12 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
-/// Describes the location of a name type in the OpenAPI document.
-enum TypeLocation {
+extension FileTranslator {
+    // Add helpers for reading feature flags below.
 
-    /// A schema type.
-    case schemas
-
-    /// A parameter type.
-    case parameters
+    /// A Boolean value indicating whether the `nullable` field on schemas
+    /// should be taken into account.
+    var supportNullableSchemas: Bool {
+        config.featureFlags.contains(.nullableSchemas)
+    }
 }

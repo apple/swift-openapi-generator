@@ -14,7 +14,7 @@
 import XCTest
 import Foundation
 import Yams
-import OpenAPIKit30
+import OpenAPIKit
 @testable import _OpenAPIGeneratorCore
 
 class Test_Core: XCTestCase {

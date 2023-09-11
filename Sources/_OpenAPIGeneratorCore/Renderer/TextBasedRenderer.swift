@@ -173,6 +173,9 @@ struct TextBasedRenderer: RendererProtocol {
                 maybeLet = ""
             }
             return "case \(maybeLet)\(renderedExpression(expression))\(associatedValues)"
+        case .multiCase(let expressions):
+            let expressions = expressions.map(renderedExpression).joined(separator: ", ")
+            return "case \(expressions)"
         case .`default`:
             return "default"
         }
@@ -289,7 +292,7 @@ struct TextBasedRenderer: RendererProtocol {
         "&" + renderedExpression(description.referencedExpr)
     }
 
-    /// Renders the specified optinal chaining expression.
+    /// Renders the specified optional chaining expression.
     func renderedOptionalChainingDescription(
         _ description: OptionalChainingDescription
     ) -> String {
@@ -538,7 +541,7 @@ struct TextBasedRenderer: RendererProtocol {
         case .nameOnly:
             return ""
         case .nameWithRawValue(let rawValue):
-            return " = \"\(rawValue)\""
+            return " = \(renderedLiteral(rawValue))"
         case .nameWithAssociatedValues(let values):
             if values.isEmpty {
                 return ""

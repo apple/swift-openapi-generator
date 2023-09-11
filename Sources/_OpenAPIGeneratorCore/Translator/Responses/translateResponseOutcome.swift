@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension TypesFileTranslator {
 
@@ -126,27 +126,32 @@ extension ClientFileTranslator {
             from: typedResponse.response,
             inParent: headersTypeName
         )
-        let headerInitArgs: [FunctionArgumentDescription] = try headers.map { header in
-            try translateResponseHeaderInClient(
-                header,
-                responseVariableName: "response"
+        let headersVarExpr: Expression?
+        if !headers.isEmpty {
+            let headerInitArgs: [FunctionArgumentDescription] = try headers.map { header in
+                try translateResponseHeaderInClient(
+                    header,
+                    responseVariableName: "response"
+                )
+            }
+            let headersInitExpr: Expression = .dot("init").call(headerInitArgs)
+            let headersVarDecl: Declaration = .variable(
+                kind: .let,
+                left: "headers",
+                type: headersTypeName.fullyQualifiedSwiftName,
+                right: headersInitExpr
             )
+            codeBlocks.append(.declaration(headersVarDecl))
+            headersVarExpr = .identifier("headers")
+        } else {
+            headersVarExpr = nil
         }
-        let headersInitExpr: Expression = .dot("init").call(headerInitArgs)
-        let headersVarDecl: Declaration = .variable(
-            kind: .let,
-            left: "headers",
-            type: headersTypeName.fullyQualifiedSwiftName,
-            right: headersInitExpr
-        )
-        codeBlocks.append(.declaration(headersVarDecl))
-        let headersVarExpr: Expression = .identifier("headers")
 
         let typedContents = try supportedTypedContents(
             typedResponse.response.content,
             inParent: bodyTypeName
         )
-        let bodyVarExpr: Expression
+        let bodyVarExpr: Expression?
         if !typedContents.isEmpty {
 
             let contentTypeDecl: Declaration = .variable(
@@ -283,20 +288,27 @@ extension ClientFileTranslator {
 
             bodyVarExpr = .identifier("body")
         } else {
-            bodyVarExpr = .literal(.nil)
+            bodyVarExpr = nil
         }
 
         let initExpr: Expression = .dot("init")
-            .call([
-                .init(
-                    label: Constants.Operation.Output.Payload.Headers.variableName,
-                    expression: headersVarExpr
-                ),
-                .init(
-                    label: Constants.Operation.Body.variableName,
-                    expression: bodyVarExpr
-                ),
-            ])
+            .call(
+                [
+                    headersVarExpr.map { headersVarExpr in
+                        .init(
+                            label: Constants.Operation.Output.Payload.Headers.variableName,
+                            expression: headersVarExpr
+                        )
+                    },
+                    bodyVarExpr.map { bodyVarExpr in
+                        .init(
+                            label: Constants.Operation.Body.variableName,
+                            expression: bodyVarExpr
+                        )
+                    },
+                ]
+                .compactMap { $0 }
+            )
 
         let optionalStatusCode: [FunctionArgumentDescription]
         if responseKind.wantsStatusCode {
@@ -454,35 +466,24 @@ extension ServerFileTranslator {
         codeBlocks.append(.expression(returnExpr))
 
         let caseKind: SwitchCaseKind
-        switch responseKind {
-        case .code, .`default`:
-            let optionalStatusCode: [String]
-            if responseKind.wantsStatusCode {
-                optionalStatusCode = ["statusCode"]
-            } else {
-                optionalStatusCode = []
-            }
-            caseKind = .`case`(
-                .dot(responseKind.identifier),
-                optionalStatusCode + ["value"]
-            )
-            codeBlocks =
-                [
-                    .expression(
-                        .suppressUnusedWarning(
-                            for: "value"
-                        )
-                    )
-                ] + codeBlocks
-        case let .range(range):
-            caseKind = .`case`(
-                .binaryOperation(
-                    left: .literal(range.lowerBound),
-                    operation: .rangeInclusive,
-                    right: .literal(range.upperBound)
-                )
-            )
+        let optionalStatusCode: [String]
+        if responseKind.wantsStatusCode {
+            optionalStatusCode = ["statusCode"]
+        } else {
+            optionalStatusCode = []
         }
+        caseKind = .`case`(
+            .dot(responseKind.identifier),
+            optionalStatusCode + ["value"]
+        )
+        codeBlocks =
+            [
+                .expression(
+                    .suppressUnusedWarning(
+                        for: "value"
+                    )
+                )
+            ] + codeBlocks
 
         return .init(
             kind: caseKind,

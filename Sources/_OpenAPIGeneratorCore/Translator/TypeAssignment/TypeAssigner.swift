@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 import Foundation
 
 /// A set of functions that compute the deterministic, unique, and global
@@ -44,6 +44,10 @@ struct TypeAssigner {
     /// A converted function from user-provided strings to strings
     /// safe to be used as a Swift identifier.
     var asSwiftSafeName: (String) -> String
+
+    /// A Boolean value indicating whether the `nullable` field on schemas
+    /// should be taken into account.
+    var supportNullableSchemas: Bool
 
     /// Returns a type name for an OpenAPI-named component type.
     ///
@@ -256,7 +260,10 @@ struct TypeAssigner {
         // Check if this type can be simply referenced without
         // creating a new inline type.
         if let referenceableType =
-            try TypeMatcher(asSwiftSafeName: asSwiftSafeName)
+            try TypeMatcher(
+                asSwiftSafeName: asSwiftSafeName,
+                supportNullableSchemas: supportNullableSchemas
+            )
             .tryMatchReferenceableType(for: schema)
         {
             return referenceableType
@@ -368,6 +375,25 @@ struct TypeAssigner {
         return try typeName(for: internalReference, in: componentType)
     }
 
+    /// Returns a type name for an OpenAPI reference.
+    ///
+    /// Behaves similarly to JSONReference.
+    ///
+    /// - NOTE: Only internal references are currently supported; throws an error for external references.
+    /// - Parameters:
+    ///   - reference: The reference to compute a type name for.
+    ///   - componentType: The type of the component to which the reference
+    ///   points.
+    func typeName<Component: ComponentDictionaryLocatable>(
+        for reference: OpenAPI.Reference<Component>,
+        in componentType: Component.Type = Component.self
+    ) throws -> TypeName {
+        try typeName(
+            for: reference.jsonReference,
+            in: componentType
+        )
+    }
+
     /// Returns a type name for an internal reference to a component.
     ///
     /// - NOTE: Only component references are supported; throws an error for paths outside of the Components object.
@@ -433,12 +459,18 @@ extension FileTranslator {
 
     /// A configured type assigner.
     var typeAssigner: TypeAssigner {
-        TypeAssigner(asSwiftSafeName: swiftSafeName)
+        TypeAssigner(
+            asSwiftSafeName: swiftSafeName,
+            supportNullableSchemas: supportNullableSchemas
+        )
     }
 
     /// A configured type matcher.
     var typeMatcher: TypeMatcher {
-        TypeMatcher(asSwiftSafeName: swiftSafeName)
+        TypeMatcher(
+            asSwiftSafeName: swiftSafeName,
+            supportNullableSchemas: supportNullableSchemas
+        )
     }
 }
 

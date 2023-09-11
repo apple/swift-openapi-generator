@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension ServerFileTranslator {
 
@@ -26,64 +26,6 @@ extension ServerFileTranslator {
         let typedRequestBody = try typedRequestBody(in: operation)
         let inputTypeName = operation.inputTypeName
 
-        func locationSpecificInputDecl(
-            locatedIn location: OpenAPI.Parameter.Context.Location,
-            fromParameters parameters: [UnresolvedParameter]
-        ) throws -> Declaration {
-            let variableName = location.shortVariableName
-            let type = location.typeName(in: inputTypeName)
-            return .variable(
-                kind: .let,
-                left: variableName,
-                type: type.fullyQualifiedSwiftName,
-                right: .dot("init")
-                    .call(
-                        try parameters.compactMap {
-                            try parseAsTypedParameter(
-                                from: $0,
-                                inParent: operation.inputTypeName
-                            )
-                        }
-                        .compactMap(translateParameterInServer(_:))
-                    )
-            )
-        }
-
-        var inputMemberCodeBlocks = try [
-            (
-                .path,
-                operation.allPathParameters
-            ),
-            (
-                .query,
-                operation.allQueryParameters
-            ),
-            (
-                .header,
-                operation.allHeaderParameters
-            ),
-            (
-                .cookie,
-                operation.allCookieParameters
-            ),
-        ]
-        .map(locationSpecificInputDecl(locatedIn:fromParameters:))
-        .map(CodeBlock.declaration)
-
-        let requestBodyExpr: Expression
-        if let typedRequestBody {
-            let bodyCodeBlocks = try translateRequestBodyInServer(
-                typedRequestBody,
-                requestVariableName: "request",
-                bodyVariableName: "body",
-                inputTypeName: inputTypeName
-            )
-            inputMemberCodeBlocks.append(contentsOf: bodyCodeBlocks)
-            requestBodyExpr = .identifier("body")
-        } else {
-            requestBodyExpr = .literal(.nil)
-        }
-
         func functionArgumentForLocation(
             _ location: OpenAPI.Parameter.Context.Location
         ) -> FunctionArgumentDescription {
@@ -93,19 +35,108 @@ extension ServerFileTranslator {
             )
         }
 
+        func locationSpecificInputDecl(
+            locatedIn location: OpenAPI.Parameter.Context.Location,
+            fromParameters parameters: [UnresolvedParameter],
+            extraArguments: [FunctionArgumentDescription]
+        ) throws -> (Declaration, FunctionArgumentDescription)? {
+            let variableName = location.shortVariableName
+            let type = location.typeName(in: inputTypeName)
+            let arguments =
+                try parameters
+                .compactMap {
+                    try parseAsTypedParameter(
+                        from: $0,
+                        inParent: operation.inputTypeName
+                    )
+                }
+                .compactMap(translateParameterInServer(_:))
+                + extraArguments
+            guard !arguments.isEmpty else {
+                return nil
+            }
+            let decl: Declaration = .variable(
+                kind: .let,
+                left: variableName,
+                type: type.fullyQualifiedSwiftName,
+                right: .dot("init").call(arguments)
+            )
+            let argument = functionArgumentForLocation(location)
+            return (decl, argument)
+        }
+
+        let extraHeaderArguments: [FunctionArgumentDescription]
+        let acceptableContentTypes = try acceptHeaderContentTypes(for: operation)
+        if acceptableContentTypes.isEmpty {
+            extraHeaderArguments = []
+        } else {
+            extraHeaderArguments = [
+                .init(
+                    label: Constants.Operation.AcceptableContentType.variableName,
+                    expression: .try(
+                        .identifier("converter")
+                            .dot("extractAcceptHeaderIfPresent")
+                            .call([
+                                .init(
+                                    label: "in",
+                                    expression: .identifier("request").dot("headerFields")
+                                )
+                            ])
+                    )
+                )
+            ]
+        }
+
+        var inputMembers = try [
+            (
+                .path,
+                operation.allPathParameters,
+                []
+            ),
+            (
+                .query,
+                operation.allQueryParameters,
+                []
+            ),
+            (
+                .header,
+                operation.allHeaderParameters,
+                extraHeaderArguments
+            ),
+            (
+                .cookie,
+                operation.allCookieParameters,
+                []
+            ),
+        ]
+        .compactMap(locationSpecificInputDecl)
+        .map { (codeBlocks: [CodeBlock.declaration($0)], argument: $1) }
+
+        if let typedRequestBody {
+            let bodyCodeBlocks = try translateRequestBodyInServer(
+                typedRequestBody,
+                requestVariableName: "request",
+                bodyVariableName: "body",
+                inputTypeName: inputTypeName
+            )
+            inputMembers.append(
+                (
+                    bodyCodeBlocks,
+                    .init(
+                        label: "body",
+                        expression: .identifier("body")
+                    )
+                )
+            )
+        }
+
         let returnExpr: Expression = .return(
             .identifier(inputTypeName.fullyQualifiedSwiftName)
-                .call([
-                    functionArgumentForLocation(.path),
-                    functionArgumentForLocation(.query),
-                    functionArgumentForLocation(.header),
-                    functionArgumentForLocation(.cookie),
-                    .init(label: "body", expression: requestBodyExpr),
-                ])
+                .call(inputMembers.map(\.argument))
         )
 
         closureBody.append(
-            contentsOf: inputMemberCodeBlocks + [.expression(returnExpr)]
+            contentsOf: inputMembers.flatMap(\.codeBlocks) + [.expression(returnExpr)]
         )
         return .closureInvocation(
             argumentNames: ["request", "metadata"],
@@ -119,7 +150,6 @@ extension ServerFileTranslator {
     func translateServerSerializer(_ description: OperationDescription) throws -> Expression {
         var cases: [SwitchCaseDescription] =
             try description
-            .operation
             .responseOutcomes
             .map { outcome in
                 try translateResponseOutcomeInServer(

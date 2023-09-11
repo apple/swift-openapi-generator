@@ -13,12 +13,12 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 
-/// A fully-qualitied type name that contains the components of both the Swift
+/// A fully-qualified type name that contains the components of both the Swift
 /// type name and the optional JSON reference.
 ///
 /// Use the type name to define a type, see also `TypeUsage` when referring
 /// to a type.
-struct TypeName: Equatable {
+struct TypeName: Hashable {
 
     /// Describes a single component of both the Swift and JSON  paths.
     ///
@@ -27,7 +27,7 @@ struct TypeName: Equatable {
     /// This type preserves the information about which Swift path component
     /// maps to which JSON path component, and vice versa, and allows
     /// reliably adding and removing extra path components.
-    struct Component: Equatable {
+    struct Component: Hashable {
 
         /// The name of the Swift path component.
         var swift: String?
@@ -91,9 +91,12 @@ struct TypeName: Equatable {
     ///
     /// For example: `#/components/schemas/Foo`.
     /// - Returns: A string representation; nil if the type name has no
-    /// JSON path components.
+    /// JSON path components or if the last JSON path component is nil.
     var fullyQualifiedJSONPath: String? {
-        jsonKeyPathComponents?.joined(separator: "/")
+        guard components.last?.json != nil else {
+            return nil
+        }
+        return jsonKeyPathComponents?.joined(separator: "/")
     }
 
     /// A string representation of the last path component of the JSON path.
@@ -112,8 +115,10 @@ struct TypeName: Equatable {
     /// - Parameters:
     ///   - swiftComponent: The name of the Swift type component.
     ///   - jsonComponent: The name of the JSON path component.
+    /// - Precondition: At least one of the components must be non-nil.
     /// - Returns: A new type name.
-    func appending(swiftComponent: String, jsonComponent: String? = nil) -> Self {
+    func appending(swiftComponent: String? = nil, jsonComponent: String? = nil) -> Self {
+        precondition(swiftComponent != nil || jsonComponent != nil, "At least the Swift or JSON name must be non-nil.")
         let newComponent = Component(swift: swiftComponent, json: jsonComponent)
         return .init(components: components + [newComponent])
     }

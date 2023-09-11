@@ -4,9 +4,9 @@ Learn which OpenAPI features are supported by Swift OpenAPI Generator.
 
 ## Overview
 
-Swift OpenAPI Generator is currently focused on supporting [OpenAPI 3.0.3][0].
+Swift OpenAPI Generator is currently focused on supporting [OpenAPI 3.0.3][0] and [OpenAPI 3.1.0][1]. 
 
-As the project evolves, support may be added [OpenAPI 3.1.0][1].
+> Note: Internally, documents are converted from 3.0.3 to 3.1.0 to allow the generator to only work with a single set of parsed OpenAPI types.
 
 Supported features are always provided on _both_ client and server.
 
@@ -139,7 +139,7 @@ Supported features are always provided on _both_ client and server.
 - [ ] maxProperties
 - [ ] minProperties
 - [x] required
-- [x] enum
+- [x] enum (when type is string or integer)
 - [x] type
 - [x] allOf
     - a wrapper struct is generated, children can be any schema
@@ -155,7 +155,7 @@ Supported features are always provided on _both_ client and server.
 - [x] description
 - [x] format
 - [ ] default
-- [ ] nullable
+- [x] nullable (only in 3.0, removed in 3.1, add `null` in `types` instead)
 - [x] discriminator
 - [ ] readOnly
 - [ ] writeOnly
@@ -204,16 +204,13 @@ Supported features are always provided on _both_ client and server.
 - [x] schema
 - [ ] example
 - [ ] examples
-- [x] content (chooses one from the map)
+- [x] content
 
 #### Style Values
 
 - [ ] matrix (in path)
 - [ ] label (in path)
-- [ ] form (in query)
-    - [x] primitive
-    - [x] array
-    - [ ] object
+- [x] form (in query)
 - [ ] form (in cookie)
 - [x] simple (in path)
 - [x] simple (in header)
@@ -221,10 +218,14 @@ Supported features are always provided on _both_ client and server.
 - [ ] pipeDelimited (in query)
 - [ ] deepObject (in query)
 
-Supported location + styles + exploded combinations:
-- path + simple + false
-- query + form + true/false
-- header + simple + false
+#### Supported combinations
+
+| Location | Style | Explode |
+| -------- | ----- | ------- |
+| path | `simple` | `false` |
+| query | `form` | `true` |
+| query | `form` | `false` |
+| header | `simple` | `false` |
 
 #### Reference Object
 
