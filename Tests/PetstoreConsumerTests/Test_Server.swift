@@ -70,7 +70,12 @@ final class Test_Server: XCTestCase {
                 .contentType: "application/json; charset=utf-8",
             ]
         )
-        let bodyString = try await responseBody?.collectAsString(upTo: .max)
+        let bodyString: String
+        if let responseBody {
+            bodyString = try await String(collecting: responseBody, upTo: .max)
+        } else {
+            bodyString = ""
+        }
         XCTAssertEqual(
             bodyString,
             #"""
@@ -149,11 +154,11 @@ final class Test_Server: XCTestCase {
                 ]
             ),
             .init(
-                string: #"""
-                    {
-                      "name" : "Fluffz"
-                    }
-                    """#
+                #"""
+                {
+                  "name" : "Fluffz"
+                }
+                """#
             ),
             .init()
         )
@@ -201,11 +206,11 @@ final class Test_Server: XCTestCase {
                 ]
             ),
             .init(
-                string: #"""
-                    {
-                      "name" : "Fluffz"
-                    }
-                    """#
+                #"""
+                {
+                  "name" : "Fluffz"
+                }
+                """#
             ),
             .init()
         )
@@ -245,11 +250,11 @@ final class Test_Server: XCTestCase {
                     ]
                 ),
                 .init(
-                    string: #"""
-                        {
-                          "name" : "Fluffz"
-                        }
-                        """#
+                    #"""
+                    {
+                      "name" : "Fluffz"
+                    }
+                    """#
                 ),
                 .init()
             )
@@ -281,11 +286,11 @@ final class Test_Server: XCTestCase {
                 ]
             ),
             .init(
-                string: #"""
-                    {
-                      "name" : "Fluffz"
-                    }
-                    """#
+                #"""
+                {
+                  "name" : "Fluffz"
+                }
+                """#
             ),
             .init(
                 pathParameters: [
@@ -319,11 +324,11 @@ final class Test_Server: XCTestCase {
                 headerFields: [:]
             ),
             .init(
-                string: #"""
-                    {
-                      "name" : "Fluffz"
-                    }
-                    """#
+                #"""
+                {
+                  "name" : "Fluffz"
+                }
+                """#
             ),
             .init(
                 pathParameters: [
@@ -490,7 +495,7 @@ final class Test_Server: XCTestCase {
         client = .init(
             getStatsBlock: { input in
                 let body = HTTPBody(
-                    stream: AsyncStream { continuation in
+                    AsyncStream { continuation in
                         continuation.yield([72])
                         continuation.yield([69])
                         continuation.yield([76])
@@ -658,11 +663,11 @@ final class Test_Server: XCTestCase {
                 ]
             ),
             .init(
-                string: #"""
-                    {
-                      "count" : 1
-                    }
-                    """#
+                #"""
+                {
+                  "count" : 1
+                }
+                """#
             ),
             .init()
         )
@@ -688,11 +693,11 @@ final class Test_Server: XCTestCase {
                 headerFields: [:]
             ),
             .init(
-                string: #"""
-                    {
-                      "count" : 1
-                    }
-                    """#
+                #"""
+                {
+                  "count" : 1
+                }
+                """#
             ),
             .init()
         )
@@ -720,9 +725,9 @@ final class Test_Server: XCTestCase {
                 ]
             ),
             .init(
-                string: #"""
-                    count is 1
-                    """#
+                #"""
+                count is 1
+                """#
             ),
             .init()
         )
@@ -750,9 +755,9 @@ final class Test_Server: XCTestCase {
                 ]
             ),
             .init(
-                string: #"""
-                    count_is_1
-                    """#
+                #"""
+                count_is_1
+                """#
             ),
             .init()
         )
@@ -818,7 +823,7 @@ final class Test_Server: XCTestCase {
                     .contentType: "application/octet-stream",
                 ]
             ),
-            .init(string: Data.abcdString),
+            .init(Data.abcdString),
             .init(
                 pathParameters: [
                     "petId": "1"
@@ -859,7 +864,7 @@ final class Test_Server: XCTestCase {
                     .init(
                         body: .binary(
                             .init(
-                                sequence: responseSequence,
+                                responseSequence,
                                 length: avatar.length,
                                 iterationBehavior: avatar.iterationBehavior
                             )
@@ -877,7 +882,7 @@ final class Test_Server: XCTestCase {
                     .contentType: "application/octet-stream",
                 ]
             ),
-            .init(byteChunks: [[97, 98], [99, 100]], length: .known(4)),
+            .init([[97, 98], [99, 100]], length: .known(4)),
             .init(
                 pathParameters: [
                     "petId": "1"
@@ -918,7 +923,7 @@ final class Test_Server: XCTestCase {
                     .contentType: "application/octet-stream",
                 ]
             ),
-            .init(string: Data.abcdString),
+            .init(Data.abcdString),
             .init(
                 pathParameters: [
                     "petId": "1"
@@ -947,7 +952,7 @@ final class Test_Server: XCTestCase {
                 try await XCTAssertEqualStringifiedData(avatar, Data.abcdString)
                 return .internalServerError(
                     .init(
-                        body: .plainText(.init(string: Data.efghString))
+                        body: .plainText(.init(Data.efghString))
                     )
                 )
             }
@@ -961,7 +966,7 @@ final class Test_Server: XCTestCase {
                     .contentType: "application/octet-stream",
                 ]
             ),
-            .init(string: Data.abcdString),
+            .init(Data.abcdString),
             .init(
                 pathParameters: [
                     "petId": "1"

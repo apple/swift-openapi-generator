@@ -160,7 +160,12 @@ final class Test_Client: XCTestCase {
                     .init("X-Extra-Arguments")!: #"{"code":1}"#,
                 ]
             )
-            let bodyString = try await body?.collectAsString(upTo: .max)
+            let bodyString: String
+            if let body {
+                bodyString = try await String(collecting: body, upTo: .max)
+            } else {
+                bodyString = ""
+            }
             XCTAssertEqual(
                 bodyString,
                 #"""

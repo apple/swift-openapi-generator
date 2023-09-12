@@ -60,6 +60,11 @@ public func XCTAssertEqualStringifiedData(
     file: StaticString = #filePath,
     line: UInt = #line
 ) async throws {
-    let data = try await expression1()?.collectAsData(upTo: .max)
+    let data: Data
+    if let body = try expression1() {
+        data = try await Data(collecting: body, upTo: .max)
+    } else {
+        data = .init()
+    }
     XCTAssertEqualStringifiedData(data, try expression2(), message(), file: file, line: line)
 }

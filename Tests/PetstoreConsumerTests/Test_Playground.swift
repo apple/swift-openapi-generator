@@ -55,7 +55,7 @@ final class Test_Playground: XCTestCase {
                     .init(
                         body: .binary(
                             .init(
-                                sequence: responseSequence,
+                                responseSequence,
                                 length: requestSequence.length,
                                 iterationBehavior: requestSequence.iterationBehavior
                             )
@@ -101,7 +101,7 @@ final class Test_Playground: XCTestCase {
         )
 
         // Create a request body wrapping the request stream.
-        let requestBody: HTTPBody = .init(stream: requestStream, length: .unknown)
+        let requestBody = HTTPBody(requestStream, length: .unknown)
 
         // Send the request, wait for the response.
         // At this point, both the request and response streams are still open.
@@ -162,7 +162,7 @@ final class Test_Playground: XCTestCase {
                     continuation.yield("world")
                     continuation.finish()
                 }
-                let responseBody = HTTPBody(stream: responseStream, length: .unknown)
+                let responseBody = HTTPBody(responseStream, length: .unknown)
                 return .ok(.init(body: .binary(responseBody)))
             }
 
@@ -258,7 +258,7 @@ final class Test_Playground: XCTestCase {
                     }
                 )
 
-                let responseBody = HTTPBody(stream: responseStream, length: .unknown)
+                let responseBody = HTTPBody(responseStream, length: .unknown)
                 return .ok(.init(body: .binary(responseBody)))
             }
 
