@@ -5,7 +5,9 @@
 @preconcurrency import struct Foundation.Data
 @preconcurrency import struct Foundation.Date
 #else
-import Foundation
+import struct Foundation.URL
+import struct Foundation.Data
+import struct Foundation.Date
 #endif
 /// A type that performs HTTP operations defined by the OpenAPI document.
 public protocol APIProtocol: Sendable {

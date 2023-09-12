@@ -25,7 +25,12 @@ enum Constants {
 
         /// The descriptions of modules imported by every generated file.
         static let imports: [ImportDescription] = [
-            ImportDescription(moduleName: "OpenAPIRuntime", spi: "Generated")
+            ImportDescription(moduleName: "OpenAPIRuntime", spi: "Generated"),
+            ImportDescription(
+                moduleName: "Foundation",
+                moduleTypes: ["struct Foundation.URL", "struct Foundation.Data", "struct Foundation.Date"],
+                preconcurrency: .onOS(["Linux"])
+            ),
         ]
     }
 
@@ -61,15 +66,6 @@ enum Constants {
     /// Constants related to the generated client type.
     enum Client {
 
-        /// An array of scoped imports specific to the `Client` namespace.
-        static let scopedImports: [ImportDescription] = [
-            ImportDescription(
-                moduleName: "Foundation",
-                moduleTypes: ["struct Foundation.URL", "struct Foundation.Data"],
-                preconcurrency: .onOS(["Linux"])
-            )
-        ]
-
         /// The name of the client type.
         static let typeName: String = "Client"
 
@@ -99,29 +95,8 @@ enum Constants {
         }
     }
 
-    enum Types {
-
-        /// An array of scoped imports specific to the `Types` namespace.
-        static let scopedImports: [ImportDescription] = [
-            ImportDescription(
-                moduleName: "Foundation",
-                moduleTypes: ["struct Foundation.URL", "struct Foundation.Data", "struct Foundation.Date"],
-                preconcurrency: .onOS(["Linux"])
-            )
-        ]
-    }
-
     /// Constants related to the generated server types.
     enum Server {
-
-        /// An array of scoped imports specific to the `Server` namespace.
-        static let scopedImports: [ImportDescription] = [
-            ImportDescription(
-                moduleName: "Foundation",
-                moduleTypes: ["struct Foundation.URL", "struct Foundation.Data"],
-                preconcurrency: .onOS(["Linux"])
-            )
-        ]
 
         /// Constants related to the universal server.
         enum Universal {
