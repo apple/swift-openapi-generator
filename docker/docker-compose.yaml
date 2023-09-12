@@ -42,17 +42,16 @@ services:
     environment:
       SWIFT_OPENAPI_GENERATOR_REPO_URL: file:///code
 
+  compatibility-test:
+    <<: *common
+    command: /bin/bash -xcl "swift test --parallel --num-workers $$(($$(nproc)-1)) --filter $${SWIFT_OPENAPI_COMPATIBILITY_TEST_FILTER}"
+    environment:  # These can be overridden when running locally.
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE: true
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD: true
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_FILTER: OpenAPIGeneratorReferenceTests.CompatibilityTest
+
   docc-test:
     <<: *common
     command: /bin/bash -xcl "swift -version && uname -a && bash ./scripts/check-for-docc-warnings.sh"
     environment:
       DOCC_TARGET: swift-openapi-generator
-
-  compatibility-test:
-    <<: *common
-    command: /bin/bash -xcl "swift test --parallel --num-workers $$(($$(nproc)-1)) --filter $${SWIFT_OPENAPI_COMPATIBILITY_TEST_FILTER-OpenAPIGeneratorReferenceTests.CompatibilityTest}"
-    environment:
-      SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE: true
-      SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD: true
-      # To run just one test, uncomment the following line:
-      # SWIFT_OPENAPI_COMPATIBILITY_TEST_FILTER: OpenAPIGeneratorReferenceTests.CompatibilityTest/testGithub
