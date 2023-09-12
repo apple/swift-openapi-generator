@@ -11,7 +11,6 @@ import Yams
 
 final class CompatibilityTest: XCTestCase {
     let compatibilityTestEnabled = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE")
-    let compatibilityTestSkipValidate = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_VALIDATE")
     let compatibilityTestSkipBuild = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD")
 
     override func setUp() async throws {
@@ -186,41 +185,8 @@ fileprivate extension CompatibilityTest {
         let documentData = try await URLSession.shared.data(from: documentURL).0
         let documentSize = ByteCountFormatter.string(fromByteCount: Int64(documentData.count), countStyle: .file)
 
-        if !compatibilityTestSkipValidate {
-            // Parse document.
-            log("Parsing OpenAPI document (size: \(documentSize))")
-            let decoder = YAMLDecoder()
-            struct OpenAPIVersionedDocument: Decodable { let openapi: String }
-            let openAPIVersion = try decoder.decode(OpenAPIVersionedDocument.self, from: documentData).openapi
-            let document: OpenAPIKit.OpenAPI.Document
-            switch openAPIVersion {
-            case "3.0.0", "3.0.1", "3.0.2", "3.0.3":
-                let openAPI30Document = try decoder.decode(
-                    OpenAPIKit30.OpenAPI.Document.self,
-                    from: documentData
-                )
-                document = openAPI30Document.convert(to: .v3_1_0)
-            case "3.1.0":
-                document = try decoder.decode(
-                    OpenAPIKit.OpenAPI.Document.self,
-                    from: documentData
-                )
-            default:
-                XCTFail("Unexpected version: \(openAPIVersion)")
-                return
-            }
-
-            // Validate document using OpenAPIKit.
-            log("Validating OpenAPI document using OpenAPIKit")
-            do {
-                try document.validate()
-            } catch is OpenAPIKit.ValidationErrorCollection {
-                diagnosticsCollector.emit(Diagnostic.warning(message: "OpenAPIKit validation failed"))
-            }
-        }
-
         // Run the generator.
-        log("Generating Swift code")
+        log("Generating Swift code (document size: \(documentSize))")
         let input = InMemoryInputFile(absolutePath: URL(string: "openapi.yaml")!, contents: documentData)
         let outputs = try await withThrowingTaskGroup(of: GeneratorPipeline.RenderedOutput.self) { group in
             for mode in GeneratorMode.allCases {
