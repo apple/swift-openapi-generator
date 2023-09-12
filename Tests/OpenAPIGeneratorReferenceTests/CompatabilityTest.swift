@@ -74,7 +74,7 @@ final class CompatibilityTest: XCTestCase {
 
     func testGithub() async throws {
         try await _test(
-            "https://raw.githubusercontent.com/github/rest-api-description/c8142ac6c70bf74a638137deeecdae4b7fc8eb61/descriptions/api.github.com/api.github.com.yaml",
+            "https://raw.githubusercontent.com/github/rest-api-description/13c873cb3b15ffd5bcd88c6d6270a963ef4518f6/descriptions/api.github.com/api.github.com.yaml",
             license: .mit,
             expectedDiagnostics: []
         )
@@ -82,7 +82,7 @@ final class CompatibilityTest: XCTestCase {
 
     func testGithubEnterprise() async throws {
         try await _test(
-            "https://raw.githubusercontent.com/github/rest-api-description/c8142ac6c70bf74a638137deeecdae4b7fc8eb61/descriptions/ghes-3.5/ghes-3.5.yaml",
+            "https://raw.githubusercontent.com/github/rest-api-description/13c873cb3b15ffd5bcd88c6d6270a963ef4518f6/descriptions/ghes-3.5/ghes-3.5.yaml",
             license: .mit,
             expectedDiagnostics: []
         )
