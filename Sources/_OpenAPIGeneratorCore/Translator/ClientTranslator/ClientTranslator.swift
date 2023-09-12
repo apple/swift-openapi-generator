@@ -38,7 +38,6 @@ struct ClientFileTranslator: FileTranslator {
 
         let imports =
             Constants.File.imports
-            + Constants.Client.scopedImports
             + config.additionalImports
             .map { ImportDescription(moduleName: $0) }
 

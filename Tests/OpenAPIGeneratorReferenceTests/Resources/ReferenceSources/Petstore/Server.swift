@@ -3,8 +3,11 @@
 #if os(Linux)
 @preconcurrency import struct Foundation.URL
 @preconcurrency import struct Foundation.Data
+@preconcurrency import struct Foundation.Date
 #else
-import Foundation
+import struct Foundation.URL
+import struct Foundation.Data
+import struct Foundation.Date
 #endif
 extension APIProtocol {
     /// Registers each operation handler with the provided transport.
