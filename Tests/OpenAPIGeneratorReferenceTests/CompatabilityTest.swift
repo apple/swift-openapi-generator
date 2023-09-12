@@ -260,7 +260,7 @@ fileprivate extension CompatibilityTest {
             process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
             process.arguments = [
                 "bash", "-c",
-                "swift build --package-path \(packageDir.path) --cache-path \(cacheDirectory.path)",
+                "swift build -j 1 --package-path \(packageDir.path) --cache-path \(cacheDirectory.path)",
             ]
             let (stdout, stderr) = (Pipe(), Pipe())
             process.standardOutput = stdout
