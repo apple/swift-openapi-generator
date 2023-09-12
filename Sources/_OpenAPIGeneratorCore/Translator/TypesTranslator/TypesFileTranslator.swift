@@ -38,6 +38,7 @@ struct TypesFileTranslator: FileTranslator {
 
         let imports =
             Constants.File.imports
+            + Constants.Types.scopedImports
             + config.additionalImports
             .map { ImportDescription(moduleName: $0) }
 

@@ -73,9 +73,16 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders a single import statement.
     func renderImport(_ description: ImportDescription) -> String {
-        func render(moduleName: String, spi: String?, preconcurrency: Bool) -> String {
+        func render(moduleName: String, moduleTypes: [String]? = nil, spi: String?, preconcurrency: Bool) -> String {
             let spiPrefix = spi.map { "@_spi(\($0)) " } ?? ""
             let preconcurrencyPrefix = preconcurrency ? "@preconcurrency " : ""
+            var types = [String]()
+            if let moduleTypes, preconcurrency {
+                types = moduleTypes.map {
+                    "\(preconcurrencyPrefix)\(spiPrefix)import \($0)"
+                }
+                return types.joinedLines()
+            }
             return "\(preconcurrencyPrefix)\(spiPrefix)import \(moduleName)"
         }
 
@@ -87,7 +94,14 @@ struct TextBasedRenderer: RendererProtocol {
         case .onOS(let operatingSystems):
             var lines = [String]()
             lines.append("#if \(operatingSystems.map { "os(\($0))" }.joined(separator: " || "))")
-            lines.append(render(moduleName: description.moduleName, spi: description.spi, preconcurrency: true))
+            lines.append(
+                render(
+                    moduleName: description.moduleName,
+                    moduleTypes: description.moduleTypes,
+                    spi: description.spi,
+                    preconcurrency: true
+                )
+            )
             lines.append("#else")
             lines.append(render(moduleName: description.moduleName, spi: description.spi, preconcurrency: false))
             lines.append("#endif")
