@@ -882,7 +882,7 @@ final class Test_Server: XCTestCase {
                     .contentType: "application/octet-stream",
                 ]
             ),
-            .init([[97, 98], [99, 100]], length: .known(4)),
+            .init([97, 98, 99, 100], length: .known(4)),
             .init(
                 pathParameters: [
                     "petId": "1"
@@ -901,7 +901,7 @@ final class Test_Server: XCTestCase {
             Data.abcdString
         )
         let sizes = await chunkSizeCollector.sizes
-        XCTAssertEqual(sizes, [2, 2])
+        XCTAssertEqual(sizes, [4])
     }
 
     func testUploadAvatarForPet_412() async throws {
