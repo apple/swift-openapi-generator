@@ -10,8 +10,8 @@ import Yams
 @testable import _OpenAPIGeneratorCore
 
 final class CompatibilityTest: XCTestCase {
-    let compatibilityTestEnabled = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE")
-    let compatibilityTestSkipBuild = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD")
+    let compatibilityTestEnabled = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE") ?? false
+    let compatibilityTestSkipBuild = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD") ?? false
 
     override func setUp() async throws {
         setbuf(stdout, nil)
@@ -345,8 +345,10 @@ private func assertNoThrowWithValue<T>(
 }
 
 /// Returns true if `key` is a truthy string, otherwise returns false.
-private func getBoolEnv(_ key: String) -> Bool {
-    switch getenv(key).map({ String(cString: $0).lowercased() }) {
+private func getBoolEnv(_ key: String) -> Bool? {
+    switch ProcessInfo.processInfo.environment[key]?.lowercased() {
+    case .none:
+        return nil
     case "true", "y", "yes", "on", "1":
         return true
     default:
