@@ -348,15 +348,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(from decoder: any Decoder) throws {
                         value1 = try .init(from: decoder)
                         value2 = try .init(from: decoder)
-                        value3 = try .init(from: decoder)
-                        value4 = try .init(from: decoder)
+                        value3 = try decoder.decodeFromSingleValueContainer()
+                        value4 = try decoder.decodeFromSingleValueContainer()
                     }
-                    public func encode(to encoder: any Encoder) throws {
-                        try value1.encode(to: encoder)
-                        try value2.encode(to: encoder)
-                        try value3.encode(to: encoder)
-                        try value4.encode(to: encoder)
-                    }
+                    public func encode(to encoder: any Encoder) throws { try encoder.encodeToSingleValueContainer(value3) }
                 }
             }
             """
@@ -401,8 +396,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(from decoder: any Decoder) throws {
                         value1 = try? .init(from: decoder)
                         value2 = try? .init(from: decoder)
-                        value3 = try? .init(from: decoder)
-                        value4 = try? .init(from: decoder)
+                        value3 = try? decoder.decodeFromSingleValueContainer()
+                        value4 = try? decoder.decodeFromSingleValueContainer()
                         try DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [value1, value2, value3, value4],
                             type: Self.self,
@@ -410,10 +405,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         )
                     }
                     public func encode(to encoder: any Encoder) throws {
+                        try encoder.encodeFirstNonNilValueToSingleValueContainer([value3, value4])
                         try value1?.encode(to: encoder)
                         try value2?.encode(to: encoder)
-                        try value3?.encode(to: encoder)
-                        try value4?.encode(to: encoder)
                     }
                 }
             }
@@ -591,11 +585,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     case A(Components.Schemas.A)
                     public init(from decoder: any Decoder) throws {
                         do {
-                            self = .case1(try .init(from: decoder))
+                            self = .case1(try decoder.decodeFromSingleValueContainer())
                             return
                         } catch {}
                         do {
-                            self = .case2(try .init(from: decoder))
+                            self = .case2(try decoder.decodeFromSingleValueContainer())
                             return
                         } catch {}
                         do {
@@ -609,8 +603,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public func encode(to encoder: any Encoder) throws {
                         switch self {
-                        case let .case1(value): try value.encode(to: encoder)
-                        case let .case2(value): try value.encode(to: encoder)
+                        case let .case1(value): try encoder.encodeToSingleValueContainer(value)
+                        case let .case2(value): try encoder.encodeToSingleValueContainer(value)
                         case let .A(value): try value.encode(to: encoder)
                         }
                     }
@@ -650,11 +644,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case A(Components.Schemas.A)
                         public init(from decoder: any Decoder) throws {
                             do {
-                                self = .case1(try .init(from: decoder))
+                                self = .case1(try decoder.decodeFromSingleValueContainer())
                                 return
                             } catch {}
                             do {
-                                self = .case2(try .init(from: decoder))
+                                self = .case2(try decoder.decodeFromSingleValueContainer())
                                 return
                             } catch {}
                             do {
@@ -668,8 +662,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         }
                         public func encode(to encoder: any Encoder) throws {
                             switch self {
-                            case let .case1(value): try value.encode(to: encoder)
-                            case let .case2(value): try value.encode(to: encoder)
+                            case let .case1(value): try encoder.encodeToSingleValueContainer(value)
+                            case let .case2(value): try encoder.encodeToSingleValueContainer(value)
                             case let .A(value): try value.encode(to: encoder)
                             }
                         }
@@ -720,12 +714,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(value1: Components.Schemas.A) {
                         self.value1 = value1
                     }
-                    public init(from decoder: any Decoder) throws {
-                        value1 = try .init(from: decoder)
-                    }
-                    public func encode(to encoder: any Encoder) throws {
-                        try value1.encode(to: encoder)
-                    }
+                    public init(from decoder: any Decoder) throws { value1 = try decoder.decodeFromSingleValueContainer() }
+                    public func encode(to encoder: any Encoder) throws { try encoder.encodeToSingleValueContainer(value1) }
                 }
             }
             """
@@ -754,8 +744,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public struct cPayload: Codable, Hashable, Sendable {
                         public var value1: Components.Schemas.A
                         public init(value1: Components.Schemas.A) { self.value1 = value1 }
-                        public init(from decoder: any Decoder) throws { value1 = try .init(from: decoder) }
-                        public func encode(to encoder: any Encoder) throws { try value1.encode(to: encoder) }
+                        public init(from decoder: any Decoder) throws { value1 = try decoder.decodeFromSingleValueContainer() }
+                        public func encode(to encoder: any Encoder) throws { try encoder.encodeToSingleValueContainer(value1) }
                     }
                     public var c: Components.Schemas.B.cPayload
                     public init(c: Components.Schemas.B.cPayload) { self.c = c }
@@ -787,8 +777,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public struct cPayload: Codable, Hashable, Sendable {
                         public var value1: Components.Schemas.A
                         public init(value1: Components.Schemas.A) { self.value1 = value1 }
-                        public init(from decoder: any Decoder) throws { value1 = try .init(from: decoder) }
-                        public func encode(to encoder: any Encoder) throws { try value1.encode(to: encoder) }
+                        public init(from decoder: any Decoder) throws { value1 = try decoder.decodeFromSingleValueContainer() }
+                        public func encode(to encoder: any Encoder) throws { try encoder.encodeToSingleValueContainer(value1) }
                     }
                     public var c: Components.Schemas.B.cPayload?
                     public init(c: Components.Schemas.B.cPayload? = nil) { self.c = c }
@@ -877,8 +867,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         self.value2 = value2
                     }
                     public init(from decoder: any Decoder) throws {
-                        value1 = try? .init(from: decoder)
-                        value2 = try? .init(from: decoder)
+                        value1 = try? decoder.decodeFromSingleValueContainer()
+                        value2 = try? decoder.decodeFromSingleValueContainer()
                         try DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [value1, value2],
                             type: Self.self,
@@ -886,8 +876,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         )
                     }
                     public func encode(to encoder: any Encoder) throws {
-                        try value1?.encode(to: encoder)
-                        try value2?.encode(to: encoder)
+                        try encoder.encodeFirstNonNilValueToSingleValueContainer([value1, value2])
                     }
                 }
             }

@@ -210,16 +210,32 @@ extension FileTranslator {
     /// - Parameter schema: A schemas to check.
     func isObjectishSchemaAndSupported(_ schema: JSONSchema) throws -> IsSchemaSupportedResult {
         switch schema.value {
-        case .object, .reference:
+        case .object:
             return try isSchemaSupported(schema)
+        case .reference:
+            return try isRefToObjectishSchemaAndSupported(schema)
         case .all(of: let schemas, _), .any(of: let schemas, _), .one(of: let schemas, _):
-            return try areSchemasSupported(schemas)
+            return try areObjectishSchemasAndSupported(schemas)
         default:
             return .unsupported(
                 reason: .notObjectish,
                 schema: schema
             )
         }
+    }
+
+    /// Returns a result indicating whether the provided schemas
+    /// are object-ish schemas and supported.
+    /// - Parameter schemas: Schemas to check.
+    /// - Returns: `.supported` if all schemas match; `.unsupported` otherwise.
+    func areObjectishSchemasAndSupported(_ schemas: [JSONSchema]) throws -> IsSchemaSupportedResult {
+        for schema in schemas {
+            let result = try isObjectishSchemaAndSupported(schema)
+            guard result == .supported else {
+                return result
+            }
+        }
+        return .supported
     }
 
     /// Returns a result indicating whether the provided schemas

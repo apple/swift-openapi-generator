@@ -124,6 +124,72 @@ final class Test_Types: XCTestCase {
         )
     }
 
+    func testAllAnyOneOf_withDate_roundtrip() throws {
+        func testJSON<T: Codable & Equatable>(
+            _ value: T,
+            expectedJSON: String,
+            file: StaticString = #file,
+            line: UInt = #line
+        ) throws {
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let data = try encoder.encode(value)
+            XCTAssertEqual(String(decoding: data, as: UTF8.self), expectedJSON, file: file, line: line)
+            let decodedValue = try decoder.decode(T.self, from: data)
+            XCTAssertEqual(decodedValue, value, file: file, line: line)
+        }
+
+        try testJSON(
+            Components.Schemas.MixedAnyOf(
+                value1: Date(timeIntervalSince1970: 1_674_036_251),
+                value4: #"2023-01-18T10:04:11Z"#
+            ),
+            expectedJSON: #""2023-01-18T10:04:11Z""#
+        )
+        try testJSON(
+            Components.Schemas.MixedAnyOf(
+                value2: .BIG_ELEPHANT_1,
+                value4: #"BIG_ELEPHANT_1"#
+            ),
+            expectedJSON: #""BIG_ELEPHANT_1""#
+        )
+        try testJSON(
+            Components.Schemas.MixedAnyOf(
+                value3: .init(id: 1, name: "Fluffz")
+            ),
+            expectedJSON: #"{"id":1,"name":"Fluffz"}"#
+        )
+
+        try testJSON(
+            Components.Schemas.MixedOneOf.case1(
+                Date(timeIntervalSince1970: 1_674_036_251)
+            ),
+            expectedJSON: #""2023-01-18T10:04:11Z""#
+        )
+        try testJSON(
+            Components.Schemas.MixedOneOf.PetKind(
+                .BIG_ELEPHANT_1
+            ),
+            expectedJSON: #""BIG_ELEPHANT_1""#
+        )
+        try testJSON(
+            Components.Schemas.MixedOneOf.Pet(
+                .init(id: 1, name: "Fluffz")
+            ),
+            expectedJSON: #"{"id":1,"name":"Fluffz"}"#
+        )
+
+        try testJSON(
+            Components.Schemas.MixedAllOfPrimitive(
+                value1: Date(timeIntervalSince1970: 1_674_036_251),
+                value2: #"2023-01-18T10:04:11Z"#
+            ),
+            expectedJSON: #""2023-01-18T10:04:11Z""#
+        )
+    }
+
     func testAllOf_missingProperty() throws {
         XCTAssertThrowsError(
             try testDecoder.decode(
