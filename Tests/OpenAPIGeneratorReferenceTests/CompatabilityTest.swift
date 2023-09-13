@@ -216,14 +216,7 @@ fileprivate extension CompatibilityTest {
                 isDirectory: true
             )
 
-            log(
-                """
-                Creating Swift package harness for \(testCaseName):
-                    Package name: \(packageName)
-                    Package path: \(packageDir.path)
-                    Cache path: \(cacheDirectory.path)
-                """
-            )
+            log("Creating Swift package: \(packageDir.path)")
             XCTAssertNoThrow(try FileManager.default.createDirectory(at: packageDir, withIntermediateDirectories: true))
             let packageSwiftPath = packageDir.appendingPathComponent("Package.swift", isDirectory: false)
             let packageSwiftContents = """
@@ -255,7 +248,6 @@ fileprivate extension CompatibilityTest {
             }
 
             // Build the package.
-            log("Building Swift package: \(packageDir.path)")
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
             process.arguments = [
@@ -265,6 +257,7 @@ fileprivate extension CompatibilityTest {
             let (stdout, stderr) = (Pipe(), Pipe())
             process.standardOutput = stdout
             process.standardError = stderr
+            log("Building Swift package: \(process.arguments!)")
             try process.run()
             process.waitUntilExit()
             XCTAssertEqual(
