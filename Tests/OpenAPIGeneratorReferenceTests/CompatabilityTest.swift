@@ -268,6 +268,7 @@ fileprivate extension CompatibilityTest {
                 "swift", "build",
                 "--package-path", packageDir.path,
                 "--cache-path", cacheDirectory.path,
+                "-Xswiftc", "-Xllvm", "-Xswiftc", "-vectorize-slp=false",
             ]
             if let numBuildJobs = compatibilityTestNumBuildJobs {
                 process.arguments!.append(contentsOf: ["-j", String(numBuildJobs)])
