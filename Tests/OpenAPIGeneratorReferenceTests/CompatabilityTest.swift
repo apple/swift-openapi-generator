@@ -12,6 +12,7 @@ import Yams
 final class CompatibilityTest: XCTestCase {
     let compatibilityTestEnabled = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE") ?? false
     let compatibilityTestSkipBuild = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD") ?? false
+    let compatibilityTestParralelCodegen = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_PARALLEL_CODEGEN") ?? false
 
     override func setUp() async throws {
         setbuf(stdout, nil)
@@ -188,18 +189,30 @@ fileprivate extension CompatibilityTest {
         // Run the generator.
         log("Generating Swift code (document size: \(documentSize))")
         let input = InMemoryInputFile(absolutePath: URL(string: "openapi.yaml")!, contents: documentData)
-        let outputs = try await withThrowingTaskGroup(of: GeneratorPipeline.RenderedOutput.self) { group in
-            for mode in GeneratorMode.allCases {
-                group.addTask {
-                    let generator = makeGeneratorPipeline(
-                        formatter: { $0 },
-                        config: Config(mode: mode),
-                        diagnostics: diagnosticsCollector
-                    )
-                    return try assertNoThrowWithValue(generator.run(input))
+        let outputs: [GeneratorPipeline.RenderedOutput]
+        if compatibilityTestParralelCodegen {
+            outputs = try await withThrowingTaskGroup(of: GeneratorPipeline.RenderedOutput.self) { group in
+                for mode in GeneratorMode.allCases {
+                    group.addTask {
+                        let generator = makeGeneratorPipeline(
+                            formatter: { $0 },
+                            config: Config(mode: mode),
+                            diagnostics: diagnosticsCollector
+                        )
+                        return try assertNoThrowWithValue(generator.run(input))
+                    }
                 }
+                return try await group.reduce(into: []) { $0.append($1) }
             }
-            return try await group.reduce(into: []) { $0.append($1) }
+        } else {
+            outputs = try GeneratorMode.allCases.map { mode in
+                let generator = makeGeneratorPipeline(
+                    formatter: { $0 },
+                    config: Config(mode: mode),
+                    diagnostics: diagnosticsCollector
+                )
+                return try assertNoThrowWithValue(generator.run(input))
+            }
         }
         XCTAssertEqual(Set(diagnosticsCollector.diagnostics.map(\.message)), expectedDiagnostics)
         XCTAssertEqual(outputs.count, 3)
