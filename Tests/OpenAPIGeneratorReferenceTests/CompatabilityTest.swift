@@ -13,6 +13,7 @@ final class CompatibilityTest: XCTestCase {
     let compatibilityTestEnabled = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE") ?? false
     let compatibilityTestSkipBuild = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD") ?? false
     let compatibilityTestParralelCodegen = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_PARALLEL_CODEGEN") ?? false
+    let compatibilityTestNumBuildJobs = getIntEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_NUM_BUILD_JOBS")
 
     override func setUp() async throws {
         setbuf(stdout, nil)
@@ -264,13 +265,17 @@ fileprivate extension CompatibilityTest {
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
             process.arguments = [
-                "bash", "-c",
-                "swift build -j 1 --package-path \(packageDir.path) --cache-path \(cacheDirectory.path)",
+                "swift", "build",
+                "--package-path", packageDir.path,
+                "--cache-path", cacheDirectory.path,
             ]
+            if let numBuildJobs = compatibilityTestNumBuildJobs {
+                process.arguments!.append(contentsOf: ["-j", String(numBuildJobs)])
+            }
+            log("Building Swift package: \(process.arguments!)")
             let (stdout, stderr) = (Pipe(), Pipe())
             process.standardOutput = stdout
             process.standardError = stderr
-            log("Building Swift package: \(process.arguments!)")
             try process.run()
             process.waitUntilExit()
             XCTAssertEqual(
@@ -367,6 +372,10 @@ private func getBoolEnv(_ key: String) -> Bool? {
     default:
         return false
     }
+}
+
+private func getIntEnv(_ key: String) -> Int? {
+    ProcessInfo.processInfo.environment[key].flatMap(Int.init(_:))
 }
 
 fileprivate extension URLSession {
