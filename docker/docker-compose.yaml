@@ -42,7 +42,7 @@ services:
     environment:
       SWIFT_OPENAPI_GENERATOR_REPO_URL: file:///code
 
-  compatibility-test: &HACK
+  compatibility-test:
     <<: *common
     command: /bin/bash -xcl "cat /proc/cpuinfo && cat /proc/meminfo && swift test --filter $${SWIFT_OPENAPI_COMPATIBILITY_TEST_FILTER}"
     environment:  # These can be overridden when running locally.
@@ -52,8 +52,8 @@ services:
       SWIFT_OPENAPI_COMPATIBILITY_TEST_PARALLEL_CODEGEN: "true"
       SWIFT_OPENAPI_COMPATIBILITY_TEST_NUM_BUILD_JOBS: 1
 
-  docc-test: *HACK
-    # <<: *common
-    # command: /bin/bash -xcl "swift -version && uname -a && bash ./scripts/check-for-docc-warnings.sh"
-    # environment:
-      # DOCC_TARGET: swift-openapi-generator
+  docc-test:
+    <<: *common
+    command: /bin/bash -xcl "swift -version && uname -a && bash ./scripts/check-for-docc-warnings.sh"
+    environment:
+      DOCC_TARGET: swift-openapi-generator
