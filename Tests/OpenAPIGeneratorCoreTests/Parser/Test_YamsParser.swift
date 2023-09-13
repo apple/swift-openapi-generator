@@ -123,7 +123,7 @@ final class Test_YamsParser: Test_Core {
             /foo.yaml: error: Found neither a $ref nor a PathItem in Document.paths['/system']. 
 
             PathItem could not be decoded because:
-            Expected to find `responses` key for the **GET** endpoint under `/system` but it is missing..
+            Inconsistency encountered when parsing `Vendor Extension` for the **GET** endpoint under `/system`: Found at least one vendor extension property that does not begin with the required 'x-' prefix. Invalid properties: [ resonance ]..
             """
         assertThrownError(try _test(yaml), expectedDiagnostic: expected)
     }
@@ -148,7 +148,8 @@ final class Test_YamsParser: Test_Core {
     ) {
         XCTAssertThrowsError(try closure(), file: file, line: line) { error in
             if let exitError = error as? Diagnostic {
-                XCTAssertEqual(exitError.localizedDescription, expectedDiagnostic, file: file, line: line)
+                let actualDiagnostic = exitError.localizedDescription
+                XCTAssertEqual(actualDiagnostic, expectedDiagnostic, file: file, line: line)
             } else {
                 XCTFail("Thrown error is \(type(of: error)) but should be Diagnostic", file: file, line: line)
             }
