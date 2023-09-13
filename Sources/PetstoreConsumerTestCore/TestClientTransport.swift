@@ -18,7 +18,7 @@ import HTTPTypes
 public struct TestClientTransport: ClientTransport {
 
     public typealias CallHandler = @Sendable (HTTPRequest, HTTPBody?, URL, String) async throws -> (
-        HTTPResponse, HTTPBody
+        HTTPResponse, HTTPBody?
     )
 
     public let callHandler: CallHandler
@@ -32,7 +32,7 @@ public struct TestClientTransport: ClientTransport {
         body: HTTPBody?,
         baseURL: URL,
         operationID: String
-    ) async throws -> (HTTPResponse, HTTPBody) {
+    ) async throws -> (HTTPResponse, HTTPBody?) {
         try await callHandler(request, body, baseURL, operationID)
     }
 }
