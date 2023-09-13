@@ -46,10 +46,10 @@ services:
     <<: *common
     command: /bin/bash -xcl "cat /proc/cpuinfo && cat /proc/meminfo && swift test --parallel --num-workers $$(($$(nproc)-1)) --filter $${SWIFT_OPENAPI_COMPATIBILITY_TEST_FILTER}"
     environment:  # These can be overridden when running locally.
-      SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE: true
-      SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD: true
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE: "true"
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD: "true"
       SWIFT_OPENAPI_COMPATIBILITY_TEST_FILTER: OpenAPIGeneratorReferenceTests.CompatibilityTest
-      SWIFT_OPENAPI_COMPATIBILITY_TEST_PARALLEL_CODEGEN: true
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_PARALLEL_CODEGEN: "true"
       SWIFT_OPENAPI_COMPATIBILITY_TEST_NUM_BUILD_JOBS: 1
 
   docc-test: *HACK
