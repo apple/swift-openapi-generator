@@ -42,6 +42,16 @@ services:
     environment:
       SWIFT_OPENAPI_GENERATOR_REPO_URL: file:///code
 
+  compatibility-test:
+    <<: *common
+    command: /bin/bash -xcl "cat /proc/cpuinfo && cat /proc/meminfo && swift test --filter $${SWIFT_OPENAPI_COMPATIBILITY_TEST_FILTER}"
+    environment:  # These can be overridden when running locally.
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE: "true"
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD: "true"
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_FILTER: OpenAPIGeneratorReferenceTests.CompatibilityTest
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_PARALLEL_CODEGEN: "true"
+      SWIFT_OPENAPI_COMPATIBILITY_TEST_NUM_BUILD_JOBS: 1
+
   docc-test:
     <<: *common
     command: /bin/bash -xcl "swift -version && uname -a && bash ./scripts/check-for-docc-warnings.sh"
