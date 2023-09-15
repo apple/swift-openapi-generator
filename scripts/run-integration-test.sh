@@ -24,7 +24,7 @@ JQ_BIN=${JQ_BIN:-$(command -v jq)} || fatal "JQ_BIN unset and no jq on PATH"
 
 CURRENT_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$(git -C "${CURRENT_SCRIPT_DIR}" rev-parse --show-toplevel)"
-TMP_DIR=$(mktemp -d "${PWD}/tmp.$(basename "$0").XXXXXXXXXX.noindex")
+TMP_DIR=$(/usr/bin/mktemp -d -p "${TMPDIR-/tmp}" "$(basename "$0").XXXXXXXXXX")
 
 PACKAGE_PATH=${PACKAGE_PATH:-${REPO_ROOT}}
 

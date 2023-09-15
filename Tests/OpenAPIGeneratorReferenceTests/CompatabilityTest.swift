@@ -238,10 +238,7 @@ fileprivate extension CompatibilityTest {
                 "\(packageName)-\(UUID().uuidString.prefix(8))",
                 isDirectory: true
             )
-            let cacheDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(
-                "swift-openapi-compatibility-test-shared-cache",
-                isDirectory: true
-            )
+            defer { try? FileManager.default.removeItem(at: packageDir) }
 
             log("Creating Swift package: \(packageDir.path)")
             XCTAssertNoThrow(try FileManager.default.createDirectory(at: packageDir, withIntermediateDirectories: true))
@@ -280,7 +277,6 @@ fileprivate extension CompatibilityTest {
             process.arguments = [
                 "swift", "build",
                 "--package-path", packageDir.path,
-                "--cache-path", cacheDirectory.path,
                 "-Xswiftc", "-Xllvm", "-Xswiftc", "-vectorize-slp=false",
             ]
             if let numBuildJobs = compatibilityTestNumBuildJobs {
