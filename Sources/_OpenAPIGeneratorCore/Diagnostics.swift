@@ -15,7 +15,7 @@ import Foundation
 import OpenAPIKit
 
 /// A message emitted by the generator.
-public struct Diagnostic: Error, Codable {
+public struct Diagnostic: Error, Codable, Sendable {
 
     /// Describes the severity of a diagnostic.
     public enum Severity: String, Codable, Sendable {
@@ -327,8 +327,7 @@ struct PrintingDiagnosticCollector: DiagnosticCollector {
 }
 
 /// A diagnostic collector that prints diagnostics to standard error.
-public struct StdErrPrintingDiagnosticCollector: DiagnosticCollector {
-
+public struct StdErrPrintingDiagnosticCollector: DiagnosticCollector, Sendable {
     /// Creates a new collector.
     public init() {}
 
