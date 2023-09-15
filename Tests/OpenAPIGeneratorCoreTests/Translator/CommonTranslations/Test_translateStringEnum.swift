@@ -38,6 +38,16 @@ final class Test_translateStringEnum: Test_Core {
         XCTAssertEqual(names, ["a", "_empty"])
     }
 
+    func testCaseValuesForIntegerSchema() throws {
+        let names = try _caseValues(
+            .integer(
+                allowedValues: -1,
+                1
+            )
+        )
+        XCTAssertEqual(names, ["_n1", "_1"])
+    }
+
     func _caseValues(_ schema: JSONSchema) throws -> [String] {
         self.continueAfterFailure = false
         let translator = makeTypesTranslator()
