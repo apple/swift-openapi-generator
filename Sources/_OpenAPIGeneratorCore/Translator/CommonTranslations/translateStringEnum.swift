@@ -61,7 +61,7 @@ extension FileTranslator {
                     guard let rawValue = anyValue as? Int else {
                         throw GenericError(message: "Disallowed value for an integer enum '\(typeName)': \(anyValue)")
                     }
-                    let caseName = "_\(rawValue)"
+                    let caseName = rawValue < 0 ? "_n\(abs(rawValue))" : "_\(rawValue)"
                     return (caseName, .int(rawValue))
                 }
             }
