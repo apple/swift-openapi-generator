@@ -44,7 +44,7 @@ struct ContentType: Hashable {
         /// The bytes are not further processed, they are instead passed along
         /// either to the network (requests) or to the caller (responses).
         case binary
-        
+
         /// A content type for x-www-form-urlencoded.
         ///
         /// The top level properties of a Codable data model are encoded
@@ -249,7 +249,7 @@ struct ContentType: Hashable {
     var isBinary: Bool {
         category == .binary
     }
-    
+
     var isUrlEncodedForm: Bool {
         category == .urlEncodedForm
     }
@@ -283,7 +283,7 @@ extension OpenAPI.ContentType {
     var isBinary: Bool {
         asGeneratorContentType.isBinary
     }
-    
+
     var isUrlEncodedForm: Bool {
         asGeneratorContentType.isUrlEncodedForm
     }

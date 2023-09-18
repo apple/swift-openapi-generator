@@ -260,7 +260,8 @@ extension FileTranslator {
             let contentType = ContentType(contentKey.typeAndSubtype)
             return .init(
                 contentType: contentType,
-                schema: contentValue.schema)
+                schema: contentValue.schema
+            )
         }
         if !excludeBinary, contentKey.isBinary {
             let contentType = contentKey.asGeneratorContentType

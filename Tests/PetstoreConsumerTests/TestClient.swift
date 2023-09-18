@@ -36,8 +36,9 @@ struct TestClient: APIProtocol {
         }
         return try await block(input)
     }
-    
-    typealias CreatePetWithFormSignature = @Sendable (Operations.createPetWithForm.Input) async throws -> Operations.createPetWithForm.Output
+
+    typealias CreatePetWithFormSignature = @Sendable (Operations.createPetWithForm.Input) async throws ->
+        Operations.createPetWithForm.Output
     var createPetWithFormBlock: CreatePetWithFormSignature?
     func createPetWithForm(
         _ input: Operations.createPetWithForm.Input
@@ -92,7 +93,8 @@ struct TestClient: APIProtocol {
         return try await block(input)
     }
 
-    typealias UploadAvatarForPetSignature = @Sendable (Operations.uploadAvatarForPet.Input) async throws -> Operations
+    typealias UploadAvatarForPetSignature = @Sendable (Operations.uploadAvatarForPet.Input) async throws ->
+        Operations
         .uploadAvatarForPet.Output
     var uploadAvatarForPetBlock: UploadAvatarForPetSignature?
     func uploadAvatarForPet(
