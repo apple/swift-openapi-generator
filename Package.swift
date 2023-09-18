@@ -80,7 +80,7 @@ let package = Package(
         // Tests-only: Runtime library linked by generated code, and also
         // helps keep the runtime library new enough to work with the generated
         // code.
-        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.2.0")),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.2.2")),
 
         // Build and preview docs
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
