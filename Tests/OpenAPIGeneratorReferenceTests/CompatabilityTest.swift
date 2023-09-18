@@ -332,7 +332,7 @@ fileprivate extension CompatibilityTest {
 }
 
 /// Records diagnostics into an array for testing.
-private final class RecordingDiagnosticCollector: DiagnosticCollector {
+private final class RecordingDiagnosticCollector: DiagnosticCollector, @unchecked Sendable {
     private let lock = NSLock()
     private var _diagnostics: [Diagnostic] = []
     var diagnostics: [Diagnostic] {
