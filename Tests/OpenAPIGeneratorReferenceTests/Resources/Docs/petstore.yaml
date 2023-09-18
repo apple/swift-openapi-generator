@@ -256,6 +256,24 @@ components:
           type: string
         kind:
           $ref: '#/components/schemas/PetKind'
+    MixedAnyOf:
+      anyOf:
+        - type: string
+          format: date-time
+        - $ref: '#/components/schemas/PetKind'
+        - $ref: "#/components/schemas/Pet"
+        - type: string
+    MixedOneOf:
+      oneOf:
+        - type: string
+          format: date-time
+        - $ref: '#/components/schemas/PetKind'
+        - $ref: "#/components/schemas/Pet"
+    MixedAllOfPrimitive:
+      allOf:
+        - type: string
+          format: date-time
+        - type: string
     PetKind:
       type: string
       description: "Kind of pet"

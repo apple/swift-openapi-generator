@@ -153,7 +153,7 @@ struct TypeMatcher {
     }
 
     /// Returns a Boolean value that indicates whether the schema
-    /// needs to be defined inline..
+    /// needs to be defined inline.
     ///
     /// An inlinable type is the inverse of a referenceable type.
     ///
@@ -166,7 +166,7 @@ struct TypeMatcher {
     }
 
     /// Returns a Boolean value that indicates whether the schema
-    /// needs to be defined inline..
+    /// needs to be defined inline.
     ///
     /// An inlinable type is the inverse of a referenceable type.
     ///
@@ -178,6 +178,71 @@ struct TypeMatcher {
         _ schema: UnresolvedSchema?
     ) -> Bool {
         !isReferenceable(schema)
+    }
+
+    /// Returns a Boolean value that indicates whether the schema
+    /// is a key-value pair schema, for example an object.
+    ///
+    /// Key-value pair schemas can be combined together, but no other schemas
+    /// (such as arrays and primitive values) can. This limitation is also
+    /// present in encoders and decoders, so we have to generate the correct
+    /// call based on the schema kind.
+    ///
+    /// - Parameters:
+    ///   - schema: The schema to check.
+    ///   - components: The reusable components from the OpenAPI document.
+    /// - Returns: `true` if the schema is a key-value pair; `false` otherwise.
+    static func isKeyValuePair(
+        _ schema: JSONSchema,
+        components: OpenAPI.Components
+    ) throws -> Bool {
+        switch schema.value {
+        case .object, .fragment:
+            return true
+        case .null, .boolean, .number, .integer, .string, .array, .not:
+            return false
+        case .all(let subschemas, _):
+            // An allOf is a key-value pair schema iff all of its subschemas
+            // also are.
+            return try subschemas.allSatisfy { try isKeyValuePair($0, components: components) }
+        case .one(let subschemas, _), .any(let subschemas, _):
+            // A oneOf/anyOf is a key-value pair schema if at least one
+            // subschema is as well, unfortunately the rest is only known
+            // at runtime, so we can't validate beyond that here.
+            return try subschemas.contains { try isKeyValuePair($0, components: components) }
+        case .reference(let ref, _):
+            return try isKeyValuePair(components.lookup(ref), components: components)
+        }
+    }
+
+    /// Returns a Boolean value that indicates whether the schema
+    /// is a key-value pair schema, for example an object.
+    ///
+    /// Key-value pair schemas can be combined together, but no other schemas
+    /// (such as arrays and primitive values) can. This limitation is also
+    /// present in encoders and decoders, so we have to generate the correct
+    /// call based on the schema kind.
+    ///
+    /// - Parameters:
+    ///   - schema: The schema to check.
+    ///   - components: The reusable components from the OpenAPI document.
+    /// - Returns: `true` if the schema is a key-value pair; `false` otherwise.
+    static func isKeyValuePair(
+        _ schema: UnresolvedSchema?,
+        components: OpenAPI.Components
+    ) throws -> Bool {
+        guard let schema else {
+            // fragment type is a key-value pair schema
+            return true
+        }
+        let schemaToCheck: JSONSchema
+        switch schema {
+        case .a(let ref):
+            schemaToCheck = try components.lookup(ref)
+        case let .b(schema):
+            schemaToCheck = schema
+        }
+        return try isKeyValuePair(schemaToCheck, components: components)
     }
 
     // MARK: - Private
