@@ -353,7 +353,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    @available(*, deprecated) func probe(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
+    func probe(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
         try await handle(
             request: request,
             with: metadata,
