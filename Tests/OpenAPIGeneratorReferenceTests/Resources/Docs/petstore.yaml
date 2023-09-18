@@ -141,7 +141,6 @@ paths:
   /probe/:
     post:
       operationId: probe
-      deprecated: true
       responses:
         '204':
           description: Ack
@@ -229,13 +228,6 @@ components:
       schema:
         type: integer
         format: int64
-    header.deprecatedHeader:
-      name: deprecatedHeader
-      in: header
-      deprecated: true
-      description: A deprecated header parameter
-      schema:
-        type: string
   schemas:
     Pet:
       type: object
@@ -277,7 +269,6 @@ components:
     PetKind:
       type: string
       description: "Kind of pet"
-      deprecated: true
       enum:
         - cat
         - dog
@@ -421,17 +412,6 @@ components:
         - $ref: '#/components/schemas/MessagedExercise'
       discriminator:
         propertyName: kind
-    DeprecatedObject:
-      deprecated: true
-      type: object
-      properties: {}
-      additionalProperties: false
-    ObjectWithDeprecatedProperty:
-      type: object
-      properties:
-        message:
-          type: string
-          deprecated: true
     PetStats:
       type: object
       properties:
