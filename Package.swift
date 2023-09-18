@@ -12,6 +12,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+import Foundation
 import PackageDescription
 
 // General Swift-settings for all targets.
@@ -23,6 +24,15 @@ swiftSettings.append(
     // Require `any` for existential types.
     .enableUpcomingFeature("ExistentialAny")
 )
+
+// Strict concurrency is enabled in CI; use this environment variable to enable it locally.
+if ProcessInfo.processInfo.environment["SWIFT_OPENAPI_STRICT_CONCURRENCY"].flatMap(Bool.init) ?? false {
+    #warning("Compiling with Strict Concurrency")
+    swiftSettings.append(contentsOf: [
+        .enableExperimentalFeature("StrictConcurrency"),
+        .unsafeFlags(["-warnings-as-errors"]),
+    ])
+}
 #endif
 
 let package = Package(
