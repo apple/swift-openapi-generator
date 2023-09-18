@@ -32,7 +32,7 @@ public protocol APIProtocol: Sendable {
     func postStats(_ input: Operations.postStats.Input) async throws -> Operations.postStats.Output
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    @available(*, deprecated) func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output
+    func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output
     /// Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
     ///
     /// - Remark: HTTP `PATCH /pets/{petId}`.
@@ -496,23 +496,6 @@ public enum Components {
                 }
             }
         }
-        /// - Remark: Generated from `#/components/schemas/DeprecatedObject`.
-        @available(*, deprecated) public struct DeprecatedObject: Codable, Hashable, Sendable {
-            /// Creates a new `DeprecatedObject`.
-            public init() {}
-            public init(from decoder: any Decoder) throws { try decoder.ensureNoAdditionalProperties(knownKeys: []) }
-        }
-        /// - Remark: Generated from `#/components/schemas/ObjectWithDeprecatedProperty`.
-        public struct ObjectWithDeprecatedProperty: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/ObjectWithDeprecatedProperty/message`.
-            @available(*, deprecated) public var message: Swift.String?
-            /// Creates a new `ObjectWithDeprecatedProperty`.
-            ///
-            /// - Parameters:
-            ///   - message:
-            public init(message: Swift.String? = nil) { self.message = message }
-            public enum CodingKeys: String, CodingKey { case message }
-        }
         /// - Remark: Generated from `#/components/schemas/PetStats`.
         public struct PetStats: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/PetStats/count`.
@@ -535,10 +518,6 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/parameters/path.petId`.
         public typealias path_period_petId = Swift.Int64
-        /// A deprecated header parameter
-        ///
-        /// - Remark: Generated from `#/components/parameters/header.deprecatedHeader`.
-        public typealias header_period_deprecatedHeader = Swift.String
     }
     /// Types generated from the `#/components/requestBodies` section of the OpenAPI document.
     public enum RequestBodies {
