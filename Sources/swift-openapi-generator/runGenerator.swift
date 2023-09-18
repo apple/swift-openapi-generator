@@ -11,7 +11,14 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import Foundation
+#if os(Linux)
+@preconcurrency import struct Foundation.URL
+@preconcurrency import struct Foundation.Data
+#else
+import struct Foundation.URL
+import struct Foundation.Data
+#endif
+import class Foundation.FileManager
 import ArgumentParser
 import _OpenAPIGeneratorCore
 
