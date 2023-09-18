@@ -42,6 +42,12 @@ extension APIProtocol {
             queryItemNames: []
         )
         try transport.register(
+            { try await server.createPetWithForm(request: $0, metadata: $1) },
+            method: .post,
+            path: server.apiPathComponentsWithServerPrefix(["pets", "create"]),
+            queryItemNames: []
+        )
+        try transport.register(
             { try await server.getStats(request: $0, metadata: $1) },
             method: .get,
             path: server.apiPathComponentsWithServerPrefix(["pets", "stats"]),
@@ -230,6 +236,88 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 case let .clientError(statusCode, value):
                     suppressUnusedWarning(value)
                     var response = Response(statusCode: statusCode)
+                    suppressMutabilityWarning(&response)
+                    try converter.setHeaderFieldAsURI(
+                        in: &response.headerFields,
+                        name: "X-Reason",
+                        value: value.headers.X_hyphen_Reason
+                    )
+                    switch value.body {
+                    case let .json(value):
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
+                        response.body = try converter.setResponseBodyAsJSON(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return response
+                case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
+                }
+            }
+        )
+    }
+    /// Create a pet using a url form
+    ///
+    /// - Remark: HTTP `POST /pets/create`.
+    /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
+    func createPetWithForm(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
+        try await handle(
+            request: request,
+            with: metadata,
+            forOperation: Operations.createPetWithForm.id,
+            using: { APIHandler.createPetWithForm($0) },
+            deserializer: { request, metadata in
+                let headers: Operations.createPetWithForm.Input.Headers = .init(
+                    X_hyphen_Extra_hyphen_Arguments: try converter.getOptionalHeaderFieldAsJSON(
+                        in: request.headerFields,
+                        name: "X-Extra-Arguments",
+                        as: Components.Schemas.CodeError.self
+                    ),
+                    accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
+                )
+                let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                let body: Operations.createPetWithForm.Input.Body
+                if try contentType == nil
+                    || converter.isMatchingContentType(
+                        received: contentType,
+                        expectedRaw: "application/x-www-form-urlencoded"
+                    )
+                {
+                    body = try converter.getRequiredRequestBodyAsURLEncodedForm(
+                        Components.Schemas.CreatePetRequest.self,
+                        from: request.body,
+                        transforming: { value in .urlEncodedForm(value) }
+                    )
+                } else {
+                    throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                }
+                return Operations.createPetWithForm.Input(headers: headers, body: body)
+            },
+            serializer: { output, request in
+                switch output {
+                case let .created(value):
+                    suppressUnusedWarning(value)
+                    var response = Response(statusCode: 201)
+                    suppressMutabilityWarning(&response)
+                    try converter.setHeaderFieldAsJSON(
+                        in: &response.headerFields,
+                        name: "X-Extra-Arguments",
+                        value: value.headers.X_hyphen_Extra_hyphen_Arguments
+                    )
+                    switch value.body {
+                    case let .json(value):
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
+                        response.body = try converter.setResponseBodyAsJSON(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return response
+                case let .badRequest(value):
+                    suppressUnusedWarning(value)
+                    var response = Response(statusCode: 400)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,

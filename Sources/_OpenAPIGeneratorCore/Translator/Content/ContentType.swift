@@ -44,6 +44,16 @@ struct ContentType: Hashable {
         /// The bytes are not further processed, they are instead passed along
         /// either to the network (requests) or to the caller (responses).
         case binary
+        
+        /// A content type for x-www-form-urlencoded.
+        ///
+        /// The top level properties of a Codable data model are encoded
+        /// as key-value pairs in the form:
+        ///
+        ///  `key1=value1&key2=value2`
+        ///
+        /// The type is encoded as a binary UTF-8 data packet.
+        case urlEncodedForm
 
         /// Creates a category from the provided type and subtype.
         ///
@@ -59,6 +69,8 @@ struct ContentType: Hashable {
                 self = .json
             } else if lowercasedType == "text" {
                 self = .text
+            } else if lowercasedType == "application" && lowercasedSubtype == "x-www-form-urlencoded" {
+                self = .urlEncodedForm
             } else {
                 self = .binary
             }
@@ -73,6 +85,8 @@ struct ContentType: Hashable {
                 return .string
             case .binary:
                 return .binary
+            case .urlEncodedForm:
+                return .urlEncodedForm
             }
         }
     }
@@ -235,6 +249,10 @@ struct ContentType: Hashable {
     var isBinary: Bool {
         category == .binary
     }
+    
+    var isUrlEncodedForm: Bool {
+        category == .urlEncodedForm
+    }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         // MIME type equality is case-insensitive.
@@ -265,7 +283,10 @@ extension OpenAPI.ContentType {
     var isBinary: Bool {
         asGeneratorContentType.isBinary
     }
-
+    
+    var isUrlEncodedForm: Bool {
+        asGeneratorContentType.isUrlEncodedForm
+    }
     /// Returns the content type wrapped in the generator's representation
     /// of a content type, as opposed to the one from OpenAPIKit.
     var asGeneratorContentType: ContentType {
