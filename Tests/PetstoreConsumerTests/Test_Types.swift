@@ -43,11 +43,16 @@ final class Test_Types: XCTestCase {
     }
 
     var testEncoder: JSONEncoder {
-        .init()
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.outputFormatting = [.sortedKeys]
+        return encoder
     }
 
     var testDecoder: JSONDecoder {
-        .init()
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
     }
 
     func roundtrip<T: Codable & Equatable>(_ value: T) throws -> T {
@@ -131,13 +136,9 @@ final class Test_Types: XCTestCase {
             file: StaticString = #file,
             line: UInt = #line
         ) throws {
-            let encoder = JSONEncoder()
-            encoder.dateEncodingStrategy = .iso8601
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            let data = try encoder.encode(value)
+            let data = try testEncoder.encode(value)
             XCTAssertEqual(String(decoding: data, as: UTF8.self), expectedJSON, file: file, line: line)
-            let decodedValue = try decoder.decode(T.self, from: data)
+            let decodedValue = try testDecoder.decode(T.self, from: data)
             XCTAssertEqual(decodedValue, value, file: file, line: line)
         }
 
