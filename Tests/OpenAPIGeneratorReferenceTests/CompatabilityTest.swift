@@ -29,7 +29,6 @@ final class CompatibilityTest: XCTestCase {
     let compatibilityTestNumBuildJobs = getIntEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_NUM_BUILD_JOBS")
 
     override func setUp() async throws {
-        setbuf(stdout, nil)
         continueAfterFailure = false
         try XCTSkipUnless(compatibilityTestEnabled)
         if _isDebugAssertConfiguration() {
@@ -333,7 +332,7 @@ fileprivate extension CompatibilityTest {
 }
 
 /// Records diagnostics into an array for testing.
-private final class RecordingDiagnosticCollector: DiagnosticCollector {
+private final class RecordingDiagnosticCollector: DiagnosticCollector, @unchecked Sendable {
     private let lock = NSLock()
     private var _diagnostics: [Diagnostic] = []
     var diagnostics: [Diagnostic] {
