@@ -11,7 +11,14 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import Foundation
+#if os(Linux)
+@preconcurrency import struct Foundation.URL
+@preconcurrency import struct Foundation.Data
+#else
+import struct Foundation.URL
+import struct Foundation.Data
+#endif
+import class Foundation.FileManager
 import ArgumentParser
 import _OpenAPIGeneratorCore
 
@@ -32,24 +39,30 @@ extension _Tool {
         pluginSource: PluginSource?,
         outputDirectory: URL,
         isDryRun: Bool,
-        diagnostics: any DiagnosticCollector
-    ) throws {
+        diagnostics: any DiagnosticCollector & Sendable
+    ) async throws {
         let docData: Data
         do {
             docData = try Data(contentsOf: doc)
         } catch {
             throw ValidationError("Failed to load the OpenAPI document at path \(doc.path), error: \(error)")
         }
-        for config in configs {
-            try runGenerator(
-                doc: doc,
-                docData: docData,
-                config: config,
-                outputDirectory: outputDirectory,
-                outputFileName: config.mode.outputFileName,
-                isDryRun: isDryRun,
-                diagnostics: diagnostics
-            )
+
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for config in configs {
+                group.addTask {
+                    try runGenerator(
+                        doc: doc,
+                        docData: docData,
+                        config: config,
+                        outputDirectory: outputDirectory,
+                        outputFileName: config.mode.outputFileName,
+                        isDryRun: isDryRun,
+                        diagnostics: diagnostics
+                    )
+                }
+            }
+            try await group.waitForAll()
         }
 
         // If from a BuildTool plugin, the generator will have to emit all 3 files
