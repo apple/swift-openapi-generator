@@ -86,19 +86,19 @@ extension FileTranslator {
 
     /// Returns a typed response header for the provided unresolved header.
     /// - Parameters:
-    ///   - unresolvedHeader: The header specified in the OpenAPI document.
+    ///   - unresolvedResponseHeader: The header specified in the OpenAPI document.
     ///   - name: The name of the header.
     ///   - parent: The Swift type name of the parent type of the headers.
     /// - Returns: Typed response header if supported, nil otherwise.
     func typedResponseHeader(
-        from unresolvedHeader: UnresolvedHeader,
+        from unresolvedResponseHeader: UnresolvedResponseHeader,
         named name: String,
         inParent parent: TypeName
     ) throws -> TypedResponseHeader? {
 
         // Collect the header
         let header: OpenAPI.Header
-        switch unresolvedHeader {
+        switch unresolvedResponseHeader {
         case let .a(ref):
             header = try components.lookup(ref)
         case let .b(_header):
@@ -143,7 +143,7 @@ extension FileTranslator {
         }
 
         let type: TypeUsage
-        switch unresolvedHeader {
+        switch unresolvedResponseHeader {
         case let .a(ref):
             type = try typeAssigner.typeName(for: ref).asUsage
         case .b:
@@ -173,4 +173,4 @@ extension FileTranslator {
 /// An unresolved OpenAPI response header.
 ///
 /// Can be either a reference or an inline response header.
-typealias UnresolvedHeader = Either<OpenAPI.Reference<OpenAPI.Header>, OpenAPI.Header>
+typealias UnresolvedResponseHeader = Either<OpenAPI.Reference<OpenAPI.Header>, OpenAPI.Header>
