@@ -1739,7 +1739,7 @@ fileprivate extension Declaration {
             e.members = e.members.map(stripComments(_:))
             return .enum(e)
         case var .variable(v):
-            v.body = stripComments(v.body)
+            v.getter = stripComments(v.getter)
             return .variable(v)
         case let .typealias(t):
             return .typealias(t)

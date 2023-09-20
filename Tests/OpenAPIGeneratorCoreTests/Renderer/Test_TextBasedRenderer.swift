@@ -770,6 +770,20 @@ final class Test_TextBasedRenderer: XCTestCase {
                 """#,
             normalizing: false
         )
+        try _test(
+            .init(
+                kind: .var,
+                left: "foo",
+                type: "Int",
+                getter: [ CodeBlock.expression(.literal(.int(42))) ]
+            ),
+            renderedBy: renderer.renderedVariable,
+            rendersAs:
+                #"""
+                var foo: Int { 42 }
+                """#,
+            normalizing: true
+        )
     }
 
     func testStruct() throws {
