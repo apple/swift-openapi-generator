@@ -28,6 +28,8 @@
 public enum FeatureFlag: String, Hashable, Codable, CaseIterable, Sendable {
     // needs to be here for the enum to compile
     case empty
+
+    case shorthandAPIs
 }
 
 /// A set of enabled feature flags.
