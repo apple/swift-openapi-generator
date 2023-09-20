@@ -1,3 +1,5 @@
 generate:
 - types
 - client
+featureFlags:
+- shorthandAPIs

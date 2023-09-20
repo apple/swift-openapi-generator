@@ -42,5 +42,14 @@ struct GreetingServiceClient {
         case .undocumented(statusCode: let statusCode, let undocumentedPayload):
             print("Undocumented response \(statusCode) from server: \(undocumentedPayload).")
         }
+
+        // Use shorthand APIs to get an expected response or otherwise throw a runtime error.
+        print(try await client.getGreeting().ok.body.json.message)
+        //                     ^             ^       ^
+        //                     |             |       `- Throws if body did not parse as documented JSON.
+        //                     |             |
+        //                     |             `- Throws if HTTP response is not 200 (OK).
+        //                     |
+        //                     `- Throws if there is an error making the API call.
     }
 }
