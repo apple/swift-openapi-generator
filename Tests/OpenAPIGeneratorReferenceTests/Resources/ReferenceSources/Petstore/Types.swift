@@ -51,6 +51,64 @@ public protocol APIProtocol: Sendable {
     func uploadAvatarForPet(_ input: Operations.uploadAvatarForPet.Input) async throws
         -> Operations.uploadAvatarForPet.Output
 }
+/// Convenience overloads for operation inputs.
+extension APIProtocol {
+    /// List all pets
+    ///
+    /// You can fetch
+    /// all the pets here
+    ///
+    /// - Remark: HTTP `GET /pets`.
+    /// - Remark: Generated from `#/paths//pets/get(listPets)`.
+    public func listPets(
+        query: Operations.listPets.Input.Query = .init(),
+        headers: Operations.listPets.Input.Headers = .init()
+    ) async throws -> Operations.listPets.Output {
+        try await listPets(Operations.listPets.Input(query: query, headers: headers))
+    }
+    /// Create a pet
+    ///
+    /// - Remark: HTTP `POST /pets`.
+    /// - Remark: Generated from `#/paths//pets/post(createPet)`.
+    public func createPet(headers: Operations.createPet.Input.Headers = .init(), body: Operations.createPet.Input.Body)
+        async throws -> Operations.createPet.Output
+    { try await createPet(Operations.createPet.Input(headers: headers, body: body)) }
+    /// - Remark: HTTP `GET /pets/stats`.
+    /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
+    public func getStats(headers: Operations.getStats.Input.Headers = .init()) async throws
+        -> Operations.getStats.Output
+    { try await getStats(Operations.getStats.Input(headers: headers)) }
+    /// - Remark: HTTP `POST /pets/stats`.
+    /// - Remark: Generated from `#/paths//pets/stats/post(postStats)`.
+    public func postStats(body: Operations.postStats.Input.Body) async throws -> Operations.postStats.Output {
+        try await postStats(Operations.postStats.Input(body: body))
+    }
+    /// - Remark: HTTP `POST /probe/`.
+    /// - Remark: Generated from `#/paths//probe//post(probe)`.
+    public func probe() async throws -> Operations.probe.Output { try await probe(Operations.probe.Input()) }
+    /// Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
+    ///
+    /// - Remark: HTTP `PATCH /pets/{petId}`.
+    /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)`.
+    public func updatePet(
+        path: Operations.updatePet.Input.Path,
+        headers: Operations.updatePet.Input.Headers = .init(),
+        body: Components.RequestBodies.UpdatePetRequest? = nil
+    ) async throws -> Operations.updatePet.Output {
+        try await updatePet(Operations.updatePet.Input(path: path, headers: headers, body: body))
+    }
+    /// Upload an avatar
+    ///
+    /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
+    /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
+    public func uploadAvatarForPet(
+        path: Operations.uploadAvatarForPet.Input.Path,
+        headers: Operations.uploadAvatarForPet.Input.Headers = .init(),
+        body: Operations.uploadAvatarForPet.Input.Body
+    ) async throws -> Operations.uploadAvatarForPet.Output {
+        try await uploadAvatarForPet(Operations.uploadAvatarForPet.Input(path: path, headers: headers, body: body))
+    }
+}
 /// Server URLs defined in the OpenAPI document.
 public enum Servers {
     /// Example Petstore implementation service
@@ -692,6 +750,17 @@ public enum Components {
                 }
                 /// - Remark: Generated from `#/components/responses/ErrorBadRequest/content/application\/json`.
                 case json(Components.Responses.ErrorBadRequest.Body.jsonPayload)
+                /// The associated value of the enum case if `self` is `.json`.
+                ///
+                /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                /// - SeeAlso: `.json`.
+                public var json: Components.Responses.ErrorBadRequest.Body.jsonPayload {
+                    get throws {
+                        switch self {
+                        case let .json(body): return body
+                        }
+                    }
+                }
             }
             /// Received HTTP response body
             public var body: Components.Responses.ErrorBadRequest.Body
@@ -844,6 +913,17 @@ public enum Operations {
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/GET/responses/200/content/application\/json`.
                     case json(Components.Schemas.Pets)
+                    /// The associated value of the enum case if `self` is `.json`.
+                    ///
+                    /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                    /// - SeeAlso: `.json`.
+                    public var json: Components.Schemas.Pets {
+                        get throws {
+                            switch self {
+                            case let .json(body): return body
+                            }
+                        }
+                    }
                 }
                 /// Received HTTP response body
                 public var body: Operations.listPets.Output.Ok.Body
@@ -863,11 +943,34 @@ public enum Operations {
             ///
             /// HTTP response code: `200 ok`.
             case ok(Operations.listPets.Output.Ok)
+            /// The associated value of the enum case if `self` is `.ok`.
+            ///
+            /// - Throws: `UnexpectedResponseError` if `self` is not `.ok`.
+            /// - SeeAlso: `.ok`.
+            public var ok: Operations.listPets.Output.Ok {
+                get throws {
+                    switch self {
+                    case let .ok(response): return response
+                    default: preconditionFailure()
+                    }
+                }
+            }
             public struct Default: Sendable, Hashable {
                 /// - Remark: Generated from `#/paths/pets/GET/responses/default/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/GET/responses/default/content/application\/json`.
                     case json(Components.Schemas._Error)
+                    /// The associated value of the enum case if `self` is `.json`.
+                    ///
+                    /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                    /// - SeeAlso: `.json`.
+                    public var json: Components.Schemas._Error {
+                        get throws {
+                            switch self {
+                            case let .json(body): return body
+                            }
+                        }
+                    }
                 }
                 /// Received HTTP response body
                 public var body: Operations.listPets.Output.Default.Body
@@ -883,6 +986,18 @@ public enum Operations {
             ///
             /// HTTP response code: `default`.
             case `default`(statusCode: Int, Operations.listPets.Output.Default)
+            /// The associated value of the enum case if `self` is `.`default``.
+            ///
+            /// - Throws: `UnexpectedResponseError` if `self` is not `.`default``.
+            /// - SeeAlso: `.`default``.
+            public var `default`: Operations.listPets.Output.Default {
+                get throws {
+                    switch self {
+                    case let .`default`(_, response): return response
+                    default: preconditionFailure()
+                    }
+                }
+            }
         }
         @frozen public enum AcceptableContentType: AcceptableProtocol {
             case json
@@ -969,6 +1084,17 @@ public enum Operations {
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/POST/responses/201/content/application\/json`.
                     case json(Components.Schemas.Pet)
+                    /// The associated value of the enum case if `self` is `.json`.
+                    ///
+                    /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                    /// - SeeAlso: `.json`.
+                    public var json: Components.Schemas.Pet {
+                        get throws {
+                            switch self {
+                            case let .json(body): return body
+                            }
+                        }
+                    }
                 }
                 /// Received HTTP response body
                 public var body: Operations.createPet.Output.Created.Body
@@ -991,12 +1117,36 @@ public enum Operations {
             ///
             /// HTTP response code: `201 created`.
             case created(Operations.createPet.Output.Created)
+            /// The associated value of the enum case if `self` is `.created`.
+            ///
+            /// - Throws: `UnexpectedResponseError` if `self` is not `.created`.
+            /// - SeeAlso: `.created`.
+            public var created: Operations.createPet.Output.Created {
+                get throws {
+                    switch self {
+                    case let .created(response): return response
+                    default: preconditionFailure()
+                    }
+                }
+            }
             /// Bad request
             ///
             /// - Remark: Generated from `#/paths//pets/post(createPet)/responses/4XX`.
             ///
             /// HTTP response code: `400...499 clientError`.
             case clientError(statusCode: Int, Components.Responses.ErrorBadRequest)
+            /// The associated value of the enum case if `self` is `.clientError`.
+            ///
+            /// - Throws: `UnexpectedResponseError` if `self` is not `.clientError`.
+            /// - SeeAlso: `.clientError`.
+            public var clientError: Components.Responses.ErrorBadRequest {
+                get throws {
+                    switch self {
+                    case let .clientError(_, response): return response
+                    default: preconditionFailure()
+                    }
+                }
+            }
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
@@ -1086,10 +1236,46 @@ public enum Operations {
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/content/application\/json`.
                     case json(Components.Schemas.PetStats)
+                    /// The associated value of the enum case if `self` is `.json`.
+                    ///
+                    /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                    /// - SeeAlso: `.json`.
+                    public var json: Components.Schemas.PetStats {
+                        get throws {
+                            switch self {
+                            case let .json(body): return body
+                            default: preconditionFailure()
+                            }
+                        }
+                    }
                     /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/content/text\/plain`.
                     case plainText(OpenAPIRuntime.HTTPBody)
+                    /// The associated value of the enum case if `self` is `.plainText`.
+                    ///
+                    /// - Throws: `UnexpectedContentError` if `self` is not `.plainText`.
+                    /// - SeeAlso: `.plainText`.
+                    public var plainText: OpenAPIRuntime.HTTPBody {
+                        get throws {
+                            switch self {
+                            case let .plainText(body): return body
+                            default: preconditionFailure()
+                            }
+                        }
+                    }
                     /// - Remark: Generated from `#/paths/pets/stats/GET/responses/200/content/application\/octet-stream`.
                     case binary(OpenAPIRuntime.HTTPBody)
+                    /// The associated value of the enum case if `self` is `.binary`.
+                    ///
+                    /// - Throws: `UnexpectedContentError` if `self` is not `.binary`.
+                    /// - SeeAlso: `.binary`.
+                    public var binary: OpenAPIRuntime.HTTPBody {
+                        get throws {
+                            switch self {
+                            case let .binary(body): return body
+                            default: preconditionFailure()
+                            }
+                        }
+                    }
                 }
                 /// Received HTTP response body
                 public var body: Operations.getStats.Output.Ok.Body
@@ -1105,6 +1291,18 @@ public enum Operations {
             ///
             /// HTTP response code: `200 ok`.
             case ok(Operations.getStats.Output.Ok)
+            /// The associated value of the enum case if `self` is `.ok`.
+            ///
+            /// - Throws: `UnexpectedResponseError` if `self` is not `.ok`.
+            /// - SeeAlso: `.ok`.
+            public var ok: Operations.getStats.Output.Ok {
+                get throws {
+                    switch self {
+                    case let .ok(response): return response
+                    default: preconditionFailure()
+                    }
+                }
+            }
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
@@ -1166,6 +1364,18 @@ public enum Operations {
             ///
             /// HTTP response code: `202 accepted`.
             case accepted(Operations.postStats.Output.Accepted)
+            /// The associated value of the enum case if `self` is `.accepted`.
+            ///
+            /// - Throws: `UnexpectedResponseError` if `self` is not `.accepted`.
+            /// - SeeAlso: `.accepted`.
+            public var accepted: Operations.postStats.Output.Accepted {
+                get throws {
+                    switch self {
+                    case let .accepted(response): return response
+                    default: preconditionFailure()
+                    }
+                }
+            }
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
@@ -1191,6 +1401,18 @@ public enum Operations {
             ///
             /// HTTP response code: `204 noContent`.
             case noContent(Operations.probe.Output.NoContent)
+            /// The associated value of the enum case if `self` is `.noContent`.
+            ///
+            /// - Throws: `UnexpectedResponseError` if `self` is not `.noContent`.
+            /// - SeeAlso: `.noContent`.
+            public var noContent: Operations.probe.Output.NoContent {
+                get throws {
+                    switch self {
+                    case let .noContent(response): return response
+                    default: preconditionFailure()
+                    }
+                }
+            }
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
@@ -1258,6 +1480,18 @@ public enum Operations {
             ///
             /// HTTP response code: `204 noContent`.
             case noContent(Operations.updatePet.Output.NoContent)
+            /// The associated value of the enum case if `self` is `.noContent`.
+            ///
+            /// - Throws: `UnexpectedResponseError` if `self` is not `.noContent`.
+            /// - SeeAlso: `.noContent`.
+            public var noContent: Operations.updatePet.Output.NoContent {
+                get throws {
+                    switch self {
+                    case let .noContent(response): return response
+                    default: preconditionFailure()
+                    }
+                }
+            }
             public struct BadRequest: Sendable, Hashable {
                 /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/400/content`.
                 @frozen public enum Body: Sendable, Hashable {
@@ -1274,6 +1508,17 @@ public enum Operations {
                     }
                     /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/responses/400/content/application\/json`.
                     case json(Operations.updatePet.Output.BadRequest.Body.jsonPayload)
+                    /// The associated value of the enum case if `self` is `.json`.
+                    ///
+                    /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                    /// - SeeAlso: `.json`.
+                    public var json: Operations.updatePet.Output.BadRequest.Body.jsonPayload {
+                        get throws {
+                            switch self {
+                            case let .json(body): return body
+                            }
+                        }
+                    }
                 }
                 /// Received HTTP response body
                 public var body: Operations.updatePet.Output.BadRequest.Body
@@ -1289,6 +1534,18 @@ public enum Operations {
             ///
             /// HTTP response code: `400 badRequest`.
             case badRequest(Operations.updatePet.Output.BadRequest)
+            /// The associated value of the enum case if `self` is `.badRequest`.
+            ///
+            /// - Throws: `UnexpectedResponseError` if `self` is not `.badRequest`.
+            /// - SeeAlso: `.badRequest`.
+            public var badRequest: Operations.updatePet.Output.BadRequest {
+                get throws {
+                    switch self {
+                    case let .badRequest(response): return response
+                    default: preconditionFailure()
+                    }
+                }
+            }
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
@@ -1375,6 +1632,17 @@ public enum Operations {
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/200/content/application\/octet-stream`.
                     case binary(OpenAPIRuntime.HTTPBody)
+                    /// The associated value of the enum case if `self` is `.binary`.
+                    ///
+                    /// - Throws: `UnexpectedContentError` if `self` is not `.binary`.
+                    /// - SeeAlso: `.binary`.
+                    public var binary: OpenAPIRuntime.HTTPBody {
+                        get throws {
+                            switch self {
+                            case let .binary(body): return body
+                            }
+                        }
+                    }
                 }
                 /// Received HTTP response body
                 public var body: Operations.uploadAvatarForPet.Output.Ok.Body
@@ -1390,11 +1658,34 @@ public enum Operations {
             ///
             /// HTTP response code: `200 ok`.
             case ok(Operations.uploadAvatarForPet.Output.Ok)
+            /// The associated value of the enum case if `self` is `.ok`.
+            ///
+            /// - Throws: `UnexpectedResponseError` if `self` is not `.ok`.
+            /// - SeeAlso: `.ok`.
+            public var ok: Operations.uploadAvatarForPet.Output.Ok {
+                get throws {
+                    switch self {
+                    case let .ok(response): return response
+                    default: preconditionFailure()
+                    }
+                }
+            }
             public struct PreconditionFailed: Sendable, Hashable {
                 /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/412/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/412/content/application\/json`.
                     case json(Swift.String)
+                    /// The associated value of the enum case if `self` is `.json`.
+                    ///
+                    /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                    /// - SeeAlso: `.json`.
+                    public var json: Swift.String {
+                        get throws {
+                            switch self {
+                            case let .json(body): return body
+                            }
+                        }
+                    }
                 }
                 /// Received HTTP response body
                 public var body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body
@@ -1410,11 +1701,34 @@ public enum Operations {
             ///
             /// HTTP response code: `412 preconditionFailed`.
             case preconditionFailed(Operations.uploadAvatarForPet.Output.PreconditionFailed)
+            /// The associated value of the enum case if `self` is `.preconditionFailed`.
+            ///
+            /// - Throws: `UnexpectedResponseError` if `self` is not `.preconditionFailed`.
+            /// - SeeAlso: `.preconditionFailed`.
+            public var preconditionFailed: Operations.uploadAvatarForPet.Output.PreconditionFailed {
+                get throws {
+                    switch self {
+                    case let .preconditionFailed(response): return response
+                    default: preconditionFailure()
+                    }
+                }
+            }
             public struct InternalServerError: Sendable, Hashable {
                 /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/500/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/responses/500/content/text\/plain`.
                     case plainText(OpenAPIRuntime.HTTPBody)
+                    /// The associated value of the enum case if `self` is `.plainText`.
+                    ///
+                    /// - Throws: `UnexpectedContentError` if `self` is not `.plainText`.
+                    /// - SeeAlso: `.plainText`.
+                    public var plainText: OpenAPIRuntime.HTTPBody {
+                        get throws {
+                            switch self {
+                            case let .plainText(body): return body
+                            }
+                        }
+                    }
                 }
                 /// Received HTTP response body
                 public var body: Operations.uploadAvatarForPet.Output.InternalServerError.Body
@@ -1430,6 +1744,18 @@ public enum Operations {
             ///
             /// HTTP response code: `500 internalServerError`.
             case internalServerError(Operations.uploadAvatarForPet.Output.InternalServerError)
+            /// The associated value of the enum case if `self` is `.internalServerError`.
+            ///
+            /// - Throws: `UnexpectedResponseError` if `self` is not `.internalServerError`.
+            /// - SeeAlso: `.internalServerError`.
+            public var internalServerError: Operations.uploadAvatarForPet.Output.InternalServerError {
+                get throws {
+                    switch self {
+                    case let .internalServerError(response): return response
+                    default: preconditionFailure()
+                    }
+                }
+            }
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
