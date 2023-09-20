@@ -432,7 +432,13 @@ struct TextBasedRenderer: RendererProtocol {
         var lines: [String] = [words.joinedWords()]
         if let body = variable.getter {
             lines.append("{")
+            if !variable.getterEffects.isEmpty {
+                lines.append("get \(variable.getterEffects.map(renderedFunctionKeyword).joined(separator: " ")) {")
+            }
             lines.append(renderedCodeBlocks(body))
+            if !variable.getterEffects.isEmpty {
+                lines.append("}")
+            }
             lines.append("}")
         }
         return lines.joinedLines()

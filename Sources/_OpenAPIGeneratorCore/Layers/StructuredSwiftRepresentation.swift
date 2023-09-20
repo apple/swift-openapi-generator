@@ -236,6 +236,11 @@ struct VariableDescription: Equatable, Codable {
     ///
     /// For example, in `var foo: Int { 42 }`, `body` represents `{ 42 }`.
     var getter: [CodeBlock]? = nil
+
+    /// Effects for the getter.
+    ///
+    /// For example, in `var foo: Int { get throws { 42 } }`, effects are `[.throws]`.
+    var getterEffects: [FunctionKeyword] = []
 }
 
 /// A requirement of a where clause.
@@ -1015,6 +1020,7 @@ extension Declaration {
     ///   - type: The type of the variable.
     ///   - right: The expression to be assigned to the variable.
     ///   - getter: Body code for the getter of the variable.
+    ///   - getterEffects: Effects of the getter.
     /// - Returns: Variable declaration.
     static func variable(
         accessModifier: AccessModifier? = nil,
@@ -1023,7 +1029,8 @@ extension Declaration {
         left: String,
         type: String? = nil,
         right: Expression? = nil,
-        getter: [CodeBlock]? = nil
+        getter: [CodeBlock]? = nil,
+        getterEffects: [FunctionKeyword] = []
     ) -> Self {
         .variable(
             .init(
@@ -1033,7 +1040,8 @@ extension Declaration {
                 left: left,
                 type: type,
                 right: right,
-                getter: getter
+                getter: getter,
+                getterEffects: getterEffects
             )
         )
     }
