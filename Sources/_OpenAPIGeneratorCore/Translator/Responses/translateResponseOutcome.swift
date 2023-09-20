@@ -30,7 +30,7 @@ extension TypesFileTranslator {
         _ outcome: OpenAPI.Operation.ResponseOutcome,
         operation: OperationDescription,
         operationJSONPath: String
-    ) throws -> (payloadStruct: Declaration?, enumCase: Declaration) {
+    ) throws -> (payloadStruct: Declaration?, enumCase: Declaration, throwingGetter: Declaration) {
 
         let typedResponse = try typedResponse(
             from: outcome,
@@ -38,6 +38,7 @@ extension TypesFileTranslator {
         )
         let responseStructTypeName = typedResponse.typeUsage.typeName
         let responseKind = outcome.status.value.asKind
+        let enumCaseName = responseKind.identifier
 
         let responseStructDecl: Declaration?
         if typedResponse.isInlined {
@@ -49,22 +50,15 @@ extension TypesFileTranslator {
             responseStructDecl = nil
         }
 
-        let optionalStatusCode: [EnumCaseAssociatedValueDescription]
+        var associatedValues: [EnumCaseAssociatedValueDescription] = []
         if responseKind.wantsStatusCode {
-            optionalStatusCode = [
-                .init(label: "statusCode", type: TypeName.int.shortSwiftName)
-            ]
-        } else {
-            optionalStatusCode = []
+            associatedValues.append(.init(label: "statusCode", type: TypeName.int.shortSwiftName))
         }
+        associatedValues.append(.init(type: responseStructTypeName.fullyQualifiedSwiftName))
 
         let enumCaseDesc = EnumCaseDescription(
-            name: responseKind.identifier,
-            kind: .nameWithAssociatedValues(
-                optionalStatusCode + [
-                    .init(type: responseStructTypeName.fullyQualifiedSwiftName)
-                ]
-            )
+            name: enumCaseName,
+            kind: .nameWithAssociatedValues(associatedValues)
         )
         let enumCaseDecl: Declaration = .commentable(
             responseKind.docComment(
@@ -73,7 +67,42 @@ extension TypesFileTranslator {
             ),
             .enumCase(enumCaseDesc)
         )
-        return (responseStructDecl, enumCaseDecl)
+
+        let throwingGetterDesc = VariableDescription(
+            accessModifier: config.access,
+            kind: .var,
+            left: enumCaseName,
+            type: responseStructTypeName.fullyQualifiedSwiftName,
+            getter: [
+                .expression(.switch(switchedExpression: .identifier("self"), cases: [
+                    SwitchCaseDescription(
+                        kind: .case(
+                            .identifier(".\(responseKind.identifier)"),
+                            responseKind.wantsStatusCode ? ["_", "response"] : ["response"]
+                        ),
+                        body: [ .expression(.return(.identifier("response"))) ]
+                    ),
+                    SwitchCaseDescription(
+                        kind: .default,
+                        // TODO: Throw a richer error for unexpected response.
+                        body: [ .expression(.identifier("preconditionFailure").call([])) ]
+                    )
+                ]))
+            ],
+            getterEffects: [.throws]
+        )
+        let throwingGetterComment = Comment.doc("""
+        The associated value of the enum case if `self` is `.\(enumCaseName)`.
+
+        - Throws: `UnexpectedResponseError` if `self` is not `.\(enumCaseName)`.
+        - SeeAlso: `.\(enumCaseName)`.
+        """)
+        let throwingGetterDecl = Declaration.commentable(
+            throwingGetterComment,
+            .variable(throwingGetterDesc)
+        )
+
+        return (responseStructDecl, enumCaseDecl, throwingGetterDecl)
     }
 }
 
