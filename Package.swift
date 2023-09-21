@@ -27,10 +27,9 @@ swiftSettings.append(
 
 // Strict concurrency is enabled in CI; use this environment variable to enable it locally.
 if ProcessInfo.processInfo.environment["SWIFT_OPENAPI_STRICT_CONCURRENCY"].flatMap(Bool.init) ?? false {
-    #warning("Compiling with Strict Concurrency")
     swiftSettings.append(contentsOf: [
+        .define("SWIFT_OPENAPI_STRICT_CONCURRENCY"),
         .enableExperimentalFeature("StrictConcurrency"),
-        .unsafeFlags(["-warnings-as-errors"]),
     ])
 }
 #endif
