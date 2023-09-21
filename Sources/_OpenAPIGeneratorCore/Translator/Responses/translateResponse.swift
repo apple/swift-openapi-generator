@@ -108,17 +108,31 @@ extension TypesFileTranslator {
                     var throwingGetterSwitchCases = [
                         SwitchCaseDescription(
                             kind: .case(.identifier(".\(identifier)"), ["body"]),
-                            body: [ .expression(.return(.identifier("body"))) ]
+                            body: [.expression(.return(.identifier("body")))]
                         )
                     ]
                     // We only generate the default branch if there is more than one case to prevent
                     // a warning when compiling the generated code.
                     if typedContents.count > 1 {
-                        throwingGetterSwitchCases.append(SwitchCaseDescription(
-                            kind: .default,
-                            // TODO: Throw a richer error for unexpected content.
-                            body: [ .expression(.identifier("preconditionFailure").call([])) ]
-                        ))
+                        throwingGetterSwitchCases.append(
+                            SwitchCaseDescription(
+                                kind: .default,
+                                body: [
+                                    .expression(
+                                        .try(
+                                            .identifier("throwUnexpectedResponseBody")
+                                                .call([
+                                                    .init(
+                                                        label: "expectedContentType",
+                                                        expression: .literal(.string(contentType.headerValueForSending))
+                                                    ),
+                                                    .init(label: "response", expression: .identifier("self")),
+                                                ])
+                                        )
+                                    )
+                                ]
+                            )
+                        )
                     }
                     let throwingGetter = VariableDescription(
                         accessModifier: config.access,
@@ -127,19 +141,23 @@ extension TypesFileTranslator {
                         left: identifier,
                         type: associatedType.fullyQualifiedSwiftName,
                         getter: [
-                            .expression(.switch(
-                                switchedExpression: .identifier("self"),
-                                cases: throwingGetterSwitchCases
-                            ))
+                            .expression(
+                                .switch(
+                                    switchedExpression: .identifier("self"),
+                                    cases: throwingGetterSwitchCases
+                                )
+                            )
                         ],
                         getterEffects: [.throws]
                     )
-                    let throwingGetterComment = Comment.doc("""
-                    The associated value of the enum case if `self` is `.\(identifier)`.
+                    let throwingGetterComment = Comment.doc(
+                        """
+                        The associated value of the enum case if `self` is `.\(identifier)`.
 
-                    - Throws: `UnexpectedContentError` if `self` is not `.\(identifier)`.
-                    - SeeAlso: `.\(identifier)`.
-                    """)
+                        - Throws: Runtime error if `self` is not `.\(identifier)`.
+                        - SeeAlso: `.\(identifier)`.
+                        """
+                    )
                     bodyCases.append(.commentable(throwingGetterComment, .variable(throwingGetter)))
                 }
             }

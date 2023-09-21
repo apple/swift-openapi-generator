@@ -154,7 +154,10 @@ extension TypesFileTranslator {
                     operationJSONPath: description.jsonPathComponent
                 )
             }
-        let documentedMembers: [Declaration] = documentedOutcomes.flatMap { inlineResponseDecl, caseDecl, throwingGetter in
+        let documentedMembers: [Declaration] = documentedOutcomes.flatMap {
+            inlineResponseDecl,
+            caseDecl,
+            throwingGetter in
             if config.featureFlags.contains(.shorthandAPIs) {
                 return [inlineResponseDecl, caseDecl, throwingGetter].compactMap { $0 }
             } else {

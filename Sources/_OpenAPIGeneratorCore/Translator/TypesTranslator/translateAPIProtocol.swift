@@ -55,9 +55,13 @@ extension TypesFileTranslator {
 
         // This looks for all initializers in the operation input struct and creates a flattened function.
         let flattenedOperations = try operations.flatMap { operation in
-            guard case let .commentable(_, .struct(input)) = try translateOperationInput(operation) else { fatalError() }
+            guard case let .commentable(_, .struct(input)) = try translateOperationInput(operation) else {
+                fatalError()
+            }
             return input.members.compactMap { member -> Declaration? in
-                guard case let .commentable(_, .function(initializer)) = member, case .initializer = initializer.signature.kind else {
+                guard case let .commentable(_, .function(initializer)) = member,
+                    case .initializer = initializer.signature.kind
+                else {
                     return nil
                 }
                 let function = FunctionDescription(
@@ -67,22 +71,28 @@ extension TypesFileTranslator {
                     keywords: [.async, .throws],
                     returnType: .identifier(operation.outputTypeName.fullyQualifiedSwiftName),
                     body: [
-                        .try(.await(.identifier(operation.methodName).call([
-                            FunctionArgumentDescription(
-                                label: nil,
-                                expression: .identifier(operation.inputTypeName.fullyQualifiedSwiftName).call(
-                                    initializer.signature.parameters.map { parameter in
-                                        guard let label = parameter.label else {
-                                            preconditionFailure()
-                                        }
-                                        return FunctionArgumentDescription(
-                                            label: label,
-                                            expression: .identifier(label)
+                        .try(
+                            .await(
+                                .identifier(operation.methodName)
+                                    .call([
+                                        FunctionArgumentDescription(
+                                            label: nil,
+                                            expression: .identifier(operation.inputTypeName.fullyQualifiedSwiftName)
+                                                .call(
+                                                    initializer.signature.parameters.map { parameter in
+                                                        guard let label = parameter.label else {
+                                                            preconditionFailure()
+                                                        }
+                                                        return FunctionArgumentDescription(
+                                                            label: label,
+                                                            expression: .identifier(label)
+                                                        )
+                                                    }
+                                                )
                                         )
-                                    }
-                                )
+                                    ])
                             )
-                        ])))
+                        )
                     ]
                 )
                 return .commentable(operation.comment, .function(function))
@@ -91,10 +101,12 @@ extension TypesFileTranslator {
 
         return .commentable(
             .doc("Convenience overloads for operation inputs."),
-            .extension(ExtensionDescription(
-                onType: Constants.APIProtocol.typeName,
-                declarations: flattenedOperations
-            ))
+            .extension(
+                ExtensionDescription(
+                    onType: Constants.APIProtocol.typeName,
+                    declarations: flattenedOperations
+                )
+            )
         )
     }
 

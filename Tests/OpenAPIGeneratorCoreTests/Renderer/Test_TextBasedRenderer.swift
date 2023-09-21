@@ -775,7 +775,7 @@ final class Test_TextBasedRenderer: XCTestCase {
                 kind: .var,
                 left: "foo",
                 type: "Int",
-                getter: [ CodeBlock.expression(.literal(.int(42))) ]
+                getter: [CodeBlock.expression(.literal(.int(42)))]
             ),
             renderedBy: renderer.renderedVariable,
             rendersAs:
@@ -789,8 +789,8 @@ final class Test_TextBasedRenderer: XCTestCase {
                 kind: .var,
                 left: "foo",
                 type: "Int",
-                getter: [ CodeBlock.expression(.literal(.int(42))) ],
-                getterEffects: [ .throws ]
+                getter: [CodeBlock.expression(.literal(.int(42)))],
+                getterEffects: [.throws]
             ),
             renderedBy: renderer.renderedVariable,
             rendersAs:

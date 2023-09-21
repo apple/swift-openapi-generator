@@ -74,29 +74,48 @@ extension TypesFileTranslator {
             left: enumCaseName,
             type: responseStructTypeName.fullyQualifiedSwiftName,
             getter: [
-                .expression(.switch(switchedExpression: .identifier("self"), cases: [
-                    SwitchCaseDescription(
-                        kind: .case(
-                            .identifier(".\(responseKind.identifier)"),
-                            responseKind.wantsStatusCode ? ["_", "response"] : ["response"]
-                        ),
-                        body: [ .expression(.return(.identifier("response"))) ]
-                    ),
-                    SwitchCaseDescription(
-                        kind: .default,
-                        // TODO: Throw a richer error for unexpected response.
-                        body: [ .expression(.identifier("preconditionFailure").call([])) ]
+                .expression(
+                    .switch(
+                        switchedExpression: .identifier("self"),
+                        cases: [
+                            SwitchCaseDescription(
+                                kind: .case(
+                                    .identifier(".\(responseKind.identifier)"),
+                                    responseKind.wantsStatusCode ? ["_", "response"] : ["response"]
+                                ),
+                                body: [.expression(.return(.identifier("response")))]
+                            ),
+                            SwitchCaseDescription(
+                                kind: .default,
+                                body: [
+                                    .expression(
+                                        .try(
+                                            .identifier("throwUnexpectedResponseStatus")
+                                                .call([
+                                                    .init(
+                                                        label: "expectedStatus",
+                                                        expression: .literal(.string(responseKind.prettyName))
+                                                    ),
+                                                    .init(label: "response", expression: .identifier("self")),
+                                                ])
+                                        )
+                                    )
+                                ]
+                            ),
+                        ]
                     )
-                ]))
+                )
             ],
             getterEffects: [.throws]
         )
-        let throwingGetterComment = Comment.doc("""
-        The associated value of the enum case if `self` is `.\(enumCaseName)`.
+        let throwingGetterComment = Comment.doc(
+            """
+            The associated value of the enum case if `self` is `.\(enumCaseName)`.
 
-        - Throws: `UnexpectedResponseError` if `self` is not `.\(enumCaseName)`.
-        - SeeAlso: `.\(enumCaseName)`.
-        """)
+            - Throws: Runtime error if `self` is not `.\(enumCaseName)`.
+            - SeeAlso: `.\(enumCaseName)`.
+            """
+        )
         let throwingGetterDecl = Declaration.commentable(
             throwingGetterComment,
             .variable(throwingGetterDesc)

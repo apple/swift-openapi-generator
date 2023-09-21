@@ -1007,28 +1007,28 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         public var json: Swift.Int { get throws {
                             switch self {
                             case let .json(body): return body
-                            default: preconditionFailure()
+                            default: try throwUnexpectedResponseBodyError(expectedContentType: "application/json; charset=utf-8", response: self)
                             }
                         }}
                         case application_json_foo_bar(Swift.Int)
                         public var application_json_foo_bar: Swift.Int { get throws {
                             switch self {
                             case let .application_json_foo_bar(body): return body
-                            default: preconditionFailure()
+                            default: try throwUnexpectedResponseBodyError(expectedContentType: "application/json; foo=bar; charset=utf-8", response: self)
                             }
                         }}
                         case plainText(OpenAPIRuntime.HTTPBody)
                         public var plainText: OpenAPIRuntime.HTTPBody { get throws {
                             switch self {
                             case let .plainText(body): return body
-                            default: preconditionFailure()
+                            default: try throwUnexpectedResponseBodyError(expectedContentType: "text/plain", response: self)
                             }
                         }}
                         case binary(OpenAPIRuntime.HTTPBody)
                         public var binary: OpenAPIRuntime.HTTPBody { get throws {
                             switch self {
                             case let .binary(body): return body
-                            default: preconditionFailure()
+                            default: try throwUnexpectedResponseBodyError(expectedContentType: "application/octet-stream", response: self)
                             }
                         }}
                     }
@@ -1631,7 +1631,7 @@ extension SnippetBasedReferenceTests {
     }
 
     func assertResponsesTranslation(
-        featureFlags: FeatureFlags = [ .shorthandAPIs ],
+        featureFlags: FeatureFlags = [.shorthandAPIs],
         ignoredDiagnosticMessages: Set<String> = [],
         _ componentsYAML: String,
         _ expectedSwift: String,

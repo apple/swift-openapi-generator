@@ -951,7 +951,7 @@ public enum Operations {
                 get throws {
                     switch self {
                     case let .ok(response): return response
-                    default: preconditionFailure()
+                    default: try throwUnexpectedResponseStatus(expectedStatus: "ok", response: self)
                     }
                 }
             }
@@ -994,7 +994,7 @@ public enum Operations {
                 get throws {
                     switch self {
                     case let .`default`(_, response): return response
-                    default: preconditionFailure()
+                    default: try throwUnexpectedResponseStatus(expectedStatus: "default", response: self)
                     }
                 }
             }
@@ -1125,7 +1125,7 @@ public enum Operations {
                 get throws {
                     switch self {
                     case let .created(response): return response
-                    default: preconditionFailure()
+                    default: try throwUnexpectedResponseStatus(expectedStatus: "created", response: self)
                     }
                 }
             }
@@ -1143,7 +1143,7 @@ public enum Operations {
                 get throws {
                     switch self {
                     case let .clientError(_, response): return response
-                    default: preconditionFailure()
+                    default: try throwUnexpectedResponseStatus(expectedStatus: "clientError", response: self)
                     }
                 }
             }
@@ -1244,7 +1244,11 @@ public enum Operations {
                         get throws {
                             switch self {
                             case let .json(body): return body
-                            default: preconditionFailure()
+                            default:
+                                try throwUnexpectedResponseBody(
+                                    expectedContentType: "application/json; charset=utf-8",
+                                    response: self
+                                )
                             }
                         }
                     }
@@ -1258,7 +1262,7 @@ public enum Operations {
                         get throws {
                             switch self {
                             case let .plainText(body): return body
-                            default: preconditionFailure()
+                            default: try throwUnexpectedResponseBody(expectedContentType: "text/plain", response: self)
                             }
                         }
                     }
@@ -1272,7 +1276,11 @@ public enum Operations {
                         get throws {
                             switch self {
                             case let .binary(body): return body
-                            default: preconditionFailure()
+                            default:
+                                try throwUnexpectedResponseBody(
+                                    expectedContentType: "application/octet-stream",
+                                    response: self
+                                )
                             }
                         }
                     }
@@ -1299,7 +1307,7 @@ public enum Operations {
                 get throws {
                     switch self {
                     case let .ok(response): return response
-                    default: preconditionFailure()
+                    default: try throwUnexpectedResponseStatus(expectedStatus: "ok", response: self)
                     }
                 }
             }
@@ -1372,7 +1380,7 @@ public enum Operations {
                 get throws {
                     switch self {
                     case let .accepted(response): return response
-                    default: preconditionFailure()
+                    default: try throwUnexpectedResponseStatus(expectedStatus: "accepted", response: self)
                     }
                 }
             }
@@ -1409,7 +1417,7 @@ public enum Operations {
                 get throws {
                     switch self {
                     case let .noContent(response): return response
-                    default: preconditionFailure()
+                    default: try throwUnexpectedResponseStatus(expectedStatus: "noContent", response: self)
                     }
                 }
             }
@@ -1488,7 +1496,7 @@ public enum Operations {
                 get throws {
                     switch self {
                     case let .noContent(response): return response
-                    default: preconditionFailure()
+                    default: try throwUnexpectedResponseStatus(expectedStatus: "noContent", response: self)
                     }
                 }
             }
@@ -1542,7 +1550,7 @@ public enum Operations {
                 get throws {
                     switch self {
                     case let .badRequest(response): return response
-                    default: preconditionFailure()
+                    default: try throwUnexpectedResponseStatus(expectedStatus: "badRequest", response: self)
                     }
                 }
             }
@@ -1666,7 +1674,7 @@ public enum Operations {
                 get throws {
                     switch self {
                     case let .ok(response): return response
-                    default: preconditionFailure()
+                    default: try throwUnexpectedResponseStatus(expectedStatus: "ok", response: self)
                     }
                 }
             }
@@ -1709,7 +1717,7 @@ public enum Operations {
                 get throws {
                     switch self {
                     case let .preconditionFailed(response): return response
-                    default: preconditionFailure()
+                    default: try throwUnexpectedResponseStatus(expectedStatus: "preconditionFailed", response: self)
                     }
                 }
             }
@@ -1752,7 +1760,7 @@ public enum Operations {
                 get throws {
                     switch self {
                     case let .internalServerError(response): return response
-                    default: preconditionFailure()
+                    default: try throwUnexpectedResponseStatus(expectedStatus: "internalServerError", response: self)
                     }
                 }
             }
