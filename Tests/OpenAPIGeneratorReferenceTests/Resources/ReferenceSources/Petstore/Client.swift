@@ -226,12 +226,6 @@ public struct Client: APIProtocol {
             serializer: { input in let path = try converter.renderedPath(template: "/pets/create", parameters: [])
                 var request: OpenAPIRuntime.Request = .init(path: path, method: .post)
                 suppressMutabilityWarning(&request)
-                try converter.setHeaderFieldAsJSON(
-                    in: &request.headerFields,
-                    name: "X-Extra-Arguments",
-                    value: input.headers.X_hyphen_Extra_hyphen_Arguments
-                )
-                converter.setAcceptHeader(in: &request.headerFields, contentTypes: input.headers.accept)
                 switch input.body {
                 case let .urlEncodedForm(value):
                     request.body = try converter.setRequiredRequestBodyAsURLEncodedForm(
@@ -244,50 +238,7 @@ public struct Client: APIProtocol {
             },
             deserializer: { response in
                 switch response.statusCode {
-                case 201:
-                    let headers: Operations.createPetWithForm.Output.Created.Headers = .init(
-                        X_hyphen_Extra_hyphen_Arguments: try converter.getOptionalHeaderFieldAsJSON(
-                            in: response.headerFields,
-                            name: "X-Extra-Arguments",
-                            as: Components.Schemas.CodeError.self
-                        )
-                    )
-                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.createPetWithForm.Output.Created.Body
-                    if try contentType == nil
-                        || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
-                    {
-                        body = try converter.getResponseBodyAsJSON(
-                            Components.Schemas.Pet.self,
-                            from: response.body,
-                            transforming: { value in .json(value) }
-                        )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
-                    }
-                    return .created(.init(headers: headers, body: body))
-                case 400:
-                    let headers: Components.Responses.ErrorBadRequest.Headers = .init(
-                        X_hyphen_Reason: try converter.getOptionalHeaderFieldAsURI(
-                            in: response.headerFields,
-                            name: "X-Reason",
-                            as: Swift.String.self
-                        )
-                    )
-                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Components.Responses.ErrorBadRequest.Body
-                    if try contentType == nil
-                        || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
-                    {
-                        body = try converter.getResponseBodyAsJSON(
-                            Components.Responses.ErrorBadRequest.Body.jsonPayload.self,
-                            from: response.body,
-                            transforming: { value in .json(value) }
-                        )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
-                    }
-                    return .badRequest(.init(headers: headers, body: body))
+                case 204: return .noContent(.init())
                 default: return .undocumented(statusCode: response.statusCode, .init())
                 }
             }

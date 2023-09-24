@@ -122,14 +122,6 @@ paths:
       tags:
         - pets
       parameters:
-        - name: X-Extra-Arguments
-          in: header
-          required: false
-          description: "A description here."
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CodeError'
       requestBody:
         required: true
         description: "Create a pet with these properties"
@@ -138,22 +130,8 @@ paths:
             schema:
               $ref: '#/components/schemas/CreatePetRequest'
       responses:
-        '201':
-          description: Successfully created pet
-          headers:
-            X-Extra-Arguments:
-              required: false
-              description: "A description here."
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/CodeError'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pet'
-        '400':
-          $ref: '#/components/responses/ErrorBadRequest'
+        '204':
+          description: Successfully created pet using a url form
   /pets/stats:
     get:
       operationId: getStats

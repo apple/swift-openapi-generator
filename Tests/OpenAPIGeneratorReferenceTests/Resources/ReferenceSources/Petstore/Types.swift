@@ -1027,30 +1027,6 @@ public enum Operations {
     public enum createPetWithForm {
         public static let id: String = "createPetWithForm"
         public struct Input: Sendable, Hashable {
-            /// - Remark: Generated from `#/paths/pets/create/POST/header`.
-            public struct Headers: Sendable, Hashable {
-                /// A description here.
-                ///
-                /// - Remark: Generated from `#/paths/pets/create/POST/header/X-Extra-Arguments`.
-                public var X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError?
-                public var accept:
-                    [OpenAPIRuntime.AcceptHeaderContentType<Operations.createPetWithForm.AcceptableContentType>]
-                /// Creates a new `Headers`.
-                ///
-                /// - Parameters:
-                ///   - X_hyphen_Extra_hyphen_Arguments: A description here.
-                ///   - accept:
-                public init(
-                    X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError? = nil,
-                    accept: [OpenAPIRuntime.AcceptHeaderContentType<
-                        Operations.createPetWithForm.AcceptableContentType
-                    >] = .defaultValues()
-                ) {
-                    self.X_hyphen_Extra_hyphen_Arguments = X_hyphen_Extra_hyphen_Arguments
-                    self.accept = accept
-                }
-            }
-            public var headers: Operations.createPetWithForm.Input.Headers
             /// - Remark: Generated from `#/paths/pets/create/POST/requestBody`.
             @frozen public enum Body: Sendable, Hashable {
                 /// - Remark: Generated from `#/paths/pets/create/POST/requestBody/content/application\/x-www-form-urlencoded`.
@@ -1060,87 +1036,24 @@ public enum Operations {
             /// Creates a new `Input`.
             ///
             /// - Parameters:
-            ///   - headers:
             ///   - body:
-            public init(
-                headers: Operations.createPetWithForm.Input.Headers = .init(),
-                body: Operations.createPetWithForm.Input.Body
-            ) {
-                self.headers = headers
-                self.body = body
-            }
+            public init(body: Operations.createPetWithForm.Input.Body) { self.body = body }
         }
         @frozen public enum Output: Sendable, Hashable {
-            public struct Created: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/create/POST/responses/201/headers`.
-                public struct Headers: Sendable, Hashable {
-                    /// A description here.
-                    ///
-                    /// - Remark: Generated from `#/paths/pets/create/POST/responses/201/headers/X-Extra-Arguments`.
-                    public var X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError?
-                    /// Creates a new `Headers`.
-                    ///
-                    /// - Parameters:
-                    ///   - X_hyphen_Extra_hyphen_Arguments: A description here.
-                    public init(X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError? = nil) {
-                        self.X_hyphen_Extra_hyphen_Arguments = X_hyphen_Extra_hyphen_Arguments
-                    }
-                }
-                /// Received HTTP response headers
-                public var headers: Operations.createPetWithForm.Output.Created.Headers
-                /// - Remark: Generated from `#/paths/pets/create/POST/responses/201/content`.
-                @frozen public enum Body: Sendable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/create/POST/responses/201/content/application\/json`.
-                    case json(Components.Schemas.Pet)
-                }
-                /// Received HTTP response body
-                public var body: Operations.createPetWithForm.Output.Created.Body
-                /// Creates a new `Created`.
-                ///
-                /// - Parameters:
-                ///   - headers: Received HTTP response headers
-                ///   - body: Received HTTP response body
-                public init(
-                    headers: Operations.createPetWithForm.Output.Created.Headers = .init(),
-                    body: Operations.createPetWithForm.Output.Created.Body
-                ) {
-                    self.headers = headers
-                    self.body = body
-                }
+            public struct NoContent: Sendable, Hashable {
+                /// Creates a new `NoContent`.
+                public init() {}
             }
-            /// Successfully created pet
+            /// Successfully created pet using a url form
             ///
-            /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)/responses/201`.
+            /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)/responses/204`.
             ///
-            /// HTTP response code: `201 created`.
-            case created(Operations.createPetWithForm.Output.Created)
-            /// Bad request
-            ///
-            /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)/responses/400`.
-            ///
-            /// HTTP response code: `400 badRequest`.
-            case badRequest(Components.Responses.ErrorBadRequest)
+            /// HTTP response code: `204 noContent`.
+            case noContent(Operations.createPetWithForm.Output.NoContent)
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
             case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
-        }
-        @frozen public enum AcceptableContentType: AcceptableProtocol {
-            case json
-            case other(String)
-            public init?(rawValue: String) {
-                switch rawValue.lowercased() {
-                case "application/json": self = .json
-                default: self = .other(rawValue)
-                }
-            }
-            public var rawValue: String {
-                switch self {
-                case let .other(string): return string
-                case .json: return "application/json"
-                }
-            }
-            public static var allCases: [Self] { [.json] }
         }
     }
     /// - Remark: HTTP `GET /pets/stats`.
