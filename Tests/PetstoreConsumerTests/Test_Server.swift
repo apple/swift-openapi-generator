@@ -253,6 +253,58 @@ final class Test_Server: XCTestCase {
         } catch {}
     }
 
+    func testCreatePetWithForm_201() async throws {
+        client = .init(
+            createPetWithFormBlock: { input in
+                XCTAssertEqual(input.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
+                guard case let .urlEncodedForm(createPet) = input.body else {
+                    throw TestError.unexpectedValue(input.body)
+                }
+                XCTAssertEqual(createPet, .init(name: "Fluffz"))
+                return .created(
+                    .init(
+                        headers: .init(
+                            X_hyphen_Extra_hyphen_Arguments: .init(code: 1)
+                        ),
+                        body: .json(
+                            .init(id: 1, name: "Fluffz")
+                        )
+                    )
+                )
+            }
+        )
+        let response = try await server.createPetWithForm(
+            .init(
+                path: "/api/pets/create",
+                method: .post,
+                headerFields: [
+                    .init(name: "x-extra-arguments", value: #"{"code":1}"#),
+                    .init(name: "content-type", value: "application/x-www-form-urlencoded"),
+                ],
+                encodedBody: "name=Fluffz"
+            ),
+            .init()
+        )
+        XCTAssertEqual(response.statusCode, 201)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .init(name: "X-Extra-Arguments", value: #"{"code":1}"#),
+                .init(name: "content-type", value: "application/json; charset=utf-8"),
+            ]
+        )
+        let bodyString = String(decoding: response.body, as: UTF8.self)
+        XCTAssertEqual(
+            bodyString,
+            #"""
+            {
+              "id" : 1,
+              "name" : "Fluffz"
+            }
+            """#
+        )
+    }
+
     func testUpdatePet_204_withBody() async throws {
         client = .init(
             updatePetBlock: { input in

@@ -229,6 +229,58 @@ final class Test_Client: XCTestCase {
         }
     }
 
+    func testCreatePetWithForm_201() async throws {
+        transport = .init { request, baseURL, operationID in
+            XCTAssertEqual(operationID, "createPetWithForm")
+            XCTAssertEqual(request.path, "/pets/create")
+            XCTAssertNil(request.query)
+            XCTAssertEqual(baseURL.absoluteString, "/api")
+            XCTAssertEqual(request.method, .post)
+            XCTAssertEqual(
+                request.headerFields,
+                [
+                    .init(name: "X-Extra-Arguments", value: #"{"code":1}"#),
+                    .init(name: "accept", value: "application/json"),
+                    .init(name: "content-type", value: "application/x-www-form-urlencoded"),
+                ]
+            )
+            XCTAssertEqual(
+                request.body?.pretty,
+                "name=Fluffz"
+            )
+            return .init(
+                statusCode: 201,
+                headers: [
+                    .init(name: "content-type", value: "application/json; charset=utf-8"),
+                    .init(name: "x-extra-arguments", value: #"{"code":1}"#),
+                ],
+                encodedBody: #"""
+                    {
+                      "id": 1,
+                      "name": "Fluffz"
+                    }
+                    """#
+            )
+        }
+        let response = try await client.createPetWithForm(
+            .init(
+                headers: .init(
+                    X_hyphen_Extra_hyphen_Arguments: .init(code: 1)
+                ),
+                body: .urlEncodedForm(.init(name: "Fluffz"))
+            )
+        )
+        guard case let .created(value) = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+        XCTAssertEqual(value.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
+        switch value.body {
+        case .json(let pets):
+            XCTAssertEqual(pets, .init(id: 1, name: "Fluffz"))
+        }
+    }
+
     func testUpdatePet_204_withBody() async throws {
         transport = .init { request, baseURL, operationID in
             XCTAssertEqual(operationID, "updatePet")
