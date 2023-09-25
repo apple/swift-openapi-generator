@@ -756,7 +756,7 @@ final class Test_Client: XCTestCase {
         let response = try await client.uploadAvatarForPet(
             .init(
                 path: .init(petId: 1),
-                body: .binary(.init(data: .abcd))
+                body: .binary(.init(.abcd))
             )
         )
         guard case let .ok(value) = response else {
@@ -796,7 +796,7 @@ final class Test_Client: XCTestCase {
         let response = try await client.uploadAvatarForPet(
             .init(
                 path: .init(petId: 1),
-                body: .binary(.init(data: .abcd))
+                body: .binary(.init(.abcd))
             )
         )
         guard case let .preconditionFailed(value) = response else {
@@ -824,7 +824,7 @@ final class Test_Client: XCTestCase {
         let response = try await client.uploadAvatarForPet(
             .init(
                 path: .init(petId: 1),
-                body: .binary(.init(data: .abcd))
+                body: .binary(.init(.abcd))
             )
         )
         guard case let .internalServerError(value) = response else {

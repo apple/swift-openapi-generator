@@ -811,7 +811,7 @@ final class Test_Server: XCTestCase {
                     throw TestError.unexpectedValue(input.body)
                 }
                 try await XCTAssertEqualStringifiedData(avatar, Data.abcdString)
-                return .ok(.init(body: .binary(.init(data: .efgh))))
+                return .ok(.init(body: .binary(.init(.efgh))))
             }
         )
         let (response, responseBody) = try await server.uploadAvatarForPet(

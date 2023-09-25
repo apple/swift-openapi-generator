@@ -52,7 +52,7 @@ public extension Date {
 public extension HTTPResponse {
 
     func withEncodedBody(_ encodedBody: String) throws -> (HTTPResponse, HTTPBody) {
-        (self, .init(data: Data(encodedBody.utf8)))
+        (self, .init(encodedBody))
     }
 
     static var listPetsSuccess: (HTTPResponse, HTTPBody) {
@@ -105,6 +105,6 @@ public extension Data {
 
 public extension HTTPRequest {
     func withEncodedBody(_ encodedBody: String) -> (HTTPRequest, HTTPBody) {
-        (self, .init(data: Data(encodedBody.utf8)))
+        (self, .init(encodedBody))
     }
 }
