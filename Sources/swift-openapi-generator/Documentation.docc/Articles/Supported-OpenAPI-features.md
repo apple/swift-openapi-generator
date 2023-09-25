@@ -12,7 +12,7 @@ Supported features are always provided on _both_ client and server.
 
 > Tip: If a feature you need isn't currently supported, let us know by filing an issue, or even contribute a pull request. For more information, check out <doc:Contributing-to-Swift-OpenAPI-Generator>.
 
-### Support structured content types
+### Structured content types
 
 For the checked serialization formats below, the generator emits types conforming to `Codable`, structured based on the provided JSON Schema.
 
