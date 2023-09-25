@@ -231,15 +231,14 @@ extension FileTranslator {
                 schema: contentValue.schema
             )
         }
-        let urlEncodedFormsSupported = config.featureFlags.contains(.urlEncodedForm)
-        if urlEncodedFormsSupported && contentKey.isUrlEncodedForm {
+        if contentKey.isUrlEncodedForm {
             let contentType = ContentType(contentKey.typeAndSubtype)
             return .init(
                 contentType: contentType,
                 schema: contentValue.schema
             )
         }
-        if !excludeBinary, contentKey.isBinary || !urlEncodedFormsSupported {
+        if !excludeBinary, contentKey.isBinary {
             let contentType = contentKey.asGeneratorContentType
             return .init(
                 contentType: contentType,

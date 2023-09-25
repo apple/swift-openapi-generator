@@ -15,10 +15,4 @@ import OpenAPIKit
 
 extension FileTranslator {
     // Add helpers for reading feature flags below.
-
-    /// A Boolean value indicating whether the `nullable` field on schemas
-    /// should be taken into account.
-    var supportNullableSchemas: Bool {
-        config.featureFlags.contains(.nullableSchemas)
-    }
 }
