@@ -29,7 +29,7 @@ final class Test_DiscriminatorExtensions: Test_Core {
     func testMappedTypes() throws {
         let typeAssigner = makeTranslator().typeAssigner
         func _test(
-            mapping: [String: String]?,
+            mapping: OrderedDictionary<String, String>?,
             schemaNames: [String],
             expectedOutputs: [Output],
             file: StaticString = #file,
