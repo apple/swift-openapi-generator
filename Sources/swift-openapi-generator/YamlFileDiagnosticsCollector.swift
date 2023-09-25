@@ -21,7 +21,9 @@ struct _DiagnosticsYamlFileContent: Encodable {
 }
 
 /// A collector that writes diagnostics to a YAML file.
-class _YamlFileDiagnosticsCollector: DiagnosticCollector {
+final class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecked Sendable {
+    /// Protects `diagnostics`.
+    private let lock = NSLock()
 
     /// A list of collected diagnostics.
     private var diagnostics: [Diagnostic] = []
@@ -36,12 +38,16 @@ class _YamlFileDiagnosticsCollector: DiagnosticCollector {
     }
 
     func emit(_ diagnostic: Diagnostic) {
+        lock.lock()
+        defer { lock.unlock() }
         diagnostics.append(diagnostic)
     }
 
     /// Finishes writing to the collector by persisting the accumulated
     /// diagnostics to a YAML file.
     func finalize() throws {
+        lock.lock()
+        defer { lock.unlock() }
         let uniqueMessages = Set(diagnostics.map(\.message)).sorted()
         let encoder = YAMLEncoder()
         encoder.options.sortKeys = true

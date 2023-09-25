@@ -262,6 +262,35 @@ final class Test_Server: XCTestCase {
         } catch {}
     }
 
+    func testCreatePetWithForm_204() async throws {
+        client = .init(
+            createPetWithFormBlock: { input in
+                guard case let .urlEncodedForm(createPet) = input.body else {
+                    throw TestError.unexpectedValue(input.body)
+                }
+                XCTAssertEqual(createPet, .init(name: "Fluffz"))
+                return .noContent(.init())
+            }
+        )
+        let response = try await server.createPetWithForm(
+            .init(
+                path: "/api/pets/create",
+                method: .post,
+                headerFields: [
+                    .init(name: "x-extra-arguments", value: #"{"code":1}"#),
+                    .init(name: "content-type", value: "application/x-www-form-urlencoded"),
+                ],
+                encodedBody: "name=Fluffz"
+            ),
+            .init()
+        )
+        XCTAssertEqual(response.statusCode, 204)
+        XCTAssertEqual(
+            response.headerFields,
+            []
+        )
+    }
+
     func testUpdatePet_204_withBody() async throws {
         client = .init(
             updatePetBlock: { input in

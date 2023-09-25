@@ -27,10 +27,9 @@ swiftSettings.append(
 
 // Strict concurrency is enabled in CI; use this environment variable to enable it locally.
 if ProcessInfo.processInfo.environment["SWIFT_OPENAPI_STRICT_CONCURRENCY"].flatMap(Bool.init) ?? false {
-    #warning("Compiling with Strict Concurrency")
     swiftSettings.append(contentsOf: [
+        .define("SWIFT_OPENAPI_STRICT_CONCURRENCY"),
         .enableExperimentalFeature("StrictConcurrency"),
-        .unsafeFlags(["-warnings-as-errors"]),
     ])
 }
 #endif
@@ -74,7 +73,7 @@ let package = Package(
         // Read OpenAPI documents
         .package(
             url: "https://github.com/mattpolzin/OpenAPIKit.git",
-            exact: "3.0.0-beta.5"
+            exact: "3.0.0-rc.2"
         ),
         .package(
             url: "https://github.com/jpsim/Yams.git",
@@ -90,7 +89,7 @@ let package = Package(
         // Tests-only: Runtime library linked by generated code, and also
         // helps keep the runtime library new enough to work with the generated
         // code.
-        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.2.2")),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.2.4")),
 
         // Build and preview docs
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),

@@ -53,6 +53,9 @@ Below is a list of the "dimensions" across which the helper methods differ:
     - `URI`
         - example: query, path, header parameters
         - `color=red&power=24`
+    - `urlEncodedForm`
+        - example: request body with the `application/x-www-form-urlencoded` content type
+        - `greeting=Hello+world`
     - `binary`
         - example: `application/octet-stream`
         - serves as the fallback for content types that don't have more specific handling
@@ -89,6 +92,8 @@ method parameters: value or type of value
 | client | set | request body | JSON | required | setRequiredRequestBodyAsJSON |
 | client | set | request body | binary | optional | setOptionalRequestBodyAsBinary |
 | client | set | request body | binary | required | setRequiredRequestBodyAsBinary |
+| client | set | request body | urlEncodedForm | optional | setOptionalRequestBodyAsURLEncodedForm | 
+| client | set | request body | urlEncodedForm | required | setRequiredRequestBodyAsURLEncodedForm | 
 | client | get | response body | JSON | required | getResponseBodyAsJSON |
 | client | get | response body | binary | required | getResponseBodyAsBinary |
 | server | get | request path | URI | required | getPathParameterAsURI |
@@ -98,5 +103,7 @@ method parameters: value or type of value
 | server | get | request body | JSON | required | getRequiredRequestBodyAsJSON |
 | server | get | request body | binary | optional | getOptionalRequestBodyAsBinary |
 | server | get | request body | binary | required | getRequiredRequestBodyAsBinary |
+| server | get | request body | urlEncodedForm | optional | getOptionalRequestBodyAsURLEncodedForm |
+| server | get | request body | urlEncodedForm | required | getRequiredRequestBodyAsURLEncodedForm |
 | server | set | response body | JSON | required | setResponseBodyAsJSON |
 | server | set | response body | binary | required | setResponseBodyAsBinary |

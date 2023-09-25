@@ -377,6 +377,9 @@ enum Constants {
 
         /// The substring used in method names for the binary coding strategy.
         static let binary: String = "Binary"
+
+        /// The substring used in method names for the url encoded form coding strategy.
+        static let urlEncodedForm: String = "URLEncodedForm"
     }
 
     /// Constants related to types used in many components.

@@ -215,6 +215,37 @@ public struct Client: APIProtocol {
             }
         )
     }
+    /// Create a pet using a url form
+    ///
+    /// - Remark: HTTP `POST /pets/create`.
+    /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
+    public func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws
+        -> Operations.createPetWithForm.Output
+    {
+        try await client.send(
+            input: input,
+            forOperation: Operations.createPetWithForm.id,
+            serializer: { input in let path = try converter.renderedPath(template: "/pets/create", parameters: [])
+                var request: OpenAPIRuntime.Request = .init(path: path, method: .post)
+                suppressMutabilityWarning(&request)
+                switch input.body {
+                case let .urlEncodedForm(value):
+                    request.body = try converter.setRequiredRequestBodyAsURLEncodedForm(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "application/x-www-form-urlencoded"
+                    )
+                }
+                return request
+            },
+            deserializer: { response in
+                switch response.statusCode {
+                case 204: return .noContent(.init())
+                default: return .undocumented(statusCode: response.statusCode, .init())
+                }
+            }
+        )
+    }
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
     public func getStats(_ input: Operations.getStats.Input) async throws -> Operations.getStats.Output {

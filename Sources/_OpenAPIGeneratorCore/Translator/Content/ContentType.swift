@@ -40,6 +40,16 @@ struct ContentType: Hashable {
         /// either to the network (requests) or to the caller (responses).
         case binary
 
+        /// A content type for x-www-form-urlencoded.
+        ///
+        /// The top level properties of a Codable data model are encoded
+        /// as key-value pairs in the form:
+        ///
+        ///  `key1=value1&key2=value2`
+        ///
+        /// The type is encoded as a binary UTF-8 data packet.
+        case urlEncodedForm
+
         /// Creates a category from the provided type and subtype.
         ///
         /// First checks if the provided content type is a JSON, then text,
@@ -52,6 +62,8 @@ struct ContentType: Hashable {
             if (lowercasedType == "application" && lowercasedSubtype == "json") || lowercasedSubtype.hasSuffix("+json")
             {
                 self = .json
+            } else if lowercasedType == "application" && lowercasedSubtype == "x-www-form-urlencoded" {
+                self = .urlEncodedForm
             } else {
                 self = .binary
             }
@@ -64,6 +76,8 @@ struct ContentType: Hashable {
                 return .json
             case .binary:
                 return .binary
+            case .urlEncodedForm:
+                return .urlEncodedForm
             }
         }
     }
@@ -221,6 +235,10 @@ struct ContentType: Hashable {
         category == .binary
     }
 
+    var isUrlEncodedForm: Bool {
+        category == .urlEncodedForm
+    }
+
     static func == (lhs: Self, rhs: Self) -> Bool {
         // MIME type equality is case-insensitive.
         lhs.lowercasedTypeAndSubtype == rhs.lowercasedTypeAndSubtype
@@ -237,6 +255,12 @@ extension OpenAPI.ContentType {
     /// is a type of JSON.
     var isJSON: Bool {
         asGeneratorContentType.isJSON
+    }
+
+    /// A Boolean value that indicates whether the content type
+    /// is a URL-encoded form.
+    var isUrlEncodedForm: Bool {
+        asGeneratorContentType.isUrlEncodedForm
     }
 
     /// A Boolean value that indicates whether the content type
