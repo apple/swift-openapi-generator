@@ -48,12 +48,15 @@ final class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecked Senda
     func finalize() throws {
         lock.lock()
         defer { lock.unlock() }
-        let uniqueMessages = Set(diagnostics.map(\.message)).sorted()
+        let sortedDiagnostics = diagnostics.sorted(by: { a, b in
+            a.description < b.description
+        })
+        let uniqueMessages = Set(sortedDiagnostics.map(\.message)).sorted()
         let encoder = YAMLEncoder()
         encoder.options.sortKeys = true
         let container = _DiagnosticsYamlFileContent(
             uniqueMessages: uniqueMessages,
-            diagnostics: diagnostics
+            diagnostics: sortedDiagnostics
         )
         try encoder
             .encode(container)
