@@ -12,6 +12,20 @@ Supported features are always provided on _both_ client and server.
 
 > Tip: If a feature you need isn't currently supported, let us know by filing an issue, or even contribute a pull request. For more information, check out <doc:Contributing-to-Swift-OpenAPI-Generator>.
 
+### Structured content types
+
+For the checked serialization formats below, the generator emits types conforming to `Codable`, structured based on the provided JSON Schema.
+
+For any other formats, the payload is provided as raw bytes, leaving it up to the adopter to decode as needed.
+
+- [x] JSON
+    - when content type is `application/json` or ends with `+json`
+- [x] URL-encoded form request bodies
+    - when content type is `application/x-www-form-urlencoded`
+- [ ] multipart
+    - tracked by [#36](https://github.com/apple/swift-openapi-generator/issues/36)
+- [ ] XML
+
 ### OpenAPI specification features
 
 #### OpenAPI Object

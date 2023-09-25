@@ -68,6 +68,15 @@ extension TestServerTransport {
         }
     }
 
+    var createPetWithForm: Handler {
+        get throws {
+            try findHandler(
+                method: .post,
+                path: ["api", "pets", "create"]
+            )
+        }
+    }
+
     var updatePet: Handler {
         get throws {
             try findHandler(
