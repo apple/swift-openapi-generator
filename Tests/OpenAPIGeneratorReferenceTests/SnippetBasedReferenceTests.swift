@@ -1158,6 +1158,57 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsRequestBodiesInline_urlEncodedForm() throws {
+        try self.assertRequestBodiesTranslation(
+            """
+            requestBodies:
+              MyRequestBody:
+                content:
+                  application/x-www-form-urlencoded:
+                    schema:
+                      type: object
+                      properties:
+                        foo:
+                          type: string
+                      required: [foo]
+            """,
+            """
+            public enum RequestBodies {
+                @frozen public enum MyRequestBody: Sendable, Hashable {
+                    case urlEncodedForm(Foundation.Data)
+                }
+            }
+            """
+        )
+        try self.assertRequestBodiesTranslation(
+            featureFlags: [.urlEncodedForm],
+            """
+            requestBodies:
+              MyRequestBody:
+                content:
+                  application/x-www-form-urlencoded:
+                    schema:
+                      type: object
+                      properties:
+                        foo:
+                          type: string
+                      required: [foo]
+            """,
+            """
+            public enum RequestBodies {
+                @frozen public enum MyRequestBody: Sendable, Hashable {
+                    public struct urlEncodedFormPayload: Codable, Hashable, Sendable {
+                        public var foo: Swift.String
+                        public init(foo: Swift.String) { self.foo = foo }
+                        public enum CodingKeys: String, CodingKey { case foo }
+                    }
+                    case urlEncodedForm(Components.RequestBodies.MyRequestBody.urlEncodedFormPayload)
+                }
+            }
+            """
+        )
+    }
+
     func testPathsSimplestCase() throws {
         try self.assertPathsTranslation(
             """

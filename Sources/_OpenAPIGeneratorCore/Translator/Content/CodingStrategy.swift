@@ -27,6 +27,9 @@ enum CodingStrategy: String, Hashable, Sendable {
     /// A strategy that passes through the data unmodified.
     case binary
 
+    /// A strategy using x-www-form-urlencoded.
+    case urlEncodedForm
+
     /// The name of the coding strategy in the runtime library.
     var runtimeName: String {
         switch self {
@@ -38,6 +41,8 @@ enum CodingStrategy: String, Hashable, Sendable {
             return Constants.CodingStrategy.string
         case .binary:
             return Constants.CodingStrategy.binary
+        case .urlEncodedForm:
+            return Constants.CodingStrategy.urlEncodedForm
         }
     }
 }

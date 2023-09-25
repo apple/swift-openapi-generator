@@ -15,7 +15,6 @@ import OpenAPIRuntime
 import Foundation
 
 struct TestClient: APIProtocol {
-
     typealias ListPetsSignature = @Sendable (Operations.listPets.Input) async throws -> Operations.listPets.Output
     var listPetsBlock: ListPetsSignature?
     func listPets(
@@ -33,6 +32,18 @@ struct TestClient: APIProtocol {
         _ input: Operations.createPet.Input
     ) async throws -> Operations.createPet.Output {
         guard let block = createPetBlock else {
+            throw UnspecifiedBlockError()
+        }
+        return try await block(input)
+    }
+
+    typealias CreatePetWithFormSignature = @Sendable (Operations.createPetWithForm.Input) async throws ->
+        Operations.createPetWithForm.Output
+    var createPetWithFormBlock: CreatePetWithFormSignature?
+    func createPetWithForm(
+        _ input: Operations.createPetWithForm.Input
+    ) async throws -> Operations.createPetWithForm.Output {
+        guard let block = createPetWithFormBlock else {
             throw UnspecifiedBlockError()
         }
         return try await block(input)
@@ -82,7 +93,8 @@ struct TestClient: APIProtocol {
         return try await block(input)
     }
 
-    typealias UploadAvatarForPetSignature = @Sendable (Operations.uploadAvatarForPet.Input) async throws -> Operations
+    typealias UploadAvatarForPetSignature = @Sendable (Operations.uploadAvatarForPet.Input) async throws ->
+        Operations
         .uploadAvatarForPet.Output
     var uploadAvatarForPetBlock: UploadAvatarForPetSignature?
     func uploadAvatarForPet(

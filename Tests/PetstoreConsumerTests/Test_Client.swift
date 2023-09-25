@@ -229,6 +229,38 @@ final class Test_Client: XCTestCase {
         }
     }
 
+    func testCreatePetWithForm_204() async throws {
+        transport = .init { request, baseURL, operationID in
+            XCTAssertEqual(operationID, "createPetWithForm")
+            XCTAssertEqual(request.path, "/pets/create")
+            XCTAssertNil(request.query)
+            XCTAssertEqual(baseURL.absoluteString, "/api")
+            XCTAssertEqual(request.method, .post)
+            XCTAssertEqual(
+                request.headerFields,
+                [
+                    .init(name: "content-type", value: "application/x-www-form-urlencoded")
+                ]
+            )
+            XCTAssertEqual(
+                request.body?.pretty,
+                "name=Fluffz"
+            )
+
+            return .init(statusCode: 204)
+        }
+        let response = try await client.createPetWithForm(
+            .init(
+                body: .urlEncodedForm(.init(name: "Fluffz"))
+            )
+        )
+        guard case .noContent = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+
+    }
+
     func testUpdatePet_204_withBody() async throws {
         transport = .init { request, baseURL, operationID in
             XCTAssertEqual(operationID, "updatePet")

@@ -247,7 +247,15 @@ extension FileTranslator {
                 schema: .b(.string)
             )
         }
-        if !excludeBinary, contentKey.isBinary {
+        let urlEncodedFormsSupported = config.featureFlags.contains(.urlEncodedForm)
+        if urlEncodedFormsSupported && contentKey.isUrlEncodedForm {
+            let contentType = ContentType(contentKey.typeAndSubtype)
+            return .init(
+                contentType: contentType,
+                schema: contentValue.schema
+            )
+        }
+        if !excludeBinary, contentKey.isBinary || !urlEncodedFormsSupported {
             let contentType = contentKey.asGeneratorContentType
             return .init(
                 contentType: contentType,

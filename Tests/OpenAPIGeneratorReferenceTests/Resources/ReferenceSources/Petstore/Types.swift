@@ -24,6 +24,12 @@ public protocol APIProtocol: Sendable {
     /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
     func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output
+    /// Create a pet using a url form
+    ///
+    /// - Remark: HTTP `POST /pets/create`.
+    /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
+    func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws
+        -> Operations.createPetWithForm.Output
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
     func getStats(_ input: Operations.getStats.Input) async throws -> Operations.getStats.Output
@@ -1012,6 +1018,42 @@ public enum Operations {
                 }
             }
             public static var allCases: [Self] { [.json] }
+        }
+    }
+    /// Create a pet using a url form
+    ///
+    /// - Remark: HTTP `POST /pets/create`.
+    /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
+    public enum createPetWithForm {
+        public static let id: String = "createPetWithForm"
+        public struct Input: Sendable, Hashable {
+            /// - Remark: Generated from `#/paths/pets/create/POST/requestBody`.
+            @frozen public enum Body: Sendable, Hashable {
+                /// - Remark: Generated from `#/paths/pets/create/POST/requestBody/content/application\/x-www-form-urlencoded`.
+                case urlEncodedForm(Components.Schemas.CreatePetRequest)
+            }
+            public var body: Operations.createPetWithForm.Input.Body
+            /// Creates a new `Input`.
+            ///
+            /// - Parameters:
+            ///   - body:
+            public init(body: Operations.createPetWithForm.Input.Body) { self.body = body }
+        }
+        @frozen public enum Output: Sendable, Hashable {
+            public struct NoContent: Sendable, Hashable {
+                /// Creates a new `NoContent`.
+                public init() {}
+            }
+            /// Successfully created pet using a url form
+            ///
+            /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)/responses/204`.
+            ///
+            /// HTTP response code: `204 noContent`.
+            case noContent(Operations.createPetWithForm.Output.NoContent)
+            /// Undocumented response.
+            ///
+            /// A response with a code that is not documented in the OpenAPI document.
+            case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
         }
     }
     /// - Remark: HTTP `GET /pets/stats`.
