@@ -226,22 +226,23 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.createPetWithForm.id,
             serializer: { input in let path = try converter.renderedPath(template: "/pets/create", parameters: [])
-                var request: OpenAPIRuntime.Request = .init(path: path, method: .post)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .post)
                 suppressMutabilityWarning(&request)
+                let body: OpenAPIRuntime.HTTPBody?
                 switch input.body {
                 case let .urlEncodedForm(value):
-                    request.body = try converter.setRequiredRequestBodyAsURLEncodedForm(
+                    body = try converter.setRequiredRequestBodyAsURLEncodedForm(
                         value,
                         headerFields: &request.headerFields,
                         contentType: "application/x-www-form-urlencoded"
                     )
                 }
-                return request
+                return (request, body)
             },
-            deserializer: { response in
-                switch response.statusCode {
+            deserializer: { response, responseBody in
+                switch response.status.code {
                 case 204: return .noContent(.init())
-                default: return .undocumented(statusCode: response.statusCode, .init())
+                default: return .undocumented(statusCode: response.status.code, .init())
                 }
             }
         )

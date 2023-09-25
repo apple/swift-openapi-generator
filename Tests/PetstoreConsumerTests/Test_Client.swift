@@ -210,7 +210,7 @@ final class Test_Client: XCTestCase {
     }
 
     func testCreatePet_400() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in
+        transport = .init { request, body, baseURL, operationID in
             try HTTPResponse(
                 soar_statusCode: 400,
                 headerFields: [
@@ -242,24 +242,31 @@ final class Test_Client: XCTestCase {
     }
 
     func testCreatePetWithForm_204() async throws {
-        transport = .init { request, baseURL, operationID in
+        transport = .init { request, body, baseURL, operationID in
             XCTAssertEqual(operationID, "createPetWithForm")
             XCTAssertEqual(request.path, "/pets/create")
-            XCTAssertNil(request.query)
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
             XCTAssertEqual(
                 request.headerFields,
                 [
-                    .init(name: "content-type", value: "application/x-www-form-urlencoded")
+                    .contentType: "application/x-www-form-urlencoded"
                 ]
             )
+            let bodyString: String
+            if let body {
+                bodyString = try await String(collecting: body, upTo: .max)
+            } else {
+                bodyString = ""
+            }
             XCTAssertEqual(
-                request.body?.pretty,
+                bodyString,
                 "name=Fluffz"
             )
-
-            return .init(statusCode: 204)
+            return (
+                HTTPResponse(status: .noContent),
+                nil
+            )
         }
         let response = try await client.createPetWithForm(
             .init(
@@ -301,7 +308,7 @@ final class Test_Client: XCTestCase {
                         .contentType: "application/json"
                     ]
                 ),
-                .init()
+                nil
             )
         }
         let response = try await client.updatePet(

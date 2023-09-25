@@ -72,6 +72,12 @@ final class Test_Playground: XCTestCase {
                 fatalError()
             }
 
+            func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws
+                -> Operations.createPetWithForm.Output
+            {
+                fatalError()
+            }
+
             func getStats(_ input: Operations.getStats.Input) async throws -> Operations.getStats.Output {
                 fatalError()
             }
@@ -174,6 +180,12 @@ final class Test_Playground: XCTestCase {
                 fatalError()
             }
 
+            func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws
+                -> Operations.createPetWithForm.Output
+            {
+                fatalError()
+            }
+
             func postStats(_ input: Operations.postStats.Input) async throws -> Operations.postStats.Output {
                 fatalError()
             }
@@ -267,6 +279,12 @@ final class Test_Playground: XCTestCase {
             }
 
             func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output {
+                fatalError()
+            }
+
+            func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws
+                -> Operations.createPetWithForm.Output
+            {
                 fatalError()
             }
 

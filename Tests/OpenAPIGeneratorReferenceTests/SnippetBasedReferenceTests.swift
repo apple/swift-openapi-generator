@@ -1175,7 +1175,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum RequestBodies {
                 @frozen public enum MyRequestBody: Sendable, Hashable {
-                    case urlEncodedForm(Foundation.Data)
+                    case urlEncodedForm(OpenAPIRuntime.HTTPBody)
                 }
             }
             """

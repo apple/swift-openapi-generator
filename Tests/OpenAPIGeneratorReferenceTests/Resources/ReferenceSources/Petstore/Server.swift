@@ -43,7 +43,7 @@ extension APIProtocol {
         try transport.register(
             { try await server.createPetWithForm(request: $0, body: $1, metadata: $2) },
             method: .post,
-            path: server.apiPathComponentsWithServerPrefix(["pets", "create"])
+            path: server.apiPathComponentsWithServerPrefix("/pets/create")
         )
         try transport.register(
             { try await server.getStats(request: $0, body: $1, metadata: $2) },
@@ -264,13 +264,16 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `POST /pets/create`.
     /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
-    func createPetWithForm(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
+    func createPetWithForm(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody?
+    ) {
         try await handle(
             request: request,
-            with: metadata,
+            requestBody: body,
+            metadata: metadata,
             forOperation: Operations.createPetWithForm.id,
             using: { APIHandler.createPetWithForm($0) },
-            deserializer: { request, metadata in
+            deserializer: { request, requestBody, metadata in
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.createPetWithForm.Input.Body
                 if try contentType == nil
@@ -279,9 +282,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         expectedRaw: "application/x-www-form-urlencoded"
                     )
                 {
-                    body = try converter.getRequiredRequestBodyAsURLEncodedForm(
+                    body = try await converter.getRequiredRequestBodyAsURLEncodedForm(
                         Components.Schemas.CreatePetRequest.self,
-                        from: request.body,
+                        from: requestBody,
                         transforming: { value in .urlEncodedForm(value) }
                     )
                 } else {
@@ -293,10 +296,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .noContent(value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: 204)
+                    var response = HTTPResponse(soar_statusCode: 204)
                     suppressMutabilityWarning(&response)
-                    return response
-                case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
+                    return (response, nil)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )

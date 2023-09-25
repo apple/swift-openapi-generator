@@ -14,6 +14,7 @@
 import XCTest
 import OpenAPIRuntime
 import PetstoreConsumerTestCore
+import HTTPTypes
 
 final class Test_Server: XCTestCase {
 
@@ -272,22 +273,23 @@ final class Test_Server: XCTestCase {
                 return .noContent(.init())
             }
         )
-        let response = try await server.createPetWithForm(
+        let (response, responseBody) = try await server.createPetWithForm(
             .init(
-                path: "/api/pets/create",
+                soar_path: "/api/pets/create",
                 method: .post,
                 headerFields: [
-                    .init(name: "x-extra-arguments", value: #"{"code":1}"#),
-                    .init(name: "content-type", value: "application/x-www-form-urlencoded"),
-                ],
-                encodedBody: "name=Fluffz"
+                    .init("x-extra-arguments")!: #"{"code":1}"#,
+                    .contentType: "application/x-www-form-urlencoded",
+                ]
             ),
+            .init("name=Fluffz"),
             .init()
         )
-        XCTAssertEqual(response.statusCode, 204)
+        XCTAssertEqual(response.status.code, 204)
+        XCTAssertNil(responseBody)
         XCTAssertEqual(
             response.headerFields,
-            []
+            [:]
         )
     }
 
