@@ -86,7 +86,25 @@ extension _GenerateOptions {
         if !featureFlag.isEmpty {
             return Set(featureFlag)
         }
-        return Set(config?.featureFlags ?? [])
+        return config?.featureFlags ?? []
+    }
+
+    /// Extracts keys from a YAML string.
+    ///
+    /// - Parameter yamlString: The YAML string from which to extract keys.
+    /// - Returns: An array of strings representing the keys extracted from the YAML string.
+    func extractYamlKeys(yamlString: String) -> [String] {
+        let lines = yamlString.components(separatedBy: "\n")
+
+        var extractedKeys = [String]()
+
+        for line in lines {
+            if let range = line.range(of: ":") {
+                let key = line[line.startIndex..<range.lowerBound].trimmingCharacters(in: .whitespaces)
+                extractedKeys.append(key)
+            }
+        }
+        return extractedKeys
     }
 
     /// Returns the configuration requested by the user.
@@ -99,6 +117,16 @@ extension _GenerateOptions {
         }
         do {
             let data = try Data(contentsOf: config)
+            let configAsString = String(data: data, encoding: .utf8)
+
+            let yamlKeys = extractYamlKeys(yamlString: configAsString!)
+
+            try yamlKeys.forEach { key in
+                if !_UserConfig.codingKeysRawValues.contains(key) {
+                    throw ValidationError("Unknown configuration key found in config file: \(key)")
+                }
+            }
+
             let config = try YAMLDecoder().decode(_UserConfig.self, from: data)
             return config
         } catch {

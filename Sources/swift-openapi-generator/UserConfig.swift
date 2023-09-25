@@ -29,4 +29,12 @@ struct _UserConfig: Codable {
 
     /// A set of features to explicitly enable.
     var featureFlags: FeatureFlags?
+
+    static let codingKeysRawValues = Set(CodingKeys.allCases.map({ $0.rawValue }))
+
+    enum CodingKeys: String, CaseIterable, CodingKey {
+        case generate
+        case additionalImports
+        case featureFlags
+    }
 }
