@@ -273,6 +273,12 @@ extension OpenAPI.ContentType {
     }
 
     /// A Boolean value that indicates whether the content type
+    /// is a URL-encoded form.
+    var isUrlEncodedForm: Bool {
+        asGeneratorContentType.isUrlEncodedForm
+    }
+
+    /// A Boolean value that indicates whether the content type
     /// is a type of plain text.
     var isText: Bool {
         asGeneratorContentType.isText
@@ -284,9 +290,6 @@ extension OpenAPI.ContentType {
         asGeneratorContentType.isBinary
     }
 
-    var isUrlEncodedForm: Bool {
-        asGeneratorContentType.isUrlEncodedForm
-    }
     /// Returns the content type wrapped in the generator's representation
     /// of a content type, as opposed to the one from OpenAPIKit.
     var asGeneratorContentType: ContentType {

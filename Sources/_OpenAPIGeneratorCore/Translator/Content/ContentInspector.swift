@@ -172,15 +172,6 @@ extension FileTranslator {
                 ),
                 contentValue
             )
-        } else if let (contentKey, contentValue) = map.first(where: { $0.key.isUrlEncodedForm }) {
-            let contentType = ContentType(contentKey.typeAndSubtype)
-            chosenContent = (
-                .init(
-                    contentType: contentType,
-                    schema: contentValue.schema
-                ),
-                contentValue
-            )
         } else if !excludeBinary, let (contentKey, contentValue) = map.first(where: { $0.key.isBinary }) {
             let contentType = contentKey.asGeneratorContentType
             chosenContent = (
@@ -256,14 +247,15 @@ extension FileTranslator {
                 schema: .b(.string)
             )
         }
-        if contentKey.isUrlEncodedForm {
+        let urlEncodedFormsSupported = config.featureFlags.contains(.urlEncodedForm)
+        if urlEncodedFormsSupported && contentKey.isUrlEncodedForm {
             let contentType = ContentType(contentKey.typeAndSubtype)
             return .init(
                 contentType: contentType,
                 schema: contentValue.schema
             )
         }
-        if !excludeBinary, contentKey.isBinary {
+        if !excludeBinary, contentKey.isBinary || !urlEncodedFormsSupported {
             let contentType = contentKey.asGeneratorContentType
             return .init(
                 contentType: contentType,

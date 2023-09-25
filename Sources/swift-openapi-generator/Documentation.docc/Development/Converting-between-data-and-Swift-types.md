@@ -53,6 +53,9 @@ Below is a list of the "dimensions" across which the helper methods differ:
     - `URI`
         - example: query, path, header parameters
         - `color=red&power=24`
+    - `urlEncodedForm`
+        - example: request body with the `application/x-www-form-urlencoded` content type
+        - `greeting=Hello+world`
     - `string`
         - example: `text/plain`, and any other `text/*` content type
         - `"red color and power of 24"`
@@ -108,8 +111,8 @@ method parameters: value or type of value
 | server | get | request body | JSON | required | getRequiredRequestBodyAsJSON |
 | server | get | request body | binary | optional | getOptionalRequestBodyAsBinary |
 | server | get | request body | binary | required | getRequiredRequestBodyAsBinary |
-| server | get | request body | URLEncodedForm | optional | getOptionalRequestBodyAsURLEncodedForm |
-| server | get | request body | URLEncodedForm | required | getRequiredRequestBodyAsURLEncodedForm |
+| server | get | request body | urlEncodedForm | optional | getOptionalRequestBodyAsURLEncodedForm |
+| server | get | request body | urlEncodedForm | required | getRequiredRequestBodyAsURLEncodedForm |
 | server | set | response body | string | required | setResponseBodyAsString |
 | server | set | response body | JSON | required | setResponseBodyAsJSON |
 | server | set | response body | binary | required | setResponseBodyAsBinary |
