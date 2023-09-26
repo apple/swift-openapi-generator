@@ -35,7 +35,7 @@ enum ResponseKind {
         /// Successful responses.
         case _2XX
 
-        /// Redirect responses.
+        /// Redirection responses.
         case _3XX
 
         /// Client error responses.
@@ -101,11 +101,11 @@ enum ResponseKind {
         var prettyName: String {
             switch self {
             case ._1XX:
-                return "information"
+                return "informational"
             case ._2XX:
-                return "success"
+                return "successful"
             case ._3XX:
-                return "redirect"
+                return "redirection"
             case ._4XX:
                 return "clientError"
             case ._5XX:
