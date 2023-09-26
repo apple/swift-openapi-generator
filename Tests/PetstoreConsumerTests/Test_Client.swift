@@ -51,7 +51,7 @@ final class Test_Client: XCTestCase {
             )
             XCTAssertNil(body)
             return try HTTPResponse(
-                soar_statusCode: 200,
+                status: .ok,
                 headerFields: [
                     .contentType: "application/json",
                     .init("my-response-uuid")!: "abcd",
@@ -108,7 +108,7 @@ final class Test_Client: XCTestCase {
             )
             XCTAssertNil(body)
             return try HTTPResponse(
-                soar_statusCode: 400,
+                status: .badRequest,
                 headerFields: [
                     .contentType: "application/json"
                 ]
@@ -175,7 +175,7 @@ final class Test_Client: XCTestCase {
                 """#
             )
             return try HTTPResponse(
-                soar_statusCode: 201,
+                status: .created,
                 headerFields: [
                     .contentType: "application/json; charset=utf-8",
                     .init("x-extra-arguments")!: #"{"code":1}"#,
@@ -212,7 +212,7 @@ final class Test_Client: XCTestCase {
     func testCreatePet_400() async throws {
         transport = .init { request, body, baseURL, operationID in
             try HTTPResponse(
-                soar_statusCode: 400,
+                status: .badRequest,
                 headerFields: [
                     .contentType: "application/json; charset=utf-8",
                     .init("x-reason")!: "bad luck",
@@ -412,7 +412,7 @@ final class Test_Client: XCTestCase {
             )
             XCTAssertNil(requestBody)
             return try HTTPResponse(
-                soar_statusCode: 200,
+                status: .ok,
                 headerFields: [
                     .contentType: "application/json"
                 ]
@@ -445,7 +445,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(request.method, .get)
             XCTAssertNil(requestBody)
             return try HTTPResponse(
-                soar_statusCode: 200
+                status: .ok
             )
             .withEncodedBody(
                 #"""
@@ -668,7 +668,7 @@ final class Test_Client: XCTestCase {
                 }
                 """#
             )
-            return (.init(soar_statusCode: 202), nil)
+            return (.init(status: .accepted), nil)
         }
         let response = try await client.postStats(
             .init(body: .json(.init(count: 1)))
@@ -697,7 +697,7 @@ final class Test_Client: XCTestCase {
                 count is 1
                 """#
             )
-            return (.init(soar_statusCode: 202), nil)
+            return (.init(status: .accepted), nil)
         }
         let response = try await client.postStats(
             .init(body: .plainText("count is 1"))
@@ -726,7 +726,7 @@ final class Test_Client: XCTestCase {
                 count_is_1
                 """#
             )
-            return (.init(soar_statusCode: 202), nil)
+            return (.init(status: .accepted), nil)
         }
         let response = try await client.postStats(
             .init(body: .binary("count_is_1"))
@@ -746,7 +746,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(request.method, .post)
             XCTAssertEqual(request.headerFields, [:])
             XCTAssertNil(requestBody)
-            return (.init(soar_statusCode: 204), nil)
+            return (.init(status: .noContent), nil)
         }
         let response = try await client.probe(.init())
         guard case .noContent = response else {
@@ -758,7 +758,7 @@ final class Test_Client: XCTestCase {
     @available(*, deprecated)
     func testProbe_undocumented() async throws {
         transport = .init { request, requestBody, baseURL, operationID in
-            (.init(soar_statusCode: 503), nil)
+            (.init(status: .serviceUnavailable), nil)
         }
         let response = try await client.probe(.init())
         guard case let .undocumented(statusCode, _) = response else {
