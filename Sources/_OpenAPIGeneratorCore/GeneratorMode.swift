@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 /// Describes the file to be generated from the specified OpenAPI document.
-public enum GeneratorMode: String, Codable, CaseIterable {
+public enum GeneratorMode: String, Codable, CaseIterable, Sendable {
 
     /// A file that contains the API protocol, reusable types, and operation
     /// namespaces.

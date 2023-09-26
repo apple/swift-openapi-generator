@@ -55,7 +55,7 @@ struct _GenerateCommand: AsyncParsableCommand {
     var isDryRun: Bool = false
 
     func run() async throws {
-        try generate.runGenerator(
+        try await generate.runGenerator(
             outputDirectory: outputDirectory,
             pluginSource: pluginSource,
             isDryRun: isDryRun

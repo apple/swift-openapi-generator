@@ -73,23 +73,30 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders a single import statement.
     func renderImport(_ description: ImportDescription) -> String {
-        func render(moduleName: String, spi: String?, preconcurrency: Bool) -> String {
-            let spiPrefix = spi.map { "@_spi(\($0)) " } ?? ""
+        func render(preconcurrency: Bool) -> String {
+            let spiPrefix = description.spi.map { "@_spi(\($0)) " } ?? ""
             let preconcurrencyPrefix = preconcurrency ? "@preconcurrency " : ""
-            return "\(preconcurrencyPrefix)\(spiPrefix)import \(moduleName)"
+            var types = [String]()
+            if let moduleTypes = description.moduleTypes {
+                types = moduleTypes.map {
+                    "\(preconcurrencyPrefix)\(spiPrefix)import \($0)"
+                }
+                return types.joinedLines()
+            }
+            return "\(preconcurrencyPrefix)\(spiPrefix)import \(description.moduleName)"
         }
 
         switch description.preconcurrency {
         case .always:
-            return render(moduleName: description.moduleName, spi: description.spi, preconcurrency: true)
+            return render(preconcurrency: true)
         case .never:
-            return render(moduleName: description.moduleName, spi: description.spi, preconcurrency: false)
+            return render(preconcurrency: false)
         case .onOS(let operatingSystems):
             var lines = [String]()
             lines.append("#if \(operatingSystems.map { "os(\($0))" }.joined(separator: " || "))")
-            lines.append(render(moduleName: description.moduleName, spi: description.spi, preconcurrency: true))
+            lines.append(render(preconcurrency: true))
             lines.append("#else")
-            lines.append(render(moduleName: description.moduleName, spi: description.spi, preconcurrency: false))
+            lines.append(render(preconcurrency: false))
             lines.append("#endif")
             return lines.joinedLines()
         }

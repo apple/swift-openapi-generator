@@ -18,7 +18,7 @@
 /// A single generator pipeline run produces exactly one file, so for
 /// generating multiple files, create multiple configuration values, each with
 /// a different generator mode.
-public struct Config {
+public struct Config: Sendable {
 
     /// The generator mode to use.
     public var mode: GeneratorMode

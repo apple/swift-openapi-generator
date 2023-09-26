@@ -41,7 +41,7 @@ extension FileTranslator {
         type: AllOrAnyOf,
         schemas: [JSONSchema]
     ) throws -> Declaration {
-        let properties: [PropertyBlueprint] =
+        let properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)] =
             try schemas
             .enumerated()
             .map { index, schema in
@@ -75,23 +75,30 @@ extension FileTranslator {
                 } else {
                     associatedDeclarations = []
                 }
-                return PropertyBlueprint(
+                let blueprint = PropertyBlueprint(
                     comment: comment,
                     originalName: key,
                     typeUsage: propertyType,
                     associatedDeclarations: associatedDeclarations,
                     asSwiftSafeName: swiftSafeName
                 )
+                let isKeyValuePairSchema = try TypeMatcher.isKeyValuePair(
+                    schema,
+                    components: components
+                )
+                return (blueprint, isKeyValuePairSchema)
             }
         let comment: Comment? =
             typeName
             .docCommentWithUserDescription(openAPIDescription)
+        let isKeyValuePairValues = properties.map(\.isKeyValuePair)
+        let propertyValues = properties.map(\.property)
         let codableStrategy: StructBlueprint.OpenAPICodableStrategy
         switch type {
         case .allOf:
-            codableStrategy = .allOf
+            codableStrategy = .allOf(propertiesIsKeyValuePairSchema: isKeyValuePairValues)
         case .anyOf:
-            codableStrategy = .anyOf
+            codableStrategy = .anyOf(propertiesIsKeyValuePairSchema: isKeyValuePairValues)
         }
         let structDecl = translateStructBlueprint(
             .init(
@@ -101,7 +108,7 @@ extension FileTranslator {
                 conformances: Constants.ObjectStruct.conformances,
                 shouldGenerateCodingKeys: false,
                 codableStrategy: codableStrategy,
-                properties: properties
+                properties: propertyValues
             )
         )
         return structDecl
@@ -124,7 +131,7 @@ extension FileTranslator {
         discriminator: OpenAPI.Discriminator?,
         schemas: [JSONSchema]
     ) throws -> Declaration {
-        let cases: [(String, [String]?, Comment?, TypeUsage, [Declaration])]
+        let cases: [(String, [String]?, Bool, Comment?, TypeUsage, [Declaration])]
         if let discriminator {
             // > When using the discriminator, inline schemas will not be considered.
             // > — https://spec.openapis.org/oas/v3.0.3#discriminator-object
@@ -147,7 +154,7 @@ extension FileTranslator {
                     parent: typeName
                 )
                 let caseName = safeSwiftNameForOneOfMappedType(mappedType)
-                return (caseName, mappedType.rawNames, comment, mappedType.typeName.asUsage, [])
+                return (caseName, mappedType.rawNames, true, comment, mappedType.typeName.asUsage, [])
             }
         } else {
             cases = try schemas.enumerated()
@@ -183,12 +190,16 @@ extension FileTranslator {
                     } else {
                         associatedDeclarations = []
                     }
-                    return (caseName, nil, comment, childType, associatedDeclarations)
+                    let isKeyValuePair = try TypeMatcher.isKeyValuePair(
+                        schema,
+                        components: components
+                    )
+                    return (caseName, nil, isKeyValuePair, comment, childType, associatedDeclarations)
                 }
         }
 
         let caseDecls: [Declaration] = cases.flatMap { caseInfo in
-            let (caseName, _, comment, childType, associatedDeclarations) = caseInfo
+            let (caseName, _, _, comment, childType, associatedDeclarations) = caseInfo
             return associatedDeclarations + [
                 .commentable(
                     comment,
@@ -204,8 +215,6 @@ extension FileTranslator {
                 )
             ]
         }
-
-        let caseNames = cases.map(\.0)
 
         let codingKeysDecls: [Declaration]
         let decoder: Declaration
@@ -232,11 +241,11 @@ extension FileTranslator {
         } else {
             codingKeysDecls = []
             decoder = translateOneOfWithoutDiscriminatorDecoder(
-                caseNames: caseNames
+                cases: cases.map { ($0.0, $0.2) }
             )
         }
 
-        let encoder = translateOneOfEncoder(caseNames: caseNames)
+        let encoder = translateOneOfEncoder(cases: cases.map { ($0.0, $0.2) })
 
         let comment: Comment? =
             typeName

@@ -29,7 +29,7 @@ extension _GenerateOptions {
         outputDirectory: URL,
         pluginSource: PluginSource?,
         isDryRun: Bool
-    ) throws {
+    ) async throws {
         let config = try loadedConfig()
         let sortedModes = try resolvedModes(config)
         let resolvedAdditionalImports = resolvedAdditionalImports(config)
@@ -41,7 +41,7 @@ extension _GenerateOptions {
                 featureFlags: resolvedFeatureFlags
             )
         }
-        let diagnostics: any DiagnosticCollector
+        let diagnostics: any DiagnosticCollector & Sendable
         let finalizeDiagnostics: () throws -> Void
         if let diagnosticsOutputPath {
             let _diagnostics = _YamlFileDiagnosticsCollector(url: diagnosticsOutputPath)
@@ -70,7 +70,7 @@ extension _GenerateOptions {
             """
         )
         do {
-            try _Tool.runGenerator(
+            try await _Tool.runGenerator(
                 doc: doc,
                 configs: configs,
                 pluginSource: pluginSource,
