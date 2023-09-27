@@ -89,22 +89,39 @@ extension _GenerateOptions {
         return config?.featureFlags ?? []
     }
 
-    /// Extracts keys from a YAML string.
+    /// Extracts the top-level keys from a YAML string.
     ///
     /// - Parameter yamlString: The YAML string from which to extract keys.
-    /// - Returns: An array of strings representing the keys extracted from the YAML string.
-    func extractYamlKeys(yamlString: String) -> [String] {
-        let lines = yamlString.components(separatedBy: "\n")
+    /// - Returns: An array of top-level keys as strings.
+    func extractTopLevelKeys(fromYAMLString yamlString: String) -> [String] {
+        var yamlKeys = [String]()
 
-        var extractedKeys = [String]()
+        do {
+            let parser = try Parser(yaml: yamlString)
+            if let rootNode = try parser.singleRoot(),
+                case let .mapping(mapping) = rootNode
+            {
+                for (key, _) in mapping {
+                    yamlKeys.append(key.string ?? "")
+                }
+            }
+        } catch {
+            print("Error parsing YAML: \(error)")
+        }
+        return yamlKeys
+    }
 
-        for line in lines {
-            if let range = line.range(of: ":") {
-                let key = line[line.startIndex..<range.lowerBound].trimmingCharacters(in: .whitespaces)
-                extractedKeys.append(key)
+    /// Validates a collection of keys against a predefined set of allowed keys.
+    ///
+    /// - Parameter keys: A collection of keys to be validated.
+    /// - Throws: A `ValidationError` if any key in the collection is not found in the
+    ///           allowed set of keys specified by `_UserConfig.codingKeysRawValues`.
+    func validateKeys(_ keys: [String]) throws {
+        for key in keys {
+            if !_UserConfig.codingKeysRawValues.contains(key) {
+                throw ValidationError("Unknown configuration key found in config file: \(key)")
             }
         }
-        return extractedKeys
     }
 
     /// Returns the configuration requested by the user.
@@ -117,15 +134,11 @@ extension _GenerateOptions {
         }
         do {
             let data = try Data(contentsOf: config)
-            let configAsString = String(data: data, encoding: .utf8)
 
-            let yamlKeys = extractYamlKeys(yamlString: configAsString!)
+            let configAsString = String(decoding: data, as: UTF8.self)
 
-            try yamlKeys.forEach { key in
-                if !_UserConfig.codingKeysRawValues.contains(key) {
-                    throw ValidationError("Unknown configuration key found in config file: \(key)")
-                }
-            }
+            let yamlKeys = extractTopLevelKeys(fromYAMLString: configAsString)
+            try validateKeys(yamlKeys)
 
             let config = try YAMLDecoder().decode(_UserConfig.self, from: data)
             return config
