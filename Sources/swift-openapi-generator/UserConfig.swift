@@ -39,6 +39,7 @@ struct _UserConfig: Codable {
     enum CodingKeys: String, CaseIterable, CodingKey {
         case generate
         case additionalImports
+        case filter
         case featureFlags
     }
 }
