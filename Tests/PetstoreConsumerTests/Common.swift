@@ -12,9 +12,16 @@
 //
 //===----------------------------------------------------------------------===//
 import XCTest
+import HTTPTypes
 
 extension Operations.listPets.Output {
     static var success: Self {
         .ok(.init(headers: .init(My_hyphen_Response_hyphen_UUID: "abcd"), body: .json([])))
+    }
+}
+
+extension HTTPRequest {
+    public init(soar_path path: String, method: Method, headerFields: HTTPFields = .init()) {
+        self.init(method: method, scheme: nil, authority: nil, path: path, headerFields: headerFields)
     }
 }
