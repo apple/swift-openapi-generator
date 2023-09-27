@@ -38,6 +38,7 @@ extension _GenerateOptions {
             .init(
                 mode: $0,
                 additionalImports: resolvedAdditionalImports,
+                filter: config?.filter,
                 featureFlags: resolvedFeatureFlags
             )
         }

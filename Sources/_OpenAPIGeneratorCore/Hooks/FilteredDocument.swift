@@ -11,7 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit
+import Foundation
+@preconcurrency import OpenAPIKit
 
 /// Filter the paths and components of an OpenAPI document.
 ///
@@ -61,44 +62,31 @@ public struct FilteredDocumentBuilder {
     public func filter() throws -> OpenAPI.Document {
         var components = OpenAPI.Components.noComponents
         for reference in requiredSchemaReferences {
-            guard case .internal(.component(name: let name)) = reference.jsonReference else { fatalError() }
-            components.schemas[OpenAPI.ComponentKey(rawValue: name)!] = try document.components.lookup(reference)
+            components.schemas[try reference.internalComponentKey] = try document.components.lookup(reference)
         }
         for reference in requiredPathItemReferences {
-            guard case .internal(.component(name: let name)) = reference.jsonReference else { fatalError() }
-            components.pathItems[OpenAPI.ComponentKey(rawValue: name)!] = try document.components.lookup(reference)
+            components.pathItems[try reference.internalComponentKey] = try document.components.lookup(reference)
         }
         for reference in requiredParameterReferences {
-            guard case .internal(.component(name: let name)) = reference.jsonReference else { fatalError() }
-            components.parameters[OpenAPI.ComponentKey(rawValue: name)!] = try document.components.lookup(reference)
-        }
-        for reference in requiredPathItemReferences {
-            guard case .internal(.component(name: let name)) = reference.jsonReference else { fatalError() }
-            components.pathItems[OpenAPI.ComponentKey(rawValue: name)!] = try document.components.lookup(reference)
+            components.parameters[try reference.internalComponentKey] = try document.components.lookup(reference)
         }
         for reference in requiredHeaderReferences {
-            guard case .internal(.component(name: let name)) = reference.jsonReference else { fatalError() }
-            components.headers[OpenAPI.ComponentKey(rawValue: name)!] = try document.components.lookup(reference)
+            components.headers[try reference.internalComponentKey] = try document.components.lookup(reference)
         }
         for reference in requiredResponseReferences {
-            guard case .internal(.component(name: let name)) = reference.jsonReference else { fatalError() }
-            components.responses[OpenAPI.ComponentKey(rawValue: name)!] = try document.components.lookup(reference)
+            components.responses[try reference.internalComponentKey] = try document.components.lookup(reference)
         }
         for reference in requiredCallbacksReferences {
-            guard case .internal(.component(name: let name)) = reference.jsonReference else { fatalError() }
-            components.callbacks[OpenAPI.ComponentKey(rawValue: name)!] = try document.components.lookup(reference)
+            components.callbacks[try reference.internalComponentKey] = try document.components.lookup(reference)
         }
         for reference in requiredExampleReferences {
-            guard case .internal(.component(name: let name)) = reference.jsonReference else { fatalError() }
-            components.examples[OpenAPI.ComponentKey(rawValue: name)!] = try document.components.lookup(reference)
+            components.examples[try reference.internalComponentKey] = try document.components.lookup(reference)
         }
         for reference in requiredLinkReferences {
-            guard case .internal(.component(name: let name)) = reference.jsonReference else { fatalError() }
-            components.links[OpenAPI.ComponentKey(rawValue: name)!] = try document.components.lookup(reference)
+            components.links[try reference.internalComponentKey] = try document.components.lookup(reference)
         }
         for reference in requiredRequestReferences {
-            guard case .internal(.component(name: let name)) = reference.jsonReference else { fatalError() }
-            components.requestBodies[OpenAPI.ComponentKey(rawValue: name)!] = try document.components.lookup(reference)
+            components.requestBodies[try reference.internalComponentKey] = try document.components.lookup(reference)
         }
         var document = document.filteringPaths(with: requiredPaths.contains(_:))
         document.components = components
@@ -113,7 +101,7 @@ public struct FilteredDocumentBuilder {
     /// - Parameter path: The path to be included in the filter.
     public mutating func requirePath(_ path: OpenAPI.Path) throws {
         guard let pathItem = document.paths[path] else {
-            preconditionFailure("path does not exist")
+            throw FilteredDocumentBuilderError.pathDoesNotExist(path)
         }
         guard requiredPaths.insert(path).inserted else { return }
         try requirePathItem(pathItem)
@@ -127,7 +115,7 @@ public struct FilteredDocumentBuilder {
     /// - Parameter tag: The tag to use to include operations (and their paths).
     public mutating func requirePaths(taggedWith tag: String) throws {
         guard document.allTags.contains(tag) else {
-            preconditionFailure("Tag does not exist")
+            throw FilteredDocumentBuilderError.tagDoesNotExist(tag)
         }
         let pathsWithTaggedOperations = document.paths.filter { _, pathItem in
             document.components[pathItem]?.endpoints
@@ -158,7 +146,7 @@ public struct FilteredDocumentBuilder {
     /// - Parameter operationID: The operation to include (and its path).
     public mutating func requirePath(operationID: String) throws {
         guard document.allOperationIds.contains(operationID) else {
-            preconditionFailure("Operation does not exist")
+            throw FilteredDocumentBuilderError.operationDoesNotExist(operationID: operationID)
         }
 
         let path = document.paths.first { _, pathItem in
@@ -180,6 +168,26 @@ public struct FilteredDocumentBuilder {
     /// - Parameter name: The key in the `#/components/schemas` map in the OpenAPI document.
     public mutating func requireSchema(_ name: String) throws {
         try requireSchema(.a(OpenAPI.Reference<JSONSchema>.component(named: name)))
+    }
+}
+
+enum FilteredDocumentBuilderError: Error, LocalizedError {
+    case pathDoesNotExist(OpenAPI.Path)
+    case tagDoesNotExist(String)
+    case operationDoesNotExist(operationID: String)
+    case cannotResolveInternalReference(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .pathDoesNotExist(let path):
+            return "Required path does not exist in OpenAPI document: \(path)"
+        case .tagDoesNotExist(let tag):
+            return "Required tag does not exist in OpenAPI document: \(tag)"
+        case .operationDoesNotExist(let operationID):
+            return "Required operation does not exist in OpenAPI document: \(operationID)"
+        case .cannotResolveInternalReference(let reference):
+            return "Cannot resolve reference; not local reference to component: \(reference)"
+        }
     }
 }
 
@@ -427,4 +435,15 @@ private extension FilteredDocumentBuilder {
     mutating func addComponentsReferencedBy(_ content: OpenAPI.Link) throws {}
 
     mutating func addComponentsReferencedBy(_ content: OpenAPI.Example) throws {}
+}
+
+fileprivate extension OpenAPI.Reference {
+    var internalComponentKey: OpenAPI.ComponentKey {
+        get throws {
+            guard case .internal(.component(name: let name)) = jsonReference else {
+                throw FilteredDocumentBuilderError.cannotResolveInternalReference(absoluteString)
+            }
+            return OpenAPI.ComponentKey(rawValue: name)!
+        }
+    }
 }

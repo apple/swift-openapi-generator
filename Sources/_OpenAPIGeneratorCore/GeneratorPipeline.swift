@@ -124,13 +124,19 @@ func makeGeneratorPipeline(
                 )
             },
             postTransitionHooks: [
+                { document in
+                    guard let documentFilter = config.filter else {
+                        return document
+                    }
+                    return try documentFilter.filter(document)
+                },
                 { doc in
                     let validationDiagnostics = try validator(doc, config)
                     for diagnostic in validationDiagnostics {
                         diagnostics.emit(diagnostic)
                     }
                     return doc
-                }
+                },
             ]
         ),
         translateOpenAPIToStructuredSwiftStage: .init(

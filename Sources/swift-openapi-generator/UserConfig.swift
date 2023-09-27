@@ -27,6 +27,9 @@ struct _UserConfig: Codable {
     /// generated Swift file.
     var additionalImports: [String]?
 
+    /// Filter to apply to the OpenAPI document before generation.
+    var filter: DocumentFilter?
+
     /// A set of features to explicitly enable.
     var featureFlags: FeatureFlags?
 
