@@ -120,6 +120,7 @@ class Test_TypeAssigner: Test_Core {
 
     func testTypeNameForObjectProperties() throws {
         let parent = TypeName(swiftKeyPath: ["MyType"])
+        let components: OpenAPI.Components = .noComponents
         let expected: [(String, JSONSchema, String)] = [
             (
                 "foo",
@@ -130,13 +131,24 @@ class Test_TypeAssigner: Test_Core {
                     ])
                 ),
                 "MyType.fooPayload"
-            )
+            ),
+            (
+                "foo",
+                .object(
+                    .init(nullable: true),
+                    .init(properties: [
+                        "bar": .string
+                    ])
+                ),
+                "MyType.fooPayload?"
+            ),
         ]
         for (originalName, schema, typeNameString) in expected {
             try XCTAssertEqual(
                 typeAssigner.typeUsage(
                     forObjectPropertyNamed: originalName,
                     withSchema: schema,
+                    components: components,
                     inParent: parent
                 )
                 .fullyQualifiedSwiftName,

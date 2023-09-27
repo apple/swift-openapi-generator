@@ -37,6 +37,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsHeadersReference() throws {
         try self.assertHeadersTranslation(
             """
+            schemas:
+              MySchema:
+                type: string
             headers:
               MyHeader:
                 schema:
@@ -71,6 +74,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsParametersReference() throws {
         try self.assertParametersTranslation(
             """
+            schemas:
+              MySchema:
+                type: string
             parameters:
               MyParam:
                 in: query

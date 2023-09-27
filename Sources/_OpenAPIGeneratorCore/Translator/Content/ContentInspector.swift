@@ -56,6 +56,7 @@ extension FileTranslator {
         let associatedType = try typeAssigner.typeUsage(
             usingNamingHint: identifier,
             withSchema: content.schema,
+            components: components,
             inParent: parent
         )
         return .init(content: content, typeUsage: associatedType)
@@ -91,6 +92,7 @@ extension FileTranslator {
             let associatedType = try typeAssigner.typeUsage(
                 usingNamingHint: identifier,
                 withSchema: content.schema,
+                components: components,
                 inParent: parent
             )
             return .init(content: content, typeUsage: associatedType)
