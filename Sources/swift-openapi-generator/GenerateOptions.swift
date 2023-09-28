@@ -89,28 +89,6 @@ extension _GenerateOptions {
         return config?.featureFlags ?? []
     }
 
-    /// Extracts the top-level keys from a YAML string.
-    ///
-    /// - Parameter yamlString: The YAML string from which to extract keys.
-    /// - Returns: An array of top-level keys as strings.
-    func extractTopLevelKeys(fromYAMLString yamlString: String) -> [String] {
-        var yamlKeys = [String]()
-
-        do {
-            let parser = try Parser(yaml: yamlString)
-            if let rootNode = try parser.singleRoot(),
-                case let .mapping(mapping) = rootNode
-            {
-                for (key, _) in mapping {
-                    yamlKeys.append(key.string ?? "")
-                }
-            }
-        } catch {
-            print("Error parsing YAML: \(error)")
-        }
-        return yamlKeys
-    }
-
     /// Validates a collection of keys against a predefined set of allowed keys.
     ///
     /// - Parameter keys: A collection of keys to be validated.
@@ -134,10 +112,14 @@ extension _GenerateOptions {
         }
         do {
             let data = try Data(contentsOf: config)
-
             let configAsString = String(decoding: data, as: UTF8.self)
+            var yamlKeys = [String]()
 
-            let yamlKeys = extractTopLevelKeys(fromYAMLString: configAsString)
+            do {
+                yamlKeys = try YamsParser.extractTopLevelKeys(fromYAMLString: configAsString)
+            } catch {
+                throw ValidationError("The config isn't valid. \(error)")
+            }
             try validateKeys(yamlKeys)
 
             let config = try YAMLDecoder().decode(_UserConfig.self, from: data)

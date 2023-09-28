@@ -128,6 +128,42 @@ final class Test_YamsParser: Test_Core {
         assertThrownError(try _test(yaml), expectedDiagnostic: expected)
     }
 
+    func testExtractTopLevelKeysWithValidYAML() {
+        let yaml = """
+            generate:
+              - types
+              - server
+
+            featureFlags:
+              - nullableSchemas
+
+            additionalImports:
+              - Foundation
+            """
+        let keys = try? YamsParser.extractTopLevelKeys(fromYAMLString: yaml)
+        XCTAssertEqual(keys, ["generate", "featureFlags", "additionalImports"])
+    }
+
+    func testExtractTopLevelKeysWithInvalidYAML() {
+        // `additionalImports` is missing `:` at the end.
+        let yaml = """
+            generate:
+              - types
+              - server
+
+            featureFlags:
+              - nullableSchemas
+
+            additionalImports
+              - Foundation
+            """
+        let expected = "The operation couldn’t be completed. (Yams.YamlError error 1.)"
+
+        XCTAssertThrowsError(try YamsParser.extractTopLevelKeys(fromYAMLString: yaml)) { error in
+            XCTAssertEqual(error.localizedDescription, expected)
+        }
+    }
+
     private func _test(_ yaml: String) throws -> ParsedOpenAPIRepresentation {
         try YamsParser()
             .parseOpenAPI(
