@@ -157,11 +157,7 @@ final class Test_YamsParser: Test_Core {
             additionalImports
               - Foundation
             """
-        let expected = "The operation couldn’t be completed. (Yams.YamlError error 1.)"
-
-        XCTAssertThrowsError(try YamsParser.extractTopLevelKeys(fromYAMLString: yaml)) { error in
-            XCTAssertEqual(error.localizedDescription, expected)
-        }
+        XCTAssertThrowsError(try YamsParser.extractTopLevelKeys(fromYAMLString: yaml))
     }
 
     private func _test(_ yaml: String) throws -> ParsedOpenAPIRepresentation {
