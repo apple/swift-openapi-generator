@@ -101,10 +101,10 @@ final class Test_Playground: XCTestCase {
         let client: some APIProtocol = MyServer()
 
         // Create the request stream.
-        let (requestStream, requestContinuation) = AsyncStream.makeStream(
-            of: String.self,
-            bufferingPolicy: .unbounded
-        )
+        var requestContinuation: AsyncStream<String>.Continuation!
+        let requestStream = AsyncStream(String.self) { _continuation in
+            requestContinuation = _continuation
+        }
 
         // Create a request body wrapping the request stream.
         let requestBody = HTTPBody(requestStream, length: .unknown)
