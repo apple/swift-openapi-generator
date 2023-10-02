@@ -23,8 +23,8 @@ struct HTTPStatusCodes {
             return "`continue`"
         case 101:
             return "switchingProtocols"
-        case 102:
-            return "processing"
+        case 103:
+            return "earlyHints"
         case 200:
             return "ok"
         case 201:
@@ -39,12 +39,6 @@ struct HTTPStatusCodes {
             return "resetContent"
         case 206:
             return "partialContent"
-        case 207:
-            return "multiStatus"
-        case 208:
-            return "alreadyReported"
-        case 226:
-            return "imUsed"
         case 300:
             return "multipleChoices"
         case 301:
@@ -55,8 +49,6 @@ struct HTTPStatusCodes {
             return "seeOther"
         case 304:
             return "notModified"
-        case 305:
-            return "useProxy"
         case 307:
             return "temporaryRedirect"
         case 308:
@@ -65,8 +57,6 @@ struct HTTPStatusCodes {
             return "badRequest"
         case 401:
             return "unauthorized"
-        case 402:
-            return "paymentRequired"
         case 403:
             return "forbidden"
         case 404:
@@ -88,7 +78,7 @@ struct HTTPStatusCodes {
         case 412:
             return "preconditionFailed"
         case 413:
-            return "payloadTooLarge"
+            return "contentTooLarge"
         case 414:
             return "uriTooLong"
         case 415:
@@ -97,16 +87,12 @@ struct HTTPStatusCodes {
             return "rangeNotSatisfiable"
         case 417:
             return "expectationFailed"
-        case 418:
-            return "imATeapot"
         case 421:
             return "misdirectedRequest"
         case 422:
-            return "unprocessableEntity"
-        case 423:
-            return "locked"
-        case 424:
-            return "failedDependency"
+            return "unprocessableContent"
+        case 425:
+            return "tooEarly"
         case 426:
             return "upgradeRequired"
         case 428:
@@ -129,14 +115,6 @@ struct HTTPStatusCodes {
             return "gatewayTimeout"
         case 505:
             return "httpVersionNotSupported"
-        case 506:
-            return "variantAlsoNegotiates"
-        case 507:
-            return "insufficientStorage"
-        case 508:
-            return "loopDetected"
-        case 510:
-            return "notExtended"
         case 511:
             return "networkAuthenticationRequired"
         default:

@@ -40,7 +40,8 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/aws/aws-lambda-dotnet/7a516b80d83a5c5f5d951158b16b8f76120035cc/Libraries/src/Amazon.Lambda.RuntimeSupport/Client/runtime-api.yaml",
             license: .apache,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
 
@@ -48,7 +49,8 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/Azure/iot-identity-service/6404c3bebcc03f12c441c5b018803256bfe1fffe/key/aziot-keyd/openapi/2021-05-01.yaml",
             license: .mit,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
 
@@ -56,7 +58,8 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/box/box-openapi/5955d651f0cd273c0968e3855c1d873c7ae3523e/openapi.json",
             license: .apache,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
 
@@ -64,7 +67,8 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/cisco/mindmeld/bd3547d5c1bd092dbd4a64a90528dfc2e2b3844a/mindmeld/openapi/custom_action.yaml",
             license: .apache,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
 
@@ -72,7 +76,8 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/cloud-hypervisor/cloud-hypervisor/889d06277acae45c2b55bd5f6298ca2b21a55cbb/vmm/src/api/openapi/cloud-hypervisor.yaml",
             license: .apache,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
 
@@ -82,7 +87,8 @@ final class CompatibilityTest: XCTestCase {
             license: .apache,
             expectedDiagnostics: [
                 "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found nothing but unsupported attributes.."
-            ]
+            ],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
 
@@ -90,7 +96,8 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/github/rest-api-description/13c873cb3b15ffd5bcd88c6d6270a963ef4518f6/descriptions/api.github.com/api.github.com.yaml",
             license: .mit,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: true
         )
     }
 
@@ -98,7 +105,8 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/github/rest-api-description/13c873cb3b15ffd5bcd88c6d6270a963ef4518f6/descriptions/ghes-3.5/ghes-3.5.yaml",
             license: .mit,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: true
         )
     }
 
@@ -106,7 +114,8 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/kubernetes/kubernetes/fa3d7990104d7c1f16943a67f11b154b71f6a132/api/openapi-spec/v3/api__v1_openapi.json",
             license: .apache,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
 
@@ -114,7 +123,8 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/Netflix/consoleme/774420462b0190b1bfa78aa73d39e20044f52db9/swagger.yaml",
             license: .apache,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
 
@@ -122,7 +132,8 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/openai/openai-openapi/ec0b3953bfa08a92782bdccf34c1931b13402f56/openapi.yaml",
             license: .mit,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
 
@@ -130,7 +141,8 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/9dff244e5708fbe16e768738f4f17cf3fddf4066/examples/v3.0/petstore.yaml",
             license: .apache,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
 
@@ -138,28 +150,32 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/9dff244e5708fbe16e768738f4f17cf3fddf4066/examples/v3.0/petstore-expanded.yaml",
             license: .apache,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
     func testOpenAPIExamplesAPIWithExamples() async throws {
         try await _test(
             "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/9dff244e5708fbe16e768738f4f17cf3fddf4066/examples/v3.0/api-with-examples.yaml",
             license: .apache,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
     func testOpenAPIExamplesCallbackExample() async throws {
         try await _test(
             "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/9dff244e5708fbe16e768738f4f17cf3fddf4066/examples/v3.0/callback-example.yaml",
             license: .apache,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
     func testOpenAPIExamplesLinkExample() async throws {
         try await _test(
             "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/9dff244e5708fbe16e768738f4f17cf3fddf4066/examples/v3.0/link-example.yaml",
             license: .apache,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
 
@@ -167,7 +183,8 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/apple/swift-package-manager/ce0ff6f223122c88cbf24a0eca8424664e2fb1f1/Documentation/PackageRegistry/registry.openapi.yaml",
             license: .apache,
-            expectedDiagnostics: []
+            expectedDiagnostics: [],
+            skipBuild: compatibilityTestSkipBuild
         )
     }
 }
@@ -189,7 +206,8 @@ fileprivate extension CompatibilityTest {
     func _test(
         _ documentURL: String,
         license: License,
-        expectedDiagnostics: Set<String> = []
+        expectedDiagnostics: Set<String> = [],
+        skipBuild: Bool = false
     ) async throws {
         let diagnosticsCollector = RecordingDiagnosticCollector()
 
@@ -230,7 +248,7 @@ fileprivate extension CompatibilityTest {
         XCTAssertEqual(Set(diagnosticsCollector.diagnostics.map(\.message)), expectedDiagnostics)
         XCTAssertEqual(outputs.count, 3)
 
-        if !compatibilityTestSkipBuild {
+        if !skipBuild {
             // Create Swift package test harness.
             let packageName = "swift-openapi-compatibility-test-\(testCaseName)"
             let packageDir = FileManager.default.temporaryDirectory.appendingPathComponent(
@@ -248,7 +266,7 @@ fileprivate extension CompatibilityTest {
                 let package = Package(
                     name: "\(packageName)",
                     platforms: [.macOS(.v13)],
-                    dependencies: [.package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.2.0"))],
+                    dependencies: [.package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.3.0"))],
                     targets: [.target(name: "Harness", dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")])]
                 )
                 """
