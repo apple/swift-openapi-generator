@@ -1246,8 +1246,8 @@ public enum Operations {
                             case let .json(body): return body
                             default:
                                 try throwUnexpectedResponseBody(
-                                    expectedContentType: "application/json; charset=utf-8",
-                                    response: self
+                                    expectedContent: "application/json; charset=utf-8",
+                                    body: self
                                 )
                             }
                         }
@@ -1262,7 +1262,7 @@ public enum Operations {
                         get throws {
                             switch self {
                             case let .plainText(body): return body
-                            default: try throwUnexpectedResponseBody(expectedContentType: "text/plain", response: self)
+                            default: try throwUnexpectedResponseBody(expectedContent: "text/plain", body: self)
                             }
                         }
                     }
@@ -1278,8 +1278,8 @@ public enum Operations {
                             case let .binary(body): return body
                             default:
                                 try throwUnexpectedResponseBody(
-                                    expectedContentType: "application/octet-stream",
-                                    response: self
+                                    expectedContent: "application/octet-stream",
+                                    body: self
                                 )
                             }
                         }
