@@ -12,22 +12,23 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIRuntime
+import HTTPTypes
 
 public final class TestServerTransport: ServerTransport {
 
     public struct OperationInputs: Equatable {
-        public var method: HTTPMethod
-        public var path: [RouterPathComponent]
-        public var queryItemNames: Set<String>
+        public var method: HTTPRequest.Method
+        public var path: String
 
-        public init(method: HTTPMethod, path: [RouterPathComponent], queryItemNames: Set<String>) {
+        public init(method: HTTPRequest.Method, path: String) {
             self.method = method
             self.path = path
-            self.queryItemNames = queryItemNames
         }
     }
 
-    public typealias Handler = @Sendable (Request, ServerRequestMetadata) async throws -> Response
+    public typealias Handler = @Sendable (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody?
+    )
 
     public struct Operation {
         public var inputs: OperationInputs
@@ -43,14 +44,15 @@ public final class TestServerTransport: ServerTransport {
     public private(set) var registered: [Operation] = []
 
     public func register(
-        _ handler: @escaping Handler,
-        method: HTTPMethod,
-        path: [RouterPathComponent],
-        queryItemNames: Set<String>
+        _ handler: @Sendable @escaping (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (
+            HTTPResponse, HTTPBody?
+        ),
+        method: HTTPRequest.Method,
+        path: String
     ) throws {
         registered.append(
             Operation(
-                inputs: .init(method: method, path: path, queryItemNames: queryItemNames),
+                inputs: .init(method: method, path: path),
                 closure: handler
             )
         )

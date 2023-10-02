@@ -535,7 +535,7 @@ final class Test_TextBasedRenderer: XCTestCase {
                 kind: .function(name: "f"),
                 parameters: [],
                 keywords: [.async, .throws],
-                returnType: "String"
+                returnType: .identifier("String")
             ),
             renderedBy: renderer.renderedFunction,
             rendersAs:

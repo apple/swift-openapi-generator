@@ -139,7 +139,7 @@ extension ServerFileTranslator {
             contentsOf: inputMembers.flatMap(\.codeBlocks) + [.expression(returnExpr)]
         )
         return .closureInvocation(
-            argumentNames: ["request", "metadata"],
+            argumentNames: ["request", "requestBody", "metadata"],
             body: closureBody
         )
     }
@@ -159,10 +159,13 @@ extension ServerFileTranslator {
             }
         if !description.containsDefaultResponse {
             let undocumentedExpr: Expression = .return(
-                .dot("init")
-                    .call([
-                        .init(label: "statusCode", expression: .identifier("statusCode"))
-                    ])
+                .tuple([
+                    .dot("init")
+                        .call([
+                            .init(label: "soar_statusCode", expression: .identifier("statusCode"))
+                        ]),
+                    nil,
+                ])
             )
             cases.append(
                 .init(
@@ -216,8 +219,12 @@ extension ServerFileTranslator {
             label: "request",
             expression: .identifier("request")
         )
+        let requestBodyArg = FunctionArgumentDescription(
+            label: "requestBody",
+            expression: .identifier("body")
+        )
         let metadataArg = FunctionArgumentDescription(
-            label: "with",
+            label: "metadata",
             expression: .identifier("metadata")
         )
         let methodArg = FunctionArgumentDescription(
@@ -252,7 +259,8 @@ extension ServerFileTranslator {
                                 .dot(description.methodName)
                                 .call([
                                     .init(label: "request", expression: .identifier("$0")),
-                                    .init(label: "metadata", expression: .identifier("$1")),
+                                    .init(label: "body", expression: .identifier("$1")),
+                                    .init(label: "metadata", expression: .identifier("$2")),
                                 ])
                         )
                     )
@@ -272,18 +280,10 @@ extension ServerFileTranslator {
                                 .init(
                                     label: nil,
                                     expression: .literal(
-                                        .array(description.templatedPathForServer.map { .literal($0) })
+                                        .string(description.path.rawValue)
                                     )
                                 )
                             ])
-                    ),
-                    .init(
-                        label: "queryItemNames",
-                        expression: .literal(
-                            .array(
-                                try description.queryParameterNames.map { .literal($0) }
-                            )
-                        )
                     ),
                 ])
         )
@@ -293,6 +293,7 @@ extension ServerFileTranslator {
                 .identifier("handle")
                     .call([
                         requestArg,
+                        requestBodyArg,
                         metadataArg,
                         operationArg,
                         methodArg,

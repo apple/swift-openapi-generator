@@ -285,6 +285,13 @@ struct TextBasedRenderer: RendererProtocol {
         renderedExpression(description.referencedExpr) + "?"
     }
 
+    /// Renders the specified tuple expression.
+    func renderedTupleDescription(
+        _ description: TupleDescription
+    ) -> String {
+        "(" + description.members.map(renderedExpression).joined(separator: ", ") + ")"
+    }
+
     /// Renders the specified expression.
     func renderedExpression(_ expression: Expression) -> String {
         switch expression {
@@ -316,6 +323,8 @@ struct TextBasedRenderer: RendererProtocol {
             return renderedInOutDescription(inOut)
         case .optionalChaining(let optionalChaining):
             return renderedOptionalChainingDescription(optionalChaining)
+        case .tuple(let tuple):
+            return renderedTupleDescription(tuple)
         }
     }
 
@@ -606,7 +615,7 @@ struct TextBasedRenderer: RendererProtocol {
         }
         if let returnType = signature.returnType {
             words.append("->")
-            words.append(returnType)
+            words.append(renderedExpression(returnType))
         }
         return words.joinedWords()
     }

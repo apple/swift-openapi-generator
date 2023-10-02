@@ -1016,8 +1016,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.Int)
                         case application_json_foo_bar(Swift.Int)
-                        case plainText(Swift.String)
-                        case binary(Foundation.Data)
+                        case plainText(OpenAPIRuntime.HTTPBody)
+                        case binary(OpenAPIRuntime.HTTPBody)
                     }
                     public var body: Components.Responses.MultipleContentTypes.Body
                     public init(
@@ -1150,8 +1150,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum RequestBodies {
                 @frozen public enum MyResponseBody: Sendable, Hashable {
                     case json(Components.Schemas.MyBody)
-                    case plainText(Swift.String)
-                    case binary(Foundation.Data)
+                    case plainText(OpenAPIRuntime.HTTPBody)
+                    case binary(OpenAPIRuntime.HTTPBody)
                 }
             }
             """
@@ -1175,7 +1175,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum RequestBodies {
                 @frozen public enum MyRequestBody: Sendable, Hashable {
-                    case urlEncodedForm(Foundation.Data)
+                    case urlEncodedForm(OpenAPIRuntime.HTTPBody)
                 }
             }
             """
@@ -1259,10 +1259,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     middlewares: middlewares
                 )
                 try transport.register(
-                    { try await server.getHealth(request: $0, metadata: $1) },
+                    { try await server.getHealth(request: $0, body: $1, metadata: $2) },
                     method: .get,
-                    path: server.apiPathComponentsWithServerPrefix(["health"]),
-                    queryItemNames: []
+                    path: server.apiPathComponentsWithServerPrefix("/health")
                 )
             }
             """
@@ -1427,7 +1426,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """,
             client: """
                 { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
-                    var request: OpenAPIRuntime.Request = .init(path: path, method: .get)
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
                     suppressMutabilityWarning(&request)
                     try converter.setQueryItemAsURI(
                         in: &request,
@@ -1450,28 +1449,28 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         name: "manyUnexploded",
                         value: input.query.manyUnexploded
                     )
-                    return request
+                    return (request, nil)
                 }
                 """,
             server: """
-                { request, metadata in
+                { request, requestBody, metadata in
                     let query: Operations.get_sol_foo.Input.Query = .init(
                         single: try converter.getOptionalQueryItemAsURI(
-                            in: request.query,
+                            in: request.soar_query,
                             style: .form,
                             explode: true,
                             name: "single",
                             as: Swift.String.self
                         ),
                         manyExploded: try converter.getOptionalQueryItemAsURI(
-                            in: request.query,
+                            in: request.soar_query,
                             style: .form,
                             explode: true,
                             name: "manyExploded",
                             as: [Swift.String].self
                         ),
                         manyUnexploded: try converter.getOptionalQueryItemAsURI(
-                            in: request.query,
+                            in: request.soar_query,
                             style: .form,
                             explode: false,
                             name: "manyUnexploded",

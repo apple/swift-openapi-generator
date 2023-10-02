@@ -37,7 +37,7 @@ struct ClientFileTranslator: FileTranslator {
         let topComment: Comment = .inline(Constants.File.topComment)
 
         let imports =
-            Constants.File.imports
+            Constants.File.clientServerImports
             + config.additionalImports
             .map { ImportDescription(moduleName: $0) }
 

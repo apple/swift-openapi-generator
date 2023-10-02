@@ -13,9 +13,10 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIRuntime
 import Foundation
+import HTTPTypes
 
 public enum TestError: Swift.Error, LocalizedError, CustomStringConvertible, Sendable {
-    case noHandlerFound(method: HTTPMethod, path: [RouterPathComponent])
+    case noHandlerFound(method: HTTPRequest.Method, path: String)
     case invalidURLString(String)
     case unexpectedValue(any Sendable)
     case unexpectedMissingRequestBody
@@ -23,7 +24,7 @@ public enum TestError: Swift.Error, LocalizedError, CustomStringConvertible, Sen
     public var description: String {
         switch self {
         case .noHandlerFound(let method, let path):
-            return "No handler found for method \(method.name) and path \(path.stringPath)"
+            return "No handler found for method \(method) and path \(path)"
         case .invalidURLString(let string):
             return "Invalid URL string: \(string)"
         case .unexpectedValue(let value):
@@ -48,32 +49,22 @@ public extension Date {
     }
 }
 
-public extension Array where Element == RouterPathComponent {
-    var stringPath: String {
-        map(\.description).joined(separator: "/")
-    }
-}
+public extension HTTPResponse {
 
-public extension Response {
-    init(
-        statusCode: Int,
-        headers: [HeaderField] = [],
-        encodedBody: String
-    ) {
-        self.init(
-            statusCode: statusCode,
-            headerFields: headers,
-            body: Data(encodedBody.utf8)
-        )
+    func withEncodedBody(_ encodedBody: String) throws -> (HTTPResponse, HTTPBody) {
+        (self, .init(encodedBody))
     }
 
-    static var listPetsSuccess: Self {
-        .init(
-            statusCode: 200,
-            headers: [
-                .init(name: "content-type", value: "application/json")
-            ],
-            encodedBody: #"""
+    static var listPetsSuccess: (HTTPResponse, HTTPBody) {
+        get throws {
+            try Self(
+                status: .ok,
+                headerFields: [
+                    .contentType: "application/json"
+                ]
+            )
+            .withEncodedBody(
+                #"""
                 [
                   {
                     "id": 1,
@@ -81,7 +72,8 @@ public extension Response {
                   }
                 ]
                 """#
-        )
+            )
+        }
     }
 }
 
@@ -111,21 +103,8 @@ public extension Data {
     }
 }
 
-public extension Request {
-    init(
-        path: String,
-        query: String? = nil,
-        method: HTTPMethod,
-        headerFields: [HeaderField] = [],
-        encodedBody: String
-    ) throws {
-        let body = Data(encodedBody.utf8)
-        self.init(
-            path: path,
-            query: query,
-            method: method,
-            headerFields: headerFields,
-            body: body
-        )
+public extension HTTPRequest {
+    func withEncodedBody(_ encodedBody: String) -> (HTTPRequest, HTTPBody) {
+        (self, .init(encodedBody))
     }
 }
