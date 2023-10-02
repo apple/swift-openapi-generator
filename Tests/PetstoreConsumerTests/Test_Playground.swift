@@ -24,13 +24,9 @@ final class Test_Playground: XCTestCase {
     func testBidiStreaming() async throws {
 
         // Server
-
-        struct MyServer: APIProtocol {
-
-            func uploadAvatarForPet(
-                _ input: Operations.uploadAvatarForPet.Input
-            ) async throws -> Operations.uploadAvatarForPet.Output {
-
+        let serverHandler:
+            @Sendable (Operations.uploadAvatarForPet.Input) async throws -> Operations.uploadAvatarForPet.Output = {
+                input in
                 // The server handler verifies the pet id, sends back
                 // the start of the 200 response, and then streams back
                 // the body it's receiviving from the request, with every
@@ -64,41 +60,10 @@ final class Test_Playground: XCTestCase {
                 )
             }
 
-            func listPets(_ input: Operations.listPets.Input) async throws -> Operations.listPets.Output {
-                fatalError()
-            }
-
-            func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output {
-                fatalError()
-            }
-
-            func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws
-                -> Operations.createPetWithForm.Output
-            {
-                fatalError()
-            }
-
-            func getStats(_ input: Operations.getStats.Input) async throws -> Operations.getStats.Output {
-                fatalError()
-            }
-
-            func postStats(_ input: Operations.postStats.Input) async throws -> Operations.postStats.Output {
-                fatalError()
-            }
-
-            func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output {
-                fatalError()
-            }
-
-            func updatePet(_ input: Operations.updatePet.Input) async throws -> Operations.updatePet.Output {
-                fatalError()
-            }
-        }
-
         // Client
 
         // Create the client.
-        let client: some APIProtocol = MyServer()
+        let client: some APIProtocol = TestClient(uploadAvatarForPetBlock: serverHandler)
 
         // Create the request stream.
         var requestContinuation: AsyncStream<String>.Continuation!
@@ -151,64 +116,27 @@ final class Test_Playground: XCTestCase {
 
         // Server
 
-        struct MyServer: APIProtocol {
+        let serverHandler: @Sendable (Operations.getStats.Input) async throws -> Operations.getStats.Output = { input in
 
-            func getStats(
-                _ input: Operations.getStats.Input
-            ) async throws -> Operations.getStats.Output {
+            // The server handler sends back the start of the 200 response,
+            // and then sends a few chunks.
 
-                // The server handler sends back the start of the 200 response,
-                // and then sends a few chunks.
-
-                let responseStream = AsyncStream(
-                    String.self,
-                    bufferingPolicy: .unbounded
-                ) { continuation in
-                    continuation.yield("hello")
-                    continuation.yield("world")
-                    continuation.finish()
-                }
-                let responseBody = HTTPBody(responseStream, length: .unknown)
-                return .ok(.init(body: .binary(responseBody)))
+            let responseStream = AsyncStream(
+                String.self,
+                bufferingPolicy: .unbounded
+            ) { continuation in
+                continuation.yield("hello")
+                continuation.yield("world")
+                continuation.finish()
             }
-
-            func listPets(_ input: Operations.listPets.Input) async throws -> Operations.listPets.Output {
-                fatalError()
-            }
-
-            func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output {
-                fatalError()
-            }
-
-            func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws
-                -> Operations.createPetWithForm.Output
-            {
-                fatalError()
-            }
-
-            func postStats(_ input: Operations.postStats.Input) async throws -> Operations.postStats.Output {
-                fatalError()
-            }
-
-            func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output {
-                fatalError()
-            }
-
-            func updatePet(_ input: Operations.updatePet.Input) async throws -> Operations.updatePet.Output {
-                fatalError()
-            }
-
-            func uploadAvatarForPet(_ input: Operations.uploadAvatarForPet.Input) async throws
-                -> Operations.uploadAvatarForPet.Output
-            {
-                fatalError()
-            }
+            let responseBody = HTTPBody(responseStream, length: .unknown)
+            return .ok(.init(body: .binary(responseBody)))
         }
 
         // Client
 
         // Create the client.
-        let client: some APIProtocol = MyServer()
+        let client: some APIProtocol = TestClient(getStatsBlock: serverHandler)
 
         // Send the request, wait for the response.
         // At this point, both the request and response streams are still open.
@@ -243,74 +171,37 @@ final class Test_Playground: XCTestCase {
 
         // Server
 
-        struct MyServer: APIProtocol {
+        let serverHandler: @Sendable (Operations.getStats.Input) async throws -> Operations.getStats.Output = { input in
 
-            func getStats(
-                _ input: Operations.getStats.Input
-            ) async throws -> Operations.getStats.Output {
+            // The server handler sends back the start of the 200 response,
+            // and then sends a few chunks.
 
-                // The server handler sends back the start of the 200 response,
-                // and then sends a few chunks.
+            actor ChunkProducer {
+                private var chunks: [String] = ["hello", "world"]
 
-                actor ChunkProducer {
-                    private var chunks: [String] = ["hello", "world"]
-
-                    func produceNext() -> String? {
-                        guard !chunks.isEmpty else {
-                            return nil
-                        }
-                        return chunks.removeFirst()
+                func produceNext() -> String? {
+                    guard !chunks.isEmpty else {
+                        return nil
                     }
+                    return chunks.removeFirst()
                 }
-                let chunkProducer = ChunkProducer()
-
-                let responseStream = AsyncStream<String>(
-                    unfolding: {
-                        await chunkProducer.produceNext()
-                    }
-                )
-
-                let responseBody = HTTPBody(responseStream, length: .unknown)
-                return .ok(.init(body: .binary(responseBody)))
             }
+            let chunkProducer = ChunkProducer()
 
-            func listPets(_ input: Operations.listPets.Input) async throws -> Operations.listPets.Output {
-                fatalError()
-            }
+            let responseStream = AsyncStream<String>(
+                unfolding: {
+                    await chunkProducer.produceNext()
+                }
+            )
 
-            func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output {
-                fatalError()
-            }
-
-            func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws
-                -> Operations.createPetWithForm.Output
-            {
-                fatalError()
-            }
-
-            func postStats(_ input: Operations.postStats.Input) async throws -> Operations.postStats.Output {
-                fatalError()
-            }
-
-            func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output {
-                fatalError()
-            }
-
-            func updatePet(_ input: Operations.updatePet.Input) async throws -> Operations.updatePet.Output {
-                fatalError()
-            }
-
-            func uploadAvatarForPet(_ input: Operations.uploadAvatarForPet.Input) async throws
-                -> Operations.uploadAvatarForPet.Output
-            {
-                fatalError()
-            }
+            let responseBody = HTTPBody(responseStream, length: .unknown)
+            return .ok(.init(body: .binary(responseBody)))
         }
 
         // Client
 
         // Create the client.
-        let client: some APIProtocol = MyServer()
+        let client: some APIProtocol = TestClient(getStatsBlock: serverHandler)
 
         // Send the request, wait for the response.
         // At this point, both the request and response streams are still open.
@@ -340,5 +231,4 @@ final class Test_Playground: XCTestCase {
         let lastResponseChunk = try await responseIterator.next()
         XCTAssertNil(lastResponseChunk)
     }
-
 }
