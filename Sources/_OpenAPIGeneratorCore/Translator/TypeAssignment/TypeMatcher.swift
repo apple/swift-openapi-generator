@@ -20,10 +20,6 @@ struct TypeMatcher {
     /// safe to be used as a Swift identifier.
     var asSwiftSafeName: (String) -> String
 
-    /// A Boolean value indicating whether the `nullable` field on schemas
-    /// should be taken into account.
-    var supportNullableSchemas: Bool
-
     /// Returns the type name of a built-in type that matches the specified
     /// schema.
     ///
@@ -83,8 +79,7 @@ struct TypeMatcher {
                     return nil
                 }
                 return try TypeAssigner(
-                    asSwiftSafeName: asSwiftSafeName,
-                    supportNullableSchemas: supportNullableSchemas
+                    asSwiftSafeName: asSwiftSafeName
                 )
                 .typeName(for: ref).asUsage
             },
@@ -95,7 +90,7 @@ struct TypeMatcher {
                 TypeName.arrayContainer.asUsage
             }
         )?
-        .withOptional(!schema.required || (supportNullableSchemas && schema.nullable))
+        .withOptional(!schema.required || schema.nullable)
     }
 
     /// Returns a Boolean value that indicates whether the schema
