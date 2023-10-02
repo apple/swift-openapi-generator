@@ -43,6 +43,7 @@ extension FileTranslator {
                 let propertyType = try typeAssigner.typeUsage(
                     forObjectPropertyNamed: key,
                     withSchema: value,
+                    components: components,
                     inParent: typeName
                 )
                 let comment: Comment? = .property(
@@ -127,6 +128,7 @@ extension FileTranslator {
             let valueTypeUsage = try typeAssigner.typeUsage(
                 forObjectPropertyNamed: "additionalProperties",
                 withSchema: schema,
+                components: components,
                 inParent: parent
             )
             if TypeMatcher.isInlinable(schema) {

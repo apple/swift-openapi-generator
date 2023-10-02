@@ -238,6 +238,7 @@ extension FileTranslator {
                 type = try typeAssigner.typeUsage(
                     forParameterNamed: _parameter.name,
                     withSchema: schema,
+                    components: components,
                     inParent: locationTypeName
                 )
             }

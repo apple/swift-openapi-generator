@@ -176,7 +176,10 @@ final class Test_TypeMatcher: Test_Core {
         for (schema, name) in Self.referenceableTypes {
             try XCTAssertEqual(
                 XCTUnwrap(
-                    typeMatcher.tryMatchReferenceableType(for: schema),
+                    typeMatcher.tryMatchReferenceableType(
+                        for: schema,
+                        components: components
+                    ),
                     "Expected schema to be referenceable: \(schema)"
                 )
                 .fullyQualifiedSwiftName,
@@ -316,4 +319,37 @@ final class Test_TypeMatcher: Test_Core {
             )
         }
     }
+
+    static let optionalTestCases: [(JSONSchema, Bool)] = [
+
+        // A required string.
+        (.string, false),
+        (.string(required: true, nullable: false), false),
+
+        // An optional string.
+        (.string(required: false, nullable: false), true),
+        (.string(required: true, nullable: true), true),
+        (.string(required: false, nullable: true), true),
+
+        // A reference pointing to a required schema.
+        (.reference(.component(named: "RequiredString")), false),
+        (.reference(.component(named: "NullableString")), true),
+    ]
+    func testOptionalSchemas() throws {
+        let components = OpenAPI.Components(
+            schemas: [
+                "RequiredString": .string,
+                "NullableString": .string(nullable: true),
+            ]
+        )
+        for (schema, expectedIsOptional) in Self.optionalTestCases {
+            let actualIsOptional = try typeMatcher.isOptional(schema, components: components)
+            XCTAssertEqual(
+                actualIsOptional,
+                expectedIsOptional,
+                "Schema optionaly mismatch: \(schema.prettyDescription), expected: \(expectedIsOptional), actual: \(actualIsOptional)"
+            )
+        }
+    }
+
 }

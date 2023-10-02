@@ -37,6 +37,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsHeadersReference() throws {
         try self.assertHeadersTranslation(
             """
+            schemas:
+              MySchema:
+                type: string
             headers:
               MyHeader:
                 schema:
@@ -71,6 +74,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsParametersReference() throws {
         try self.assertParametersTranslation(
             """
+            schemas:
+              MySchema:
+                type: string
             parameters:
               MyParam:
                 in: query
@@ -233,6 +239,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
         try self.assertSchemasTranslation(
             """
             schemas:
+              MyRequiredString:
+                type: string
+              MyNullableString:
+                type: [string, null]
               MyObject:
                 type: object
                 properties:
@@ -241,21 +251,40 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     format: int64
                   alias:
                     type: string
+                  requiredString:
+                    $ref: '#/components/schemas/MyRequiredString'
+                  nullableString:
+                    $ref: '#/components/schemas/MyNullableString'
                 required:
                   - id
+                  - requiredString
+                  - nullableString
             """,
             """
                 public enum Schemas {
+                  public typealias MyRequiredString = Swift.String
+                  public typealias MyNullableString = Swift.String
                   public struct MyObject: Codable, Hashable, Sendable {
                     public var id: Swift.Int64
                     public var alias: Swift.String?
-                    public init(id: Swift.Int64, alias: Swift.String? = nil) {
+                    public var requiredString: Components.Schemas.MyRequiredString
+                    public var nullableString: Components.Schemas.MyNullableString?
+                    public init(
+                        id: Swift.Int64,
+                        alias: Swift.String? = nil,
+                        requiredString: Components.Schemas.MyRequiredString,
+                        nullableString: Components.Schemas.MyNullableString? = nil
+                    ) {
                         self.id = id
                         self.alias = alias
+                        self.requiredString = requiredString
+                        self.nullableString = nullableString
                     }
                     public enum CodingKeys: String, CodingKey {
                         case id
                         case alias
+                        case requiredString
+                        case nullableString
                     }
                   }
                 }

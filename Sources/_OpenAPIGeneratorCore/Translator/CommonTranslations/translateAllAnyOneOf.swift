@@ -49,6 +49,7 @@ extension FileTranslator {
                 let rawPropertyType = try typeAssigner.typeUsage(
                     forAllOrAnyOrOneOfChildSchemaNamed: key,
                     withSchema: schema,
+                    components: components,
                     inParent: typeName
                 )
                 let propertyType: TypeUsage
@@ -163,6 +164,7 @@ extension FileTranslator {
                     let childType = try typeAssigner.typeUsage(
                         forAllOrAnyOrOneOfChildSchemaNamed: key,
                         withSchema: schema,
+                        components: components,
                         inParent: typeName
                     )
                     let caseName: String
