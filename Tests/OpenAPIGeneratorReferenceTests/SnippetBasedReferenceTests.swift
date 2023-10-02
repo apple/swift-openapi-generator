@@ -1631,7 +1631,7 @@ extension SnippetBasedReferenceTests {
     }
 
     func assertResponsesTranslation(
-        featureFlags: FeatureFlags = [.shorthandAPIs],
+        featureFlags: FeatureFlags = [],
         ignoredDiagnosticMessages: Set<String> = [],
         _ componentsYAML: String,
         _ expectedSwift: String,

@@ -158,11 +158,7 @@ extension TypesFileTranslator {
             inlineResponseDecl,
             caseDecl,
             throwingGetter in
-            if config.featureFlags.contains(.shorthandAPIs) {
-                return [inlineResponseDecl, caseDecl, throwingGetter].compactMap { $0 }
-            } else {
-                return [inlineResponseDecl, caseDecl, nil].compactMap { $0 }
-            }
+            [inlineResponseDecl, caseDecl, throwingGetter].compactMap { $0 }
         }
 
         let allMembers: [Declaration]
