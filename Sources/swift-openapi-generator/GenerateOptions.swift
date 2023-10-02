@@ -86,7 +86,20 @@ extension _GenerateOptions {
         if !featureFlag.isEmpty {
             return Set(featureFlag)
         }
-        return Set(config?.featureFlags ?? [])
+        return config?.featureFlags ?? []
+    }
+
+    /// Validates a collection of keys against a predefined set of allowed keys.
+    ///
+    /// - Parameter keys: A collection of keys to be validated.
+    /// - Throws: A `ValidationError` if any key in the collection is not found in the
+    ///           allowed set of keys specified by `_UserConfig.codingKeysRawValues`.
+    func validateKeys(_ keys: [String]) throws {
+        for key in keys {
+            if !_UserConfig.codingKeysRawValues.contains(key) {
+                throw ValidationError("Unknown configuration key found in config file: \(key)")
+            }
+        }
     }
 
     /// Returns the configuration requested by the user.
@@ -99,6 +112,16 @@ extension _GenerateOptions {
         }
         do {
             let data = try Data(contentsOf: config)
+            let configAsString = String(decoding: data, as: UTF8.self)
+            var yamlKeys = [String]()
+
+            do {
+                yamlKeys = try YamsParser.extractTopLevelKeys(fromYAMLString: configAsString)
+            } catch {
+                throw ValidationError("The config isn't valid. \(error)")
+            }
+            try validateKeys(yamlKeys)
+
             let config = try YAMLDecoder().decode(_UserConfig.self, from: data)
             return config
         } catch {

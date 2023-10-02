@@ -58,7 +58,7 @@ public extension HTTPResponse {
     static var listPetsSuccess: (HTTPResponse, HTTPBody) {
         get throws {
             try Self(
-                soar_statusCode: 200,
+                status: .ok,
                 headerFields: [
                     .contentType: "application/json"
                 ]

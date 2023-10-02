@@ -126,53 +126,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public var fooOptional: Swift.String?
                     public var fooRequired: Swift.String
                     public var fooOptionalNullable: Swift.String?
-                    public var fooRequiredNullable: Swift.String
-                    public init(
-                        fooOptional: Swift.String? = nil,
-                        fooRequired: Swift.String,
-                        fooOptionalNullable: Swift.String? = nil,
-                        fooRequiredNullable: Swift.String
-                    ) {
-                        self.fooOptional = fooOptional
-                        self.fooRequired = fooRequired
-                        self.fooOptionalNullable = fooOptionalNullable
-                        self.fooRequiredNullable = fooRequiredNullable
-                    }
-                    public enum CodingKeys: String, CodingKey {
-                        case fooOptional
-                        case fooRequired
-                        case fooOptionalNullable
-                        case fooRequiredNullable
-                    }
-                }
-            }
-            """
-        )
-        try self.assertSchemasTranslation(
-            featureFlags: [.nullableSchemas],
-            """
-            schemas:
-              MyObj:
-                type: object
-                properties:
-                  fooOptional:
-                    type: string
-                  fooRequired:
-                    type: string
-                  fooOptionalNullable:
-                    type: [string, null]
-                  fooRequiredNullable:
-                    type: [string, null]
-                required:
-                  - fooRequired
-                  - fooRequiredNullable
-            """,
-            """
-            public enum Schemas {
-                public struct MyObj: Codable, Hashable, Sendable {
-                    public var fooOptional: Swift.String?
-                    public var fooRequired: Swift.String
-                    public var fooOptionalNullable: Swift.String?
                     public var fooRequiredNullable: Swift.String?
                     public init(
                         fooOptional: Swift.String? = nil,
@@ -1160,28 +1113,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
 
     func testComponentsRequestBodiesInline_urlEncodedForm() throws {
         try self.assertRequestBodiesTranslation(
-            """
-            requestBodies:
-              MyRequestBody:
-                content:
-                  application/x-www-form-urlencoded:
-                    schema:
-                      type: object
-                      properties:
-                        foo:
-                          type: string
-                      required: [foo]
-            """,
-            """
-            public enum RequestBodies {
-                @frozen public enum MyRequestBody: Sendable, Hashable {
-                    case urlEncodedForm(OpenAPIRuntime.HTTPBody)
-                }
-            }
-            """
-        )
-        try self.assertRequestBodiesTranslation(
-            featureFlags: [.urlEncodedForm],
             """
             requestBodies:
               MyRequestBody:
