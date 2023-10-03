@@ -73,6 +73,13 @@ extension APIProtocol {
     public func createPet(headers: Operations.createPet.Input.Headers = .init(), body: Operations.createPet.Input.Body)
         async throws -> Operations.createPet.Output
     { try await createPet(Operations.createPet.Input(headers: headers, body: body)) }
+    /// Create a pet using a url form
+    ///
+    /// - Remark: HTTP `POST /pets/create`.
+    /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
+    public func createPetWithForm(body: Operations.createPetWithForm.Input.Body) async throws
+        -> Operations.createPetWithForm.Output
+    { try await createPetWithForm(Operations.createPetWithForm.Input(body: body)) }
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
     public func getStats(headers: Operations.getStats.Input.Headers = .init()) async throws
@@ -752,7 +759,7 @@ public enum Components {
                 case json(Components.Responses.ErrorBadRequest.Body.jsonPayload)
                 /// The associated value of the enum case if `self` is `.json`.
                 ///
-                /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                /// - Throws: Runtime error if `self` is not `.json`.
                 /// - SeeAlso: `.json`.
                 public var json: Components.Responses.ErrorBadRequest.Body.jsonPayload {
                     get throws {
@@ -915,7 +922,7 @@ public enum Operations {
                     case json(Components.Schemas.Pets)
                     /// The associated value of the enum case if `self` is `.json`.
                     ///
-                    /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                    /// - Throws: Runtime error if `self` is not `.json`.
                     /// - SeeAlso: `.json`.
                     public var json: Components.Schemas.Pets {
                         get throws {
@@ -945,7 +952,7 @@ public enum Operations {
             case ok(Operations.listPets.Output.Ok)
             /// The associated value of the enum case if `self` is `.ok`.
             ///
-            /// - Throws: `UnexpectedResponseError` if `self` is not `.ok`.
+            /// - Throws: Runtime error if `self` is not `.ok`.
             /// - SeeAlso: `.ok`.
             public var ok: Operations.listPets.Output.Ok {
                 get throws {
@@ -962,7 +969,7 @@ public enum Operations {
                     case json(Components.Schemas._Error)
                     /// The associated value of the enum case if `self` is `.json`.
                     ///
-                    /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                    /// - Throws: Runtime error if `self` is not `.json`.
                     /// - SeeAlso: `.json`.
                     public var json: Components.Schemas._Error {
                         get throws {
@@ -988,7 +995,7 @@ public enum Operations {
             case `default`(statusCode: Int, Operations.listPets.Output.Default)
             /// The associated value of the enum case if `self` is `.`default``.
             ///
-            /// - Throws: `UnexpectedResponseError` if `self` is not `.`default``.
+            /// - Throws: Runtime error if `self` is not `.`default``.
             /// - SeeAlso: `.`default``.
             public var `default`: Operations.listPets.Output.Default {
                 get throws {
@@ -1086,7 +1093,7 @@ public enum Operations {
                     case json(Components.Schemas.Pet)
                     /// The associated value of the enum case if `self` is `.json`.
                     ///
-                    /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                    /// - Throws: Runtime error if `self` is not `.json`.
                     /// - SeeAlso: `.json`.
                     public var json: Components.Schemas.Pet {
                         get throws {
@@ -1119,7 +1126,7 @@ public enum Operations {
             case created(Operations.createPet.Output.Created)
             /// The associated value of the enum case if `self` is `.created`.
             ///
-            /// - Throws: `UnexpectedResponseError` if `self` is not `.created`.
+            /// - Throws: Runtime error if `self` is not `.created`.
             /// - SeeAlso: `.created`.
             public var created: Operations.createPet.Output.Created {
                 get throws {
@@ -1137,7 +1144,7 @@ public enum Operations {
             case clientError(statusCode: Int, Components.Responses.ErrorBadRequest)
             /// The associated value of the enum case if `self` is `.clientError`.
             ///
-            /// - Throws: `UnexpectedResponseError` if `self` is not `.clientError`.
+            /// - Throws: Runtime error if `self` is not `.clientError`.
             /// - SeeAlso: `.clientError`.
             public var clientError: Components.Responses.ErrorBadRequest {
                 get throws {
@@ -1200,6 +1207,18 @@ public enum Operations {
             ///
             /// HTTP response code: `204 noContent`.
             case noContent(Operations.createPetWithForm.Output.NoContent)
+            /// The associated value of the enum case if `self` is `.noContent`.
+            ///
+            /// - Throws: Runtime error if `self` is not `.noContent`.
+            /// - SeeAlso: `.noContent`.
+            public var noContent: Operations.createPetWithForm.Output.NoContent {
+                get throws {
+                    switch self {
+                    case let .noContent(response): return response
+                    default: try throwUnexpectedResponseStatus(expectedStatus: "noContent", response: self)
+                    }
+                }
+            }
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
@@ -1238,7 +1257,7 @@ public enum Operations {
                     case json(Components.Schemas.PetStats)
                     /// The associated value of the enum case if `self` is `.json`.
                     ///
-                    /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                    /// - Throws: Runtime error if `self` is not `.json`.
                     /// - SeeAlso: `.json`.
                     public var json: Components.Schemas.PetStats {
                         get throws {
@@ -1256,7 +1275,7 @@ public enum Operations {
                     case plainText(OpenAPIRuntime.HTTPBody)
                     /// The associated value of the enum case if `self` is `.plainText`.
                     ///
-                    /// - Throws: `UnexpectedContentError` if `self` is not `.plainText`.
+                    /// - Throws: Runtime error if `self` is not `.plainText`.
                     /// - SeeAlso: `.plainText`.
                     public var plainText: OpenAPIRuntime.HTTPBody {
                         get throws {
@@ -1270,17 +1289,14 @@ public enum Operations {
                     case binary(OpenAPIRuntime.HTTPBody)
                     /// The associated value of the enum case if `self` is `.binary`.
                     ///
-                    /// - Throws: `UnexpectedContentError` if `self` is not `.binary`.
+                    /// - Throws: Runtime error if `self` is not `.binary`.
                     /// - SeeAlso: `.binary`.
                     public var binary: OpenAPIRuntime.HTTPBody {
                         get throws {
                             switch self {
                             case let .binary(body): return body
                             default:
-                                try throwUnexpectedResponseBody(
-                                    expectedContent: "application/octet-stream",
-                                    body: self
-                                )
+                                try throwUnexpectedResponseBody(expectedContent: "application/octet-stream", body: self)
                             }
                         }
                     }
@@ -1301,7 +1317,7 @@ public enum Operations {
             case ok(Operations.getStats.Output.Ok)
             /// The associated value of the enum case if `self` is `.ok`.
             ///
-            /// - Throws: `UnexpectedResponseError` if `self` is not `.ok`.
+            /// - Throws: Runtime error if `self` is not `.ok`.
             /// - SeeAlso: `.ok`.
             public var ok: Operations.getStats.Output.Ok {
                 get throws {
@@ -1374,7 +1390,7 @@ public enum Operations {
             case accepted(Operations.postStats.Output.Accepted)
             /// The associated value of the enum case if `self` is `.accepted`.
             ///
-            /// - Throws: `UnexpectedResponseError` if `self` is not `.accepted`.
+            /// - Throws: Runtime error if `self` is not `.accepted`.
             /// - SeeAlso: `.accepted`.
             public var accepted: Operations.postStats.Output.Accepted {
                 get throws {
@@ -1411,7 +1427,7 @@ public enum Operations {
             case noContent(Operations.probe.Output.NoContent)
             /// The associated value of the enum case if `self` is `.noContent`.
             ///
-            /// - Throws: `UnexpectedResponseError` if `self` is not `.noContent`.
+            /// - Throws: Runtime error if `self` is not `.noContent`.
             /// - SeeAlso: `.noContent`.
             public var noContent: Operations.probe.Output.NoContent {
                 get throws {
@@ -1490,7 +1506,7 @@ public enum Operations {
             case noContent(Operations.updatePet.Output.NoContent)
             /// The associated value of the enum case if `self` is `.noContent`.
             ///
-            /// - Throws: `UnexpectedResponseError` if `self` is not `.noContent`.
+            /// - Throws: Runtime error if `self` is not `.noContent`.
             /// - SeeAlso: `.noContent`.
             public var noContent: Operations.updatePet.Output.NoContent {
                 get throws {
@@ -1518,7 +1534,7 @@ public enum Operations {
                     case json(Operations.updatePet.Output.BadRequest.Body.jsonPayload)
                     /// The associated value of the enum case if `self` is `.json`.
                     ///
-                    /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                    /// - Throws: Runtime error if `self` is not `.json`.
                     /// - SeeAlso: `.json`.
                     public var json: Operations.updatePet.Output.BadRequest.Body.jsonPayload {
                         get throws {
@@ -1544,7 +1560,7 @@ public enum Operations {
             case badRequest(Operations.updatePet.Output.BadRequest)
             /// The associated value of the enum case if `self` is `.badRequest`.
             ///
-            /// - Throws: `UnexpectedResponseError` if `self` is not `.badRequest`.
+            /// - Throws: Runtime error if `self` is not `.badRequest`.
             /// - SeeAlso: `.badRequest`.
             public var badRequest: Operations.updatePet.Output.BadRequest {
                 get throws {
@@ -1642,7 +1658,7 @@ public enum Operations {
                     case binary(OpenAPIRuntime.HTTPBody)
                     /// The associated value of the enum case if `self` is `.binary`.
                     ///
-                    /// - Throws: `UnexpectedContentError` if `self` is not `.binary`.
+                    /// - Throws: Runtime error if `self` is not `.binary`.
                     /// - SeeAlso: `.binary`.
                     public var binary: OpenAPIRuntime.HTTPBody {
                         get throws {
@@ -1668,7 +1684,7 @@ public enum Operations {
             case ok(Operations.uploadAvatarForPet.Output.Ok)
             /// The associated value of the enum case if `self` is `.ok`.
             ///
-            /// - Throws: `UnexpectedResponseError` if `self` is not `.ok`.
+            /// - Throws: Runtime error if `self` is not `.ok`.
             /// - SeeAlso: `.ok`.
             public var ok: Operations.uploadAvatarForPet.Output.Ok {
                 get throws {
@@ -1685,7 +1701,7 @@ public enum Operations {
                     case json(Swift.String)
                     /// The associated value of the enum case if `self` is `.json`.
                     ///
-                    /// - Throws: `UnexpectedContentError` if `self` is not `.json`.
+                    /// - Throws: Runtime error if `self` is not `.json`.
                     /// - SeeAlso: `.json`.
                     public var json: Swift.String {
                         get throws {
@@ -1711,7 +1727,7 @@ public enum Operations {
             case preconditionFailed(Operations.uploadAvatarForPet.Output.PreconditionFailed)
             /// The associated value of the enum case if `self` is `.preconditionFailed`.
             ///
-            /// - Throws: `UnexpectedResponseError` if `self` is not `.preconditionFailed`.
+            /// - Throws: Runtime error if `self` is not `.preconditionFailed`.
             /// - SeeAlso: `.preconditionFailed`.
             public var preconditionFailed: Operations.uploadAvatarForPet.Output.PreconditionFailed {
                 get throws {
@@ -1728,7 +1744,7 @@ public enum Operations {
                     case plainText(OpenAPIRuntime.HTTPBody)
                     /// The associated value of the enum case if `self` is `.plainText`.
                     ///
-                    /// - Throws: `UnexpectedContentError` if `self` is not `.plainText`.
+                    /// - Throws: Runtime error if `self` is not `.plainText`.
                     /// - SeeAlso: `.plainText`.
                     public var plainText: OpenAPIRuntime.HTTPBody {
                         get throws {
@@ -1754,7 +1770,7 @@ public enum Operations {
             case internalServerError(Operations.uploadAvatarForPet.Output.InternalServerError)
             /// The associated value of the enum case if `self` is `.internalServerError`.
             ///
-            /// - Throws: `UnexpectedResponseError` if `self` is not `.internalServerError`.
+            /// - Throws: Runtime error if `self` is not `.internalServerError`.
             /// - SeeAlso: `.internalServerError`.
             public var internalServerError: Operations.uploadAvatarForPet.Output.InternalServerError {
                 get throws {

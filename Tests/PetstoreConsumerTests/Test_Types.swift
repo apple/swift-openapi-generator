@@ -302,13 +302,14 @@ final class Test_Types: XCTestCase {
             }
         }
 
-        let plainTextOK = Operations.getStats.Output.Ok(body: .plainText("stats"))
-        XCTAssertEqual(try plainTextOK.body.plainText, "stats")
-        XCTAssertThrowsError(try plainTextOK.body.json) { error in
+        let stats = Components.Schemas.PetStats(count: 42)
+        let ok = Operations.getStats.Output.Ok(body: .json(stats))
+        XCTAssertEqual(try ok.body.json, stats)
+        XCTAssertThrowsError(try ok.body.plainText) { error in
             guard
                 case let .unexpectedResponseBody(expectedContentType, actualBody) = error as? RuntimeError,
-                expectedContentType == "application/json; charset=utf-8",
-                actualBody as? Operations.getStats.Output.Ok.Body == .plainText("stats")
+                expectedContentType == "text/plain",
+                actualBody as? Operations.getStats.Output.Ok.Body == .json(stats)
             else {
                 XCTFail("Expected error, but not this: \(error)")
                 return

@@ -122,10 +122,10 @@ extension TypesFileTranslator {
                                         .identifier("throwUnexpectedResponseBody")
                                             .call([
                                                 .init(
-                                                    label: "expectedContentType",
+                                                    label: "expectedContent",
                                                     expression: .literal(.string(contentType.headerValueForSending))
                                                 ),
-                                                .init(label: "response", expression: .identifier("self")),
+                                                .init(label: "body", expression: .identifier("self")),
                                             ])
                                     )
                                 )
