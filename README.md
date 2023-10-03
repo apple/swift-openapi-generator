@@ -1,5 +1,6 @@
 # Swift OpenAPI Generator
 
+
 Generate Swift client and server code from an OpenAPI document.
 
 ## Overview
