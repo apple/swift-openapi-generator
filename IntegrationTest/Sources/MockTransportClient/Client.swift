@@ -21,7 +21,8 @@ struct MockClientTransport: ClientTransport {
     func send(
         _ request: HTTPTypes.HTTPRequest,
         body: OpenAPIRuntime.HTTPBody?,
-        baseURL: URL, operationID: String
+        baseURL: URL,
+        operationID: String
     ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
         (HTTPTypes.HTTPResponse(status: 200), nil)
     }

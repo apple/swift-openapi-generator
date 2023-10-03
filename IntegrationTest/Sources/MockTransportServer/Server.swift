@@ -26,7 +26,9 @@ actor SimpleAPIImpl: APIProtocol {
 }
 
 class MockServerTransport: ServerTransport {
-    typealias Handler = @Sendable (HTTPTypes.HTTPRequest, OpenAPIRuntime.HTTPBody?, OpenAPIRuntime.ServerRequestMetadata) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?)
+    typealias Handler = @Sendable (
+        HTTPTypes.HTTPRequest, OpenAPIRuntime.HTTPBody?, OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?)
 
     func register(
         _ handler: @escaping Handler,
