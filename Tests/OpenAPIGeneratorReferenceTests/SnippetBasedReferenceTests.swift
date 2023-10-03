@@ -292,6 +292,37 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasObjectWithPropertiesBinaryIsSkipped() throws {
+        try self.assertSchemasTranslation(
+            ignoredDiagnosticMessages: [
+                "Schema \"string (binary)\" is not supported, reason: \"Binary properties in object schemas.\", skipping"
+            ],
+            """
+            schemas:
+              MyObject:
+                type: object
+                properties:
+                  actualString:
+                    type: string
+                  binaryProperty:
+                    type: string
+                    format: binary
+                required:
+                  - actualString
+                  - binaryProperty
+            """,
+            """
+                public enum Schemas {
+                  public struct MyObject: Codable, Hashable, Sendable {
+                    public var actualString: Swift.String
+                    public init(actualString: Swift.String) { self.actualString = actualString }
+                    public enum CodingKeys: String, CodingKey { case actualString }
+                  }
+                }
+            """
+        )
+    }
+
     func testComponentsSchemasAllOf() throws {
         try self.assertSchemasTranslation(
             """
@@ -1617,6 +1648,7 @@ extension SnippetBasedReferenceTests {
 
     func assertSchemasTranslation(
         featureFlags: FeatureFlags = [],
+        ignoredDiagnosticMessages: Set<String> = [],
         _ componentsYAML: String,
         _ expectedSwift: String,
         file: StaticString = #filePath,
@@ -1624,6 +1656,7 @@ extension SnippetBasedReferenceTests {
     ) throws {
         let translator = try makeTypesTranslator(
             featureFlags: featureFlags,
+            ignoredDiagnosticMessages: ignoredDiagnosticMessages,
             componentsYAML: componentsYAML
         )
         let translation = try translator.translateSchemas(translator.components.schemas)
