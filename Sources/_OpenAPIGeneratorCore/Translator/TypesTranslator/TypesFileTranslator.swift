@@ -43,6 +43,8 @@ struct TypesFileTranslator: FileTranslator {
 
         let apiProtocol = try translateAPIProtocol(doc.paths)
 
+        let apiProtocolExtension = try translateAPIProtocolExtension(doc.paths)
+
         let serversDecl = translateServers(doc.servers)
 
         let components = try translateComponents(doc.components)
@@ -59,6 +61,7 @@ struct TypesFileTranslator: FileTranslator {
             imports: imports,
             codeBlocks: [
                 .declaration(apiProtocol),
+                .declaration(apiProtocolExtension),
                 .declaration(serversDecl),
                 components,
                 operations,

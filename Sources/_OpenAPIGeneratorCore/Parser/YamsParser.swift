@@ -19,7 +19,27 @@ import Yams
 
 /// A parser that uses the Yams library to parse the provided
 /// raw file into an OpenAPI document.
-struct YamsParser: ParserProtocol {
+public struct YamsParser: ParserProtocol {
+
+    /// Extracts the top-level keys from a YAML string.
+    ///
+    /// - Parameter yamlString: The YAML string from which to extract keys.
+    /// - Returns: An array of top-level keys as strings.
+    /// - Throws: An error if there are any issues with parsing the YAML string.
+    public static func extractTopLevelKeys(fromYAMLString yamlString: String) throws -> [String] {
+        var yamlKeys = [String]()
+        let parser = try Parser(yaml: yamlString)
+
+        if let rootNode = try parser.singleRoot(),
+            case let .mapping(mapping) = rootNode
+        {
+            for (key, _) in mapping {
+                yamlKeys.append(key.string ?? "")
+            }
+        }
+        return yamlKeys
+    }
+
     func parseOpenAPI(
         _ input: InMemoryInputFile,
         config: Config,

@@ -45,9 +45,7 @@ class FileBasedReferenceTests: XCTestCase {
     }
 
     func testPetstore() throws {
-        try _test(
-            referenceProject: .init(name: .petstore)
-        )
+        try _test(referenceProject: .init(name: .petstore))
     }
 
     // MARK: - Private

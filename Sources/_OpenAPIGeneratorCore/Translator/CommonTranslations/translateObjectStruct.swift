@@ -34,7 +34,29 @@ extension FileTranslator {
             try objectContext
             .properties
             .filter { key, value in
-                try validateSchemaIsSupported(
+
+                let foundIn = "\(typeName.description)/\(key)"
+
+                // We need to catch a special case here:
+                // type: string + format: binary.
+                // It means binary data (unlike format: byte, which means base64
+                // and cannot be used in a structured object, such as in JSON.
+                // It's only valid as the root schema of a request or response.
+                // However, it _is_ a supported schema, so the following
+                // filtering would not exclude it.
+                // Since this is the only place we filter which schemas are
+                // allowed in object properties, explicitly filter these out
+                // here.
+                if value.isString && value.formatString == "binary" {
+                    diagnostics.emitUnsupportedSchema(
+                        reason: "Binary properties in object schemas.",
+                        schema: value,
+                        foundIn: foundIn
+                    )
+                    return false
+                }
+
+                return try validateSchemaIsSupported(
                     value,
                     foundIn: "\(typeName.description)/\(key)"
                 )
@@ -43,6 +65,7 @@ extension FileTranslator {
                 let propertyType = try typeAssigner.typeUsage(
                     forObjectPropertyNamed: key,
                     withSchema: value,
+                    components: components,
                     inParent: typeName
                 )
                 let comment: Comment? = .property(
@@ -127,6 +150,7 @@ extension FileTranslator {
             let valueTypeUsage = try typeAssigner.typeUsage(
                 forObjectPropertyNamed: "additionalProperties",
                 withSchema: schema,
+                components: components,
                 inParent: parent
             )
             if TypeMatcher.isInlinable(schema) {

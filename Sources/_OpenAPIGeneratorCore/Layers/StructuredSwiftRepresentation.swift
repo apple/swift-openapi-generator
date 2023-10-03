@@ -232,10 +232,15 @@ struct VariableDescription: Equatable, Codable {
     /// For example, in `let foo = 42`, `right` represents `42`.
     var right: Expression? = nil
 
-    /// Body code blocks of the variable.
+    /// Body code for the getter.
     ///
-    /// For example, in `let foo: Int { 42 }`, `body` represents `{ 42 }`.
-    var body: [CodeBlock]? = nil
+    /// For example, in `var foo: Int { 42 }`, `body` represents `{ 42 }`.
+    var getter: [CodeBlock]? = nil
+
+    /// Effects for the getter.
+    ///
+    /// For example, in `var foo: Int { get throws { 42 } }`, effects are `[.throws]`.
+    var getterEffects: [FunctionKeyword] = []
 }
 
 /// A requirement of a where clause.
@@ -441,7 +446,7 @@ struct FunctionSignatureDescription: Equatable, Codable {
     var keywords: [FunctionKeyword] = []
 
     /// The return type name of the function, such as `Int`.
-    var returnType: String? = nil
+    var returnType: Expression? = nil
 }
 
 /// A description of a function definition.
@@ -479,7 +484,7 @@ struct FunctionDescription: Equatable, Codable {
         kind: FunctionKind,
         parameters: [ParameterDescription] = [],
         keywords: [FunctionKeyword] = [],
-        returnType: String? = nil,
+        returnType: Expression? = nil,
         body: [CodeBlock]? = nil
     ) {
         self.signature = .init(
@@ -505,7 +510,7 @@ struct FunctionDescription: Equatable, Codable {
         kind: FunctionKind,
         parameters: [ParameterDescription] = [],
         keywords: [FunctionKeyword] = [],
-        returnType: String? = nil,
+        returnType: Expression? = nil,
         body: [Expression]
     ) {
         self.init(
@@ -858,6 +863,17 @@ struct OptionalChainingDescription: Equatable, Codable {
     var referencedExpr: Expression
 }
 
+/// A description of a tuple.
+///
+/// For example: `(foo, bar)`.
+struct TupleDescription: Equatable, Codable {
+
+    /// The member expressions.
+    ///
+    /// For example, in `(foo, bar)`, `members` is `[foo, bar]`.
+    var members: [Expression]
+}
+
 /// A Swift expression.
 indirect enum Expression: Equatable, Codable {
 
@@ -928,6 +944,11 @@ indirect enum Expression: Equatable, Codable {
     ///
     /// For example, in `foo?`, `referencedExpr` is `foo`.
     case optionalChaining(OptionalChainingDescription)
+
+    /// A tuple expression.
+    ///
+    /// For example: `(foo, bar)`.
+    case tuple(TupleDescription)
 }
 
 /// A code block item, either a declaration or an expression.
@@ -998,7 +1019,8 @@ extension Declaration {
     ///   - left: The name of the variable.
     ///   - type: The type of the variable.
     ///   - right: The expression to be assigned to the variable.
-    ///   - body: Body code blocks of the variable.
+    ///   - getter: Body code for the getter of the variable.
+    ///   - getterEffects: Effects of the getter.
     /// - Returns: Variable declaration.
     static func variable(
         accessModifier: AccessModifier? = nil,
@@ -1007,7 +1029,8 @@ extension Declaration {
         left: String,
         type: String? = nil,
         right: Expression? = nil,
-        body: [CodeBlock]? = nil
+        getter: [CodeBlock]? = nil,
+        getterEffects: [FunctionKeyword] = []
     ) -> Self {
         .variable(
             .init(
@@ -1017,7 +1040,8 @@ extension Declaration {
                 left: left,
                 type: type,
                 right: right,
-                body: body
+                getter: getter,
+                getterEffects: getterEffects
             )
         )
     }
@@ -1076,7 +1100,7 @@ extension Declaration {
         kind: FunctionKind,
         parameters: [ParameterDescription],
         keywords: [FunctionKeyword] = [],
-        returnType: String? = nil,
+        returnType: Expression? = nil,
         body: [CodeBlock]? = nil
     ) -> Self {
         .function(
@@ -1431,6 +1455,15 @@ extension Expression {
     /// For example, for the current expression `foo`, returns `foo?`.
     func optionallyChained() -> Self {
         .optionalChaining(.init(referencedExpr: self))
+    }
+
+    /// Returns a new tuple expression.
+    ///
+    /// For example, in `(foo, bar)`, `members` is `[foo, bar]`.
+    /// - Parameter expressions: The member expressions.
+    /// - Returns: A tuple expression.
+    static func tuple(_ expressions: [Expression]) -> Self {
+        .tuple(.init(members: expressions))
     }
 }
 

@@ -20,10 +20,6 @@ struct TypeMatcher {
     /// safe to be used as a Swift identifier.
     var asSwiftSafeName: (String) -> String
 
-    /// A Boolean value indicating whether the `nullable` field on schemas
-    /// should be taken into account.
-    var supportNullableSchemas: Bool
-
     /// Returns the type name of a built-in type that matches the specified
     /// schema.
     ///
@@ -67,11 +63,14 @@ struct TypeMatcher {
     /// - A reference
     ///
     /// - Note: Optionality from the `JSONSchema` is applied.
-    /// - Parameter schema: The schema to match a referenceable type for.
+    /// - Parameters:
+    ///   - schema: The schema to match a referenceable type for.
+    ///   - components: The components in which to look up references.
     /// - Returns: A type usage for the schema if the schema is supported.
     /// Otherwise, returns nil.
     func tryMatchReferenceableType(
-        for schema: JSONSchema
+        for schema: JSONSchema,
+        components: OpenAPI.Components
     ) throws -> TypeUsage? {
         try Self._tryMatchRecursive(
             for: schema.value,
@@ -83,8 +82,7 @@ struct TypeMatcher {
                     return nil
                 }
                 return try TypeAssigner(
-                    asSwiftSafeName: asSwiftSafeName,
-                    supportNullableSchemas: supportNullableSchemas
+                    asSwiftSafeName: asSwiftSafeName
                 )
                 .typeName(for: ref).asUsage
             },
@@ -95,7 +93,7 @@ struct TypeMatcher {
                 TypeName.arrayContainer.asUsage
             }
         )?
-        .withOptional(!schema.required || (supportNullableSchemas && schema.nullable))
+        .withOptional(isOptional(schema, components: components))
     }
 
     /// Returns a Boolean value that indicates whether the schema
@@ -245,6 +243,47 @@ struct TypeMatcher {
         return try isKeyValuePair(schemaToCheck, components: components)
     }
 
+    /// Returns a Boolean value indicating whether the schema is optional.
+    /// - Parameters:
+    ///   - schema: The schema to check.
+    ///   - components: The OpenAPI components for looking up references.
+    /// - Returns: `true` if the schema is optional, `false` otherwise.
+    func isOptional(
+        _ schema: JSONSchema,
+        components: OpenAPI.Components
+    ) throws -> Bool {
+        if schema.nullable || !schema.required {
+            return true
+        }
+        guard case .reference(let ref, _) = schema.value else {
+            return false
+        }
+        let targetSchema = try components.lookup(ref)
+        return try isOptional(targetSchema, components: components)
+    }
+
+    /// Returns a Boolean value indicating whether the schema is optional.
+    /// - Parameters:
+    ///   - schema: The schema to check.
+    ///   - components: The OpenAPI components for looking up references.
+    /// - Returns: `true` if the schema is optional, `false` otherwise.
+    func isOptional(
+        _ schema: UnresolvedSchema?,
+        components: OpenAPI.Components
+    ) throws -> Bool {
+        guard let schema else {
+            // A nil unresolved schema represents a non-optional fragment.
+            return false
+        }
+        switch schema {
+        case .a(let ref):
+            let targetSchema = try components.lookup(ref)
+            return try isOptional(targetSchema, components: components)
+        case .b(let schema):
+            return try isOptional(schema, components: components)
+        }
+    }
+
     // MARK: - Private
 
     /// Returns the type name of a built-in type that matches the specified
@@ -295,7 +334,7 @@ struct TypeMatcher {
             case .byte:
                 typeName = .swift("String")
             case .binary:
-                typeName = .foundation("Data")
+                typeName = .body
             case .dateTime:
                 typeName = .foundation("Date")
             default:

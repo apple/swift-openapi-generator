@@ -61,7 +61,7 @@ final class Test_ContentType: Test_Core {
                 ),
                 (
                     "application/x-www-form-urlencoded",
-                    .binary,
+                    .urlEncodedForm,
                     "application",
                     "x-www-form-urlencoded",
                     "",
@@ -81,7 +81,7 @@ final class Test_ContentType: Test_Core {
                 ),
                 (
                     "text/plain",
-                    .text,
+                    .binary,
                     "text",
                     "plain",
                     "",

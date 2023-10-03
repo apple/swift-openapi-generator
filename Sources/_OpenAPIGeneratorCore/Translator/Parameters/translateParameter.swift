@@ -207,7 +207,7 @@ extension ServerFileTranslator {
             convertExpr = .try(
                 .identifier("converter").dot(methodName("QueryItem"))
                     .call([
-                        .init(label: "in", expression: .identifier("request").dot("query")),
+                        .init(label: "in", expression: .identifier("request").dot("soar_query")),
                         .init(label: "style", expression: .dot(typedParameter.style.runtimeName)),
                         .init(label: "explode", expression: .literal(.bool(typedParameter.explode))),
                         .init(label: "name", expression: .literal(parameter.name)),

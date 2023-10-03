@@ -56,6 +56,7 @@ extension FileTranslator {
         let associatedType = try typeAssigner.typeUsage(
             usingNamingHint: identifier,
             withSchema: content.schema,
+            components: components,
             inParent: parent
         )
         return .init(content: content, typeUsage: associatedType)
@@ -91,6 +92,7 @@ extension FileTranslator {
             let associatedType = try typeAssigner.typeUsage(
                 usingNamingHint: identifier,
                 withSchema: content.schema,
+                components: components,
                 inParent: parent
             )
             return .init(content: content, typeUsage: associatedType)
@@ -163,15 +165,6 @@ extension FileTranslator {
                 ),
                 contentValue
             )
-        } else if let (contentKey, contentValue) = map.first(where: { $0.key.isText }) {
-            let contentType = contentKey.asGeneratorContentType
-            chosenContent = (
-                .init(
-                    contentType: contentType,
-                    schema: .b(.string)
-                ),
-                contentValue
-            )
         } else if !excludeBinary, let (contentKey, contentValue) = map.first(where: { $0.key.isBinary }) {
             let contentType = contentKey.asGeneratorContentType
             chosenContent = (
@@ -240,11 +233,11 @@ extension FileTranslator {
                 schema: contentValue.schema
             )
         }
-        if contentKey.isText {
-            let contentType = contentKey.asGeneratorContentType
+        if contentKey.isUrlEncodedForm {
+            let contentType = ContentType(contentKey.typeAndSubtype)
             return .init(
                 contentType: contentType,
-                schema: .b(.string)
+                schema: contentValue.schema
             )
         }
         if !excludeBinary, contentKey.isBinary {

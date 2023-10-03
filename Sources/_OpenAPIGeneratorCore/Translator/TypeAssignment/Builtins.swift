@@ -45,6 +45,13 @@ extension TypeName {
         TypeName(swiftKeyPath: ["OpenAPIRuntime", name])
     }
 
+    /// Returns a type name for a type with the specified name in the
+    /// HTTPTypes module.
+    /// - Parameter name: The name of the type.
+    static func httpTypes(_ name: String) -> TypeName {
+        TypeName(swiftKeyPath: ["HTTPTypes", name])
+    }
+
     /// Returns the type name for the UndocumentedPayload type.
     static var undocumentedPayload: Self {
         .runtime(Constants.Operation.Output.undocumentedCaseAssociatedValueTypeName)
@@ -67,6 +74,11 @@ extension TypeName {
 
     /// Returns the type name for the request type.
     static var request: TypeName {
-        .runtime("Request")
+        .httpTypes("HTTPRequest")
+    }
+
+    /// Returns the type name for the body type.
+    static var body: TypeName {
+        .runtime("HTTPBody")
     }
 }

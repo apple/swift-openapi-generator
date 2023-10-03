@@ -264,7 +264,7 @@ extension OperationDescription {
                 )
             ],
             keywords: [.async, .throws],
-            returnType: outputTypeName.fullyQualifiedSwiftName
+            returnType: .identifier(outputTypeName.fullyQualifiedSwiftName)
         )
     }
 
@@ -275,11 +275,12 @@ extension OperationDescription {
             accessModifier: nil,
             kind: .function(name: methodName),
             parameters: [
-                .init(label: "request", type: "Request"),
+                .init(label: "request", type: "HTTPRequest"),
+                .init(label: "body", type: "HTTPBody?"),
                 .init(label: "metadata", type: "ServerRequestMetadata"),
             ],
             keywords: [.async, .throws],
-            returnType: "Response"
+            returnType: .tuple([.identifier("HTTPResponse"), .identifier("HTTPBody?")])
         )
     }
 
@@ -306,32 +307,6 @@ extension OperationDescription {
                 }
             let arrayExpr: Expression = .literal(.array(names))
             return (template, arrayExpr)
-        }
-    }
-
-    /// Returns an array that contains the template to be generated for
-    /// the server that translates the URL template variable syntax to
-    /// the Runtime syntax.
-    ///
-    /// For example, `"/pets/{petId}"` -> `["pets", ":petId"]`.
-    var templatedPathForServer: [String] {
-        path.components.filter({ !$0.isEmpty })
-            .map { component in
-                guard component.hasPrefix("{") && component.hasSuffix("}") else {
-                    // FYI: Some components could also be "{foo}.zip", which we don't
-                    // currently support.
-                    return component
-                }
-                return ":\(component.dropFirst().dropLast())"
-            }
-    }
-
-    /// Returns the list of all names of query parameters.
-    var queryParameterNames: [String] {
-        get throws {
-            try allResolvedParameters
-                .filter { $0.location == .query }
-                .map(\.name)
         }
     }
 

@@ -13,10 +13,13 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIRuntime
 import Foundation
+import HTTPTypes
 
 public struct TestClientTransport: ClientTransport {
 
-    public typealias CallHandler = @Sendable (Request, URL, String) async throws -> Response
+    public typealias CallHandler = @Sendable (HTTPRequest, HTTPBody?, URL, String) async throws -> (
+        HTTPResponse, HTTPBody?
+    )
 
     public let callHandler: CallHandler
 
@@ -25,10 +28,11 @@ public struct TestClientTransport: ClientTransport {
     }
 
     public func send(
-        _ request: Request,
+        _ request: HTTPRequest,
+        body: HTTPBody?,
         baseURL: URL,
         operationID: String
-    ) async throws -> Response {
-        try await callHandler(request, baseURL, operationID)
+    ) async throws -> (HTTPResponse, HTTPBody?) {
+        try await callHandler(request, body, baseURL, operationID)
     }
 }

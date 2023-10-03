@@ -12,6 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIRuntime
+import HTTPTypes
 import Foundation
 import PetstoreConsumerTestCore
 
@@ -31,8 +32,8 @@ extension APIProtocol {
 extension TestServerTransport {
 
     private func findHandler(
-        method: HTTPMethod,
-        path: [RouterPathComponent]
+        method: HTTPRequest.Method,
+        path: String
     ) throws -> TestServerTransport.Handler {
         guard
             let handler = registered.first(where: { operation in
@@ -54,7 +55,7 @@ extension TestServerTransport {
         get throws {
             try findHandler(
                 method: .get,
-                path: ["api", "pets"]
+                path: "/api/pets"
             )
         }
     }
@@ -63,7 +64,16 @@ extension TestServerTransport {
         get throws {
             try findHandler(
                 method: .post,
-                path: ["api", "pets"]
+                path: "/api/pets"
+            )
+        }
+    }
+
+    var createPetWithForm: Handler {
+        get throws {
+            try findHandler(
+                method: .post,
+                path: "/api/pets/create"
             )
         }
     }
@@ -72,7 +82,7 @@ extension TestServerTransport {
         get throws {
             try findHandler(
                 method: .patch,
-                path: ["api", "pets", ":petId"]
+                path: "/api/pets/{petId}"
             )
         }
     }
@@ -81,7 +91,7 @@ extension TestServerTransport {
         get throws {
             try findHandler(
                 method: .get,
-                path: ["api", "pets", "stats"]
+                path: "/api/pets/stats"
             )
         }
     }
@@ -90,7 +100,7 @@ extension TestServerTransport {
         get throws {
             try findHandler(
                 method: .post,
-                path: ["api", "pets", "stats"]
+                path: "/api/pets/stats"
             )
         }
     }
@@ -99,7 +109,7 @@ extension TestServerTransport {
         get throws {
             try findHandler(
                 method: .post,
-                path: ["api", "probe"]
+                path: "/api/probe/"
             )
         }
     }
@@ -108,7 +118,7 @@ extension TestServerTransport {
         get throws {
             try findHandler(
                 method: .put,
-                path: ["api", "pets", ":petId", "avatar"]
+                path: "/api/pets/{petId}/avatar"
             )
         }
     }

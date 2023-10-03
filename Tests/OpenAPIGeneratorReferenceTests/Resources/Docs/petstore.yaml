@@ -113,6 +113,25 @@ paths:
                 $ref: '#/components/schemas/Pet'
         '4XX':
           $ref: '#/components/responses/ErrorBadRequest'
+  /pets/create:
+    summary: Work with pets
+    description: "Create a pet with a URL form"
+    post:
+      summary: Create a pet using a url form
+      operationId: createPetWithForm
+      tags:
+        - pets
+      parameters:
+      requestBody:
+        required: true
+        description: "Create a pet with these properties"
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreatePetRequest'
+      responses:
+        '204':
+          description: Successfully created pet using a url form
   /pets/stats:
     get:
       operationId: getStats

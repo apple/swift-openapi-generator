@@ -30,11 +30,6 @@ struct ContentType: Hashable {
         /// The bytes are provided to a JSON encoder or decoder.
         case json
 
-        /// A content type for any plain text.
-        ///
-        /// The bytes are encoded or decoded as a UTF-8 string.
-        case text
-
         /// A content type for raw binary data.
         ///
         /// This case covers both explicit binary data content types, such
@@ -44,6 +39,16 @@ struct ContentType: Hashable {
         /// The bytes are not further processed, they are instead passed along
         /// either to the network (requests) or to the caller (responses).
         case binary
+
+        /// A content type for x-www-form-urlencoded.
+        ///
+        /// The top level properties of a Codable data model are encoded
+        /// as key-value pairs in the form:
+        ///
+        ///  `key1=value1&key2=value2`
+        ///
+        /// The type is encoded as a binary UTF-8 data packet.
+        case urlEncodedForm
 
         /// Creates a category from the provided type and subtype.
         ///
@@ -57,8 +62,8 @@ struct ContentType: Hashable {
             if (lowercasedType == "application" && lowercasedSubtype == "json") || lowercasedSubtype.hasSuffix("+json")
             {
                 self = .json
-            } else if lowercasedType == "text" {
-                self = .text
+            } else if lowercasedType == "application" && lowercasedSubtype == "x-www-form-urlencoded" {
+                self = .urlEncodedForm
             } else {
                 self = .binary
             }
@@ -69,10 +74,10 @@ struct ContentType: Hashable {
             switch self {
             case .json:
                 return .json
-            case .text:
-                return .string
             case .binary:
                 return .binary
+            case .urlEncodedForm:
+                return .urlEncodedForm
             }
         }
     }
@@ -225,15 +230,13 @@ struct ContentType: Hashable {
     }
 
     /// A Boolean value that indicates whether the content type
-    /// is a type of plain text.
-    var isText: Bool {
-        category == .text
-    }
-
-    /// A Boolean value that indicates whether the content type
     /// is just binary data.
     var isBinary: Bool {
         category == .binary
+    }
+
+    var isUrlEncodedForm: Bool {
+        category == .urlEncodedForm
     }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
@@ -255,9 +258,9 @@ extension OpenAPI.ContentType {
     }
 
     /// A Boolean value that indicates whether the content type
-    /// is a type of plain text.
-    var isText: Bool {
-        asGeneratorContentType.isText
+    /// is a URL-encoded form.
+    var isUrlEncodedForm: Bool {
+        asGeneratorContentType.isUrlEncodedForm
     }
 
     /// A Boolean value that indicates whether the content type

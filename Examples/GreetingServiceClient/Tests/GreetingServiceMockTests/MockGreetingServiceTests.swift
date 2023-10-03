@@ -11,8 +11,13 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit
+import XCTest
+@testable import GreetingService
 
-extension FileTranslator {
-    // Add helpers for reading feature flags below.
+final class GreetingServiceMockTests: XCTestCase {
+    func testWithMock() async throws {
+        let client: APIProtocol = MockGreetingService()
+        let response = try await client.getGreeting(.init(query: .init(name: "Jane")))
+        XCTAssertEqual(response, .ok(.init(body: .json(.init(message: "(mock) Hello, Jane")))))
+    }
 }

@@ -30,7 +30,7 @@ extension TypesFileTranslator {
         _ outcome: OpenAPI.Operation.ResponseOutcome,
         operation: OperationDescription,
         operationJSONPath: String
-    ) throws -> (payloadStruct: Declaration?, enumCase: Declaration) {
+    ) throws -> (payloadStruct: Declaration?, enumCase: Declaration, throwingGetter: Declaration) {
 
         let typedResponse = try typedResponse(
             from: outcome,
@@ -38,6 +38,7 @@ extension TypesFileTranslator {
         )
         let responseStructTypeName = typedResponse.typeUsage.typeName
         let responseKind = outcome.status.value.asKind
+        let enumCaseName = responseKind.identifier
 
         let responseStructDecl: Declaration?
         if typedResponse.isInlined {
@@ -49,22 +50,15 @@ extension TypesFileTranslator {
             responseStructDecl = nil
         }
 
-        let optionalStatusCode: [EnumCaseAssociatedValueDescription]
+        var associatedValues: [EnumCaseAssociatedValueDescription] = []
         if responseKind.wantsStatusCode {
-            optionalStatusCode = [
-                .init(label: "statusCode", type: TypeName.int.shortSwiftName)
-            ]
-        } else {
-            optionalStatusCode = []
+            associatedValues.append(.init(label: "statusCode", type: TypeName.int.shortSwiftName))
         }
+        associatedValues.append(.init(type: responseStructTypeName.fullyQualifiedSwiftName))
 
         let enumCaseDesc = EnumCaseDescription(
-            name: responseKind.identifier,
-            kind: .nameWithAssociatedValues(
-                optionalStatusCode + [
-                    .init(type: responseStructTypeName.fullyQualifiedSwiftName)
-                ]
-            )
+            name: enumCaseName,
+            kind: .nameWithAssociatedValues(associatedValues)
         )
         let enumCaseDecl: Declaration = .commentable(
             responseKind.docComment(
@@ -73,7 +67,61 @@ extension TypesFileTranslator {
             ),
             .enumCase(enumCaseDesc)
         )
-        return (responseStructDecl, enumCaseDecl)
+
+        let throwingGetterDesc = VariableDescription(
+            accessModifier: config.access,
+            kind: .var,
+            left: enumCaseName,
+            type: responseStructTypeName.fullyQualifiedSwiftName,
+            getter: [
+                .expression(
+                    .switch(
+                        switchedExpression: .identifier("self"),
+                        cases: [
+                            SwitchCaseDescription(
+                                kind: .case(
+                                    .identifier(".\(responseKind.identifier)"),
+                                    responseKind.wantsStatusCode ? ["_", "response"] : ["response"]
+                                ),
+                                body: [.expression(.return(.identifier("response")))]
+                            ),
+                            SwitchCaseDescription(
+                                kind: .default,
+                                body: [
+                                    .expression(
+                                        .try(
+                                            .identifier("throwUnexpectedResponseStatus")
+                                                .call([
+                                                    .init(
+                                                        label: "expectedStatus",
+                                                        expression: .literal(.string(responseKind.prettyName))
+                                                    ),
+                                                    .init(label: "response", expression: .identifier("self")),
+                                                ])
+                                        )
+                                    )
+                                ]
+                            ),
+                        ]
+                    )
+                )
+            ],
+            getterEffects: [.throws]
+        )
+        let throwingGetterComment = Comment.doc(
+            """
+            The associated value of the enum case if `self` is `.\(enumCaseName)`.
+
+            - Throws: An error if `self` is not `.\(enumCaseName)`.
+            - SeeAlso: `.\(enumCaseName)`.
+            """
+        )
+        let throwingGetterDecl = Declaration.commentable(
+            throwingGetterComment,
+            .variable(throwingGetterDesc)
+        )
+
+        return (responseStructDecl, enumCaseDecl, throwingGetterDecl)
     }
 }
 
@@ -220,21 +268,26 @@ extension ClientFileTranslator {
                         )
                     ]
                 )
-                let bodyExpr: Expression = .try(
-                    .identifier("converter")
-                        .dot("getResponseBodyAs\(typedContent.content.contentType.codingStrategy.runtimeName)")
-                        .call([
-                            .init(
-                                label: nil,
-                                expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
-                            ),
-                            .init(label: "from", expression: .identifier("response").dot("body")),
-                            .init(
-                                label: "transforming",
-                                expression: transformExpr
-                            ),
-                        ])
-                )
+                let codingStrategy = typedContent.content.contentType.codingStrategy
+                let converterExpr: Expression = .identifier("converter")
+                    .dot("getResponseBodyAs\(codingStrategy.runtimeName)")
+                    .call([
+                        .init(
+                            label: nil,
+                            expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
+                        ),
+                        .init(label: "from", expression: .identifier("responseBody")),
+                        .init(
+                            label: "transforming",
+                            expression: transformExpr
+                        ),
+                    ])
+                let bodyExpr: Expression
+                if codingStrategy == .binary {
+                    bodyExpr = .try(converterExpr)
+                } else {
+                    bodyExpr = .try(.await(converterExpr))
+                }
                 return .init(
                     condition: .try(condition),
                     body: [
@@ -315,7 +368,7 @@ extension ClientFileTranslator {
             optionalStatusCode = [
                 .init(
                     label: "statusCode",
-                    expression: .identifier("response").dot("statusCode")
+                    expression: .identifier("response").dot("status").dot("code")
                 )
             ]
         } else {
@@ -372,9 +425,9 @@ extension ServerFileTranslator {
         let responseVarDecl: Declaration = .variable(
             kind: .var,
             left: "response",
-            right: .identifier("Response")
+            right: .identifier("HTTPResponse")
                 .call([
-                    .init(label: "statusCode", expression: statusCodeExpr)
+                    .init(label: "soar_statusCode", expression: statusCodeExpr)
                 ])
         )
         codeBlocks.append(contentsOf: [
@@ -401,12 +454,21 @@ extension ServerFileTranslator {
         }
         codeBlocks.append(contentsOf: headerExprs.map { .expression($0) })
 
+        let bodyReturnExpr: Expression
         let typedContents = try supportedTypedContents(
             typedResponse.response.content,
             inParent: bodyTypeName
         )
-
         if !typedContents.isEmpty {
+            codeBlocks.append(
+                .declaration(
+                    .variable(
+                        kind: .let,
+                        left: "body",
+                        type: "HTTPBody"
+                    )
+                )
+            )
             let switchContentCases: [SwitchCaseDescription] = typedContents.map { typedContent in
 
                 var caseCodeBlocks: [CodeBlock] = []
@@ -423,7 +485,7 @@ extension ServerFileTranslator {
 
                 let contentType = typedContent.content.contentType
                 let assignBodyExpr: Expression = .assignment(
-                    left: .identifier("response").dot("body"),
+                    left: .identifier("body"),
                     right: .try(
                         .identifier("converter")
                             .dot("setResponseBodyAs\(contentType.codingStrategy.runtimeName)")
@@ -458,10 +520,17 @@ extension ServerFileTranslator {
                     )
                 )
             )
+
+            bodyReturnExpr = .identifier("body")
+        } else {
+            bodyReturnExpr = nil
         }
 
         let returnExpr: Expression = .return(
-            .identifier("response")
+            .tuple([
+                .identifier("response"),
+                bodyReturnExpr,
+            ])
         )
         codeBlocks.append(.expression(returnExpr))
 

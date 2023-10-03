@@ -20,29 +20,22 @@ let package = Package(
         .macOS(.v13)
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-openapi-generator", .upToNextMinor(from: "0.2.0")),
-        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.2.0")),
-        .package(url: "https://github.com/swift-server/swift-openapi-vapor", .upToNextMinor(from: "0.2.0")),
-        .package(url: "https://github.com/vapor/vapor", from: "4.76.0"),
+        // TODO: When swift-openapi-generator is tagged with 0.3.0, stop depending on main.
+        // .package(url: "https://github.com/apple/swift-openapi-generator", .upToNextMinor(from: "0.3.0"),
+        .package(url: "https://github.com/apple/swift-openapi-generator", branch: "main"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.3.0")),
+        .package(url: "https://github.com/apple/swift-openapi-urlsession", .upToNextMinor(from: "0.3.0")),
     ],
     targets: [
         .executableTarget(
-            name: "GreetingService",
+            name: "GreetingServiceClient",
             dependencies: [
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
-                .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
-                .product(name: "Vapor", package: "vapor"),
+                .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession"),
             ],
             plugins: [
                 .plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")
             ]
-        ),
-        .testTarget(
-            name: "GreetingServiceMockTests",
-            dependencies: [
-                "GreetingService",
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
-            ]
-        ),
+        )
     ]
 )

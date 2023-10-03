@@ -9,6 +9,7 @@ import struct Foundation.URL
 import struct Foundation.Data
 import struct Foundation.Date
 #endif
+import HTTPTypes
 extension APIProtocol {
     /// Registers each operation handler with the provided transport.
     /// - Parameters:
@@ -30,46 +31,44 @@ extension APIProtocol {
             middlewares: middlewares
         )
         try transport.register(
-            { try await server.listPets(request: $0, metadata: $1) },
+            { try await server.listPets(request: $0, body: $1, metadata: $2) },
             method: .get,
-            path: server.apiPathComponentsWithServerPrefix(["pets"]),
-            queryItemNames: ["limit", "habitat", "feeds", "since"]
+            path: server.apiPathComponentsWithServerPrefix("/pets")
         )
         try transport.register(
-            { try await server.createPet(request: $0, metadata: $1) },
+            { try await server.createPet(request: $0, body: $1, metadata: $2) },
             method: .post,
-            path: server.apiPathComponentsWithServerPrefix(["pets"]),
-            queryItemNames: []
+            path: server.apiPathComponentsWithServerPrefix("/pets")
         )
         try transport.register(
-            { try await server.getStats(request: $0, metadata: $1) },
+            { try await server.createPetWithForm(request: $0, body: $1, metadata: $2) },
+            method: .post,
+            path: server.apiPathComponentsWithServerPrefix("/pets/create")
+        )
+        try transport.register(
+            { try await server.getStats(request: $0, body: $1, metadata: $2) },
             method: .get,
-            path: server.apiPathComponentsWithServerPrefix(["pets", "stats"]),
-            queryItemNames: []
+            path: server.apiPathComponentsWithServerPrefix("/pets/stats")
         )
         try transport.register(
-            { try await server.postStats(request: $0, metadata: $1) },
+            { try await server.postStats(request: $0, body: $1, metadata: $2) },
             method: .post,
-            path: server.apiPathComponentsWithServerPrefix(["pets", "stats"]),
-            queryItemNames: []
+            path: server.apiPathComponentsWithServerPrefix("/pets/stats")
         )
         try transport.register(
-            { try await server.probe(request: $0, metadata: $1) },
+            { try await server.probe(request: $0, body: $1, metadata: $2) },
             method: .post,
-            path: server.apiPathComponentsWithServerPrefix(["probe"]),
-            queryItemNames: []
+            path: server.apiPathComponentsWithServerPrefix("/probe/")
         )
         try transport.register(
-            { try await server.updatePet(request: $0, metadata: $1) },
+            { try await server.updatePet(request: $0, body: $1, metadata: $2) },
             method: .patch,
-            path: server.apiPathComponentsWithServerPrefix(["pets", ":petId"]),
-            queryItemNames: []
+            path: server.apiPathComponentsWithServerPrefix("/pets/{petId}")
         )
         try transport.register(
-            { try await server.uploadAvatarForPet(request: $0, metadata: $1) },
+            { try await server.uploadAvatarForPet(request: $0, body: $1, metadata: $2) },
             method: .put,
-            path: server.apiPathComponentsWithServerPrefix(["pets", ":petId", "avatar"]),
-            queryItemNames: []
+            path: server.apiPathComponentsWithServerPrefix("/pets/{petId}/avatar")
         )
     }
 }
@@ -81,37 +80,40 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
-    func listPets(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
+    func listPets(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody?
+    ) {
         try await handle(
             request: request,
-            with: metadata,
+            requestBody: body,
+            metadata: metadata,
             forOperation: Operations.listPets.id,
             using: { APIHandler.listPets($0) },
-            deserializer: { request, metadata in
+            deserializer: { request, requestBody, metadata in
                 let query: Operations.listPets.Input.Query = .init(
                     limit: try converter.getOptionalQueryItemAsURI(
-                        in: request.query,
+                        in: request.soar_query,
                         style: .form,
                         explode: true,
                         name: "limit",
                         as: Swift.Int32.self
                     ),
                     habitat: try converter.getOptionalQueryItemAsURI(
-                        in: request.query,
+                        in: request.soar_query,
                         style: .form,
                         explode: true,
                         name: "habitat",
                         as: Operations.listPets.Input.Query.habitatPayload.self
                     ),
                     feeds: try converter.getOptionalQueryItemAsURI(
-                        in: request.query,
+                        in: request.soar_query,
                         style: .form,
                         explode: true,
                         name: "feeds",
                         as: Operations.listPets.Input.Query.feedsPayload.self
                     ),
                     since: try converter.getOptionalQueryItemAsURI(
-                        in: request.query,
+                        in: request.soar_query,
                         style: .form,
                         explode: true,
                         name: "since",
@@ -132,7 +134,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .ok(value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: 200)
+                    var response = HTTPResponse(soar_statusCode: 200)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
@@ -144,30 +146,32 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         name: "My-Tracing-Header",
                         value: value.headers.My_hyphen_Tracing_hyphen_Header
                     )
+                    let body: HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
-                        response.body = try converter.setResponseBodyAsJSON(
+                        body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "application/json; charset=utf-8"
                         )
                     }
-                    return response
+                    return (response, body)
                 case let .`default`(statusCode, value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: statusCode)
+                    var response = HTTPResponse(soar_statusCode: statusCode)
                     suppressMutabilityWarning(&response)
+                    let body: HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
-                        response.body = try converter.setResponseBodyAsJSON(
+                        body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "application/json; charset=utf-8"
                         )
                     }
-                    return response
+                    return (response, body)
                 }
             }
         )
@@ -176,13 +180,16 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
-    func createPet(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
+    func createPet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody?
+    ) {
         try await handle(
             request: request,
-            with: metadata,
+            requestBody: body,
+            metadata: metadata,
             forOperation: Operations.createPet.id,
             using: { APIHandler.createPet($0) },
-            deserializer: { request, metadata in
+            deserializer: { request, requestBody, metadata in
                 let headers: Operations.createPet.Input.Headers = .init(
                     X_hyphen_Extra_hyphen_Arguments: try converter.getOptionalHeaderFieldAsJSON(
                         in: request.headerFields,
@@ -196,9 +203,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 if try contentType == nil
                     || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                 {
-                    body = try converter.getRequiredRequestBodyAsJSON(
+                    body = try await converter.getRequiredRequestBodyAsJSON(
                         Components.Schemas.CreatePetRequest.self,
-                        from: request.body,
+                        from: requestBody,
                         transforming: { value in .json(value) }
                     )
                 } else {
@@ -210,56 +217,105 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .created(value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: 201)
+                    var response = HTTPResponse(soar_statusCode: 201)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsJSON(
                         in: &response.headerFields,
                         name: "X-Extra-Arguments",
                         value: value.headers.X_hyphen_Extra_hyphen_Arguments
                     )
+                    let body: HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
-                        response.body = try converter.setResponseBodyAsJSON(
+                        body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "application/json; charset=utf-8"
                         )
                     }
-                    return response
+                    return (response, body)
                 case let .clientError(statusCode, value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: statusCode)
+                    var response = HTTPResponse(soar_statusCode: statusCode)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
                         name: "X-Reason",
                         value: value.headers.X_hyphen_Reason
                     )
+                    let body: HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
-                        response.body = try converter.setResponseBodyAsJSON(
+                        body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "application/json; charset=utf-8"
                         )
                     }
-                    return response
-                case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
+                    return (response, body)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
+                }
+            }
+        )
+    }
+    /// Create a pet using a url form
+    ///
+    /// - Remark: HTTP `POST /pets/create`.
+    /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
+    func createPetWithForm(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody?
+    ) {
+        try await handle(
+            request: request,
+            requestBody: body,
+            metadata: metadata,
+            forOperation: Operations.createPetWithForm.id,
+            using: { APIHandler.createPetWithForm($0) },
+            deserializer: { request, requestBody, metadata in
+                let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                let body: Operations.createPetWithForm.Input.Body
+                if try contentType == nil
+                    || converter.isMatchingContentType(
+                        received: contentType,
+                        expectedRaw: "application/x-www-form-urlencoded"
+                    )
+                {
+                    body = try await converter.getRequiredRequestBodyAsURLEncodedForm(
+                        Components.Schemas.CreatePetRequest.self,
+                        from: requestBody,
+                        transforming: { value in .urlEncodedForm(value) }
+                    )
+                } else {
+                    throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                }
+                return Operations.createPetWithForm.Input(body: body)
+            },
+            serializer: { output, request in
+                switch output {
+                case let .noContent(value):
+                    suppressUnusedWarning(value)
+                    var response = HTTPResponse(soar_statusCode: 204)
+                    suppressMutabilityWarning(&response)
+                    return (response, nil)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
     }
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
-    func getStats(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
+    func getStats(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody?
+    ) {
         try await handle(
             request: request,
-            with: metadata,
+            requestBody: body,
+            metadata: metadata,
             forOperation: Operations.getStats.id,
             using: { APIHandler.getStats($0) },
-            deserializer: { request, metadata in
+            deserializer: { request, requestBody, metadata in
                 let headers: Operations.getStats.Input.Headers = .init(
                     accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
                 )
@@ -269,60 +325,64 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .ok(value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: 200)
+                    var response = HTTPResponse(soar_statusCode: 200)
                     suppressMutabilityWarning(&response)
+                    let body: HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
-                        response.body = try converter.setResponseBodyAsJSON(
+                        body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "application/json; charset=utf-8"
                         )
                     case let .plainText(value):
                         try converter.validateAcceptIfPresent("text/plain", in: request.headerFields)
-                        response.body = try converter.setResponseBodyAsString(
+                        body = try converter.setResponseBodyAsBinary(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "text/plain"
                         )
                     case let .binary(value):
                         try converter.validateAcceptIfPresent("application/octet-stream", in: request.headerFields)
-                        response.body = try converter.setResponseBodyAsBinary(
+                        body = try converter.setResponseBodyAsBinary(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "application/octet-stream"
                         )
                     }
-                    return response
-                case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
+                    return (response, body)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
     }
     /// - Remark: HTTP `POST /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/post(postStats)`.
-    func postStats(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
+    func postStats(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody?
+    ) {
         try await handle(
             request: request,
-            with: metadata,
+            requestBody: body,
+            metadata: metadata,
             forOperation: Operations.postStats.id,
             using: { APIHandler.postStats($0) },
-            deserializer: { request, metadata in
+            deserializer: { request, requestBody, metadata in
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.postStats.Input.Body
                 if try contentType == nil
                     || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                 {
-                    body = try converter.getRequiredRequestBodyAsJSON(
+                    body = try await converter.getRequiredRequestBodyAsJSON(
                         Components.Schemas.PetStats.self,
-                        from: request.body,
+                        from: requestBody,
                         transforming: { value in .json(value) }
                     )
                 } else if try converter.isMatchingContentType(received: contentType, expectedRaw: "text/plain") {
-                    body = try converter.getRequiredRequestBodyAsString(
-                        Swift.String.self,
-                        from: request.body,
+                    body = try converter.getRequiredRequestBodyAsBinary(
+                        OpenAPIRuntime.HTTPBody.self,
+                        from: requestBody,
                         transforming: { value in .plainText(value) }
                     )
                 } else if try converter.isMatchingContentType(
@@ -330,8 +390,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     expectedRaw: "application/octet-stream"
                 ) {
                     body = try converter.getRequiredRequestBodyAsBinary(
-                        Foundation.Data.self,
-                        from: request.body,
+                        OpenAPIRuntime.HTTPBody.self,
+                        from: requestBody,
                         transforming: { value in .binary(value) }
                     )
                 } else {
@@ -343,31 +403,34 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .accepted(value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: 202)
+                    var response = HTTPResponse(soar_statusCode: 202)
                     suppressMutabilityWarning(&response)
-                    return response
-                case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
+                    return (response, nil)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    func probe(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
+    func probe(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody?
+    ) {
         try await handle(
             request: request,
-            with: metadata,
+            requestBody: body,
+            metadata: metadata,
             forOperation: Operations.probe.id,
             using: { APIHandler.probe($0) },
-            deserializer: { request, metadata in return Operations.probe.Input() },
+            deserializer: { request, requestBody, metadata in return Operations.probe.Input() },
             serializer: { output, request in
                 switch output {
                 case let .noContent(value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: 204)
+                    var response = HTTPResponse(soar_statusCode: 204)
                     suppressMutabilityWarning(&response)
-                    return response
-                case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
+                    return (response, nil)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
@@ -376,13 +439,16 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `PATCH /pets/{petId}`.
     /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)`.
-    func updatePet(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
+    func updatePet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody?
+    ) {
         try await handle(
             request: request,
-            with: metadata,
+            requestBody: body,
+            metadata: metadata,
             forOperation: Operations.updatePet.id,
             using: { APIHandler.updatePet($0) },
-            deserializer: { request, metadata in
+            deserializer: { request, requestBody, metadata in
                 let path: Operations.updatePet.Input.Path = .init(
                     petId: try converter.getPathParameterAsURI(
                         in: metadata.pathParameters,
@@ -398,9 +464,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 if try contentType == nil
                     || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                 {
-                    body = try converter.getOptionalRequestBodyAsJSON(
+                    body = try await converter.getOptionalRequestBodyAsJSON(
                         Components.RequestBodies.UpdatePetRequest.jsonPayload.self,
-                        from: request.body,
+                        from: requestBody,
                         transforming: { value in .json(value) }
                     )
                 } else {
@@ -412,24 +478,25 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .noContent(value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: 204)
+                    var response = HTTPResponse(soar_statusCode: 204)
                     suppressMutabilityWarning(&response)
-                    return response
+                    return (response, nil)
                 case let .badRequest(value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: 400)
+                    var response = HTTPResponse(soar_statusCode: 400)
                     suppressMutabilityWarning(&response)
+                    let body: HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
-                        response.body = try converter.setResponseBodyAsJSON(
+                        body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "application/json; charset=utf-8"
                         )
                     }
-                    return response
-                case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
+                    return (response, body)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
@@ -438,13 +505,16 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
-    func uploadAvatarForPet(request: Request, metadata: ServerRequestMetadata) async throws -> Response {
+    func uploadAvatarForPet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody?
+    ) {
         try await handle(
             request: request,
-            with: metadata,
+            requestBody: body,
+            metadata: metadata,
             forOperation: Operations.uploadAvatarForPet.id,
             using: { APIHandler.uploadAvatarForPet($0) },
-            deserializer: { request, metadata in
+            deserializer: { request, requestBody, metadata in
                 let path: Operations.uploadAvatarForPet.Input.Path = .init(
                     petId: try converter.getPathParameterAsURI(
                         in: metadata.pathParameters,
@@ -461,8 +531,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     || converter.isMatchingContentType(received: contentType, expectedRaw: "application/octet-stream")
                 {
                     body = try converter.getRequiredRequestBodyAsBinary(
-                        Foundation.Data.self,
-                        from: request.body,
+                        OpenAPIRuntime.HTTPBody.self,
+                        from: requestBody,
                         transforming: { value in .binary(value) }
                     )
                 } else {
@@ -474,47 +544,50 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .ok(value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: 200)
+                    var response = HTTPResponse(soar_statusCode: 200)
                     suppressMutabilityWarning(&response)
+                    let body: HTTPBody
                     switch value.body {
                     case let .binary(value):
                         try converter.validateAcceptIfPresent("application/octet-stream", in: request.headerFields)
-                        response.body = try converter.setResponseBodyAsBinary(
+                        body = try converter.setResponseBodyAsBinary(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "application/octet-stream"
                         )
                     }
-                    return response
+                    return (response, body)
                 case let .preconditionFailed(value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: 412)
+                    var response = HTTPResponse(soar_statusCode: 412)
                     suppressMutabilityWarning(&response)
+                    let body: HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
-                        response.body = try converter.setResponseBodyAsJSON(
+                        body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "application/json; charset=utf-8"
                         )
                     }
-                    return response
+                    return (response, body)
                 case let .internalServerError(value):
                     suppressUnusedWarning(value)
-                    var response = Response(statusCode: 500)
+                    var response = HTTPResponse(soar_statusCode: 500)
                     suppressMutabilityWarning(&response)
+                    let body: HTTPBody
                     switch value.body {
                     case let .plainText(value):
                         try converter.validateAcceptIfPresent("text/plain", in: request.headerFields)
-                        response.body = try converter.setResponseBodyAsString(
+                        body = try converter.setResponseBodyAsBinary(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "text/plain"
                         )
                     }
-                    return response
-                case let .undocumented(statusCode, _): return .init(statusCode: statusCode)
+                    return (response, body)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )

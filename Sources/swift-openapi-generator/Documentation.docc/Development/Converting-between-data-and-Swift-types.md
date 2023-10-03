@@ -53,9 +53,9 @@ Below is a list of the "dimensions" across which the helper methods differ:
     - `URI`
         - example: query, path, header parameters
         - `color=red&power=24`
-    - `string`
-        - example: `text/plain`, and any other `text/*` content type
-        - `"red color and power of 24"`
+    - `urlEncodedForm`
+        - example: request body with the `application/x-www-form-urlencoded` content type
+        - `greeting=Hello+world`
     - `binary`
         - example: `application/octet-stream`
         - serves as the fallback for content types that don't have more specific handling
@@ -88,24 +88,22 @@ method parameters: value or type of value
 | common | get | header field | JSON | required | getRequiredHeaderFieldAsJSON |
 | client | set | request path | URI | required | renderedPath |
 | client | set | request query | URI | both | setQueryItemAsURI |
-| client | set | request body | string | optional | setOptionalRequestBodyAsString |
-| client | set | request body | string | required | setRequiredRequestBodyAsString |
 | client | set | request body | JSON | optional | setOptionalRequestBodyAsJSON |
 | client | set | request body | JSON | required | setRequiredRequestBodyAsJSON |
 | client | set | request body | binary | optional | setOptionalRequestBodyAsBinary |
 | client | set | request body | binary | required | setRequiredRequestBodyAsBinary |
-| client | get | response body | string | required | getResponseBodyAsString |
+| client | set | request body | urlEncodedForm | optional | setOptionalRequestBodyAsURLEncodedForm | 
+| client | set | request body | urlEncodedForm | required | setRequiredRequestBodyAsURLEncodedForm | 
 | client | get | response body | JSON | required | getResponseBodyAsJSON |
 | client | get | response body | binary | required | getResponseBodyAsBinary |
 | server | get | request path | URI | required | getPathParameterAsURI |
 | server | get | request query | URI | optional | getOptionalQueryItemAsURI |
 | server | get | request query | URI | required | getRequiredQueryItemAsURI |
-| server | get | request body | string | optional | getOptionalRequestBodyAsString |
-| server | get | request body | string | required | getRequiredRequestBodyAsString |
 | server | get | request body | JSON | optional | getOptionalRequestBodyAsJSON |
 | server | get | request body | JSON | required | getRequiredRequestBodyAsJSON |
 | server | get | request body | binary | optional | getOptionalRequestBodyAsBinary |
 | server | get | request body | binary | required | getRequiredRequestBodyAsBinary |
-| server | set | response body | string | required | setResponseBodyAsString |
+| server | get | request body | urlEncodedForm | optional | getOptionalRequestBodyAsURLEncodedForm |
+| server | get | request body | urlEncodedForm | required | getRequiredRequestBodyAsURLEncodedForm |
 | server | set | response body | JSON | required | setResponseBodyAsJSON |
 | server | set | response body | binary | required | setResponseBodyAsBinary |

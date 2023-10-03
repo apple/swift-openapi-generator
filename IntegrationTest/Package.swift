@@ -32,8 +32,10 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-openapi-generator", .upToNextMinor(from: "0.2.0")),
-        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.2.0")),
+        // TODO: When swift-openapi-generator is tagged with 0.3.0, stop depending on main.
+        // .package(url: "https://github.com/apple/swift-openapi-generator", .upToNextMinor(from: "0.3.0"),
+        .package(url: "https://github.com/apple/swift-openapi-generator", branch: "main"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.3.0")),
     ],
     targets: [
         .target(

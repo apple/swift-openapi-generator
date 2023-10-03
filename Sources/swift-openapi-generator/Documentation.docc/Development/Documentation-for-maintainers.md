@@ -12,3 +12,4 @@ Use the resources below if you'd like to learn more about how the generator work
 
 - <doc:Converting-between-data-and-Swift-types>
 - <doc:Generating-custom-Codable-conformance-methods>
+- <doc:Handling-nullable-schemas>
