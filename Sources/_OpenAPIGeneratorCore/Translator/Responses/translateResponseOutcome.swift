@@ -112,7 +112,7 @@ extension TypesFileTranslator {
             """
             The associated value of the enum case if `self` is `.\(enumCaseName)`.
 
-            - Throws: Runtime error if `self` is not `.\(enumCaseName)`.
+            - Throws: An error if `self` is not `.\(enumCaseName)`.
             - SeeAlso: `.\(enumCaseName)`.
             """
         )

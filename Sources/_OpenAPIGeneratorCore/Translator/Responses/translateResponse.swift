@@ -153,7 +153,7 @@ extension TypesFileTranslator {
                     """
                     The associated value of the enum case if `self` is `.\(identifier)`.
 
-                    - Throws: Runtime error if `self` is not `.\(identifier)`.
+                    - Throws: An error if `self` is not `.\(identifier)`.
                     - SeeAlso: `.\(identifier)`.
                     """
                 )
