@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import XCTest
-import OpenAPIRuntime
+@testable import OpenAPIRuntime
 import PetstoreConsumerTestCore
 
 final class Test_Types: XCTestCase {
@@ -285,5 +285,35 @@ final class Test_Types: XCTestCase {
                 from: Data(#"{}"#.utf8)
             )
         )
+    }
+
+    func testThrowingShorthandAPIs() throws {
+        let created = Operations.createPet.Output.Created(body: .json(.init(id: 42, name: "Scruffy")))
+        let output = Operations.createPet.Output.created(created)
+        XCTAssertEqual(try output.created, created)
+        XCTAssertThrowsError(try output.clientError) { error in
+            guard
+                case let .unexpectedResponseStatus(expectedStatus, actualOutput) = error as? RuntimeError,
+                expectedStatus == "clientError",
+                actualOutput as? Operations.createPet.Output == output
+            else {
+                XCTFail("Expected error, but not this: \(error)")
+                return
+            }
+        }
+
+        let stats = Components.Schemas.PetStats(count: 42)
+        let ok = Operations.getStats.Output.Ok(body: .json(stats))
+        XCTAssertEqual(try ok.body.json, stats)
+        XCTAssertThrowsError(try ok.body.plainText) { error in
+            guard
+                case let .unexpectedResponseBody(expectedContentType, actualBody) = error as? RuntimeError,
+                expectedContentType == "text/plain",
+                actualBody as? Operations.getStats.Output.Ok.Body == .json(stats)
+            else {
+                XCTFail("Expected error, but not this: \(error)")
+                return
+            }
+        }
     }
 }
