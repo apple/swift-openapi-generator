@@ -25,7 +25,7 @@ import Yams
 final class CompatibilityTest: XCTestCase {
     let compatibilityTestEnabled = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE") ?? false
     let compatibilityTestSkipBuild = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD") ?? false
-    let compatibilityTestParralelCodegen = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_PARALLEL_CODEGEN") ?? false
+    let compatibilityTestParallelCodegen = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_PARALLEL_CODEGEN") ?? false
     let compatibilityTestNumBuildJobs = getIntEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_NUM_BUILD_JOBS")
 
     override func setUp() async throws {
@@ -132,7 +132,9 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/openai/openai-openapi/ec0b3953bfa08a92782bdccf34c1931b13402f56/openapi.yaml",
             license: .mit,
-            expectedDiagnostics: [],
+            expectedDiagnostics: [
+                "Schema \"string (binary)\" is not supported, reason: \"Binary properties in object schemas.\", skipping"
+            ],
             skipBuild: compatibilityTestSkipBuild
         )
     }
@@ -221,7 +223,7 @@ fileprivate extension CompatibilityTest {
         log("Generating Swift code (document size: \(documentSize))")
         let input = InMemoryInputFile(absolutePath: URL(string: "openapi.yaml")!, contents: documentData)
         let outputs: [GeneratorPipeline.RenderedOutput]
-        if compatibilityTestParralelCodegen {
+        if compatibilityTestParallelCodegen {
             outputs = try await withThrowingTaskGroup(of: GeneratorPipeline.RenderedOutput.self) { group in
                 for mode in GeneratorMode.allCases {
                     group.addTask {
