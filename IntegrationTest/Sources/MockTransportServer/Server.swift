@@ -14,6 +14,7 @@
 import Types
 import Server
 import OpenAPIRuntime
+import HTTPTypes
 
 actor SimpleAPIImpl: APIProtocol {
     func getGreeting(
@@ -25,14 +26,14 @@ actor SimpleAPIImpl: APIProtocol {
 }
 
 class MockServerTransport: ServerTransport {
-
-    typealias Handler = @Sendable (Request, ServerRequestMetadata) async throws -> Response
+    typealias Handler = @Sendable (
+        HTTPTypes.HTTPRequest, OpenAPIRuntime.HTTPBody?, OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?)
 
     func register(
         _ handler: @escaping Handler,
-        method: HTTPMethod,
-        path: [RouterPathComponent],
-        queryItemNames: Set<String>
+        method: HTTPTypes.HTTPRequest.Method,
+        path: String
     ) throws {
         // noop.
     }
