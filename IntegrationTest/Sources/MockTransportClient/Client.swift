@@ -15,14 +15,16 @@ import Types
 import Client
 import OpenAPIRuntime
 import Foundation
+import HTTPTypes
 
 struct MockClientTransport: ClientTransport {
     func send(
-        _ request: Request,
+        _ request: HTTPTypes.HTTPRequest,
+        body: OpenAPIRuntime.HTTPBody?,
         baseURL: URL,
         operationID: String
-    ) async throws -> Response {
-        .init(statusCode: 200)
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
+        (HTTPTypes.HTTPResponse(status: 200), nil)
     }
 }
 
