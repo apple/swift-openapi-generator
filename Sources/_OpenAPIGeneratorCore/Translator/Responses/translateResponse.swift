@@ -123,7 +123,7 @@ extension TypesFileTranslator {
                                             .call([
                                                 .init(
                                                     label: "expectedContent",
-                                                    expression: .literal(.string(contentType.headerValueForSending))
+                                                    expression: .literal(.string(contentType.headerValueForValidation))
                                                 ),
                                                 .init(label: "body", expression: .identifier("self")),
                                             ])

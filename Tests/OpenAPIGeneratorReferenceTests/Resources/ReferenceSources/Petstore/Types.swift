@@ -1263,11 +1263,7 @@ public enum Operations {
                         get throws {
                             switch self {
                             case let .json(body): return body
-                            default:
-                                try throwUnexpectedResponseBody(
-                                    expectedContent: "application/json; charset=utf-8",
-                                    body: self
-                                )
+                            default: try throwUnexpectedResponseBody(expectedContent: "application/json", body: self)
                             }
                         }
                     }

@@ -1007,14 +1007,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         public var json: Swift.Int { get throws {
                             switch self {
                             case let .json(body): return body
-                            default: try throwUnexpectedResponseBody(expectedContent: "application/json; charset=utf-8", body: self)
+                            default: try throwUnexpectedResponseBody(expectedContent: "application/json", body: self)
                             }
                         }}
                         case application_json_foo_bar(Swift.Int)
                         public var application_json_foo_bar: Swift.Int { get throws {
                             switch self {
                             case let .application_json_foo_bar(body): return body
-                            default: try throwUnexpectedResponseBody(expectedContent: "application/json; foo=bar; charset=utf-8", body: self)
+                            default: try throwUnexpectedResponseBody(expectedContent: "application/json", body: self)
                             }
                         }}
                         case plainText(OpenAPIRuntime.HTTPBody)
