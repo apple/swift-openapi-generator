@@ -45,6 +45,71 @@ extension TypesFileTranslator {
         )
     }
 
+    /// Returns an extension to the `APIProtocol` protocol, with some syntactic sugar APIs.
+    func translateAPIProtocolExtension(_ paths: OpenAPI.PathItem.Map) throws -> Declaration {
+        let operations = try OperationDescription.all(
+            from: paths,
+            in: components,
+            asSwiftSafeName: swiftSafeName
+        )
+
+        // This looks for all initializers in the operation input struct and creates a flattened function.
+        let flattenedOperations = try operations.flatMap { operation in
+            guard case let .commentable(_, .struct(input)) = try translateOperationInput(operation) else {
+                fatalError()
+            }
+            return input.members.compactMap { member -> Declaration? in
+                guard case let .commentable(_, .function(initializer)) = member,
+                    case .initializer = initializer.signature.kind
+                else {
+                    return nil
+                }
+                let function = FunctionDescription(
+                    accessModifier: config.access,
+                    kind: .function(name: operation.methodName),
+                    parameters: initializer.signature.parameters,
+                    keywords: [.async, .throws],
+                    returnType: .identifier(operation.outputTypeName.fullyQualifiedSwiftName),
+                    body: [
+                        .try(
+                            .await(
+                                .identifier(operation.methodName)
+                                    .call([
+                                        FunctionArgumentDescription(
+                                            label: nil,
+                                            expression: .identifier(operation.inputTypeName.fullyQualifiedSwiftName)
+                                                .call(
+                                                    initializer.signature.parameters.map { parameter in
+                                                        guard let label = parameter.label else {
+                                                            preconditionFailure()
+                                                        }
+                                                        return FunctionArgumentDescription(
+                                                            label: label,
+                                                            expression: .identifier(label)
+                                                        )
+                                                    }
+                                                )
+                                        )
+                                    ])
+                            )
+                        )
+                    ]
+                )
+                return .commentable(operation.comment, .function(function))
+            }
+        }
+
+        return .commentable(
+            .doc("Convenience overloads for operation inputs."),
+            .extension(
+                ExtensionDescription(
+                    onType: Constants.APIProtocol.typeName,
+                    declarations: flattenedOperations
+                )
+            )
+        )
+    }
+
     /// Returns a declaration of a single method in the API protocol.
     ///
     /// Each method represents one HTTP operation defined in the OpenAPI

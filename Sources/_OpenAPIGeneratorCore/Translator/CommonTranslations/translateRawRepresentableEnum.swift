@@ -156,7 +156,7 @@ extension FileTranslator {
                     kind: .var,
                     left: "rawValue",
                     type: "String",
-                    body: [
+                    getter: [
                         .expression(
                             .switch(
                                 switchedExpression: .identifier("self"),
@@ -183,7 +183,7 @@ extension FileTranslator {
                         kind: .var,
                         left: "allCases",
                         type: "[Self]",
-                        body: [
+                        getter: [
                             .expression(.literal(.array(caseExpressions)))
                         ]
                     )

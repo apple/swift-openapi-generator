@@ -963,6 +963,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct BadRequest: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
+                        public var json: Swift.String {
+                            get throws {
+                                switch self {
+                                case let .json(body): return body
+                                }
+                            }
+                        }
                     }
                     public var body: Components.Responses.BadRequest.Body
                     public init(
@@ -997,9 +1004,33 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct MultipleContentTypes: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.Int)
+                        public var json: Swift.Int { get throws {
+                            switch self {
+                            case let .json(body): return body
+                            default: try throwUnexpectedResponseBody(expectedContent: "application/json", body: self)
+                            }
+                        }}
                         case application_json_foo_bar(Swift.Int)
+                        public var application_json_foo_bar: Swift.Int { get throws {
+                            switch self {
+                            case let .application_json_foo_bar(body): return body
+                            default: try throwUnexpectedResponseBody(expectedContent: "application/json", body: self)
+                            }
+                        }}
                         case plainText(OpenAPIRuntime.HTTPBody)
+                        public var plainText: OpenAPIRuntime.HTTPBody { get throws {
+                            switch self {
+                            case let .plainText(body): return body
+                            default: try throwUnexpectedResponseBody(expectedContent: "text/plain", body: self)
+                            }
+                        }}
                         case binary(OpenAPIRuntime.HTTPBody)
+                        public var binary: OpenAPIRuntime.HTTPBody { get throws {
+                            switch self {
+                            case let .binary(body): return body
+                            default: try throwUnexpectedResponseBody(expectedContent: "application/octet-stream", body: self)
+                            }
+                        }}
                     }
                     public var body: Components.Responses.MultipleContentTypes.Body
                     public init(
@@ -1191,6 +1222,30 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testPathsSimplestCaseExtension() throws {
+        try self.assertPathsTranslationExtension(
+            """
+            /health:
+              get:
+                operationId: getHealth
+                responses:
+                  '200':
+                    description: A success response with a greeting.
+                    content:
+                      text/plain:
+                        schema:
+                          type: string
+            """,
+            """
+            extension APIProtocol {
+                public func getHealth(headers: Operations.getHealth.Input.Headers = .init()) async throws -> Operations.getHealth.Output {
+                    try await getHealth(Operations.getHealth.Input(headers: headers))
+                }
+            }
+            """
+        )
+    }
+
     func testServerRegisterHandlers_oneOperation() throws {
         try self.assertServerRegisterHandlers(
             """
@@ -1289,6 +1344,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct MyResponse: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
+                        public var json: Swift.String {
+                            get throws { switch self { case let .json(body): return body } }
+                        }
                     }
                     public var body: Components.Responses.MyResponse.Body
                     public init(
@@ -1321,6 +1379,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct MyResponse: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
+                        public var json: Swift.String {
+                            get throws { switch self { case let .json(body): return body } }
+                        }
                     }
                     public var body: Components.Responses.MyResponse.Body
                     public init(
@@ -1616,6 +1677,19 @@ extension SnippetBasedReferenceTests {
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 
+    func assertPathsTranslationExtension(
+        _ pathsYAML: String,
+        componentsYAML: String = "{}",
+        _ expectedSwift: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
+        let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
+        let translation = try translator.translateAPIProtocolExtension(paths)
+        try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
+    }
+
     func assertServerRegisterHandlers(
         _ pathsYAML: String,
         _ expectedSwift: String,
@@ -1739,7 +1813,7 @@ fileprivate extension Declaration {
             e.members = e.members.map(stripComments(_:))
             return .enum(e)
         case var .variable(v):
-            v.body = stripComments(v.body)
+            v.getter = stripComments(v.getter)
             return .variable(v)
         case let .typealias(t):
             return .typealias(t)

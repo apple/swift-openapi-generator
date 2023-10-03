@@ -127,7 +127,7 @@ struct ClientFileTranslator: FileTranslator {
             kind: .var,
             left: "converter",
             type: Constants.Converter.typeName,
-            body: [
+            getter: [
                 .expression(
                     .identifier(Constants.Client.Universal.propertyName)
                         .dot("converter")
