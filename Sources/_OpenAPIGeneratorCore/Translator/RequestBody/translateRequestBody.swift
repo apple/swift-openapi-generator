@@ -328,7 +328,11 @@ extension ServerFileTranslator {
                 .call([
                     .init(
                         label: nil,
-                        expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
+                        expression:
+                            .identifier(
+                                contentTypeUsage.fullyQualifiedNonOptionalSwiftName
+                            )
+                            .dot("self")
                     ),
                     .init(label: "from", expression: .identifier("requestBody")),
                     .init(
