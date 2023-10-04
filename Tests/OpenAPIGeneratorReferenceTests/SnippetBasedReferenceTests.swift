@@ -1535,6 +1535,235 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testRequestRequiredBodyPrimitiveSchema() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                requestBody:
+                  required: true
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    public var body: Operations.get_sol_foo.Input.Body
+                    public init(body: Operations.get_sol_foo.Input.Body) { self.body = body }
+                }
+                """,
+            client: """
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case let .json(value):
+                        body = try converter.setRequiredRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Operations.get_sol_foo.Input.Body
+                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getRequiredRequestBodyAsJSON(
+                            Swift.String.self,
+                            from: requestBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return Operations.get_sol_foo.Input(body: body)
+                }
+                """
+        )
+    }
+
+    func testRequestRequiredBodyNullableSchema() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                requestBody:
+                  required: true
+                  content:
+                    application/json:
+                      schema:
+                        type: [string, null]
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    public var body: Operations.get_sol_foo.Input.Body
+                    public init(body: Operations.get_sol_foo.Input.Body) { self.body = body }
+                }
+                """,
+            client: """
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case let .json(value):
+                        body = try converter.setRequiredRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Operations.get_sol_foo.Input.Body
+                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getRequiredRequestBodyAsJSON(
+                            Swift.String.self,
+                            from: requestBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return Operations.get_sol_foo.Input(body: body)
+                }
+                """
+        )
+    }
+
+    func testRequestOptionalBodyPrimitiveSchema() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                requestBody:
+                  required: false
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    public var body: Operations.get_sol_foo.Input.Body?
+                    public init(body: Operations.get_sol_foo.Input.Body? = nil) { self.body = body }
+                }
+                """,
+            client: """
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case .none: body = nil
+                    case let .json(value):
+                        body = try converter.setOptionalRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Operations.get_sol_foo.Input.Body?
+                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getOptionalRequestBodyAsJSON(
+                            Swift.String.self,
+                            from: requestBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return Operations.get_sol_foo.Input(body: body)
+                }
+                """
+        )
+    }
+
+    func testRequestOptionalBodyNullableSchema() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                requestBody:
+                  required: false
+                  content:
+                    application/json:
+                      schema:
+                        type: [string, null]
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    public var body: Operations.get_sol_foo.Input.Body?
+                    public init(body: Operations.get_sol_foo.Input.Body? = nil) { self.body = body }
+                }
+                """,
+            client: """
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case .none: body = nil
+                    case let .json(value):
+                        body = try converter.setOptionalRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Operations.get_sol_foo.Input.Body?
+                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getOptionalRequestBodyAsJSON(
+                            Swift.String.self,
+                            from: requestBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return Operations.get_sol_foo.Input(body: body)
+                }
+                """
+        )
+    }
 }
 
 extension SnippetBasedReferenceTests {
