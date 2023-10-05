@@ -33,15 +33,23 @@ import HTTPTypes
 public final class TestServerTransport: ServerTransport {
     /// Represents the input parameters for an API operation.
     public struct OperationInputs: Equatable {
+        /// The HTTP method of the operation.
         public var method: HTTPRequest.Method
+        /// The path components of the operation's route.
         public var path: String
 
+        /// Initializes a new instance of `OperationInputs`.
+        ///
+        /// - Parameters:
+        ///   - method: The HTTP method of the operation.
+        ///   - path: The path components of the operation's route.
         public init(method: HTTPRequest.Method, path: String) {
             self.method = method
             self.path = path
         }
     }
 
+    /// A typealias representing a handler closure for processing server requests.
     public typealias Handler = @Sendable (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (
         HTTPResponse, HTTPBody?
     )
@@ -76,7 +84,6 @@ public final class TestServerTransport: ServerTransport {
     ///   - handler: The closure representing the server operation logic.
     ///   - method: The HTTP method of the operation.
     ///   - path: The path components of the operation.
-    ///   - queryItemNames: The query item names of the operation.
     /// - Throws: An error if there's an issue registering the operation.
     public func register(
         _ handler: @Sendable @escaping (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (

@@ -264,6 +264,7 @@ struct TypeAssigner {
     ///   reference component.
     ///   - suffix: The string to append to the name for inline types.
     ///   - schema: The schema describing the content of the type.
+    ///   - components: The components from the OpenAPI document.
     ///   - parent: The name of the parent type in which to name the type.
     ///   - subtype: The naming method used by the type assigner.
     /// - Returns: A type usage.
@@ -408,6 +409,8 @@ struct TypeAssigner {
     ///   - reference: The reference to compute a type name for.
     ///   - componentType: The type of the component to which the reference
     ///   points.
+    /// - Throws: An error if there's an issue while computing the type name, or if the reference is external.
+    /// - Returns: A TypeName representing the computed type name for the reference.
     func typeName<Component: ComponentDictionaryLocatable>(
         for reference: OpenAPI.Reference<Component>,
         in componentType: Component.Type = Component.self

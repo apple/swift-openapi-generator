@@ -30,7 +30,7 @@ extension FileTranslator {
 
     /// Returns a typed response for the specified unresolved response.
     /// - Parameters:
-    ///   - unresolvedResponse: An unresolved response.
+    ///   - outcome: An unresolved response outcome.
     ///   - operation: The operation in which the response resides.
     /// - Returns: A typed response.
     /// - Throws: An error if there's an issue resolving the type name, fetching the response,

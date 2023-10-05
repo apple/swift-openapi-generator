@@ -32,6 +32,7 @@ import HTTPTypes
 /// ```
 public struct TestClientTransport: ClientTransport {
 
+    /// A typealias representing a call handler closure for processing client requests.
     public typealias CallHandler = @Sendable (HTTPRequest, HTTPBody?, URL, String) async throws -> (
         HTTPResponse, HTTPBody?
     )
@@ -50,6 +51,7 @@ public struct TestClientTransport: ClientTransport {
     ///
     /// - Parameters:
     ///   - request: The request to send.
+    ///   - body: The optional HTTP body to include in the request.
     ///   - baseURL: The base URL for the request.
     ///   - operationID: The ID of the operation being performed.
     /// - Returns: The response received from the call handler.

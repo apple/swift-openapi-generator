@@ -190,6 +190,7 @@ struct TypeMatcher {
     /// - Parameters:
     ///   - schema: The schema to check.
     ///   - components: The reusable components from the OpenAPI document.
+    /// - Throws: An error if there's an issue while checking the schema.
     /// - Returns: `true` if the schema is a key-value pair; `false` otherwise.
     static func isKeyValuePair(
         _ schema: JSONSchema,
@@ -225,6 +226,7 @@ struct TypeMatcher {
     /// - Parameters:
     ///   - schema: The schema to check.
     ///   - components: The reusable components from the OpenAPI document.
+    /// - Throws: An error if there's an issue while checking the schema.
     /// - Returns: `true` if the schema is a key-value pair; `false` otherwise.
     static func isKeyValuePair(
         _ schema: UnresolvedSchema?,
@@ -248,6 +250,7 @@ struct TypeMatcher {
     /// - Parameters:
     ///   - schema: The schema to check.
     ///   - components: The OpenAPI components for looking up references.
+    /// - Throws: An error if there's an issue while checking the schema.
     /// - Returns: `true` if the schema is optional, `false` otherwise.
     func isOptional(
         _ schema: JSONSchema,
@@ -267,6 +270,7 @@ struct TypeMatcher {
     /// - Parameters:
     ///   - schema: The schema to check.
     ///   - components: The OpenAPI components for looking up references.
+    /// - Throws: An error if there's an issue while checking the schema.
     /// - Returns: `true` if the schema is optional, `false` otherwise.
     func isOptional(
         _ schema: UnresolvedSchema?,

@@ -27,6 +27,8 @@ extension FileTranslator {
     ///   - unknownCaseDescription: The contents of the documentation comment
     ///     for the unknown case.
     ///   - customSwitchedExpression: A closure
+    /// - Throws: An error if there's an issue generating the declaration.
+    /// - Returns: The generated declaration.
     func translateRawRepresentableEnum(
         typeName: TypeName,
         conformances: [String],

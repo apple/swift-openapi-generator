@@ -29,21 +29,14 @@ extension FileTranslator {
     /// - Parameters:
     ///   - backingType: The backing type of the enum.
     ///   - typeName: The name of the type to give to the declared enum.
-<<<<<<< HEAD
-    ///   - userDescription: A user-specified description from the OpenAPI document.
-    ///   - isNullable: Whether the enum schema is nullable.
-    ///   - allowedValues: The enumerated allowed values.
-    /// - Throws: A `GenericError` if a disallowed value is encountered.
-    /// - Returns: A declaration of the specified string-based enum schema.
-    func translateStringEnum(
-=======
     ///   - userDescription: A user-specified description from the OpenAPI
     ///   document.
     ///   - isNullable: Whether the enum schema is nullable.
     ///   - allowedValues: The enumerated allowed values.
+    /// - Throws: A `GenericError` if a disallowed value is encountered.
+    /// - Returns: A declaration of the specified raw value-based enum schema.
     func translateRawEnum(
         backingType: RawEnumBackingType,
->>>>>>> main
         typeName: TypeName,
         userDescription: String?,
         isNullable: Bool,

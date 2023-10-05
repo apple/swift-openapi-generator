@@ -235,6 +235,7 @@ extension FileTranslator {
     /// Returns a result indicating whether the provided schemas
     /// are object-ish schemas and supported.
     /// - Parameter schemas: Schemas to check.
+    /// - Throws: An error if there's an issue while checking the schemas.
     /// - Returns: `.supported` if all schemas match; `.unsupported` otherwise.
     func areObjectishSchemasAndSupported(_ schemas: [JSONSchema]) throws -> IsSchemaSupportedResult {
         for schema in schemas {

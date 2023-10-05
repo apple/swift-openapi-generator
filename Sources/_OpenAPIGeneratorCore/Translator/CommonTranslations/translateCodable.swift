@@ -360,7 +360,7 @@ extension FileTranslator {
     // MARK: - OneOf encoder and decoder
 
     /// Returns a declaration of a oneOf without discriminator decoder implementation.
-    /// - Parameter caseNames: The names of the cases to be decoded.
+    /// - Parameter cases: The names of the cases to be decoded.
     /// - Returns: A `Declaration` representing the `OneOf` decoder implementation.
     func translateOneOfWithoutDiscriminatorDecoder(
         cases: [(name: String, isKeyValuePair: Bool)]
@@ -497,7 +497,7 @@ extension FileTranslator {
     }
 
     /// Returns a declaration of a oneOf encoder implementation.
-    /// - Parameter caseNames: The case names to be encoded, including the special case for undocumented cases.
+    /// - Parameter cases: The case names to be encoded, including the special case for undocumented cases.
     /// - Returns: A `Declaration` representing the `OneOf` encoder implementation.
     func translateOneOfEncoder(
         cases: [(name: String, isKeyValuePair: Bool)]
@@ -556,6 +556,7 @@ fileprivate extension Expression {
     /// Assumes the existence of an "encoder" variable in the current scope.
     /// - Parameter gracefully: A Boolean value indicating whether the graceful
     ///   variant of the expression is used.
+    /// - Returns: An Expression representing the result of encoding the current expression.
     func encodeToSingleValueContainerExpr(gracefully: Bool) -> Expression {
         .try(
             .identifier("encoder")
@@ -591,6 +592,8 @@ fileprivate extension Expression {
     /// Assumes the existence of a "decoder" variable in the current scope,
     /// and assumes that the result is assigned to a variable with a defined
     /// type, as the type checking relies on type inference.
+    /// - Returns: An Expression representing the result of calling the decoder initializer
+    ///   for non-key-value pair values.
     static func decodeFromSingleValueContainerExpr() -> Expression {
         .identifier("decoder").dot("decodeFromSingleValueContainer").call([])
     }

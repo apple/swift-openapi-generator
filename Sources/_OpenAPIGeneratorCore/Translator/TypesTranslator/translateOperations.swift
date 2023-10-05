@@ -202,6 +202,7 @@ extension TypesFileTranslator {
     /// - Returns: A structure declaration that represents
     /// the AcceptableContentType type, or nil if no acceptable content types
     /// were specified.
+    /// - Throws: An error if there's an issue generating the declaration.
     func translateOperationAcceptableContentType(
         _ description: OperationDescription
     ) throws -> Declaration? {

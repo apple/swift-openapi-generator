@@ -77,6 +77,7 @@ extension TypesFileTranslator {
     /// - Parameters:
     ///   - unresolvedRequestBody: An unresolved request body.
     ///   - parent: The type name of the parent structure.
+    /// - Throws: An error if there's an issue while parsing the request body or generating the property blueprint.
     /// - Returns: The property blueprint; nil if no body is specified.
     func parseRequestBodyAsProperty(
         for unresolvedRequestBody: UnresolvedRequest?,
