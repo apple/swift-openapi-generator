@@ -19,6 +19,9 @@
 /// - Todo: Add endpoint support
 public struct DocumentFilter: Codable, Sendable {
 
+    /// Operations with these operation IDs will be included in the filter.
+    public var operations: [String]?
+
     /// Operations tagged with these tags will be included in the filter.
     public var tags: [String]?
 
@@ -34,15 +37,17 @@ public struct DocumentFilter: Codable, Sendable {
     /// Create a new DocumentFilter.
     ///
     /// - Parameters:
-    ///   - operations: Paths that contain operations with IDs will be included in the filter.
+    ///   - operations: Operations with these IDs will be included in the filter.
     ///   - tags: Operations tagged with these tags will be included in the filter.
     ///   - paths: These paths will be included in the filter.
     ///   - schemas: These (additional) schemas will be included in the filter.
     public init(
+        operations: [String] = [],
         tags: [String] = [],
         paths: [OpenAPI.Path] = [],
         schemas: [String] = []
     ) {
+        self.operations = operations
         self.tags = tags
         self.paths = paths
         self.schemas = schemas
@@ -56,6 +61,9 @@ public struct DocumentFilter: Codable, Sendable {
         var builder = FilteredDocumentBuilder(document: document)
         for tag in tags ?? [] {
             try builder.requireOperations(tagged: tag)
+        }
+        for operationID in operations ?? [] {
+            try builder.requireOperation(operationID: operationID)
         }
         for path in paths ?? [] {
             try builder.requirePath(path)

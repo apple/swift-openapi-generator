@@ -92,6 +92,7 @@ private func timing<Output>(_ title: String, _ operation: @autoclosure () throws
 private let sampleConfig = _UserConfig(
     generate: [],
     filter: DocumentFilter(
+        operations: ["getGreeting"],
         tags: ["greetings"],
         paths: ["/greeting"],
         schemas: ["Greeting"]

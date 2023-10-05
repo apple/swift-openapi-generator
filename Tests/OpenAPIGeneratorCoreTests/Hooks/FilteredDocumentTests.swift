@@ -132,6 +132,13 @@ final class FilteredDocumentTests: XCTestCase {
             hasOperations: ["getA"],
             hasSchemas: ["A", "B"]
         )
+        try assert(
+            filtering: document,
+            filter: DocumentFilter(operations: ["deleteA"]),
+            hasPaths: ["/things/a"],
+            hasOperations: ["deleteA"],
+            hasSchemas: []
+        )
     }
 
     func assert(

@@ -146,26 +146,17 @@ public struct FilteredDocumentBuilder {
         try requireOperations(tagged: tag.name)
     }
 
-    /// Include paths with operations that have a given ID (and all their component dependencies).
+    /// Include the operation with a given ID (and all its component dependencies).
     ///
-    /// The paths are added to the filter, along with the transitive closure of all components
-    /// referenced within the corresponding path items.
+    /// This may result in paths within filtered document with a subset of the operations defined
+    /// in the original document.
     ///
     /// - Parameter operationID: The operation to include (and its path).
-    public mutating func requirePath(operationID: String) throws {
+    public mutating func requireOperation(operationID: String) throws {
         guard document.allOperationIds.contains(operationID) else {
             throw FilteredDocumentBuilderError.operationDoesNotExist(operationID: operationID)
         }
-
-        let path = document.paths.first { _, pathItem in
-            document.components[pathItem]?.endpoints
-                .contains {
-                    $0.operation.operationId == operationID
-                } ?? false
-        }!
-        .key
-
-        try requirePath(path)
+        try requireOperations { endpoint in endpoint.operation.operationId == operationID }
     }
 
     /// Include schema (and all its schema dependencies).
