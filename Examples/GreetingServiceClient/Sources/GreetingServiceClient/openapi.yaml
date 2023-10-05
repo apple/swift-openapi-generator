@@ -5,6 +5,8 @@ info:
 servers:
   - url: https://example.com/api
     description: Example
+  - url: http://localhost:8080/api
+    description: Localhost
 paths:
   /greet:
     get:

@@ -20,8 +20,8 @@ struct GreetingServiceClient {
     static func main() async throws {
         // Create an instance of the generated client type.
         let client: APIProtocol = Client(
-            // Server.server1() is generated, derived from the server URL in the OpenAPI document.
-            serverURL: try Servers.server1(),
+            // Server.server2() is generated, derived from the server URL in the OpenAPI document.
+            serverURL: try Servers.server2(),
             // URLSessionTransport conforms to ClientTransport and is provided by a separate package.
             transport: URLSessionTransport()
         )
