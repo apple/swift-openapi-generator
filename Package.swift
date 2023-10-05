@@ -12,6 +12,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+import Foundation
 import PackageDescription
 
 // General Swift-settings for all targets.
@@ -23,6 +24,14 @@ swiftSettings.append(
     // Require `any` for existential types.
     .enableUpcomingFeature("ExistentialAny")
 )
+
+// Strict concurrency is enabled in CI; use this environment variable to enable it locally.
+if ProcessInfo.processInfo.environment["SWIFT_OPENAPI_STRICT_CONCURRENCY"].flatMap(Bool.init) ?? false {
+    swiftSettings.append(contentsOf: [
+        .define("SWIFT_OPENAPI_STRICT_CONCURRENCY"),
+        .enableExperimentalFeature("StrictConcurrency"),
+    ])
+}
 #endif
 
 let package = Package(
@@ -64,7 +73,7 @@ let package = Package(
         // Read OpenAPI documents
         .package(
             url: "https://github.com/mattpolzin/OpenAPIKit.git",
-            exact: "3.0.0-beta.1"
+            exact: "3.0.0-rc.2"
         ),
         .package(
             url: "https://github.com/jpsim/Yams.git",
@@ -77,8 +86,10 @@ let package = Package(
             from: "1.0.1"
         ),
 
-        // Tests-only: Runtime library linked by generated code
-        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.1.9")),
+        // Tests-only: Runtime library linked by generated code, and also
+        // helps keep the runtime library new enough to work with the generated
+        // code.
+        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.3.1")),
 
         // Build and preview docs
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
@@ -89,7 +100,9 @@ let package = Package(
         .target(
             name: "_OpenAPIGeneratorCore",
             dependencies: [
+                .product(name: "OpenAPIKit", package: "OpenAPIKit"),
                 .product(name: "OpenAPIKit30", package: "OpenAPIKit"),
+                .product(name: "OpenAPIKitCompat", package: "OpenAPIKit"),
                 .product(name: "Algorithms", package: "swift-algorithms"),
                 .product(name: "Yams", package: "Yams"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
@@ -137,18 +150,6 @@ let package = Package(
         // to ensure it actually works correctly at runtime.
         .testTarget(
             name: "PetstoreConsumerTests",
-            dependencies: [
-                "PetstoreConsumerTestCore"
-            ],
-            swiftSettings: swiftSettings
-        ),
-
-        // PetstoreConsumerTestsFFMultipleContentTypes
-        // Builds and tests the reference code from GeneratorReferenceTests
-        // to ensure it actually works correctly at runtime.
-        // Enabled feature flag: multipleContentTypes
-        .testTarget(
-            name: "PetstoreConsumerTestsFFMultipleContentTypes",
             dependencies: [
                 "PetstoreConsumerTestCore"
             ],

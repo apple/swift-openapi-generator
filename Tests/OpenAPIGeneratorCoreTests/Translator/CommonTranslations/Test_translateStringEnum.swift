@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import XCTest
-import OpenAPIKit30
+import OpenAPIKit
 @testable import _OpenAPIGeneratorCore
 
 final class Test_translateStringEnum: Test_Core {
@@ -24,7 +24,7 @@ final class Test_translateStringEnum: Test_Core {
                 ""
             )
         )
-        XCTAssertEqual(names, ["a", "_empty", "undocumented"])
+        XCTAssertEqual(names, ["a", "_empty"])
     }
 
     func testCaseValuesForNullableSchema() throws {
@@ -35,7 +35,17 @@ final class Test_translateStringEnum: Test_Core {
                 nil
             )
         )
-        XCTAssertEqual(names, ["a", "_empty", "undocumented"])
+        XCTAssertEqual(names, ["a", "_empty"])
+    }
+
+    func testCaseValuesForIntegerSchema() throws {
+        let names = try _caseValues(
+            .integer(
+                allowedValues: -1,
+                1
+            )
+        )
+        XCTAssertEqual(names, ["_n1", "_1"])
     }
 
     func _caseValues(_ schema: JSONSchema) throws -> [String] {

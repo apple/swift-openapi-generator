@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A set of functions that match Swift types onto OpenAPI types.
 struct TypeMatcher {
@@ -29,7 +29,7 @@ struct TypeMatcher {
     ///
     /// # Examples
     ///
-    /// Examples of schemas that can be repreresented directly by builtin types:
+    /// Examples of schemas that can be represented directly by builtin types:
     /// - platform builtin types
     ///     - `type: string` -> `Swift.String`
     ///     - `type: string, format: date-time` -> `Foundation.Date`
@@ -63,24 +63,29 @@ struct TypeMatcher {
     /// - A reference
     ///
     /// - Note: Optionality from the `JSONSchema` is applied.
-    /// - Parameter schema: The schema to match a referenceable type for.
+    /// - Parameters:
+    ///   - schema: The schema to match a referenceable type for.
+    ///   - components: The components in which to look up references.
     /// - Returns: A type usage for the schema if the schema is supported.
     /// Otherwise, returns nil.
     /// - Throws: An error if there is an issue during the matching process.
     func tryMatchReferenceableType(
-        for schema: JSONSchema
+        for schema: JSONSchema,
+        components: OpenAPI.Components
     ) throws -> TypeUsage? {
         try Self._tryMatchRecursive(
             for: schema.value,
-            test: { schema in
+            test: { (schema) -> TypeUsage? in
                 if let builtinType = Self._tryMatchBuiltinNonRecursive(for: schema) {
                     return builtinType
                 }
                 guard case let .reference(ref, _) = schema else {
                     return nil
                 }
-                return try TypeAssigner(asSwiftSafeName: asSwiftSafeName)
-                    .typeName(for: ref).asUsage
+                return try TypeAssigner(
+                    asSwiftSafeName: asSwiftSafeName
+                )
+                .typeName(for: ref).asUsage
             },
             matchedArrayHandler: { elementType in
                 elementType.asArray
@@ -89,7 +94,7 @@ struct TypeMatcher {
                 TypeName.arrayContainer.asUsage
             }
         )?
-        .withOptional(!schema.required)
+        .withOptional(isOptional(schema, components: components))
     }
 
     /// Returns a Boolean value that indicates whether the schema
@@ -147,7 +152,7 @@ struct TypeMatcher {
     }
 
     /// Returns a Boolean value that indicates whether the schema
-    /// needs to be defined inline..
+    /// needs to be defined inline.
     ///
     /// An inlinable type is the inverse of a referenceable type.
     ///
@@ -160,7 +165,7 @@ struct TypeMatcher {
     }
 
     /// Returns a Boolean value that indicates whether the schema
-    /// needs to be defined inline..
+    /// needs to be defined inline.
     ///
     /// An inlinable type is the inverse of a referenceable type.
     ///
@@ -172,6 +177,112 @@ struct TypeMatcher {
         _ schema: UnresolvedSchema?
     ) -> Bool {
         !isReferenceable(schema)
+    }
+
+    /// Returns a Boolean value that indicates whether the schema
+    /// is a key-value pair schema, for example an object.
+    ///
+    /// Key-value pair schemas can be combined together, but no other schemas
+    /// (such as arrays and primitive values) can. This limitation is also
+    /// present in encoders and decoders, so we have to generate the correct
+    /// call based on the schema kind.
+    ///
+    /// - Parameters:
+    ///   - schema: The schema to check.
+    ///   - components: The reusable components from the OpenAPI document.
+    /// - Returns: `true` if the schema is a key-value pair; `false` otherwise.
+    static func isKeyValuePair(
+        _ schema: JSONSchema,
+        components: OpenAPI.Components
+    ) throws -> Bool {
+        switch schema.value {
+        case .object, .fragment:
+            return true
+        case .null, .boolean, .number, .integer, .string, .array, .not:
+            return false
+        case .all(let subschemas, _):
+            // An allOf is a key-value pair schema iff all of its subschemas
+            // also are.
+            return try subschemas.allSatisfy { try isKeyValuePair($0, components: components) }
+        case .one(let subschemas, _), .any(let subschemas, _):
+            // A oneOf/anyOf is a key-value pair schema if at least one
+            // subschema is as well, unfortunately the rest is only known
+            // at runtime, so we can't validate beyond that here.
+            return try subschemas.contains { try isKeyValuePair($0, components: components) }
+        case .reference(let ref, _):
+            return try isKeyValuePair(components.lookup(ref), components: components)
+        }
+    }
+
+    /// Returns a Boolean value that indicates whether the schema
+    /// is a key-value pair schema, for example an object.
+    ///
+    /// Key-value pair schemas can be combined together, but no other schemas
+    /// (such as arrays and primitive values) can. This limitation is also
+    /// present in encoders and decoders, so we have to generate the correct
+    /// call based on the schema kind.
+    ///
+    /// - Parameters:
+    ///   - schema: The schema to check.
+    ///   - components: The reusable components from the OpenAPI document.
+    /// - Returns: `true` if the schema is a key-value pair; `false` otherwise.
+    static func isKeyValuePair(
+        _ schema: UnresolvedSchema?,
+        components: OpenAPI.Components
+    ) throws -> Bool {
+        guard let schema else {
+            // fragment type is a key-value pair schema
+            return true
+        }
+        let schemaToCheck: JSONSchema
+        switch schema {
+        case .a(let ref):
+            schemaToCheck = try components.lookup(ref)
+        case let .b(schema):
+            schemaToCheck = schema
+        }
+        return try isKeyValuePair(schemaToCheck, components: components)
+    }
+
+    /// Returns a Boolean value indicating whether the schema is optional.
+    /// - Parameters:
+    ///   - schema: The schema to check.
+    ///   - components: The OpenAPI components for looking up references.
+    /// - Returns: `true` if the schema is optional, `false` otherwise.
+    func isOptional(
+        _ schema: JSONSchema,
+        components: OpenAPI.Components
+    ) throws -> Bool {
+        if schema.nullable || !schema.required {
+            return true
+        }
+        guard case .reference(let ref, _) = schema.value else {
+            return false
+        }
+        let targetSchema = try components.lookup(ref)
+        return try isOptional(targetSchema, components: components)
+    }
+
+    /// Returns a Boolean value indicating whether the schema is optional.
+    /// - Parameters:
+    ///   - schema: The schema to check.
+    ///   - components: The OpenAPI components for looking up references.
+    /// - Returns: `true` if the schema is optional, `false` otherwise.
+    func isOptional(
+        _ schema: UnresolvedSchema?,
+        components: OpenAPI.Components
+    ) throws -> Bool {
+        guard let schema else {
+            // A nil unresolved schema represents a non-optional fragment.
+            return false
+        }
+        switch schema {
+        case .a(let ref):
+            let targetSchema = try components.lookup(ref)
+            return try isOptional(targetSchema, components: components)
+        case .b(let schema):
+            return try isOptional(schema, components: components)
+        }
     }
 
     // MARK: - Private
@@ -203,6 +314,10 @@ struct TypeMatcher {
                 typeName = .swift("Double")
             }
         case .integer(let core, _):
+            if core.allowedValues != nil {
+                // custom enum isn't a builtin
+                return nil
+            }
             switch core.format {
             case .int32:
                 typeName = .swift("Int32")
@@ -220,7 +335,7 @@ struct TypeMatcher {
             case .byte:
                 typeName = .swift("String")
             case .binary:
-                typeName = .foundation("Data")
+                typeName = .body
             case .dateTime:
                 typeName = .foundation("Date")
             default:
@@ -239,7 +354,7 @@ struct TypeMatcher {
             // arrays are already recursed-into by _tryMatchTypeRecursive
             // so just return nil here
             return nil
-        case .reference, .not, .all, .any, .one:
+        case .reference, .not, .all, .any, .one, .null:
             // never built-in
             return nil
         }

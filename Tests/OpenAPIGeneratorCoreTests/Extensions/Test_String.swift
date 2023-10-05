@@ -32,30 +32,6 @@ final class Test_String: Test_Core {
 
             // Empty string
             ("", "_empty"),
-        ]
-        let translator = makeTranslator(featureFlags: [])
-        let asSwiftSafeName: (String) -> String = translator.swiftSafeName
-        for (input, sanitized) in cases {
-            XCTAssertEqual(asSwiftSafeName(input), sanitized)
-        }
-    }
-
-    func testAsProposedSwiftName() {
-        let cases: [(String, String)] = [
-            // Simple
-            ("foo", "foo"),
-
-            // Starts with a number
-            ("3foo", "_3foo"),
-
-            // Keyword
-            ("default", "_default"),
-
-            // Reserved name
-            ("Type", "_Type"),
-
-            // Empty string
-            ("", "_empty"),
 
             // Special Char in middle
             ("inv@lidName", "inv_commat_lidName"),
@@ -88,7 +64,7 @@ final class Test_String: Test_Core {
             ("application", "application"),
             ("vendor1+json", "vendor1_plus_json"),
         ]
-        let translator = makeTranslator(featureFlags: [.proposal0001])
+        let translator = makeTranslator()
         let asSwiftSafeName: (String) -> String = translator.swiftSafeName
         for (input, sanitized) in cases {
             XCTAssertEqual(asSwiftSafeName(input), sanitized)

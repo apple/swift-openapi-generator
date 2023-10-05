@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension TypesFileTranslator {
 
@@ -37,7 +37,7 @@ extension TypesFileTranslator {
                 keywords: [
                     .throws
                 ],
-                returnType: Constants.ServerURL.underlyingType,
+                returnType: .identifier(Constants.ServerURL.underlyingType),
                 body: [
                     .expression(
                         .try(

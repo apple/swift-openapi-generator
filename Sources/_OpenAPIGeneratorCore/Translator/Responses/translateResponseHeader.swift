@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension TypesFileTranslator {
 
@@ -91,7 +91,7 @@ extension TypesFileTranslator {
 
 extension ClientFileTranslator {
 
-    /// Returns an expression that extracts the value of thespecified response
+    /// Returns an expression that extracts the value of the specified response
     /// header from a property on an Input value to a request.
     /// - Parameters:
     ///   - header: The response header to extract.

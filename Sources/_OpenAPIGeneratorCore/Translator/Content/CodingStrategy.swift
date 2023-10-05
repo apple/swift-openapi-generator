@@ -18,21 +18,26 @@ enum CodingStrategy: String, Hashable, Sendable {
     /// A strategy using JSONEncoder/JSONDecoder.
     case json
 
-    /// A strategy using LosslessStringConvertible.
-    case text
+    /// A strategy using URIEncoder/URIDecoder.
+    case uri
 
     /// A strategy that passes through the data unmodified.
     case binary
+
+    /// A strategy using x-www-form-urlencoded.
+    case urlEncodedForm
 
     /// The name of the coding strategy in the runtime library.
     var runtimeName: String {
         switch self {
         case .json:
             return Constants.CodingStrategy.json
-        case .text:
-            return Constants.CodingStrategy.text
+        case .uri:
+            return Constants.CodingStrategy.uri
         case .binary:
             return Constants.CodingStrategy.binary
+        case .urlEncodedForm:
+            return Constants.CodingStrategy.urlEncodedForm
         }
     }
 }

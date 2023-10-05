@@ -1,5 +1,7 @@
 # Swift OpenAPI Generator
 
+[![](https://img.shields.io/badge/sswg-sandbox-lightgrey.svg)](https://www.swift.org/sswg/)
+
 Generate Swift client and server code from an OpenAPI document.
 
 ## Overview
@@ -29,8 +31,10 @@ Choose one of the transports listed below, or create your own by adopting the `C
 
 ## Requirements and supported features
 
-- Swift 5.8
-- OpenAPI 3.0.x
+| Generator versions | Supported OpenAPI versions | Minimum Swift version |
+| -------- | ------- | ----- |
+| `0.1.0` ... `0.1.11` | 3.0 | 5.8 |
+| `0.1.12` ... `main` | 3.0, 3.1 | 5.8 |
 
 ### Supported platforms and minimum versions
 

@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A structure that contains the information about an OpenAPI object that is
 /// required to generate a matching Swift structure.
@@ -63,11 +63,11 @@ struct StructBlueprint {
 
         /// A Codable implementation for allOf, where all of the child
         /// property types get encoded into the top level keyed container.
-        case allOf
+        case allOf(propertiesIsKeyValuePairSchema: [Bool])
 
         /// A Codable implementation for anyOf, where one or more of the child
         /// property types get encoded into the top level keyed container.
-        case anyOf
+        case anyOf(propertiesIsKeyValuePairSchema: [Bool])
     }
 
     /// The kind of Codable implementation used for the structure.

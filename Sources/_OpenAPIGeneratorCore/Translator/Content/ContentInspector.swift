@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// Utilities for asking questions about OpenAPI.Content
 extension FileTranslator {
@@ -58,6 +58,7 @@ extension FileTranslator {
         let associatedType = try typeAssigner.typeUsage(
             usingNamingHint: identifier,
             withSchema: content.schema,
+            components: components,
             inParent: parent
         )
         return .init(content: content, typeUsage: associatedType)
@@ -95,6 +96,7 @@ extension FileTranslator {
             let associatedType = try typeAssigner.typeUsage(
                 usingNamingHint: identifier,
                 withSchema: content.schema,
+                components: components,
                 inParent: parent
             )
             return .init(content: content, typeUsage: associatedType)
@@ -116,14 +118,6 @@ extension FileTranslator {
     ) -> [SchemaContent] {
         guard !contents.isEmpty else {
             return []
-        }
-        guard config.featureFlags.contains(.multipleContentTypes) else {
-            return bestSingleContent(
-                contents,
-                excludeBinary: excludeBinary,
-                foundIn: foundIn
-            )
-            .flatMap { [$0] } ?? []
         }
         return
             contents
@@ -167,7 +161,7 @@ extension FileTranslator {
         }
         let chosenContent: (SchemaContent, OpenAPI.Content)?
         if let (contentKey, contentValue) = map.first(where: { $0.key.isJSON }) {
-            let contentType = ContentType(contentKey.typeAndSubtype)
+            let contentType = contentKey.asGeneratorContentType
             chosenContent = (
                 .init(
                     contentType: contentType,
@@ -175,17 +169,8 @@ extension FileTranslator {
                 ),
                 contentValue
             )
-        } else if let (contentKey, contentValue) = map.first(where: { $0.key.isText }) {
-            let contentType = ContentType(contentKey.typeAndSubtype)
-            chosenContent = (
-                .init(
-                    contentType: contentType,
-                    schema: .b(.string)
-                ),
-                contentValue
-            )
         } else if !excludeBinary, let (contentKey, contentValue) = map.first(where: { $0.key.isBinary }) {
-            let contentType = ContentType(contentKey.typeAndSubtype)
+            let contentType = contentKey.asGeneratorContentType
             chosenContent = (
                 .init(
                     contentType: contentType,
@@ -207,7 +192,7 @@ extension FileTranslator {
             {
                 diagnostics.emitUnsupportedIfNotNil(
                     chosenContent.1.encoding,
-                    "Custom encoding for JSON content",
+                    "Custom encoding for multipart/formEncoded content",
                     foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
                 )
             }
@@ -237,26 +222,30 @@ extension FileTranslator {
         foundIn: String
     ) -> SchemaContent? {
         if contentKey.isJSON {
-            let contentType = ContentType(contentKey.typeAndSubtype)
-            diagnostics.emitUnsupportedIfNotNil(
-                contentValue.encoding,
-                "Custom encoding for JSON content",
-                foundIn: "\(foundIn), content \(contentKey.rawValue)"
-            )
+            let contentType = contentKey.asGeneratorContentType
+            if contentType.lowercasedType == "multipart"
+                || contentType.lowercasedTypeAndSubtype.contains("application/x-www-form-urlencoded")
+            {
+                diagnostics.emitUnsupportedIfNotNil(
+                    contentValue.encoding,
+                    "Custom encoding for multipart/formEncoded content",
+                    foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
+                )
+            }
             return .init(
                 contentType: contentType,
                 schema: contentValue.schema
             )
         }
-        if contentKey.isText {
+        if contentKey.isUrlEncodedForm {
             let contentType = ContentType(contentKey.typeAndSubtype)
             return .init(
                 contentType: contentType,
-                schema: .b(.string)
+                schema: contentValue.schema
             )
         }
         if !excludeBinary, contentKey.isBinary {
-            let contentType = ContentType(contentKey.typeAndSubtype)
+            let contentType = contentKey.asGeneratorContentType
             return .init(
                 contentType: contentType,
                 schema: .b(.string(format: .binary))

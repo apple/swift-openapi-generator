@@ -54,7 +54,6 @@ read -ra PATHS_TO_CHECK_FOR_LICENSE <<< "$( \
   ":(exclude)SECURITY.md" \
   ":(exclude)scripts/unacceptable-language.txt" \
   ":(exclude)Tests/PetstoreConsumerTests/Generated" \
-  ":(exclude)Tests/PetstoreConsumerTestsFFMultipleContentTypes/Generated" \
   ":(exclude)Tests/OpenAPIGeneratorReferenceTests/Resources/ReferenceSources/*" \
   ":(exclude)docker/*" \
   ":(exclude)**/*.docc/*" \

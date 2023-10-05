@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A container for an OpenAPI response and its computed Swift type usage.
 struct TypedResponse {
@@ -30,8 +30,8 @@ extension FileTranslator {
 
     /// Returns a typed response for the specified unresolved response.
     /// - Parameters:
-    ///   - outcome: The OpenAPI operation response outcome.
-    ///   - operation: The operation in which the response resi.
+    ///   - unresolvedResponse: An unresolved response.
+    ///   - operation: The operation in which the response resides.
     /// - Returns: A typed response.
     /// - Throws: An error if there's an issue resolving the type name, fetching the response,
     ///           or determining the inlined status.
@@ -65,4 +65,4 @@ extension FileTranslator {
 /// An unresolved OpenAPI response.
 ///
 /// Can be either a reference or an inline response.
-typealias UnresolvedResponse = Either<JSONReference<OpenAPI.Response>, OpenAPI.Response>
+typealias UnresolvedResponse = Either<OpenAPI.Reference<OpenAPI.Response>, OpenAPI.Response>

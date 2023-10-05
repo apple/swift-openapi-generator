@@ -12,6 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+import OpenAPIKit
+
 /// Runs validation steps on the incoming OpenAPI document.
 /// - Parameters:
 ///   - doc: The OpenAPI document to validate.
@@ -19,9 +21,6 @@
 /// - Returns: An array of diagnostic messages representing validation warnings.
 /// - Throws: An error if a fatal issue is found.
 func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [Diagnostic] {
-    guard config.featureFlags.contains(.strictOpenAPIValidation) else {
-        return []
-    }
     // Run OpenAPIKit's built-in validation.
     // Pass `false` to `strict`, however, because we don't
     // want to turn schema loading warnings into errors.
@@ -31,7 +30,10 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [
     // block the generator from running.
     // Validation errors continue to be fatal, such as
     // structural issues, like non-unique operationIds, etc.
-    let warnings = try doc.validate(strict: false)
+    let warnings = try doc.validate(
+        using: Validator().validating(.operationsContainResponses),
+        strict: false
+    )
     let diagnostics: [Diagnostic] = warnings.map { warning in
         .warning(
             message: "Validation warning: \(warning.description)",

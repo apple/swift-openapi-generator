@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension TypesFileTranslator {
 
@@ -77,44 +77,31 @@ extension TypesFileTranslator {
     /// - Parameters:
     ///   - unresolvedRequestBody: An unresolved request body.
     ///   - parent: The type name of the parent structure.
-    /// - Returns: A property blueprint representing the request body property.
-    /// - Throws: An error if there is an issue parsing or translating the request body.
+    /// - Returns: The property blueprint; nil if no body is specified.
     func parseRequestBodyAsProperty(
         for unresolvedRequestBody: UnresolvedRequest?,
         inParent parent: TypeName
-    ) throws -> PropertyBlueprint {
-        let bodyEnumTypeName: TypeName
-        let isRequestBodyOptional: Bool
-        let extraDecls: [Declaration]
-        if let _requestBody = unresolvedRequestBody,
+    ) throws -> PropertyBlueprint? {
+        guard let _requestBody = unresolvedRequestBody,
             let requestBody = try typedRequestBody(
                 from: _requestBody,
                 inParent: parent
             )
-        {
-            isRequestBodyOptional = !requestBody.request.required
-            bodyEnumTypeName = requestBody.typeUsage.typeName
-            if requestBody.isInlined {
-                extraDecls = [
-                    try translateRequestBodyInTypes(
-                        requestBody: requestBody
-                    )
-                ]
-            } else {
-                extraDecls = []
-            }
-        } else {
-            isRequestBodyOptional = true
-            bodyEnumTypeName = parent.appending(
-                swiftComponent: Constants.Operation.Body.typeName,
-                jsonComponent: "requestBody"
-            )
+        else {
+            return nil
+        }
+
+        let isRequestBodyOptional = !requestBody.request.required
+        let bodyEnumTypeName = requestBody.typeUsage.typeName
+        let extraDecls: [Declaration]
+        if requestBody.isInlined {
             extraDecls = [
-                translateRequestBodyInTypes(
-                    typeName: bodyEnumTypeName,
-                    members: []
+                try translateRequestBodyInTypes(
+                    requestBody: requestBody
                 )
             ]
+        } else {
+            extraDecls = []
         }
 
         let bodyEnumTypeUsage = bodyEnumTypeName.asUsage
@@ -177,12 +164,14 @@ extension ClientFileTranslator {
     /// - Parameters:
     ///   - requestBody: The request body to extract.
     ///   - requestVariableName: The name of the request variable.
+    ///   - bodyVariableName: The name of the body variable.
     ///   - inputVariableName: The name of the Input variable.
     /// - Returns: An assignment expression.
     /// - Throws: An error if there is an issue translating the request body.
     func translateRequestBodyInClient(
         _ requestBody: TypedRequestBody,
         requestVariableName: String,
+        bodyVariableName: String,
         inputVariableName: String
     ) throws -> Expression {
         let contents = requestBody.contents
@@ -193,7 +182,7 @@ extension ClientFileTranslator {
             let contentTypeHeaderValue = contentType.headerValueForSending
 
             let bodyAssignExpr: Expression = .assignment(
-                left: .identifier(requestVariableName).dot("body"),
+                left: .identifier(bodyVariableName),
                 right: .try(
                     .identifier("converter")
                         .dot(
@@ -228,7 +217,7 @@ extension ClientFileTranslator {
                 body: [
                     .expression(
                         .assignment(
-                            left: .identifier(requestVariableName).dot("body"),
+                            left: .identifier(bodyVariableName),
                             right: .literal(.nil)
                         )
                     )
@@ -323,7 +312,8 @@ extension ServerFileTranslator {
             let contentTypeUsage = typedContent.resolvedTypeUsage
             let content = typedContent.content
             let contentType = content.contentType
-            let codingStrategyName = contentType.codingStrategy.runtimeName
+            let codingStrategy = contentType.codingStrategy
+            let codingStrategyName = codingStrategy.runtimeName
             let transformExpr: Expression = .closureInvocation(
                 argumentNames: ["value"],
                 body: [
@@ -335,21 +325,30 @@ extension ServerFileTranslator {
                     )
                 ]
             )
-            let bodyExpr: Expression = .try(
+            let converterExpr: Expression =
                 .identifier("converter")
-                    .dot("get\(isOptional ? "Optional" : "Required")RequestBodyAs\(codingStrategyName)")
-                    .call([
-                        .init(
-                            label: nil,
-                            expression: .identifier(contentTypeUsage.fullyQualifiedSwiftName).dot("self")
-                        ),
-                        .init(label: "from", expression: .identifier(requestVariableName).dot("body")),
-                        .init(
-                            label: "transforming",
-                            expression: transformExpr
-                        ),
-                    ])
-            )
+                .dot("get\(isOptional ? "Optional" : "Required")RequestBodyAs\(codingStrategyName)")
+                .call([
+                    .init(
+                        label: nil,
+                        expression:
+                            .identifier(
+                                contentTypeUsage.fullyQualifiedNonOptionalSwiftName
+                            )
+                            .dot("self")
+                    ),
+                    .init(label: "from", expression: .identifier("requestBody")),
+                    .init(
+                        label: "transforming",
+                        expression: transformExpr
+                    ),
+                ])
+            let bodyExpr: Expression
+            if codingStrategy == .binary {
+                bodyExpr = .try(converterExpr)
+            } else {
+                bodyExpr = .try(.await(converterExpr))
+            }
             return .init(
                 condition: .try(condition),
                 body: [

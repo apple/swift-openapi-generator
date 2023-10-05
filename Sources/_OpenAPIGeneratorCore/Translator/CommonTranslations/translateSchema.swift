@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension FileTranslator {
 
@@ -26,7 +26,7 @@ extension FileTranslator {
     /// - Parameters:
     ///   - typeName: The name of the type to give to the declared type.
     ///   - schema: The JSON schema representing the type.
-    ///   - overrides: A structure with the properties that should be overriden
+    ///   - overrides: A structure with the properties that should be overridden
     ///   instead of extracted from the schema.
     /// - Throws: An error if there is an issue during translation.
     /// - Returns: A list of declarations representing the translated schema.
@@ -40,7 +40,7 @@ extension FileTranslator {
             switch schema {
             case let .a(ref):
                 // reference, wrap that into JSONSchema
-                unwrappedSchema = .reference(ref)
+                unwrappedSchema = .reference(ref.jsonReference)
             case let .b(schema):
                 unwrappedSchema = schema
             }
@@ -66,7 +66,7 @@ extension FileTranslator {
     /// - Parameters:
     ///   - typeName: The name of the type to give to the declared type.
     ///   - schema: The JSON schema representing the type.
-    ///   - overrides: A structure with the properties that should be overriden
+    ///   - overrides: A structure with the properties that should be overridden
     ///   instead of extracted from the schema.
     /// - Throws: An error if there is an issue during translation.
     /// - Returns: A list of declarations representing the translated schema.
@@ -93,11 +93,16 @@ extension FileTranslator {
         }
 
         // If this type maps to a referenceable schema, define a typealias
-        if let builtinType = try typeMatcher.tryMatchReferenceableType(for: schema) {
+        if let builtinType = try typeMatcher.tryMatchReferenceableType(
+            for: schema,
+            components: components
+        ) {
             let typealiasDecl = try translateTypealias(
                 named: typeName,
                 userDescription: overrides.userDescription ?? schema.description,
-                to: builtinType.withOptional(overrides.isOptional ?? !schema.required)
+                to: builtinType.withOptional(
+                    overrides.isOptional ?? typeMatcher.isOptional(schema, components: components)
+                )
             )
             return [typealiasDecl]
         }
@@ -116,7 +121,20 @@ extension FileTranslator {
             guard let allowedValues = coreContext.allowedValues else {
                 throw GenericError(message: "Unexpected non-global string for \(typeName)")
             }
-            let enumDecl = try translateStringEnum(
+            let enumDecl = try translateRawEnum(
+                backingType: .string,
+                typeName: typeName,
+                userDescription: overrides.userDescription ?? coreContext.description,
+                isNullable: coreContext.nullable,
+                allowedValues: allowedValues
+            )
+            return [enumDecl]
+        case let .integer(coreContext, _):
+            guard let allowedValues = coreContext.allowedValues else {
+                throw GenericError(message: "Unexpected non-global integer for \(typeName)")
+            }
+            let enumDecl = try translateRawEnum(
+                backingType: .integer,
                 typeName: typeName,
                 userDescription: overrides.userDescription ?? coreContext.description,
                 isNullable: coreContext.nullable,

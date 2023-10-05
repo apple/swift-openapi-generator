@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension TypesFileTranslator {
 
@@ -27,6 +27,7 @@ extension TypesFileTranslator {
         response: TypedResponse
     ) throws -> Declaration {
         let response = response.response
+
         let headersTypeName = typeName.appending(
             swiftComponent: Constants.Operation.Output.Payload.Headers.typeName,
             jsonComponent: "headers"
@@ -35,35 +36,40 @@ extension TypesFileTranslator {
             from: response,
             inParent: headersTypeName
         )
-        let headerProperties: [PropertyBlueprint] = try headers.map { header in
-            try parseResponseHeaderAsProperty(
-                for: header,
-                parent: headersTypeName
+        let headersProperty: PropertyBlueprint?
+        if !headers.isEmpty {
+            let headerProperties: [PropertyBlueprint] = try headers.map { header in
+                try parseResponseHeaderAsProperty(
+                    for: header,
+                    parent: headersTypeName
+                )
+            }
+            let headerStructComment: Comment? =
+                headersTypeName
+                .docCommentWithUserDescription(nil)
+            let headersStructBlueprint: StructBlueprint = .init(
+                comment: headerStructComment,
+                access: config.access,
+                typeName: headersTypeName,
+                conformances: Constants.Operation.Output.Payload.Headers.conformances,
+                properties: headerProperties
             )
+            let headersStructDecl = translateStructBlueprint(
+                headersStructBlueprint
+            )
+            headersProperty = PropertyBlueprint(
+                comment: .doc("Received HTTP response headers"),
+                originalName: Constants.Operation.Output.Payload.Headers.variableName,
+                typeUsage: headersTypeName.asUsage,
+                default: headersStructBlueprint.hasEmptyInit ? .emptyInit : nil,
+                associatedDeclarations: [
+                    headersStructDecl
+                ],
+                asSwiftSafeName: swiftSafeName
+            )
+        } else {
+            headersProperty = nil
         }
-        let headerStructComment: Comment? =
-            headersTypeName
-            .docCommentWithUserDescription(nil)
-        let headersStructBlueprint: StructBlueprint = .init(
-            comment: headerStructComment,
-            access: config.access,
-            typeName: headersTypeName,
-            conformances: Constants.Operation.Output.Payload.Headers.conformances,
-            properties: headerProperties
-        )
-        let headersStructDecl = translateStructBlueprint(
-            headersStructBlueprint
-        )
-        let headersProperty = PropertyBlueprint(
-            comment: .doc("Received HTTP response headers"),
-            originalName: Constants.Operation.Output.Payload.Headers.variableName,
-            typeUsage: headersTypeName.asUsage,
-            default: headersStructBlueprint.hasEmptyInit ? .emptyInit : nil,
-            associatedDeclarations: [
-                headersStructDecl
-            ],
-            asSwiftSafeName: swiftSafeName
-        )
 
         let bodyTypeName = typeName.appending(
             swiftComponent: Constants.Operation.Body.typeName,
@@ -73,54 +79,115 @@ extension TypesFileTranslator {
             response.content,
             inParent: bodyTypeName
         )
-        var bodyCases: [Declaration] = []
-        for typedContent in typedContents {
-            let contentType = typedContent.content.contentType
-            let identifier = contentSwiftName(contentType)
-            let associatedType = typedContent.resolvedTypeUsage
-            if TypeMatcher.isInlinable(typedContent.content.schema), let inlineType = typedContent.typeUsage {
-                let inlineTypeDecls = try translateSchema(
-                    typeName: inlineType.typeName,
-                    schema: typedContent.content.schema,
-                    overrides: .none
+
+        let bodyProperty: PropertyBlueprint?
+        if !typedContents.isEmpty {
+            var bodyCases: [Declaration] = []
+            for typedContent in typedContents {
+                let contentType = typedContent.content.contentType
+                let identifier = contentSwiftName(contentType)
+                let associatedType = typedContent.resolvedTypeUsage
+                if TypeMatcher.isInlinable(typedContent.content.schema), let inlineType = typedContent.typeUsage {
+                    let inlineTypeDecls = try translateSchema(
+                        typeName: inlineType.typeName,
+                        schema: typedContent.content.schema,
+                        overrides: .none
+                    )
+                    bodyCases.append(contentsOf: inlineTypeDecls)
+                }
+
+                let bodyCase: Declaration = .commentable(
+                    contentType.docComment(typeName: bodyTypeName),
+                    .enumCase(
+                        name: identifier,
+                        kind: .nameWithAssociatedValues([
+                            .init(type: associatedType.fullyQualifiedSwiftName)
+                        ])
+                    )
                 )
-                bodyCases.append(contentsOf: inlineTypeDecls)
+                bodyCases.append(bodyCase)
+
+                var throwingGetterSwitchCases = [
+                    SwitchCaseDescription(
+                        kind: .case(.identifier(".\(identifier)"), ["body"]),
+                        body: [.expression(.return(.identifier("body")))]
+                    )
+                ]
+                // We only generate the default branch if there is more than one case to prevent
+                // a warning when compiling the generated code.
+                if typedContents.count > 1 {
+                    throwingGetterSwitchCases.append(
+                        SwitchCaseDescription(
+                            kind: .default,
+                            body: [
+                                .expression(
+                                    .try(
+                                        .identifier("throwUnexpectedResponseBody")
+                                            .call([
+                                                .init(
+                                                    label: "expectedContent",
+                                                    expression: .literal(.string(contentType.headerValueForValidation))
+                                                ),
+                                                .init(label: "body", expression: .identifier("self")),
+                                            ])
+                                    )
+                                )
+                            ]
+                        )
+                    )
+                }
+                let throwingGetter = VariableDescription(
+                    accessModifier: config.access,
+                    isStatic: false,
+                    kind: .var,
+                    left: identifier,
+                    type: associatedType.fullyQualifiedSwiftName,
+                    getter: [
+                        .expression(
+                            .switch(
+                                switchedExpression: .identifier("self"),
+                                cases: throwingGetterSwitchCases
+                            )
+                        )
+                    ],
+                    getterEffects: [.throws]
+                )
+                let throwingGetterComment = Comment.doc(
+                    """
+                    The associated value of the enum case if `self` is `.\(identifier)`.
+
+                    - Throws: An error if `self` is not `.\(identifier)`.
+                    - SeeAlso: `.\(identifier)`.
+                    """
+                )
+                bodyCases.append(.commentable(throwingGetterComment, .variable(throwingGetter)))
             }
-
-            let bodyCase: Declaration = .commentable(
-                contentType.docComment(typeName: bodyTypeName),
-                .enumCase(
-                    name: identifier,
-                    kind: .nameWithAssociatedValues([
-                        .init(type: associatedType.fullyQualifiedSwiftName)
-                    ])
+            let hasNoContent: Bool = bodyCases.isEmpty
+            let contentEnumDecl: Declaration = .commentable(
+                bodyTypeName.docCommentWithUserDescription(nil),
+                .enum(
+                    isFrozen: true,
+                    accessModifier: config.access,
+                    name: bodyTypeName.shortSwiftName,
+                    conformances: Constants.Operation.Body.conformances,
+                    members: bodyCases
                 )
             )
-            bodyCases.append(bodyCase)
-        }
-        let hasNoContent: Bool = bodyCases.isEmpty
-        let contentEnumDecl: Declaration = .commentable(
-            bodyTypeName.docCommentWithUserDescription(nil),
-            .enum(
-                isFrozen: true,
-                accessModifier: config.access,
-                name: bodyTypeName.shortSwiftName,
-                conformances: Constants.Operation.Body.conformances,
-                members: bodyCases
-            )
-        )
 
-        let contentTypeUsage = bodyTypeName.asUsage.withOptional(hasNoContent)
-        let contentProperty = PropertyBlueprint(
-            comment: .doc("Received HTTP response body"),
-            originalName: Constants.Operation.Body.variableName,
-            typeUsage: contentTypeUsage,
-            default: hasNoContent ? .nil : nil,
-            associatedDeclarations: [
-                contentEnumDecl
-            ],
-            asSwiftSafeName: swiftSafeName
-        )
+            let contentTypeUsage = bodyTypeName.asUsage.withOptional(hasNoContent)
+            bodyProperty = PropertyBlueprint(
+                comment: .doc("Received HTTP response body"),
+                originalName: Constants.Operation.Body.variableName,
+                typeUsage: contentTypeUsage,
+                default: hasNoContent ? .nil : nil,
+                associatedDeclarations: [
+                    contentEnumDecl
+                ],
+                asSwiftSafeName: swiftSafeName
+            )
+        } else {
+            bodyProperty = nil
+        }
 
         let responseStructDecl = translateStructBlueprint(
             .init(
@@ -130,8 +197,9 @@ extension TypesFileTranslator {
                 conformances: Constants.Operation.Output.Payload.conformances,
                 properties: [
                     headersProperty,
-                    contentProperty,
+                    bodyProperty,
                 ]
+                .compactMap { $0 }
             )
         )
 

@@ -5,19 +5,13 @@ services:
     image: &image swift-openapi-generator:22.04-5.9
     build:
       args:
-        base_image: "swiftlang/swift:nightly-5.9-jammy"
+        ubuntu_version: "jammy"
+        swift_version: "5.9"
 
   test:
     image: *image
     environment:
-      # Because OpenAPI supports deprecation, the generated code could include
-      # deprecated symbols, which will produce warnings.
-      #
-      # We'll disable -warnings-as-errors for now and revisit this when we
-      # refactor the compilation of the generated code into a separate
-      # pipeline.
-      #
-      # - WARN_AS_ERROR_ARG=-Xswiftc -warnings-as-errors
+      - WARN_AS_ERROR_ARG=-Xswiftc -warnings-as-errors
       - IMPORT_CHECK_ARG=--explicit-target-dependency-import-check error
       - STRICT_CONCURRENCY_ARG=-Xswiftc -strict-concurrency=complete
 

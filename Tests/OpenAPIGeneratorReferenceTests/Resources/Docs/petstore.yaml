@@ -1,4 +1,4 @@
-openapi: "3.0.3"
+openapi: "3.1.0"
 info:
   version: 1.0.0
   title: Petstore
@@ -113,6 +113,25 @@ paths:
                 $ref: '#/components/schemas/Pet'
         '4XX':
           $ref: '#/components/responses/ErrorBadRequest'
+  /pets/create:
+    summary: Work with pets
+    description: "Create a pet with a URL form"
+    post:
+      summary: Create a pet using a url form
+      operationId: createPetWithForm
+      tags:
+        - pets
+      parameters:
+      requestBody:
+        required: true
+        description: "Create a pet with these properties"
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreatePetRequest'
+      responses:
+        '204':
+          description: Successfully created pet using a url form
   /pets/stats:
     get:
       operationId: getStats
@@ -141,7 +160,6 @@ paths:
   /probe/:
     post:
       operationId: probe
-      deprecated: true
       responses:
         '204':
           description: Ack
@@ -229,13 +247,6 @@ components:
       schema:
         type: integer
         format: int64
-    header.deprecatedHeader:
-      name: deprecatedHeader
-      in: header
-      deprecated: true
-      description: A deprecated header parameter
-      schema:
-        type: string
   schemas:
     Pet:
       type: object
@@ -256,10 +267,27 @@ components:
           type: string
         kind:
           $ref: '#/components/schemas/PetKind'
+    MixedAnyOf:
+      anyOf:
+        - type: string
+          format: date-time
+        - $ref: '#/components/schemas/PetKind'
+        - $ref: "#/components/schemas/Pet"
+        - type: string
+    MixedOneOf:
+      oneOf:
+        - type: string
+          format: date-time
+        - $ref: '#/components/schemas/PetKind'
+        - $ref: "#/components/schemas/Pet"
+    MixedAllOfPrimitive:
+      allOf:
+        - type: string
+          format: date-time
+        - type: string
     PetKind:
       type: string
       description: "Kind of pet"
-      deprecated: true
       enum:
         - cat
         - dog
@@ -297,9 +325,8 @@ components:
         me$sage:
           type: string
         extraInfo:
+          $ref: '#/components/schemas/ExtraInfo'
           description: Extra information about the error.
-          allOf:
-            - $ref: '#/components/schemas/ExtraInfo'
         userData:
           description: Custom user-provided key-value pairs.
           type: object
@@ -404,17 +431,6 @@ components:
         - $ref: '#/components/schemas/MessagedExercise'
       discriminator:
         propertyName: kind
-    DeprecatedObject:
-      deprecated: true
-      type: object
-      properties: {}
-      additionalProperties: false
-    ObjectWithDeprecatedProperty:
-      type: object
-      properties:
-        message:
-          type: string
-          deprecated: true
     PetStats:
       type: object
       properties:

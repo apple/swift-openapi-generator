@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 import XCTest
 import Yams
 @testable import _OpenAPIGeneratorCore
@@ -37,6 +37,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsHeadersReference() throws {
         try self.assertHeadersTranslation(
             """
+            schemas:
+              MySchema:
+                type: string
             headers:
               MyHeader:
                 schema:
@@ -71,6 +74,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsParametersReference() throws {
         try self.assertParametersTranslation(
             """
+            schemas:
+              MySchema:
+                type: string
             parameters:
               MyParam:
                 in: query
@@ -96,6 +102,55 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Schemas {
                 public typealias MyString = Swift.String
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasNullableStringProperty() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyObj:
+                type: object
+                properties:
+                  fooOptional:
+                    type: string
+                  fooRequired:
+                    type: string
+                  fooOptionalNullable:
+                    type: [string, null]
+                  fooRequiredNullable:
+                    type: [string, null]
+                required:
+                  - fooRequired
+                  - fooRequiredNullable
+            """,
+            """
+            public enum Schemas {
+                public struct MyObj: Codable, Hashable, Sendable {
+                    public var fooOptional: Swift.String?
+                    public var fooRequired: Swift.String
+                    public var fooOptionalNullable: Swift.String?
+                    public var fooRequiredNullable: Swift.String?
+                    public init(
+                        fooOptional: Swift.String? = nil,
+                        fooRequired: Swift.String,
+                        fooOptionalNullable: Swift.String? = nil,
+                        fooRequiredNullable: Swift.String? = nil
+                    ) {
+                        self.fooOptional = fooOptional
+                        self.fooRequired = fooRequired
+                        self.fooOptionalNullable = fooOptionalNullable
+                        self.fooRequiredNullable = fooRequiredNullable
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case fooOptional
+                        case fooRequired
+                        case fooOptionalNullable
+                        case fooRequiredNullable
+                    }
+                }
             }
             """
         )
@@ -184,6 +239,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
         try self.assertSchemasTranslation(
             """
             schemas:
+              MyRequiredString:
+                type: string
+              MyNullableString:
+                type: [string, null]
               MyObject:
                 type: object
                 properties:
@@ -192,22 +251,72 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     format: int64
                   alias:
                     type: string
+                  requiredString:
+                    $ref: '#/components/schemas/MyRequiredString'
+                  nullableString:
+                    $ref: '#/components/schemas/MyNullableString'
                 required:
                   - id
+                  - requiredString
+                  - nullableString
             """,
             """
                 public enum Schemas {
+                  public typealias MyRequiredString = Swift.String
+                  public typealias MyNullableString = Swift.String
                   public struct MyObject: Codable, Hashable, Sendable {
                     public var id: Swift.Int64
                     public var alias: Swift.String?
-                    public init(id: Swift.Int64, alias: Swift.String? = nil) {
+                    public var requiredString: Components.Schemas.MyRequiredString
+                    public var nullableString: Components.Schemas.MyNullableString?
+                    public init(
+                        id: Swift.Int64,
+                        alias: Swift.String? = nil,
+                        requiredString: Components.Schemas.MyRequiredString,
+                        nullableString: Components.Schemas.MyNullableString? = nil
+                    ) {
                         self.id = id
                         self.alias = alias
+                        self.requiredString = requiredString
+                        self.nullableString = nullableString
                     }
                     public enum CodingKeys: String, CodingKey {
                         case id
                         case alias
+                        case requiredString
+                        case nullableString
                     }
+                  }
+                }
+            """
+        )
+    }
+
+    func testComponentsSchemasObjectWithPropertiesBinaryIsSkipped() throws {
+        try self.assertSchemasTranslation(
+            ignoredDiagnosticMessages: [
+                "Schema \"string (binary)\" is not supported, reason: \"Binary properties in object schemas.\", skipping"
+            ],
+            """
+            schemas:
+              MyObject:
+                type: object
+                properties:
+                  actualString:
+                    type: string
+                  binaryProperty:
+                    type: string
+                    format: binary
+                required:
+                  - actualString
+                  - binaryProperty
+            """,
+            """
+                public enum Schemas {
+                  public struct MyObject: Codable, Hashable, Sendable {
+                    public var actualString: Swift.String
+                    public init(actualString: Swift.String) { self.actualString = actualString }
+                    public enum CodingKeys: String, CodingKey { case actualString }
                   }
                 }
             """
@@ -252,15 +361,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(from decoder: any Decoder) throws {
                         value1 = try .init(from: decoder)
                         value2 = try .init(from: decoder)
-                        value3 = try .init(from: decoder)
-                        value4 = try .init(from: decoder)
+                        value3 = try decoder.decodeFromSingleValueContainer()
+                        value4 = try decoder.decodeFromSingleValueContainer()
                     }
-                    public func encode(to encoder: any Encoder) throws {
-                        try value1.encode(to: encoder)
-                        try value2.encode(to: encoder)
-                        try value3.encode(to: encoder)
-                        try value4.encode(to: encoder)
-                    }
+                    public func encode(to encoder: any Encoder) throws { try encoder.encodeToSingleValueContainer(value3) }
                 }
             }
             """
@@ -305,8 +409,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(from decoder: any Decoder) throws {
                         value1 = try? .init(from: decoder)
                         value2 = try? .init(from: decoder)
-                        value3 = try? .init(from: decoder)
-                        value4 = try? .init(from: decoder)
+                        value3 = try? decoder.decodeFromSingleValueContainer()
+                        value4 = try? decoder.decodeFromSingleValueContainer()
                         try DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [value1, value2, value3, value4],
                             type: Self.self,
@@ -314,60 +418,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         )
                     }
                     public func encode(to encoder: any Encoder) throws {
+                        try encoder.encodeFirstNonNilValueToSingleValueContainer([value3, value4])
                         try value1?.encode(to: encoder)
                         try value2?.encode(to: encoder)
-                        try value3?.encode(to: encoder)
-                        try value4?.encode(to: encoder)
-                    }
-                }
-            }
-            """
-        )
-    }
-
-    func testComponentsSchemasOneOf() throws {
-        try self.assertSchemasTranslation(
-            """
-            schemas:
-              A: {}
-              MyOneOf:
-                oneOf:
-                  - type: string
-                  - type: integer
-                  - $ref: '#/components/schemas/A'
-            """,
-            """
-            public enum Schemas {
-                public typealias A = OpenAPIRuntime.OpenAPIValueContainer
-                @frozen public enum MyOneOf: Codable, Hashable, Sendable {
-                    case case1(Swift.String)
-                    case case2(Swift.Int)
-                    case A(Components.Schemas.A)
-                    case undocumented(OpenAPIRuntime.OpenAPIValueContainer)
-                    public init(from decoder: any Decoder) throws {
-                        do {
-                            self = .case1(try .init(from: decoder))
-                            return
-                        } catch {}
-                        do {
-                            self = .case2(try .init(from: decoder))
-                            return
-                        } catch {}
-                        do {
-                            self = .A(try .init(from: decoder))
-                            return
-                        } catch {}
-                        let container = try decoder.singleValueContainer()
-                        let value = try container.decode(OpenAPIRuntime.OpenAPIValueContainer.self)
-                        self = .undocumented(value)
-                    }
-                    public func encode(to encoder: any Encoder) throws {
-                        switch self {
-                        case let .case1(value): try value.encode(to: encoder)
-                        case let .case2(value): try value.encode(to: encoder)
-                        case let .A(value): try value.encode(to: encoder)
-                        case let .undocumented(value): try value.encode(to: encoder)
-                        }
                     }
                 }
             }
@@ -400,9 +453,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         type: integer
                 discriminator:
                   propertyName: which
-                  mapping:
-                    a: '#/components/schemas/A'
-                    b: '#/components/schemas/B'
             """,
             """
             public enum Schemas {
@@ -419,25 +469,107 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 @frozen public enum MyOneOf: Codable, Hashable, Sendable {
                     case A(Components.Schemas.A)
                     case B(Components.Schemas.B)
-                    case undocumented(OpenAPIRuntime.OpenAPIObjectContainer)
                     public enum CodingKeys: String, CodingKey { case which }
                     public init(from decoder: any Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
                         let discriminator = try container.decode(String.self, forKey: .which)
                         switch discriminator {
-                        case "a": self = .A(try .init(from: decoder))
-                        case "b": self = .B(try .init(from: decoder))
+                        case "A", "#/components/schemas/A": self = .A(try .init(from: decoder))
+                        case "B", "#/components/schemas/B": self = .B(try .init(from: decoder))
                         default:
-                            let container = try decoder.singleValueContainer()
-                            let value = try container.decode(OpenAPIRuntime.OpenAPIObjectContainer.self)
-                            self = .undocumented(value)
+                            throw DecodingError.failedToDecodeOneOfSchema(
+                                type: Self.self,
+                                codingPath: decoder.codingPath
+                            )
                         }
                     }
                     public func encode(to encoder: any Encoder) throws {
                         switch self {
                         case let .A(value): try value.encode(to: encoder)
                         case let .B(value): try value.encode(to: encoder)
-                        case let .undocumented(value): try value.encode(to: encoder)
+                        }
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasOneOfWithDiscriminatorWithMapping() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              A:
+                type: object
+                properties:
+                  which:
+                    type: string
+              B:
+                type: object
+                properties:
+                  which:
+                    type: string
+              C:
+                type: object
+                properties:
+                  which:
+                    type: string
+              MyOneOf:
+                oneOf:
+                  - $ref: '#/components/schemas/A'
+                  - $ref: '#/components/schemas/B'
+                  - $ref: '#/components/schemas/C'
+                discriminator:
+                  propertyName: which
+                  mapping:
+                    a: '#/components/schemas/A'
+                    a2: '#/components/schemas/A'
+                    b: '#/components/schemas/B'
+            """,
+            """
+            public enum Schemas {
+                public struct A: Codable, Hashable, Sendable {
+                    public var which: Swift.String?
+                    public init(which: Swift.String? = nil) { self.which = which }
+                    public enum CodingKeys: String, CodingKey { case which }
+                }
+                public struct B: Codable, Hashable, Sendable {
+                    public var which: Swift.String?
+                    public init(which: Swift.String? = nil) { self.which = which }
+                    public enum CodingKeys: String, CodingKey { case which }
+                }
+                public struct C: Codable, Hashable, Sendable {
+                    public var which: Swift.String?
+                    public init(which: Swift.String? = nil) { self.which = which }
+                    public enum CodingKeys: String, CodingKey { case which }
+                }
+                @frozen public enum MyOneOf: Codable, Hashable, Sendable {
+                    case a(Components.Schemas.A)
+                    case a2(Components.Schemas.A)
+                    case b(Components.Schemas.B)
+                    case C(Components.Schemas.C)
+                    public enum CodingKeys: String, CodingKey { case which }
+                    public init(from decoder: any Decoder) throws {
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        let discriminator = try container.decode(String.self, forKey: .which)
+                        switch discriminator {
+                        case "a": self = .a(try .init(from: decoder))
+                        case "a2": self = .a2(try .init(from: decoder))
+                        case "b": self = .b(try .init(from: decoder))
+                        case "C", "#/components/schemas/C": self = .C(try .init(from: decoder))
+                        default:
+                            throw DecodingError.failedToDecodeOneOfSchema(
+                                type: Self.self,
+                                codingPath: decoder.codingPath
+                            )
+                        }
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        switch self {
+                        case let .a(value): try value.encode(to: encoder)
+                        case let .a2(value): try value.encode(to: encoder)
+                        case let .b(value): try value.encode(to: encoder)
+                        case let .C(value): try value.encode(to: encoder)
                         }
                     }
                 }
@@ -448,7 +580,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
 
     func testComponentsSchemasOneOf_closed() throws {
         try self.assertSchemasTranslation(
-            featureFlags: [.closedEnumsAndOneOfs],
             """
             schemas:
               A: {}
@@ -467,11 +598,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     case A(Components.Schemas.A)
                     public init(from decoder: any Decoder) throws {
                         do {
-                            self = .case1(try .init(from: decoder))
+                            self = .case1(try decoder.decodeFromSingleValueContainer())
                             return
                         } catch {}
                         do {
-                            self = .case2(try .init(from: decoder))
+                            self = .case2(try decoder.decodeFromSingleValueContainer())
                             return
                         } catch {}
                         do {
@@ -485,8 +616,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public func encode(to encoder: any Encoder) throws {
                         switch self {
-                        case let .case1(value): try value.encode(to: encoder)
-                        case let .case2(value): try value.encode(to: encoder)
+                        case let .case1(value): try encoder.encodeToSingleValueContainer(value)
+                        case let .case2(value): try encoder.encodeToSingleValueContainer(value)
                         case let .A(value): try value.encode(to: encoder)
                         }
                     }
@@ -498,7 +629,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
 
     func testComponentsSchemasOneOf_open_pattern() throws {
         try self.assertSchemasTranslation(
-            featureFlags: [.closedEnumsAndOneOfs],
             """
             schemas:
               A:
@@ -527,11 +657,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case A(Components.Schemas.A)
                         public init(from decoder: any Decoder) throws {
                             do {
-                                self = .case1(try .init(from: decoder))
+                                self = .case1(try decoder.decodeFromSingleValueContainer())
                                 return
                             } catch {}
                             do {
-                                self = .case2(try .init(from: decoder))
+                                self = .case2(try decoder.decodeFromSingleValueContainer())
                                 return
                             } catch {}
                             do {
@@ -545,8 +675,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         }
                         public func encode(to encoder: any Encoder) throws {
                             switch self {
-                            case let .case1(value): try value.encode(to: encoder)
-                            case let .case2(value): try value.encode(to: encoder)
+                            case let .case1(value): try encoder.encodeToSingleValueContainer(value)
+                            case let .case2(value): try encoder.encodeToSingleValueContainer(value)
                             case let .A(value): try value.encode(to: encoder)
                             }
                         }
@@ -597,12 +727,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(value1: Components.Schemas.A) {
                         self.value1 = value1
                     }
-                    public init(from decoder: any Decoder) throws {
-                        value1 = try .init(from: decoder)
-                    }
-                    public func encode(to encoder: any Encoder) throws {
-                        try value1.encode(to: encoder)
-                    }
+                    public init(from decoder: any Decoder) throws { value1 = try decoder.decodeFromSingleValueContainer() }
+                    public func encode(to encoder: any Encoder) throws { try encoder.encodeToSingleValueContainer(value1) }
                 }
             }
             """
@@ -631,8 +757,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public struct cPayload: Codable, Hashable, Sendable {
                         public var value1: Components.Schemas.A
                         public init(value1: Components.Schemas.A) { self.value1 = value1 }
-                        public init(from decoder: any Decoder) throws { value1 = try .init(from: decoder) }
-                        public func encode(to encoder: any Encoder) throws { try value1.encode(to: encoder) }
+                        public init(from decoder: any Decoder) throws { value1 = try decoder.decodeFromSingleValueContainer() }
+                        public func encode(to encoder: any Encoder) throws { try encoder.encodeToSingleValueContainer(value1) }
                     }
                     public var c: Components.Schemas.B.cPayload
                     public init(c: Components.Schemas.B.cPayload) { self.c = c }
@@ -664,8 +790,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public struct cPayload: Codable, Hashable, Sendable {
                         public var value1: Components.Schemas.A
                         public init(value1: Components.Schemas.A) { self.value1 = value1 }
-                        public init(from decoder: any Decoder) throws { value1 = try .init(from: decoder) }
-                        public func encode(to encoder: any Encoder) throws { try value1.encode(to: encoder) }
+                        public init(from decoder: any Decoder) throws { value1 = try decoder.decodeFromSingleValueContainer() }
+                        public func encode(to encoder: any Encoder) throws { try encoder.encodeToSingleValueContainer(value1) }
                     }
                     public var c: Components.Schemas.B.cPayload?
                     public init(c: Components.Schemas.B.cPayload? = nil) { self.c = c }
@@ -676,7 +802,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-    func testComponentsSchemasEnum() throws {
+    func testComponentsSchemasStringEnum() throws {
         try self.assertSchemasTranslation(
             """
             schemas:
@@ -690,63 +816,34 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                @frozen
-                public enum MyEnum: RawRepresentable, Codable, Hashable, Sendable,
-                    _AutoLosslessStringConvertible, CaseIterable
-                {
-                    case one
-                    case _empty
-                    case _tart
-                    case _public
-                    case undocumented(String)
-                    public init?(rawValue: String) {
-                        switch rawValue {
-                            case "one": self = .one
-                            case "": self = ._empty
-                            case "$tart": self = ._tart
-                            case "public": self = ._public
-                            default: self = .undocumented(rawValue)
-                        }
-                    }
-                    public var rawValue: String {
-                        switch self {
-                            case let .undocumented(string): return string
-                            case .one: return "one"
-                            case ._empty: return ""
-                            case ._tart: return "$tart"
-                            case ._public: return "public"
-                        }
-                    }
-                    public static var allCases: [MyEnum] { [.one, ._empty, ._tart, ._public] }
+                @frozen public enum MyEnum: String, Codable, Hashable, Sendable {
+                    case one = "one"
+                    case _empty = ""
+                    case _dollar_tart = "$tart"
+                    case _public = "public"
                 }
             }
             """
         )
     }
 
-    func testComponentsSchemasEnum_closed() throws {
+    func testComponentsSchemasIntEnum() throws {
         try self.assertSchemasTranslation(
-            featureFlags: [.closedEnumsAndOneOfs],
             """
             schemas:
               MyEnum:
-                type: string
+                type: integer
                 enum:
-                  - one
-                  -
-                  - $tart
-                  - public
+                  - 0
+                  - 10
+                  - 20
             """,
             """
             public enum Schemas {
-                @frozen
-                public enum MyEnum: String, Codable, Hashable, Sendable,
-                    _AutoLosslessStringConvertible, CaseIterable
-                {
-                    case one = "one"
-                    case _empty = ""
-                    case _tart = "$tart"
-                    case _public = "public"
+                @frozen public enum MyEnum: Int, Codable, Hashable, Sendable {
+                    case _0 = 0
+                    case _10 = 10
+                    case _20 = 20
                 }
             }
             """
@@ -755,7 +852,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
 
     func testComponentsSchemasEnum_open_pattern() throws {
         try self.assertSchemasTranslation(
-            featureFlags: [.closedEnumsAndOneOfs],
             """
             schemas:
               MyOpenEnum:
@@ -770,9 +866,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public struct MyOpenEnum: Codable, Hashable, Sendable {
                     @frozen
-                    public enum Value1Payload: String, Codable, Hashable, Sendable,
-                        _AutoLosslessStringConvertible, CaseIterable
-                    {
+                    public enum Value1Payload: String, Codable, Hashable, Sendable {
                         case one = "one"
                         case two = "two"
                     }
@@ -786,8 +880,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         self.value2 = value2
                     }
                     public init(from decoder: any Decoder) throws {
-                        value1 = try? .init(from: decoder)
-                        value2 = try? .init(from: decoder)
+                        value1 = try? decoder.decodeFromSingleValueContainer()
+                        value2 = try? decoder.decodeFromSingleValueContainer()
                         try DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [value1, value2],
                             type: Self.self,
@@ -795,8 +889,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         )
                     }
                     public func encode(to encoder: any Encoder) throws {
-                        try value1?.encode(to: encoder)
-                        try value2?.encode(to: encoder)
+                        try encoder.encodeFirstNonNilValueToSingleValueContainer([value1, value2])
                     }
                 }
             }
@@ -878,17 +971,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Responses {
                 public struct BadRequest: Sendable, Hashable {
-                    public struct Headers: Sendable, Hashable { public init() {} }
-                    public var headers: Components.Responses.BadRequest.Headers
-                    @frozen public enum Body: Sendable, Hashable {}
-                    public var body: Components.Responses.BadRequest.Body?
-                    public init(
-                        headers: Components.Responses.BadRequest.Headers = .init(),
-                        body: Components.Responses.BadRequest.Body? = nil
-                    ) {
-                        self.headers = headers
-                        self.body = body
-                    }
+                    public init() {}
                 }
             }
             """
@@ -909,17 +992,20 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Responses {
                 public struct BadRequest: Sendable, Hashable {
-                    public struct Headers: Sendable, Hashable { public init() {} }
-                    public var headers: Components.Responses.BadRequest.Headers
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
+                        public var json: Swift.String {
+                            get throws {
+                                switch self {
+                                case let .json(body): return body
+                                }
+                            }
+                        }
                     }
                     public var body: Components.Responses.BadRequest.Body
                     public init(
-                        headers: Components.Responses.BadRequest.Headers = .init(),
                         body: Components.Responses.BadRequest.Body
                     ) {
-                        self.headers = headers
                         self.body = body
                     }
                 }
@@ -930,8 +1016,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
 
     func testComponentsResponsesResponseMultipleContentTypes() throws {
         try self.assertResponsesTranslation(
-            featureFlags: [],
-            ignoredDiagnosticMessages: [#"Feature "Multiple content types" is not supported, skipping"#],
             """
             responses:
               MultipleContentTypes:
@@ -940,40 +1024,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   application/json:
                     schema:
                       type: integer
-                  text/plain: {}
-                  application/octet-stream: {}
-            """,
-            """
-            public enum Responses {
-                public struct MultipleContentTypes: Sendable, Hashable {
-                    public struct Headers: Sendable, Hashable { public init() {} }
-                    public var headers: Components.Responses.MultipleContentTypes.Headers
-                    @frozen public enum Body: Sendable, Hashable {
-                        case json(Swift.Int)
-                    }
-                    public var body: Components.Responses.MultipleContentTypes.Body
-                    public init(
-                        headers: Components.Responses.MultipleContentTypes.Headers = .init(),
-                        body: Components.Responses.MultipleContentTypes.Body
-                    ) {
-                        self.headers = headers
-                        self.body = body
-                    }
-                }
-            }
-            """
-        )
-        try self.assertResponsesTranslation(
-            featureFlags: [
-                .multipleContentTypes,
-                .proposal0001,
-            ],
-            """
-            responses:
-              MultipleContentTypes:
-                description: Multiple content types
-                content:
-                  application/json:
+                  application/json; foo=bar:
                     schema:
                       type: integer
                   text/plain: {}
@@ -982,19 +1033,40 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Responses {
                 public struct MultipleContentTypes: Sendable, Hashable {
-                    public struct Headers: Sendable, Hashable { public init() {} }
-                    public var headers: Components.Responses.MultipleContentTypes.Headers
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.Int)
-                        case plainText(Swift.String)
-                        case binary(Foundation.Data)
+                        public var json: Swift.Int { get throws {
+                            switch self {
+                            case let .json(body): return body
+                            default: try throwUnexpectedResponseBody(expectedContent: "application/json", body: self)
+                            }
+                        }}
+                        case application_json_foo_bar(Swift.Int)
+                        public var application_json_foo_bar: Swift.Int { get throws {
+                            switch self {
+                            case let .application_json_foo_bar(body): return body
+                            default: try throwUnexpectedResponseBody(expectedContent: "application/json", body: self)
+                            }
+                        }}
+                        case plainText(OpenAPIRuntime.HTTPBody)
+                        public var plainText: OpenAPIRuntime.HTTPBody { get throws {
+                            switch self {
+                            case let .plainText(body): return body
+                            default: try throwUnexpectedResponseBody(expectedContent: "text/plain", body: self)
+                            }
+                        }}
+                        case binary(OpenAPIRuntime.HTTPBody)
+                        public var binary: OpenAPIRuntime.HTTPBody { get throws {
+                            switch self {
+                            case let .binary(body): return body
+                            default: try throwUnexpectedResponseBody(expectedContent: "application/octet-stream", body: self)
+                            }
+                        }}
                     }
                     public var body: Components.Responses.MultipleContentTypes.Body
                     public init(
-                        headers: Components.Responses.MultipleContentTypes.Headers = .init(),
                         body: Components.Responses.MultipleContentTypes.Body
                     ) {
-                        self.headers = headers
                         self.body = body
                     }
                 }
@@ -1018,19 +1090,15 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Responses {
                 public struct BadRequest: Sendable, Hashable {
                     public struct Headers: Sendable, Hashable {
-                        public var X_Reason: Swift.String?
-                        public init(X_Reason: Swift.String? = nil) {
-                            self.X_Reason = X_Reason }
+                        public var X_hyphen_Reason: Swift.String?
+                        public init(X_hyphen_Reason: Swift.String? = nil) {
+                            self.X_hyphen_Reason = X_hyphen_Reason }
                     }
                     public var headers: Components.Responses.BadRequest.Headers
-                    @frozen public enum Body: Sendable, Hashable {}
-                    public var body: Components.Responses.BadRequest.Body?
                     public init(
-                        headers: Components.Responses.BadRequest.Headers = .init(),
-                        body: Components.Responses.BadRequest.Body? = nil
+                        headers: Components.Responses.BadRequest.Headers = .init()
                     ) {
                         self.headers = headers
-                        self.body = body
                     }
                 }
             }
@@ -1054,19 +1122,15 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Responses {
                 public struct BadRequest: Sendable, Hashable {
                     public struct Headers: Sendable, Hashable {
-                        public var X_Reason: Swift.String
-                        public init(X_Reason: Swift.String) {
-                            self.X_Reason = X_Reason }
+                        public var X_hyphen_Reason: Swift.String
+                        public init(X_hyphen_Reason: Swift.String) {
+                            self.X_hyphen_Reason = X_hyphen_Reason }
                     }
                     public var headers: Components.Responses.BadRequest.Headers
-                    @frozen public enum Body: Sendable, Hashable {}
-                    public var body: Components.Responses.BadRequest.Body?
                     public init(
-                        headers: Components.Responses.BadRequest.Headers,
-                        body: Components.Responses.BadRequest.Body? = nil
+                        headers: Components.Responses.BadRequest.Headers
                     ) {
                         self.headers = headers
-                        self.body = body
                     }
                 }
             }
@@ -1116,8 +1180,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
 
     func testComponentsRequestBodiesMultipleContentTypes() throws {
         try self.assertRequestBodiesTranslation(
-            featureFlags: [],
-            ignoredDiagnosticMessages: [#"Feature "Multiple content types" is not supported, skipping"#],
             """
             requestBodies:
               MyResponseBody:
@@ -1132,31 +1194,37 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum RequestBodies {
                 @frozen public enum MyResponseBody: Sendable, Hashable {
                     case json(Components.Schemas.MyBody)
+                    case plainText(OpenAPIRuntime.HTTPBody)
+                    case binary(OpenAPIRuntime.HTTPBody)
                 }
             }
             """
         )
+    }
+
+    func testComponentsRequestBodiesInline_urlEncodedForm() throws {
         try self.assertRequestBodiesTranslation(
-            featureFlags: [
-                .multipleContentTypes,
-                .proposal0001,
-            ],
             """
             requestBodies:
-              MyResponseBody:
+              MyRequestBody:
                 content:
-                  application/json:
+                  application/x-www-form-urlencoded:
                     schema:
-                      $ref: '#/components/schemas/MyBody'
-                  text/plain: {}
-                  application/octet-stream: {}
+                      type: object
+                      properties:
+                        foo:
+                          type: string
+                      required: [foo]
             """,
             """
             public enum RequestBodies {
-                @frozen public enum MyResponseBody: Sendable, Hashable {
-                    case json(Components.Schemas.MyBody)
-                    case plainText(Swift.String)
-                    case binary(Foundation.Data)
+                @frozen public enum MyRequestBody: Sendable, Hashable {
+                    public struct urlEncodedFormPayload: Codable, Hashable, Sendable {
+                        public var foo: Swift.String
+                        public init(foo: Swift.String) { self.foo = foo }
+                        public enum CodingKeys: String, CodingKey { case foo }
+                    }
+                    case urlEncodedForm(Components.RequestBodies.MyRequestBody.urlEncodedFormPayload)
                 }
             }
             """
@@ -1180,6 +1248,30 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public protocol APIProtocol: Sendable {
                 func getHealth(_ input: Operations.getHealth.Input) async throws -> Operations.getHealth.Output
+            }
+            """
+        )
+    }
+
+    func testPathsSimplestCaseExtension() throws {
+        try self.assertPathsTranslationExtension(
+            """
+            /health:
+              get:
+                operationId: getHealth
+                responses:
+                  '200':
+                    description: A success response with a greeting.
+                    content:
+                      text/plain:
+                        schema:
+                          type: string
+            """,
+            """
+            extension APIProtocol {
+                public func getHealth(headers: Operations.getHealth.Input.Headers = .init()) async throws -> Operations.getHealth.Output {
+                    try await getHealth(Operations.getHealth.Input(headers: headers))
+                }
             }
             """
         )
@@ -1213,10 +1305,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     middlewares: middlewares
                 )
                 try transport.register(
-                    { try await server.getHealth(request: $0, metadata: $1) },
+                    { try await server.getHealth(request: $0, body: $1, metadata: $2) },
                     method: .get,
-                    path: server.apiPathComponentsWithServerPrefix(["health"]),
-                    queryItemNames: []
+                    path: server.apiPathComponentsWithServerPrefix("/health")
                 )
             }
             """
@@ -1282,17 +1373,16 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Responses {
                 public struct MyResponse: Sendable, Hashable {
-                    public struct Headers: Sendable, Hashable { public init() {} }
-                    public var headers: Components.Responses.MyResponse.Headers
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
+                        public var json: Swift.String {
+                            get throws { switch self { case let .json(body): return body } }
+                        }
                     }
                     public var body: Components.Responses.MyResponse.Body
                     public init(
-                        headers: Components.Responses.MyResponse.Headers = .init(),
                         body: Components.Responses.MyResponse.Body
                     ) {
-                        self.headers = headers
                         self.body = body
                     }
                 }
@@ -1318,17 +1408,16 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Responses {
                 public struct MyResponse: Sendable, Hashable {
-                    public struct Headers: Sendable, Hashable { public init() {} }
-                    public var headers: Components.Responses.MyResponse.Headers
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
+                        public var json: Swift.String {
+                            get throws { switch self { case let .json(body): return body } }
+                        }
                     }
                     public var body: Components.Responses.MyResponse.Body
                     public init(
-                        headers: Components.Responses.MyResponse.Headers = .init(),
                         body: Components.Responses.MyResponse.Body
                     ) {
-                        self.headers = headers
                         self.body = body
                     }
                 }
@@ -1367,8 +1456,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             types: """
                 public struct Input: Sendable, Hashable {
-                    public struct Path: Sendable, Hashable { public init() {} }
-                    public var path: Operations.get_foo.Input.Path
                     public struct Query: Sendable, Hashable {
                         public var single: Swift.String?
                         public var manyExploded: [Swift.String]?
@@ -1383,95 +1470,300 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self.manyUnexploded = manyUnexploded
                         }
                     }
-                    public var query: Operations.get_foo.Input.Query
-                    public struct Headers: Sendable, Hashable { public init() {} }
-                    public var headers: Operations.get_foo.Input.Headers
-                    public struct Cookies: Sendable, Hashable { public init() {} }
-                    public var cookies: Operations.get_foo.Input.Cookies
-                    @frozen public enum Body: Sendable, Hashable {}
-                    public var body: Operations.get_foo.Input.Body?
-                    public init(
-                        path: Operations.get_foo.Input.Path = .init(),
-                        query: Operations.get_foo.Input.Query = .init(),
-                        headers: Operations.get_foo.Input.Headers = .init(),
-                        cookies: Operations.get_foo.Input.Cookies = .init(),
-                        body: Operations.get_foo.Input.Body? = nil
-                    ) {
-                        self.path = path
+                    public var query: Operations.get_sol_foo.Input.Query
+                    public init(query: Operations.get_sol_foo.Input.Query = .init()) {
                         self.query = query
-                        self.headers = headers
-                        self.cookies = cookies
-                        self.body = body
                     }
                 }
                 """,
             client: """
-                { input in let path = try converter.renderedRequestPath(template: "/foo", parameters: [])
-                    var request: OpenAPIRuntime.Request = .init(path: path, method: .get)
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
                     suppressMutabilityWarning(&request)
-                    try converter.setQueryItemAsText(
+                    try converter.setQueryItemAsURI(
                         in: &request,
                         style: .form,
                         explode: true,
                         name: "single",
                         value: input.query.single
                     )
-                    try converter.setQueryItemAsText(
+                    try converter.setQueryItemAsURI(
                         in: &request,
                         style: .form,
                         explode: true,
                         name: "manyExploded",
                         value: input.query.manyExploded
                     )
-                    try converter.setQueryItemAsText(
+                    try converter.setQueryItemAsURI(
                         in: &request,
                         style: .form,
                         explode: false,
                         name: "manyUnexploded",
                         value: input.query.manyUnexploded
                     )
-                    return request
+                    return (request, nil)
                 }
                 """,
             server: """
-                { request, metadata in let path: Operations.get_foo.Input.Path = .init()
-                    let query: Operations.get_foo.Input.Query = .init(
-                        single: try converter.getOptionalQueryItemAsText(
-                            in: metadata.queryParameters,
+                { request, requestBody, metadata in
+                    let query: Operations.get_sol_foo.Input.Query = .init(
+                        single: try converter.getOptionalQueryItemAsURI(
+                            in: request.soar_query,
                             style: .form,
                             explode: true,
                             name: "single",
                             as: Swift.String.self
                         ),
-                        manyExploded: try converter.getOptionalQueryItemAsText(
-                            in: metadata.queryParameters,
+                        manyExploded: try converter.getOptionalQueryItemAsURI(
+                            in: request.soar_query,
                             style: .form,
                             explode: true,
                             name: "manyExploded",
                             as: [Swift.String].self
                         ),
-                        manyUnexploded: try converter.getOptionalQueryItemAsText(
-                            in: metadata.queryParameters,
+                        manyUnexploded: try converter.getOptionalQueryItemAsURI(
+                            in: request.soar_query,
                             style: .form,
                             explode: false,
                             name: "manyUnexploded",
                             as: [Swift.String].self
                         )
                     )
-                    let headers: Operations.get_foo.Input.Headers = .init()
-                    let cookies: Operations.get_foo.Input.Cookies = .init()
-                    return Operations.get_foo.Input(
-                        path: path,
-                        query: query,
-                        headers: headers,
-                        cookies: cookies,
-                        body: nil
-                    )
+                    return Operations.get_sol_foo.Input(query: query)
                 }
                 """
         )
     }
 
+    func testRequestRequiredBodyPrimitiveSchema() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                requestBody:
+                  required: true
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    public var body: Operations.get_sol_foo.Input.Body
+                    public init(body: Operations.get_sol_foo.Input.Body) { self.body = body }
+                }
+                """,
+            client: """
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case let .json(value):
+                        body = try converter.setRequiredRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Operations.get_sol_foo.Input.Body
+                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getRequiredRequestBodyAsJSON(
+                            Swift.String.self,
+                            from: requestBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return Operations.get_sol_foo.Input(body: body)
+                }
+                """
+        )
+    }
+
+    func testRequestRequiredBodyNullableSchema() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                requestBody:
+                  required: true
+                  content:
+                    application/json:
+                      schema:
+                        type: [string, null]
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    public var body: Operations.get_sol_foo.Input.Body
+                    public init(body: Operations.get_sol_foo.Input.Body) { self.body = body }
+                }
+                """,
+            client: """
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case let .json(value):
+                        body = try converter.setRequiredRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Operations.get_sol_foo.Input.Body
+                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getRequiredRequestBodyAsJSON(
+                            Swift.String.self,
+                            from: requestBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return Operations.get_sol_foo.Input(body: body)
+                }
+                """
+        )
+    }
+
+    func testRequestOptionalBodyPrimitiveSchema() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                requestBody:
+                  required: false
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    public var body: Operations.get_sol_foo.Input.Body?
+                    public init(body: Operations.get_sol_foo.Input.Body? = nil) { self.body = body }
+                }
+                """,
+            client: """
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case .none: body = nil
+                    case let .json(value):
+                        body = try converter.setOptionalRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Operations.get_sol_foo.Input.Body?
+                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getOptionalRequestBodyAsJSON(
+                            Swift.String.self,
+                            from: requestBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return Operations.get_sol_foo.Input(body: body)
+                }
+                """
+        )
+    }
+
+    func testRequestOptionalBodyNullableSchema() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                requestBody:
+                  required: false
+                  content:
+                    application/json:
+                      schema:
+                        type: [string, null]
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    public var body: Operations.get_sol_foo.Input.Body?
+                    public init(body: Operations.get_sol_foo.Input.Body? = nil) { self.body = body }
+                }
+                """,
+            client: """
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case .none: body = nil
+                    case let .json(value):
+                        body = try converter.setOptionalRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Operations.get_sol_foo.Input.Body?
+                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getOptionalRequestBodyAsJSON(
+                            Swift.String.self,
+                            from: requestBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return Operations.get_sol_foo.Input(body: body)
+                }
+                """
+        )
+    }
 }
 
 extension SnippetBasedReferenceTests {
@@ -1561,7 +1853,7 @@ extension SnippetBasedReferenceTests {
             } ?? OpenAPI.Components.noComponents
         let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
         let document = OpenAPI.Document(
-            openAPIVersion: .v3_0_3,
+            openAPIVersion: .v3_1_0,
             info: .init(title: "Test", version: "1.0.0"),
             servers: [],
             paths: paths,
@@ -1585,6 +1877,7 @@ extension SnippetBasedReferenceTests {
 
     func assertSchemasTranslation(
         featureFlags: FeatureFlags = [],
+        ignoredDiagnosticMessages: Set<String> = [],
         _ componentsYAML: String,
         _ expectedSwift: String,
         file: StaticString = #filePath,
@@ -1592,6 +1885,7 @@ extension SnippetBasedReferenceTests {
     ) throws {
         let translator = try makeTypesTranslator(
             featureFlags: featureFlags,
+            ignoredDiagnosticMessages: ignoredDiagnosticMessages,
             componentsYAML: componentsYAML
         )
         let translation = try translator.translateSchemas(translator.components.schemas)
@@ -1642,6 +1936,19 @@ extension SnippetBasedReferenceTests {
         let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
         let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
         let translation = try translator.translateAPIProtocol(paths)
+        try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
+    }
+
+    func assertPathsTranslationExtension(
+        _ pathsYAML: String,
+        componentsYAML: String = "{}",
+        _ expectedSwift: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
+        let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
+        let translation = try translator.translateAPIProtocolExtension(paths)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 
@@ -1768,7 +2075,7 @@ fileprivate extension Declaration {
             e.members = e.members.map(stripComments(_:))
             return .enum(e)
         case var .variable(v):
-            v.body = stripComments(v.body)
+            v.getter = stripComments(v.getter)
             return .variable(v)
         case let .typealias(t):
             return .typealias(t)

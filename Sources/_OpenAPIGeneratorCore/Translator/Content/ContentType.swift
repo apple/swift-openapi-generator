@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A content type of a request, response, and other types.
 ///
@@ -30,11 +30,6 @@ struct ContentType: Hashable {
         /// The bytes are provided to a JSON encoder or decoder.
         case json
 
-        /// A content type for any plain text.
-        ///
-        /// The bytes are encoded or decoded as a UTF-8 string.
-        case text
-
         /// A content type for raw binary data.
         ///
         /// This case covers both explicit binary data content types, such
@@ -44,6 +39,16 @@ struct ContentType: Hashable {
         /// The bytes are not further processed, they are instead passed along
         /// either to the network (requests) or to the caller (responses).
         case binary
+
+        /// A content type for x-www-form-urlencoded.
+        ///
+        /// The top level properties of a Codable data model are encoded
+        /// as key-value pairs in the form:
+        ///
+        ///  `key1=value1&key2=value2`
+        ///
+        /// The type is encoded as a binary UTF-8 data packet.
+        case urlEncodedForm
 
         /// Creates a category from the provided type and subtype.
         ///
@@ -57,8 +62,8 @@ struct ContentType: Hashable {
             if (lowercasedType == "application" && lowercasedSubtype == "json") || lowercasedSubtype.hasSuffix("+json")
             {
                 self = .json
-            } else if lowercasedType == "text" {
-                self = .text
+            } else if lowercasedType == "application" && lowercasedSubtype == "x-www-form-urlencoded" {
+                self = .urlEncodedForm
             } else {
                 self = .binary
             }
@@ -69,10 +74,10 @@ struct ContentType: Hashable {
             switch self {
             case .json:
                 return .json
-            case .text:
-                return .text
             case .binary:
                 return .binary
+            case .urlEncodedForm:
+                return .urlEncodedForm
             }
         }
     }
@@ -108,14 +113,56 @@ struct ContentType: Hashable {
         originallyCasedSubtype.lowercased()
     }
 
+    /// The parameter key-value pairs.
+    ///
+    /// Preserves the casing from the input, do not use this
+    /// for equality comparisons, use `lowercasedParameterPairs` instead.
+    let originallyCasedParameterPairs: [String]
+
+    /// The parameter key-value pairs, lowercased.
+    ///
+    /// The raw value in its original casing is only provided by `originallyCasedParameterPairs`.
+    var lowercasedParameterPairs: [String] {
+        originallyCasedParameterPairs.map { $0.lowercased() }
+    }
+
+    /// The parameters string.
+    var originallyCasedParametersString: String {
+        originallyCasedParameterPairs.map { "; \($0)" }.joined()
+    }
+
+    /// The parameters string, lowercased.
+    var lowercasedParametersString: String {
+        originallyCasedParametersString.lowercased()
+    }
+
+    /// The type, subtype, and parameters components combined.
+    var originallyCasedTypeSubtypeAndParameters: String {
+        originallyCasedTypeAndSubtype + originallyCasedParametersString
+    }
+
+    /// The type, subtype, and parameters components combined and lowercased.
+    var lowercasedTypeSubtypeAndParameters: String {
+        originallyCasedTypeSubtypeAndParameters.lowercased()
+    }
+
     /// Creates a new content type by parsing the specified MIME type.
     /// - Parameter rawValue: A MIME type, for example "application/json". Must
     ///   not be empty.
     init(_ rawValue: String) {
         precondition(!rawValue.isEmpty, "rawValue of a ContentType cannot be empty.")
-        let rawTypeAndSubtype =
+        var semiComponents =
             rawValue
-            .split(separator: ";")[0]
+            .split(separator: ";")
+        let typeAndSubtypeComponent = semiComponents.removeFirst()
+        self.originallyCasedParameterPairs = semiComponents.map { component in
+            component
+                .split(separator: "=")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .joined(separator: "=")
+        }
+        let rawTypeAndSubtype =
+            typeAndSubtypeComponent
             .trimmingCharacters(in: .whitespaces)
         let typeAndSubtype =
             rawTypeAndSubtype
@@ -143,21 +190,25 @@ struct ContentType: Hashable {
         "\(lowercasedType)/\(lowercasedSubtype)"
     }
 
-    /// Returns the type and subtype as a "<type>\/<subtype>" string.
+    /// Returns the type, subtype and parameters (if present) as a "<type>\/<subtype>[;<param>...]" string.
     ///
     /// Lowercased to ease case-insensitive comparisons, and escaped to show
     /// that the slash between type and subtype is not a path separator.
-    var lowercasedTypeAndSubtypeWithEscape: String {
-        "\(lowercasedType)\\/\(lowercasedSubtype)"
+    var lowercasedTypeSubtypeAndParametersWithEscape: String {
+        "\(lowercasedType)\\/\(lowercasedSubtype)" + lowercasedParametersString
     }
 
     /// The header value used when sending a content-type header.
     var headerValueForSending: String {
         guard case .json = category else {
-            return lowercasedTypeAndSubtype
+            return lowercasedTypeSubtypeAndParameters
         }
         // We always encode JSON using JSONEncoder which uses UTF-8.
-        return lowercasedTypeAndSubtype + "; charset=utf-8"
+        // Check if it's already present, if not, append it.
+        guard !lowercasedParameterPairs.contains("charset=") else {
+            return lowercasedTypeSubtypeAndParameters
+        }
+        return lowercasedTypeSubtypeAndParameters + "; charset=utf-8"
     }
 
     /// The header value used when validating a content-type header.
@@ -179,15 +230,13 @@ struct ContentType: Hashable {
     }
 
     /// A Boolean value that indicates whether the content type
-    /// is a type of plain text.
-    var isText: Bool {
-        category == .text
-    }
-
-    /// A Boolean value that indicates whether the content type
     /// is just binary data.
     var isBinary: Bool {
         category == .binary
+    }
+
+    var isUrlEncodedForm: Bool {
+        category == .urlEncodedForm
     }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
@@ -209,9 +258,9 @@ extension OpenAPI.ContentType {
     }
 
     /// A Boolean value that indicates whether the content type
-    /// is a type of plain text.
-    var isText: Bool {
-        asGeneratorContentType.isText
+    /// is a URL-encoded form.
+    var isUrlEncodedForm: Bool {
+        asGeneratorContentType.isUrlEncodedForm
     }
 
     /// A Boolean value that indicates whether the content type
@@ -223,6 +272,6 @@ extension OpenAPI.ContentType {
     /// Returns the content type wrapped in the generator's representation
     /// of a content type, as opposed to the one from OpenAPIKit.
     var asGeneratorContentType: ContentType {
-        ContentType(typeAndSubtype)
+        ContentType(rawValue)
     }
 }

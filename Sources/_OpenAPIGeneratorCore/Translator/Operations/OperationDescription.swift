@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A wrapper of an OpenAPI operation that includes the information
 /// about the parent containers of the operation, such as its path
@@ -143,6 +143,29 @@ extension OperationDescription {
         )
     }
 
+    /// Returns the name of the AcceptableContentType type.
+    var acceptableContentTypeName: TypeName {
+        operationNamespace.appending(
+            swiftComponent: Constants.Operation.AcceptableContentType.typeName,
+
+            // intentionally nil, we'll append the specific params etc
+            // with their valid JSON key path if nested further
+            jsonComponent: nil
+        )
+    }
+
+    /// Returns the name of the array of wrapped AcceptableContentType type.
+    var acceptableArrayName: TypeUsage {
+        acceptableContentTypeName
+            .asUsage
+            .asWrapped(
+                in: .runtime(
+                    Constants.Operation.AcceptableContentType.headerTypeName
+                )
+            )
+            .asArray
+    }
+
     /// Merged parameters from both the path item level and the operation level.
     /// If duplicate parameters exist, only the parameters from the operation level are preserved.
     ///
@@ -243,7 +266,7 @@ extension OperationDescription {
                 )
             ],
             keywords: [.async, .throws],
-            returnType: outputTypeName.fullyQualifiedSwiftName
+            returnType: .identifier(outputTypeName.fullyQualifiedSwiftName)
         )
     }
 
@@ -254,11 +277,12 @@ extension OperationDescription {
             accessModifier: nil,
             kind: .function(name: methodName),
             parameters: [
-                .init(label: "request", type: "Request"),
+                .init(label: "request", type: "HTTPRequest"),
+                .init(label: "body", type: "HTTPBody?"),
                 .init(label: "metadata", type: "ServerRequestMetadata"),
             ],
             keywords: [.async, .throws],
-            returnType: "Response"
+            returnType: .tuple([.identifier("HTTPResponse"), .identifier("HTTPBody?")])
         )
     }
 
@@ -285,32 +309,6 @@ extension OperationDescription {
                 }
             let arrayExpr: Expression = .literal(.array(names))
             return (template, arrayExpr)
-        }
-    }
-
-    /// Returns an array that contains the template to be generated for
-    /// the server that translates the URL template variable syntax to
-    /// the Runtime syntax.
-    ///
-    /// For example, `"/pets/{petId}"` -> `["pets", ":petId"]`.
-    var templatedPathForServer: [String] {
-        path.components.filter({ !$0.isEmpty })
-            .map { component in
-                guard component.hasPrefix("{") && component.hasSuffix("}") else {
-                    // FYI: Some components could also be "{foo}.zip", which we don't
-                    // currently support.
-                    return component
-                }
-                return ":\(component.dropFirst().dropLast())"
-            }
-    }
-
-    /// Returns the list of all names of query parameters.
-    var queryParameterNames: [String] {
-        get throws {
-            try allResolvedParameters
-                .filter { $0.location == .query }
-                .map(\.name)
         }
     }
 

@@ -21,13 +21,14 @@ final class Test_YamsParser: Test_Core {
         XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.1"))
         XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.2"))
         XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.3"))
+        XCTAssertNoThrow(try _test(openAPIVersionString: "3.1.0"))
 
         let expected1 =
-            "/foo.yaml: error: Unsupported document version: openapi: 3.1.0. Please provide a document with OpenAPI versions in the 3.0.x set."
-        assertThrownError(try _test(openAPIVersionString: "3.1.0"), expectedDiagnostic: expected1)
+            "/foo.yaml: error: Unsupported document version: openapi: 3.2.0. Please provide a document with OpenAPI versions in the 3.0.x or 3.1.x sets."
+        assertThrownError(try _test(openAPIVersionString: "3.2.0"), expectedDiagnostic: expected1)
 
         let expected2 =
-            "/foo.yaml: error: Unsupported document version: openapi: 2.0. Please provide a document with OpenAPI versions in the 3.0.x set."
+            "/foo.yaml: error: Unsupported document version: openapi: 2.0. Please provide a document with OpenAPI versions in the 3.0.x or 3.1.x sets."
         assertThrownError(try _test(openAPIVersionString: "2.0"), expectedDiagnostic: expected2)
     }
 
@@ -53,14 +54,14 @@ final class Test_YamsParser: Test_Core {
             """
 
         let expected =
-            "/foo.yaml: error: No openapi key found, please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x set."
+            "/foo.yaml: error: No openapi key found, please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x or 3.1.x sets."
         assertThrownError(try _test(yaml), expectedDiagnostic: expected)
     }
 
     func testEmitsYamsParsingError() throws {
         // The `title: "Test"` line is indented the wrong amount to make the YAML invalid for the parser
         let yaml = """
-            openapi: "3.0.0"
+            openapi: "3.1.0"
             info:
              title: "Test"
               version: 1.0.0
@@ -75,7 +76,7 @@ final class Test_YamsParser: Test_Core {
     func testEmitsYamsScanningError() throws {
         // The `version:"1.0.0"` line is missing a space after the colon to make it invalid YAML for the scanner
         let yaml = """
-            openapi: "3.0.0"
+            openapi: "3.1.0"
             info:
               title: "Test"
               version:"1.0.0"
@@ -90,7 +91,7 @@ final class Test_YamsParser: Test_Core {
     func testEmitsMissingInfoKeyOpenAPIParsingError() throws {
         // The `smurf` line should be `info` in a real OpenAPI document.
         let yaml = """
-            openapi: "3.0.0"
+            openapi: "3.1.0"
             smurf:
               title: "Test"
               version: "1.0.0"
@@ -105,7 +106,7 @@ final class Test_YamsParser: Test_Core {
     func testEmitsComplexOpenAPIParsingError() throws {
         // The `resonance` line should be `response` in a real OpenAPI document.
         let yaml = """
-            openapi: "3.0.0"
+            openapi: "3.1.0"
             info:
               title: "Test"
               version: "1.0.0"
@@ -122,9 +123,41 @@ final class Test_YamsParser: Test_Core {
             /foo.yaml: error: Found neither a $ref nor a PathItem in Document.paths['/system']. 
 
             PathItem could not be decoded because:
-            Expected to find `responses` key for the **GET** endpoint under `/system` but it is missing..
+            Inconsistency encountered when parsing `Vendor Extension` for the **GET** endpoint under `/system`: Found at least one vendor extension property that does not begin with the required 'x-' prefix. Invalid properties: [ resonance ]..
             """
         assertThrownError(try _test(yaml), expectedDiagnostic: expected)
+    }
+
+    func testExtractTopLevelKeysWithValidYAML() {
+        let yaml = """
+            generate:
+              - types
+              - server
+
+            featureFlags:
+              - nullableSchemas
+
+            additionalImports:
+              - Foundation
+            """
+        let keys = try? YamsParser.extractTopLevelKeys(fromYAMLString: yaml)
+        XCTAssertEqual(keys, ["generate", "featureFlags", "additionalImports"])
+    }
+
+    func testExtractTopLevelKeysWithInvalidYAML() {
+        // `additionalImports` is missing `:` at the end.
+        let yaml = """
+            generate:
+              - types
+              - server
+
+            featureFlags:
+              - nullableSchemas
+
+            additionalImports
+              - Foundation
+            """
+        XCTAssertThrowsError(try YamsParser.extractTopLevelKeys(fromYAMLString: yaml))
     }
 
     private func _test(_ yaml: String) throws -> ParsedOpenAPIRepresentation {
@@ -147,7 +180,8 @@ final class Test_YamsParser: Test_Core {
     ) {
         XCTAssertThrowsError(try closure(), file: file, line: line) { error in
             if let exitError = error as? Diagnostic {
-                XCTAssertEqual(exitError.localizedDescription, expectedDiagnostic, file: file, line: line)
+                let actualDiagnostic = exitError.localizedDescription
+                XCTAssertEqual(actualDiagnostic, expectedDiagnostic, file: file, line: line)
             } else {
                 XCTFail("Thrown error is \(type(of: error)) but should be Diagnostic", file: file, line: line)
             }

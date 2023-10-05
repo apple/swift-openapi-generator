@@ -14,6 +14,7 @@
 import XCTest
 import OpenAPIRuntime
 import PetstoreConsumerTestCore
+import HTTPTypes
 
 final class Test_Server: XCTestCase {
 
@@ -36,13 +37,12 @@ final class Test_Server: XCTestCase {
                 XCTAssertEqual(input.query.habitat, .water)
                 XCTAssertEqual(input.query.since, .test)
                 XCTAssertEqual(input.query.feeds, [.carnivore, .herbivore])
-                XCTAssertEqual(input.headers.My_Request_UUID, "abcd-1234")
-                XCTAssertNil(input.body)
+                XCTAssertEqual(input.headers.My_hyphen_Request_hyphen_UUID, "abcd-1234")
                 return .ok(
                     .init(
                         headers: .init(
-                            My_Response_UUID: "abcd",
-                            My_Tracing_Header: "1234"
+                            My_hyphen_Response_hyphen_UUID: "abcd",
+                            My_hyphen_Tracing_hyphen_Header: "1234"
                         ),
                         body: .json([
                             .init(id: 1, name: "Fluffz")
@@ -51,34 +51,32 @@ final class Test_Server: XCTestCase {
                 )
             }
         )
-        let response = try await server.listPets(
+        let (response, responseBody) = try await server.listPets(
             .init(
-                path: "/api/pets",
+                soar_path: "/api/pets?limit=24&habitat=water&feeds=carnivore&feeds=herbivore&since=\(Date.testString)",
                 method: .get,
                 headerFields: [
-                    .init(name: "My-Request-UUID", value: "abcd-1234")
+                    .init("My-Request-UUID")!: "abcd-1234"
                 ]
             ),
-            .init(
-                queryParameters: [
-                    .init(name: "limit", value: "24"),
-                    .init(name: "habitat", value: "water"),
-                    .init(name: "feeds", value: "carnivore"),
-                    .init(name: "feeds", value: "herbivore"),
-                    .init(name: "since", value: Date.testString),
-                ]
-            )
+            nil,
+            .init()
         )
-        XCTAssertEqual(response.statusCode, 200)
+        XCTAssertEqual(response.status.code, 200)
         XCTAssertEqual(
             response.headerFields,
             [
-                .init(name: "My-Response-UUID", value: "abcd"),
-                .init(name: "My-Tracing-Header", value: "1234"),
-                .init(name: "content-type", value: "application/json; charset=utf-8"),
+                .init("My-Response-UUID")!: "abcd",
+                .init("My-Tracing-Header")!: "1234",
+                .contentType: "application/json; charset=utf-8",
             ]
         )
-        let bodyString = String(decoding: response.body, as: UTF8.self)
+        let bodyString: String
+        if let responseBody {
+            bodyString = try await String(collecting: responseBody, upTo: .max)
+        } else {
+            bodyString = ""
+        }
         XCTAssertEqual(
             bodyString,
             #"""
@@ -97,27 +95,27 @@ final class Test_Server: XCTestCase {
             listPetsBlock: { input in
                 return .default(
                     statusCode: 400,
-                    .init(body: .json(.init(code: 1, me_sage: "Oh no!")))
+                    .init(body: .json(.init(code: 1, me_dollar_sage: "Oh no!")))
                 )
             }
         )
-        let response = try await server.listPets(
+        let (response, responseBody) = try await server.listPets(
             .init(
-                path: "/api/pets",
+                soar_path: "/api/pets",
                 method: .get
             ),
+            nil,
             .init()
         )
-        XCTAssertEqual(response.statusCode, 400)
+        XCTAssertEqual(response.status.code, 400)
         XCTAssertEqual(
             response.headerFields,
             [
-                .init(name: "content-type", value: "application/json; charset=utf-8")
+                .contentType: "application/json; charset=utf-8"
             ]
         )
-        let bodyString = String(decoding: response.body, as: UTF8.self)
-        XCTAssertEqual(
-            bodyString,
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
             #"""
             {
               "code" : 1,
@@ -130,7 +128,7 @@ final class Test_Server: XCTestCase {
     func testCreatePet_201() async throws {
         client = .init(
             createPetBlock: { input in
-                XCTAssertEqual(input.headers.X_Extra_Arguments, .init(code: 1))
+                XCTAssertEqual(input.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
                 guard case let .json(createPet) = input.body else {
                     throw TestError.unexpectedValue(input.body)
                 }
@@ -138,7 +136,7 @@ final class Test_Server: XCTestCase {
                 return .created(
                     .init(
                         headers: .init(
-                            X_Extra_Arguments: .init(code: 1)
+                            X_hyphen_Extra_hyphen_Arguments: .init(code: 1)
                         ),
                         body: .json(
                             .init(id: 1, name: "Fluffz")
@@ -147,33 +145,34 @@ final class Test_Server: XCTestCase {
                 )
             }
         )
-        let response = try await server.createPet(
+        let (response, responseBody) = try await server.createPet(
             .init(
-                path: "/api/pets",
+                soar_path: "/api/pets",
                 method: .post,
                 headerFields: [
-                    .init(name: "x-extra-arguments", value: #"{"code":1}"#),
-                    .init(name: "content-type", value: "application/json; charset=utf-8"),
-                ],
-                encodedBody: #"""
-                    {
-                      "name" : "Fluffz"
-                    }
-                    """#
+                    .init("x-extra-arguments")!: #"{"code":1}"#,
+                    .contentType: "application/json; charset=utf-8",
+                ]
+            ),
+            .init(
+                #"""
+                {
+                  "name" : "Fluffz"
+                }
+                """#
             ),
             .init()
         )
-        XCTAssertEqual(response.statusCode, 201)
+        XCTAssertEqual(response.status.code, 201)
         XCTAssertEqual(
             response.headerFields,
             [
-                .init(name: "X-Extra-Arguments", value: #"{"code":1}"#),
-                .init(name: "content-type", value: "application/json; charset=utf-8"),
+                .init("X-Extra-Arguments")!: #"{"code":1}"#,
+                .contentType: "application/json; charset=utf-8",
             ]
         )
-        let bodyString = String(decoding: response.body, as: UTF8.self)
-        XCTAssertEqual(
-            bodyString,
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
             #"""
             {
               "id" : 1,
@@ -190,7 +189,7 @@ final class Test_Server: XCTestCase {
                     statusCode: 400,
                     .init(
                         headers: .init(
-                            X_Reason: "bad luck"
+                            X_hyphen_Reason: "bad luck"
                         ),
                         body: .json(
                             .init(code: 1)
@@ -199,32 +198,33 @@ final class Test_Server: XCTestCase {
                 )
             }
         )
-        let response = try await server.createPet(
+        let (response, responseBody) = try await server.createPet(
             .init(
-                path: "/api/pets",
+                soar_path: "/api/pets",
                 method: .post,
                 headerFields: [
-                    .init(name: "content-type", value: "application/json; charset=utf-8")
-                ],
-                encodedBody: #"""
-                    {
-                      "name" : "Fluffz"
-                    }
-                    """#
+                    .contentType: "application/json; charset=utf-8"
+                ]
+            ),
+            .init(
+                #"""
+                {
+                  "name" : "Fluffz"
+                }
+                """#
             ),
             .init()
         )
-        XCTAssertEqual(response.statusCode, 400)
+        XCTAssertEqual(response.status.code, 400)
         XCTAssertEqual(
             response.headerFields,
             [
-                .init(name: "X-Reason", value: "bad luck"),
-                .init(name: "content-type", value: "application/json; charset=utf-8"),
+                .init("X-Reason")!: "bad%20luck",
+                .contentType: "application/json; charset=utf-8",
             ]
         )
-        let bodyString = String(decoding: response.body, as: UTF8.self)
-        XCTAssertEqual(
-            bodyString,
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
             #"""
             {
               "code" : 1
@@ -243,22 +243,54 @@ final class Test_Server: XCTestCase {
         do {
             _ = try await server.createPet(
                 .init(
-                    path: "/api/pets",
+                    soar_path: "/api/pets",
                     method: .post,
                     headerFields: [
-                        .init(name: "x-extra-arguments", value: #"{"code":1}"#),
-                        .init(name: "content-type", value: "text/plain; charset=utf-8"),
-                    ],
-                    encodedBody: #"""
-                        {
-                          "name" : "Fluffz"
-                        }
-                        """#
+                        .init("x-extra-arguments")!: #"{"code":1}"#,
+                        .contentType: "text/plain; charset=utf-8",
+                    ]
+                ),
+                .init(
+                    #"""
+                    {
+                      "name" : "Fluffz"
+                    }
+                    """#
                 ),
                 .init()
             )
             XCTFail("The method should have thrown an error.")
         } catch {}
+    }
+
+    func testCreatePetWithForm_204() async throws {
+        client = .init(
+            createPetWithFormBlock: { input in
+                guard case let .urlEncodedForm(createPet) = input.body else {
+                    throw TestError.unexpectedValue(input.body)
+                }
+                XCTAssertEqual(createPet, .init(name: "Fluffz"))
+                return .noContent(.init())
+            }
+        )
+        let (response, responseBody) = try await server.createPetWithForm(
+            .init(
+                soar_path: "/api/pets/create",
+                method: .post,
+                headerFields: [
+                    .init("x-extra-arguments")!: #"{"code":1}"#,
+                    .contentType: "application/x-www-form-urlencoded",
+                ]
+            ),
+            .init("name=Fluffz"),
+            .init()
+        )
+        XCTAssertEqual(response.status.code, 204)
+        XCTAssertNil(responseBody)
+        XCTAssertEqual(
+            response.headerFields,
+            [:]
+        )
     }
 
     func testUpdatePet_204_withBody() async throws {
@@ -275,19 +307,21 @@ final class Test_Server: XCTestCase {
                 return .noContent(.init())
             }
         )
-        let response = try await server.updatePet(
+        let (response, responseBody) = try await server.updatePet(
             .init(
-                path: "/api/pets/1",
+                soar_path: "/api/pets/1",
                 method: .patch,
                 headerFields: [
-                    .init(name: "accept", value: "application/json"),
-                    .init(name: "content-type", value: "application/json"),
-                ],
-                encodedBody: #"""
-                    {
-                      "name" : "Fluffz"
-                    }
-                    """#
+                    .accept: "application/json",
+                    .contentType: "application/json",
+                ]
+            ),
+            .init(
+                #"""
+                {
+                  "name" : "Fluffz"
+                }
+                """#
             ),
             .init(
                 pathParameters: [
@@ -295,8 +329,9 @@ final class Test_Server: XCTestCase {
                 ]
             )
         )
-        XCTAssertEqual(response.statusCode, 204)
-        XCTAssertEqual(response.headerFields, [])
+        XCTAssertEqual(response.status.code, 204)
+        XCTAssertEqual(response.headerFields, [:])
+        XCTAssertNil(responseBody)
     }
 
     func testUpdatePet_204_withBody_default_json() async throws {
@@ -313,16 +348,18 @@ final class Test_Server: XCTestCase {
                 return .noContent(.init())
             }
         )
-        let response = try await server.updatePet(
+        let (response, responseBody) = try await server.updatePet(
             .init(
-                path: "/api/pets/1",
+                soar_path: "/api/pets/1",
                 method: .patch,
-                headerFields: [],
-                encodedBody: #"""
-                    {
-                      "name" : "Fluffz"
-                    }
-                    """#
+                headerFields: [:]
+            ),
+            .init(
+                #"""
+                {
+                  "name" : "Fluffz"
+                }
+                """#
             ),
             .init(
                 pathParameters: [
@@ -330,8 +367,9 @@ final class Test_Server: XCTestCase {
                 ]
             )
         )
-        XCTAssertEqual(response.statusCode, 204)
-        XCTAssertEqual(response.headerFields, [])
+        XCTAssertEqual(response.status.code, 204)
+        XCTAssertEqual(response.headerFields, [:])
+        XCTAssertNil(responseBody)
     }
 
     func testUpdatePet_204_withoutBody() async throws {
@@ -342,19 +380,21 @@ final class Test_Server: XCTestCase {
                 return .noContent(.init())
             }
         )
-        let response = try await server.updatePet(
+        let (response, responseBody) = try await server.updatePet(
             .init(
-                path: "/api/pets/1",
+                soar_path: "/api/pets/1",
                 method: .patch
             ),
+            nil,
             .init(
                 pathParameters: [
                     "petId": "1"
                 ]
             )
         )
-        XCTAssertEqual(response.statusCode, 204)
-        XCTAssertEqual(response.headerFields, [])
+        XCTAssertEqual(response.status.code, 204)
+        XCTAssertEqual(response.headerFields, [:])
+        XCTAssertNil(responseBody)
     }
 
     func testUpdatePet_400() async throws {
@@ -365,26 +405,27 @@ final class Test_Server: XCTestCase {
                 return .badRequest(.init(body: .json(.init(message: "Oh no!"))))
             }
         )
-        let response = try await server.updatePet(
+        let (response, responseBody) = try await server.updatePet(
             .init(
-                path: "/api/pets/1",
+                soar_path: "/api/pets/1",
                 method: .patch
             ),
+            nil,
             .init(
                 pathParameters: [
                     "petId": "1"
                 ]
             )
         )
-        XCTAssertEqual(response.statusCode, 400)
+        XCTAssertEqual(response.status.code, 400)
         XCTAssertEqual(
             response.headerFields,
             [
-                .init(name: "content-type", value: "application/json; charset=utf-8")
+                .contentType: "application/json; charset=utf-8"
             ]
         )
-        XCTAssertEqualStringifiedData(
-            response.body,
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
             #"""
             {
               "message" : "Oh no!"
@@ -399,25 +440,26 @@ final class Test_Server: XCTestCase {
                 return .ok(.init(body: .json(.init(count: 1))))
             }
         )
-        let response = try await server.getStats(
+        let (response, responseBody) = try await server.getStats(
             .init(
-                path: "/api/pets/stats",
+                soar_path: "/api/pets/stats",
                 method: .patch,
                 headerFields: [
-                    .init(name: "accept", value: "application/json, text/plain, application/octet-stream")
+                    .accept: "application/json, text/plain, application/octet-stream"
                 ]
             ),
+            nil,
             .init()
         )
-        XCTAssertEqual(response.statusCode, 200)
+        XCTAssertEqual(response.status.code, 200)
         XCTAssertEqual(
             response.headerFields,
             [
-                .init(name: "content-type", value: "application/json; charset=utf-8")
+                .contentType: "application/json; charset=utf-8"
             ]
         )
-        XCTAssertEqualStringifiedData(
-            response.body,
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
             #"""
             {
               "count" : 1
@@ -435,16 +477,202 @@ final class Test_Server: XCTestCase {
         do {
             _ = try await server.getStats(
                 .init(
-                    path: "/api/pets/stats",
+                    soar_path: "/api/pets/stats",
                     method: .patch,
                     headerFields: [
-                        .init(name: "accept", value: "foo/bar")
+                        .accept: "foo/bar"
                     ]
                 ),
+                nil,
                 .init()
             )
             XCTFail("Should have thrown an error.")
         } catch {}
+    }
+
+    func testGetStats_200_text() async throws {
+        client = .init(
+            getStatsBlock: { input in
+                return .ok(.init(body: .plainText("count is 1")))
+            }
+        )
+        let (response, responseBody) = try await server.getStats(
+            .init(
+                soar_path: "/api/pets/stats",
+                method: .patch,
+                headerFields: [
+                    .accept: "application/json, text/plain, application/octet-stream"
+                ]
+            ),
+            .init(),
+            .init()
+        )
+        XCTAssertEqual(response.status.code, 200)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .contentType: "text/plain"
+            ]
+        )
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
+            #"""
+            count is 1
+            """#
+        )
+    }
+
+    func testGetStats_200_streaming_text() async throws {
+        client = .init(
+            getStatsBlock: { input in
+                let body = HTTPBody(
+                    AsyncStream { continuation in
+                        continuation.yield([72])
+                        continuation.yield([69])
+                        continuation.yield([76])
+                        continuation.yield([76])
+                        continuation.yield([79])
+                        continuation.finish()
+                    },
+                    length: .unknown
+                )
+                return .ok(.init(body: .plainText(body)))
+            }
+        )
+        let (response, responseBody) = try await server.getStats(
+            .init(
+                soar_path: "/api/pets/stats",
+                method: .patch,
+                headerFields: [
+                    .accept: "application/json, text/plain, application/octet-stream"
+                ]
+            ),
+            .init(),
+            .init()
+        )
+        XCTAssertEqual(response.status.code, 200)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .contentType: "text/plain"
+            ]
+        )
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
+            #"""
+            HELLO
+            """#
+        )
+    }
+
+    func testGetStats_200_text_requestedSpecific() async throws {
+        client = .init(
+            getStatsBlock: { input in
+                XCTAssertEqual(
+                    input.headers.accept,
+                    [
+                        .init(contentType: .plainText),
+                        .init(contentType: .json, quality: 0.5),
+                    ]
+                )
+                return .ok(.init(body: .plainText("count is 1")))
+            }
+        )
+        let (response, responseBody) = try await server.getStats(
+            .init(
+                soar_path: "/api/pets/stats",
+                method: .patch,
+                headerFields: [
+                    .accept: "text/plain, application/json; q=0.500"
+                ]
+            ),
+            nil,
+            .init()
+        )
+        XCTAssertEqual(response.status.code, 200)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .contentType: "text/plain"
+            ]
+        )
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
+            #"""
+            count is 1
+            """#
+        )
+    }
+
+    func testGetStats_200_text_customAccept() async throws {
+        client = .init(
+            getStatsBlock: { input in
+                XCTAssertEqual(
+                    input.headers.accept,
+                    [
+                        .init(contentType: .json, quality: 0.8),
+                        .init(contentType: .plainText),
+                    ]
+                )
+                return .ok(.init(body: .plainText("count is 1")))
+            }
+        )
+        let (response, responseBody) = try await server.getStats(
+            .init(
+                soar_path: "/api/pets/stats",
+                method: .patch,
+                headerFields: [
+                    .accept: "application/json; q=0.8, text/plain"
+                ]
+            ),
+            nil,
+            .init()
+        )
+        XCTAssertEqual(response.status.code, 200)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .contentType: "text/plain"
+            ]
+        )
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
+            #"""
+            count is 1
+            """#
+        )
+    }
+
+    func testGetStats_200_binary() async throws {
+        client = .init(
+            getStatsBlock: { input in
+                return .ok(.init(body: .binary("count_is_1")))
+            }
+        )
+        let (response, responseBody) = try await server.getStats(
+            .init(
+                soar_path: "/api/pets/stats",
+                method: .patch,
+                headerFields: [
+                    .accept: "application/json, text/plain, application/octet-stream"
+                ]
+            ),
+            nil,
+            .init()
+        )
+        XCTAssertEqual(response.status.code, 200)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .contentType: "application/octet-stream"
+            ]
+        )
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
+            #"""
+            count_is_1
+            """#
+        )
     }
 
     func testPostStats_202_json() async throws {
@@ -457,27 +685,26 @@ final class Test_Server: XCTestCase {
                 return .accepted(.init())
             }
         )
-        let response = try await server.postStats(
+        let (response, responseBody) = try await server.postStats(
             .init(
-                path: "/api/pets/stats",
+                soar_path: "/api/pets/stats",
                 method: .post,
                 headerFields: [
-                    .init(name: "content-type", value: "application/json; charset=utf-8")
-                ],
-                encodedBody: #"""
-                    {
-                      "count" : 1
-                    }
-                    """#
+                    .contentType: "application/json; charset=utf-8"
+                ]
+            ),
+            .init(
+                #"""
+                {
+                  "count" : 1
+                }
+                """#
             ),
             .init()
         )
-        XCTAssertEqual(response.statusCode, 202)
-        XCTAssertEqual(
-            response.headerFields,
-            []
-        )
-        XCTAssert(response.body.isEmpty)
+        XCTAssertEqual(response.status.code, 202)
+        XCTAssertEqual(response.headerFields, [:])
+        XCTAssertNil(responseBody)
     }
 
     func testPostStats_202_default_json() async throws {
@@ -490,44 +717,103 @@ final class Test_Server: XCTestCase {
                 return .accepted(.init())
             }
         )
-        let response = try await server.postStats(
+        let (response, responseBody) = try await server.postStats(
             .init(
-                path: "/api/pets/stats",
+                soar_path: "/api/pets/stats",
                 method: .post,
-                headerFields: [],
-                encodedBody: #"""
-                    {
-                      "count" : 1
-                    }
-                    """#
+                headerFields: [:]
+            ),
+            .init(
+                #"""
+                {
+                  "count" : 1
+                }
+                """#
             ),
             .init()
         )
-        XCTAssertEqual(response.statusCode, 202)
-        XCTAssertEqual(
-            response.headerFields,
-            []
+        XCTAssertEqual(response.status.code, 202)
+        XCTAssertEqual(response.headerFields, [:])
+        XCTAssertNil(responseBody)
+    }
+
+    func testPostStats_202_text() async throws {
+        client = .init(
+            postStatsBlock: { input in
+                guard case let .plainText(stats) = input.body else {
+                    throw TestError.unexpectedValue(input.body)
+                }
+                try await XCTAssertEqualStringifiedData(stats, "count is 1")
+                return .accepted(.init())
+            }
         )
-        XCTAssert(response.body.isEmpty)
+        let (response, responseBody) = try await server.postStats(
+            .init(
+                soar_path: "/api/pets/stats",
+                method: .post,
+                headerFields: [
+                    .contentType: "text/plain"
+                ]
+            ),
+            .init(
+                #"""
+                count is 1
+                """#
+            ),
+            .init()
+        )
+        XCTAssertEqual(response.status.code, 202)
+        XCTAssertEqual(response.headerFields, [:])
+        XCTAssertNil(responseBody)
+    }
+
+    func testPostStats_202_binary() async throws {
+        client = .init(
+            postStatsBlock: { input in
+                guard case let .binary(stats) = input.body else {
+                    throw TestError.unexpectedValue(input.body)
+                }
+                try await XCTAssertEqualStringifiedData(stats, "count_is_1")
+                return .accepted(.init())
+            }
+        )
+        let (response, responseBody) = try await server.postStats(
+            .init(
+                soar_path: "/api/pets/stats",
+                method: .post,
+                headerFields: [
+                    .contentType: "application/octet-stream"
+                ]
+            ),
+            .init(
+                #"""
+                count_is_1
+                """#
+            ),
+            .init()
+        )
+        XCTAssertEqual(response.status.code, 202)
+        XCTAssertEqual(response.headerFields, [:])
+        XCTAssertNil(responseBody)
     }
 
     func testProbe_204() async throws {
         client = .init(
             probeBlock: { input in
-                XCTAssertNil(input.body)
                 return .noContent(.init())
             }
         )
-        let response = try await server.probe(
+        let (response, responseBody) = try await server.probe(
             .init(
-                path: "/api/probe",
+                soar_path: "/api/probe/",
                 method: .post
             ),
+            nil,
             .init()
         )
-        XCTAssertEqual(response.statusCode, 204)
-        XCTAssertEqual(response.headerFields, [])
-        XCTAssertEqual(response.body, .init())
+        XCTAssertEqual(response.status.code, 204)
+        XCTAssertEqual(response.headerFields, [:])
+        XCTAssertNil(responseBody)
     }
 
     func testProbe_undocumented() async throws {
@@ -536,55 +822,117 @@ final class Test_Server: XCTestCase {
                 .undocumented(statusCode: 503, .init())
             }
         )
-        let response = try await server.probe(
+        let (response, responseBody) = try await server.probe(
             .init(
-                path: "/api/probe",
+                soar_path: "/api/probe/",
                 method: .post
             ),
+            nil,
             .init()
         )
-        XCTAssertEqual(response.statusCode, 503)
-        XCTAssertEqual(response.headerFields, [])
-        XCTAssertEqual(response.body, .init())
+        XCTAssertEqual(response.status.code, 503)
+        XCTAssertEqual(response.headerFields, [:])
+        XCTAssertNil(responseBody)
     }
 
-    func testUploadAvatarForPet_200() async throws {
+    func testUploadAvatarForPet_200_buffered() async throws {
         client = .init(
             uploadAvatarForPetBlock: { input in
                 guard case let .binary(avatar) = input.body else {
                     throw TestError.unexpectedValue(input.body)
                 }
-                XCTAssertEqualStringifiedData(avatar, Data.abcdString)
-                return .ok(.init(body: .binary(.efgh)))
+                try await XCTAssertEqualStringifiedData(avatar, Data.abcdString)
+                return .ok(.init(body: .binary(.init(.efgh))))
             }
         )
-        let response = try await server.uploadAvatarForPet(
+        let (response, responseBody) = try await server.uploadAvatarForPet(
             .init(
-                path: "/api/pets/1/avatar",
+                soar_path: "/api/pets/1/avatar",
                 method: .put,
                 headerFields: [
-                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
-                    .init(name: "content-type", value: "application/octet-stream"),
-                ],
-                encodedBody: Data.abcdString
+                    .accept: "application/octet-stream, application/json, text/plain",
+                    .contentType: "application/octet-stream",
+                ]
             ),
+            .init(Data.abcdString),
             .init(
                 pathParameters: [
                     "petId": "1"
                 ]
             )
         )
-        XCTAssertEqual(response.statusCode, 200)
+        XCTAssertEqual(response.status.code, 200)
         XCTAssertEqual(
             response.headerFields,
             [
-                .init(name: "content-type", value: "application/octet-stream")
+                .contentType: "application/octet-stream"
             ]
         )
-        XCTAssertEqualStringifiedData(
-            response.body,
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
             Data.efghString
         )
+    }
+
+    func testUploadAvatarForPet_200_streaming() async throws {
+        actor CollectedChunkSizes {
+            private(set) var sizes: [Int] = []
+            func record(size: Int) {
+                sizes.append(size)
+            }
+        }
+        let chunkSizeCollector = CollectedChunkSizes()
+        client = .init(
+            uploadAvatarForPetBlock: { input in
+                guard case let .binary(avatar) = input.body else {
+                    throw TestError.unexpectedValue(input.body)
+                }
+                let responseSequence = avatar.map { chunk in
+                    await chunkSizeCollector.record(size: chunk.count)
+                    return chunk
+                }
+                return .ok(
+                    .init(
+                        body: .binary(
+                            .init(
+                                responseSequence,
+                                length: avatar.length,
+                                iterationBehavior: avatar.iterationBehavior
+                            )
+                        )
+                    )
+                )
+            }
+        )
+        let (response, responseBody) = try await server.uploadAvatarForPet(
+            .init(
+                soar_path: "/api/pets/1/avatar",
+                method: .put,
+                headerFields: [
+                    .accept: "application/octet-stream, application/json, text/plain",
+                    .contentType: "application/octet-stream",
+                ]
+            ),
+            .init([97, 98, 99, 100], length: .known(4)),
+            .init(
+                pathParameters: [
+                    "petId": "1"
+                ]
+            )
+        )
+        XCTAssertEqual(response.status.code, 200)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .contentType: "application/octet-stream"
+            ]
+        )
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
+            Data.abcdString
+        )
+        let sizes = await chunkSizeCollector.sizes
+        XCTAssertEqual(sizes, [4])
     }
 
     func testUploadAvatarForPet_412() async throws {
@@ -593,35 +941,35 @@ final class Test_Server: XCTestCase {
                 guard case let .binary(avatar) = input.body else {
                     throw TestError.unexpectedValue(input.body)
                 }
-                XCTAssertEqualStringifiedData(avatar, Data.abcdString)
+                try await XCTAssertEqualStringifiedData(avatar, Data.abcdString)
                 return .preconditionFailed(.init(body: .json(Data.efghString)))
             }
         )
-        let response = try await server.uploadAvatarForPet(
+        let (response, responseBody) = try await server.uploadAvatarForPet(
             .init(
-                path: "/api/pets/1/avatar",
+                soar_path: "/api/pets/1/avatar",
                 method: .put,
                 headerFields: [
-                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
-                    .init(name: "content-type", value: "application/octet-stream"),
-                ],
-                encodedBody: Data.abcdString
+                    .accept: "application/octet-stream, application/json, text/plain",
+                    .contentType: "application/octet-stream",
+                ]
             ),
+            .init(Data.abcdString),
             .init(
                 pathParameters: [
                     "petId": "1"
                 ]
             )
         )
-        XCTAssertEqual(response.statusCode, 412)
+        XCTAssertEqual(response.status.code, 412)
         XCTAssertEqual(
             response.headerFields,
             [
-                .init(name: "content-type", value: "application/json; charset=utf-8")
+                .contentType: "application/json; charset=utf-8"
             ]
         )
-        XCTAssertEqualStringifiedData(
-            response.body,
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
             Data.quotedEfghString
         )
     }
@@ -632,37 +980,40 @@ final class Test_Server: XCTestCase {
                 guard case let .binary(avatar) = input.body else {
                     throw TestError.unexpectedValue(input.body)
                 }
-                XCTAssertEqualStringifiedData(avatar, Data.abcdString)
-                return .internalServerError(.init(body: .text(Data.efghString)))
+                try await XCTAssertEqualStringifiedData(avatar, Data.abcdString)
+                return .internalServerError(
+                    .init(
+                        body: .plainText(.init(Data.efghString))
+                    )
+                )
             }
         )
-        let response = try await server.uploadAvatarForPet(
+        let (response, responseBody) = try await server.uploadAvatarForPet(
             .init(
-                path: "/api/pets/1/avatar",
+                soar_path: "/api/pets/1/avatar",
                 method: .put,
                 headerFields: [
-                    .init(name: "accept", value: "application/octet-stream, application/json, text/plain"),
-                    .init(name: "content-type", value: "application/octet-stream"),
-                ],
-                encodedBody: Data.abcdString
+                    .accept: "application/octet-stream, application/json, text/plain",
+                    .contentType: "application/octet-stream",
+                ]
             ),
+            .init(Data.abcdString),
             .init(
                 pathParameters: [
                     "petId": "1"
                 ]
             )
         )
-        XCTAssertEqual(response.statusCode, 500)
+        XCTAssertEqual(response.status.code, 500)
         XCTAssertEqual(
             response.headerFields,
             [
-                .init(name: "content-type", value: "text/plain")
+                .contentType: "text/plain"
             ]
         )
-        XCTAssertEqualStringifiedData(
-            response.body,
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
             Data.efghString
         )
     }
-
 }

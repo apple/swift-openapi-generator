@@ -13,6 +13,7 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIRuntime
 import Foundation
+import HTTPTypes
 
 /// A test implementation of the `ClientTransport` protocol.
 ///
@@ -30,8 +31,10 @@ import Foundation
 /// let client = APIClient(transport: testTransport)
 /// ```
 public struct TestClientTransport: ClientTransport {
-    /// A closure that handles the client call operation.
-    public typealias CallHandler = @Sendable (Request, URL, String) async throws -> Response
+
+    public typealias CallHandler = @Sendable (HTTPRequest, HTTPBody?, URL, String) async throws -> (
+        HTTPResponse, HTTPBody?
+    )
 
     /// The call handler responsible for processing client requests.
     public let callHandler: CallHandler
@@ -52,10 +55,11 @@ public struct TestClientTransport: ClientTransport {
     /// - Returns: The response received from the call handler.
     /// - Throws: An error if the call handler encounters an issue.
     public func send(
-        _ request: Request,
+        _ request: HTTPRequest,
+        body: HTTPBody?,
         baseURL: URL,
         operationID: String
-    ) async throws -> Response {
-        try await callHandler(request, baseURL, operationID)
+    ) async throws -> (HTTPResponse, HTTPBody?) {
+        try await callHandler(request, body, baseURL, operationID)
     }
 }

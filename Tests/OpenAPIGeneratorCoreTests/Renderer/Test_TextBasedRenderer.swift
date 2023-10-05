@@ -535,7 +535,7 @@ final class Test_TextBasedRenderer: XCTestCase {
                 kind: .function(name: "f"),
                 parameters: [],
                 keywords: [.async, .throws],
-                returnType: "String"
+                returnType: .identifier("String")
             ),
             renderedBy: renderer.renderedFunction,
             rendersAs:
@@ -769,6 +769,35 @@ final class Test_TextBasedRenderer: XCTestCase {
                 internal var foo
                 """#,
             normalizing: false
+        )
+        try _test(
+            .init(
+                kind: .var,
+                left: "foo",
+                type: "Int",
+                getter: [CodeBlock.expression(.literal(.int(42)))]
+            ),
+            renderedBy: renderer.renderedVariable,
+            rendersAs:
+                #"""
+                var foo: Int { 42 }
+                """#,
+            normalizing: true
+        )
+        try _test(
+            .init(
+                kind: .var,
+                left: "foo",
+                type: "Int",
+                getter: [CodeBlock.expression(.literal(.int(42)))],
+                getterEffects: [.throws]
+            ),
+            renderedBy: renderer.renderedVariable,
+            rendersAs:
+                #"""
+                var foo: Int { get throws { 42 } }
+                """#,
+            normalizing: true
         )
     }
 

@@ -1,6 +1,6 @@
 # Converting between data and Swift types
 
-Learn about the type responsible for convertering between binary data and Swift types.
+Learn about the type responsible for converting between binary data and Swift types.
 
 ## Overview
 
@@ -15,13 +15,23 @@ Most of the functionality of `Converter` is implemented as helper methods in ext
 
 Some helper methods can be reused between client and server code, such as headers, but most can't. It's important that we only generalize (move helper methods into common extensions) if the client and server variants would have been exact copies. However, if there are differences, prefer to keep them separate and optimize each variant (for client or server) separately.
 
-### Generated code and generics interaction
+The converter, it contains helper methods for all the supported combinations of an schema location, a "coding strategy" and a Swift type.
 
-As outlined in <doc:Project-scope-and-goals>, we aim to minimize the complexity of the generator and rely on the Swift compiler to help ensure that if generated code compiles, it's likely to work correctly.
+### Codable and coders
 
-To that end, if the input OpenAPI document contains an input that Swift OpenAPI Generator doesn't support, our first preference is to catch it in the generator and emit a descriptive diagnostic. However, there are cases where that is prohibitively complex, and we let the Swift compiler ensure that, for example, an array of strings cannot be used as a path parameter. In this example case, the generator emits code with the path parameter being of Swift type `[String]`, but since there doesn't exist a converter method for it, it will fail to build. This is considered expected behavior.
+The project uses multiple encoder and decoder implementations that all utilize the `Codable` conformance of generated and built-in types.
 
-In the case of the converter, it contains helper methods for all the supported combinations of an schema location, a "coding strategy" and a Swift type.
+At the time of writing, the list of coders used is as follows.
+
+| Format | Encoder | Decoder | Supported in |
+| ------ | ------- | ------- | ----- |
+| JSON | `Foundation.JSONEncoder` | `Foundation.JSONDecoder` | Bodies, headers |
+| URI (†) | `OpenAPIRuntime.URIEncoder` | `OpenAPIRuntime.URIDecoder` | Path, query, headers |
+| Plain text | `OpenAPIRuntime.StringEncoder` | `OpenAPIRuntime.StringDecoder` | Bodies |
+
+> †: Configurable implementation of variable expansion from URI Template (RFC 6570), the `application/x-www-form-urlencoded` serialization from RFC 1866, and OpenAPI 3.0.3. For details of the supported combinations, review <doc:Supported-OpenAPI-features>.
+
+While the generator attempts to catch invalid inputs at generation time, there are still combinations of `Codable` types and locations that aren't compatible, and will only get caught at runtime by the specific coder implementation. For example, one could ask the `StringEncoder` to encode an array, but the encoder will throw an error, as containers are not supported in that encoder.
 
 ### Dimensions of helper methods
 
@@ -36,24 +46,20 @@ Below is a list of the "dimensions" across which the helper methods differ:
     - request body
     - response header fields
     - response body
-- **Coding strategy** represents the chosen encoder/decoder to convert the Swift type to/from data. Values:
+- **Coding strategy** represents the chosen coder to convert between the Swift type and data. Supported options:
     - `JSON`
-        - example: `application/json`
-        - uses the type's `Codable` implementation and `JSONEncoder`/`JSONDecoder`
-    - `text`
-        - example: `text/plain`
-        - uses the type's `LosslessStringConvertible` implementation, except for `Foundation.Date`, which uses a system date formatter
+        - example content type: `application/json` and any with the `+json` suffix
+        - `{"color": "red", "power": 24}`
+    - `URI`
+        - example: query, path, header parameters
+        - `color=red&power=24`
+    - `urlEncodedForm`
+        - example: request body with the `application/x-www-form-urlencoded` content type
+        - `greeting=Hello+world`
     - `binary`
         - example: `application/octet-stream`
-        - doesn't transform the binary data, just passes it through
         - serves as the fallback for content types that don't have more specific handling
-- **Swift type** represents the generated type in Swift that best represents the JSON schema defined in the OpenAPI document. For example, a `string` schema is generated as `Swift.String`, an `object` schema is generated as a Swift structure, and an `array` schema is generated as a `Swift.Array` generic over the element type. For the helper methods, it's important which protocol they conform to, as those are used for serialization. Values:
-    - _string-convertible_ refers to types that conform to `LosslessStringConvertible`
-    - _array of string-convertibles_ refers to an array of types that conform to `LosslessStringConvertible`
-    - _date-time_ is represented by `Foundation.Date`
-    - _array of date-times_ refers to an array of `Foundation.Date`
-    - _codable_ refers to types that conform to `Codable`
-    - _data_ is represented by `Foundation.Data`
+        - doesn't transform the binary data, just passes it through
 - **Optional/required** represents whether the method works with optional values. Values:
     - _required_ represents a special overload only for required values
     - _optional_ represents a special overload only for optional values
@@ -72,58 +78,32 @@ method name: {set,get}{required/optional/omit if both}{location}As{strategy}
 method parameters: value or type of value
 ```
 
-| Client/server | Set/get | Schema location | Coding strategy | Swift type | Optional/required | Method name |
-| --------------| ------- | --------------- | --------------- | ---------- | ------------------| ----------- |
-| common | set | header field | text | string-convertible | both | setHeaderFieldAsText |
-| common | set | header field | text | array of string-convertibles | both | setHeaderFieldAsText |
-| common | set | header field | text | date | both | setHeaderFieldAsText |
-| common | set | header field | text | array of dates | both | setHeaderFieldAsText |
-| common | set | header field | JSON | codable | both | setHeaderFieldAsJSON |
-| common | get | header field | text | string-convertible | optional | getOptionalHeaderFieldAsText |
-| common | get | header field | text | string-convertible | required | getRequiredHeaderFieldAsText |
-| common | get | header field | text | array of string-convertibles | optional | getOptionalHeaderFieldAsText |
-| common | get | header field | text | array of string-convertibles | required | getRequiredHeaderFieldAsText |
-| common | get | header field | text | date | optional | getOptionalHeaderFieldAsText |
-| common | get | header field | text | date | required | getRequiredHeaderFieldAsText |
-| common | get | header field | text | array of dates | optional | getOptionalHeaderFieldAsText |
-| common | get | header field | text | array of dates | required | getRequiredHeaderFieldAsText |
-| common | get | header field | JSON | codable | optional | getOptionalHeaderFieldAsJSON |
-| common | get | header field | JSON | codable | required | getRequiredHeaderFieldAsJSON |
-| client | set | request path | text | string-convertible | required | renderedRequestPath |
-| client | set | request query | text | string-convertible | both | setQueryItemAsText |
-| client | set | request query | text | array of string-convertibles | both | setQueryItemAsText |
-| client | set | request query | text | date | both | setQueryItemAsText |
-| client | set | request query | text | array of dates | both | setQueryItemAsText |
-| client | set | request body | text | string-convertible | optional | setOptionalRequestBodyAsText |
-| client | set | request body | text | string-convertible | required | setRequiredRequestBodyAsText |
-| client | set | request body | text | date | optional | setOptionalRequestBodyAsText |
-| client | set | request body | text | date | required | setRequiredRequestBodyAsText |
-| client | set | request body | JSON | codable | optional | setOptionalRequestBodyAsJSON |
-| client | set | request body | JSON | codable | required | setRequiredRequestBodyAsJSON |
-| client | set | request body | binary | data | optional | setOptionalRequestBodyAsBinary |
-| client | set | request body | binary | data | required | setRequiredRequestBodyAsBinary |
-| client | get | response body | text | string-convertible | required | getResponseBodyAsText |
-| client | get | response body | text | date | required | getResponseBodyAsText |
-| client | get | response body | JSON | codable | required | getResponseBodyAsJSON |
-| client | get | response body | binary | data | required | getResponseBodyAsBinary |
-| server | get | request path | text | string-convertible | required | getPathParameterAsText |
-| server | get | request query | text | string-convertible | optional | getOptionalQueryItemAsText |
-| server | get | request query | text | string-convertible | required | getRequiredQueryItemAsText |
-| server | get | request query | text | array of string-convertibles | optional | getOptionalQueryItemAsText |
-| server | get | request query | text | array of string-convertibles | required | getRequiredQueryItemAsText |
-| server | get | request query | text | date | optional | getOptionalQueryItemAsText |
-| server | get | request query | text | date | required | getRequiredQueryItemAsText |
-| server | get | request query | text | array of dates | optional | getOptionalQueryItemAsText |
-| server | get | request query | text | array of dates | required | getRequiredQueryItemAsText |
-| server | get | request body | text | string-convertible | optional | getOptionalRequestBodyAsText |
-| server | get | request body | text | string-convertible | required | getRequiredRequestBodyAsText |
-| server | get | request body | text | date | optional | getOptionalRequestBodyAsText |
-| server | get | request body | text | date | required | getRequiredRequestBodyAsText |
-| server | get | request body | JSON | codable | optional | getOptionalRequestBodyAsJSON |
-| server | get | request body | JSON | codable | required | getRequiredRequestBodyAsJSON |
-| server | get | request body | binary | data | optional | getOptionalRequestBodyAsBinary |
-| server | get | request body | binary | data | required | getRequiredRequestBodyAsBinary |
-| server | set | response body | text | string-convertible | required | setResponseBodyAsText |
-| server | set | response body | text | date | required | setResponseBodyAsText |
-| server | set | response body | JSON | codable | required | setResponseBodyAsJSON |
-| server | set | response body | binary | data | required | setResponseBodyAsBinary |
+| Client/server | Set/get | Schema location | Coding strategy | Optional/required | Method name |
+| --------------| ------- | --------------- | --------------- | ------------------| ----------- |
+| common | set | header field | URI | both | setHeaderFieldAsURI |
+| common | set | header field | JSON | both | setHeaderFieldAsJSON |
+| common | get | header field | URI | optional | getOptionalHeaderFieldAsURI |
+| common | get | header field | URI | required | getRequiredHeaderFieldAsURI |
+| common | get | header field | JSON | optional | getOptionalHeaderFieldAsJSON |
+| common | get | header field | JSON | required | getRequiredHeaderFieldAsJSON |
+| client | set | request path | URI | required | renderedPath |
+| client | set | request query | URI | both | setQueryItemAsURI |
+| client | set | request body | JSON | optional | setOptionalRequestBodyAsJSON |
+| client | set | request body | JSON | required | setRequiredRequestBodyAsJSON |
+| client | set | request body | binary | optional | setOptionalRequestBodyAsBinary |
+| client | set | request body | binary | required | setRequiredRequestBodyAsBinary |
+| client | set | request body | urlEncodedForm | optional | setOptionalRequestBodyAsURLEncodedForm | 
+| client | set | request body | urlEncodedForm | required | setRequiredRequestBodyAsURLEncodedForm | 
+| client | get | response body | JSON | required | getResponseBodyAsJSON |
+| client | get | response body | binary | required | getResponseBodyAsBinary |
+| server | get | request path | URI | required | getPathParameterAsURI |
+| server | get | request query | URI | optional | getOptionalQueryItemAsURI |
+| server | get | request query | URI | required | getRequiredQueryItemAsURI |
+| server | get | request body | JSON | optional | getOptionalRequestBodyAsJSON |
+| server | get | request body | JSON | required | getRequiredRequestBodyAsJSON |
+| server | get | request body | binary | optional | getOptionalRequestBodyAsBinary |
+| server | get | request body | binary | required | getRequiredRequestBodyAsBinary |
+| server | get | request body | urlEncodedForm | optional | getOptionalRequestBodyAsURLEncodedForm |
+| server | get | request body | urlEncodedForm | required | getRequiredRequestBodyAsURLEncodedForm |
+| server | set | response body | JSON | required | setResponseBodyAsJSON |
+| server | set | response body | binary | required | setResponseBodyAsBinary |

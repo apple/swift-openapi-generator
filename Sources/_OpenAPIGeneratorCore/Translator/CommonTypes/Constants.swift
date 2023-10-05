@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// Constant values used in generated code, some of which refer to type names
 /// in the Runtime library, so they need to be kept in sync.
@@ -26,8 +26,18 @@ enum Constants {
         /// The descriptions of modules imported by every generated file.
         static let imports: [ImportDescription] = [
             ImportDescription(moduleName: "OpenAPIRuntime", spi: "Generated"),
-            ImportDescription(moduleName: "Foundation", preconcurrency: .onOS(["Linux"])),
+            ImportDescription(
+                moduleName: "Foundation",
+                moduleTypes: ["struct Foundation.URL", "struct Foundation.Data", "struct Foundation.Date"],
+                preconcurrency: .onOS(["Linux"])
+            ),
         ]
+
+        /// The descriptions of modules imported by client and server files.
+        static let clientServerImports: [ImportDescription] =
+            imports + [
+                ImportDescription(moduleName: "HTTPTypes")
+            ]
     }
 
     /// Constants related to the OpenAPI server object.
@@ -138,33 +148,25 @@ enum Constants {
         static let variableName: String = "additionalProperties"
     }
 
-    /// Constants related to all generated string-based enums.
-    enum StringEnum {
+    /// Constants related to all generated raw enums.
+    enum RawEnum {
 
-        /// The name of the undocumented enum case.
-        static let undocumentedCaseName = "undocumented"
+        /// The name of the base conformance for string-based enums.
+        static let baseConformanceString: String = "String"
 
-        /// The name of the base conformance when enums are open.
-        static let baseConformanceOpen: String = "RawRepresentable"
-
-        /// The name of the base conformance when enums are closed.
-        static let baseConformanceClosed: String = "String"
+        /// The name of the base conformance for int-based enums.
+        static let baseConformanceInteger: String = "Int"
 
         /// The types that every enum conforms to.
         static let conformances: [String] = [
             "Codable",
             "Hashable",
             "Sendable",
-            "_AutoLosslessStringConvertible",
-            "CaseIterable",
         ]
     }
 
     /// Constants related to generated oneOf enums.
     enum OneOf {
-        /// The name of the undocumented enum case.
-        static let undocumentedCaseName = "undocumented"
-
         /// The name of the discriminator variable.
         static let discriminatorName = "discriminator"
     }
@@ -277,6 +279,29 @@ enum Constants {
             /// The name of the undocumented payload type.
             static let undocumentedCaseAssociatedValueTypeName = "UndocumentedPayload"
         }
+
+        /// Constants related to every OpenAPI operation's AcceptableContentType
+        /// type.
+        enum AcceptableContentType {
+
+            /// The name of the type.
+            static let typeName: String = "AcceptableContentType"
+
+            /// The types that the AcceptableContentType type conforms to.
+            static let conformances: [String] = [
+                "AcceptableProtocol"
+            ]
+
+            /// The name of the variable on Input given to the acceptable
+            /// content types array.
+            static let variableName: String = "accept"
+
+            /// The name of the wrapper type.
+            static let headerTypeName: String = "AcceptHeaderContentType"
+
+            /// The name of the "other" case name.
+            static let otherCaseName: String = "other"
+        }
     }
 
     /// Constants related to the Components namespace.
@@ -347,11 +372,14 @@ enum Constants {
         /// The substring used in method names for the JSON coding strategy.
         static let json: String = "JSON"
 
-        /// The substring used in method names for the text coding strategy.
-        static let text: String = "Text"
+        /// The substring used in method names for the URI coding strategy.
+        static let uri: String = "URI"
 
         /// The substring used in method names for the binary coding strategy.
         static let binary: String = "Binary"
+
+        /// The substring used in method names for the url encoded form coding strategy.
+        static let urlEncodedForm: String = "URLEncodedForm"
     }
 
     /// Constants related to types used in many components.

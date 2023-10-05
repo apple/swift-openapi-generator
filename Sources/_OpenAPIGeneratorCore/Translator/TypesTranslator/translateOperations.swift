@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension TypesFileTranslator {
 
@@ -27,15 +27,21 @@ extension TypesFileTranslator {
 
         func propertyBlueprintForNamespacedStruct(
             locatedIn location: OpenAPI.Parameter.Context.Location,
-            withPropertiesFrom parameters: [UnresolvedParameter]
-        ) throws -> PropertyBlueprint {
+            withPropertiesFrom parameters: [UnresolvedParameter],
+            extraProperties: [PropertyBlueprint] = []
+        ) throws -> PropertyBlueprint? {
             let inputTypeName = description.inputTypeName
             let structTypeName = location.typeName(in: inputTypeName)
-            let structProperties: [PropertyBlueprint] = try parameters.compactMap { parameter in
-                try parseParameterAsProperty(
-                    for: parameter,
-                    inParent: inputTypeName
-                )
+            let structProperties: [PropertyBlueprint] =
+                try parameters
+                .compactMap { parameter in
+                    try parseParameterAsProperty(
+                        for: parameter,
+                        inParent: inputTypeName
+                    )
+                } + extraProperties
+            guard !structProperties.isEmpty else {
+                return nil
             }
             let structDecl: Declaration = .commentable(
                 structTypeName.docCommentWithUserDescription(nil),
@@ -55,7 +61,7 @@ extension TypesFileTranslator {
                 // If inner struct is being used as an optional property, its default value in the
                 // initializer of the outer struct is `nil`.
                 defaultValue = .nil
-            } else if structProperties.allSatisfy(\.typeUsage.isOptional) {
+            } else if structProperties.allSatisfy({ $0.defaultValue != nil }) {
                 // If inner struct is being used as an non-optional property, but it only has
                 // optional inner properties, its default value in the initializer of the outer
                 // struct is `.init()`.
@@ -83,6 +89,21 @@ extension TypesFileTranslator {
             inParent: inputTypeName
         )
 
+        let acceptableContentTypes = try acceptHeaderContentTypes(for: description)
+        let extraHeaderProperties: [PropertyBlueprint]
+        if acceptableContentTypes.isEmpty {
+            extraHeaderProperties = []
+        } else {
+            let acceptPropertyBlueprint = PropertyBlueprint(
+                comment: nil,
+                originalName: Constants.Operation.AcceptableContentType.variableName,
+                typeUsage: description.acceptableArrayName,
+                default: .expression(.dot("defaultValues").call([])),
+                asSwiftSafeName: swiftSafeName
+            )
+            extraHeaderProperties = [acceptPropertyBlueprint]
+        }
+
         let inputStructDecl = translateStructBlueprint(
             .init(
                 comment: nil,
@@ -100,7 +121,8 @@ extension TypesFileTranslator {
                     ),
                     try propertyBlueprintForNamespacedStruct(
                         locatedIn: .header,
-                        withPropertiesFrom: description.allHeaderParameters
+                        withPropertiesFrom: description.allHeaderParameters,
+                        extraProperties: extraHeaderProperties
                     ),
                     try propertyBlueprintForNamespacedStruct(
                         locatedIn: .cookie,
@@ -108,6 +130,7 @@ extension TypesFileTranslator {
                     ),
                     bodyProperty,
                 ]
+                .compactMap { $0 }
             )
         )
         return inputStructDecl
@@ -133,14 +156,12 @@ extension TypesFileTranslator {
                     operationJSONPath: description.jsonPathComponent
                 )
             }
-        let documentedMembers: [Declaration] =
-            documentedOutcomes
-            .flatMap { inlineResponseDecl, caseDecl in
-                guard let inlineResponseDecl else {
-                    return [caseDecl]
-                }
-                return [inlineResponseDecl, caseDecl]
-            }
+        let documentedMembers: [Declaration] = documentedOutcomes.flatMap {
+            inlineResponseDecl,
+            caseDecl,
+            throwingGetter in
+            [inlineResponseDecl, caseDecl, throwingGetter].compactMap { $0 }
+        }
 
         let allMembers: [Declaration]
         if description.containsDefaultResponse {
@@ -175,6 +196,39 @@ extension TypesFileTranslator {
         return enumDecl
     }
 
+    /// Returns a declaration of the AcceptableContentType type for the specified
+    /// operation.
+    /// - Parameter description: The OpenAPI operation.
+    /// - Returns: A structure declaration that represents
+    /// the AcceptableContentType type, or nil if no acceptable content types
+    /// were specified.
+    func translateOperationAcceptableContentType(
+        _ description: OperationDescription
+    ) throws -> Declaration? {
+        let acceptableContentTypeName = description.acceptableContentTypeName
+        let contentTypes = try acceptHeaderContentTypes(for: description)
+        guard !contentTypes.isEmpty else {
+            return nil
+        }
+        let cases: [(caseName: String, rawExpr: LiteralDescription)] =
+            contentTypes
+            .map { contentType in
+                (contentSwiftName(contentType), .string(contentType.lowercasedTypeAndSubtype))
+            }
+        return try translateRawRepresentableEnum(
+            typeName: acceptableContentTypeName,
+            conformances: Constants.Operation.AcceptableContentType.conformances,
+            userDescription: nil,
+            cases: cases,
+            unknownCaseName: Constants.Operation.AcceptableContentType.otherCaseName,
+            unknownCaseDescription: nil,
+            customSwitchedExpression: { expr in
+                // Lowercase the raw value before switching over.
+                expr.dot("lowercased").call([])
+            }
+        )
+    }
+
     /// Returns a declaration of the namespace type of the specified operation.
     ///
     /// The namespace type is the parent type of the operation's Input and
@@ -200,6 +254,7 @@ extension TypesFileTranslator {
 
         let inputDecl: Declaration = try translateOperationInput(operation)
         let outputDecl: Declaration = try translateOperationOutput(operation)
+        let acceptDecl: Declaration? = try translateOperationAcceptableContentType(operation)
 
         let operationNamespace = operation.operationNamespace
         let operationEnumDecl = Declaration.commentable(
@@ -212,7 +267,7 @@ extension TypesFileTranslator {
                         idPropertyDecl,
                         inputDecl,
                         outputDecl,
-                    ]
+                    ] + (acceptDecl.flatMap { [$0] } ?? [])
                 )
             )
         )

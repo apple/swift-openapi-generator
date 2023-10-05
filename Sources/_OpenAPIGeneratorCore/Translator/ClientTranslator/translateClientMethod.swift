@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension ClientFileTranslator {
 
@@ -32,7 +32,7 @@ extension ClientFileTranslator {
             left: "path",
             right: .try(
                 .identifier("converter")
-                    .dot("renderedRequestPath")
+                    .dot("renderedPath")
                     .call([
                         .init(label: "template", expression: .literal(pathTemplate)),
                         .init(label: "parameters", expression: pathParamsArrayExpr),
@@ -45,7 +45,7 @@ extension ClientFileTranslator {
             type: TypeName.request.fullyQualifiedSwiftName,
             right: .dot("init")
                 .call([
-                    .init(label: "path", expression: .identifier("path")),
+                    .init(label: "soar_path", expression: .identifier("path")),
                     .init(label: "method", expression: .dot(description.httpMethodLowercased)),
                 ])
         )
@@ -53,7 +53,7 @@ extension ClientFileTranslator {
         let typedParameters = try typedParameters(
             from: description
         )
-        var requestExprs: [Expression] = []
+        var requestBlocks: [CodeBlock] = []
 
         let nonPathParameters =
             typedParameters
@@ -67,41 +67,58 @@ extension ClientFileTranslator {
                     inputVariableName: "input"
                 )
             }
-        requestExprs.append(contentsOf: nonPathParamExprs)
+        requestBlocks.append(contentsOf: nonPathParamExprs.map { .expression($0) })
 
         let acceptContent = try acceptHeaderContentTypes(
             for: description
         )
         if !acceptContent.isEmpty {
-            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept
-            let acceptValue =
-                acceptContent
-                .map(\.headerValueForValidation)
-                .joined(separator: ", ")
-            let addAcceptHeaderExpr: Expression = .try(
-                .identifier("converter").dot("setHeaderFieldAsText")
-                    .call([
-                        .init(
-                            label: "in",
-                            expression: .inOut(.identifier("request").dot("headerFields"))
-                        ),
-                        .init(label: "name", expression: "accept"),
-                        .init(label: "value", expression: .literal(acceptValue)),
-                    ])
-            )
-            requestExprs.append(addAcceptHeaderExpr)
+            let setAcceptHeaderExpr: Expression =
+                .identifier("converter")
+                .dot("setAcceptHeader")
+                .call([
+                    .init(
+                        label: "in",
+                        expression: .inOut(.identifier("request").dot("headerFields"))
+                    ),
+                    .init(
+                        label: "contentTypes",
+                        expression: .identifier("input").dot("headers").dot("accept")
+                    ),
+                ])
+            requestBlocks.append(.expression(setAcceptHeaderExpr))
         }
 
+        let requestBodyReturnExpr: Expression
         if let requestBody = try typedRequestBody(in: description) {
+            let bodyVariableName = "body"
+            requestBlocks.append(
+                .declaration(
+                    .variable(
+                        kind: .let,
+                        left: bodyVariableName,
+                        type: TypeName.body.asUsage.asOptional.fullyQualifiedSwiftName
+                    )
+                )
+            )
+            requestBodyReturnExpr = .identifier(bodyVariableName)
             let requestBodyExpr = try translateRequestBodyInClient(
                 requestBody,
                 requestVariableName: "request",
+                bodyVariableName: bodyVariableName,
                 inputVariableName: "input"
             )
-            requestExprs.append(requestBodyExpr)
+            requestBlocks.append(.expression(requestBodyExpr))
+        } else {
+            requestBodyReturnExpr = nil
         }
 
-        let returnRequestExpr: Expression = .return(.identifier("request"))
+        let returnRequestExpr: Expression = .return(
+            .tuple([
+                .identifier("request"),
+                requestBodyReturnExpr,
+            ])
+        )
 
         return .closureInvocation(
             argumentNames: [
@@ -111,7 +128,7 @@ extension ClientFileTranslator {
                 .declaration(pathDecl),
                 .declaration(requestDecl),
                 .expression(requestDecl.suppressMutabilityWarningExpr),
-            ] + requestExprs.map { .expression($0) } + [
+            ] + requestBlocks + [
                 .expression(returnRequestExpr)
             ]
         )
@@ -139,7 +156,7 @@ extension ClientFileTranslator {
             let undocumentedExpr: Expression = .return(
                 .dot(Constants.Operation.Output.undocumentedCaseName)
                     .call([
-                        .init(label: "statusCode", expression: .identifier("response").dot("statusCode")),
+                        .init(label: "statusCode", expression: .identifier("response").dot("status").dot("code")),
                         .init(label: nil, expression: .dot("init").call([])),
                     ])
             )
@@ -153,11 +170,11 @@ extension ClientFileTranslator {
             )
         }
         let switchStatusCodeExpr: Expression = .switch(
-            switchedExpression: .identifier("response").dot("statusCode"),
+            switchedExpression: .identifier("response").dot("status").dot("code"),
             cases: cases
         )
         return .closureInvocation(
-            argumentNames: ["response"],
+            argumentNames: ["response", "responseBody"],
             body: [
                 .expression(switchStatusCodeExpr)
             ]

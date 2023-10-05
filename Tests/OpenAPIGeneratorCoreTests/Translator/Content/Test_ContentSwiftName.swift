@@ -12,33 +12,13 @@
 //
 //===----------------------------------------------------------------------===//
 import XCTest
-import OpenAPIKit30
+import OpenAPIKit
 @testable import _OpenAPIGeneratorCore
 
 final class Test_ContentSwiftName: Test_Core {
 
-    func testExisting() throws {
-        let nameMaker = makeTranslator(featureFlags: []).contentSwiftName
-        let cases: [(String, String)] = [
-            ("application/json", "json"),
-            ("application/x-www-form-urlencoded", "binary"),
-            ("multipart/form-data", "binary"),
-            ("text/plain", "text"),
-            ("*/*", "binary"),
-            ("application/xml", "binary"),
-            ("application/octet-stream", "binary"),
-            ("application/myformat+json", "json"),
-            ("foo/bar", "binary"),
-        ]
-        try _testIdentifiers(cases: cases, nameMaker: nameMaker)
-    }
-
-    func testProposed_multipleContentTypes() throws {
-        let nameMaker = makeTranslator(featureFlags: [
-            .proposal0001,
-            .multipleContentTypes,
-        ])
-        .contentSwiftName
+    func test() throws {
+        let nameMaker = makeTranslator().contentSwiftName
         let cases: [(String, String)] = [
 
             // Short names.
@@ -59,11 +39,12 @@ final class Test_ContentSwiftName: Test_Core {
             // Generic names.
             ("application/myformat+json", "application_myformat_plus_json"),
             ("foo/bar", "foo_bar"),
-        ]
-        try _testIdentifiers(cases: cases, nameMaker: nameMaker)
-    }
 
-    func _testIdentifiers(cases: [(String, String)], nameMaker: (ContentType) -> String) throws {
+            // Names with a parameter.
+            ("application/foo", "application_foo"),
+            ("application/foo; bar=baz; boo=foo", "application_foo_bar_baz_boo_foo"),
+            ("application/foo; bar = baz", "application_foo_bar_baz"),
+        ]
         for item in cases {
             let contentType = try XCTUnwrap(ContentType(item.0))
             XCTAssertEqual(nameMaker(contentType), item.1, "Case \(item.0) failed")

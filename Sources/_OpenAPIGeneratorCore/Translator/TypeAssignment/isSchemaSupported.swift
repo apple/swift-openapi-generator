@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 /// A result of checking whether a schema is supported.
 enum IsSchemaSupportedResult: Equatable {
@@ -166,7 +166,7 @@ extension FileTranslator {
             // > When using the discriminator, inline schemas will not be considered.
             // > — https://spec.openapis.org/oas/v3.0.3#discriminator-object
             return try areRefsToObjectishSchemaAndSupported(schemas.filter(\.isReference))
-        case .not:
+        case .not, .null:
             return .unsupported(
                 reason: .schemaType,
                 schema: schema
@@ -218,16 +218,32 @@ extension FileTranslator {
     /// - Throws: An error if there's an issue during the validation process.
     func isObjectishSchemaAndSupported(_ schema: JSONSchema) throws -> IsSchemaSupportedResult {
         switch schema.value {
-        case .object, .reference:
+        case .object:
             return try isSchemaSupported(schema)
-        case .all(of: let schemas, _):
-            return try areSchemasSupported(schemas)
+        case .reference:
+            return try isRefToObjectishSchemaAndSupported(schema)
+        case .all(of: let schemas, _), .any(of: let schemas, _), .one(of: let schemas, _):
+            return try areObjectishSchemasAndSupported(schemas)
         default:
             return .unsupported(
                 reason: .notObjectish,
                 schema: schema
             )
         }
+    }
+
+    /// Returns a result indicating whether the provided schemas
+    /// are object-ish schemas and supported.
+    /// - Parameter schemas: Schemas to check.
+    /// - Returns: `.supported` if all schemas match; `.unsupported` otherwise.
+    func areObjectishSchemasAndSupported(_ schemas: [JSONSchema]) throws -> IsSchemaSupportedResult {
+        for schema in schemas {
+            let result = try isObjectishSchemaAndSupported(schema)
+            guard result == .supported else {
+                return result
+            }
+        }
+        return .supported
     }
 
     /// Returns a result indicating whether the provided schemas

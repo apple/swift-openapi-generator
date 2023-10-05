@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension Comment {
 
@@ -111,12 +111,12 @@ extension TypeName {
     /// - Returns: A documentation  comment with the "generated from" string
     ///            appended to the user description  or nil if not available.
     func docCommentWithUserDescription(_ userDescription: String?, subPath: String) -> Comment? {
-        guard let fullyQualifiedJSONPath else {
+        guard let jsonPath = appending(jsonComponent: subPath).fullyQualifiedJSONPath else {
             return Comment.doc(prefix: userDescription, suffix: nil)
         }
         return Comment.doc(
             prefix: userDescription,
-            suffix: "- Remark: Generated from `\(fullyQualifiedJSONPath)/\(subPath)`."
+            suffix: "- Remark: Generated from `\(jsonPath)`."
         )
     }
 }
@@ -174,7 +174,7 @@ extension ContentType {
     func docComment(typeName: TypeName) -> Comment? {
         typeName.docCommentWithUserDescription(
             nil,
-            subPath: lowercasedTypeAndSubtypeWithEscape
+            subPath: lowercasedTypeSubtypeAndParametersWithEscape
         )
     }
 }

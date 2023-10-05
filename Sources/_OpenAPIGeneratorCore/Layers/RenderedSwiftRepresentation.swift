@@ -11,7 +11,13 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import Foundation
+#if os(Linux)
+@preconcurrency import struct Foundation.URL
+@preconcurrency import struct Foundation.Data
+#else
+import struct Foundation.URL
+import struct Foundation.Data
+#endif
 
 /// An in-memory file that contains the generated Swift code.
 typealias RenderedSwiftRepresentation = InMemoryOutputFile
@@ -19,7 +25,7 @@ typealias RenderedSwiftRepresentation = InMemoryOutputFile
 /// An in-memory input file that contains the raw data of an OpenAPI document.
 ///
 /// Contents are formatted as either YAML or JSON.
-public struct InMemoryInputFile {
+public struct InMemoryInputFile: Sendable {
 
     /// The absolute path to the file.
     public var absolutePath: URL
@@ -38,7 +44,7 @@ public struct InMemoryInputFile {
 }
 
 /// An in-memory output file that contains the generated Swift source code.
-public struct InMemoryOutputFile {
+public struct InMemoryOutputFile: Sendable {
 
     /// The base name of the file.
     public var baseName: String

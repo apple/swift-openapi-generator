@@ -20,56 +20,11 @@ extension FileTranslator {
     /// - Parameter string: The string to convert to be safe for Swift.
     /// - Returns: A Swift-safe version of the input string.
     func swiftSafeName(for string: String) -> String {
-        guard config.featureFlags.contains(.proposal0001) else {
-            return string.safeForSwiftCode
-        }
-        return string.proposedSafeForSwiftCode
+        string.safeForSwiftCode
     }
 }
 
 fileprivate extension String {
-
-    /// Returns a string sanitized to be usable as a Swift identifier.
-    ///
-    /// For example, the string `$nake` would be returned as `_nake`, because
-    /// the dollar sign is not a valid character in a Swift identifier.
-    ///
-    /// In addition to replacing illegal characters with an underscores, also
-    /// ensures that the identifier starts with a letter and not a number.
-    var safeForSwiftCode: String {
-        guard !isEmpty else {
-            return "_empty"
-        }
-
-        // Only allow [a-zA-Z][a-zA-Z0-9_]*
-        // This is bad, is there something like percent encoding functionality but for general "allowed chars only"?
-
-        let firstCharSet: CharacterSet = .letters
-        let numbers: CharacterSet = .decimalDigits
-        let otherCharSet: CharacterSet = .alphanumerics.union(.init(charactersIn: "_"))
-
-        var sanitizedScalars: [Unicode.Scalar] = []
-        for (index, scalar) in unicodeScalars.enumerated() {
-            let allowedSet = index == 0 ? firstCharSet : otherCharSet
-            let outScalar: Unicode.Scalar
-            if allowedSet.contains(scalar) {
-                outScalar = scalar
-            } else if index == 0 && numbers.contains(scalar) {
-                sanitizedScalars.append("_")
-                outScalar = scalar
-            } else {
-                outScalar = "_"
-            }
-            sanitizedScalars.append(outScalar)
-        }
-
-        let validString = String(UnicodeScalarView(sanitizedScalars))
-
-        guard Self.keywords.contains(validString) else {
-            return validString
-        }
-        return "_\(validString)"
-    }
 
     /// Returns a string sanitized to be usable as a Swift identifier.
     ///
@@ -82,7 +37,7 @@ fileprivate extension String {
     ///
     /// In addition to replacing illegal characters, it also
     /// ensures that the identifier starts with a letter and not a number.
-    var proposedSafeForSwiftCode: String {
+    var safeForSwiftCode: String {
         guard !isEmpty else {
             return "_empty"
         }

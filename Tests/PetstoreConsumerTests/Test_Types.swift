@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import XCTest
-import OpenAPIRuntime
+@testable import OpenAPIRuntime
 import PetstoreConsumerTestCore
 
 final class Test_Types: XCTestCase {
@@ -25,7 +25,7 @@ final class Test_Types: XCTestCase {
     func testStructCodingKeys() throws {
         let cases: [(Components.Schemas._Error.CodingKeys, String)] = [
             (.code, "code"),
-            (.me_sage, "me$sage"),
+            (.me_dollar_sage, "me$sage"),
         ]
         for (value, rawValue) in cases {
             XCTAssertEqual(value.rawValue, rawValue)
@@ -35,7 +35,7 @@ final class Test_Types: XCTestCase {
     func testEnumCoding() throws {
         let cases: [(Components.Schemas.PetKind, String)] = [
             (.cat, "cat"),
-            (._nake, "$nake"),
+            (._dollar_nake, "$nake"),
         ]
         for (value, rawValue) in cases {
             XCTAssertEqual(value.rawValue, rawValue)
@@ -43,11 +43,16 @@ final class Test_Types: XCTestCase {
     }
 
     var testEncoder: JSONEncoder {
-        .init()
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.outputFormatting = [.sortedKeys]
+        return encoder
     }
 
     var testDecoder: JSONDecoder {
-        .init()
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
     }
 
     func roundtrip<T: Codable & Equatable>(_ value: T) throws -> T {
@@ -124,6 +129,68 @@ final class Test_Types: XCTestCase {
         )
     }
 
+    func testAllAnyOneOf_withDate_roundtrip() throws {
+        func testJSON<T: Codable & Equatable>(
+            _ value: T,
+            expectedJSON: String,
+            file: StaticString = #file,
+            line: UInt = #line
+        ) throws {
+            let data = try testEncoder.encode(value)
+            XCTAssertEqual(String(decoding: data, as: UTF8.self), expectedJSON, file: file, line: line)
+            let decodedValue = try testDecoder.decode(T.self, from: data)
+            XCTAssertEqual(decodedValue, value, file: file, line: line)
+        }
+
+        try testJSON(
+            Components.Schemas.MixedAnyOf(
+                value1: Date(timeIntervalSince1970: 1_674_036_251),
+                value4: #"2023-01-18T10:04:11Z"#
+            ),
+            expectedJSON: #""2023-01-18T10:04:11Z""#
+        )
+        try testJSON(
+            Components.Schemas.MixedAnyOf(
+                value2: .BIG_ELEPHANT_1,
+                value4: #"BIG_ELEPHANT_1"#
+            ),
+            expectedJSON: #""BIG_ELEPHANT_1""#
+        )
+        try testJSON(
+            Components.Schemas.MixedAnyOf(
+                value3: .init(id: 1, name: "Fluffz")
+            ),
+            expectedJSON: #"{"id":1,"name":"Fluffz"}"#
+        )
+
+        try testJSON(
+            Components.Schemas.MixedOneOf.case1(
+                Date(timeIntervalSince1970: 1_674_036_251)
+            ),
+            expectedJSON: #""2023-01-18T10:04:11Z""#
+        )
+        try testJSON(
+            Components.Schemas.MixedOneOf.PetKind(
+                .BIG_ELEPHANT_1
+            ),
+            expectedJSON: #""BIG_ELEPHANT_1""#
+        )
+        try testJSON(
+            Components.Schemas.MixedOneOf.Pet(
+                .init(id: 1, name: "Fluffz")
+            ),
+            expectedJSON: #"{"id":1,"name":"Fluffz"}"#
+        )
+
+        try testJSON(
+            Components.Schemas.MixedAllOfPrimitive(
+                value1: Date(timeIntervalSince1970: 1_674_036_251),
+                value2: #"2023-01-18T10:04:11Z"#
+            ),
+            expectedJSON: #""2023-01-18T10:04:11Z""#
+        )
+    }
+
     func testAllOf_missingProperty() throws {
         XCTAssertThrowsError(
             try testDecoder.decode(
@@ -188,9 +255,6 @@ final class Test_Types: XCTestCase {
         try _testRoundtrip(
             Components.Schemas.OneOfAny.case4(.init(message: "hello"))
         )
-        try _testRoundtrip(
-            Components.Schemas.OneOfAny.undocumented(true)
-        )
     }
 
     func testOneOfWithDiscriminator_roundtrip() throws {
@@ -212,14 +276,6 @@ final class Test_Types: XCTestCase {
                     )
                 )
         )
-        try _testRoundtrip(
-            Components.Schemas.OneOfObjectsWithDiscriminator
-                .undocumented(
-                    .init(unvalidatedValue: [
-                        "kind": "nope"
-                    ])
-                )
-        )
     }
 
     func testOneOfWithDiscriminator_invalidDiscriminator() throws {
@@ -229,5 +285,35 @@ final class Test_Types: XCTestCase {
                 from: Data(#"{}"#.utf8)
             )
         )
+    }
+
+    func testThrowingShorthandAPIs() throws {
+        let created = Operations.createPet.Output.Created(body: .json(.init(id: 42, name: "Scruffy")))
+        let output = Operations.createPet.Output.created(created)
+        XCTAssertEqual(try output.created, created)
+        XCTAssertThrowsError(try output.clientError) { error in
+            guard
+                case let .unexpectedResponseStatus(expectedStatus, actualOutput) = error as? RuntimeError,
+                expectedStatus == "clientError",
+                actualOutput as? Operations.createPet.Output == output
+            else {
+                XCTFail("Expected error, but not this: \(error)")
+                return
+            }
+        }
+
+        let stats = Components.Schemas.PetStats(count: 42)
+        let ok = Operations.getStats.Output.Ok(body: .json(stats))
+        XCTAssertEqual(try ok.body.json, stats)
+        XCTAssertThrowsError(try ok.body.plainText) { error in
+            guard
+                case let .unexpectedResponseBody(expectedContentType, actualBody) = error as? RuntimeError,
+                expectedContentType == "text/plain",
+                actualBody as? Operations.getStats.Output.Ok.Body == .json(stats)
+            else {
+                XCTFail("Expected error, but not this: \(error)")
+                return
+            }
+        }
     }
 }

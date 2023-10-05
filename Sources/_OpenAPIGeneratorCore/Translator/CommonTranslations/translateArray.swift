@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit30
+import OpenAPIKit
 
 extension FileTranslator {
 
@@ -39,11 +39,15 @@ extension FileTranslator {
         // An OpenAPI array is represented as a Swift array with an element type
         let elementType: TypeUsage
         if let items = arrayContext.items {
-            if let builtinType = try typeMatcher.tryMatchReferenceableType(for: items) {
+            if let builtinType = try typeMatcher.tryMatchReferenceableType(
+                for: items,
+                components: components
+            ) {
                 elementType = builtinType
             } else {
                 elementType = try typeAssigner.typeUsage(
                     forArrayElementWithSchema: items,
+                    components: components,
                     inParent: typeName
                 )
                 let nestedDecls = try translateSchema(

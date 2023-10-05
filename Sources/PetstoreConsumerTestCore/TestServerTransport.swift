@@ -12,6 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIRuntime
+import HTTPTypes
 
 /// A test implementation of the `ServerTransport` protocol for simulating server-side API handling.
 ///
@@ -32,28 +33,18 @@ import OpenAPIRuntime
 public final class TestServerTransport: ServerTransport {
     /// Represents the input parameters for an API operation.
     public struct OperationInputs: Equatable {
-        /// The HTTP method of the operation.
-        public var method: HTTPMethod
-        /// The path components of the operation's route.
-        public var path: [RouterPathComponent]
-        /// The names of query items in the operation's URL.
-        public var queryItemNames: Set<String>
+        public var method: HTTPRequest.Method
+        public var path: String
 
-        /// Initializes a new instance of `OperationInputs`.
-        ///
-        /// - Parameters:
-        ///   - method: The HTTP method of the operation.
-        ///   - path: The path components of the operation's route.
-        ///   - queryItemNames: The names of query items in the operation's URL.
-        public init(method: HTTPMethod, path: [RouterPathComponent], queryItemNames: Set<String>) {
+        public init(method: HTTPRequest.Method, path: String) {
             self.method = method
             self.path = path
-            self.queryItemNames = queryItemNames
         }
     }
 
-    /// Represents a handler closure for an API operation.
-    public typealias Handler = @Sendable (Request, ServerRequestMetadata) async throws -> Response
+    public typealias Handler = @Sendable (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody?
+    )
 
     /// Represents an operation with its inputs and associated handler.
     public struct Operation {
@@ -88,14 +79,15 @@ public final class TestServerTransport: ServerTransport {
     ///   - queryItemNames: The query item names of the operation.
     /// - Throws: An error if there's an issue registering the operation.
     public func register(
-        _ handler: @escaping Handler,
-        method: HTTPMethod,
-        path: [RouterPathComponent],
-        queryItemNames: Set<String>
+        _ handler: @Sendable @escaping (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (
+            HTTPResponse, HTTPBody?
+        ),
+        method: HTTPRequest.Method,
+        path: String
     ) throws {
         registered.append(
             Operation(
-                inputs: .init(method: method, path: path, queryItemNames: queryItemNames),
+                inputs: .init(method: method, path: path),
                 closure: handler
             )
         )
