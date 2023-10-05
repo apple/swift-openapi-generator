@@ -18,73 +18,6 @@ import Yams
 
 final class FilteredDocumentTests: XCTestCase {
 
-    func testFilteredDocumentBuilder() throws {
-        let documentYAML = """
-            openapi: '3.1.0'
-            info:
-              title: GreetingService
-              version: 1.0.0
-            paths:
-              /A:
-                get:
-                  operationId: getA
-                  responses:
-                    '200':
-                      description: Success.
-                      content:
-                        application/json:
-                          schema:
-                            $ref: '#/components/schemas/A'
-              /B:
-                get:
-                  operationId: getB
-                  responses:
-                    '200':
-                      description: Success.
-                      content:
-                        application/json:
-                          schema:
-                            $ref: '#/components/schemas/B'
-            components:
-              schemas:
-                A: {}
-                B:
-                  $ref: '#/components/schemas/A'
-            """
-        let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: documentYAML)
-        do {
-            let builder = FilteredDocumentBuilder(document: document)
-            let filteredDocument = try builder.filter()
-            XCTAssertEqual(filteredDocument.paths.keys, [])
-            XCTAssertEqual(filteredDocument.allOperationIds, [])
-            XCTAssertEqual(filteredDocument.components, .noComponents)
-        }
-        do {
-            var builder = FilteredDocumentBuilder(document: document)
-            try builder.requirePath(operationID: "getA")
-            let filteredDocument = try builder.filter()
-            XCTAssertEqual(filteredDocument.paths.keys, ["/A"])
-            XCTAssertEqual(filteredDocument.allOperationIds, ["getA"])
-            XCTAssertEqual(filteredDocument.components.schemas.keys.map(\.rawValue).sorted(), ["A"].sorted())
-        }
-        do {
-            var builder = FilteredDocumentBuilder(document: document)
-            try builder.requirePath(operationID: "getB")
-            let filteredDocument = try builder.filter()
-            XCTAssertEqual(filteredDocument.paths.keys, ["/B"])
-            XCTAssertEqual(filteredDocument.allOperationIds, ["getB"])
-            XCTAssertEqual(filteredDocument.components.schemas.keys.map(\.rawValue).sorted(), ["A", "B"].sorted())
-        }
-        do {
-            var builder = FilteredDocumentBuilder(document: document)
-            try builder.requirePath("/A")
-            let filteredDocument = try builder.filter()
-            XCTAssertEqual(filteredDocument.paths.keys, ["/A"])
-            XCTAssertEqual(filteredDocument.allOperationIds, ["getA"])
-            XCTAssertEqual(filteredDocument.components.schemas.keys.map(\.rawValue).sorted(), ["A"].sorted())
-        }
-    }
-
     func testDocumentFilter() throws {
         let documentYAML = """
             openapi: 3.1.0
@@ -96,13 +29,20 @@ final class FilteredDocumentTests: XCTestCase {
             paths:
               /things/a:
                 get:
+                  operationId: getA
                   tags:
                   - t
                   responses:
                     200:
                       $ref: '#/components/responses/A'
+                delete:
+                  operationId: deleteA
+                  responses:
+                    200:
+                      $ref: '#/components/responses/Empty'
               /things/b:
                 get:
+                  operationId: getB
                   responses:
                     200:
                       $ref: '#/components/responses/B'
@@ -125,67 +65,109 @@ final class FilteredDocumentTests: XCTestCase {
                     application/json:
                       schema:
                         $ref: '#/components/schemas/B'
+                Empty:
+                  description: success
             """
         let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: documentYAML)
-        do {
-            let documentFilter = DocumentFilter()
-            let filteredDocument = try documentFilter.filter(document)
-            XCTAssert(filteredDocument.paths.isEmpty)
-            XCTAssert(filteredDocument.components.isEmpty)
-        }
-        do {
-            let documentFilter = DocumentFilter(tags: ["t"])
-            let filteredDocument = try documentFilter.filter(document)
-            XCTAssertEqual(filteredDocument.paths.keys, ["/things/a"])
-            XCTAssertEqual(filteredDocument.components.schemas.keys.map(\.rawValue).sorted(), ["A"].sorted())
-        }
-        do {
-            let documentFilter = DocumentFilter(paths: ["/things/a"])
-            let filteredDocument = try documentFilter.filter(document)
-            XCTAssertEqual(filteredDocument.paths.keys, ["/things/a"])
-            XCTAssertEqual(filteredDocument.components.schemas.keys.map(\.rawValue).sorted(), ["A"].sorted())
-        }
-        do {
-            let documentFilter = DocumentFilter(paths: ["/things/b"])
-            let filteredDocument = try documentFilter.filter(document)
-            XCTAssertEqual(filteredDocument.paths.keys, ["/things/b"])
-            XCTAssertEqual(filteredDocument.components.schemas.keys.map(\.rawValue).sorted(), ["A", "B"].sorted())
-        }
-        do {
-            let documentFilter = DocumentFilter(paths: ["/things/a", "/things/b"])
-            let filteredDocument = try documentFilter.filter(document)
-            XCTAssertEqual(filteredDocument.paths.keys, ["/things/a", "/things/b"])
-            XCTAssertEqual(filteredDocument.components.schemas.keys.map(\.rawValue).sorted(), ["A", "B"].sorted())
-        }
-        do {
-            let documentFilter = DocumentFilter(schemas: ["A"])
-            let filteredDocument = try documentFilter.filter(document)
-            XCTAssertEqual(filteredDocument.paths.keys, [])
-            XCTAssertEqual(filteredDocument.components.schemas.keys.map(\.rawValue).sorted(), ["A"].sorted())
-        }
-        do {
-            let documentFilter = DocumentFilter(schemas: ["B"])
-            let filteredDocument = try documentFilter.filter(document)
-            XCTAssertEqual(filteredDocument.paths.keys, [])
-            XCTAssertEqual(filteredDocument.components.schemas.keys.map(\.rawValue).sorted(), ["A", "B"].sorted())
-        }
-        do {
-            let documentFilter = DocumentFilter(paths: ["/things/a"], schemas: ["B"])
-            let filteredDocument = try documentFilter.filter(document)
-            XCTAssertEqual(filteredDocument.paths.keys, ["/things/a"])
-            XCTAssertEqual(filteredDocument.components.schemas.keys.map(\.rawValue).sorted(), ["A", "B"].sorted())
-        }
-        do {
-            let documentFilter = DocumentFilter(tags: ["t"], schemas: ["B"])
-            let filteredDocument = try documentFilter.filter(document)
-            XCTAssertEqual(filteredDocument.paths.keys, ["/things/a"])
-            XCTAssertEqual(filteredDocument.components.schemas.keys.map(\.rawValue).sorted(), ["A", "B"].sorted())
-        }
-        do {
-            let documentFilter = DocumentFilter(tags: ["t"], paths: ["/things/b"])
-            let filteredDocument = try documentFilter.filter(document)
-            XCTAssertEqual(filteredDocument.paths.keys, ["/things/a", "/things/b"])
-            XCTAssertEqual(filteredDocument.components.schemas.keys.map(\.rawValue).sorted(), ["A", "B"].sorted())
-        }
+        try assert(
+            filtering: document,
+            filter: DocumentFilter(),
+            hasPaths: [],
+            hasOperations: [],
+            hasSchemas: []
+        )
+        try assert(
+            filtering: document,
+            filter: DocumentFilter(tags: ["t"]),
+            hasPaths: ["/things/a"],
+            hasOperations: ["getA", "deleteA"],
+            hasSchemas: ["A"]
+        )
+        try assert(
+            filtering: document,
+            filter: DocumentFilter(paths: ["/things/a"]),
+            hasPaths: ["/things/a"],
+            hasOperations: ["getA", "deleteA"],
+            hasSchemas: ["A"]
+        )
+        try assert(
+            filtering: document,
+            filter: DocumentFilter(paths: ["/things/b"]),
+            hasPaths: ["/things/b"],
+            hasOperations: ["getB"],
+            hasSchemas: ["A", "B"]
+        )
+        try assert(
+            filtering: document,
+            filter: DocumentFilter(paths: ["/things/a", "/things/b"]),
+            hasPaths: ["/things/a", "/things/b"],
+            hasOperations: ["getA", "deleteA", "getB"],
+            hasSchemas: ["A", "B"]
+        )
+        try assert(
+            filtering: document,
+            filter: DocumentFilter(schemas: ["A"]),
+            hasPaths: [],
+            hasOperations: [],
+            hasSchemas: ["A"]
+        )
+        try assert(
+            filtering: document,
+            filter: DocumentFilter(schemas: ["B"]),
+            hasPaths: [],
+            hasOperations: [],
+            hasSchemas: ["A", "B"]
+        )
+        try assert(
+            filtering: document,
+            filter: DocumentFilter(paths: ["/things/a"], schemas: ["B"]),
+            hasPaths: ["/things/a"],
+            hasOperations: ["getA", "deleteA"],
+            hasSchemas: ["A", "B"]
+        )
+        try assert(
+            filtering: document,
+            filter: DocumentFilter(tags: ["t"], schemas: ["B"]),
+            hasPaths: ["/things/a"],
+            hasOperations: ["getA", "deleteA"],
+            hasSchemas: ["A", "B"]
+        )
     }
+
+    func assert(
+        filtering document: OpenAPI.Document,
+        filter: DocumentFilter,
+        hasPaths paths: [OpenAPI.Path.RawValue],
+        hasOperations operationIDs: [String],
+        hasSchemas schemas: [String],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let filteredDocument: OpenAPI.Document
+        do {
+            filteredDocument = try filter.filter(document)
+        } catch {
+            XCTFail("Filter threw error: \(error)", file: file, line: line)
+            return
+        }
+        XCTAssertUnsortedEqual(filteredDocument.paths.keys.map(\.rawValue), paths, file: file, line: line)
+        XCTAssertUnsortedEqual(filteredDocument.allOperationIds, operationIDs, file: file, line: line)
+        XCTAssertUnsortedEqual(filteredDocument.components.schemas.keys.map(\.rawValue), schemas, file: file, line: line)
+    }
+}
+
+fileprivate func XCTAssertUnsortedEqual<T>(
+    _ expression1: @autoclosure () throws -> Array<T>,
+    _ expression2: @autoclosure () throws -> Array<T>,
+    _ message: @autoclosure () -> String = "",
+    file: StaticString = #filePath,
+    line: UInt = #line
+) where T: Comparable {
+    XCTAssertEqual(
+        try expression1().sorted(),
+        try expression2().sorted(),
+        message(),
+        file: file,
+        line: line
+    )
 }
