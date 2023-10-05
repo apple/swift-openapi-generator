@@ -69,70 +69,70 @@ final class FilteredDocumentTests: XCTestCase {
                   description: success
             """
         let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: documentYAML)
-        try assert(
+        assert(
             filtering: document,
             filter: DocumentFilter(),
             hasPaths: [],
             hasOperations: [],
             hasSchemas: []
         )
-        try assert(
+        assert(
             filtering: document,
             filter: DocumentFilter(tags: ["t"]),
             hasPaths: ["/things/a"],
             hasOperations: ["getA"],
             hasSchemas: ["A"]
         )
-        try assert(
+        assert(
             filtering: document,
             filter: DocumentFilter(paths: ["/things/a"]),
             hasPaths: ["/things/a"],
             hasOperations: ["getA", "deleteA"],
             hasSchemas: ["A"]
         )
-        try assert(
+        assert(
             filtering: document,
             filter: DocumentFilter(paths: ["/things/b"]),
             hasPaths: ["/things/b"],
             hasOperations: ["getB"],
             hasSchemas: ["A", "B"]
         )
-        try assert(
+        assert(
             filtering: document,
             filter: DocumentFilter(paths: ["/things/a", "/things/b"]),
             hasPaths: ["/things/a", "/things/b"],
             hasOperations: ["getA", "deleteA", "getB"],
             hasSchemas: ["A", "B"]
         )
-        try assert(
+        assert(
             filtering: document,
             filter: DocumentFilter(schemas: ["A"]),
             hasPaths: [],
             hasOperations: [],
             hasSchemas: ["A"]
         )
-        try assert(
+        assert(
             filtering: document,
             filter: DocumentFilter(schemas: ["B"]),
             hasPaths: [],
             hasOperations: [],
             hasSchemas: ["A", "B"]
         )
-        try assert(
+        assert(
             filtering: document,
             filter: DocumentFilter(paths: ["/things/a"], schemas: ["B"]),
             hasPaths: ["/things/a"],
             hasOperations: ["getA", "deleteA"],
             hasSchemas: ["A", "B"]
         )
-        try assert(
+        assert(
             filtering: document,
             filter: DocumentFilter(tags: ["t"], schemas: ["B"]),
             hasPaths: ["/things/a"],
             hasOperations: ["getA"],
             hasSchemas: ["A", "B"]
         )
-        try assert(
+        assert(
             filtering: document,
             filter: DocumentFilter(operations: ["deleteA"]),
             hasPaths: ["/things/a"],
@@ -149,7 +149,7 @@ final class FilteredDocumentTests: XCTestCase {
         hasSchemas schemas: [String],
         file: StaticString = #filePath,
         line: UInt = #line
-    ) throws {
+    ) {
         let filteredDocument: OpenAPI.Document
         do {
             filteredDocument = try filter.filter(document)
