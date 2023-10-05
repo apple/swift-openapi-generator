@@ -38,6 +38,7 @@ public struct FilteredDocumentBuilder {
     private(set) var requiredExampleReferences: Set<OpenAPI.Reference<OpenAPI.Example>>
     private(set) var requiredLinkReferences: Set<OpenAPI.Reference<OpenAPI.Link>>
     private(set) var requiredRequestReferences: Set<OpenAPI.Reference<OpenAPI.Request>>
+    private(set) var requiredEndpoints: [OpenAPI.Path: Set<OpenAPI.HttpMethod>]
 
     /// Create a new FilteredDocumentBuilder.
     ///
@@ -54,6 +55,7 @@ public struct FilteredDocumentBuilder {
         self.requiredExampleReferences = []
         self.requiredLinkReferences = []
         self.requiredRequestReferences = []
+        self.requiredEndpoints = [:]
     }
 
     /// Filter the underlying document based on the rules provided.
@@ -88,9 +90,23 @@ public struct FilteredDocumentBuilder {
         for reference in requiredRequestReferences {
             components.requestBodies[try reference.internalComponentKey] = try document.components.lookup(reference)
         }
-        var document = document.filteringPaths(with: requiredPaths.contains(_:))
-        document.components = components
-        return document
+        var filteredDocument = document.filteringPaths(with: requiredPaths.contains(_:))
+        for (path, methods) in requiredEndpoints {
+            if filteredDocument.paths.contains(key: path) {
+                continue
+            }
+            guard let maybeReference = document.paths[path] else {
+                continue
+            }
+            switch maybeReference {
+            case .a(let reference):
+                components.pathItems[try reference.internalComponentKey] = try document.components.lookup(reference).filteringEndpoints { methods.contains($0.method) }
+            case .b(let pathItem):
+                filteredDocument.paths[path] = .b(pathItem.filteringEndpoints { methods.contains($0.method) })
+            }
+        }
+        filteredDocument.components = components
+        return filteredDocument
     }
 
     /// Include a path (and all its component dependencies).
@@ -107,35 +123,27 @@ public struct FilteredDocumentBuilder {
         try requirePathItem(pathItem)
     }
 
-    /// Include paths with operations that have a given tag (and all their component dependencies).
+    /// Include operations that have a given tag (and all their component dependencies).
     ///
-    /// The paths are added to the filter, along with the transitive closure of all components
-    /// referenced within the corresponding path items.
+    /// Because tags are applied to operations (cf. paths), this may result in paths within filtered
+    /// document with a subset of the operations defined in the original document.
     ///
     /// - Parameter tag: The tag to use to include operations (and their paths).
-    public mutating func requirePaths(taggedWith tag: String) throws {
+    public mutating func requireOperations(tagged tag: String) throws {
         guard document.allTags.contains(tag) else {
             throw FilteredDocumentBuilderError.tagDoesNotExist(tag)
         }
-        let pathsWithTaggedOperations = document.paths.filter { _, pathItem in
-            document.components[pathItem]?.endpoints
-                .contains {
-                    $0.operation.tags?.contains(tag) ?? false
-                } ?? false
-        }
-        for path in pathsWithTaggedOperations {
-            try requirePath(path.key)
-        }
+        try requireOperations { endpoint in endpoint.operation.tags?.contains(tag) ?? false }
     }
 
-    /// Include paths with operations that have a given tag (and all their component dependencies).
+    /// Include operations that have a given tag (and all their component dependencies).
     ///
-    /// The paths are added to the filter, along with the transitive closure of all components
-    /// referenced within the corresponding path items.
+    /// Because tags are applied to operations (cf. paths), this may result in paths within filtered
+    /// document with a subset of the operations defined in the original document.
     ///
     /// - Parameter tag: The tag by which to include operations (and their paths).
-    public mutating func requirePaths(taggedWith tag: OpenAPI.Tag) throws {
-        try requirePaths(taggedWith: tag.name)
+    public mutating func requireOperations(tagged tag: OpenAPI.Tag) throws {
+        try requireOperations(tagged: tag.name)
     }
 
     /// Include paths with operations that have a given ID (and all their component dependencies).
@@ -289,6 +297,30 @@ private extension FilteredDocumentBuilder {
             try addComponentsReferencedBy(try document.components.lookup(reference))
         case .b(let value):
             try addComponentsReferencedBy(value)
+        }
+    }
+
+    mutating func requireOperations(where predicate: (OpenAPI.PathItem.Endpoint) -> Bool) throws {
+        for (path, maybePathItemReference) in document.paths {
+            let originalPathItem: OpenAPI.PathItem
+            switch maybePathItemReference {
+            case .a(let reference):
+                originalPathItem = try document.components.lookup(reference)
+            case .b(let pathItem):
+                originalPathItem = pathItem
+            }
+
+            for endpoint in originalPathItem.endpoints {
+                guard predicate(endpoint) else {
+                    continue
+                }
+                if requiredEndpoints[path] == nil {
+                    requiredEndpoints[path] = Set()
+                }
+                if requiredEndpoints[path]!.insert(endpoint.method).inserted {
+                    try addComponentsReferencedBy(endpoint.operation)
+                }
+            }
         }
     }
 }
@@ -445,5 +477,17 @@ fileprivate extension OpenAPI.Reference {
             }
             return OpenAPI.ComponentKey(rawValue: name)!
         }
+    }
+}
+
+fileprivate extension OpenAPI.PathItem {
+    func filteringEndpoints(_ isIncluded: (Endpoint) -> Bool) -> Self {
+        var filteredPathItem = self
+        for endpoint in filteredPathItem.endpoints {
+            if !isIncluded(endpoint) {
+                filteredPathItem.set(operation: nil, for: endpoint.method)
+            }
+        }
+        return filteredPathItem
     }
 }

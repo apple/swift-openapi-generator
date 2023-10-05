@@ -80,7 +80,7 @@ final class FilteredDocumentTests: XCTestCase {
             filtering: document,
             filter: DocumentFilter(tags: ["t"]),
             hasPaths: ["/things/a"],
-            hasOperations: ["getA", "deleteA"],
+            hasOperations: ["getA"],
             hasSchemas: ["A"]
         )
         try assert(
@@ -129,7 +129,7 @@ final class FilteredDocumentTests: XCTestCase {
             filtering: document,
             filter: DocumentFilter(tags: ["t"], schemas: ["B"]),
             hasPaths: ["/things/a"],
-            hasOperations: ["getA", "deleteA"],
+            hasOperations: ["getA"],
             hasSchemas: ["A", "B"]
         )
     }
