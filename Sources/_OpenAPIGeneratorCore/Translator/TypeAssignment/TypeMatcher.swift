@@ -331,10 +331,10 @@ struct TypeMatcher {
                 return nil
             }
             switch core.format {
-            case .byte:
-                typeName = .swift("String")
             case .binary:
                 typeName = .body
+            case .byte:
+                typeName = .runtime("Base64EncodedData")
             case .dateTime:
                 typeName = .foundation("Date")
             default:
