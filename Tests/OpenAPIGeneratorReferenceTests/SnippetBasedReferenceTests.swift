@@ -1827,6 +1827,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct MyResponse: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(OpenAPIRuntime.Base64EncodedData)
+                        public var json: OpenAPIRuntime.Base64EncodedData {
+                            get throws {
+                                switch self { case let .json(body): return body }
+                            }
+                        }
                     }
                     public var body: Components.Responses.MyResponse.Body
                     public init(
