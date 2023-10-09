@@ -20,6 +20,9 @@ struct TypeMatcher {
     /// safe to be used as a Swift identifier.
     var asSwiftSafeName: (String) -> String
 
+    ///Enable decoding and encoding of as base64-encoded data strings.
+    var enableBase64EncodingDecoding: Bool
+
     /// Returns the type name of a built-in type that matches the specified
     /// schema.
     ///
@@ -82,7 +85,8 @@ struct TypeMatcher {
                     return nil
                 }
                 return try TypeAssigner(
-                    asSwiftSafeName: asSwiftSafeName
+                    asSwiftSafeName: asSwiftSafeName,
+                    enableBase64EncodingDecoding: enableBase64EncodingDecoding
                 )
                 .typeName(for: ref).asUsage
             },

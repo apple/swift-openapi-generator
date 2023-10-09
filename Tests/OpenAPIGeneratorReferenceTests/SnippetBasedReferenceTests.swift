@@ -1808,6 +1808,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
 
     func testResponseWithExampleWithOnlyValueByte() throws {
         try self.assertResponsesTranslation(
+            featureFlags: [.base64DataEncodingDecoding],
             """
             responses:
               MyResponse:
