@@ -357,6 +357,87 @@ final class Test_Client: XCTestCase {
         }
     }
 
+    func testCreatePet_201_withBase64() async throws {
+        transport = .init { request, body, baseURL, operationID in
+            XCTAssertEqual(operationID, "createPet")
+            XCTAssertEqual(request.path, "/pets")
+            XCTAssertEqual(baseURL.absoluteString, "/api")
+            XCTAssertEqual(request.method, .post)
+            XCTAssertEqual(
+                request.headerFields,
+                [
+                    .accept: "application/json",
+                    .contentType: "application/json; charset=utf-8",
+                    .init("X-Extra-Arguments")!: #"{"code":1}"#,
+                ]
+            )
+            let bodyString: String
+            if let body {
+                bodyString = try await String(collecting: body, upTo: .max)
+            } else {
+                bodyString = ""
+            }
+            XCTAssertEqual(
+                bodyString,
+                #"""
+                {
+                  "genome" : "IkdBQ1RBVFRDQVRBR0FHVFRUQ0FDQ1RDQUdHQUdBR0FHQUFHVEFBR0NBVFRBR0NBR0NUR0Mi",
+                  "name" : "Fluffz"
+                }
+                """#
+            )
+            return try HTTPResponse(
+                status: .created,
+                headerFields: [
+                    .contentType: "application/json; charset=utf-8",
+                    .init("x-extra-arguments")!: #"{"code":1}"#,
+                ]
+            )
+            .withEncodedBody(
+                #"""
+                {
+                  "id": 1,
+                  "genome" : "IkdBQ1RBVFRDQVRBR0FHVFRUQ0FDQ1RDQUdHQUdBR0FHQUFHVEFBR0NBVFRBR0NBR0NUR0Mi",
+                  "name": "Fluffz"
+                }
+                """#
+            )
+        }
+        let response = try await client.createPet(
+            .init(
+                headers: .init(
+                    X_hyphen_Extra_hyphen_Arguments: .init(code: 1)
+                ),
+                body: .json(
+                    .init(
+                        name: "Fluffz",
+                        genome: Base64EncodedData(
+                            data: ArraySlice(#""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8)
+                        )
+                    )
+                )
+            )
+        )
+        guard case let .created(value) = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+        XCTAssertEqual(value.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
+        switch value.body {
+        case .json(let pets):
+            XCTAssertEqual(
+                pets,
+                .init(
+                    id: 1,
+                    name: "Fluffz",
+                    genome: Base64EncodedData(
+                        data: ArraySlice(#""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8)
+                    )
+                )
+            )
+        }
+    }
+
     func testUpdatePet_400() async throws {
         transport = .init { request, requestBody, baseURL, operationID in
             XCTAssertEqual(operationID, "updatePet")

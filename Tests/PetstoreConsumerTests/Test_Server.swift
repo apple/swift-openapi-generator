@@ -293,6 +293,73 @@ final class Test_Server: XCTestCase {
         )
     }
 
+    func testCreatePet_201_withBase64() async throws {
+        client = .init(
+            createPetBlock: { input in
+                XCTAssertEqual(input.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
+                guard case let .json(createPet) = input.body else {
+                    throw TestError.unexpectedValue(input.body)
+                }
+                XCTAssertEqual(
+                    createPet,
+                    .init(
+                        name: "Fluffz",
+                        genome: Base64EncodedData(
+                            data: ArraySlice(#""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8)
+                        )
+                    )
+                )
+                return .created(
+                    .init(
+                        headers: .init(
+                            X_hyphen_Extra_hyphen_Arguments: .init(code: 1)
+                        ),
+                        body: .json(
+                            .init(id: 1, name: "Fluffz")
+                        )
+                    )
+                )
+            }
+        )
+        let (response, responseBody) = try await server.createPet(
+            .init(
+                soar_path: "/api/pets",
+                method: .post,
+                headerFields: [
+                    .init("x-extra-arguments")!: #"{"code":1}"#,
+                    .contentType: "application/json; charset=utf-8",
+                ]
+            ),
+            .init(
+                #"""
+                {
+
+                  "genome" : "IkdBQ1RBVFRDQVRBR0FHVFRUQ0FDQ1RDQUdHQUdBR0FHQUFHVEFBR0NBVFRBR0NBR0NUR0Mi",
+                  "name" : "Fluffz"
+                }
+                """#
+            ),
+            .init()
+        )
+        XCTAssertEqual(response.status.code, 201)
+        XCTAssertEqual(
+            response.headerFields,
+            [
+                .init("X-Extra-Arguments")!: #"{"code":1}"#,
+                .contentType: "application/json; charset=utf-8",
+            ]
+        )
+        try await XCTAssertEqualStringifiedData(
+            responseBody,
+            #"""
+            {
+              "id" : 1,
+              "name" : "Fluffz"
+            }
+            """#
+        )
+    }
+
     func testUpdatePet_204_withBody() async throws {
         client = .init(
             updatePetBlock: { input in

@@ -961,6 +961,47 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasBase64() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyData:
+                type: string
+                format: byte
+            """,
+            """
+            public enum Schemas {
+                public typealias MyData = OpenAPIRuntime.Base64EncodedData
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasBase64Object() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyObj:
+                type: object
+                properties:
+                  stuff:
+                    type: string
+                    format: byte
+            """,
+            """
+            public enum Schemas {
+                public struct MyObj: Codable, Hashable, Sendable {
+                    public var stuff: OpenAPIRuntime.Base64EncodedData?
+                    public init(stuff: OpenAPIRuntime.Base64EncodedData? = nil) {
+                      self.stuff = stuff
+                    }
+                    public enum CodingKeys: String, CodingKey { case stuff }
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsResponsesResponseNoBody() throws {
         try self.assertResponsesTranslation(
             """
@@ -1764,6 +1805,46 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """
         )
     }
+
+    func testResponseWithExampleWithOnlyValueByte() throws {
+        try self.assertResponsesTranslation(
+            featureFlags: [.base64DataEncodingDecoding],
+            """
+            responses:
+              MyResponse:
+                description: Some response
+                content:
+                  application/json:
+                    schema:
+                      type: string
+                      format: byte
+                    examples:
+                      application/json:
+                        summary: "a hello response"
+            """,
+            """
+            public enum Responses {
+                public struct MyResponse: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
+                        case json(OpenAPIRuntime.Base64EncodedData)
+                        public var json: OpenAPIRuntime.Base64EncodedData {
+                            get throws {
+                                switch self { case let .json(body): return body }
+                            }
+                        }
+                    }
+                    public var body: Components.Responses.MyResponse.Body
+                    public init(
+                        body: Components.Responses.MyResponse.Body
+                    ) {
+                        self.body = body
+                    }
+                }
+            }
+            """
+        )
+    }
+
 }
 
 extension SnippetBasedReferenceTests {
