@@ -50,12 +50,6 @@ public protocol APIProtocol: Sendable {
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
     func uploadAvatarForPet(_ input: Operations.uploadAvatarForPet.Input) async throws
         -> Operations.uploadAvatarForPet.Output
-    /// Upload an audio recording
-    ///
-    /// - Remark: HTTP `PUT /pets/{petId}/audio`.
-    /// - Remark: Generated from `#/paths//pets/{petId}/audio/put(uploadAudioForPet)`.
-    func uploadAudioForPet(_ input: Operations.uploadAudioForPet.Input) async throws
-        -> Operations.uploadAudioForPet.Output
 }
 /// Convenience overloads for operation inputs.
 extension APIProtocol {
@@ -121,17 +115,6 @@ extension APIProtocol {
     ) async throws -> Operations.uploadAvatarForPet.Output {
         try await uploadAvatarForPet(Operations.uploadAvatarForPet.Input(path: path, headers: headers, body: body))
     }
-    /// Upload an audio recording
-    ///
-    /// - Remark: HTTP `PUT /pets/{petId}/audio`.
-    /// - Remark: Generated from `#/paths//pets/{petId}/audio/put(uploadAudioForPet)`.
-    public func uploadAudioForPet(
-        path: Operations.uploadAudioForPet.Input.Path,
-        headers: Operations.uploadAudioForPet.Input.Headers = .init(),
-        body: Operations.uploadAudioForPet.Input.Body
-    ) async throws -> Operations.uploadAudioForPet.Output {
-        try await uploadAudioForPet(Operations.uploadAudioForPet.Input(path: path, headers: headers, body: body))
-    }
 }
 /// Server URLs defined in the OpenAPI document.
 public enum Servers {
@@ -157,6 +140,10 @@ public enum Components {
             public var name: Swift.String
             /// - Remark: Generated from `#/components/schemas/Pet/tag`.
             public var tag: Swift.String?
+            /// Pet genome (base64-encoded)
+            ///
+            /// - Remark: Generated from `#/components/schemas/Pet/genome`.
+            public var genome: OpenAPIRuntime.Base64EncodedData?
             /// - Remark: Generated from `#/components/schemas/Pet/kind`.
             public var kind: Components.Schemas.PetKind?
             /// Creates a new `Pet`.
@@ -165,22 +152,26 @@ public enum Components {
             ///   - id: Pet id
             ///   - name: Pet name
             ///   - tag:
+            ///   - genome: Pet genome (base64-encoded)
             ///   - kind:
             public init(
                 id: Swift.Int64,
                 name: Swift.String,
                 tag: Swift.String? = nil,
+                genome: OpenAPIRuntime.Base64EncodedData? = nil,
                 kind: Components.Schemas.PetKind? = nil
             ) {
                 self.id = id
                 self.name = name
                 self.tag = tag
+                self.genome = genome
                 self.kind = kind
             }
             public enum CodingKeys: String, CodingKey {
                 case id
                 case name
                 case tag
+                case genome
                 case kind
             }
         }
@@ -1820,219 +1811,6 @@ public enum Operations {
                 }
             }
             public static var allCases: [Self] { [.binary, .json, .plainText] }
-        }
-    }
-    /// Upload an audio recording
-    ///
-    /// - Remark: HTTP `PUT /pets/{petId}/audio`.
-    /// - Remark: Generated from `#/paths//pets/{petId}/audio/put(uploadAudioForPet)`.
-    public enum uploadAudioForPet {
-        public static let id: String = "uploadAudioForPet"
-        public struct Input: Sendable, Hashable {
-            /// - Remark: Generated from `#/paths/pets/{petId}/audio/PUT/path`.
-            public struct Path: Sendable, Hashable {
-                /// The id of the pet to retrieve
-                ///
-                /// - Remark: Generated from `#/paths/pets/{petId}/audio/PUT/path/petId`.
-                public var petId: Components.Parameters.path_period_petId
-                /// Creates a new `Path`.
-                ///
-                /// - Parameters:
-                ///   - petId: The id of the pet to retrieve
-                public init(petId: Components.Parameters.path_period_petId) { self.petId = petId }
-            }
-            public var path: Operations.uploadAudioForPet.Input.Path
-            /// - Remark: Generated from `#/paths/pets/{petId}/audio/PUT/header`.
-            public struct Headers: Sendable, Hashable {
-                public var accept:
-                    [OpenAPIRuntime.AcceptHeaderContentType<Operations.uploadAudioForPet.AcceptableContentType>]
-                /// Creates a new `Headers`.
-                ///
-                /// - Parameters:
-                ///   - accept:
-                public init(
-                    accept: [OpenAPIRuntime.AcceptHeaderContentType<
-                        Operations.uploadAudioForPet.AcceptableContentType
-                    >] = .defaultValues()
-                ) { self.accept = accept }
-            }
-            public var headers: Operations.uploadAudioForPet.Input.Headers
-            /// - Remark: Generated from `#/paths/pets/{petId}/audio/PUT/requestBody`.
-            @frozen public enum Body: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/audio/PUT/requestBody/content/application\/json`.
-                case json(OpenAPIRuntime.Base64EncodedData)
-            }
-            public var body: Operations.uploadAudioForPet.Input.Body
-            /// Creates a new `Input`.
-            ///
-            /// - Parameters:
-            ///   - path:
-            ///   - headers:
-            ///   - body:
-            public init(
-                path: Operations.uploadAudioForPet.Input.Path,
-                headers: Operations.uploadAudioForPet.Input.Headers = .init(),
-                body: Operations.uploadAudioForPet.Input.Body
-            ) {
-                self.path = path
-                self.headers = headers
-                self.body = body
-            }
-        }
-        @frozen public enum Output: Sendable, Hashable {
-            public struct Ok: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/audio/PUT/responses/200/content`.
-                @frozen public enum Body: Sendable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/{petId}/audio/PUT/responses/200/content/application\/json`.
-                    case json(OpenAPIRuntime.Base64EncodedData)
-                    /// The associated value of the enum case if `self` is `.json`.
-                    ///
-                    /// - Throws: An error if `self` is not `.json`.
-                    /// - SeeAlso: `.json`.
-                    public var json: OpenAPIRuntime.Base64EncodedData {
-                        get throws {
-                            switch self {
-                            case let .json(body): return body
-                            }
-                        }
-                    }
-                }
-                /// Received HTTP response body
-                public var body: Operations.uploadAudioForPet.Output.Ok.Body
-                /// Creates a new `Ok`.
-                ///
-                /// - Parameters:
-                ///   - body: Received HTTP response body
-                public init(body: Operations.uploadAudioForPet.Output.Ok.Body) { self.body = body }
-            }
-            /// Echoes audio back
-            ///
-            /// - Remark: Generated from `#/paths//pets/{petId}/audio/put(uploadAudioForPet)/responses/200`.
-            ///
-            /// HTTP response code: `200 ok`.
-            case ok(Operations.uploadAudioForPet.Output.Ok)
-            /// The associated value of the enum case if `self` is `.ok`.
-            ///
-            /// - Throws: An error if `self` is not `.ok`.
-            /// - SeeAlso: `.ok`.
-            public var ok: Operations.uploadAudioForPet.Output.Ok {
-                get throws {
-                    switch self {
-                    case let .ok(response): return response
-                    default: try throwUnexpectedResponseStatus(expectedStatus: "ok", response: self)
-                    }
-                }
-            }
-            public struct PreconditionFailed: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/audio/PUT/responses/412/content`.
-                @frozen public enum Body: Sendable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/{petId}/audio/PUT/responses/412/content/application\/json`.
-                    case json(Swift.String)
-                    /// The associated value of the enum case if `self` is `.json`.
-                    ///
-                    /// - Throws: An error if `self` is not `.json`.
-                    /// - SeeAlso: `.json`.
-                    public var json: Swift.String {
-                        get throws {
-                            switch self {
-                            case let .json(body): return body
-                            }
-                        }
-                    }
-                }
-                /// Received HTTP response body
-                public var body: Operations.uploadAudioForPet.Output.PreconditionFailed.Body
-                /// Creates a new `PreconditionFailed`.
-                ///
-                /// - Parameters:
-                ///   - body: Received HTTP response body
-                public init(body: Operations.uploadAudioForPet.Output.PreconditionFailed.Body) { self.body = body }
-            }
-            /// Audio is not acceptable
-            ///
-            /// - Remark: Generated from `#/paths//pets/{petId}/audio/put(uploadAudioForPet)/responses/412`.
-            ///
-            /// HTTP response code: `412 preconditionFailed`.
-            case preconditionFailed(Operations.uploadAudioForPet.Output.PreconditionFailed)
-            /// The associated value of the enum case if `self` is `.preconditionFailed`.
-            ///
-            /// - Throws: An error if `self` is not `.preconditionFailed`.
-            /// - SeeAlso: `.preconditionFailed`.
-            public var preconditionFailed: Operations.uploadAudioForPet.Output.PreconditionFailed {
-                get throws {
-                    switch self {
-                    case let .preconditionFailed(response): return response
-                    default: try throwUnexpectedResponseStatus(expectedStatus: "preconditionFailed", response: self)
-                    }
-                }
-            }
-            public struct InternalServerError: Sendable, Hashable {
-                /// - Remark: Generated from `#/paths/pets/{petId}/audio/PUT/responses/500/content`.
-                @frozen public enum Body: Sendable, Hashable {
-                    /// - Remark: Generated from `#/paths/pets/{petId}/audio/PUT/responses/500/content/text\/plain`.
-                    case plainText(OpenAPIRuntime.HTTPBody)
-                    /// The associated value of the enum case if `self` is `.plainText`.
-                    ///
-                    /// - Throws: An error if `self` is not `.plainText`.
-                    /// - SeeAlso: `.plainText`.
-                    public var plainText: OpenAPIRuntime.HTTPBody {
-                        get throws {
-                            switch self {
-                            case let .plainText(body): return body
-                            }
-                        }
-                    }
-                }
-                /// Received HTTP response body
-                public var body: Operations.uploadAudioForPet.Output.InternalServerError.Body
-                /// Creates a new `InternalServerError`.
-                ///
-                /// - Parameters:
-                ///   - body: Received HTTP response body
-                public init(body: Operations.uploadAudioForPet.Output.InternalServerError.Body) { self.body = body }
-            }
-            /// Server error
-            ///
-            /// - Remark: Generated from `#/paths//pets/{petId}/audio/put(uploadAudioForPet)/responses/500`.
-            ///
-            /// HTTP response code: `500 internalServerError`.
-            case internalServerError(Operations.uploadAudioForPet.Output.InternalServerError)
-            /// The associated value of the enum case if `self` is `.internalServerError`.
-            ///
-            /// - Throws: An error if `self` is not `.internalServerError`.
-            /// - SeeAlso: `.internalServerError`.
-            public var internalServerError: Operations.uploadAudioForPet.Output.InternalServerError {
-                get throws {
-                    switch self {
-                    case let .internalServerError(response): return response
-                    default: try throwUnexpectedResponseStatus(expectedStatus: "internalServerError", response: self)
-                    }
-                }
-            }
-            /// Undocumented response.
-            ///
-            /// A response with a code that is not documented in the OpenAPI document.
-            case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
-        }
-        @frozen public enum AcceptableContentType: AcceptableProtocol {
-            case json
-            case plainText
-            case other(String)
-            public init?(rawValue: String) {
-                switch rawValue.lowercased() {
-                case "application/json": self = .json
-                case "text/plain": self = .plainText
-                default: self = .other(rawValue)
-                }
-            }
-            public var rawValue: String {
-                switch self {
-                case let .other(string): return string
-                case .json: return "application/json"
-                case .plainText: return "text/plain"
-                }
-            }
-            public static var allCases: [Self] { [.json, .plainText] }
         }
     }
 }
