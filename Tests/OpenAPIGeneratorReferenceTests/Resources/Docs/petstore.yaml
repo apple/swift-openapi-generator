@@ -311,6 +311,9 @@ components:
           $ref: '#/components/schemas/PetKind'
         tag:
           type: string
+        genome:
+          type: string
+          format: byte
     Pets:
       type: array
       items:

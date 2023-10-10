@@ -290,21 +290,31 @@ public enum Components {
             public var kind: Components.Schemas.PetKind?
             /// - Remark: Generated from `#/components/schemas/CreatePetRequest/tag`.
             public var tag: Swift.String?
+            /// - Remark: Generated from `#/components/schemas/CreatePetRequest/genome`.
+            public var genome: OpenAPIRuntime.Base64EncodedData?
             /// Creates a new `CreatePetRequest`.
             ///
             /// - Parameters:
             ///   - name:
             ///   - kind:
             ///   - tag:
-            public init(name: Swift.String, kind: Components.Schemas.PetKind? = nil, tag: Swift.String? = nil) {
+            ///   - genome:
+            public init(
+                name: Swift.String,
+                kind: Components.Schemas.PetKind? = nil,
+                tag: Swift.String? = nil,
+                genome: OpenAPIRuntime.Base64EncodedData? = nil
+            ) {
                 self.name = name
                 self.kind = kind
                 self.tag = tag
+                self.genome = genome
             }
             public enum CodingKeys: String, CodingKey {
                 case name
                 case kind
                 case tag
+                case genome
             }
         }
         /// - Remark: Generated from `#/components/schemas/Pets`.
