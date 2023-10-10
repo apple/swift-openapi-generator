@@ -265,6 +265,10 @@ components:
           type: string
         tag:
           type: string
+        genome:
+          description: "Pet genome (base64-encoded)"
+          type: string
+          format: byte
         kind:
           $ref: '#/components/schemas/PetKind'
     MixedAnyOf:
@@ -307,6 +311,9 @@ components:
           $ref: '#/components/schemas/PetKind'
         tag:
           type: string
+        genome:
+          type: string
+          format: byte
     Pets:
       type: array
       items:
