@@ -100,7 +100,8 @@ public struct FilteredDocumentBuilder {
             }
             switch maybeReference {
             case .a(let reference):
-                components.pathItems[try reference.internalComponentKey] = try document.components.lookup(reference).filteringEndpoints { methods.contains($0.method) }
+                components.pathItems[try reference.internalComponentKey] = try document.components.lookup(reference)
+                    .filteringEndpoints { methods.contains($0.method) }
             case .b(let pathItem):
                 filteredDocument.paths[path] = .b(pathItem.filteringEndpoints { methods.contains($0.method) })
             }

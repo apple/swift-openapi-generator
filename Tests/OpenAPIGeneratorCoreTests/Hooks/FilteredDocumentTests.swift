@@ -159,13 +159,18 @@ final class FilteredDocumentTests: XCTestCase {
         }
         XCTAssertUnsortedEqual(filteredDocument.paths.keys.map(\.rawValue), paths, file: file, line: line)
         XCTAssertUnsortedEqual(filteredDocument.allOperationIds, operationIDs, file: file, line: line)
-        XCTAssertUnsortedEqual(filteredDocument.components.schemas.keys.map(\.rawValue), schemas, file: file, line: line)
+        XCTAssertUnsortedEqual(
+            filteredDocument.components.schemas.keys.map(\.rawValue),
+            schemas,
+            file: file,
+            line: line
+        )
     }
 }
 
-fileprivate func XCTAssertUnsortedEqual<T>(
-    _ expression1: @autoclosure () throws -> Array<T>,
-    _ expression2: @autoclosure () throws -> Array<T>,
+private func XCTAssertUnsortedEqual<T>(
+    _ expression1: @autoclosure () throws -> [T],
+    _ expression2: @autoclosure () throws -> [T],
     _ message: @autoclosure () -> String = "",
     file: StaticString = #filePath,
     line: UInt = #line
