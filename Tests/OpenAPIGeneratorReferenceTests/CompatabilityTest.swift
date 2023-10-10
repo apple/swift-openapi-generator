@@ -205,6 +205,8 @@ fileprivate extension CompatibilityTest {
     ///   - documentURL: The URL to the OpenAPI document.
     ///   - license: The license of the OpenAPI document itself. Note, this is not necessarily the license of the code for the service API itself.
     ///   - expectedDiagnostics: A set of diagnostics that should _not_ result in a test failure.
+    ///   - skipBuild: A boolean value that indicates whether to skip the Swift package creation and build step.
+    /// - Throws: An error of if any step in the compatibility test harness fails.
     func _test(
         _ documentURL: String,
         license: License,
