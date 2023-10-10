@@ -484,4 +484,82 @@ public struct Client: APIProtocol {
             }
         )
     }
+    /// Upload an audio recording
+    ///
+    /// - Remark: HTTP `PUT /pets/{petId}/audio`.
+    /// - Remark: Generated from `#/paths//pets/{petId}/audio/put(uploadAudioForPet)`.
+    public func uploadAudioForPet(_ input: Operations.uploadAudioForPet.Input) async throws
+        -> Operations.uploadAudioForPet.Output
+    {
+        try await client.send(
+            input: input,
+            forOperation: Operations.uploadAudioForPet.id,
+            serializer: { input in
+                let path = try converter.renderedPath(template: "/pets/{}/audio", parameters: [input.path.petId])
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .put)
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(in: &request.headerFields, contentTypes: input.headers.accept)
+                let body: OpenAPIRuntime.HTTPBody?
+                switch input.body {
+                case let .json(value):
+                    body = try converter.setRequiredRequestBodyAsJSON(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "application/json; charset=utf-8"
+                    )
+                }
+                return (request, body)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.uploadAudioForPet.Output.Ok.Body
+                    if try contentType == nil
+                        || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getResponseBodyAsJSON(
+                            OpenAPIRuntime.Base64EncodedData.self,
+                            from: responseBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return .ok(.init(body: body))
+                case 412:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.uploadAudioForPet.Output.PreconditionFailed.Body
+                    if try contentType == nil
+                        || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getResponseBodyAsJSON(
+                            Swift.String.self,
+                            from: responseBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return .preconditionFailed(.init(body: body))
+                case 500:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.uploadAudioForPet.Output.InternalServerError.Body
+                    if try contentType == nil
+                        || converter.isMatchingContentType(received: contentType, expectedRaw: "text/plain")
+                    {
+                        body = try converter.getResponseBodyAsBinary(
+                            OpenAPIRuntime.HTTPBody.self,
+                            from: responseBody,
+                            transforming: { value in .plainText(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return .internalServerError(.init(body: body))
+                default: return .undocumented(statusCode: response.status.code, .init())
+                }
+            }
+        )
+    }
 }

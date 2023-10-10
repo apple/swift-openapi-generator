@@ -70,6 +70,11 @@ extension APIProtocol {
             method: .put,
             path: server.apiPathComponentsWithServerPrefix("/pets/{petId}/avatar")
         )
+        try transport.register(
+            { try await server.uploadAudioForPet(request: $0, body: $1, metadata: $2) },
+            method: .put,
+            path: server.apiPathComponentsWithServerPrefix("/pets/{petId}/audio")
+        )
     }
 }
 fileprivate extension UniversalServer where APIHandler: APIProtocol {
@@ -554,6 +559,97 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             value,
                             headerFields: &response.headerFields,
                             contentType: "application/octet-stream"
+                        )
+                    }
+                    return (response, body)
+                case let .preconditionFailed(value):
+                    suppressUnusedWarning(value)
+                    var response = HTTPResponse(soar_statusCode: 412)
+                    suppressMutabilityWarning(&response)
+                    let body: HTTPBody
+                    switch value.body {
+                    case let .json(value):
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
+                        body = try converter.setResponseBodyAsJSON(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return (response, body)
+                case let .internalServerError(value):
+                    suppressUnusedWarning(value)
+                    var response = HTTPResponse(soar_statusCode: 500)
+                    suppressMutabilityWarning(&response)
+                    let body: HTTPBody
+                    switch value.body {
+                    case let .plainText(value):
+                        try converter.validateAcceptIfPresent("text/plain", in: request.headerFields)
+                        body = try converter.setResponseBodyAsBinary(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "text/plain"
+                        )
+                    }
+                    return (response, body)
+                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
+                }
+            }
+        )
+    }
+    /// Upload an audio recording
+    ///
+    /// - Remark: HTTP `PUT /pets/{petId}/audio`.
+    /// - Remark: Generated from `#/paths//pets/{petId}/audio/put(uploadAudioForPet)`.
+    func uploadAudioForPet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
+        HTTPResponse, HTTPBody?
+    ) {
+        try await handle(
+            request: request,
+            requestBody: body,
+            metadata: metadata,
+            forOperation: Operations.uploadAudioForPet.id,
+            using: { APIHandler.uploadAudioForPet($0) },
+            deserializer: { request, requestBody, metadata in
+                let path: Operations.uploadAudioForPet.Input.Path = .init(
+                    petId: try converter.getPathParameterAsURI(
+                        in: metadata.pathParameters,
+                        name: "petId",
+                        as: Components.Parameters.path_period_petId.self
+                    )
+                )
+                let headers: Operations.uploadAudioForPet.Input.Headers = .init(
+                    accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
+                )
+                let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                let body: Operations.uploadAudioForPet.Input.Body
+                if try contentType == nil
+                    || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                {
+                    body = try await converter.getRequiredRequestBodyAsJSON(
+                        OpenAPIRuntime.Base64EncodedData.self,
+                        from: requestBody,
+                        transforming: { value in .json(value) }
+                    )
+                } else {
+                    throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                }
+                return Operations.uploadAudioForPet.Input(path: path, headers: headers, body: body)
+            },
+            serializer: { output, request in
+                switch output {
+                case let .ok(value):
+                    suppressUnusedWarning(value)
+                    var response = HTTPResponse(soar_statusCode: 200)
+                    suppressMutabilityWarning(&response)
+                    let body: HTTPBody
+                    switch value.body {
+                    case let .json(value):
+                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
+                        body = try converter.setResponseBodyAsJSON(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "application/json; charset=utf-8"
                         )
                     }
                     return (response, body)

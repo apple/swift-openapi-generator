@@ -15,6 +15,10 @@ import OpenAPIRuntime
 import Foundation
 
 struct TestClient: APIProtocol {
+    func uploadAudioForPet(_ input: Operations.uploadAudioForPet.Input) async throws -> Operations.uploadAudioForPet.Output {
+        fatalError()
+    }
+    
     typealias ListPetsSignature = @Sendable (Operations.listPets.Input) async throws -> Operations.listPets.Output
     var listPetsBlock: ListPetsSignature?
     func listPets(
