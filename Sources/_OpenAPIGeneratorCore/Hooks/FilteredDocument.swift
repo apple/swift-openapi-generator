@@ -23,7 +23,7 @@ import Foundation
 ///
 /// When adding a path to the filter, the transitive closure of all referenced components are also
 /// included in the filtered document.
-public struct FilteredDocumentBuilder {
+struct FilteredDocumentBuilder {
 
     /// The underlying OpenAPI document to filter.
     private(set) var document: OpenAPI.Document
@@ -43,7 +43,7 @@ public struct FilteredDocumentBuilder {
     /// Create a new FilteredDocumentBuilder.
     ///
     /// - Parameter document: The underlying OpenAPI document to filter.
-    public init(document: OpenAPI.Document) {
+    init(document: OpenAPI.Document) {
         self.document = document
         self.requiredPaths = []
         self.requiredPathItemReferences = []
@@ -61,7 +61,7 @@ public struct FilteredDocumentBuilder {
     /// Filter the underlying document based on the rules provided.
     ///
     /// - Returns: The filtered OpenAPI document.
-    public func filter() throws -> OpenAPI.Document {
+    func filter() throws -> OpenAPI.Document {
         var components = OpenAPI.Components.noComponents
         for reference in requiredSchemaReferences {
             components.schemas[try reference.internalComponentKey] = try document.components.lookup(reference)
@@ -116,7 +116,7 @@ public struct FilteredDocumentBuilder {
     /// referenced within the corresponding path item.
     ///
     /// - Parameter path: The path to be included in the filter.
-    public mutating func requirePath(_ path: OpenAPI.Path) throws {
+    mutating func requirePath(_ path: OpenAPI.Path) throws {
         guard let pathItem = document.paths[path] else {
             throw FilteredDocumentBuilderError.pathDoesNotExist(path)
         }
@@ -130,7 +130,7 @@ public struct FilteredDocumentBuilder {
     /// document with a subset of the operations defined in the original document.
     ///
     /// - Parameter tag: The tag to use to include operations (and their paths).
-    public mutating func requireOperations(tagged tag: String) throws {
+    mutating func requireOperations(tagged tag: String) throws {
         guard document.allTags.contains(tag) else {
             throw FilteredDocumentBuilderError.tagDoesNotExist(tag)
         }
@@ -143,7 +143,7 @@ public struct FilteredDocumentBuilder {
     /// document with a subset of the operations defined in the original document.
     ///
     /// - Parameter tag: The tag by which to include operations (and their paths).
-    public mutating func requireOperations(tagged tag: OpenAPI.Tag) throws {
+    mutating func requireOperations(tagged tag: OpenAPI.Tag) throws {
         try requireOperations(tagged: tag.name)
     }
 
@@ -153,7 +153,7 @@ public struct FilteredDocumentBuilder {
     /// in the original document.
     ///
     /// - Parameter operationID: The operation to include (and its path).
-    public mutating func requireOperation(operationID: String) throws {
+    mutating func requireOperation(operationID: String) throws {
         guard document.allOperationIds.contains(operationID) else {
             throw FilteredDocumentBuilderError.operationDoesNotExist(operationID: operationID)
         }
@@ -166,7 +166,7 @@ public struct FilteredDocumentBuilder {
     /// it references.
     ///
     /// - Parameter name: The key in the `#/components/schemas` map in the OpenAPI document.
-    public mutating func requireSchema(_ name: String) throws {
+    mutating func requireSchema(_ name: String) throws {
         try requireSchema(.a(OpenAPI.Reference<JSONSchema>.component(named: name)))
     }
 }
