@@ -61,6 +61,7 @@ struct FilteredDocumentBuilder {
     /// Filter the underlying document based on the rules provided.
     ///
     /// - Returns: The filtered OpenAPI document.
+    /// - Throws: If any dependencies of the requested document components cannot be resolved.
     func filter() throws -> OpenAPI.Document {
         var components = OpenAPI.Components.noComponents
         for reference in requiredSchemaReferences {
@@ -116,6 +117,7 @@ struct FilteredDocumentBuilder {
     /// referenced within the corresponding path item.
     ///
     /// - Parameter path: The path to be included in the filter.
+    /// - Throws: If the path does not exist in original OpenAPI document.
     mutating func includePath(_ path: OpenAPI.Path) throws {
         guard let pathItem = document.paths[path] else {
             throw FilteredDocumentBuilderError.pathDoesNotExist(path)
@@ -130,6 +132,7 @@ struct FilteredDocumentBuilder {
     /// document with a subset of the operations defined in the original document.
     ///
     /// - Parameter tag: The tag to use to include operations (and their paths).
+    /// - Throws: If the tag does not exist in original OpenAPI document.
     mutating func includeOperations(tagged tag: String) throws {
         guard document.allTags.contains(tag) else {
             throw FilteredDocumentBuilderError.tagDoesNotExist(tag)
@@ -143,6 +146,7 @@ struct FilteredDocumentBuilder {
     /// document with a subset of the operations defined in the original document.
     ///
     /// - Parameter tag: The tag by which to include operations (and their paths).
+    /// - Throws: If the tag does not exist in original OpenAPI document.
     mutating func includeOperations(tagged tag: OpenAPI.Tag) throws {
         try includeOperations(tagged: tag.name)
     }
@@ -153,6 +157,7 @@ struct FilteredDocumentBuilder {
     /// in the original document.
     ///
     /// - Parameter operationID: The operation to include (and its path).
+    /// - Throws: If the operation does not exist in original OpenAPI document.
     mutating func includeOperation(operationID: String) throws {
         guard document.allOperationIds.contains(operationID) else {
             throw FilteredDocumentBuilderError.operationDoesNotExist(operationID: operationID)
@@ -166,6 +171,7 @@ struct FilteredDocumentBuilder {
     /// it references.
     ///
     /// - Parameter name: The key in the `#/components/schemas` map in the OpenAPI document.
+    /// - Throws: If the named schema does not exist in original OpenAPI document.
     mutating func includeSchema(_ name: String) throws {
         try includeSchema(.a(OpenAPI.Reference<JSONSchema>.component(named: name)))
     }

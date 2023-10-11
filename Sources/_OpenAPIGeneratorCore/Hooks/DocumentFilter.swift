@@ -55,6 +55,8 @@ public struct DocumentFilter: Codable, Sendable {
     ///
     /// - Parameter document: The OpenAPI document to filter.
     /// - Returns: The filtered document.
+    /// - Throws: If any requested document components do not exist in the original document.
+    /// - Throws: If any dependencies of the requested document components cannot be resolved.
     public func filter(_ document: OpenAPI.Document) throws -> OpenAPI.Document {
         var builder = FilteredDocumentBuilder(document: document)
         for tag in tags ?? [] {
