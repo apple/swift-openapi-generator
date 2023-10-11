@@ -26,6 +26,8 @@ extension FileTranslator {
     ///   document.
     ///   - arrayContext: The context for the array, including information such
     ///   as the element schema.
+    /// - Throws: An error if there is an issue during translation.
+    /// - Returns: A list of declarations representing the translated array.
     func translateArray(
         typeName: TypeName,
         openAPIDescription: String?,

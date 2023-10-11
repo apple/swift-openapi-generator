@@ -129,6 +129,7 @@ extension FileTranslator {
     ///   - properties: The properties to decode.
     ///   - trailingCodeBlocks: Additional code blocks to add at the end of
     ///   the body of the decoder initializer.
+    /// - Returns: A declaration representing the custom decoder implementation.
     func translateStructBlueprintCustomDecoder(
         properties: [PropertyBlueprint],
         trailingCodeBlocks: [CodeBlock] = []
@@ -177,6 +178,7 @@ extension FileTranslator {
     ///   - properties: The properties to encode.
     ///   - trailingCodeBlocks: Additional code blocks to add at the end of
     ///   the body of the encoder initializer.
+    /// - Returns: A `Declaration` representing the custom decoder implementation.
     func translateStructBlueprintCustomEncoder(
         properties: [PropertyBlueprint],
         trailingCodeBlocks: [CodeBlock] = []
@@ -225,8 +227,8 @@ extension FileTranslator {
     // MARK: - AllOf encoder and decoder
 
     /// Returns a declaration of an allOf decoder implementation.
-    /// - Parameters:
-    ///   - properties: The properties to decode.
+    /// - Parameter properties: The properties to decode.
+    /// - Returns: A `Declaration` representing the `allOf` decoder implementation.
     func translateStructBlueprintAllOfDecoder(
         properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)]
     ) -> Declaration {
@@ -242,8 +244,8 @@ extension FileTranslator {
     }
 
     /// Returns a declaration of an allOf encoder implementation.
-    /// - Parameters:
-    ///   - properties: The properties to encode.
+    /// - Parameter properties: The properties to encode.
+    /// - Returns: A `Declaration` representing the `allOf` encoder implementation.
     func translateStructBlueprintAllOfEncoder(
         properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)]
     ) -> Declaration {
@@ -269,8 +271,8 @@ extension FileTranslator {
     // MARK: - AnyOf encoder and decoder
 
     /// Returns a declaration of an anyOf decoder implementation.
-    /// - Parameters:
-    ///   - properties: The properties to decode.
+    /// - Parameter properties: The properties to be decoded using the `AnyOf` schema.
+    /// - Returns: A `Declaration` representing the `anyOf` decoder implementation.
     func translateStructBlueprintAnyOfDecoder(
         properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)]
     ) -> Declaration {
@@ -312,8 +314,8 @@ extension FileTranslator {
     }
 
     /// Returns a declaration of an anyOf encoder implementation.
-    /// - Parameters:
-    ///   - properties: The properties to encode.
+    /// - Parameter properties: The properties to be encoded using the `AnyOf` schema.
+    /// - Returns: A `Declaration` representing the `AnyOf` encoder implementation.
     func translateStructBlueprintAnyOfEncoder(
         properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)]
     ) -> Declaration {
@@ -358,8 +360,8 @@ extension FileTranslator {
     // MARK: - OneOf encoder and decoder
 
     /// Returns a declaration of a oneOf without discriminator decoder implementation.
-    /// - Parameters:
-    ///   - properties: The properties to decode.
+    /// - Parameter cases: The names of the cases to be decoded.
+    /// - Returns: A `Declaration` representing the `OneOf` decoder implementation.
     func translateOneOfWithoutDiscriminatorDecoder(
         cases: [(name: String, isKeyValuePair: Bool)]
     ) -> Declaration {
@@ -417,8 +419,12 @@ extension FileTranslator {
                 ])
         )
     }
-
     /// Returns a declaration of a oneOf with a discriminator decoder implementation.
+    /// - Parameters:
+    ///   - discriminatorName: The name of the discriminator property used for case selection.
+    ///   - cases: The cases to decode, first element is the raw string to check for, the second
+    ///     element is the case name (without the leading dot).
+    /// - Returns: A `Declaration` representing the `oneOf` decoder implementation.
     func translateOneOfWithDiscriminatorDecoder(
         discriminatorName: String,
         cases: [(caseName: String, rawNames: [String])]
@@ -491,8 +497,8 @@ extension FileTranslator {
     }
 
     /// Returns a declaration of a oneOf encoder implementation.
-    /// - Parameters:
-    ///   - properties: The properties to encode.
+    /// - Parameter cases: The case names to be encoded, including the special case for undocumented cases.
+    /// - Returns: A `Declaration` representing the `OneOf` encoder implementation.
     func translateOneOfEncoder(
         cases: [(name: String, isKeyValuePair: Bool)]
     ) -> Declaration {
@@ -530,6 +536,7 @@ fileprivate extension Expression {
     /// expression.
     ///
     /// Assumes the existence of an "encoder" variable in the current scope.
+    /// - Returns: An expression representing the encoding of the current value using the "encoder" variable.
     func encodeExpr() -> Expression {
         .try(
             self
@@ -549,6 +556,7 @@ fileprivate extension Expression {
     /// Assumes the existence of an "encoder" variable in the current scope.
     /// - Parameter gracefully: A Boolean value indicating whether the graceful
     ///   variant of the expression is used.
+    /// - Returns: An Expression representing the result of encoding the current expression.
     func encodeToSingleValueContainerExpr(gracefully: Bool) -> Expression {
         .try(
             .identifier("encoder")
@@ -567,6 +575,7 @@ fileprivate extension Expression {
     /// Assumes the existence of an "decoder" variable in the current scope,
     /// and assumes that the result is assigned to a variable with a defined
     /// type, as the type checking relies on type inference.
+    /// - Returns: An expression representing the initialization of an instance using the decoder.
     static func initFromDecoderExpr() -> Expression {
         .dot("init")
             .call([
@@ -583,6 +592,8 @@ fileprivate extension Expression {
     /// Assumes the existence of a "decoder" variable in the current scope,
     /// and assumes that the result is assigned to a variable with a defined
     /// type, as the type checking relies on type inference.
+    /// - Returns: An Expression representing the result of calling the decoder initializer
+    ///   for non-key-value pair values.
     static func decodeFromSingleValueContainerExpr() -> Expression {
         .identifier("decoder").dot("decodeFromSingleValueContainer").call([])
     }
@@ -591,6 +602,7 @@ fileprivate extension Expression {
 fileprivate extension Declaration {
 
     /// Returns a declaration of a container variable for CodingKeys.
+    /// - Returns: A variable declaration representing a container for CodingKeys.
     static func decoderContainerOfKeysVar() -> Declaration {
         .variable(
             kind: .let,

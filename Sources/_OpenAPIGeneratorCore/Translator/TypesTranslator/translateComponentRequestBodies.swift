@@ -17,8 +17,9 @@ extension TypesFileTranslator {
 
     /// Returns a declaration of the reusable request bodies defined
     /// in the OpenAPI document.
-    /// - Parameter requestBodies: The reusable request bodies.
+    /// - Parameter items: The reusable request bodies.
     /// - Returns: An enum declaration representing the requestBodies namespace.
+    /// - Throws: An error if there's an issue during translation or request body processing.
     func translateComponentRequestBodies(
         _ items: OpenAPI.ComponentDictionary<OpenAPI.Request>
     ) throws -> Declaration {

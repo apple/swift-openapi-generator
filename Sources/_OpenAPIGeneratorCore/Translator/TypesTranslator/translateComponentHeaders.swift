@@ -19,6 +19,7 @@ extension TypesFileTranslator {
     /// in the OpenAPI document.
     /// - Parameter headers: The reusable response headers.
     /// - Returns: An enum declaration representing the headers namespace.
+    /// - Throws: An error if there's an issue during translation or header processing.
     func translateComponentHeaders(
         _ headers: OpenAPI.ComponentDictionary<OpenAPI.Header>
     ) throws -> Declaration {

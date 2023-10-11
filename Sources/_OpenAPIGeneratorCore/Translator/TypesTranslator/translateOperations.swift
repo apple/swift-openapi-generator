@@ -18,6 +18,7 @@ extension TypesFileTranslator {
     /// Returns a declaration of the Input type for the specified operation.
     /// - Parameter description: The OpenAPI operation.
     /// - Returns: A structure declaration that represents the Input type.
+    /// - Throws: An error if there's an issue during translation of the input type.
     func translateOperationInput(
         _ description: OperationDescription
     ) throws -> Declaration {
@@ -138,6 +139,7 @@ extension TypesFileTranslator {
     /// Returns a declaration of the Output type for the specified operation.
     /// - Parameter description: The OpenAPI operation.
     /// - Returns: An enum declaration that represents the Output type.
+    /// - Throws: An error if there's an issue during translation of the output type.
     func translateOperationOutput(
         _ description: OperationDescription
     ) throws -> Declaration {
@@ -200,6 +202,7 @@ extension TypesFileTranslator {
     /// - Returns: A structure declaration that represents
     /// the AcceptableContentType type, or nil if no acceptable content types
     /// were specified.
+    /// - Throws: An error if there's an issue generating the declaration.
     func translateOperationAcceptableContentType(
         _ description: OperationDescription
     ) throws -> Declaration? {
@@ -234,6 +237,7 @@ extension TypesFileTranslator {
     /// - Parameter operation: The OpenAPI operation.
     /// - Returns: An enum declaration that represents the operation's
     /// namespace.
+    /// - Throws: An error if there's an issue during translation of the operation's namespace.
     func translateOperation(
         _ operation: OperationDescription
     ) throws -> Declaration {
@@ -276,6 +280,7 @@ extension TypesFileTranslator {
     /// - Parameter operations: The operations defined in the OpenAPI document.
     /// - Returns: A code block that contains an enum declaration with a
     /// separate namespace type for each operation.
+    /// - Throws: An error if there is an issue during operation translation.
     func translateOperations(
         _ operations: [OperationDescription]
     ) throws -> CodeBlock {

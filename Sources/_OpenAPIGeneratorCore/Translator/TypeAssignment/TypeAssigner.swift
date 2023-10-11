@@ -60,6 +60,7 @@ struct TypeAssigner {
     ///   - originalName: The original type name (component key) from
     ///   the OpenAPI document.
     ///   - location: The location of the type in the OpenAPI document.
+    /// - Returns: A Swift type name for the specified component type.
     func typeName(
         forComponentOriginallyNamed originalName: String,
         in location: TypeLocation
@@ -73,6 +74,7 @@ struct TypeAssigner {
 
     /// Returns the type name for an OpenAPI-named component namespace.
     /// - Parameter location: The location of the type in the OpenAPI document.
+    /// - Returns: A Swift type name representing the specified component namespace.
     func typeName(forLocation location: TypeLocation) -> TypeName {
         switch location {
         case .schemas:
@@ -89,6 +91,7 @@ struct TypeAssigner {
     ///   - components: The components in which to look up references.
     ///   - parent: The parent type in which to name the type.
     /// - Returns: A type usage; or nil if the schema is nil or unsupported.
+    /// - Throws: An error if there's an issue while computing the type usage, such as when resolving a type name or checking compatibility.
     func typeUsage(
         usingNamingHint hint: String,
         withSchema schema: UnresolvedSchema?,
@@ -122,6 +125,7 @@ struct TypeAssigner {
     ///   - components: The components in which to look up references.
     ///   - parent: The parent type in which to name the type.
     /// - Returns: A type usage.
+    /// - Throws: An error if there's an issue while processing the schema or generating the type usage.
     func typeUsage(
         forObjectPropertyNamed originalName: String,
         withSchema schema: JSONSchema,
@@ -144,6 +148,7 @@ struct TypeAssigner {
     ///   - components: The components in which to look up references.
     ///   - parent: The parent type in which to name the type.
     /// - Returns: A type usage.
+    /// - Throws: An error if there's an issue while processing the schema or generating the type usage.
     func typeUsage(
         forAllOrAnyOrOneOfChildSchemaNamed originalName: String,
         withSchema schema: JSONSchema,
@@ -166,6 +171,7 @@ struct TypeAssigner {
     ///   - components: The components in which to look up references.
     ///   - parent: The parent type in which to name the type.
     /// - Returns: A type usage.
+    /// - Throws: An error if there's an issue while processing the schema or generating the type usage.
     func typeUsage(
         forArrayElementWithSchema schema: JSONSchema,
         components: OpenAPI.Components,
@@ -187,6 +193,7 @@ struct TypeAssigner {
     ///   - components: The components in which to look up references.
     ///   - parent: The parent type in which to name the type.
     /// - Returns: A type usage.
+    /// - Throws: An error if there's an issue while processing the schema or generating the type usage.
     func typeUsage(
         forParameterNamed originalName: String,
         withSchema schema: JSONSchema,
@@ -260,9 +267,11 @@ struct TypeAssigner {
     ///   reference component.
     ///   - suffix: The string to append to the name for inline types.
     ///   - schema: The schema describing the content of the type.
+    ///   - components: The components from the OpenAPI document.
     ///   - parent: The name of the parent type in which to name the type.
     ///   - subtype: The naming method used by the type assigner.
     /// - Returns: A type usage.
+    /// - Throws: An error if there's an issue while processing the schema or generating the type usage.
     private func _typeUsage(
         forPotentiallyInlinedValueNamed originalName: String,
         jsonReferenceComponentOverride: String? = nil,
@@ -323,6 +332,7 @@ struct TypeAssigner {
     ///
     /// - NOTE: Only internal references are currently supported; throws an error for external references.
     /// - Parameter component: The component for which to compute a name.
+    /// - Returns: A type name for a reusable component.
     func typeName<Component: ComponentDictionaryLocatable>(
         for component: OpenAPI.ComponentDictionary<Component>.Element
     ) -> TypeName {
@@ -353,6 +363,7 @@ struct TypeAssigner {
     /// - Parameters:
     ///   - key: The key for the component in the OpenAPI document.
     ///   - componentType: The type of the component.
+    /// - Returns: A type name for a reusable component key.
     func typeName<Component: ComponentDictionaryLocatable>(
         for key: OpenAPI.ComponentKey,
         of componentType: Component.Type
@@ -381,6 +392,8 @@ struct TypeAssigner {
     ///   - reference: The reference to compute a type name for.
     ///   - componentType: The type of the component to which the reference
     ///   points.
+    /// - Returns: A type name for a JSON reference.
+    /// - Throws: An error if the provided reference is an external reference or if there's an issue while computing the type name.
     func typeName<Component: ComponentDictionaryLocatable>(
         for reference: JSONReference<Component>,
         in componentType: Component.Type = Component.self
@@ -400,6 +413,8 @@ struct TypeAssigner {
     ///   - reference: The reference to compute a type name for.
     ///   - componentType: The type of the component to which the reference
     ///   points.
+    /// - Throws: An error if there's an issue while computing the type name, or if the reference is external.
+    /// - Returns: A TypeName representing the computed type name for the reference.
     func typeName<Component: ComponentDictionaryLocatable>(
         for reference: OpenAPI.Reference<Component>,
         in componentType: Component.Type = Component.self
@@ -417,6 +432,8 @@ struct TypeAssigner {
     ///   - reference: The internal reference to compute a type name for.
     ///   - componentType: The type of the component to which the reference
     ///   points.
+    /// - Returns: A type name for an internal reference to a component.
+    /// - Throws: An error if the provided reference is not a component reference or if there's an issue while computing the type name.
     func typeName<Component: ComponentDictionaryLocatable>(
         for reference: JSONReference<Component>.InternalReference,
         in componentType: Component.Type = Component.self
@@ -448,6 +465,7 @@ struct TypeAssigner {
     /// - `#/components/links` -> `OpenAPI.Link`
     ///
     /// - Parameter componentType: The type of the component.
+    /// - Returns: A type name for the namespace for the specified component type.
     func typeName<Component: ComponentDictionaryLocatable>(
         for componentType: Component.Type = Component.self
     ) -> TypeName {
@@ -463,6 +481,7 @@ struct TypeAssigner {
     }
 
     /// Returns the root namespace for all OpenAPI components.
+    /// - Returns: The root namespace for all OpenAPI components.
     func typeNameForComponents() -> TypeName {
         TypeName(components: [
             .root,

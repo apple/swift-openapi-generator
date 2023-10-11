@@ -19,6 +19,7 @@ extension FileTranslator {
     /// enum case.
     ///
     /// - Parameter contentType: The content type for which to compute the name.
+    /// - Returns: A Swift-safe identifier representing the name of the content enum case.
     func contentSwiftName(_ contentType: ContentType) -> String {
         let rawContentType = contentType.lowercasedTypeSubtypeAndParameters
         switch rawContentType {
