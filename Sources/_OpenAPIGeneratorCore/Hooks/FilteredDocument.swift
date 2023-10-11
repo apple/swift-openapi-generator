@@ -467,7 +467,7 @@ fileprivate extension OpenAPI.Reference {
             guard case .internal(.component(name: let name)) = jsonReference else {
                 throw FilteredDocumentBuilderError.cannotResolveInternalReference(absoluteString)
             }
-            return OpenAPI.ComponentKey(rawValue: name)!
+            return OpenAPI.ComponentKey(stringLiteral: name)
         }
     }
 }
