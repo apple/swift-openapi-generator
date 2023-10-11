@@ -24,7 +24,8 @@ REPO_ROOT="$(git -C "${CURRENT_SCRIPT_DIR}" rev-parse --show-toplevel)"
 SWIFTFORMAT_BIN=${SWIFTFORMAT_BIN:-$(command -v swift-format)} || fatal "❌ SWIFTFORMAT_BIN unset and no swift-format on PATH"
 
 git -C "${REPO_ROOT}" ls-files -z '*.swift' \
-  | grep -z -v 'Tests/OpenAPIGeneratorReferenceTests/Resources/ReferenceSources/Petstore' \
+    | grep -z -v -e 'Tests/OpenAPIGeneratorReferenceTests/Resources' \
+    -e 'Sources/swift-openapi-generator/Documentation.docc' \
   | xargs -0 "${SWIFTFORMAT_BIN}" lint --parallel --strict \
   && SWIFT_FORMAT_RC=$? || SWIFT_FORMAT_RC=$?
 
