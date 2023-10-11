@@ -18,9 +18,10 @@ extension FileTranslator {
     /// Returns a declaration of a typealias.
     /// - Parameters:
     ///   - typeName: The name of the type to give to the declared typealias.
-    ///   - openAPIDescription: A user-specified description from the OpenAPI
-    ///   document.
+    ///   - userDescription: A user-specified description from the OpenAPI document.
     ///   - existingTypeUsage: The existing type the alias points to.
+    /// - Throws: An error if there is an issue during translation.
+    /// - Returns: A declaration representing the translated typealias.
     func translateTypealias(
         named typeName: TypeName,
         userDescription: String?,

@@ -17,6 +17,7 @@ struct HTTPStatusCodes {
 
     /// Returns a code-safe name for the specified HTTP status code.
     /// - Parameter code: The HTTP status code.
+    /// - Returns: A code-safe name for the specified HTTP status code.
     static func safeName(for code: Int) -> String {
         switch code {
         case 100:

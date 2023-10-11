@@ -142,12 +142,14 @@ public struct Diagnostic: Error, Codable, Sendable {
 }
 
 extension Diagnostic.Severity: CustomStringConvertible {
+    /// A textual representation of the diagnostic severity.
     public var description: String {
         rawValue
     }
 }
 
 extension Diagnostic: CustomStringConvertible {
+    /// A textual representation of the diagnostic, including location, severity, message, and context.
     public var description: String {
         var prefix = ""
         if let location = location {
@@ -163,6 +165,7 @@ extension Diagnostic: CustomStringConvertible {
 }
 
 extension Diagnostic: LocalizedError {
+    /// A localized description of the diagnostic.
     public var errorDescription: String? {
         description
     }
@@ -321,6 +324,9 @@ struct PrintingDiagnosticCollector: DiagnosticCollector {
     /// Creates a new collector.
     public init() {}
 
+    /// Emits a diagnostic message by printing it to the standard output.
+    ///
+    /// - Parameter diagnostic: The diagnostic message to emit.
     public func emit(_ diagnostic: Diagnostic) {
         print(diagnostic.description)
     }
@@ -331,6 +337,9 @@ public struct StdErrPrintingDiagnosticCollector: DiagnosticCollector, Sendable {
     /// Creates a new collector.
     public init() {}
 
+    /// Emits a diagnostic message to standard error.
+    ///
+    /// - Parameter diagnostic: The diagnostic message to emit.
     public func emit(_ diagnostic: Diagnostic) {
         stdErrHandle.write(diagnostic.description)
     }

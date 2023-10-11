@@ -19,6 +19,7 @@ extension TypesFileTranslator {
     /// in the OpenAPI document.
     /// - Parameter parameters: The reusable request parameters.
     /// - Returns: An enum declaration representing the parameters namespace.
+    /// - Throws: An error if there's an issue during translation or parameter processing.
     func translateComponentParameters(
         _ parameters: OpenAPI.ComponentDictionary<OpenAPI.Parameter>
     ) throws -> Declaration {

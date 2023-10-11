@@ -67,6 +67,7 @@ extension GeneratorMode {
 }
 
 extension GeneratorMode: Comparable {
+    /// Compares modes based on their order.
     public static func < (lhs: GeneratorMode, rhs: GeneratorMode) -> Bool {
         lhs.order < rhs.order
     }

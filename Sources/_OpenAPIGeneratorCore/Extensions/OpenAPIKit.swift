@@ -18,6 +18,8 @@ extension Either {
     /// Returns the contained value, looking it up in the specified
     /// OpenAPI components if it contains a reference.
     /// - Parameter components: The Components section of the OpenAPI document.
+    /// - Returns: The resolved value from the `Either` instance.
+    /// - Throws: An error if there's an issue looking up the value in the components.
     func resolve(
         in components: OpenAPI.Components
     ) throws -> B where A == OpenAPI.Reference<B> {

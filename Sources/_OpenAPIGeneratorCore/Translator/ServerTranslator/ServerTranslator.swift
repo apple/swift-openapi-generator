@@ -87,6 +87,9 @@ struct ServerFileTranslator: FileTranslator {
     /// Returns a declaration of the registerHandlers method and
     /// the declarations of the individual operation methods.
     /// - Parameter operations: The operations found in the OpenAPI document.
+    /// - Returns: A tuple containing the declaration of the `registerHandlers` method and
+    ///            an array of operation method declarations.
+    /// - Throws: An error if there is an issue while generating the registration code.
     func translateRegisterHandlers(
         _ operations: [OperationDescription]
     ) throws -> (Declaration, [Declaration]) {

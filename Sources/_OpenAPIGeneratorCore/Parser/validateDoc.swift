@@ -18,6 +18,7 @@ import OpenAPIKit
 /// - Parameters:
 ///   - doc: The OpenAPI document to validate.
 ///   - config: The generator config.
+/// - Returns: An array of diagnostic messages representing validation warnings.
 /// - Throws: An error if a fatal issue is found.
 func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [Diagnostic] {
     // Run OpenAPIKit's built-in validation.

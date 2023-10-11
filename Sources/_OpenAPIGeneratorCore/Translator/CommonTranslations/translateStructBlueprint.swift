@@ -18,6 +18,7 @@ extension FileTranslator {
     /// Returns a declaration of the specified blueprint.
     /// - Parameter blueprint: Structure blueprint containing the information
     /// required to generate the Swift structure.
+    /// - Returns: A `Declaration` representing the generated Swift structure.
     func translateStructBlueprint(
         _ blueprint: StructBlueprint
     ) -> Declaration {
@@ -72,6 +73,7 @@ extension FileTranslator {
     /// - Parameters:
     ///   - typeName: The type name of the structure.
     ///   - properties: The properties to include in the initializer.
+    /// - Returns: A `Declaration` representing the translated struct.
     func translateStructBlueprintInitializer(
         typeName: TypeName,
         properties: [PropertyBlueprint]
@@ -126,6 +128,7 @@ extension FileTranslator {
     /// JSON schema, in which case a type declaration of that type is included
     /// in the returned array.
     /// - Parameter property: Information about the property.
+    /// - Returns: A list of Swift declarations representing the translated property.
     func translatePropertyBlueprint(
         _ property: PropertyBlueprint
     ) -> [Declaration] {
@@ -146,7 +149,8 @@ extension FileTranslator {
     }
 
     /// Returns a declaration of a coding keys enum.
-    /// - Parameter blueprint: Information about the structure.
+    /// - Parameter properties: The properties of the structure.
+    /// - Returns: A coding keys enum declaration.
     func translateStructBlueprintCodingKeys(
         properties: [PropertyBlueprint]
     ) -> Declaration {
@@ -173,6 +177,8 @@ fileprivate extension Array where Element == PropertyBlueprint {
 
     /// Returns the comment string for an initializer of a structure with
     /// the properties contained in the current array.
+    /// - Parameter typeName: The name of the structure type.
+    /// - Returns: A comment string describing the initializer.
     func initializerComment(typeName: String) -> String {
         var components: [String] = [
             "Creates a new `\(typeName)`."

@@ -22,6 +22,7 @@ extension FileTranslator {
     /// - Parameter description: The OpenAPI operation.
     /// - Returns: A list of content types. Might be empty, in which case no
     /// Accept header should be sent in the request.
+    /// - Throws: Any errors that occur during the process of analyzing the responses.
     func acceptHeaderContentTypes(
         for description: OperationDescription
     ) throws -> [ContentType] {

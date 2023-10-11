@@ -15,14 +15,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "GreetingService",
+    name: "GreetingServiceClient",
     platforms: [
         .macOS(.v13)
     ],
     dependencies: [
-        // TODO: When swift-openapi-generator is tagged with 0.3.0, stop depending on main.
-        // .package(url: "https://github.com/apple/swift-openapi-generator", .upToNextMinor(from: "0.3.0"),
-        .package(url: "https://github.com/apple/swift-openapi-generator", branch: "main"),
+        .package(url: "https://github.com/apple/swift-openapi-generator", .upToNextMinor(from: "0.3.0")),
         .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.3.0")),
         .package(url: "https://github.com/apple/swift-openapi-urlsession", .upToNextMinor(from: "0.3.0")),
     ],

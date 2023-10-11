@@ -33,6 +33,8 @@ extension _Tool {
     ///   - isDryRun: A Boolean value that indicates whether this invocation should
     ///   be a dry run.
     ///   - diagnostics: A collector for diagnostics emitted by the generator.
+    /// - Throws: An error if there are issues loading the OpenAPI document,
+    ///  running the generator for each configuration, or handling diagnostics.
     static func runGenerator(
         doc: URL,
         configs: [Config],
@@ -94,6 +96,8 @@ extension _Tool {
     ///   - isDryRun: A Boolean value that indicates whether this invocation should
     ///   be a dry run.
     ///   - diagnostics: A collector for diagnostics emitted by the generator.
+    /// - Throws: An error if there are issues loading the OpenAPI document,
+    ///  running the generator for each configuration, or handling diagnostics.
     static func runGenerator(
         doc: URL,
         docData: Data,
@@ -122,7 +126,8 @@ extension _Tool {
     /// if the data is different than the current file contents. Will write to disk
     /// only if `isDryRun` is set as `false`.
     /// - Parameters:
-    ///   - path: A path to the file.
+    ///   - outputDirectory: The directory where the file is located.
+    ///   - fileName: The name of the file.
     ///   - contents: A closure evaluated to produce the file contents data.
     ///   - isDryRun: A Boolean value that indicates whether this invocation should
     ///   be a dry run. File system changes will not be written to disk in this mode.

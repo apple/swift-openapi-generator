@@ -140,6 +140,10 @@ public enum Components {
             public var name: Swift.String
             /// - Remark: Generated from `#/components/schemas/Pet/tag`.
             public var tag: Swift.String?
+            /// Pet genome (base64-encoded)
+            ///
+            /// - Remark: Generated from `#/components/schemas/Pet/genome`.
+            public var genome: OpenAPIRuntime.Base64EncodedData?
             /// - Remark: Generated from `#/components/schemas/Pet/kind`.
             public var kind: Components.Schemas.PetKind?
             /// Creates a new `Pet`.
@@ -148,22 +152,26 @@ public enum Components {
             ///   - id: Pet id
             ///   - name: Pet name
             ///   - tag:
+            ///   - genome: Pet genome (base64-encoded)
             ///   - kind:
             public init(
                 id: Swift.Int64,
                 name: Swift.String,
                 tag: Swift.String? = nil,
+                genome: OpenAPIRuntime.Base64EncodedData? = nil,
                 kind: Components.Schemas.PetKind? = nil
             ) {
                 self.id = id
                 self.name = name
                 self.tag = tag
+                self.genome = genome
                 self.kind = kind
             }
             public enum CodingKeys: String, CodingKey {
                 case id
                 case name
                 case tag
+                case genome
                 case kind
             }
         }
@@ -282,21 +290,31 @@ public enum Components {
             public var kind: Components.Schemas.PetKind?
             /// - Remark: Generated from `#/components/schemas/CreatePetRequest/tag`.
             public var tag: Swift.String?
+            /// - Remark: Generated from `#/components/schemas/CreatePetRequest/genome`.
+            public var genome: OpenAPIRuntime.Base64EncodedData?
             /// Creates a new `CreatePetRequest`.
             ///
             /// - Parameters:
             ///   - name:
             ///   - kind:
             ///   - tag:
-            public init(name: Swift.String, kind: Components.Schemas.PetKind? = nil, tag: Swift.String? = nil) {
+            ///   - genome:
+            public init(
+                name: Swift.String,
+                kind: Components.Schemas.PetKind? = nil,
+                tag: Swift.String? = nil,
+                genome: OpenAPIRuntime.Base64EncodedData? = nil
+            ) {
                 self.name = name
                 self.kind = kind
                 self.tag = tag
+                self.genome = genome
             }
             public enum CodingKeys: String, CodingKey {
                 case name
                 case kind
                 case tag
+                case genome
             }
         }
         /// - Remark: Generated from `#/components/schemas/Pets`.

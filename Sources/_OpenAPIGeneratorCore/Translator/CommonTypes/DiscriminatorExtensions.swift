@@ -80,6 +80,8 @@ extension FileTranslator {
     ///
     /// Derived from the mapping key, or the type name, as the last path
     /// component.
+    /// - Parameter type: The `OneOfMappedType` for which to determine the case name.
+    /// - Returns: A string representing the safe Swift name for the specified `OneOfMappedType`.
     func safeSwiftNameForOneOfMappedType(_ type: OneOfMappedType) -> String {
         swiftSafeName(for: type.rawNames[0])
     }
@@ -108,6 +110,7 @@ extension OpenAPI.Discriminator {
     /// - Parameters:
     ///   - schemas: The subschemas of the oneOf with this discriminator.
     ///   - typeAssigner: The current type assigner.
+    /// - Throws: An error if there's an issue while discovering the types.
     /// - Returns: The list of discovered types.
     func allTypes(
         schemas: [JSONReference<JSONSchema>],
@@ -131,6 +134,7 @@ extension OpenAPI.Discriminator {
     /// Returns the mapped types provided by the discriminator's mapping.
     /// - Parameter typeAssigner: The current type assigner, used to assign
     ///   a Swift type to the found JSON reference.
+    /// - Throws: An error if there's an issue while extracting mapped types from the mapping.
     /// - Returns: An array of found mapped types, but might also be empty.
     private func pairsFromMapping(typeAssigner: TypeAssigner) throws -> [OneOfMappedType] {
         guard let mapping else {

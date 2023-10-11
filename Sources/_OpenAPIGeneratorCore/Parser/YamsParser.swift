@@ -93,11 +93,12 @@ public struct YamsParser: ParserProtocol {
         }
     }
 
-    /// Detect specific YAML parsing errors to throw nicely formatted diagnostics for IDEs
+    /// Detects specific YAML parsing errors to throw nicely formatted diagnostics for IDEs.
+    ///
     /// - Parameters:
-    ///   - context: The error context that triggered the `DecodingError`.
-    ///   - input: The input file that was being worked on when the error was triggered.
-    /// - Throws: Will throw a `Diagnostic` if the decoding error is a common parsing error.
+    ///   - context: The decoding error context that triggered the parsing error.
+    ///   - input: The input file being worked on when the parsing error was triggered.
+    /// - Throws: Throws a `Diagnostic` if the decoding error is a common parsing error.
     private func checkParsingError(
         context: DecodingError.Context,
         input: InMemoryInputFile
