@@ -60,16 +60,16 @@ public struct DocumentFilter: Codable, Sendable {
     public func filter(_ document: OpenAPI.Document) throws -> OpenAPI.Document {
         var builder = FilteredDocumentBuilder(document: document)
         for tag in tags ?? [] {
-            try builder.requireOperations(tagged: tag)
+            try builder.includeOperations(tagged: tag)
         }
         for operationID in operations ?? [] {
-            try builder.requireOperation(operationID: operationID)
+            try builder.includeOperation(operationID: operationID)
         }
         for path in paths ?? [] {
-            try builder.requirePath(path)
+            try builder.includePath(path)
         }
         for schema in schemas ?? [] {
-            try builder.requireSchema(schema)
+            try builder.includeSchema(schema)
         }
         return try builder.filter()
     }
