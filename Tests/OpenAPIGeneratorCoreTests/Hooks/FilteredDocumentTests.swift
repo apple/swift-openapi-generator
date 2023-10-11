@@ -167,19 +167,3 @@ final class FilteredDocumentTests: XCTestCase {
         )
     }
 }
-
-private func XCTAssertUnsortedEqual<T>(
-    _ expression1: @autoclosure () throws -> [T],
-    _ expression2: @autoclosure () throws -> [T],
-    _ message: @autoclosure () -> String = "",
-    file: StaticString = #filePath,
-    line: UInt = #line
-) where T: Comparable {
-    XCTAssertEqual(
-        try expression1().sorted(),
-        try expression2().sorted(),
-        message(),
-        file: file,
-        line: line
-    )
-}
