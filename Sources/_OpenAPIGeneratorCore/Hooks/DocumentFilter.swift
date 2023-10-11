@@ -15,8 +15,6 @@
 @preconcurrency import OpenAPIKit
 
 /// Rules used to filter an OpenAPI document.
-///
-/// - Todo: Add endpoint support
 public struct DocumentFilter: Codable, Sendable {
 
     /// Operations with these operation IDs will be included in the filter.
