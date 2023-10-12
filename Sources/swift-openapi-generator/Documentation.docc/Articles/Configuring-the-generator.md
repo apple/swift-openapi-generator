@@ -31,7 +31,13 @@ The configuration file has the following keys:
     - `client`: Client code that can be used with any client transport (depends on code from `types`).
     - `server`: Server code that can be used with any server transport (depends on code from `types`).
 - `additionalImports` (optional): array of strings. Each string value is a Swift module name. An import statement will be added to the generated source files for each module.
+- `filter`: (optional): Filters to apply to the OpenAPI document before generation.
+    - `operations`: Operations with these operation IDs will be included in the filter.
+    - `tags`: Operations tagged with these tags will be included in the filter.
+    - `paths`: Operations for these paths will be included in the filter.
+    - `schemas`: These (additional) schemas will be included in the filter.
 - `featureFlags` (optional): array of strings. Each string must be a valid feature flag to enable. For a list of currently supported feature flags, check out [FeatureFlags.swift](https://github.com/apple/swift-openapi-generator/blob/main/Sources/_OpenAPIGeneratorCore/FeatureFlags.swift).
+
 
 ### Example config files
 
@@ -65,4 +71,41 @@ generate:
   - client
 additionalImports:
   - APITypes
+```
+
+### Document filtering
+
+The geneartor supports filtering the OpenAPI document prior to generation, which can be useful when
+generating client code for a subset of a large API.
+
+For example, to generate client code for only the operations with a given tag, use the following config:
+
+```yaml
+generate:
+  - types
+  - client
+
+filter:
+  tags:
+    - myTag
+```
+
+When multiple filters are specified, their union will be considered for inclusion.
+
+In all cases, the transitive closure of dependencies from the components object will be included.
+
+The CLI also provides a `filter` command that takes the same configuration file as the `generate`
+command, which can be used to inspect the filtered document:
+
+```
+% swift-openapi-generator filter --config path/to/openapi-generator-config.yaml path/to/openapi.yaml
+```
+
+To use this command as a standalone filtering tool, use the following config and redirect stdout to a new file:
+
+```yaml
+generate: []
+filter:
+  tags:
+    - myTag
 ```
