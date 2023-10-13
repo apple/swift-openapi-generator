@@ -16,7 +16,6 @@ import Foundation
 import _OpenAPIGeneratorCore
 import Yams
 import OpenAPIKit
-import OpenAPIKit30
 
 struct _FilterCommand: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
@@ -36,6 +35,9 @@ struct _FilterCommand: AsyncParsableCommand {
     @Option(help: "Path to a YAML configuration file.")
     var config: URL
 
+    @Option(help: "Output format, either \(OutputFormat.yaml.rawValue) or \(OutputFormat.json.rawValue).")
+    var outputFormat: OutputFormat = .yaml
+
     @Argument(help: "Path to the OpenAPI document, either in YAML or JSON.")
     var docPath: URL
 
@@ -50,11 +52,22 @@ struct _FilterCommand: AsyncParsableCommand {
         try document.validate()
         guard let documentFilter = config.filter else {
             FileHandle.standardError.write("warning: No filter config provided\n")
-            FileHandle.standardOutput.write(try YAMLEncoder().encode(document))
+            FileHandle.standardOutput.write(try encode(document, outputFormat))
             return
         }
         let filteredDocument = try timing("Filtering document", documentFilter.filter(document))
-        FileHandle.standardOutput.write(try YAMLEncoder().encode(filteredDocument))
+        FileHandle.standardOutput.write(try encode(filteredDocument, outputFormat))
+    }
+}
+
+private func encode(_ document: OpenAPI.Document, _ format: OutputFormat) throws -> Data {
+    switch format {
+    case .yaml:
+        return Data(try YAMLEncoder().encode(document).utf8)
+    case .json:
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
+        return try encoder.encode(document)
     }
 }
 
@@ -80,3 +93,8 @@ private let sampleConfig = _UserConfig(
         schemas: ["Greeting"]
     )
 )
+
+enum OutputFormat: String, ExpressibleByArgument {
+    case json
+    case yaml
+}
