@@ -396,7 +396,7 @@ struct TextBasedRenderer: RendererProtocol {
             return "[String: \(renderedExistingTypeDescription(existingTypeDescription))]"
         }
     }
-    
+
     /// Renders the specified typealias declaration.
     func renderedTypealias(_ alias: TypealiasDescription) -> String {
         var words: [String] = []

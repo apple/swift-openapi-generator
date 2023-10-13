@@ -1613,7 +1613,7 @@ extension Declaration {
         }
         return self
     }
-    
+
     var strippingTopComment: Self {
         guard case let .commentable(_, underlyingDecl) = self else {
             return self

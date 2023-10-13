@@ -13,31 +13,31 @@
 //===----------------------------------------------------------------------===//
 
 struct DeclarationRecursionDetector {
-    
+
     /// A node for a pair of a Swift type name and a corresponding declaration.
     struct Node: TypeNode, Equatable {
-        
+
         /// The type of the name is a string.
         typealias NameType = String
-        
+
         /// The name of the node.
         var name: NameType
-        
+
         /// Whether the type can be boxed.
         var isBoxable: Bool
-        
+
         /// The names of nodes pointed to by this node.
         var edges: [NameType]
-        
+
         var decl: Declaration
-                
+
         private init(name: NameType, isBoxable: Bool, edges: [NameType], decl: Declaration) {
             self.name = name
             self.isBoxable = isBoxable
             self.edges = edges
             self.decl = decl
         }
-        
+
         init?(_ decl: Declaration) {
             guard let name = decl.name else {
                 return nil
@@ -50,16 +50,16 @@ struct DeclarationRecursionDetector {
             )
         }
     }
-    
+
     struct Container: TypeNodeContainer {
         typealias Node = DeclarationRecursionDetector.Node
-        
+
         enum ContainerError: Swift.Error {
             case nodeNotFound(Node.NameType)
         }
-        
+
         var lookupMap: [String: Node]
-        
+
         func lookup(_ name: String) throws -> DeclarationRecursionDetector.Node {
             guard let node = lookupMap[name] else {
                 throw ContainerError.nodeNotFound(name)
@@ -68,7 +68,6 @@ struct DeclarationRecursionDetector {
         }
     }
 }
-
 
 /// Converts the OpenAPI types into wrappers that the recursion detector
 /// can work with.
@@ -86,7 +85,7 @@ struct DeclarationRecursionDetector {
 //    }
 
 extension Declaration {
-    
+
     var name: String? {
         switch self {
         case .struct(let desc):
@@ -101,7 +100,7 @@ extension Declaration {
             return nil
         }
     }
-    
+
     var isBoxable: Bool {
         switch self {
         case .struct, .enum:
@@ -112,7 +111,7 @@ extension Declaration {
             return false
         }
     }
-    
+
     // TODO: Explain (does not follow through arrays/dicts since those break refs)
     var schemaComponentNamesOfUnbreakableReferences: [String] {
         switch self {
@@ -175,7 +174,7 @@ fileprivate extension Array where Element == String {
 }
 
 extension ExistingTypeDescription {
-    
+
     var referencedSchemaComponentName: String? {
         switch self {
         case .member(let components):

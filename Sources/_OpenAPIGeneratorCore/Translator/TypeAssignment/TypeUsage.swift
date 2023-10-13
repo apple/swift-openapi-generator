@@ -219,7 +219,7 @@ extension TypeName {
 }
 
 extension ExistingTypeDescription {
-    
+
     private init(_ wrapped: TypeUsage.Wrapped) {
         switch wrapped {
         case .name(let typeName):
@@ -228,11 +228,11 @@ extension ExistingTypeDescription {
             self = .init(typeUsage)
         }
     }
-    
+
     init(_ typeName: TypeName) {
         self = .member(typeName.swiftKeyPathComponents)
     }
-    
+
     init(_ typeUsage: TypeUsage) {
         switch typeUsage.usage {
         case .generic:

@@ -80,7 +80,7 @@ extension TypeName {
     static var request: TypeName {
         .httpTypes("HTTPRequest")
     }
-    
+
     /// Returns the type name for the response type.
     static var response: TypeName {
         .httpTypes("HTTPResponse")

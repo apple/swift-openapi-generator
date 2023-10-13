@@ -54,14 +54,18 @@ extension TypesFileTranslator {
 
         var associatedValues: [EnumCaseAssociatedValueDescription] = []
         if responseKind.wantsStatusCode {
-            associatedValues.append(.init(
-                label: "statusCode",
-                type: .init(TypeName.int)
-            ))
+            associatedValues.append(
+                .init(
+                    label: "statusCode",
+                    type: .init(TypeName.int)
+                )
+            )
         }
-        associatedValues.append(.init(
-            type: .init(responseStructTypeName)
-        ))
+        associatedValues.append(
+            .init(
+                type: .init(responseStructTypeName)
+            )
+        )
 
         let enumCaseDesc = EnumCaseDescription(
             name: enumCaseName,

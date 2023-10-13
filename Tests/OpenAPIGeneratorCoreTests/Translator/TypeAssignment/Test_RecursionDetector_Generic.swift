@@ -172,7 +172,7 @@ class Test_RecursionDetector_Generic: Test_Core {
             ]
         )
     }
-    
+
     func testMultipleCycles() throws {
         try _test(
             rootNodes: [

@@ -22,7 +22,7 @@ protocol TypeNode {
 
     /// A unique name.
     var name: NameType { get }
-    
+
     /// Whether it can be boxed in a reference type to break cycles.
     var isBoxable: Bool { get }
 
@@ -45,15 +45,16 @@ protocol TypeNodeContainer {
 
 /// A set of utility functions for recursive type support.
 struct RecursionDetector {
-    
+
     enum RecursionError: Swift.Error, LocalizedError, CustomStringConvertible {
-        
+
         case invalidRecursion(String)
-        
+
         var description: String {
             switch self {
             case .invalidRecursion(let string):
-                return "Invalid recursion found at type '\(string)'. This type cannot be constructed, cycles must contain at least one struct, not just typealiases."
+                return
+                    "Invalid recursion found at type '\(string)'. This type cannot be constructed, cycles must contain at least one struct, not just typealiases."
             }
         }
     }
@@ -132,7 +133,7 @@ struct RecursionDetector {
             // Identify the names involved in the cycle.
             // Right now, the stack must have the current node there twice.
             // Ignore everything before the first occurrence.
-            
+
             let cycleNodes = stack.drop(while: { $0.name != name })
             let cycleNames = Set(cycleNodes.map(\.name))
 
@@ -143,7 +144,7 @@ struct RecursionDetector {
                 // visit.
                 return
             }
-            
+
             // We now choose which node will be marked as recursive.
             // Only consider boxable nodes, trying from the start of the cycle.
             guard let firstBoxable = cycleNodes.first(where: \.isBoxable) else {

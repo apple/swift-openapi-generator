@@ -62,7 +62,7 @@ extension TypesFileTranslator {
         let decls: [Declaration] = try schemas.flatMap { key, value in
             try translateSchema(componentKey: key, schema: value)
         }
-        
+
         let declsHandlingRecursion = try boxRecursiveTypes(decls)
 
         let componentsSchemasEnum = Declaration.commentable(
@@ -75,34 +75,55 @@ extension TypesFileTranslator {
         )
         return componentsSchemasEnum
     }
-    
+
     // TODO: Find a better place for this.
     private func boxRecursiveTypes(_ decls: [Declaration]) throws -> [Declaration] {
-        
+
         let nodes = decls.compactMap(DeclarationRecursionDetector.Node.init)
         let nodeLookup = Dictionary(uniqueKeysWithValues: nodes.map { ($0.name, $0) })
         let container = DeclarationRecursionDetector.Container(
             lookupMap: nodeLookup
         )
-        
+
         let boxedNames = try RecursionDetector.computeBoxedTypes(
             rootNodes: nodes,
             container: container
         )
-        
+
         var decls = decls
         for (index, decl) in decls.enumerated() {
             guard let name = decl.name, boxedNames.contains(name) else {
                 continue
             }
-            print("Will box '\(name)' at index \(index)")
+            print(
+                "The type '\(name)' will use a copy-on-write reference type for storage, because it is part of a reference cycle."
+            )
             decls[index] = boxedType(decl)
         }
         return decls
     }
-    
+
     private func boxedType(_ decl: Declaration) -> Declaration {
         // TODO: Do the transformation here.
+
+        // For structs:
+
+        // - Move down:
+        //      - Properties (and duplicate at top level with set/get), remove comments
+        //      - Initializer (although can probably be removed as synthesized one works for private), remove comments
+        //      - any existing custom encoder/decoder
+        // - Keep at the same level:
+        //      - Inline types
+        // - Generate a typealias for the coding keys in the Storage type (if a CodingKeys is explicitly defined at the top level).
+        // - Generate explicit encoder/decoder.
+        //
+        // Since we use fully qualified type names, references to inline
+        // types don't need to change, even as the property moves down.
+
+        // For enums:
+
+        // Just mark it as indirect, done.
+
         decl
     }
 }

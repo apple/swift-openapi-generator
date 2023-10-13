@@ -736,13 +736,30 @@ public enum Components {
             private struct Storage: Codable, Hashable, Sendable {
                 var name: Swift.String
                 var parent: Components.Schemas.PetGroup?
-                init(name: Swift.String, parent: Components.Schemas.PetGroup? = nil) {
-                    self.name = name
-                    self.parent = parent
-                }
                 typealias CodingKeys = Components.Schemas.PetGroup.CodingKeys
+                // Might have custom encoder/decoder.
             }
         }
+
+        //        /// - Remark: Generated from `#/components/schemas/PetGroup`.
+        //        public struct PetGroup2: Codable, Hashable, Sendable {
+        //            /// - Remark: Generated from `#/components/schemas/PetGroup/name`.
+        //            public var name: Swift.String
+        //            /// - Remark: Generated from `#/components/schemas/PetGroup/parent`.
+        //            public var parent: Components.Schemas.PetGroup2?
+        //            /// Creates a new `PetGroup`.
+        //            ///
+        //            /// - Parameters:
+        //            ///   - name:
+        //            ///   - parent:
+        //            public init(name: Swift.String, parent: Components.Schemas.PetGroup2? = nil) {
+        //                storage = .init(value: .init(name: name, parent: parent))
+        //            }
+        //            public enum CodingKeys: String, CodingKey {
+        //                case name
+        //                case parent
+        //            }
+        //        }
 
         //        /// - Remark: Generated from `#/components/schemas/PetGroup`.
         //        public struct PetGroup: Codable, Hashable, Sendable {
