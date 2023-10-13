@@ -383,9 +383,7 @@ private extension FilteredDocumentBuilder {
         case .not(let schema, _):
             try includeComponentsReferencedBy(schema)
 
-        case .all(of: let schemas, _): fallthrough
-        case .one(of: let schemas, _): fallthrough
-        case .any(of: let schemas, _):
+        case .all(of: let schemas, _), .one(of: let schemas, _), .any(of: let schemas, _):
             for schema in schemas {
                 try includeComponentsReferencedBy(schema)
             }
