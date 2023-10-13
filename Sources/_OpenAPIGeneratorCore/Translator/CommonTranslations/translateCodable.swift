@@ -631,7 +631,11 @@ fileprivate extension FileTranslator {
             accessModifier: config.access,
             kind: .function(name: "encode"),
             parameters: [
-                .init(label: "to", name: "encoder", type: "any Encoder")
+                .init(
+                    label: "to",
+                    name: "encoder",
+                    type: .any(.member(["Encoder"]))
+                )
             ],
             keywords: [
                 .throws
@@ -648,7 +652,11 @@ fileprivate extension FileTranslator {
             accessModifier: config.access,
             kind: .initializer,
             parameters: [
-                .init(label: "from", name: "decoder", type: "any Decoder")
+                .init(
+                    label: "from",
+                    name: "decoder",
+                    type: .any(.member(["Decoder"]))
+                )
             ],
             keywords: [
                 .throws
@@ -656,5 +664,4 @@ fileprivate extension FileTranslator {
             body: body
         )
     }
-
 }

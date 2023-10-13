@@ -382,6 +382,21 @@ struct TextBasedRenderer: RendererProtocol {
         return lines.joinedLines()
     }
 
+    func renderedExistingTypeDescription(_ type: ExistingTypeDescription) -> String {
+        switch type {
+        case .any(let existingTypeDescription):
+            return "any \(renderedExistingTypeDescription(existingTypeDescription))"
+        case .optional(let existingTypeDescription):
+            return "\(renderedExistingTypeDescription(existingTypeDescription))?"
+        case .member(let array):
+            return array.joined(separator: ".")
+        case .array(let existingTypeDescription):
+            return "[\(renderedExistingTypeDescription(existingTypeDescription))]"
+        case .dictionaryValue(let existingTypeDescription):
+            return "[String: \(renderedExistingTypeDescription(existingTypeDescription))]"
+        }
+    }
+    
     /// Renders the specified typealias declaration.
     func renderedTypealias(_ alias: TypealiasDescription) -> String {
         var words: [String] = []
@@ -392,7 +407,7 @@ struct TextBasedRenderer: RendererProtocol {
             "typealias",
             alias.name,
             "=",
-            alias.existingType,
+            renderedExistingTypeDescription(alias.existingType),
         ])
         return words.joinedWords()
     }
@@ -532,7 +547,7 @@ struct TextBasedRenderer: RendererProtocol {
             words.append(label)
             words.append(":")
         }
-        words.append(value.type)
+        words.append(renderedExistingTypeDescription(value.type))
         return words.joinedWords()
     }
 
@@ -663,7 +678,7 @@ struct TextBasedRenderer: RendererProtocol {
             }
         }
         words.append(":")
-        words.append(parameterDescription.type)
+        words.append(renderedExistingTypeDescription(parameterDescription.type))
         if let defaultValue = parameterDescription.defaultValue {
             words.append("=")
             words.append(renderedExpression(defaultValue))

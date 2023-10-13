@@ -69,7 +69,7 @@ extension FileTranslator {
             .`typealias`(
                 accessModifier: config.access,
                 name: typeName.shortSwiftName,
-                existingType: elementType.typeName.asUsage.asArray.fullyQualifiedSwiftName
+                existingType: .init(elementType.typeName.asUsage.asArray)
             )
         )
         return inline + [arrayDecl]

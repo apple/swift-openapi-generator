@@ -141,21 +141,21 @@ struct ServerFileTranslator: FileTranslator {
                     .init(
                         label: "on",
                         name: "transport",
-                        type: Constants.Server.Transport.typeName
+                        type: .member([Constants.Server.Transport.typeName])
                     ),
                     .init(
                         label: "serverURL",
-                        type: "\(Constants.ServerURL.underlyingType)",
+                        type: .member([Constants.ServerURL.underlyingType]),
                         defaultValue: .dot("defaultOpenAPIServerURL")
                     ),
                     .init(
                         label: "configuration",
-                        type: Constants.Configuration.typeName,
+                        type: .member([Constants.Configuration.typeName]),
                         defaultValue: .dot("init").call([])
                     ),
                     .init(
                         label: "middlewares",
-                        type: "[\(Constants.Server.Middleware.typeName)]",
+                        type: .array(.member([Constants.Server.Middleware.typeName])),
                         defaultValue: .literal(.array([]))
                     ),
                 ],

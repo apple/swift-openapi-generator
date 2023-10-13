@@ -159,6 +159,7 @@ extension PropertyBlueprint {
     }
 
     /// A human-readable, fully qualified name of the Swift property.
+    @available(*, deprecated, message: "Use ExistingTypeDescription for rendering instead.")
     var renderedFullyQualifiedSwiftName: String {
         typeUsage.fullyQualifiedSwiftName
     }

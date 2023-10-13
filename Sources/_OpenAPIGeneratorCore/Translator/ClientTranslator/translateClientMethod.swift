@@ -42,7 +42,7 @@ extension ClientFileTranslator {
         let requestDecl: Declaration = .variable(
             kind: .var,
             left: "request",
-            type: TypeName.request.fullyQualifiedSwiftName,
+            type: .init(TypeName.request),
             right: .dot("init")
                 .call([
                     .init(label: "soar_path", expression: .identifier("path")),
@@ -97,7 +97,7 @@ extension ClientFileTranslator {
                     .variable(
                         kind: .let,
                         left: bodyVariableName,
-                        type: TypeName.body.asUsage.asOptional.fullyQualifiedSwiftName
+                        type: .init(TypeName.body.asUsage.asOptional)
                     )
                 )
             )

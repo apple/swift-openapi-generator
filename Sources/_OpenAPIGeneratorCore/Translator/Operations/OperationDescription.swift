@@ -262,7 +262,7 @@ extension OperationDescription {
             parameters: [
                 .init(
                     name: Constants.Operation.Input.variableName,
-                    type: inputTypeName.fullyQualifiedSwiftName
+                    type: .init(inputTypeName)
                 )
             ],
             keywords: [.async, .throws],
@@ -277,9 +277,18 @@ extension OperationDescription {
             accessModifier: nil,
             kind: .function(name: methodName),
             parameters: [
-                .init(label: "request", type: "HTTPRequest"),
-                .init(label: "body", type: "HTTPBody?"),
-                .init(label: "metadata", type: "ServerRequestMetadata"),
+                .init(
+                    label: "request",
+                    type: .init(TypeName.request)
+                ),
+                .init(
+                    label: "body",
+                    type: .optional(.init(TypeName.body))
+                ),
+                .init(
+                    label: "metadata",
+                    type: .member(["ServerRequestMetadata"])
+                ),
             ],
             keywords: [.async, .throws],
             returnType: .tuple([.identifier("HTTPResponse"), .identifier("HTTPBody?")])

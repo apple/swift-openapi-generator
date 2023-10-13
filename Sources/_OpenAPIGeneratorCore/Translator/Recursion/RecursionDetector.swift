@@ -12,7 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-import OpenAPIKit
 import Foundation
 
 /// A uniquely named node which can point to other nodes.
@@ -161,82 +160,4 @@ struct RecursionDetector {
 
         return boxed
     }
-
-    /// Converts the OpenAPI types into wrappers that the recursion detector
-    /// can work with.
-    /// - Parameters:
-    ///   - schemas: The root schemas in the OpenAPI document.
-    ///   - components: The components from the OpenAPI document.
-    /// - Returns: The converted root nodes and container.
-//    static func convertedTypes(
-//        schemas: OpenAPI.ComponentDictionary<JSONSchema>,
-//        components: OpenAPI.Components
-//    ) -> ([OpenAPIWrapperNode], OpenAPIWrapperContainer) {
-//        let rootNodes = schemas.map(OpenAPIWrapperNode.init(key:value:))
-//        let container = OpenAPIWrapperContainer(components: components)
-//        return (rootNodes, container)
-//    }
-
-    /// A node for a pair of a Swift type name and a corresponding declaration.
-//    struct SwiftWrapperNode: TypeNode, Equatable {
-//
-//        /// The type of the name is a string.
-//        typealias NameType = TypeName
-//
-//        /// The name of the node.
-//        var name: NameType
-//
-//        /// The names of nodes pointed to by this node.
-//        var edges: [NameType]
-//
-//        /// Creates a new node from the provided node and edges.
-//        /// - Parameters:
-//        ///   - name: A name for the node.
-//        ///   - edges: The edges for the node.
-//        init(name: NameType, edges: [NameType]) {
-//            self.name = name
-//            self.edges = edges
-//        }
-//
-//        /// Creates a new node from the provided type name and declaration.
-//        ///
-//        /// Asks the schema for referenced subschemas to discover edges.
-//        /// - Parameters:
-//        ///   - key: A key of the schema.
-//        ///   - value: The schema.
-////        init(typeName: TypeName, value: Declaration) {
-////            self.init(
-////                name: key,
-////                edges: value.referencedSubschemas.compactMap(\.name)
-////            )
-////        }
-//    }
-
-//    /// A container for OpenAPI components.
-//    struct SwiftWrapperContainer: TypeNodeContainer {
-//
-//        /// The type of the node is a Swift wrapper node.
-//        typealias Node = SwiftWrapperNode
-//
-//        /// The OpenAPI components.
-//        var components: OpenAPI.Components
-//
-//        /// Looks up a node for the provided name.
-//        /// - Parameter name: A unique name of a node.
-//        /// - Returns: The node found in the container.
-//        /// - Throws: If no node was found for the name.
-//        func lookup(_ name: String) throws -> Node {
-//            let schema =
-//                try components
-//                .lookup(
-//                    JSONReference<JSONSchema>
-//                        .internal(
-//                            .component(
-//                                name: name
-//                            )
-//                        )
-//                )
-//            return .init(key: name, value: schema)
-//        }
-//    }
 }

@@ -101,7 +101,7 @@ extension TypesFileTranslator {
                     .enumCase(
                         name: identifier,
                         kind: .nameWithAssociatedValues([
-                            .init(type: associatedType.fullyQualifiedSwiftName)
+                            .init(type: .init(associatedType))
                         ])
                     )
                 )
@@ -141,7 +141,7 @@ extension TypesFileTranslator {
                     isStatic: false,
                     kind: .var,
                     left: identifier,
-                    type: associatedType.fullyQualifiedSwiftName,
+                    type: .init(associatedType),
                     getter: [
                         .expression(
                             .switch(

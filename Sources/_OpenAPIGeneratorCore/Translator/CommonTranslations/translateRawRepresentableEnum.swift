@@ -56,7 +56,7 @@ extension FileTranslator {
                 .enumCase(
                     name: unknownCaseName,
                     kind: .nameWithAssociatedValues([
-                        .init(type: "String")
+                        .init(type: .init(TypeName.string))
                     ])
                 )
             )
@@ -104,7 +104,10 @@ extension FileTranslator {
                         accessModifier: config.access,
                         kind: .initializer(failable: true),
                         parameters: [
-                            .init(label: "rawValue", type: "String")
+                            .init(
+                                label: "rawValue",
+                                type: .init(TypeName.string)
+                            )
                         ],
                         body: [
                             .expression(
@@ -157,7 +160,7 @@ extension FileTranslator {
                     accessModifier: config.access,
                     kind: .var,
                     left: "rawValue",
-                    type: "String",
+                    type: .init(TypeName.string),
                     getter: [
                         .expression(
                             .switch(
@@ -184,7 +187,7 @@ extension FileTranslator {
                         isStatic: true,
                         kind: .var,
                         left: "allCases",
-                        type: "[Self]",
+                        type: .array(.member(["Self"])),
                         getter: [
                             .expression(.literal(.array(caseExpressions)))
                         ]

@@ -324,11 +324,11 @@ final class Test_TextBasedRenderer: XCTestCase {
                 """#
         )
         try _test(
-            .typealias(.init(name: "foo", existingType: "bar")),
+            .typealias(.init(name: "foo", existingType: .member(["Foo", "Bar"]))),
             renderedBy: renderer.renderedDeclaration,
             rendersAs:
                 #"""
-                typealias foo = bar
+                typealias foo = Foo.Bar
                 """#
         )
         try _test(
@@ -402,7 +402,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             .init(
                 label: "l",
                 name: "n",
-                type: "T",
+                type: .member(["T"]),
                 defaultValue: .literal(.nil)
             ),
             renderedBy: renderer.renderedParameter,
@@ -416,7 +416,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             .init(
                 label: nil,
                 name: "n",
-                type: "T",
+                type: .member(["T"]),
                 defaultValue: .literal(.nil)
             ),
             renderedBy: renderer.renderedParameter,
@@ -430,7 +430,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             .init(
                 label: "l",
                 name: nil,
-                type: "T",
+                type: .member(["T"]),
                 defaultValue: .literal(.nil)
             ),
             renderedBy: renderer.renderedParameter,
@@ -444,7 +444,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             .init(
                 label: nil,
                 name: nil,
-                type: "T",
+                type: .member(["T"]),
                 defaultValue: .literal(.nil)
             ),
             renderedBy: renderer.renderedParameter,
@@ -458,7 +458,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             .init(
                 label: nil,
                 name: nil,
-                type: "T",
+                type: .member(["T"]),
                 defaultValue: nil
             ),
             renderedBy: renderer.renderedParameter,
@@ -492,7 +492,7 @@ final class Test_TextBasedRenderer: XCTestCase {
                     .init(
                         label: "a",
                         name: "b",
-                        type: "C",
+                        type: .member(["C"]),
                         defaultValue: nil
                     )
                 ],
@@ -512,13 +512,13 @@ final class Test_TextBasedRenderer: XCTestCase {
                     .init(
                         label: "a",
                         name: "b",
-                        type: "C",
+                        type: .member(["C"]),
                         defaultValue: nil
                     ),
                     .init(
                         label: nil,
                         name: "d",
-                        type: "E",
+                        type: .member(["E"]),
                         defaultValue: .literal(.string("f"))
                     ),
                 ],
@@ -663,7 +663,7 @@ final class Test_TextBasedRenderer: XCTestCase {
                 onType: "Info",
                 declarations: [
                     .variable(
-                        .init(kind: .let, left: "foo", type: "Int")
+                        .init(kind: .let, left: "foo", type: .member(["Int"]))
                     )
                 ]
             ),
@@ -744,7 +744,7 @@ final class Test_TextBasedRenderer: XCTestCase {
                 isStatic: true,
                 kind: .let,
                 left: "foo",
-                type: "String",
+                type: .init(TypeName.string),
                 right: .literal(.string("bar"))
             ),
             renderedBy: renderer.renderedVariable,
@@ -774,7 +774,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             .init(
                 kind: .var,
                 left: "foo",
-                type: "Int",
+                type: .init(TypeName.int),
                 getter: [CodeBlock.expression(.literal(.int(42)))]
             ),
             renderedBy: renderer.renderedVariable,
@@ -788,7 +788,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             .init(
                 kind: .var,
                 left: "foo",
-                type: "Int",
+                type: .init(TypeName.int),
                 getter: [CodeBlock.expression(.literal(.int(42)))],
                 getterEffects: [.throws]
             ),
@@ -912,7 +912,7 @@ final class Test_TextBasedRenderer: XCTestCase {
         try _test(
             .init(
                 name: "inty",
-                existingType: "Int"
+                existingType: .member(["Int"])
             ),
             renderedBy: renderer.renderedTypealias,
             rendersAs:
@@ -924,7 +924,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             .init(
                 accessModifier: .private,
                 name: "inty",
-                existingType: "Int"
+                existingType: .member(["Int"])
             ),
             renderedBy: renderer.renderedTypealias,
             rendersAs:

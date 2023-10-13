@@ -63,7 +63,7 @@ extension TypesFileTranslator {
             try translateSchema(componentKey: key, schema: value)
         }
         
-        let declsHandlingRecursion = boxRecursiveTypes(decls)
+        let declsHandlingRecursion = try boxRecursiveTypes(decls)
 
         let componentsSchemasEnum = Declaration.commentable(
             JSONSchema.sectionComment(),
@@ -77,11 +77,32 @@ extension TypesFileTranslator {
     }
     
     // TODO: Find a better place for this.
-    private func boxRecursiveTypes(_ types: [Declaration]) -> [Declaration] {
+    private func boxRecursiveTypes(_ decls: [Declaration]) throws -> [Declaration] {
         
+        let nodes = decls.compactMap(DeclarationRecursionDetector.Node.init)
+        let nodeLookup = Dictionary(uniqueKeysWithValues: nodes.map { ($0.name, $0) })
+        let container = DeclarationRecursionDetector.Container(
+            lookupMap: nodeLookup
+        )
         
+        let boxedNames = try RecursionDetector.computeBoxedTypes(
+            rootNodes: nodes,
+            container: container
+        )
         
-        
-        return types
+        var decls = decls
+        for (index, decl) in decls.enumerated() {
+            guard let name = decl.name, boxedNames.contains(name) else {
+                continue
+            }
+            print("Will box '\(name)' at index \(index)")
+            decls[index] = boxedType(decl)
+        }
+        return decls
+    }
+    
+    private func boxedType(_ decl: Declaration) -> Declaration {
+        // TODO: Do the transformation here.
+        decl
     }
 }

@@ -178,8 +178,13 @@ extension TypesFileTranslator {
                 .enumCase(
                     name: Constants.Operation.Output.undocumentedCaseName,
                     kind: .nameWithAssociatedValues([
-                        .init(label: "statusCode", type: TypeName.int.shortSwiftName),
-                        .init(type: TypeName.undocumentedPayload.fullyQualifiedSwiftName),
+                        .init(
+                            label: "statusCode",
+                            type: .init(TypeName.int)
+                        ),
+                        .init(
+                            type: .init(TypeName.undocumentedPayload)
+                        ),
                     ])
                 )
             )
@@ -248,7 +253,7 @@ extension TypesFileTranslator {
                 isStatic: true,
                 kind: .let,
                 left: "id",
-                type: "String",
+                type: .init(TypeName.string),
                 right: .literal(operation.operationID)
             )
         )

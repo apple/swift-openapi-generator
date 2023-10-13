@@ -114,13 +114,6 @@ struct UnexpectedDeclError: Error, CustomStringConvertible, LocalizedError {
 }
 
 extension Declaration {
-    var strippingTopComment: Self {
-        guard case let .commentable(_, underlyingDecl) = self else {
-            return self
-        }
-        return underlyingDecl
-    }
-
     var info: DeclInfo {
         switch strippingTopComment {
         case .deprecated:

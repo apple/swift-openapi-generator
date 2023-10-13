@@ -225,7 +225,7 @@ struct VariableDescription: Equatable, Codable {
     /// The type of the variable.
     ///
     /// For example, in `let foo: Int = 42`, `type` is `Int`.
-    var type: String?
+    var type: ExistingTypeDescription?
 
     /// The expression to be assigned to the variable.
     ///
@@ -334,6 +334,14 @@ struct EnumDescription: Equatable, Codable {
     var members: [Declaration] = []
 }
 
+indirect enum ExistingTypeDescription: Equatable, Codable {
+    case any(ExistingTypeDescription)
+    case optional(ExistingTypeDescription)
+    case member([String])
+    case array(ExistingTypeDescription)
+    case dictionaryValue(ExistingTypeDescription)
+}
+
 /// A description of a typealias declaration.
 ///
 /// For example `typealias Foo = Int`.
@@ -350,7 +358,7 @@ struct TypealiasDescription: Equatable, Codable {
     /// The existing type that serves as the underlying type of the alias.
     ///
     /// For example, in `typealias Foo = Int`, `existingType` is `Int`.
-    var existingType: String
+    var existingType: ExistingTypeDescription
 }
 
 /// A description of a protocol declaration.
@@ -395,7 +403,7 @@ struct ParameterDescription: Equatable, Codable {
     /// The type name of the parameter.
     ///
     /// For example, in `bar baz: String = "hi"`, `type` is `String`.
-    var type: String
+    var type: ExistingTypeDescription
 
     /// A default value of the parameter.
     ///
@@ -538,7 +546,7 @@ struct EnumCaseAssociatedValueDescription: Equatable, Codable {
     /// A variable type name.
     ///
     /// For example, in `bar: String`, `type` is `String`.
-    var type: String
+    var type: ExistingTypeDescription
 }
 
 /// An enum case kind.
@@ -1027,7 +1035,7 @@ extension Declaration {
         isStatic: Bool = false,
         kind: BindingKind,
         left: String,
-        type: String? = nil,
+        type: ExistingTypeDescription? = nil,
         right: Expression? = nil,
         getter: [CodeBlock]? = nil,
         getterEffects: [FunctionKeyword] = []
@@ -1072,7 +1080,7 @@ extension Declaration {
     static func `typealias`(
         accessModifier: AccessModifier? = nil,
         name: String,
-        existingType: String
+        existingType: ExistingTypeDescription
     ) -> Self {
         .typealias(
             .init(
@@ -1604,5 +1612,12 @@ extension Declaration {
             return .deprecated(.init(), self)
         }
         return self
+    }
+    
+    var strippingTopComment: Self {
+        guard case let .commentable(_, underlyingDecl) = self else {
+            return self
+        }
+        return underlyingDecl
     }
 }

@@ -60,7 +60,7 @@ extension ServerFileTranslator {
             let decl: Declaration = .variable(
                 kind: .let,
                 left: variableName,
-                type: type.fullyQualifiedSwiftName,
+                type: .init(type),
                 right: .dot("init").call(arguments)
             )
             let argument = functionArgumentForLocation(location)

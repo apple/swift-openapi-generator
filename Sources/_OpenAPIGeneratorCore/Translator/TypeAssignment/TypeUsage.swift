@@ -217,3 +217,34 @@ extension TypeName {
         TypeUsage(wrapped: .name(self), usage: .identity)
     }
 }
+
+extension ExistingTypeDescription {
+    
+    private init(_ wrapped: TypeUsage.Wrapped) {
+        switch wrapped {
+        case .name(let typeName):
+            self = .init(typeName)
+        case .usage(let typeUsage):
+            self = .init(typeUsage)
+        }
+    }
+    
+    init(_ typeName: TypeName) {
+        self = .member(typeName.swiftKeyPathComponents)
+    }
+    
+    init(_ typeUsage: TypeUsage) {
+        switch typeUsage.usage {
+        case .generic:
+            preconditionFailure("Generic is unsupported in ExistingTypeDescription.")
+        case .optional:
+            self = .optional(.init(typeUsage.wrapped))
+        case .identity:
+            self = .init(typeUsage.wrapped)
+        case .array:
+            self = .array(.init(typeUsage.wrapped))
+        case .dictionaryValue:
+            self = .dictionaryValue(.init(typeUsage.wrapped))
+        }
+    }
+}

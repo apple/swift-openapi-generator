@@ -63,7 +63,7 @@ extension TypesFileTranslator {
                 .enumCase(
                     name: identifier,
                     kind: .nameWithAssociatedValues([
-                        .init(type: associatedType.fullyQualifiedNonOptionalSwiftName)
+                        .init(type: .init(associatedType))
                     ])
                 )
             )
@@ -273,7 +273,7 @@ extension ServerFileTranslator {
                 .variable(
                     kind: .let,
                     left: bodyVariableName,
-                    type: requestBody.typeUsage.fullyQualifiedSwiftName
+                    type: .init(requestBody.typeUsage)
                 )
             )
         )

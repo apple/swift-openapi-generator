@@ -54,9 +54,14 @@ extension TypesFileTranslator {
 
         var associatedValues: [EnumCaseAssociatedValueDescription] = []
         if responseKind.wantsStatusCode {
-            associatedValues.append(.init(label: "statusCode", type: TypeName.int.shortSwiftName))
+            associatedValues.append(.init(
+                label: "statusCode",
+                type: .init(TypeName.int)
+            ))
         }
-        associatedValues.append(.init(type: responseStructTypeName.fullyQualifiedSwiftName))
+        associatedValues.append(.init(
+            type: .init(responseStructTypeName)
+        ))
 
         let enumCaseDesc = EnumCaseDescription(
             name: enumCaseName,
@@ -74,7 +79,7 @@ extension TypesFileTranslator {
             accessModifier: config.access,
             kind: .var,
             left: enumCaseName,
-            type: responseStructTypeName.fullyQualifiedSwiftName,
+            type: .init(responseStructTypeName),
             getter: [
                 .expression(
                     .switch(
@@ -191,7 +196,7 @@ extension ClientFileTranslator {
             let headersVarDecl: Declaration = .variable(
                 kind: .let,
                 left: "headers",
-                type: headersTypeName.fullyQualifiedSwiftName,
+                type: .init(headersTypeName),
                 right: headersInitExpr
             )
             codeBlocks.append(.declaration(headersVarDecl))
@@ -225,7 +230,7 @@ extension ClientFileTranslator {
             let bodyDecl: Declaration = .variable(
                 kind: .let,
                 left: "body",
-                type: bodyTypeName.fullyQualifiedSwiftName
+                type: .init(bodyTypeName)
             )
             codeBlocks.append(.declaration(bodyDecl))
 
@@ -473,7 +478,7 @@ extension ServerFileTranslator {
                     .variable(
                         kind: .let,
                         left: "body",
-                        type: "HTTPBody"
+                        type: .init(TypeName.body)
                     )
                 )
             )

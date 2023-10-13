@@ -40,7 +40,7 @@ struct TypeName: Hashable {
     private let components: [Component]
 
     /// The list of Swift path components.
-    private var swiftKeyPathComponents: [String] {
+    var swiftKeyPathComponents: [String] {
         components.compactMap(\.swift)
     }
 
@@ -75,6 +75,7 @@ struct TypeName: Hashable {
     /// A string representation of the fully qualified Swift type name.
     ///
     /// For example: `Swift.Int`.
+    @available(*, deprecated, message: "Use ExistingTypeDescription for rendering instead.")
     var fullyQualifiedSwiftName: String {
         swiftKeyPathComponents.joined(separator: ".")
     }
