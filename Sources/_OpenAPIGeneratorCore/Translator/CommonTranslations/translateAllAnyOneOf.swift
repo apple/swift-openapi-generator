@@ -85,8 +85,10 @@ extension FileTranslator {
                     associatedDeclarations: associatedDeclarations,
                     asSwiftSafeName: swiftSafeName
                 )
+                var referenceStack = ReferenceStack.empty
                 let isKeyValuePairSchema = try TypeMatcher.isKeyValuePair(
                     schema,
+                    referenceStack: &referenceStack,
                     components: components
                 )
                 return (blueprint, isKeyValuePairSchema)
@@ -196,8 +198,10 @@ extension FileTranslator {
                     } else {
                         associatedDeclarations = []
                     }
+                    var referenceStack = ReferenceStack.empty
                     let isKeyValuePair = try TypeMatcher.isKeyValuePair(
                         schema,
+                        referenceStack: &referenceStack,
                         components: components
                     )
                     return (caseName, nil, isKeyValuePair, comment, childType, associatedDeclarations)

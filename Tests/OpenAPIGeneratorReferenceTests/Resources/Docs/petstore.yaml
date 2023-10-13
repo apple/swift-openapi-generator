@@ -445,6 +445,29 @@ components:
           type: integer
       required:
         - count
+    PetGroup:
+      type: object
+      properties:
+        name:
+          type: string
+        parent:
+          $ref: '#/components/schemas/PetGroup'
+      required:
+        - name
+#    PetGroupAnyOf:
+#      anyOf:
+#        - $ref: '#/components/schemas/PetGroupAnyOf'
+#        - type: string
+#    PetGroupOneOf:
+#      oneOf:
+#        - $ref: '#/components/schemas/PetGroupOneOf'
+#        - type: string
+#    PetGroupAllOf:
+#      allOf:
+#        - type: object
+#          properties:
+#            parent:
+#              $ref: '#/components/schemas/PetGroupAllOf'
   responses:
     ErrorBadRequest:
       description: Bad request

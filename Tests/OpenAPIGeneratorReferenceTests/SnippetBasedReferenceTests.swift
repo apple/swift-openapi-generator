@@ -1002,6 +1002,28 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasRecursive() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              Node:
+                type: object
+                properties:
+                  parent:
+                    $ref: '#/components/schemas/Node'
+            """,
+            """
+            public enum Schemas {
+                public struct Node: Codable, Hashable, Sendable {
+                    public var parent: Components.Schemas.Node?
+                    public init(parent: Components.Schemas.Node? = nil) { self.parent = parent }
+                    public enum CodingKeys: String, CodingKey { case parent }
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsResponsesResponseNoBody() throws {
         try self.assertResponsesTranslation(
             """

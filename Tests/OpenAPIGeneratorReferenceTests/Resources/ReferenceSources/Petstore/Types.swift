@@ -692,6 +692,80 @@ public enum Components {
             public init(count: Swift.Int) { self.count = count }
             public enum CodingKeys: String, CodingKey { case count }
         }
+        /// - Remark: Generated from `#/components/schemas/PetGroup`.
+        public struct PetGroup: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/PetGroup/name`.
+            public var name: Swift.String {
+                get {
+                    storage.read().name
+                }
+                set {
+                    CopyOnWriteBox.write(to: &storage) { $0.name = newValue }
+                }
+            }
+            /// - Remark: Generated from `#/components/schemas/PetGroup/parent`.
+            public var parent: Components.Schemas.PetGroup? {
+                get {
+                    storage.read().parent
+                }
+                set {
+                    CopyOnWriteBox.write(to: &storage) { $0.parent = newValue }
+                }
+            }
+            /// Creates a new `PetGroup`.
+            ///
+            /// - Parameters:
+            ///   - name:
+            ///   - parent:
+            public init(name: Swift.String, parent: Components.Schemas.PetGroup? = nil) {
+                storage = .init(value: .init(name: name, parent: parent))
+            }
+            public enum CodingKeys: String, CodingKey {
+                case name
+                case parent
+            }
+            public init(from decoder: any Decoder) throws {
+                storage = try .init(from: decoder)
+            }
+            public func encode(to encoder: any Encoder) throws {
+                try storage.encode(to: encoder)
+            }
+            // A private copy-on-write reference type is used for storage
+            // because recursion was detected in the OpenAPI document.
+            private var storage: CopyOnWriteBox<Storage>
+            private struct Storage: Codable, Hashable, Sendable {
+                var name: Swift.String
+                var parent: Components.Schemas.PetGroup?
+                init(name: Swift.String, parent: Components.Schemas.PetGroup? = nil) {
+                    self.name = name
+                    self.parent = parent
+                }
+                typealias CodingKeys = Components.Schemas.PetGroup.CodingKeys
+            }
+        }
+
+        //        /// - Remark: Generated from `#/components/schemas/PetGroup`.
+        //        public struct PetGroup: Codable, Hashable, Sendable {
+        //            /// - Remark: Generated from `#/components/schemas/PetGroup/parent`.
+        //            public var parent: Components.Schemas.PetGroup?
+        //            /// Creates a new `PetGroup`.
+        //            ///
+        //            /// - Parameters:
+        //            ///   - parent:
+        //            public init(parent: Components.Schemas.PetGroup? = nil) { self.parent = parent }
+        //            public enum CodingKeys: String, CodingKey { case parent }
+        //        }
+        //        /// - Remark: Generated from `#/components/schemas/PetGroup`.
+        //        public struct PetGroup: Codable, Hashable, Sendable {
+        //            /// - Remark: Generated from `#/components/schemas/PetGroup/parent`.
+        //            public var parent: Components.Schemas.PetGroup?
+        //            /// Creates a new `PetGroup`.
+        //            ///
+        //            /// - Parameters:
+        //            ///   - parent:
+        //            public init(parent: Components.Schemas.PetGroup? = nil) { self.parent = parent }
+        //            public enum CodingKeys: String, CodingKey { case parent }
+        //        }
     }
     /// Types generated from the `#/components/parameters` section of the OpenAPI document.
     public enum Parameters {

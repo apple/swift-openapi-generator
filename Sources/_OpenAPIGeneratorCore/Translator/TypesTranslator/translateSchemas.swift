@@ -62,15 +62,26 @@ extension TypesFileTranslator {
         let decls: [Declaration] = try schemas.flatMap { key, value in
             try translateSchema(componentKey: key, schema: value)
         }
+        
+        let declsHandlingRecursion = boxRecursiveTypes(decls)
 
         let componentsSchemasEnum = Declaration.commentable(
             JSONSchema.sectionComment(),
             .enum(
                 accessModifier: config.access,
                 name: Constants.Components.Schemas.namespace,
-                members: decls
+                members: declsHandlingRecursion
             )
         )
         return componentsSchemasEnum
+    }
+    
+    // TODO: Find a better place for this.
+    private func boxRecursiveTypes(_ types: [Declaration]) -> [Declaration] {
+        
+        
+        
+        
+        return types
     }
 }
