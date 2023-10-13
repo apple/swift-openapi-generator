@@ -40,11 +40,10 @@ public struct YamsParser: ParserProtocol {
         return yamlKeys
     }
 
-    func parseOpenAPI(
+    public static func parseOpenAPIDocument(
         _ input: InMemoryInputFile,
-        config: Config,
         diagnostics: any DiagnosticCollector
-    ) throws -> ParsedOpenAPIRepresentation {
+    ) throws -> OpenAPIKit.OpenAPI.Document {
         let decoder = YAMLDecoder()
         let openapiData = input.contents
 
@@ -93,13 +92,21 @@ public struct YamsParser: ParserProtocol {
         }
     }
 
+    func parseOpenAPI(
+        _ input: InMemoryInputFile,
+        config: Config,
+        diagnostics: any DiagnosticCollector
+    ) throws -> ParsedOpenAPIRepresentation {
+        try Self.parseOpenAPIDocument(input, diagnostics: diagnostics)
+    }
+
     /// Detects specific YAML parsing errors to throw nicely formatted diagnostics for IDEs.
     ///
     /// - Parameters:
     ///   - context: The decoding error context that triggered the parsing error.
     ///   - input: The input file being worked on when the parsing error was triggered.
     /// - Throws: Throws a `Diagnostic` if the decoding error is a common parsing error.
-    private func checkParsingError(
+    private static func checkParsingError(
         context: DecodingError.Context,
         input: InMemoryInputFile
     ) throws {
