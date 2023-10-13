@@ -75,8 +75,8 @@ additionalImports:
 
 ### Document filtering
 
-The geneartor supports filtering the OpenAPI document prior to generation, which can be useful when
-generating client code for a subset of a large API.
+The generator supports filtering the OpenAPI document prior to generation, which can be useful when
+generating client code for a subset of a large API, or splitting an implementation of a server across multiple modules.
 
 For example, to generate client code for only the operations with a given tag, use the following config:
 
