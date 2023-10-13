@@ -40,6 +40,18 @@ public struct YamsParser: ParserProtocol {
         return yamlKeys
     }
 
+    /// Parses a YAML file as an OpenAPI document.
+    ///
+    /// This function supports documents following any of the following OpenAPI Specifications:
+    /// - 3.0.0, 3.0.1, 3.0.2, 3.0.3
+    /// - 3.1.0
+    ///
+    /// - Parameters
+    ///   - input: The file contents of the OpenAPI document.
+    ///   - diagnostics: A diagnostics collector used for emiting parsing warnings and errors.
+    /// - Returns: Parsed OpenAPI document.
+    /// - Throws: If the OpenAPI document cannot be parsed.
+    ///           Note that errors are also emited using the diagnostics collector.
     public static func parseOpenAPIDocument(
         _ input: InMemoryInputFile,
         diagnostics: any DiagnosticCollector
