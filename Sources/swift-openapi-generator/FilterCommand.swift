@@ -49,7 +49,6 @@ struct _FilterCommand: AsyncParsableCommand {
             "Parsing document",
             YamsParser.parseOpenAPIDocument(documentInput, diagnostics: StdErrPrintingDiagnosticCollector())
         )
-        try document.validate()
         guard let documentFilter = config.filter else {
             FileHandle.standardError.write("warning: No filter config provided\n")
             FileHandle.standardOutput.write(try encode(document, outputFormat))
