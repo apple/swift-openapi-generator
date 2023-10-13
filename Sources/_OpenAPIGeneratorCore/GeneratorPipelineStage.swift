@@ -36,6 +36,7 @@ struct GeneratorPipelineStage<Input, Output> {
     /// value or throwing an error.
     /// - Parameter input: An input value.
     /// - Returns: An output value.
+    /// - Throws: An error if an issue occurs during the stage execution.
     func run(_ input: Input) throws -> Output {
         let hookedInput = try self.preTransitionHooks.reduce(input) { try $1($0) }
         let output = try self.transition(hookedInput)

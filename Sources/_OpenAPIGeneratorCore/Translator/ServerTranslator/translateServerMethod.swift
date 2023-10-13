@@ -17,7 +17,9 @@ extension ServerFileTranslator {
 
     /// Returns an expression that converts a request into an Input type for
     /// a specified OpenAPI operation.
-    /// - Parameter description: The OpenAPI operation.
+    /// - Parameter operation: The OpenAPI operation.
+    /// - Returns: An expression representing the process of converting a request into an Input type.
+    /// - Throws: An error if there's an issue while generating the expression for request conversion.
     func translateServerDeserializer(
         _ operation: OperationDescription
     ) throws -> Expression {
@@ -139,7 +141,7 @@ extension ServerFileTranslator {
             contentsOf: inputMembers.flatMap(\.codeBlocks) + [.expression(returnExpr)]
         )
         return .closureInvocation(
-            argumentNames: ["request", "metadata"],
+            argumentNames: ["request", "requestBody", "metadata"],
             body: closureBody
         )
     }
@@ -147,6 +149,9 @@ extension ServerFileTranslator {
     /// Returns an expression that converts an Output type into a response
     /// for a specified OpenAPI operation.
     /// - Parameter description: The OpenAPI operation.
+    /// - Returns: An expression for converting the Output type into a structured response.
+    /// - Throws: An error if there's an issue generating the response conversion expression,
+    ///           such as encountering unsupported response types or invalid definitions.
     func translateServerSerializer(_ description: OperationDescription) throws -> Expression {
         var cases: [SwitchCaseDescription] =
             try description
@@ -159,10 +164,13 @@ extension ServerFileTranslator {
             }
         if !description.containsDefaultResponse {
             let undocumentedExpr: Expression = .return(
-                .dot("init")
-                    .call([
-                        .init(label: "statusCode", expression: .identifier("statusCode"))
-                    ])
+                .tuple([
+                    .dot("init")
+                        .call([
+                            .init(label: "soar_statusCode", expression: .identifier("statusCode"))
+                        ]),
+                    nil,
+                ])
             )
             cases.append(
                 .init(
@@ -198,6 +206,8 @@ extension ServerFileTranslator {
     ///   - serverUrlVariableName: The name of the server URL variable.
     /// - Returns: A declaration of a function, and an expression that registers
     /// the function with the router.
+    /// - Throws: An error if there's an issue while generating the method declaration or
+    /// the router registration expression.
     func translateServerMethod(
         _ description: OperationDescription,
         serverUrlVariableName: String
@@ -216,8 +226,12 @@ extension ServerFileTranslator {
             label: "request",
             expression: .identifier("request")
         )
+        let requestBodyArg = FunctionArgumentDescription(
+            label: "requestBody",
+            expression: .identifier("body")
+        )
         let metadataArg = FunctionArgumentDescription(
-            label: "with",
+            label: "metadata",
             expression: .identifier("metadata")
         )
         let methodArg = FunctionArgumentDescription(
@@ -252,7 +266,8 @@ extension ServerFileTranslator {
                                 .dot(description.methodName)
                                 .call([
                                     .init(label: "request", expression: .identifier("$0")),
-                                    .init(label: "metadata", expression: .identifier("$1")),
+                                    .init(label: "body", expression: .identifier("$1")),
+                                    .init(label: "metadata", expression: .identifier("$2")),
                                 ])
                         )
                     )
@@ -272,18 +287,10 @@ extension ServerFileTranslator {
                                 .init(
                                     label: nil,
                                     expression: .literal(
-                                        .array(description.templatedPathForServer.map { .literal($0) })
+                                        .string(description.path.rawValue)
                                     )
                                 )
                             ])
-                    ),
-                    .init(
-                        label: "queryItemNames",
-                        expression: .literal(
-                            .array(
-                                try description.queryParameterNames.map { .literal($0) }
-                            )
-                        )
                     ),
                 ])
         )
@@ -293,6 +300,7 @@ extension ServerFileTranslator {
                 .identifier("handle")
                     .call([
                         requestArg,
+                        requestBodyArg,
                         metadataArg,
                         operationArg,
                         methodArg,

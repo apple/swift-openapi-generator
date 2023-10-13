@@ -40,6 +40,7 @@ extension Expression {
     /// Returns an expression that suppresses unused variable warnings.
     /// - Parameter name: The name of the variable for which to suppress
     /// the warning.
+    /// - Returns: An expression that represents the call to suppress the unused variable warning.
     static func suppressUnusedWarning(for name: String) -> Self {
         .identifier("suppressUnusedWarning")
             .call([

@@ -1,5 +1,7 @@
 # Swift OpenAPI Generator
 
+[![](https://img.shields.io/badge/sswg-sandbox-lightgrey.svg)](https://www.swift.org/sswg/)
+
 Generate Swift client and server code from an OpenAPI document.
 
 ## Overview

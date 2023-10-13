@@ -26,6 +26,9 @@ public struct Config: Sendable {
     /// Additional imports to add to each generated file.
     public var additionalImports: [String]
 
+    /// Filter to apply to the OpenAPI document before generation.
+    public var filter: DocumentFilter?
+
     /// Additional pre-release features to enable.
     public var featureFlags: FeatureFlags
 
@@ -33,14 +36,17 @@ public struct Config: Sendable {
     /// - Parameters:
     ///   - mode: The mode to use for generation.
     ///   - additionalImports: Additional imports to add to each generated file.
+    ///   - filter: Filter to apply to the OpenAPI document before generation.
     ///   - featureFlags: Additional pre-release features to enable.
     public init(
         mode: GeneratorMode,
         additionalImports: [String] = [],
+        filter: DocumentFilter? = nil,
         featureFlags: FeatureFlags = []
     ) {
         self.mode = mode
         self.additionalImports = additionalImports
+        self.filter = filter
         self.featureFlags = featureFlags
     }
 }

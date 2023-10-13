@@ -101,6 +101,8 @@ extension FileTranslator {
     /// Omits unsupported parameters, which emit a diagnostic to the collector
     /// with more information.
     /// - Parameter operation: The operation to extract parameters from.
+    /// - Returns: A list of `TypedParameter` instances representing the supported parameters of the operation.
+    /// - Throws: An error if there is an issue parsing and typing the parameters.
     func typedParameters(
         from operation: OperationDescription
     ) throws -> [TypedParameter] {
@@ -121,6 +123,7 @@ extension FileTranslator {
     ///   - unresolvedParameter: An unresolved parameter.
     ///   - parent: The parent type of the parameter.
     /// - Returns: A typed parameter. Nil if the parameter is unsupported.
+    /// - Throws: An error if there is an issue parsing and typing the parameter.
     func parseAsTypedParameter(
         from unresolvedParameter: UnresolvedParameter,
         inParent parent: TypeName
@@ -238,6 +241,7 @@ extension FileTranslator {
                 type = try typeAssigner.typeUsage(
                     forParameterNamed: _parameter.name,
                     withSchema: schema,
+                    components: components,
                     inParent: locationTypeName
                 )
             }

@@ -58,6 +58,8 @@ extension _GenerateOptions {
 
     /// Returns a list of the generator modes requested by the user.
     /// - Parameter config: The configuration specified by the user.
+    /// - Returns: A list of generator modes requested by the user.
+    /// - Throws: A `ValidationError` if no modes are provided and no configuration is available.
     func resolvedModes(_ config: _UserConfig?) throws -> [GeneratorMode] {
         if !mode.isEmpty {
             return mode
@@ -70,6 +72,7 @@ extension _GenerateOptions {
 
     /// Returns a list of additional imports requested by the user.
     /// - Parameter config: The configuration specified by the user.
+    /// - Returns: A list of additional import statements requested by the user.
     func resolvedAdditionalImports(_ config: _UserConfig?) -> [String] {
         if !additionalImport.isEmpty {
             return additionalImport
@@ -82,23 +85,48 @@ extension _GenerateOptions {
 
     /// Returns a list of the feature flags requested by the user.
     /// - Parameter config: The configuration specified by the user.
+    /// - Returns: A set of feature flags requested by the user.
     func resolvedFeatureFlags(_ config: _UserConfig?) -> FeatureFlags {
         if !featureFlag.isEmpty {
             return Set(featureFlag)
         }
-        return Set(config?.featureFlags ?? [])
+        return config?.featureFlags ?? []
+    }
+
+    /// Validates a collection of keys against a predefined set of allowed keys.
+    ///
+    /// - Parameter keys: A collection of keys to be validated.
+    /// - Throws: A `ValidationError` if any key in the collection is not found in the
+    ///           allowed set of keys specified by `_UserConfig.codingKeysRawValues`.
+    func validateKeys(_ keys: [String]) throws {
+        for key in keys {
+            if !_UserConfig.codingKeysRawValues.contains(key) {
+                throw ValidationError("Unknown configuration key found in config file: \(key)")
+            }
+        }
     }
 
     /// Returns the configuration requested by the user.
     ///
     /// - Returns: Loaded configuration, if found and parsed successfully.
     /// Nil if the user provided no configuration file path.
+    /// - Throws: A `ValidationError` if loading or parsing the configuration file encounters an error.
     func loadedConfig() throws -> _UserConfig? {
         guard let config else {
             return nil
         }
         do {
             let data = try Data(contentsOf: config)
+            let configAsString = String(decoding: data, as: UTF8.self)
+            var yamlKeys = [String]()
+
+            do {
+                yamlKeys = try YamsParser.extractTopLevelKeys(fromYAMLString: configAsString)
+            } catch {
+                throw ValidationError("The config isn't valid. \(error)")
+            }
+            try validateKeys(yamlKeys)
+
             let config = try YAMLDecoder().decode(_UserConfig.self, from: data)
             return config
         } catch {

@@ -17,8 +17,11 @@ extension TypesFileTranslator {
 
     /// Returns a declaration that defines a Swift type for the response.
     /// - Parameters:
-    ///   - typedResponse: The typed response to declare.
-    /// - Returns: A structure declaration.
+    ///   - typeName: The type name for the response structure.
+    ///   - response: The typed response information containing the response headers and body content.
+    /// - Returns: A structure declaration representing the response type.
+    /// - Throws: An error if there's an issue while generating the response type declaration,
+    ///           extracting response headers, or processing the body content.
     func translateResponseInTypes(
         typeName: TypeName,
         response: TypedResponse
@@ -103,6 +106,61 @@ extension TypesFileTranslator {
                     )
                 )
                 bodyCases.append(bodyCase)
+
+                var throwingGetterSwitchCases = [
+                    SwitchCaseDescription(
+                        kind: .case(.identifier(".\(identifier)"), ["body"]),
+                        body: [.expression(.return(.identifier("body")))]
+                    )
+                ]
+                // We only generate the default branch if there is more than one case to prevent
+                // a warning when compiling the generated code.
+                if typedContents.count > 1 {
+                    throwingGetterSwitchCases.append(
+                        SwitchCaseDescription(
+                            kind: .default,
+                            body: [
+                                .expression(
+                                    .try(
+                                        .identifier("throwUnexpectedResponseBody")
+                                            .call([
+                                                .init(
+                                                    label: "expectedContent",
+                                                    expression: .literal(.string(contentType.headerValueForValidation))
+                                                ),
+                                                .init(label: "body", expression: .identifier("self")),
+                                            ])
+                                    )
+                                )
+                            ]
+                        )
+                    )
+                }
+                let throwingGetter = VariableDescription(
+                    accessModifier: config.access,
+                    isStatic: false,
+                    kind: .var,
+                    left: identifier,
+                    type: associatedType.fullyQualifiedSwiftName,
+                    getter: [
+                        .expression(
+                            .switch(
+                                switchedExpression: .identifier("self"),
+                                cases: throwingGetterSwitchCases
+                            )
+                        )
+                    ],
+                    getterEffects: [.throws]
+                )
+                let throwingGetterComment = Comment.doc(
+                    """
+                    The associated value of the enum case if `self` is `.\(identifier)`.
+
+                    - Throws: An error if `self` is not `.\(identifier)`.
+                    - SeeAlso: `.\(identifier)`.
+                    """
+                )
+                bodyCases.append(.commentable(throwingGetterComment, .variable(throwingGetter)))
             }
             let hasNoContent: Bool = bodyCases.isEmpty
             let contentEnumDecl: Declaration = .commentable(
@@ -155,6 +213,8 @@ extension TypesFileTranslator {
     ///   in the OpenAPI document.
     ///   - response: The response to declare.
     /// - Returns: A structure declaration.
+    /// - Throws: An error if there's an issue while generating the response header type declaration,
+    ///           or if there's a problem with extracting response headers or processing the body content.
     func translateResponseHeaderInTypes(
         componentKey: OpenAPI.ComponentKey,
         response: TypedResponse

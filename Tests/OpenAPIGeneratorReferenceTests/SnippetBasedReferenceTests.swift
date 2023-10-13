@@ -37,6 +37,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsHeadersReference() throws {
         try self.assertHeadersTranslation(
             """
+            schemas:
+              MySchema:
+                type: string
             headers:
               MyHeader:
                 schema:
@@ -71,6 +74,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsParametersReference() throws {
         try self.assertParametersTranslation(
             """
+            schemas:
+              MySchema:
+                type: string
             parameters:
               MyParam:
                 in: query
@@ -103,53 +109,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
 
     func testComponentsSchemasNullableStringProperty() throws {
         try self.assertSchemasTranslation(
-            """
-            schemas:
-              MyObj:
-                type: object
-                properties:
-                  fooOptional:
-                    type: string
-                  fooRequired:
-                    type: string
-                  fooOptionalNullable:
-                    type: [string, null]
-                  fooRequiredNullable:
-                    type: [string, null]
-                required:
-                  - fooRequired
-                  - fooRequiredNullable
-            """,
-            """
-            public enum Schemas {
-                public struct MyObj: Codable, Hashable, Sendable {
-                    public var fooOptional: Swift.String?
-                    public var fooRequired: Swift.String
-                    public var fooOptionalNullable: Swift.String?
-                    public var fooRequiredNullable: Swift.String
-                    public init(
-                        fooOptional: Swift.String? = nil,
-                        fooRequired: Swift.String,
-                        fooOptionalNullable: Swift.String? = nil,
-                        fooRequiredNullable: Swift.String
-                    ) {
-                        self.fooOptional = fooOptional
-                        self.fooRequired = fooRequired
-                        self.fooOptionalNullable = fooOptionalNullable
-                        self.fooRequiredNullable = fooRequiredNullable
-                    }
-                    public enum CodingKeys: String, CodingKey {
-                        case fooOptional
-                        case fooRequired
-                        case fooOptionalNullable
-                        case fooRequiredNullable
-                    }
-                }
-            }
-            """
-        )
-        try self.assertSchemasTranslation(
-            featureFlags: [.nullableSchemas],
             """
             schemas:
               MyObj:
@@ -280,6 +239,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
         try self.assertSchemasTranslation(
             """
             schemas:
+              MyRequiredString:
+                type: string
+              MyNullableString:
+                type: [string, null]
               MyObject:
                 type: object
                 properties:
@@ -288,22 +251,72 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     format: int64
                   alias:
                     type: string
+                  requiredString:
+                    $ref: '#/components/schemas/MyRequiredString'
+                  nullableString:
+                    $ref: '#/components/schemas/MyNullableString'
                 required:
                   - id
+                  - requiredString
+                  - nullableString
             """,
             """
                 public enum Schemas {
+                  public typealias MyRequiredString = Swift.String
+                  public typealias MyNullableString = Swift.String
                   public struct MyObject: Codable, Hashable, Sendable {
                     public var id: Swift.Int64
                     public var alias: Swift.String?
-                    public init(id: Swift.Int64, alias: Swift.String? = nil) {
+                    public var requiredString: Components.Schemas.MyRequiredString
+                    public var nullableString: Components.Schemas.MyNullableString?
+                    public init(
+                        id: Swift.Int64,
+                        alias: Swift.String? = nil,
+                        requiredString: Components.Schemas.MyRequiredString,
+                        nullableString: Components.Schemas.MyNullableString? = nil
+                    ) {
                         self.id = id
                         self.alias = alias
+                        self.requiredString = requiredString
+                        self.nullableString = nullableString
                     }
                     public enum CodingKeys: String, CodingKey {
                         case id
                         case alias
+                        case requiredString
+                        case nullableString
                     }
+                  }
+                }
+            """
+        )
+    }
+
+    func testComponentsSchemasObjectWithPropertiesBinaryIsSkipped() throws {
+        try self.assertSchemasTranslation(
+            ignoredDiagnosticMessages: [
+                "Schema \"string (binary)\" is not supported, reason: \"Binary properties in object schemas.\", skipping"
+            ],
+            """
+            schemas:
+              MyObject:
+                type: object
+                properties:
+                  actualString:
+                    type: string
+                  binaryProperty:
+                    type: string
+                    format: binary
+                required:
+                  - actualString
+                  - binaryProperty
+            """,
+            """
+                public enum Schemas {
+                  public struct MyObject: Codable, Hashable, Sendable {
+                    public var actualString: Swift.String
+                    public init(actualString: Swift.String) { self.actualString = actualString }
+                    public enum CodingKeys: String, CodingKey { case actualString }
                   }
                 }
             """
@@ -948,6 +961,47 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasBase64() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyData:
+                type: string
+                format: byte
+            """,
+            """
+            public enum Schemas {
+                public typealias MyData = OpenAPIRuntime.Base64EncodedData
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasBase64Object() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyObj:
+                type: object
+                properties:
+                  stuff:
+                    type: string
+                    format: byte
+            """,
+            """
+            public enum Schemas {
+                public struct MyObj: Codable, Hashable, Sendable {
+                    public var stuff: OpenAPIRuntime.Base64EncodedData?
+                    public init(stuff: OpenAPIRuntime.Base64EncodedData? = nil) {
+                      self.stuff = stuff
+                    }
+                    public enum CodingKeys: String, CodingKey { case stuff }
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsResponsesResponseNoBody() throws {
         try self.assertResponsesTranslation(
             """
@@ -981,6 +1035,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct BadRequest: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
+                        public var json: Swift.String {
+                            get throws {
+                                switch self {
+                                case let .json(body): return body
+                                }
+                            }
+                        }
                     }
                     public var body: Components.Responses.BadRequest.Body
                     public init(
@@ -1015,9 +1076,33 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct MultipleContentTypes: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.Int)
+                        public var json: Swift.Int { get throws {
+                            switch self {
+                            case let .json(body): return body
+                            default: try throwUnexpectedResponseBody(expectedContent: "application/json", body: self)
+                            }
+                        }}
                         case application_json_foo_bar(Swift.Int)
-                        case plainText(Swift.String)
-                        case binary(Foundation.Data)
+                        public var application_json_foo_bar: Swift.Int { get throws {
+                            switch self {
+                            case let .application_json_foo_bar(body): return body
+                            default: try throwUnexpectedResponseBody(expectedContent: "application/json", body: self)
+                            }
+                        }}
+                        case plainText(OpenAPIRuntime.HTTPBody)
+                        public var plainText: OpenAPIRuntime.HTTPBody { get throws {
+                            switch self {
+                            case let .plainText(body): return body
+                            default: try throwUnexpectedResponseBody(expectedContent: "text/plain", body: self)
+                            }
+                        }}
+                        case binary(OpenAPIRuntime.HTTPBody)
+                        public var binary: OpenAPIRuntime.HTTPBody { get throws {
+                            switch self {
+                            case let .binary(body): return body
+                            default: try throwUnexpectedResponseBody(expectedContent: "application/octet-stream", body: self)
+                            }
+                        }}
                     }
                     public var body: Components.Responses.MultipleContentTypes.Body
                     public init(
@@ -1150,8 +1235,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum RequestBodies {
                 @frozen public enum MyResponseBody: Sendable, Hashable {
                     case json(Components.Schemas.MyBody)
-                    case plainText(Swift.String)
-                    case binary(Foundation.Data)
+                    case plainText(OpenAPIRuntime.HTTPBody)
+                    case binary(OpenAPIRuntime.HTTPBody)
                 }
             }
             """
@@ -1160,28 +1245,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
 
     func testComponentsRequestBodiesInline_urlEncodedForm() throws {
         try self.assertRequestBodiesTranslation(
-            """
-            requestBodies:
-              MyRequestBody:
-                content:
-                  application/x-www-form-urlencoded:
-                    schema:
-                      type: object
-                      properties:
-                        foo:
-                          type: string
-                      required: [foo]
-            """,
-            """
-            public enum RequestBodies {
-                @frozen public enum MyRequestBody: Sendable, Hashable {
-                    case urlEncodedForm(Foundation.Data)
-                }
-            }
-            """
-        )
-        try self.assertRequestBodiesTranslation(
-            featureFlags: [.urlEncodedForm],
             """
             requestBodies:
               MyRequestBody:
@@ -1231,6 +1294,30 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testPathsSimplestCaseExtension() throws {
+        try self.assertPathsTranslationExtension(
+            """
+            /health:
+              get:
+                operationId: getHealth
+                responses:
+                  '200':
+                    description: A success response with a greeting.
+                    content:
+                      text/plain:
+                        schema:
+                          type: string
+            """,
+            """
+            extension APIProtocol {
+                public func getHealth(headers: Operations.getHealth.Input.Headers = .init()) async throws -> Operations.getHealth.Output {
+                    try await getHealth(Operations.getHealth.Input(headers: headers))
+                }
+            }
+            """
+        )
+    }
+
     func testServerRegisterHandlers_oneOperation() throws {
         try self.assertServerRegisterHandlers(
             """
@@ -1259,10 +1346,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     middlewares: middlewares
                 )
                 try transport.register(
-                    { try await server.getHealth(request: $0, metadata: $1) },
+                    { try await server.getHealth(request: $0, body: $1, metadata: $2) },
                     method: .get,
-                    path: server.apiPathComponentsWithServerPrefix(["health"]),
-                    queryItemNames: []
+                    path: server.apiPathComponentsWithServerPrefix("/health")
                 )
             }
             """
@@ -1330,6 +1416,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct MyResponse: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
+                        public var json: Swift.String {
+                            get throws { switch self { case let .json(body): return body } }
+                        }
                     }
                     public var body: Components.Responses.MyResponse.Body
                     public init(
@@ -1362,6 +1451,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct MyResponse: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
+                        public var json: Swift.String {
+                            get throws { switch self { case let .json(body): return body } }
+                        }
                     }
                     public var body: Components.Responses.MyResponse.Body
                     public init(
@@ -1427,7 +1519,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """,
             client: """
                 { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
-                    var request: OpenAPIRuntime.Request = .init(path: path, method: .get)
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
                     suppressMutabilityWarning(&request)
                     try converter.setQueryItemAsURI(
                         in: &request,
@@ -1450,28 +1542,28 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         name: "manyUnexploded",
                         value: input.query.manyUnexploded
                     )
-                    return request
+                    return (request, nil)
                 }
                 """,
             server: """
-                { request, metadata in
+                { request, requestBody, metadata in
                     let query: Operations.get_sol_foo.Input.Query = .init(
                         single: try converter.getOptionalQueryItemAsURI(
-                            in: request.query,
+                            in: request.soar_query,
                             style: .form,
                             explode: true,
                             name: "single",
                             as: Swift.String.self
                         ),
                         manyExploded: try converter.getOptionalQueryItemAsURI(
-                            in: request.query,
+                            in: request.soar_query,
                             style: .form,
                             explode: true,
                             name: "manyExploded",
                             as: [Swift.String].self
                         ),
                         manyUnexploded: try converter.getOptionalQueryItemAsURI(
-                            in: request.query,
+                            in: request.soar_query,
                             style: .form,
                             explode: false,
                             name: "manyUnexploded",
@@ -1481,6 +1573,275 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     return Operations.get_sol_foo.Input(query: query)
                 }
                 """
+        )
+    }
+
+    func testRequestRequiredBodyPrimitiveSchema() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                requestBody:
+                  required: true
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    public var body: Operations.get_sol_foo.Input.Body
+                    public init(body: Operations.get_sol_foo.Input.Body) { self.body = body }
+                }
+                """,
+            client: """
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case let .json(value):
+                        body = try converter.setRequiredRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Operations.get_sol_foo.Input.Body
+                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getRequiredRequestBodyAsJSON(
+                            Swift.String.self,
+                            from: requestBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return Operations.get_sol_foo.Input(body: body)
+                }
+                """
+        )
+    }
+
+    func testRequestRequiredBodyNullableSchema() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                requestBody:
+                  required: true
+                  content:
+                    application/json:
+                      schema:
+                        type: [string, null]
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    public var body: Operations.get_sol_foo.Input.Body
+                    public init(body: Operations.get_sol_foo.Input.Body) { self.body = body }
+                }
+                """,
+            client: """
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case let .json(value):
+                        body = try converter.setRequiredRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Operations.get_sol_foo.Input.Body
+                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getRequiredRequestBodyAsJSON(
+                            Swift.String.self,
+                            from: requestBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return Operations.get_sol_foo.Input(body: body)
+                }
+                """
+        )
+    }
+
+    func testRequestOptionalBodyPrimitiveSchema() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                requestBody:
+                  required: false
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    public var body: Operations.get_sol_foo.Input.Body?
+                    public init(body: Operations.get_sol_foo.Input.Body? = nil) { self.body = body }
+                }
+                """,
+            client: """
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case .none: body = nil
+                    case let .json(value):
+                        body = try converter.setOptionalRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Operations.get_sol_foo.Input.Body?
+                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getOptionalRequestBodyAsJSON(
+                            Swift.String.self,
+                            from: requestBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return Operations.get_sol_foo.Input(body: body)
+                }
+                """
+        )
+    }
+
+    func testRequestOptionalBodyNullableSchema() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                requestBody:
+                  required: false
+                  content:
+                    application/json:
+                      schema:
+                        type: [string, null]
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    public var body: Operations.get_sol_foo.Input.Body?
+                    public init(body: Operations.get_sol_foo.Input.Body? = nil) { self.body = body }
+                }
+                """,
+            client: """
+                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
+                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case .none: body = nil
+                    case let .json(value):
+                        body = try converter.setOptionalRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Operations.get_sol_foo.Input.Body?
+                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
+                    {
+                        body = try await converter.getOptionalRequestBodyAsJSON(
+                            Swift.String.self,
+                            from: requestBody,
+                            transforming: { value in .json(value) }
+                        )
+                    } else {
+                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    }
+                    return Operations.get_sol_foo.Input(body: body)
+                }
+                """
+        )
+    }
+
+    func testResponseWithExampleWithOnlyValueByte() throws {
+        try self.assertResponsesTranslation(
+            featureFlags: [.base64DataEncodingDecoding],
+            """
+            responses:
+              MyResponse:
+                description: Some response
+                content:
+                  application/json:
+                    schema:
+                      type: string
+                      format: byte
+                    examples:
+                      application/json:
+                        summary: "a hello response"
+            """,
+            """
+            public enum Responses {
+                public struct MyResponse: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
+                        case json(OpenAPIRuntime.Base64EncodedData)
+                        public var json: OpenAPIRuntime.Base64EncodedData {
+                            get throws {
+                                switch self { case let .json(body): return body }
+                            }
+                        }
+                    }
+                    public var body: Components.Responses.MyResponse.Body
+                    public init(
+                        body: Components.Responses.MyResponse.Body
+                    ) {
+                        self.body = body
+                    }
+                }
+            }
+            """
         )
     }
 
@@ -1597,6 +1958,7 @@ extension SnippetBasedReferenceTests {
 
     func assertSchemasTranslation(
         featureFlags: FeatureFlags = [],
+        ignoredDiagnosticMessages: Set<String> = [],
         _ componentsYAML: String,
         _ expectedSwift: String,
         file: StaticString = #filePath,
@@ -1604,6 +1966,7 @@ extension SnippetBasedReferenceTests {
     ) throws {
         let translator = try makeTypesTranslator(
             featureFlags: featureFlags,
+            ignoredDiagnosticMessages: ignoredDiagnosticMessages,
             componentsYAML: componentsYAML
         )
         let translation = try translator.translateSchemas(translator.components.schemas)
@@ -1654,6 +2017,19 @@ extension SnippetBasedReferenceTests {
         let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
         let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
         let translation = try translator.translateAPIProtocol(paths)
+        try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
+    }
+
+    func assertPathsTranslationExtension(
+        _ pathsYAML: String,
+        componentsYAML: String = "{}",
+        _ expectedSwift: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
+        let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
+        let translation = try translator.translateAPIProtocolExtension(paths)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 
@@ -1780,7 +2156,7 @@ fileprivate extension Declaration {
             e.members = e.members.map(stripComments(_:))
             return .enum(e)
         case var .variable(v):
-            v.body = stripComments(v.body)
+            v.getter = stripComments(v.getter)
             return .variable(v)
         case let .typealias(t):
             return .typealias(t)

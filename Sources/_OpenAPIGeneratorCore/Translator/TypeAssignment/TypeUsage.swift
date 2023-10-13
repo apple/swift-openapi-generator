@@ -127,6 +127,7 @@ extension TypeUsage {
     /// Returns a string representation of the type usage applied to the
     /// specified Swift path component.
     /// - Parameter component: A Swift path component.
+    /// - Returns: A string representation of the specified Swift path component with the applied type usage.
     private func applied(to component: String) -> String {
         switch usage {
         case .identity:
@@ -177,6 +178,7 @@ extension TypeUsage {
     /// - Parameter isOptional: If `true`, wraps the current type usage in
     /// an optional. If `false`, removes a potential optional wrapper from the
     /// top level.
+    /// - Returns: A type usage with the adjusted optionality based on the `isOptional` parameter.
     func withOptional(_ isOptional: Bool) -> Self {
         if (isOptional && self.isOptional) || (!isOptional && !self.isOptional) {
             return self

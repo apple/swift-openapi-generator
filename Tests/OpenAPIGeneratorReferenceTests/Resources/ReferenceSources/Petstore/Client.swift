@@ -9,6 +9,7 @@ import struct Foundation.URL
 import struct Foundation.Data
 import struct Foundation.Date
 #endif
+import HTTPTypes
 /// Service for managing pet metadata.
 ///
 /// Because why not.
@@ -49,7 +50,7 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.listPets.id,
             serializer: { input in let path = try converter.renderedPath(template: "/pets", parameters: [])
-                var request: OpenAPIRuntime.Request = .init(path: path, method: .get)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
                 suppressMutabilityWarning(&request)
                 try converter.setQueryItemAsURI(
                     in: &request,
@@ -85,10 +86,10 @@ public struct Client: APIProtocol {
                     value: input.query.since
                 )
                 converter.setAcceptHeader(in: &request.headerFields, contentTypes: input.headers.accept)
-                return request
+                return (request, nil)
             },
-            deserializer: { response in
-                switch response.statusCode {
+            deserializer: { response, responseBody in
+                switch response.status.code {
                 case 200:
                     let headers: Operations.listPets.Output.Ok.Headers = .init(
                         My_hyphen_Response_hyphen_UUID: try converter.getRequiredHeaderFieldAsURI(
@@ -107,9 +108,9 @@ public struct Client: APIProtocol {
                     if try contentType == nil
                         || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                     {
-                        body = try converter.getResponseBodyAsJSON(
+                        body = try await converter.getResponseBodyAsJSON(
                             Components.Schemas.Pets.self,
-                            from: response.body,
+                            from: responseBody,
                             transforming: { value in .json(value) }
                         )
                     } else {
@@ -122,15 +123,15 @@ public struct Client: APIProtocol {
                     if try contentType == nil
                         || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                     {
-                        body = try converter.getResponseBodyAsJSON(
+                        body = try await converter.getResponseBodyAsJSON(
                             Components.Schemas._Error.self,
-                            from: response.body,
+                            from: responseBody,
                             transforming: { value in .json(value) }
                         )
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
-                    return .`default`(statusCode: response.statusCode, .init(body: body))
+                    return .`default`(statusCode: response.status.code, .init(body: body))
                 }
             }
         )
@@ -144,7 +145,7 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.createPet.id,
             serializer: { input in let path = try converter.renderedPath(template: "/pets", parameters: [])
-                var request: OpenAPIRuntime.Request = .init(path: path, method: .post)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .post)
                 suppressMutabilityWarning(&request)
                 try converter.setHeaderFieldAsJSON(
                     in: &request.headerFields,
@@ -152,18 +153,19 @@ public struct Client: APIProtocol {
                     value: input.headers.X_hyphen_Extra_hyphen_Arguments
                 )
                 converter.setAcceptHeader(in: &request.headerFields, contentTypes: input.headers.accept)
+                let body: OpenAPIRuntime.HTTPBody?
                 switch input.body {
                 case let .json(value):
-                    request.body = try converter.setRequiredRequestBodyAsJSON(
+                    body = try converter.setRequiredRequestBodyAsJSON(
                         value,
                         headerFields: &request.headerFields,
                         contentType: "application/json; charset=utf-8"
                     )
                 }
-                return request
+                return (request, body)
             },
-            deserializer: { response in
-                switch response.statusCode {
+            deserializer: { response, responseBody in
+                switch response.status.code {
                 case 201:
                     let headers: Operations.createPet.Output.Created.Headers = .init(
                         X_hyphen_Extra_hyphen_Arguments: try converter.getOptionalHeaderFieldAsJSON(
@@ -177,9 +179,9 @@ public struct Client: APIProtocol {
                     if try contentType == nil
                         || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                     {
-                        body = try converter.getResponseBodyAsJSON(
+                        body = try await converter.getResponseBodyAsJSON(
                             Components.Schemas.Pet.self,
-                            from: response.body,
+                            from: responseBody,
                             transforming: { value in .json(value) }
                         )
                     } else {
@@ -199,16 +201,16 @@ public struct Client: APIProtocol {
                     if try contentType == nil
                         || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                     {
-                        body = try converter.getResponseBodyAsJSON(
+                        body = try await converter.getResponseBodyAsJSON(
                             Components.Responses.ErrorBadRequest.Body.jsonPayload.self,
-                            from: response.body,
+                            from: responseBody,
                             transforming: { value in .json(value) }
                         )
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
-                    return .clientError(statusCode: response.statusCode, .init(headers: headers, body: body))
-                default: return .undocumented(statusCode: response.statusCode, .init())
+                    return .clientError(statusCode: response.status.code, .init(headers: headers, body: body))
+                default: return .undocumented(statusCode: response.status.code, .init())
                 }
             }
         )
@@ -224,22 +226,23 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.createPetWithForm.id,
             serializer: { input in let path = try converter.renderedPath(template: "/pets/create", parameters: [])
-                var request: OpenAPIRuntime.Request = .init(path: path, method: .post)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .post)
                 suppressMutabilityWarning(&request)
+                let body: OpenAPIRuntime.HTTPBody?
                 switch input.body {
                 case let .urlEncodedForm(value):
-                    request.body = try converter.setRequiredRequestBodyAsURLEncodedForm(
+                    body = try converter.setRequiredRequestBodyAsURLEncodedForm(
                         value,
                         headerFields: &request.headerFields,
                         contentType: "application/x-www-form-urlencoded"
                     )
                 }
-                return request
+                return (request, body)
             },
-            deserializer: { response in
-                switch response.statusCode {
+            deserializer: { response, responseBody in
+                switch response.status.code {
                 case 204: return .noContent(.init())
-                default: return .undocumented(statusCode: response.statusCode, .init())
+                default: return .undocumented(statusCode: response.status.code, .init())
                 }
             }
         )
@@ -251,28 +254,28 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.getStats.id,
             serializer: { input in let path = try converter.renderedPath(template: "/pets/stats", parameters: [])
-                var request: OpenAPIRuntime.Request = .init(path: path, method: .get)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
                 suppressMutabilityWarning(&request)
                 converter.setAcceptHeader(in: &request.headerFields, contentTypes: input.headers.accept)
-                return request
+                return (request, nil)
             },
-            deserializer: { response in
-                switch response.statusCode {
+            deserializer: { response, responseBody in
+                switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.getStats.Output.Ok.Body
                     if try contentType == nil
                         || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                     {
-                        body = try converter.getResponseBodyAsJSON(
+                        body = try await converter.getResponseBodyAsJSON(
                             Components.Schemas.PetStats.self,
-                            from: response.body,
+                            from: responseBody,
                             transforming: { value in .json(value) }
                         )
                     } else if try converter.isMatchingContentType(received: contentType, expectedRaw: "text/plain") {
-                        body = try converter.getResponseBodyAsString(
-                            Swift.String.self,
-                            from: response.body,
+                        body = try converter.getResponseBodyAsBinary(
+                            OpenAPIRuntime.HTTPBody.self,
+                            from: responseBody,
                             transforming: { value in .plainText(value) }
                         )
                     } else if try converter.isMatchingContentType(
@@ -280,15 +283,15 @@ public struct Client: APIProtocol {
                         expectedRaw: "application/octet-stream"
                     ) {
                         body = try converter.getResponseBodyAsBinary(
-                            Foundation.Data.self,
-                            from: response.body,
+                            OpenAPIRuntime.HTTPBody.self,
+                            from: responseBody,
                             transforming: { value in .binary(value) }
                         )
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
                     return .ok(.init(body: body))
-                default: return .undocumented(statusCode: response.statusCode, .init())
+                default: return .undocumented(statusCode: response.status.code, .init())
                 }
             }
         )
@@ -300,34 +303,35 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.postStats.id,
             serializer: { input in let path = try converter.renderedPath(template: "/pets/stats", parameters: [])
-                var request: OpenAPIRuntime.Request = .init(path: path, method: .post)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .post)
                 suppressMutabilityWarning(&request)
+                let body: OpenAPIRuntime.HTTPBody?
                 switch input.body {
                 case let .json(value):
-                    request.body = try converter.setRequiredRequestBodyAsJSON(
+                    body = try converter.setRequiredRequestBodyAsJSON(
                         value,
                         headerFields: &request.headerFields,
                         contentType: "application/json; charset=utf-8"
                     )
                 case let .plainText(value):
-                    request.body = try converter.setRequiredRequestBodyAsString(
+                    body = try converter.setRequiredRequestBodyAsBinary(
                         value,
                         headerFields: &request.headerFields,
                         contentType: "text/plain"
                     )
                 case let .binary(value):
-                    request.body = try converter.setRequiredRequestBodyAsBinary(
+                    body = try converter.setRequiredRequestBodyAsBinary(
                         value,
                         headerFields: &request.headerFields,
                         contentType: "application/octet-stream"
                     )
                 }
-                return request
+                return (request, body)
             },
-            deserializer: { response in
-                switch response.statusCode {
+            deserializer: { response, responseBody in
+                switch response.status.code {
                 case 202: return .accepted(.init())
-                default: return .undocumented(statusCode: response.statusCode, .init())
+                default: return .undocumented(statusCode: response.status.code, .init())
                 }
             }
         )
@@ -339,14 +343,14 @@ public struct Client: APIProtocol {
             input: input,
             forOperation: Operations.probe.id,
             serializer: { input in let path = try converter.renderedPath(template: "/probe/", parameters: [])
-                var request: OpenAPIRuntime.Request = .init(path: path, method: .post)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .post)
                 suppressMutabilityWarning(&request)
-                return request
+                return (request, nil)
             },
-            deserializer: { response in
-                switch response.statusCode {
+            deserializer: { response, responseBody in
+                switch response.status.code {
                 case 204: return .noContent(.init())
-                default: return .undocumented(statusCode: response.statusCode, .init())
+                default: return .undocumented(statusCode: response.status.code, .init())
                 }
             }
         )
@@ -361,22 +365,23 @@ public struct Client: APIProtocol {
             forOperation: Operations.updatePet.id,
             serializer: { input in
                 let path = try converter.renderedPath(template: "/pets/{}", parameters: [input.path.petId])
-                var request: OpenAPIRuntime.Request = .init(path: path, method: .patch)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .patch)
                 suppressMutabilityWarning(&request)
                 converter.setAcceptHeader(in: &request.headerFields, contentTypes: input.headers.accept)
+                let body: OpenAPIRuntime.HTTPBody?
                 switch input.body {
-                case .none: request.body = nil
+                case .none: body = nil
                 case let .json(value):
-                    request.body = try converter.setOptionalRequestBodyAsJSON(
+                    body = try converter.setOptionalRequestBodyAsJSON(
                         value,
                         headerFields: &request.headerFields,
                         contentType: "application/json; charset=utf-8"
                     )
                 }
-                return request
+                return (request, body)
             },
-            deserializer: { response in
-                switch response.statusCode {
+            deserializer: { response, responseBody in
+                switch response.status.code {
                 case 204: return .noContent(.init())
                 case 400:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
@@ -384,16 +389,16 @@ public struct Client: APIProtocol {
                     if try contentType == nil
                         || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                     {
-                        body = try converter.getResponseBodyAsJSON(
+                        body = try await converter.getResponseBodyAsJSON(
                             Operations.updatePet.Output.BadRequest.Body.jsonPayload.self,
-                            from: response.body,
+                            from: responseBody,
                             transforming: { value in .json(value) }
                         )
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
                     return .badRequest(.init(body: body))
-                default: return .undocumented(statusCode: response.statusCode, .init())
+                default: return .undocumented(statusCode: response.status.code, .init())
                 }
             }
         )
@@ -410,21 +415,22 @@ public struct Client: APIProtocol {
             forOperation: Operations.uploadAvatarForPet.id,
             serializer: { input in
                 let path = try converter.renderedPath(template: "/pets/{}/avatar", parameters: [input.path.petId])
-                var request: OpenAPIRuntime.Request = .init(path: path, method: .put)
+                var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .put)
                 suppressMutabilityWarning(&request)
                 converter.setAcceptHeader(in: &request.headerFields, contentTypes: input.headers.accept)
+                let body: OpenAPIRuntime.HTTPBody?
                 switch input.body {
                 case let .binary(value):
-                    request.body = try converter.setRequiredRequestBodyAsBinary(
+                    body = try converter.setRequiredRequestBodyAsBinary(
                         value,
                         headerFields: &request.headerFields,
                         contentType: "application/octet-stream"
                     )
                 }
-                return request
+                return (request, body)
             },
-            deserializer: { response in
-                switch response.statusCode {
+            deserializer: { response, responseBody in
+                switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.uploadAvatarForPet.Output.Ok.Body
@@ -435,8 +441,8 @@ public struct Client: APIProtocol {
                         )
                     {
                         body = try converter.getResponseBodyAsBinary(
-                            Foundation.Data.self,
-                            from: response.body,
+                            OpenAPIRuntime.HTTPBody.self,
+                            from: responseBody,
                             transforming: { value in .binary(value) }
                         )
                     } else {
@@ -449,9 +455,9 @@ public struct Client: APIProtocol {
                     if try contentType == nil
                         || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
                     {
-                        body = try converter.getResponseBodyAsJSON(
+                        body = try await converter.getResponseBodyAsJSON(
                             Swift.String.self,
-                            from: response.body,
+                            from: responseBody,
                             transforming: { value in .json(value) }
                         )
                     } else {
@@ -464,16 +470,16 @@ public struct Client: APIProtocol {
                     if try contentType == nil
                         || converter.isMatchingContentType(received: contentType, expectedRaw: "text/plain")
                     {
-                        body = try converter.getResponseBodyAsString(
-                            Swift.String.self,
-                            from: response.body,
+                        body = try converter.getResponseBodyAsBinary(
+                            OpenAPIRuntime.HTTPBody.self,
+                            from: responseBody,
                             transforming: { value in .plainText(value) }
                         )
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
                     return .internalServerError(.init(body: body))
-                default: return .undocumented(statusCode: response.statusCode, .init())
+                default: return .undocumented(statusCode: response.status.code, .init())
                 }
             }
         )

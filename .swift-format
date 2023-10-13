@@ -16,7 +16,7 @@
   "prioritizeKeepingFunctionOutputTogether" : false,
   "respectsExistingLineBreaks" : true,
   "rules" : {
-    "AllPublicDeclarationsHaveDocumentation" : false,
+    "AllPublicDeclarationsHaveDocumentation" : true,
     "AlwaysUseLowerCamelCase" : false,
     "AmbiguousTrailingClosureOverload" : true,
     "BeginDocumentationCommentWithOneLineSummary" : false,
@@ -50,7 +50,7 @@
     "UseSynthesizedInitializer" : true,
     "UseTripleSlashForDocumentationComments" : true,
     "UseWhereClausesInForLoops" : false,
-    "ValidateDocumentationComments" : false
+    "ValidateDocumentationComments" : true
   },
   "spacesAroundRangeFormationOperators" : false,
   "tabWidth" : 8,

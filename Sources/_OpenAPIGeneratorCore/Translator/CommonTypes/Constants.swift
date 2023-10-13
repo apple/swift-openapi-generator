@@ -32,6 +32,12 @@ enum Constants {
                 preconcurrency: .onOS(["Linux"])
             ),
         ]
+
+        /// The descriptions of modules imported by client and server files.
+        static let clientServerImports: [ImportDescription] =
+            imports + [
+                ImportDescription(moduleName: "HTTPTypes")
+            ]
     }
 
     /// Constants related to the OpenAPI server object.
@@ -368,9 +374,6 @@ enum Constants {
 
         /// The substring used in method names for the URI coding strategy.
         static let uri: String = "URI"
-
-        /// The substring used in method names for the string coding strategy.
-        static let string: String = "String"
 
         /// The substring used in method names for the binary coding strategy.
         static let binary: String = "Binary"

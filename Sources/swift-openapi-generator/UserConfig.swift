@@ -27,6 +27,19 @@ struct _UserConfig: Codable {
     /// generated Swift file.
     var additionalImports: [String]?
 
+    /// Filter to apply to the OpenAPI document before generation.
+    var filter: DocumentFilter?
+
     /// A set of features to explicitly enable.
     var featureFlags: FeatureFlags?
+
+    /// A set of raw values corresponding to the coding keys of this struct.
+    static let codingKeysRawValues = Set(CodingKeys.allCases.map({ $0.rawValue }))
+
+    enum CodingKeys: String, CaseIterable, CodingKey {
+        case generate
+        case additionalImports
+        case filter
+        case featureFlags
+    }
 }

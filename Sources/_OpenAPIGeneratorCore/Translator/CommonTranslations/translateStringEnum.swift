@@ -33,6 +33,8 @@ extension FileTranslator {
     ///   document.
     ///   - isNullable: Whether the enum schema is nullable.
     ///   - allowedValues: The enumerated allowed values.
+    /// - Throws: A `GenericError` if a disallowed value is encountered.
+    /// - Returns: A declaration of the specified raw value-based enum schema.
     func translateRawEnum(
         backingType: RawEnumBackingType,
         typeName: TypeName,

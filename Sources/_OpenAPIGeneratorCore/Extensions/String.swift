@@ -31,6 +31,7 @@ fileprivate extension String {
     /// Returns a copy of the string with the first letter modified by
     /// the specified closure.
     /// - Parameter transformation: A closure that modifies the first letter.
+    /// - Returns: A new string with the modified first letter, or the original string if no letter is found.
     func transformingFirstLetter<T>(_ transformation: (Character) -> T) -> String where T: StringProtocol {
         guard let firstLetterIndex = self.firstIndex(where: \.isLetter) else {
             return self

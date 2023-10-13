@@ -25,6 +25,8 @@ extension _GenerateOptions {
     ///   - isDryRun: A Boolean value that indicates whether this invocation should
     ///   be run in a testing mode to preview all the operations being carried out without
     ///   making any actual changes.
+    /// - Throws: An error if any part of the generator execution encounters an issue, including loading configuration,
+    /// resolving options, generating code, and handling diagnostics.
     func runGenerator(
         outputDirectory: URL,
         pluginSource: PluginSource?,
@@ -38,6 +40,7 @@ extension _GenerateOptions {
             .init(
                 mode: $0,
                 additionalImports: resolvedAdditionalImports,
+                filter: config?.filter,
                 featureFlags: resolvedFeatureFlags
             )
         }

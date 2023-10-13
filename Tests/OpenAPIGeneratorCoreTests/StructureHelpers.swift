@@ -58,6 +58,7 @@ enum ExprKind: String, Equatable, CustomStringConvertible {
     case binaryOperation
     case inOut
     case optionalChaining
+    case tuple
 
     var description: String {
         rawValue
@@ -227,6 +228,8 @@ extension Expression {
             return .init(name: value.referencedExpr.info.name, kind: .inOut)
         case .optionalChaining(let value):
             return .init(name: value.referencedExpr.info.name, kind: .optionalChaining)
+        case .tuple(_):
+            return .init(name: nil, kind: .tuple)
         }
     }
 }

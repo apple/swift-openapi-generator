@@ -17,6 +17,11 @@ import _OpenAPIGeneratorCore
 import Yams
 
 extension URL: ExpressibleByArgument {
+
+    /// Creates a `URL` instance from a string argument.
+    ///
+    /// Initializes a `URL` instance using the path provided as an argument string.
+    /// - Parameter argument: The string argument representing the path for the URL.
     public init?(argument: String) {
         self.init(fileURLWithPath: argument)
     }

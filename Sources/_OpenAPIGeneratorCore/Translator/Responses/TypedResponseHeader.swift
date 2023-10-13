@@ -68,6 +68,8 @@ extension FileTranslator {
     /// - Returns: A list of response headers; can be empty if no response
     /// headers are specified in the OpenAPI document, or if all headers are
     /// unsupported.
+    /// - Throws: An error if there's an issue processing or generating typed response
+    ///           headers, such as unsupported header types or invalid definitions.
     func typedResponseHeaders(
         from response: OpenAPI.Response,
         inParent parent: TypeName
@@ -90,6 +92,9 @@ extension FileTranslator {
     ///   - name: The name of the header.
     ///   - parent: The Swift type name of the parent type of the headers.
     /// - Returns: Typed response header if supported, nil otherwise.
+    /// - Throws: An error if there's an issue processing or generating the typed response
+    ///           header, such as unsupported header types, invalid definitions, or schema
+    ///           validation failures.
     func typedResponseHeader(
         from unresolvedResponseHeader: UnresolvedResponseHeader,
         named name: String,
@@ -154,6 +159,7 @@ extension FileTranslator {
                 type = try typeAssigner.typeUsage(
                     forParameterNamed: name,
                     withSchema: schema,
+                    components: components,
                     inParent: parent
                 )
             }

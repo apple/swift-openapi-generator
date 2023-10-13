@@ -32,9 +32,11 @@ extension FileTranslator {
     /// defined as unnamed schemas in the OpenAPI document.
     /// - Parameters:
     ///   - typeName: The name of the type to give to the declared structure.
-    ///   - openAPIDescription: A user-specified description from the OpenAPI
-    ///   document.
+    ///   - openAPIDescription: A user-specified description from the OpenAPI document.
+    ///   - type: The type of schema (allOf or anyOf).
     ///   - schemas: The child schemas of the allOf/anyOf.
+    /// - Throws: An error if there is an issue during translation.
+    /// - Returns: A declaration representing the translated allOf/anyOf structure.
     func translateAllOrAnyOf(
         typeName: TypeName,
         openAPIDescription: String?,
@@ -49,6 +51,7 @@ extension FileTranslator {
                 let rawPropertyType = try typeAssigner.typeUsage(
                     forAllOrAnyOrOneOfChildSchemaNamed: key,
                     withSchema: schema,
+                    components: components,
                     inParent: typeName
                 )
                 let propertyType: TypeUsage
@@ -125,6 +128,8 @@ extension FileTranslator {
     ///   document.
     ///   - discriminator: A discriminator specified in the OpenAPI document.
     ///   - schemas: The child schemas of the oneOf.
+    /// - Throws: An error if there is an issue during translation.
+    /// - Returns: A declaration representing the translated oneOf structure.
     func translateOneOf(
         typeName: TypeName,
         openAPIDescription: String?,
@@ -163,6 +168,7 @@ extension FileTranslator {
                     let childType = try typeAssigner.typeUsage(
                         forAllOrAnyOrOneOfChildSchemaNamed: key,
                         withSchema: schema,
+                        components: components,
                         inParent: typeName
                     )
                     let caseName: String

@@ -30,6 +30,8 @@ extension FileTranslator {
     ///   - parent: The parent type of the chosen typed schema.
     /// - Returns: the detected content type + schema + type name, nil if no
     /// supported schema found or if empty.
+    /// - Throws: An error if there's a problem while selecting the best content, validating
+    ///           the schema, or assigning the associated type.
     func bestSingleTypedContent(
         _ map: OpenAPI.Content.Map,
         excludeBinary: Bool = false,
@@ -56,6 +58,7 @@ extension FileTranslator {
         let associatedType = try typeAssigner.typeUsage(
             usingNamingHint: identifier,
             withSchema: content.schema,
+            components: components,
             inParent: parent
         )
         return .init(content: content, typeUsage: associatedType)
@@ -68,6 +71,8 @@ extension FileTranslator {
     ///   type should be skipped, for example used when encoding headers.
     ///   - parent: The parent type of the chosen typed schema.
     /// - Returns: The supported content type + schema + type names.
+    /// - Throws: An error if there's a problem while extracting or validating the supported
+    ///           content types or assigning the associated types.
     func supportedTypedContents(
         _ map: OpenAPI.Content.Map,
         excludeBinary: Bool = false,
@@ -91,6 +96,7 @@ extension FileTranslator {
             let associatedType = try typeAssigner.typeUsage(
                 usingNamingHint: identifier,
                 withSchema: content.schema,
+                components: components,
                 inParent: parent
             )
             return .init(content: content, typeUsage: associatedType)
@@ -163,15 +169,6 @@ extension FileTranslator {
                 ),
                 contentValue
             )
-        } else if let (contentKey, contentValue) = map.first(where: { $0.key.isText }) {
-            let contentType = contentKey.asGeneratorContentType
-            chosenContent = (
-                .init(
-                    contentType: contentType,
-                    schema: .b(.string)
-                ),
-                contentValue
-            )
         } else if !excludeBinary, let (contentKey, contentValue) = map.first(where: { $0.key.isBinary }) {
             let contentType = contentKey.asGeneratorContentType
             chosenContent = (
@@ -240,22 +237,14 @@ extension FileTranslator {
                 schema: contentValue.schema
             )
         }
-        if contentKey.isText {
-            let contentType = contentKey.asGeneratorContentType
-            return .init(
-                contentType: contentType,
-                schema: .b(.string)
-            )
-        }
-        let urlEncodedFormsSupported = config.featureFlags.contains(.urlEncodedForm)
-        if urlEncodedFormsSupported && contentKey.isUrlEncodedForm {
+        if contentKey.isUrlEncodedForm {
             let contentType = ContentType(contentKey.typeAndSubtype)
             return .init(
                 contentType: contentType,
                 schema: contentValue.schema
             )
         }
-        if !excludeBinary, contentKey.isBinary || !urlEncodedFormsSupported {
+        if !excludeBinary, contentKey.isBinary {
             let contentType = contentKey.asGeneratorContentType
             return .init(
                 contentType: contentType,

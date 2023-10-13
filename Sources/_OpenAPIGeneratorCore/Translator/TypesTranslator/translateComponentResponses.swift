@@ -19,6 +19,7 @@ extension TypesFileTranslator {
     /// in the OpenAPI document.
     /// - Parameter responses: The reusable responses.
     /// - Returns: An enum declaration representing the responses namespace.
+    /// - Throws: An error if there's an issue during translation or request body processing
     func translateComponentResponses(
         _ responses: OpenAPI.ComponentDictionary<OpenAPI.Response>
     ) throws -> Declaration {

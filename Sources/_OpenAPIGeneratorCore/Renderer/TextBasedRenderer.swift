@@ -285,6 +285,13 @@ struct TextBasedRenderer: RendererProtocol {
         renderedExpression(description.referencedExpr) + "?"
     }
 
+    /// Renders the specified tuple expression.
+    func renderedTupleDescription(
+        _ description: TupleDescription
+    ) -> String {
+        "(" + description.members.map(renderedExpression).joined(separator: ", ") + ")"
+    }
+
     /// Renders the specified expression.
     func renderedExpression(_ expression: Expression) -> String {
         switch expression {
@@ -316,6 +323,8 @@ struct TextBasedRenderer: RendererProtocol {
             return renderedInOutDescription(inOut)
         case .optionalChaining(let optionalChaining):
             return renderedOptionalChainingDescription(optionalChaining)
+        case .tuple(let tuple):
+            return renderedTupleDescription(tuple)
         }
     }
 
@@ -421,9 +430,15 @@ struct TextBasedRenderer: RendererProtocol {
         }
 
         var lines: [String] = [words.joinedWords()]
-        if let body = variable.body {
+        if let body = variable.getter {
             lines.append("{")
+            if !variable.getterEffects.isEmpty {
+                lines.append("get \(variable.getterEffects.map(renderedFunctionKeyword).joined(separator: " ")) {")
+            }
             lines.append(renderedCodeBlocks(body))
+            if !variable.getterEffects.isEmpty {
+                lines.append("}")
+            }
             lines.append("}")
         }
         return lines.joinedLines()
@@ -606,7 +621,7 @@ struct TextBasedRenderer: RendererProtocol {
         }
         if let returnType = signature.returnType {
             words.append("->")
-            words.append(returnType)
+            words.append(renderedExpression(returnType))
         }
         return words.joinedWords()
     }
@@ -742,6 +757,7 @@ fileprivate extension Array where Element == String {
     /// empty lines.
     /// - Parameter omittingEmptyLines: If `true`, omits empty lines in the
     /// output. Otherwise, all lines are included in the output.
+    /// - Returns: A string with the elements of the array joined by newline characters.
     func joinedLines(omittingEmptyLines: Bool = true) -> String {
         filter { !omittingEmptyLines || !$0.isEmpty }
             .joined(separator: "\n")
@@ -749,6 +765,7 @@ fileprivate extension Array where Element == String {
 
     /// Returns a string where the elements of the array are joined
     /// by a space character.
+    /// - Returns: A string with the elements of the array joined by space characters.
     func joinedWords() -> String {
         joined(separator: " ")
     }
@@ -758,6 +775,7 @@ fileprivate extension String {
 
     /// Returns an array of strings, where each string represents one line
     /// in the current string.
+    /// - Returns: An array of strings, each representing one line in the original string.
     func asLines() -> [String] {
         split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
             .map(String.init)
@@ -766,6 +784,7 @@ fileprivate extension String {
     /// Returns a new string where the provided closure transforms each line.
     /// The closure takes a string representing one line as a parameter.
     /// - Parameter work: The closure that transforms each line.
+    /// - Returns: A new string where each line has been transformed using the given closure.
     func transformingLines(_ work: (String) -> String) -> String {
         asLines().map(work).joinedLines()
     }

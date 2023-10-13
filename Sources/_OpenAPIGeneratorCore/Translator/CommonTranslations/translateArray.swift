@@ -26,6 +26,8 @@ extension FileTranslator {
     ///   document.
     ///   - arrayContext: The context for the array, including information such
     ///   as the element schema.
+    /// - Throws: An error if there is an issue during translation.
+    /// - Returns: A list of declarations representing the translated array.
     func translateArray(
         typeName: TypeName,
         openAPIDescription: String?,
@@ -37,11 +39,15 @@ extension FileTranslator {
         // An OpenAPI array is represented as a Swift array with an element type
         let elementType: TypeUsage
         if let items = arrayContext.items {
-            if let builtinType = try typeMatcher.tryMatchReferenceableType(for: items) {
+            if let builtinType = try typeMatcher.tryMatchReferenceableType(
+                for: items,
+                components: components
+            ) {
                 elementType = builtinType
             } else {
                 elementType = try typeAssigner.typeUsage(
                     forArrayElementWithSchema: items,
+                    components: components,
                     inParent: typeName
                 )
                 let nestedDecls = try translateSchema(

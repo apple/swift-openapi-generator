@@ -20,8 +20,8 @@ struct GreetingServiceClient {
     static func main() async throws {
         // Create an instance of the generated client type.
         let client: APIProtocol = Client(
-            // Server.server1() is generated, derived from the server URL in the OpenAPI document.
-            serverURL: try Servers.server1(),
+            // Server.server2() is generated, derived from the server URL in the OpenAPI document.
+            serverURL: try Servers.server2(),
             // URLSessionTransport conforms to ClientTransport and is provided by a separate package.
             transport: URLSessionTransport()
         )
@@ -42,5 +42,14 @@ struct GreetingServiceClient {
         case .undocumented(statusCode: let statusCode, let undocumentedPayload):
             print("Undocumented response \(statusCode) from server: \(undocumentedPayload).")
         }
+
+        // Use shorthand APIs to get an expected response or otherwise throw a runtime error.
+        print(try await client.getGreeting().ok.body.json.message)
+        //                     ^             ^       ^
+        //                     |             |       `- Throws if body did not parse as documented JSON.
+        //                     |             |
+        //                     |             `- Throws if HTTP response is not 200 (OK).
+        //                     |
+        //                     `- Throws if there is an error making the API call.
     }
 }

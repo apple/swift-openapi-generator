@@ -20,9 +20,12 @@ extension FileTranslator {
     /// - Parameters:
     ///   - typeName: The name of the type to give to the declared structure.
     ///   - openAPIDescription: A user-specified description from the OpenAPI
-    ///   document.
+    ///     document.
     ///   - objectContext: The context for the object, including information
-    ///   such as the names and schemas of the object's properties.
+    ///     such as the names and schemas of the object's properties.
+    ///   - isDeprecated: A flag indicating whether the object is deprecated.
+    /// - Throws: An error if there is an issue during translation.
+    /// - Returns: A declaration representing the translated object schema.
     func translateObjectStruct(
         typeName: TypeName,
         openAPIDescription: String?,
@@ -34,7 +37,29 @@ extension FileTranslator {
             try objectContext
             .properties
             .filter { key, value in
-                try validateSchemaIsSupported(
+
+                let foundIn = "\(typeName.description)/\(key)"
+
+                // We need to catch a special case here:
+                // type: string + format: binary.
+                // It means binary data (unlike format: byte, which means base64
+                // and cannot be used in a structured object, such as in JSON.
+                // It's only valid as the root schema of a request or response.
+                // However, it _is_ a supported schema, so the following
+                // filtering would not exclude it.
+                // Since this is the only place we filter which schemas are
+                // allowed in object properties, explicitly filter these out
+                // here.
+                if value.isString && value.formatString == "binary" {
+                    diagnostics.emitUnsupportedSchema(
+                        reason: "Binary properties in object schemas.",
+                        schema: value,
+                        foundIn: foundIn
+                    )
+                    return false
+                }
+
+                return try validateSchemaIsSupported(
                     value,
                     foundIn: "\(typeName.description)/\(key)"
                 )
@@ -43,6 +68,7 @@ extension FileTranslator {
                 let propertyType = try typeAssigner.typeUsage(
                     forObjectPropertyNamed: key,
                     withSchema: value,
+                    components: components,
                     inParent: typeName
                 )
                 let comment: Comment? = .property(
@@ -102,9 +128,12 @@ extension FileTranslator {
 
     /// Parses the appropriate information about additionalProperties for
     /// an object struct.
-    /// - Parameter objectContext: The context describing the object.
+    /// - Parameters:
+    ///   - objectContext: The context describing the object.
+    ///   - parent: The parent type name where this function is called from.
     /// - Returns: The kind of Codable implementation required for the struct,
-    /// and an extra property to be added to the struct, if needed.
+    ///   and an extra property to be added to the struct, if needed.
+    /// - Throws: An error if there is an issue during parsing.
     func parseAdditionalProperties(
         in objectContext: JSONSchema.ObjectContext,
         parent: TypeName
@@ -127,6 +156,7 @@ extension FileTranslator {
             let valueTypeUsage = try typeAssigner.typeUsage(
                 forObjectPropertyNamed: "additionalProperties",
                 withSchema: schema,
+                components: components,
                 inParent: parent
             )
             if TypeMatcher.isInlinable(schema) {

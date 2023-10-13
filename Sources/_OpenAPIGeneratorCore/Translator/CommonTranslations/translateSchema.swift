@@ -28,6 +28,8 @@ extension FileTranslator {
     ///   - schema: The JSON schema representing the type.
     ///   - overrides: A structure with the properties that should be overridden
     ///   instead of extracted from the schema.
+    /// - Throws: An error if there is an issue during translation.
+    /// - Returns: A list of declarations representing the translated schema.
     func translateSchema(
         typeName: TypeName,
         schema: UnresolvedSchema?,
@@ -66,6 +68,8 @@ extension FileTranslator {
     ///   - schema: The JSON schema representing the type.
     ///   - overrides: A structure with the properties that should be overridden
     ///   instead of extracted from the schema.
+    /// - Throws: An error if there is an issue during translation.
+    /// - Returns: A list of declarations representing the translated schema.
     func translateSchema(
         typeName: TypeName,
         schema: JSONSchema,
@@ -89,11 +93,16 @@ extension FileTranslator {
         }
 
         // If this type maps to a referenceable schema, define a typealias
-        if let builtinType = try typeMatcher.tryMatchReferenceableType(for: schema) {
+        if let builtinType = try typeMatcher.tryMatchReferenceableType(
+            for: schema,
+            components: components
+        ) {
             let typealiasDecl = try translateTypealias(
                 named: typeName,
                 userDescription: overrides.userDescription ?? schema.description,
-                to: builtinType.withOptional(overrides.isOptional ?? !schema.required)
+                to: builtinType.withOptional(
+                    overrides.isOptional ?? typeMatcher.isOptional(schema, components: components)
+                )
             )
             return [typealiasDecl]
         }
