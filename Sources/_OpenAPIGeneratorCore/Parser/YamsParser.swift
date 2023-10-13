@@ -40,11 +40,22 @@ public struct YamsParser: ParserProtocol {
         return yamlKeys
     }
 
-    func parseOpenAPI(
+    /// Parses a YAML file as an OpenAPI document.
+    ///
+    /// This function supports documents following any of the following OpenAPI Specifications:
+    /// - 3.0.0, 3.0.1, 3.0.2, 3.0.3
+    /// - 3.1.0
+    ///
+    /// - Parameters
+    ///   - input: The file contents of the OpenAPI document.
+    ///   - diagnostics: A diagnostics collector used for emiting parsing warnings and errors.
+    /// - Returns: Parsed OpenAPI document.
+    /// - Throws: If the OpenAPI document cannot be parsed.
+    ///           Note that errors are also emited using the diagnostics collector.
+    public static func parseOpenAPIDocument(
         _ input: InMemoryInputFile,
-        config: Config,
         diagnostics: any DiagnosticCollector
-    ) throws -> ParsedOpenAPIRepresentation {
+    ) throws -> OpenAPIKit.OpenAPI.Document {
         let decoder = YAMLDecoder()
         let openapiData = input.contents
 
@@ -93,13 +104,21 @@ public struct YamsParser: ParserProtocol {
         }
     }
 
+    func parseOpenAPI(
+        _ input: InMemoryInputFile,
+        config: Config,
+        diagnostics: any DiagnosticCollector
+    ) throws -> ParsedOpenAPIRepresentation {
+        try Self.parseOpenAPIDocument(input, diagnostics: diagnostics)
+    }
+
     /// Detects specific YAML parsing errors to throw nicely formatted diagnostics for IDEs.
     ///
     /// - Parameters:
     ///   - context: The decoding error context that triggered the parsing error.
     ///   - input: The input file being worked on when the parsing error was triggered.
     /// - Throws: Throws a `Diagnostic` if the decoding error is a common parsing error.
-    private func checkParsingError(
+    private static func checkParsingError(
         context: DecodingError.Context,
         input: InMemoryInputFile
     ) throws {

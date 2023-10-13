@@ -19,7 +19,8 @@ struct _Tool: AsyncParsableCommand {
         commandName: "swift-openapi-generator",
         abstract: "Generate Swift client and server code from an OpenAPI document",
         subcommands: [
-            _GenerateCommand.self
+            _FilterCommand.self,
+            _GenerateCommand.self,
         ]
     )
 }
