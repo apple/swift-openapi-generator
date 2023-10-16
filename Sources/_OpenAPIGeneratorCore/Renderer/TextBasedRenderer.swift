@@ -386,10 +386,12 @@ struct TextBasedRenderer: RendererProtocol {
         switch type {
         case .any(let existingTypeDescription):
             return "any \(renderedExistingTypeDescription(existingTypeDescription))"
+        case .generic(let wrapper, let wrapped):
+            return "\(renderedExistingTypeDescription(wrapper))<\(renderedExistingTypeDescription(wrapped))>"
         case .optional(let existingTypeDescription):
             return "\(renderedExistingTypeDescription(existingTypeDescription))?"
-        case .member(let array):
-            return array.joined(separator: ".")
+        case .member(let components):
+            return components.joined(separator: ".")
         case .array(let existingTypeDescription):
             return "[\(renderedExistingTypeDescription(existingTypeDescription))]"
         case .dictionaryValue(let existingTypeDescription):
@@ -434,7 +436,7 @@ struct TextBasedRenderer: RendererProtocol {
         words.append(renderedBindingKind(variable.kind))
         let labelWithOptionalType: String
         if let type = variable.type {
-            labelWithOptionalType = "\(variable.left): \(type)"
+            labelWithOptionalType = "\(variable.left): \(renderedExistingTypeDescription(type))"
         } else {
             labelWithOptionalType = variable.left
         }

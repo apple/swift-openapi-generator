@@ -235,8 +235,8 @@ extension ExistingTypeDescription {
 
     init(_ typeUsage: TypeUsage) {
         switch typeUsage.usage {
-        case .generic:
-            preconditionFailure("Generic is unsupported in ExistingTypeDescription.")
+        case .generic(wrapper: let wrapper):
+            self = .generic(wrapper: .init(wrapper), wrapped: .init(typeUsage.wrapped))
         case .optional:
             self = .optional(.init(typeUsage.wrapped))
         case .identity:

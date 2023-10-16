@@ -337,6 +337,7 @@ struct EnumDescription: Equatable, Codable {
 indirect enum ExistingTypeDescription: Equatable, Codable {
     case any(ExistingTypeDescription)
     case optional(ExistingTypeDescription)
+    case generic(wrapper: ExistingTypeDescription, wrapped: ExistingTypeDescription)
     case member([String])
     case array(ExistingTypeDescription)
     case dictionaryValue(ExistingTypeDescription)

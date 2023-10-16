@@ -181,6 +181,8 @@ extension ExistingTypeDescription {
             return components.nameIfTopLevelSchemaComponent
         case .array(let desc), .dictionaryValue(let desc), .any(let desc), .optional(let desc):
             return desc.referencedSchemaComponentName
+        case .generic:
+            return nil
         }
     }
 }

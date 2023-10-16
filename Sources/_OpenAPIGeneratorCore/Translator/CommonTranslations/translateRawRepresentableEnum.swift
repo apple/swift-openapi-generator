@@ -182,16 +182,14 @@ extension FileTranslator {
                     .memberAccess(.init(right: caseName))
                 }
                 allCasesGetter = .variable(
-                    .init(
-                        accessModifier: config.access,
-                        isStatic: true,
-                        kind: .var,
-                        left: "allCases",
-                        type: .array(.member(["Self"])),
-                        getter: [
-                            .expression(.literal(.array(caseExpressions)))
-                        ]
-                    )
+                    accessModifier: config.access,
+                    isStatic: true,
+                    kind: .var,
+                    left: "allCases",
+                    type: .array(.member(["Self"])),
+                    getter: [
+                        .expression(.literal(.array(caseExpressions)))
+                    ]
                 )
             }
             otherMembers = [

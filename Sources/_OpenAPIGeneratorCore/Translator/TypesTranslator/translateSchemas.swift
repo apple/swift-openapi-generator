@@ -64,7 +64,6 @@ extension TypesFileTranslator {
         }
 
         let declsHandlingRecursion = try boxRecursiveTypes(decls)
-
         let componentsSchemasEnum = Declaration.commentable(
             JSONSchema.sectionComment(),
             .enum(
