@@ -170,25 +170,40 @@ struct FunctionCallDescription: Equatable, Codable {
     var calledExpression: Expression
 
     /// The arguments to be passed to the function.
-    var arguments: [FunctionArgumentDescription] = []
+    var arguments: [FunctionArgumentDescription]
+
+    /// A trailing closure.
+    var trailingClosure: ClosureInvocationDescription?
 
     /// Creates a new function call description.
     /// - Parameters:
     ///   - calledExpression: An expression that returns the function to be called.
     ///   - arguments: Arguments to be passed to the function.
-    init(calledExpression: Expression, arguments: [FunctionArgumentDescription] = []) {
+    ///   - trailingClosure: A trailing closure.
+    init(
+        calledExpression: Expression,
+        arguments: [FunctionArgumentDescription] = [],
+        trailingClosure: ClosureInvocationDescription? = nil
+    ) {
         self.calledExpression = calledExpression
         self.arguments = arguments
+        self.trailingClosure = trailingClosure
     }
 
     /// Creates a new function call description.
     /// - Parameters:
     ///   - calledExpression: An expression that returns the function to be called.
     ///   - arguments: Arguments to be passed to the function.
-    init(calledExpression: Expression, arguments: [Expression]) {
+    ///   - trailingClosure: A trailing closure.
+    init(
+        calledExpression: Expression,
+        arguments: [Expression],
+        trailingClosure: ClosureInvocationDescription? = nil
+    ) {
         self.init(
             calledExpression: calledExpression,
-            arguments: arguments.map { .init(label: nil, expression: $0) }
+            arguments: arguments.map { .init(label: nil, expression: $0) },
+            trailingClosure: trailingClosure
         )
     }
 }
@@ -241,6 +256,12 @@ struct VariableDescription: Equatable, Codable {
     ///
     /// For example, in `var foo: Int { get throws { 42 } }`, effects are `[.throws]`.
     var getterEffects: [FunctionKeyword] = []
+
+    /// Body code for the setter.
+    ///
+    /// For example, in `var foo: Int { set { _foo = newValue } }`, `body`
+    /// represents `{ _foo = newValue }`.
+    var setter: [CodeBlock]? = nil
 }
 
 /// A requirement of a where clause.
@@ -1039,7 +1060,8 @@ extension Declaration {
         type: ExistingTypeDescription? = nil,
         right: Expression? = nil,
         getter: [CodeBlock]? = nil,
-        getterEffects: [FunctionKeyword] = []
+        getterEffects: [FunctionKeyword] = [],
+        setter: [CodeBlock]? = nil
     ) -> Self {
         .variable(
             .init(
@@ -1050,7 +1072,8 @@ extension Declaration {
                 type: type,
                 right: right,
                 getter: getter,
-                getterEffects: getterEffects
+                getterEffects: getterEffects,
+                setter: setter
             )
         )
     }
@@ -1335,15 +1358,18 @@ extension Expression {
     /// - Parameters:
     ///   - calledExpression: The expression to be called as a function.
     ///   - arguments: The arguments to be passed to the function call.
+    ///   - trailingClosure: A trailing closure.
     /// - Returns: A new expression representing a function call with the specified called expression and arguments.
     static func functionCall(
         calledExpression: Expression,
-        arguments: [FunctionArgumentDescription] = []
+        arguments: [FunctionArgumentDescription] = [],
+        trailingClosure: ClosureInvocationDescription? = nil
     ) -> Self {
         .functionCall(
             .init(
                 calledExpression: calledExpression,
-                arguments: arguments
+                arguments: arguments,
+                trailingClosure: trailingClosure
             )
         )
     }
@@ -1354,15 +1380,18 @@ extension Expression {
     /// - Parameters:
     ///   - calledExpression: The expression called as a function.
     ///   - arguments: The arguments passed to the function call.
+    ///   - trailingClosure: A trailing closure.
     /// - Returns: A new expression representing a function call with the specified called expression and arguments.
     static func functionCall(
         calledExpression: Expression,
-        arguments: [Expression]
+        arguments: [Expression],
+        trailingClosure: ClosureInvocationDescription? = nil
     ) -> Self {
         .functionCall(
             .init(
                 calledExpression: calledExpression,
-                arguments: arguments.map { .init(label: nil, expression: $0) }
+                arguments: arguments.map { .init(label: nil, expression: $0) },
+                trailingClosure: trailingClosure
             )
         )
     }
@@ -1620,5 +1649,69 @@ extension Declaration {
             return self
         }
         return underlyingDecl
+    }
+}
+
+extension Declaration {
+
+    /// An access modifier.
+    var accessModifier: AccessModifier? {
+        get {
+            switch self {
+            case .commentable(_, let declaration):
+                return declaration.accessModifier
+            case .deprecated(_, let declaration):
+                return declaration.accessModifier
+            case .variable(let variableDescription):
+                return variableDescription.accessModifier
+            case .extension(let extensionDescription):
+                return extensionDescription.accessModifier
+            case .struct(let structDescription):
+                return structDescription.accessModifier
+            case .enum(let enumDescription):
+                return enumDescription.accessModifier
+            case .typealias(let typealiasDescription):
+                return typealiasDescription.accessModifier
+            case .protocol(let protocolDescription):
+                return protocolDescription.accessModifier
+            case .function(let functionDescription):
+                return functionDescription.signature.accessModifier
+            case .enumCase:
+                return nil
+            }
+        }
+        set {
+            switch self {
+            case .commentable(let comment, var declaration):
+                declaration.accessModifier = newValue
+                self = .commentable(comment, declaration)
+            case .deprecated(let deprecationDescription, var declaration):
+                declaration.accessModifier = newValue
+                self = .deprecated(deprecationDescription, declaration)
+            case .variable(var variableDescription):
+                variableDescription.accessModifier = newValue
+                self = .variable(variableDescription)
+            case .extension(var extensionDescription):
+                extensionDescription.accessModifier = newValue
+                self = .extension(extensionDescription)
+            case .struct(var structDescription):
+                structDescription.accessModifier = newValue
+                self = .struct(structDescription)
+            case .enum(var enumDescription):
+                enumDescription.accessModifier = newValue
+                self = .enum(enumDescription)
+            case .typealias(var typealiasDescription):
+                typealiasDescription.accessModifier = newValue
+                self = .typealias(typealiasDescription)
+            case .protocol(var protocolDescription):
+                protocolDescription.accessModifier = newValue
+                self = .protocol(protocolDescription)
+            case .function(var functionDescription):
+                functionDescription.signature.accessModifier = newValue
+                self = .function(functionDescription)
+            case .enumCase:
+                break
+            }
+        }
     }
 }

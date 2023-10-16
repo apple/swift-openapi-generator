@@ -75,7 +75,6 @@ struct TypeName: Hashable {
     /// A string representation of the fully qualified Swift type name.
     ///
     /// For example: `Swift.Int`.
-    @available(*, deprecated, message: "Use ExistingTypeDescription for rendering instead.")
     var fullyQualifiedSwiftName: String {
         swiftKeyPathComponents.joined(separator: ".")
     }

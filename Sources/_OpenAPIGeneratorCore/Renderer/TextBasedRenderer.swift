@@ -136,8 +136,15 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified function call.
     func renderedFunctionCall(_ functionCall: FunctionCallDescription) -> String {
         let arguments = functionCall.arguments
+        let trailingClosureString: String
+        if let trailingClosure = functionCall.trailingClosure {
+            trailingClosureString = renderedClosureInvocation(trailingClosure)
+        } else {
+            trailingClosureString = ""
+        }
         return
             "\(renderedExpression(functionCall.calledExpression))(\(arguments.map(renderedFunctionCallArgument).joined(separator: ", ")))"
+            + trailingClosureString
     }
 
     /// Renders the specified assignment expression.
@@ -449,11 +456,17 @@ struct TextBasedRenderer: RendererProtocol {
         var lines: [String] = [words.joinedWords()]
         if let body = variable.getter {
             lines.append("{")
-            if !variable.getterEffects.isEmpty {
+            let hasExplicitGetter = !variable.getterEffects.isEmpty || variable.setter != nil
+            if hasExplicitGetter {
                 lines.append("get \(variable.getterEffects.map(renderedFunctionKeyword).joined(separator: " ")) {")
             }
             lines.append(renderedCodeBlocks(body))
-            if !variable.getterEffects.isEmpty {
+            if hasExplicitGetter {
+                lines.append("}")
+            }
+            if let setter = variable.setter {
+                lines.append("set {")
+                lines.append(renderedCodeBlocks(setter))
                 lines.append("}")
             }
             lines.append("}")

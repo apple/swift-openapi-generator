@@ -697,12 +697,12 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/PetGroup/name`.
             public var name: Swift.String {
                 get { storage.read().name }
-                set { CopyOnWriteBox.write(to: &storage) { $0.name = newValue }}
+                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.name = newValue } }
             }
             /// - Remark: Generated from `#/components/schemas/PetGroup/parent`.
             public var parent: Components.Schemas.PetGroup? {
                 get { storage.read().parent }
-                set { CopyOnWriteBox.write(to: &storage) { $0.parent = newValue }}
+                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.parent = newValue } }
             }
             /// Creates a new `PetGroup`.
             ///
@@ -716,19 +716,16 @@ public enum Components {
                 case name
                 case parent
             }
-            public init(from decoder: any Decoder) throws {
-                storage = try .init(from: decoder)
-            }
-            public func encode(to encoder: any Encoder) throws {
-                try storage.encode(to: encoder)
-            }
-            private var storage: CopyOnWriteBox<Storage>
-            // Internal reference storage to allow type recursion.
+            public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
+            public func encode(to encoder: any Encoder) throws { try storage.encode(to: encoder) }
+            /// Internal reference storage to allow type recursion.
+            private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
             private struct Storage: Codable, Hashable, Sendable {
+                /// - Remark: Generated from `#/components/schemas/PetGroup/name`.
                 var name: Swift.String
+                /// - Remark: Generated from `#/components/schemas/PetGroup/parent`.
                 var parent: Components.Schemas.PetGroup?
                 typealias CodingKeys = Components.Schemas.PetGroup.CodingKeys
-                // Might have a custom encoder/decoder.
             }
         }
     }

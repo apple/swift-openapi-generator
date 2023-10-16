@@ -287,7 +287,7 @@ extension OperationDescription {
                 ),
                 .init(
                     label: "metadata",
-                    type: .member(["ServerRequestMetadata"])
+                    type: .init(TypeName.serverRequestMetadata)
                 ),
             ],
             keywords: [.async, .throws],
