@@ -119,8 +119,10 @@ extension APIProtocol {
 /// Server URLs defined in the OpenAPI document.
 public enum Servers {
     /// Example Petstore implementation service
-    public static func server1() throws -> URL { try URL(validatingOpenAPIServerURL: "https://example.com/api") }
-    public static func server2() throws -> URL { try URL(validatingOpenAPIServerURL: "/api") }
+    public static func server1() throws -> Foundation.URL {
+        try Foundation.URL(validatingOpenAPIServerURL: "https://example.com/api")
+    }
+    public static func server2() throws -> Foundation.URL { try Foundation.URL(validatingOpenAPIServerURL: "/api") }
 }
 /// Types generated from the components section of the OpenAPI document.
 public enum Components {
@@ -208,7 +210,7 @@ public enum Components {
                 value2 = try? decoder.decodeFromSingleValueContainer()
                 value3 = try? .init(from: decoder)
                 value4 = try? decoder.decodeFromSingleValueContainer()
-                try DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                     [value1, value2, value3, value4],
                     type: Self.self,
                     codingPath: decoder.codingPath
@@ -240,7 +242,7 @@ public enum Components {
                     self = .Pet(try .init(from: decoder))
                     return
                 } catch {}
-                throw DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
+                throw Swift.DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
             }
             public func encode(to encoder: any Encoder) throws {
                 switch self {
@@ -528,7 +530,7 @@ public enum Components {
             public init(from decoder: any Decoder) throws {
                 value1 = try? .init(from: decoder)
                 value2 = try? .init(from: decoder)
-                try DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                     [value1, value2],
                     type: Self.self,
                     codingPath: decoder.codingPath
@@ -577,7 +579,7 @@ public enum Components {
                     self = .case4(try .init(from: decoder))
                     return
                 } catch {}
-                throw DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
+                throw Swift.DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
             }
             public func encode(to encoder: any Encoder) throws {
                 switch self {
@@ -666,12 +668,13 @@ public enum Components {
             public enum CodingKeys: String, CodingKey { case kind }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                let discriminator = try container.decode(String.self, forKey: .kind)
+                let discriminator = try container.decode(Swift.String.self, forKey: .kind)
                 switch discriminator {
                 case "Walk", "#/components/schemas/Walk": self = .Walk(try .init(from: decoder))
                 case "MessagedExercise", "#/components/schemas/MessagedExercise":
                     self = .MessagedExercise(try .init(from: decoder))
-                default: throw DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
+                default:
+                    throw Swift.DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
                 }
             }
             public func encode(to encoder: any Encoder) throws {

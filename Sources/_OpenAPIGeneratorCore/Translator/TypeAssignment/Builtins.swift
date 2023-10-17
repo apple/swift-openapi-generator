@@ -63,7 +63,7 @@ extension TypeName {
 
     /// Returns the type name for the DecodingError type.
     static var decodingError: Self {
-        .foundation("DecodingError")
+        .swift("DecodingError")
     }
 
     /// Returns the type name for the UndocumentedPayload type.

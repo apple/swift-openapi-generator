@@ -185,6 +185,7 @@ extension ServerFileTranslator {
         let parameter = typedParameter.parameter
         let parameterTypeUsage = typedParameter
             .typeUsage
+            .withOptional(false)
 
         func methodName(_ parameterLocationName: String, _ requiresOptionality: Bool = true) -> String {
             let optionality: String
