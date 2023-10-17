@@ -104,9 +104,9 @@ extension FileTranslator {
                 .expression(
                     .assignment(
                         Expression
-                            .identifier("self")
+                            .identifierPattern("self")
                             .dot(variableName)
-                            .equals(.identifier(variableName))
+                            .equals(.identifierPattern(variableName))
                     )
                 )
             }

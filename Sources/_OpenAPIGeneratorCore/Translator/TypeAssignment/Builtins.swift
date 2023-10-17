@@ -56,6 +56,16 @@ extension TypeName {
         TypeName(swiftKeyPath: ["HTTPTypes", name])
     }
 
+    /// Returns the type name for the URL type.
+    static var url: Self {
+        .foundation("URL")
+    }
+
+    /// Returns the type name for the DecodingError type.
+    static var decodingError: Self {
+        .foundation("DecodingError")
+    }
+
     /// Returns the type name for the UndocumentedPayload type.
     static var undocumentedPayload: Self {
         .runtime(Constants.Operation.Output.undocumentedCaseAssociatedValueTypeName)

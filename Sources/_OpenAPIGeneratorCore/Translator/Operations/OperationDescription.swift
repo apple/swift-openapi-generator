@@ -266,7 +266,7 @@ extension OperationDescription {
                 )
             ],
             keywords: [.async, .throws],
-            returnType: .identifier(outputTypeName.fullyQualifiedSwiftName)
+            returnType: .identifierType(outputTypeName)
         )
     }
 
@@ -291,7 +291,10 @@ extension OperationDescription {
                 ),
             ],
             keywords: [.async, .throws],
-            returnType: .tuple([.identifier("HTTPResponse"), .identifier("HTTPBody?")])
+            returnType: .tuple([
+                .identifierType(TypeName.response),
+                .identifierType(TypeName.body.asUsage.asOptional),
+            ])
         )
     }
 
@@ -314,7 +317,9 @@ extension OperationDescription {
             let names: [Expression] =
                 pathParameters
                 .map { param in
-                    .identifier("input.path.\(asSwiftSafeName(param.name))")
+                    .identifierPattern("input")
+                        .dot("path")
+                        .dot(asSwiftSafeName(param.name))
                 }
             let arrayExpr: Expression = .literal(.array(names))
             return (template, arrayExpr)

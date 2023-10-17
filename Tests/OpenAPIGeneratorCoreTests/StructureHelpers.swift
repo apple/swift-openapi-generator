@@ -196,7 +196,14 @@ extension Expression {
         case .literal(let value):
             return .init(name: value.name, kind: .literal)
         case .identifier(let value):
-            return .init(name: value.name, kind: .identifier)
+            let name: String
+            switch value {
+            case .variable(let variable):
+                name = variable
+            case .type(let type):
+                name = TextBasedRenderer().renderedExistingTypeDescription(type)
+            }
+            return .init(name: name, kind: .identifier)
         case .memberAccess(let value):
             return .init(name: value.right, kind: .memberAccess)
         case .functionCall(let value):

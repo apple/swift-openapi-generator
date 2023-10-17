@@ -127,11 +127,11 @@ extension ClientFileTranslator {
         switch parameter.location {
         case .header:
             methodPrefix = "HeaderField"
-            containerExpr = .identifier(requestVariableName).dot("headerFields")
+            containerExpr = .identifierPattern(requestVariableName).dot("headerFields")
             supportsStyleAndExplode = false
         case .query:
             methodPrefix = "QueryItem"
-            containerExpr = .identifier(requestVariableName)
+            containerExpr = .identifierPattern(requestVariableName)
             supportsStyleAndExplode = true
         default:
             diagnostics.emitUnsupported(
@@ -150,7 +150,7 @@ extension ClientFileTranslator {
             styleAndExplodeArgs = []
         }
         return .try(
-            .identifier("converter")
+            .identifierPattern("converter")
                 .dot("set\(methodPrefix)As\(parameter.codingStrategy.runtimeName)")
                 .call(
                     [
@@ -162,7 +162,7 @@ extension ClientFileTranslator {
                         .init(label: "name", expression: .literal(parameter.name)),
                         .init(
                             label: "value",
-                            expression: .identifier(inputVariableName)
+                            expression: .identifierPattern(inputVariableName)
                                 .dot(parameter.location.shortVariableName)
                                 .dot(parameter.variableName)
                         ),
@@ -183,9 +183,8 @@ extension ServerFileTranslator {
         _ typedParameter: TypedParameter
     ) throws -> FunctionArgumentDescription? {
         let parameter = typedParameter.parameter
-        let parameterTypeName = typedParameter
+        let parameterTypeUsage = typedParameter
             .typeUsage
-            .fullyQualifiedNonOptionalSwiftName
 
         func methodName(_ parameterLocationName: String, _ requiresOptionality: Bool = true) -> String {
             let optionality: String
@@ -201,40 +200,40 @@ extension ServerFileTranslator {
         switch parameter.location {
         case .path:
             convertExpr = .try(
-                .identifier("converter").dot(methodName("PathParameter", false))
+                .identifierPattern("converter").dot(methodName("PathParameter", false))
                     .call([
-                        .init(label: "in", expression: .identifier("metadata").dot("pathParameters")),
+                        .init(label: "in", expression: .identifierPattern("metadata").dot("pathParameters")),
                         .init(label: "name", expression: .literal(parameter.name)),
                         .init(
                             label: "as",
-                            expression: .identifier(parameterTypeName).dot("self")
+                            expression: .identifierType(parameterTypeUsage).dot("self")
                         ),
                     ])
             )
         case .query:
             convertExpr = .try(
-                .identifier("converter").dot(methodName("QueryItem"))
+                .identifierPattern("converter").dot(methodName("QueryItem"))
                     .call([
-                        .init(label: "in", expression: .identifier("request").dot("soar_query")),
+                        .init(label: "in", expression: .identifierPattern("request").dot("soar_query")),
                         .init(label: "style", expression: .dot(typedParameter.style.runtimeName)),
                         .init(label: "explode", expression: .literal(.bool(typedParameter.explode))),
                         .init(label: "name", expression: .literal(parameter.name)),
                         .init(
                             label: "as",
-                            expression: .identifier(parameterTypeName).dot("self")
+                            expression: .identifierType(parameterTypeUsage).dot("self")
                         ),
                     ])
             )
         case .header:
             convertExpr = .try(
-                .identifier("converter")
+                .identifierPattern("converter")
                     .dot(methodName("HeaderField"))
                     .call([
-                        .init(label: "in", expression: .identifier("request").dot("headerFields")),
+                        .init(label: "in", expression: .identifierPattern("request").dot("headerFields")),
                         .init(label: "name", expression: .literal(parameter.name)),
                         .init(
                             label: "as",
-                            expression: .identifier(parameterTypeName).dot("self")
+                            expression: .identifierType(parameterTypeUsage).dot("self")
                         ),
                     ])
             )

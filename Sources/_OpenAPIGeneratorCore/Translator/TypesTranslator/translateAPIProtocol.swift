@@ -69,15 +69,15 @@ extension TypesFileTranslator {
                     kind: .function(name: operation.methodName),
                     parameters: initializer.signature.parameters,
                     keywords: [.async, .throws],
-                    returnType: .identifier(operation.outputTypeName.fullyQualifiedSwiftName),
+                    returnType: .identifierType(operation.outputTypeName),
                     body: [
                         .try(
                             .await(
-                                .identifier(operation.methodName)
+                                .identifierPattern(operation.methodName)
                                     .call([
                                         FunctionArgumentDescription(
                                             label: nil,
-                                            expression: .identifier(operation.inputTypeName.fullyQualifiedSwiftName)
+                                            expression: .identifierType(operation.inputTypeName)
                                                 .call(
                                                     initializer.signature.parameters.map { parameter in
                                                         guard let label = parameter.label else {
@@ -85,7 +85,7 @@ extension TypesFileTranslator {
                                                         }
                                                         return FunctionArgumentDescription(
                                                             label: label,
-                                                            expression: .identifier(label)
+                                                            expression: .identifierPattern(label)
                                                         )
                                                     }
                                                 )

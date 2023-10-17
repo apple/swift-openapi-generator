@@ -236,7 +236,7 @@ final class Test_TextBasedRenderer: XCTestCase {
                 """#
         )
         try _test(
-            .identifier("foo"),
+            .identifierPattern("foo"),
             renderedBy: renderer.renderedExpression,
             rendersAs:
                 #"""
@@ -246,7 +246,7 @@ final class Test_TextBasedRenderer: XCTestCase {
         try _test(
             .memberAccess(
                 .init(
-                    left: .identifier("foo"),
+                    left: .identifierPattern("foo"),
                     right: "bar"
                 )
             ),
@@ -259,11 +259,11 @@ final class Test_TextBasedRenderer: XCTestCase {
         try _test(
             .functionCall(
                 .init(
-                    calledExpression: .identifier("callee"),
+                    calledExpression: .identifierPattern("callee"),
                     arguments: [
                         .init(
                             label: nil,
-                            expression: .identifier("foo")
+                            expression: .identifierPattern("foo")
                         )
                     ]
                 )
@@ -535,19 +535,19 @@ final class Test_TextBasedRenderer: XCTestCase {
                 kind: .function(name: "f"),
                 parameters: [],
                 keywords: [.async, .throws],
-                returnType: .identifier("String")
+                returnType: .identifierType(TypeName.string)
             ),
             renderedBy: renderer.renderedFunction,
             rendersAs:
                 #"""
-                func f() async throws -> String
+                func f() async throws -> Swift.String
                 """#
         )
     }
 
     func testIdentifiers() throws {
         try _test(
-            .init(name: "foo"),
+            .variable("foo"),
             renderedBy: renderer.renderedIdentifier,
             rendersAs:
                 #"""
@@ -558,7 +558,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testMemberAccess() throws {
         try _test(
-            .init(left: .identifier("foo"), right: "bar"),
+            .init(left: .identifierPattern("foo"), right: "bar"),
             renderedBy: renderer.renderedMemberAccess,
             rendersAs:
                 #"""
@@ -579,7 +579,7 @@ final class Test_TextBasedRenderer: XCTestCase {
         try _test(
             .init(
                 label: "foo",
-                expression: .identifier("bar")
+                expression: .identifierPattern("bar")
             ),
             renderedBy: renderer.renderedFunctionCallArgument,
             rendersAs:
@@ -591,7 +591,7 @@ final class Test_TextBasedRenderer: XCTestCase {
         try _test(
             .init(
                 label: nil,
-                expression: .identifier("bar")
+                expression: .identifierPattern("bar")
             ),
             renderedBy: renderer.renderedFunctionCallArgument,
             rendersAs:
@@ -605,7 +605,7 @@ final class Test_TextBasedRenderer: XCTestCase {
         try _test(
             .functionCall(
                 .init(
-                    calledExpression: .identifier("callee")
+                    calledExpression: .identifierPattern("callee")
                 )
             ),
             renderedBy: renderer.renderedExpression,
@@ -617,11 +617,11 @@ final class Test_TextBasedRenderer: XCTestCase {
         try _test(
             .functionCall(
                 .init(
-                    calledExpression: .identifier("callee"),
+                    calledExpression: .identifierPattern("callee"),
                     arguments: [
                         .init(
                             label: "foo",
-                            expression: .identifier("bar")
+                            expression: .identifierPattern("bar")
                         )
                     ]
                 )
@@ -635,15 +635,15 @@ final class Test_TextBasedRenderer: XCTestCase {
         try _test(
             .functionCall(
                 .init(
-                    calledExpression: .identifier("callee"),
+                    calledExpression: .identifierPattern("callee"),
                     arguments: [
                         .init(
                             label: "foo",
-                            expression: .identifier("bar")
+                            expression: .identifierPattern("bar")
                         ),
                         .init(
                             label: "baz",
-                            expression: .identifier("boo")
+                            expression: .identifierPattern("boo")
                         ),
                     ]
                 )

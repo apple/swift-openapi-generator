@@ -15,9 +15,9 @@ extension VariableDescription {
 
     /// Returns an expression that suppresses mutability warnings.
     var suppressMutabilityWarningExpr: Expression {
-        .identifier("suppressMutabilityWarning")
+        .identifierPattern("suppressMutabilityWarning")
             .call([
-                .init(label: nil, expression: .inOut(.identifier(left)))
+                .init(label: nil, expression: .inOut(.identifierPattern(left)))
             ])
     }
 }
@@ -42,9 +42,9 @@ extension Expression {
     /// the warning.
     /// - Returns: An expression that represents the call to suppress the unused variable warning.
     static func suppressUnusedWarning(for name: String) -> Self {
-        .identifier("suppressUnusedWarning")
+        .identifierPattern("suppressUnusedWarning")
             .call([
-                .init(label: nil, expression: .identifier(name))
+                .init(label: nil, expression: .identifierPattern(name))
             ])
     }
 }

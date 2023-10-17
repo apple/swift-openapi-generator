@@ -119,12 +119,17 @@ enum LiteralDescription: Equatable, Codable {
 /// A description of an identifier, such as a variable name.
 ///
 /// For example, in `let foo = 42`, `foo` is an identifier.
-struct IdentifierDescription: Equatable, Codable {
+enum IdentifierDescription: Equatable, Codable {
 
-    /// The name of the identifier.
+    /// A variable identifier.
     ///
     /// For example, `foo` in `let foo = 42`.
-    var name: String
+    case variable(String)
+
+    /// A type identifier.
+    ///
+    /// For example, `Swift.String` in `let foo: Swift.String = "hi"`.
+    case type(ExistingTypeDescription)
 }
 
 /// A description of a member access expression.
@@ -1051,6 +1056,7 @@ extension Declaration {
     ///   - right: The expression to be assigned to the variable.
     ///   - getter: Body code for the getter of the variable.
     ///   - getterEffects: Effects of the getter.
+    ///   - setter: Body code for the setter of the variable.
     /// - Returns: Variable declaration.
     static func variable(
         accessModifier: AccessModifier? = nil,
@@ -1225,12 +1231,6 @@ extension Declaration {
     }
 }
 
-extension IdentifierDescription: ExpressibleByStringLiteral {
-    init(stringLiteral value: String) {
-        self.init(name: value)
-    }
-}
-
 extension FunctionKind {
     /// Returns a non-failable initializer, for example `init()`.
     static var initializer: Self {
@@ -1306,11 +1306,37 @@ extension Expression {
         return Self.memberAccess(.init(right: member))
     }
 
-    /// Returns a new identifier expression for the provided name.
+    /// Returns a new identifier expression for the provided pattern, such
+    /// as a variable or function name.
     /// - Parameter name: The name of the identifier.
-    /// - Returns: A new expression representing an identifier with the specified name.
-    static func identifier(_ name: String) -> Self {
-        .identifier(.init(name: name))
+    /// - Returns: A new expression representing an identifier with
+    ///   the specified name.
+    static func identifierPattern(_ name: String) -> Self {
+        .identifier(.variable(name))
+    }
+
+    /// Returns a new identifier expression for the provided type name.
+    /// - Parameter type: The description of the type.
+    /// - Returns: A new expression representing an identifier with
+    ///   the specified name.
+    static func identifierType(_ type: ExistingTypeDescription) -> Self {
+        .identifier(.type(type))
+    }
+
+    /// Returns a new identifier expression for the provided type name.
+    /// - Parameter type: The name of the type.
+    /// - Returns: A new expression representing an identifier with
+    ///   the specified name.
+    static func identifierType(_ type: TypeName) -> Self {
+        .identifier(.type(.init(type)))
+    }
+
+    /// Returns a new identifier expression for the provided type name.
+    /// - Parameter type: The usage of the type.
+    /// - Returns: A new expression representing an identifier with
+    ///   the specified name.
+    static func identifierType(_ type: TypeUsage) -> Self {
+        .identifier(.type(.init(type)))
     }
 
     /// Returns a new switch statement expression.

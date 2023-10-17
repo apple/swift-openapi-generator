@@ -69,7 +69,7 @@ extension FileTranslator {
                             .expression(
                                 .assignment(
                                     Expression
-                                        .identifier("self")
+                                        .identifierPattern("self")
                                         .equals(
                                             .dot(caseName)
                                         )
@@ -84,14 +84,14 @@ extension FileTranslator {
                         .expression(
                             .assignment(
                                 Expression
-                                    .identifier("self")
+                                    .identifierPattern("self")
                                     .equals(
                                         .functionCall(
                                             calledExpression: .dot(
                                                 unknownCaseName
                                             ),
                                             arguments: [
-                                                .identifier("rawValue")
+                                                .identifierPattern("rawValue")
                                             ]
                                         )
                                     )
@@ -113,7 +113,7 @@ extension FileTranslator {
                             .expression(
                                 .switch(
                                     switchedExpression: customSwitchedExpression(
-                                        .identifier("rawValue")
+                                        .identifierPattern("rawValue")
                                     ),
                                     cases: knownCases + [unknownCase]
                                 )
@@ -144,14 +144,14 @@ extension FileTranslator {
                                     unknownCaseName
                                 ),
                                 arguments: [
-                                    .identifier("string")
+                                    .identifierPattern("string")
                                 ]
                             )
                         )
                     ),
                     body: [
                         .expression(
-                            .return(.identifier("string"))
+                            .return(.identifierPattern("string"))
                         )
                     ]
                 )
@@ -164,7 +164,7 @@ extension FileTranslator {
                     getter: [
                         .expression(
                             .switch(
-                                switchedExpression: .identifier("self"),
+                                switchedExpression: .identifierPattern("self"),
                                 cases: [unknownCase] + knownCases
                             )
                         )

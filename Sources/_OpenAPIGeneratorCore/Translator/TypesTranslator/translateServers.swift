@@ -37,11 +37,11 @@ extension TypesFileTranslator {
                 keywords: [
                     .throws
                 ],
-                returnType: .identifier(Constants.ServerURL.underlyingType),
+                returnType: .identifierType(TypeName.url),
                 body: [
                     .expression(
                         .try(
-                            .identifier(Constants.ServerURL.underlyingType)
+                            .identifierType(TypeName.url)
                                 .call([
                                     .init(
                                         label: "validatingOpenAPIServerURL",

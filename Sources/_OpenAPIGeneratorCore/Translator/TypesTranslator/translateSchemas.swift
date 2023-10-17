@@ -189,7 +189,7 @@ extension TypesFileTranslator {
             let name = variableDescription.left
             variableDescription.getter = [
                 .expression(
-                    .identifier("storage")
+                    .identifierPattern("storage")
                         .dot("read")
                         .call([])
                         .dot(name)
@@ -199,14 +199,12 @@ extension TypesFileTranslator {
                 .expression(
                     .functionCall(
                         calledExpression:
-                            .identifier(
-                                TypeName.box.fullyQualifiedSwiftName
-                            )
+                            .identifierType(TypeName.box)
                             .dot("write"),
                         arguments: [
                             .init(
                                 label: "to",
-                                expression: .inOut(.identifier("storage"))
+                                expression: .inOut(.identifierPattern("storage"))
                             )
                         ],
                         trailingClosure: .init(
@@ -214,8 +212,8 @@ extension TypesFileTranslator {
                             body: [
                                 .expression(
                                     .assignment(
-                                        left: .identifier("$0").dot(name),
-                                        right: .identifier("newValue")
+                                        left: .identifierPattern("$0").dot(name),
+                                        right: .identifierPattern("newValue")
                                     )
                                 )
                             ]
@@ -245,7 +243,7 @@ extension TypesFileTranslator {
             funcDesc.body = [
                 .expression(
                     .assignment(
-                        left: .identifier("storage"),
+                        left: .identifierPattern("storage"),
                         right: .dot("init")
                             .call([
                                 .init(
@@ -253,7 +251,7 @@ extension TypesFileTranslator {
                                     expression: .dot("init")
                                         .call(
                                             propertyNames.map {
-                                                .init(label: $0, expression: .identifier($0))
+                                                .init(label: $0, expression: .identifierPattern($0))
                                             }
                                         )
                                 )
@@ -268,7 +266,7 @@ extension TypesFileTranslator {
         // First remove any existing ones, then add the new ones.
         desc.members = desc.members.filter { member in
             guard
-                case .function(var funcDesc) = member,
+                case .function(let funcDesc) = member,
                 funcDesc.signature.kind == .initializer(failable: false),
                 funcDesc.signature.parameters.first?.name == "decoder"
             else {
@@ -278,7 +276,7 @@ extension TypesFileTranslator {
         }
         desc.members = desc.members.filter { member in
             guard
-                case .function(var funcDesc) = member,
+                case .function(let funcDesc) = member,
                 funcDesc.signature.kind == .function(name: "encode", isStatic: false)
             else {
                 return true
@@ -302,13 +300,13 @@ extension TypesFileTranslator {
                 body: [
                     .expression(
                         .assignment(
-                            left: .identifier("storage"),
+                            left: .identifierPattern("storage"),
                             right: .try(
                                 .dot("init")
                                     .call([
                                         .init(
                                             label: "from",
-                                            expression: .identifier("decoder")
+                                            expression: .identifierPattern("decoder")
                                         )
                                     ])
                             )
@@ -334,12 +332,12 @@ extension TypesFileTranslator {
                 body: [
                     .expression(
                         .try(
-                            .identifier("storage")
+                            .identifierPattern("storage")
                                 .dot("encode")
                                 .call([
                                     .init(
                                         label: "to",
-                                        expression: .identifier("encoder")
+                                        expression: .identifierPattern("encoder")
                                     )
                                 ])
                         )

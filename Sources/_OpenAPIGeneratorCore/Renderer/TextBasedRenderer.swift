@@ -118,7 +118,12 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders the specified identifier.
     func renderedIdentifier(_ identifier: IdentifierDescription) -> String {
-        return identifier.name
+        switch identifier {
+        case .variable(let string):
+            return string
+        case .type(let existingTypeDescription):
+            return renderedExistingTypeDescription(existingTypeDescription)
+        }
     }
 
     /// Renders the specified member access expression.

@@ -79,7 +79,7 @@ struct ClientFileTranslator: FileTranslator {
                 parameters: [
                     .init(
                         label: "serverURL",
-                        type: .member([Constants.ServerURL.underlyingType])
+                        type: .init(TypeName.url)
                     ),
                     .init(
                         label: "configuration",
@@ -99,24 +99,24 @@ struct ClientFileTranslator: FileTranslator {
                 body: [
                     .expression(
                         .assignment(
-                            left: .identifier("self").dot(Constants.Client.Universal.propertyName),
+                            left: .identifierPattern("self").dot(Constants.Client.Universal.propertyName),
                             right: .dot("init")
                                 .call([
                                     .init(
                                         label: "serverURL",
-                                        expression: .identifier("serverURL")
+                                        expression: .identifierPattern("serverURL")
                                     ),
                                     .init(
                                         label: "configuration",
-                                        expression: .identifier("configuration")
+                                        expression: .identifierPattern("configuration")
                                     ),
                                     .init(
                                         label: "transport",
-                                        expression: .identifier("transport")
+                                        expression: .identifierPattern("transport")
                                     ),
                                     .init(
                                         label: "middlewares",
-                                        expression: .identifier("middlewares")
+                                        expression: .identifierPattern("middlewares")
                                     ),
                                 ])
                         )
@@ -132,7 +132,7 @@ struct ClientFileTranslator: FileTranslator {
             type: .member([Constants.Converter.typeName]),
             getter: [
                 .expression(
-                    .identifier(Constants.Client.Universal.propertyName)
+                    .identifierPattern(Constants.Client.Universal.propertyName)
                         .dot("converter")
                 )
             ]

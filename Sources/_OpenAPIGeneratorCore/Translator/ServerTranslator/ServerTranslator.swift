@@ -109,13 +109,27 @@ struct ServerFileTranslator: FileTranslator {
             let registerHandlerServerVarDecl: Declaration = .variable(
                 kind: .let,
                 left: "server",
-                right: .identifier(Constants.Server.Universal.typeName)
-                    .call([
-                        .init(label: "serverURL", expression: .identifier("serverURL")),
-                        .init(label: "handler", expression: .identifier("self")),
-                        .init(label: "configuration", expression: .identifier("configuration")),
-                        .init(label: "middlewares", expression: .identifier("middlewares")),
-                    ])
+                right: .identifierType(.member([Constants.Server.Universal.typeName]))
+                    .call(
+                        [
+                            .init(
+                                label: "serverURL",
+                                expression: .identifierPattern("serverURL")
+                            ),
+                            .init(
+                                label: "handler",
+                                expression: .identifierPattern("self")
+                            ),
+                            .init(
+                                label: "configuration",
+                                expression: .identifierPattern("configuration")
+                            ),
+                            .init(
+                                label: "middlewares",
+                                expression: .identifierPattern("middlewares")
+                            ),
+                        ]
+                    )
             )
 
             registerHandlersDeclBody.append(.declaration(registerHandlerServerVarDecl))
@@ -145,7 +159,7 @@ struct ServerFileTranslator: FileTranslator {
                     ),
                     .init(
                         label: "serverURL",
-                        type: .member([Constants.ServerURL.underlyingType]),
+                        type: .init(TypeName.url),
                         defaultValue: .dot("defaultOpenAPIServerURL")
                     ),
                     .init(
