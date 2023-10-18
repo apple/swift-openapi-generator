@@ -39,10 +39,15 @@ extension String {
                 assumingFileURL: nil,
                 to: &formattedString
             ) { diagnostic, sourceLocation in
+                #if canImport(SwiftSyntax509)
+                let location = "\(sourceLocation.line):\(sourceLocation.column)"
+                #else
+                let location = "\(sourceLocation.debugDescription)"
+                #endif
                 print(
                     """
                     ===
-                    Formatting the following code produced diagnostic at location \(sourceLocation.debugDescription) (see end):
+                    Formatting the following code produced diagnostic at location \(location) (see end):
                     ---
                     \(self.withLineNumberPrefixes)
                     ---

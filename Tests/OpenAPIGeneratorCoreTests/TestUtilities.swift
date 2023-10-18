@@ -157,6 +157,22 @@ func XCTAssertEqualCodable<T>(
     XCTFail(messageLines.joined(separator: "\n"), file: file, line: line)
 }
 
+func XCTAssertUnsortedEqual<T>(
+    _ expression1: @autoclosure () throws -> [T],
+    _ expression2: @autoclosure () throws -> [T],
+    _ message: @autoclosure () -> String = "",
+    file: StaticString = #filePath,
+    line: UInt = #line
+) where T: Comparable {
+    XCTAssertEqual(
+        try expression1().sorted(),
+        try expression2().sorted(),
+        message(),
+        file: file,
+        line: line
+    )
+}
+
 /// Both names must have the same number of components, throws otherwise.
 func newTypeName(swiftFQName: String, jsonFQName: String) throws -> TypeName {
     var jsonComponents = jsonFQName.split(separator: "/").map(String.init)
