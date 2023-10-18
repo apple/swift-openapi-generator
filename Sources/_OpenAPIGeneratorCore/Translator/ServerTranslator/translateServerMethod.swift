@@ -215,7 +215,7 @@ extension ServerFileTranslator {
 
         let operationTypeExpr =
             Expression
-            .identifierType(.init(swiftKeyPath: [Constants.Operations.namespace]))
+            .identifierType(.member(Constants.Operations.namespace))
             .dot(description.methodName)
 
         let operationArg = FunctionArgumentDescription(

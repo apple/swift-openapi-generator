@@ -188,7 +188,7 @@ extension FileTranslator {
                 .call([
                     .init(
                         label: "keyedBy",
-                        expression: .identifierType(.init(swiftKeyPath: ["CodingKeys"])).dot("self")
+                        expression: .identifierType(.member("CodingKeys")).dot("self")
                     )
                 ])
         )
@@ -611,7 +611,7 @@ fileprivate extension Declaration {
                     .call([
                         .init(
                             label: "keyedBy",
-                            expression: .identifierType(.init(swiftKeyPath: ["CodingKeys"])).dot("self")
+                            expression: .identifierType(.member("CodingKeys")).dot("self")
                         )
                     ])
             )
