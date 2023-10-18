@@ -731,6 +731,63 @@ public enum Components {
                 typealias CodingKeys = Components.Schemas.RecursivePet.CodingKeys
             }
         }
+        public struct RecursivePetNested: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/RecursivePetNested/name`.
+            public var name: Swift.String {
+                get { storage.read().name }
+                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.name = newValue } }
+            }
+            /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent`.
+            public struct parentPayload: Codable, Hashable, Sendable {
+                /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent/nested`.
+                public var nested: Components.Schemas.RecursivePetNested
+                /// Creates a new `parentPayload`.
+                ///
+                /// - Parameters:
+                ///   - nested:
+                public init(nested: Components.Schemas.RecursivePetNested) { self.nested = nested }
+                public enum CodingKeys: String, CodingKey { case nested }
+            }
+            /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent`.
+            public var parent: Components.Schemas.RecursivePetNested.parentPayload? {
+                get { storage.read().parent }
+                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.parent = newValue } }
+            }
+            /// Creates a new `RecursivePetNested`.
+            ///
+            /// - Parameters:
+            ///   - name:
+            ///   - parent:
+            public init(name: Swift.String, parent: Components.Schemas.RecursivePetNested.parentPayload? = nil) {
+                storage = .init(value: .init(name: name, parent: parent))
+            }
+            public enum CodingKeys: String, CodingKey {
+                case name
+                case parent
+            }
+            public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
+            public func encode(to encoder: any Encoder) throws { try storage.encode(to: encoder) }
+            /// Internal reference storage to allow type recursion.
+            private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
+            private struct Storage: Codable, Hashable, Sendable {
+                /// - Remark: Generated from `#/components/schemas/RecursivePetNested/name`.
+                var name: Swift.String
+                /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent`.
+                struct parentPayload: Codable, Hashable, Sendable {
+                    /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent/nested`.
+                    public var nested: Components.Schemas.RecursivePetNested
+                    /// Creates a new `parentPayload`.
+                    ///
+                    /// - Parameters:
+                    ///   - nested:
+                    public init(nested: Components.Schemas.RecursivePetNested) { self.nested = nested }
+                    public enum CodingKeys: String, CodingKey { case nested }
+                }
+                /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent`.
+                var parent: Components.Schemas.RecursivePetNested.parentPayload?
+                typealias CodingKeys = Components.Schemas.RecursivePetNested.CodingKeys
+            }
+        }
     }
     /// Types generated from the `#/components/parameters` section of the OpenAPI document.
     public enum Parameters {

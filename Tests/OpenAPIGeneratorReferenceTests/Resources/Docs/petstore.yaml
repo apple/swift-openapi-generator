@@ -454,20 +454,20 @@ components:
           $ref: '#/components/schemas/RecursivePet'
       required:
         - name
-#    RecursivePetNested:
-#      type: object
-#      properties:
-#        name:
-#          type: string
-#        parent:
-#          type: object
-#          properties:
-#            nested:
-#              $ref: '#/components/schemas/RecursivePetNested'
-#          required:
-#            - nested
-#      required:
-#        - name
+    RecursivePetNested:
+      type: object
+      properties:
+        name:
+          type: string
+        parent:
+          type: object
+          properties:
+            nested:
+              $ref: '#/components/schemas/RecursivePetNested'
+          required:
+            - nested
+      required:
+        - name
 #    PetGroupAnyOf:
 #      anyOf:
 #        - $ref: '#/components/schemas/PetGroupAnyOf'

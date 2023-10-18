@@ -119,20 +119,6 @@ extension TypesFileTranslator {
 
     private func boxedStruct(_ desc: StructDescription) -> StructDescription {
 
-        // For structs:
-
-        // - Move down:
-        //      - Properties (and duplicate at top level with set/get), remove comments
-        //      - Initializer (although can probably be removed as synthesized one works for private), remove comments
-        //      - any existing custom encoder/decoder
-        // - Keep at the same level:
-        //      - Inline types
-        // - Generate a typealias for the coding keys in the Storage type (if a CodingKeys is explicitly defined at the top level).
-        // - Generate explicit encoder/decoder.
-        //
-        // Since we use fully qualified type names, references to inline
-        // types don't need to change, even as the property moves down.
-
         // Start with a copy of the public struct, then modify it.
         var storageDesc = desc
 

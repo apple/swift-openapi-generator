@@ -42,10 +42,11 @@ struct DeclarationRecursionDetector {
             guard let name = decl.name else {
                 return nil
             }
+            let edges = decl.schemaComponentNamesOfUnbreakableReferences
             self.init(
                 name: name,
                 isBoxable: decl.isBoxable,
-                edges: decl.schemaComponentNamesOfUnbreakableReferences,
+                edges: edges,
                 decl: decl
             )
         }
@@ -119,11 +120,14 @@ extension Declaration {
             return desc
                 .members
                 .compactMap { (member) -> [String]? in
-                    guard case .variable = member.strippingTopComment else {
+                    switch member.strippingTopComment {
+                    case
+                            .variable, // A reference to a reusable type.
+                            .struct, .enum: // An inline type.
+                        return member.schemaComponentNamesOfUnbreakableReferences
+                    default:
                         return nil
                     }
-                    return member
-                        .schemaComponentNamesOfUnbreakableReferences
                 }
                 .flatMap { $0 }
         case .enum(let desc):

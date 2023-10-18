@@ -363,4 +363,21 @@ final class Test_Types: XCTestCase {
             )
         )
     }
+    
+    func testRecursiveNestedType_roundtrip() throws {
+        try _testRoundtrip(
+            Components.Schemas.RecursivePetNested(
+                name: "C",
+                parent: .init(
+                    nested: .init(
+                        name: "B",
+                        parent: .init(
+                            nested: .init(name: "A")
+                        )
+                    )
+                )
+            ),
+            verifyingJSON: #"{"name":"C","parent":{"nested":{"name":"B","parent":{"nested":{"name":"A"}}}}}"#
+        )
+    }
 }
