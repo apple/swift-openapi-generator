@@ -343,6 +343,10 @@ struct EnumDescription: Equatable, Codable {
     /// attribute.
     var isFrozen: Bool = false
 
+    /// A Boolean value that indicates whether the enum has the `indirect`
+    /// keyword.
+    var isIndirect: Bool = false
+
     /// An access modifier.
     var accessModifier: AccessModifier? = nil
 

@@ -468,20 +468,20 @@ components:
             - nested
       required:
         - name
-#    PetGroupAnyOf:
-#      anyOf:
-#        - $ref: '#/components/schemas/PetGroupAnyOf'
-#        - type: string
-#    PetGroupOneOf:
-#      oneOf:
-#        - $ref: '#/components/schemas/PetGroupOneOf'
-#        - type: string
-#    PetGroupAllOf:
-#      allOf:
-#        - type: object
-#          properties:
-#            parent:
-#              $ref: '#/components/schemas/PetGroupAllOf'
+    RecursivePetOneOf:
+      oneOf:
+        - $ref: '#/components/schemas/RecursivePetOneOf'
+        - type: string
+    RecursivePetAnyOf:
+      anyOf:
+        - $ref: '#/components/schemas/RecursivePetAnyOf'
+        - type: string
+    RecursivePetAllOf:
+      allOf:
+        - type: object
+          properties:
+            parent:
+              $ref: '#/components/schemas/RecursivePetAllOf'
   responses:
     ErrorBadRequest:
       description: Bad request

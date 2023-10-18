@@ -125,16 +125,16 @@ extension TypesFileTranslator {
         storageDesc.name = "Storage"
         storageDesc.accessModifier = .private
 
-        // Remove the explicit initializer, not needed in the private struct.
-        storageDesc.members = storageDesc.members.filter { member in
+        // Remove the explicit initializer's comment.
+        storageDesc.members = storageDesc.members.map { member in
             guard
                 case .function(let funcDesc) = member.strippingTopComment,
                 funcDesc.signature.kind == .initializer(failable: false),
                 funcDesc.signature.parameters.first?.name != "decoder"
             else {
-                return true
+                return member
             }
-            return false
+            return member.strippingTopComment
         }
 
         // Make all members internal by removing the explicit access modifier.
@@ -352,11 +352,9 @@ extension TypesFileTranslator {
     }
 
     private func boxedEnum(_ desc: EnumDescription) -> EnumDescription {
-
-        // For enums:
-
         // Just mark it as indirect, done.
-
-        fatalError()
+        var desc = desc
+        desc.isIndirect = true
+        return desc
     }
 }

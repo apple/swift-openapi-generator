@@ -1026,6 +1026,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
                         var parent: Components.Schemas.Node?
+                        init(parent: Components.Schemas.Node? = nil) { self.parent = parent }
                         typealias CodingKeys = Components.Schemas.Node.CodingKeys
                     }
                 }

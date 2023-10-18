@@ -540,6 +540,9 @@ struct TextBasedRenderer: RendererProtocol {
         if let accessModifier = enumDesc.accessModifier {
             words.append(renderedAccessModifier(accessModifier))
         }
+        if enumDesc.isIndirect {
+            words.append("indirect")
+        }
         words.append("enum")
         words.append(enumDesc.name)
         if !enumDesc.conformances.isEmpty {

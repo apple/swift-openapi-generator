@@ -728,6 +728,10 @@ public enum Components {
                 var name: Swift.String
                 /// - Remark: Generated from `#/components/schemas/RecursivePet/parent`.
                 var parent: Components.Schemas.RecursivePet?
+                init(name: Swift.String, parent: Components.Schemas.RecursivePet? = nil) {
+                    self.name = name
+                    self.parent = parent
+                }
                 typealias CodingKeys = Components.Schemas.RecursivePet.CodingKeys
             }
         }
@@ -786,7 +790,131 @@ public enum Components {
                 }
                 /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent`.
                 var parent: Components.Schemas.RecursivePetNested.parentPayload?
+                init(name: Swift.String, parent: Components.Schemas.RecursivePetNested.parentPayload? = nil) {
+                    self.name = name
+                    self.parent = parent
+                }
                 typealias CodingKeys = Components.Schemas.RecursivePetNested.CodingKeys
+            }
+        }
+        /// - Remark: Generated from `#/components/schemas/RecursivePetOneOf`.
+        @frozen public indirect enum RecursivePetOneOf: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/RecursivePetOneOf/case1`.
+            case RecursivePetOneOf(Components.Schemas.RecursivePetOneOf)
+            /// - Remark: Generated from `#/components/schemas/RecursivePetOneOf/case2`.
+            case case2(Swift.String)
+            public init(from decoder: any Decoder) throws {
+                do {
+                    self = .RecursivePetOneOf(try .init(from: decoder))
+                    return
+                } catch {}
+                do {
+                    self = .case2(try decoder.decodeFromSingleValueContainer())
+                    return
+                } catch {}
+                throw Swift.DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
+            }
+            public func encode(to encoder: any Encoder) throws {
+                switch self {
+                case let .RecursivePetOneOf(value): try value.encode(to: encoder)
+                case let .case2(value): try encoder.encodeToSingleValueContainer(value)
+                }
+            }
+        }
+        /// - Remark: Generated from `#/components/schemas/RecursivePetAnyOf`.
+        public struct RecursivePetAnyOf: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/RecursivePetAnyOf/value1`.
+            public var value1: Components.Schemas.RecursivePetAnyOf? {
+                get { storage.read().value1 }
+                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.value1 = newValue } }
+            }
+            /// - Remark: Generated from `#/components/schemas/RecursivePetAnyOf/value2`.
+            public var value2: Swift.String? {
+                get { storage.read().value2 }
+                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.value2 = newValue } }
+            }
+            /// Creates a new `RecursivePetAnyOf`.
+            ///
+            /// - Parameters:
+            ///   - value1:
+            ///   - value2:
+            public init(value1: Components.Schemas.RecursivePetAnyOf? = nil, value2: Swift.String? = nil) {
+                storage = .init(value: .init(value1: value1, value2: value2))
+            }
+            public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
+            public func encode(to encoder: any Encoder) throws { try storage.encode(to: encoder) }
+            /// Internal reference storage to allow type recursion.
+            private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
+            private struct Storage: Codable, Hashable, Sendable {
+                /// - Remark: Generated from `#/components/schemas/RecursivePetAnyOf/value1`.
+                var value1: Components.Schemas.RecursivePetAnyOf?
+                /// - Remark: Generated from `#/components/schemas/RecursivePetAnyOf/value2`.
+                var value2: Swift.String?
+                init(value1: Components.Schemas.RecursivePetAnyOf? = nil, value2: Swift.String? = nil) {
+                    self.value1 = value1
+                    self.value2 = value2
+                }
+                init(from decoder: any Decoder) throws {
+                    value1 = try? .init(from: decoder)
+                    value2 = try? decoder.decodeFromSingleValueContainer()
+                    try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                        [value1, value2],
+                        type: Self.self,
+                        codingPath: decoder.codingPath
+                    )
+                }
+                func encode(to encoder: any Encoder) throws {
+                    try encoder.encodeFirstNonNilValueToSingleValueContainer([value2])
+                    try value1?.encode(to: encoder)
+                }
+            }
+        }
+        /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf`.
+        public struct RecursivePetAllOf: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf/value1`.
+            public struct Value1Payload: Codable, Hashable, Sendable {
+                /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf/value1/parent`.
+                public var parent: Components.Schemas.RecursivePetAllOf?
+                /// Creates a new `Value1Payload`.
+                ///
+                /// - Parameters:
+                ///   - parent:
+                public init(parent: Components.Schemas.RecursivePetAllOf? = nil) { self.parent = parent }
+                public enum CodingKeys: String, CodingKey { case parent }
+            }
+            /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf/value1`.
+            public var value1: Components.Schemas.RecursivePetAllOf.Value1Payload {
+                get { storage.read().value1 }
+                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.value1 = newValue } }
+            }
+            /// Creates a new `RecursivePetAllOf`.
+            ///
+            /// - Parameters:
+            ///   - value1:
+            public init(value1: Components.Schemas.RecursivePetAllOf.Value1Payload) {
+                storage = .init(value: .init(value1: value1))
+            }
+            public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
+            public func encode(to encoder: any Encoder) throws { try storage.encode(to: encoder) }
+            /// Internal reference storage to allow type recursion.
+            private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
+            private struct Storage: Codable, Hashable, Sendable {
+                /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf/value1`.
+                struct Value1Payload: Codable, Hashable, Sendable {
+                    /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf/value1/parent`.
+                    public var parent: Components.Schemas.RecursivePetAllOf?
+                    /// Creates a new `Value1Payload`.
+                    ///
+                    /// - Parameters:
+                    ///   - parent:
+                    public init(parent: Components.Schemas.RecursivePetAllOf? = nil) { self.parent = parent }
+                    public enum CodingKeys: String, CodingKey { case parent }
+                }
+                /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf/value1`.
+                var value1: Components.Schemas.RecursivePetAllOf.Value1Payload
+                init(value1: Components.Schemas.RecursivePetAllOf.Value1Payload) { self.value1 = value1 }
+                init(from decoder: any Decoder) throws { value1 = try .init(from: decoder) }
+                func encode(to encoder: any Encoder) throws { try value1.encode(to: encoder) }
             }
         }
     }
