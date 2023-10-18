@@ -695,24 +695,24 @@ public enum Components {
             public init(count: Swift.Int) { self.count = count }
             public enum CodingKeys: String, CodingKey { case count }
         }
-        /// - Remark: Generated from `#/components/schemas/PetGroup`.
-        public struct PetGroup: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/PetGroup/name`.
+        /// - Remark: Generated from `#/components/schemas/RecursivePet`.
+        public struct RecursivePet: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/RecursivePet/name`.
             public var name: Swift.String {
                 get { storage.read().name }
                 set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.name = newValue } }
             }
-            /// - Remark: Generated from `#/components/schemas/PetGroup/parent`.
-            public var parent: Components.Schemas.PetGroup? {
+            /// - Remark: Generated from `#/components/schemas/RecursivePet/parent`.
+            public var parent: Components.Schemas.RecursivePet? {
                 get { storage.read().parent }
                 set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.parent = newValue } }
             }
-            /// Creates a new `PetGroup`.
+            /// Creates a new `RecursivePet`.
             ///
             /// - Parameters:
             ///   - name:
             ///   - parent:
-            public init(name: Swift.String, parent: Components.Schemas.PetGroup? = nil) {
+            public init(name: Swift.String, parent: Components.Schemas.RecursivePet? = nil) {
                 storage = .init(value: .init(name: name, parent: parent))
             }
             public enum CodingKeys: String, CodingKey {
@@ -724,11 +724,11 @@ public enum Components {
             /// Internal reference storage to allow type recursion.
             private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
             private struct Storage: Codable, Hashable, Sendable {
-                /// - Remark: Generated from `#/components/schemas/PetGroup/name`.
+                /// - Remark: Generated from `#/components/schemas/RecursivePet/name`.
                 var name: Swift.String
-                /// - Remark: Generated from `#/components/schemas/PetGroup/parent`.
-                var parent: Components.Schemas.PetGroup?
-                typealias CodingKeys = Components.Schemas.PetGroup.CodingKeys
+                /// - Remark: Generated from `#/components/schemas/RecursivePet/parent`.
+                var parent: Components.Schemas.RecursivePet?
+                typealias CodingKeys = Components.Schemas.RecursivePet.CodingKeys
             }
         }
     }

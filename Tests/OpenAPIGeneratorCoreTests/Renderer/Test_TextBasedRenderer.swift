@@ -750,7 +750,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             renderedBy: renderer.renderedVariable,
             rendersAs:
                 #"""
-                public static let foo: String = "bar"
+                public static let foo: Swift.String = "bar"
                 """#,
             normalizing: false
         )
@@ -780,7 +780,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             renderedBy: renderer.renderedVariable,
             rendersAs:
                 #"""
-                var foo: Int { 42 }
+                var foo: Swift.Int { 42 }
                 """#,
             normalizing: true
         )
@@ -795,7 +795,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             renderedBy: renderer.renderedVariable,
             rendersAs:
                 #"""
-                var foo: Int { get throws { 42 } }
+                var foo: Swift.Int { get throws { 42 } }
                 """#,
             normalizing: true
         )

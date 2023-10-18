@@ -57,7 +57,7 @@ extension TypesFileTranslator {
             }
             let contentType = content.content.contentType
             let identifier = contentSwiftName(contentType)
-            let associatedType = content.resolvedTypeUsage
+            let associatedType = content.resolvedTypeUsage.withOptional(false)
             let contentCase: Declaration = .commentable(
                 contentType.docComment(typeName: contentTypeName),
                 .enumCase(

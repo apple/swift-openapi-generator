@@ -322,7 +322,7 @@ final class Test_Types: XCTestCase {
 
     func testRecursiveType_roundtrip() throws {
         try _testRoundtrip(
-            Components.Schemas.PetGroup(
+            Components.Schemas.RecursivePet(
                 name: "C",
                 parent: .init(
                     name: "B",
@@ -334,13 +334,13 @@ final class Test_Types: XCTestCase {
     }
 
     func testRecursiveType_accessors_3levels() throws {
-        var c = Components.Schemas.PetGroup(name: "C", parent: .init(name: "B"))
+        var c = Components.Schemas.RecursivePet(name: "C", parent: .init(name: "B"))
         c.name = "C2"
         c.parent!.parent = .init(name: "A")
         XCTAssertEqual(c.parent, .init(name: "B", parent: .init(name: "A")))
         XCTAssertEqual(
             c,
-            Components.Schemas.PetGroup(
+            Components.Schemas.RecursivePet(
                 name: "C2",
                 parent: .init(
                     name: "B",
@@ -351,7 +351,7 @@ final class Test_Types: XCTestCase {
     }
 
     func testRecursiveType_accessors_2levels() throws {
-        var b = Components.Schemas.PetGroup(name: "B")
+        var b = Components.Schemas.RecursivePet(name: "B")
         b.name = "B2"
         b.parent = .init(name: "A")
         XCTAssertEqual(b.parent, .init(name: "A"))
