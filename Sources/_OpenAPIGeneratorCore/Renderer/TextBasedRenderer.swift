@@ -394,6 +394,7 @@ struct TextBasedRenderer: RendererProtocol {
         return lines.joinedLines()
     }
 
+    /// Renders the specified type reference to an existing type.
     func renderedExistingTypeDescription(_ type: ExistingTypeDescription) -> String {
         switch type {
         case .any(let existingTypeDescription):

@@ -235,7 +235,7 @@ extension TypesFileTranslator {
                     .init(
                         label: "from",
                         name: "decoder",
-                        type: .any(.member(["Decoder"]))
+                        type: .any(.member("Decoder"))
                     )
                 ],
                 keywords: [
@@ -267,7 +267,7 @@ extension TypesFileTranslator {
                     .init(
                         label: "to",
                         name: "encoder",
-                        type: .any(.member(["Encoder"]))
+                        type: .any(.member("Encoder"))
                     )
                 ],
                 keywords: [
@@ -299,7 +299,7 @@ extension TypesFileTranslator {
                     left: "storage",
                     type: .generic(
                         wrapper: .init(TypeName.box),
-                        wrapped: .member(["Storage"])
+                        wrapped: .member("Storage")
                     )
                 )
             )

@@ -364,12 +364,38 @@ struct EnumDescription: Equatable, Codable {
     var members: [Declaration] = []
 }
 
+/// A description of a type reference.
 indirect enum ExistingTypeDescription: Equatable, Codable {
+
+    /// A type with the `any` keyword in front of it.
+    ///
+    /// For example, `any Foo`.
     case any(ExistingTypeDescription)
+
+    /// An optional type.
+    ///
+    /// For example, `Foo?`.
     case optional(ExistingTypeDescription)
+
+    /// A wrapper type generic over a wrapped type.
+    ///
+    /// For example, `Wrapper<Wrapped>`.
     case generic(wrapper: ExistingTypeDescription, wrapped: ExistingTypeDescription)
+
+    /// A type reference represented by the components.
+    ///
+    /// For example, `MyModule.Foo`.
     case member([String])
+
+    /// An array with an element type.
+    ///
+    /// For example, `[Foo]`.
     case array(ExistingTypeDescription)
+
+    /// A dictionary where the key is `Swift.String` and the value is
+    /// the provided type.
+    ///
+    /// For example, `[String: Foo]`.
     case dictionaryValue(ExistingTypeDescription)
 }
 
@@ -1674,6 +1700,8 @@ extension Declaration {
         return self
     }
 
+    /// Returns the declaration one level deeper, nested inside the commentable
+    /// declaration, if present.
     var strippingTopComment: Self {
         guard case let .commentable(_, underlyingDecl) = self else {
             return self
@@ -1743,5 +1771,15 @@ extension Declaration {
                 break
             }
         }
+    }
+}
+
+extension ExistingTypeDescription {
+
+    /// Creates a member type description with the provided single component.
+    /// - Parameter singleComponent: A single component of the name.
+    /// - Returns: The new type description.
+    static func member(_ singleComponent: String) -> Self {
+        .member([singleComponent])
     }
 }

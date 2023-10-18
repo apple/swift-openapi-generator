@@ -186,7 +186,7 @@ extension FileTranslator {
                     isStatic: true,
                     kind: .var,
                     left: "allCases",
-                    type: .array(.member(["Self"])),
+                    type: .array(.member("Self")),
                     getter: [
                         .expression(.literal(.array(caseExpressions)))
                     ]

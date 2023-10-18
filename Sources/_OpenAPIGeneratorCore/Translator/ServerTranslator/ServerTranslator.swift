@@ -109,7 +109,7 @@ struct ServerFileTranslator: FileTranslator {
             let registerHandlerServerVarDecl: Declaration = .variable(
                 kind: .let,
                 left: "server",
-                right: .identifierType(.member([Constants.Server.Universal.typeName]))
+                right: .identifierType(.member(Constants.Server.Universal.typeName))
                     .call(
                         [
                             .init(
@@ -155,7 +155,7 @@ struct ServerFileTranslator: FileTranslator {
                     .init(
                         label: "on",
                         name: "transport",
-                        type: .member([Constants.Server.Transport.typeName])
+                        type: .member(Constants.Server.Transport.typeName)
                     ),
                     .init(
                         label: "serverURL",
@@ -164,12 +164,12 @@ struct ServerFileTranslator: FileTranslator {
                     ),
                     .init(
                         label: "configuration",
-                        type: .member([Constants.Configuration.typeName]),
+                        type: .member(Constants.Configuration.typeName),
                         defaultValue: .dot("init").call([])
                     ),
                     .init(
                         label: "middlewares",
-                        type: .array(.member([Constants.Server.Middleware.typeName])),
+                        type: .array(.member(Constants.Server.Middleware.typeName)),
                         defaultValue: .literal(.array([]))
                     ),
                 ],

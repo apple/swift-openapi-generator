@@ -632,7 +632,7 @@ fileprivate extension FileTranslator {
                 .init(
                     label: "to",
                     name: "encoder",
-                    type: .any(.member(["Encoder"]))
+                    type: .any(.member("Encoder"))
                 )
             ],
             keywords: [
@@ -653,7 +653,7 @@ fileprivate extension FileTranslator {
                 .init(
                     label: "from",
                     name: "decoder",
-                    type: .any(.member(["Decoder"]))
+                    type: .any(.member("Decoder"))
                 )
             ],
             keywords: [
