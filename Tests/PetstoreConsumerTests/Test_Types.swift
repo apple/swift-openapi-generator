@@ -363,7 +363,7 @@ final class Test_Types: XCTestCase {
             )
         )
     }
-    
+
     func testRecursiveNestedType_roundtrip() throws {
         try _testRoundtrip(
             Components.Schemas.RecursivePetNested(

@@ -121,9 +121,8 @@ extension Declaration {
                 .members
                 .compactMap { (member) -> [String]? in
                     switch member.strippingTopComment {
-                    case
-                            .variable, // A reference to a reusable type.
-                            .struct, .enum: // An inline type.
+                    case .variable,  // A reference to a reusable type.
+                        .struct, .enum:  // An inline type.
                         return member.schemaComponentNamesOfUnbreakableReferences
                     default:
                         return nil

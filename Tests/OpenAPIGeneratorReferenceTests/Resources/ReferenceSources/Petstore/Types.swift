@@ -731,6 +731,7 @@ public enum Components {
                 typealias CodingKeys = Components.Schemas.RecursivePet.CodingKeys
             }
         }
+        /// - Remark: Generated from `#/components/schemas/RecursivePetNested`.
         public struct RecursivePetNested: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/RecursivePetNested/name`.
             public var name: Swift.String {
