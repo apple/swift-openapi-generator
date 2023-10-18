@@ -105,22 +105,20 @@ extension ClientFileTranslator {
         .init(
             label: header.variableName,
             expression: .try(
-                .identifier("converter")
+                .identifierPattern("converter")
                     .dot(
                         "get\(header.isOptional ? "Optional" : "Required")HeaderFieldAs\(header.codingStrategy.runtimeName)"
                     )
                     .call([
                         .init(
                             label: "in",
-                            expression: .identifier(responseVariableName).dot("headerFields")
+                            expression: .identifierPattern(responseVariableName).dot("headerFields")
                         ),
                         .init(label: "name", expression: .literal(header.name)),
                         .init(
                             label: "as",
                             expression:
-                                .identifier(
-                                    header.typeUsage.fullyQualifiedNonOptionalSwiftName
-                                )
+                                .identifierType(header.typeUsage.withOptional(false))
                                 .dot("self")
                         ),
                     ])
@@ -144,20 +142,20 @@ extension ServerFileTranslator {
         responseVariableName: String
     ) throws -> Expression {
         return .try(
-            .identifier("converter")
+            .identifierPattern("converter")
                 .dot("setHeaderFieldAs\(header.codingStrategy.runtimeName)")
                 .call([
                     .init(
                         label: "in",
                         expression: .inOut(
-                            .identifier(responseVariableName)
+                            .identifierPattern(responseVariableName)
                                 .dot("headerFields")
                         )
                     ),
                     .init(label: "name", expression: .literal(header.name)),
                     .init(
                         label: "value",
-                        expression: .identifier("value")
+                        expression: .identifierPattern("value")
                             .dot("headers")
                             .dot(header.variableName)
                     ),

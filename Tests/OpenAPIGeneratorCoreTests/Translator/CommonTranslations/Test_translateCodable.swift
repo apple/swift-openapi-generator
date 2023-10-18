@@ -21,7 +21,7 @@ final class Test_translateCodable: Test_Core {
         let members = try _testDecoder(
             properties: [],
             trailingCodeBlocks: [
-                .expression(.identifier("foo"))
+                .expression(.identifierPattern("foo"))
             ]
         )
         XCTAssertEqual(
@@ -38,7 +38,7 @@ final class Test_translateCodable: Test_Core {
                 makeProperty(originalName: "bar", typeUsage: TypeName.string.asUsage)
             ],
             trailingCodeBlocks: [
-                .expression(.identifier("foo"))
+                .expression(.identifierPattern("foo"))
             ]
         )
         XCTAssertEqual(
@@ -86,7 +86,7 @@ final class Test_translateCodable: Test_Core {
         let members = try _testEncoder(
             properties: [],
             trailingCodeBlocks: [
-                .expression(.identifier("foo"))
+                .expression(.identifierPattern("foo"))
             ]
         )
         XCTAssertEqual(
@@ -103,7 +103,7 @@ final class Test_translateCodable: Test_Core {
                 makeProperty(originalName: "bar", typeUsage: TypeName.string.asUsage)
             ],
             trailingCodeBlocks: [
-                .expression(.identifier("foo"))
+                .expression(.identifierPattern("foo"))
             ]
         )
         XCTAssertEqual(

@@ -158,11 +158,6 @@ extension PropertyBlueprint {
         asSwiftSafeName(originalName)
     }
 
-    /// A human-readable, fully qualified name of the Swift property.
-    var renderedFullyQualifiedSwiftName: String {
-        typeUsage.fullyQualifiedSwiftName
-    }
-
     /// The JSON path to the property.
     ///
     /// Nil if the parent JSON path is nil.

@@ -40,7 +40,7 @@ struct TypeName: Hashable {
     private let components: [Component]
 
     /// The list of Swift path components.
-    private var swiftKeyPathComponents: [String] {
+    var swiftKeyPathComponents: [String] {
         components.compactMap(\.swift)
     }
 

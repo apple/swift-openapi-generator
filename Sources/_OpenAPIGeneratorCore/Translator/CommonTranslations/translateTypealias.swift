@@ -30,7 +30,7 @@ extension FileTranslator {
         let typealiasDescription = TypealiasDescription(
             accessModifier: config.access,
             name: typeName.shortSwiftName,
-            existingType: existingTypeUsage.fullyQualifiedNonOptionalSwiftName
+            existingType: .init(existingTypeUsage.withOptional(false))
         )
         let typealiasComment: Comment? =
             typeName

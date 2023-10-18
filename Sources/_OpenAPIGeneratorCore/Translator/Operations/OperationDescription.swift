@@ -262,11 +262,11 @@ extension OperationDescription {
             parameters: [
                 .init(
                     name: Constants.Operation.Input.variableName,
-                    type: inputTypeName.fullyQualifiedSwiftName
+                    type: .init(inputTypeName)
                 )
             ],
             keywords: [.async, .throws],
-            returnType: .identifier(outputTypeName.fullyQualifiedSwiftName)
+            returnType: .identifierType(outputTypeName)
         )
     }
 
@@ -277,12 +277,24 @@ extension OperationDescription {
             accessModifier: nil,
             kind: .function(name: methodName),
             parameters: [
-                .init(label: "request", type: "HTTPRequest"),
-                .init(label: "body", type: "HTTPBody?"),
-                .init(label: "metadata", type: "ServerRequestMetadata"),
+                .init(
+                    label: "request",
+                    type: .init(TypeName.request)
+                ),
+                .init(
+                    label: "body",
+                    type: .optional(.init(TypeName.body))
+                ),
+                .init(
+                    label: "metadata",
+                    type: .init(TypeName.serverRequestMetadata)
+                ),
             ],
             keywords: [.async, .throws],
-            returnType: .tuple([.identifier("HTTPResponse"), .identifier("HTTPBody?")])
+            returnType: .tuple([
+                .identifierType(TypeName.response),
+                .identifierType(TypeName.body.asUsage.asOptional),
+            ])
         )
     }
 
@@ -305,7 +317,9 @@ extension OperationDescription {
             let names: [Expression] =
                 pathParameters
                 .map { param in
-                    .identifier("input.path.\(asSwiftSafeName(param.name))")
+                    .identifierPattern("input")
+                        .dot("path")
+                        .dot(asSwiftSafeName(param.name))
                 }
             let arrayExpr: Expression = .literal(.array(names))
             return (template, arrayExpr)
