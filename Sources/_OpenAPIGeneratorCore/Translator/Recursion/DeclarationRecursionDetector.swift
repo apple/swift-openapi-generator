@@ -12,6 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+/// A set of specialized types for using the recursion detector for
+/// declarations.
 struct DeclarationRecursionDetector {
 
     /// A node for a pair of a Swift type name and a corresponding declaration.
@@ -29,8 +31,15 @@ struct DeclarationRecursionDetector {
         /// The names of nodes pointed to by this node.
         var edges: [NameType]
 
+        /// The declaration represented by this node.
         var decl: Declaration
 
+        /// Creates a new node.
+        /// - Parameters:
+        ///   - name: The name of the node.
+        ///   - isBoxable: Whether the type can be boxed.
+        ///   - edges: The names of nodes pointed to by this node.
+        ///   - decl: The declaration represented by this node.
         private init(name: NameType, isBoxable: Bool, edges: [NameType], decl: Declaration) {
             self.name = name
             self.isBoxable = isBoxable
@@ -38,6 +47,10 @@ struct DeclarationRecursionDetector {
             self.decl = decl
         }
 
+        /// Creates a new node from the provided declaration.
+        ///
+        /// Returns nil when the declaration is missing a name.
+        /// - Parameter decl: A declaration.
         init?(_ decl: Declaration) {
             guard let name = decl.name else {
                 return nil
@@ -52,13 +65,20 @@ struct DeclarationRecursionDetector {
         }
     }
 
+    /// A container for declarations.
     struct Container: TypeNodeContainer {
+
+        /// The type of the node.
         typealias Node = DeclarationRecursionDetector.Node
 
+        /// An error thrown by the container.
         enum ContainerError: Swift.Error {
+
+            /// The node for the provided name was not found.
             case nodeNotFound(Node.NameType)
         }
 
+        /// The lookup map from the name to the node.
         var lookupMap: [String: Node]
 
         func lookup(_ name: String) throws -> DeclarationRecursionDetector.Node {
@@ -70,23 +90,9 @@ struct DeclarationRecursionDetector {
     }
 }
 
-/// Converts the OpenAPI types into wrappers that the recursion detector
-/// can work with.
-/// - Parameters:
-///   - schemas: The root schemas in the OpenAPI document.
-///   - components: The components from the OpenAPI document.
-/// - Returns: The converted root nodes and container.
-//    static func convertedTypes(
-//        schemas: OpenAPI.ComponentDictionary<JSONSchema>,
-//        components: OpenAPI.Components
-//    ) -> ([OpenAPIWrapperNode], OpenAPIWrapperContainer) {
-//        let rootNodes = schemas.map(OpenAPIWrapperNode.init(key:value:))
-//        let container = OpenAPIWrapperContainer(components: components)
-//        return (rootNodes, container)
-//    }
-
 extension Declaration {
 
+    /// A name of the declaration, if it has one.
     var name: String? {
         switch self {
         case .struct(let desc):
@@ -102,6 +108,7 @@ extension Declaration {
         }
     }
 
+    /// A Boolean value representing whether this declaration can be boxed.
     var isBoxable: Bool {
         switch self {
         case .struct, .enum:
@@ -113,7 +120,9 @@ extension Declaration {
         }
     }
 
-    // TODO: Explain (does not follow through arrays/dicts since those break refs)
+    /// An array of names that can be found in `#/components/schemas` in
+    /// the OpenAPI document that represent references that can cause
+    /// a reference cycle.
     var schemaComponentNamesOfUnbreakableReferences: [String] {
         switch self {
         case .struct(let desc):
@@ -164,6 +173,8 @@ extension Declaration {
 }
 
 fileprivate extension Array where Element == String {
+
+    /// The name in the `Components.Schemas.` namespace.
     var nameIfTopLevelSchemaComponent: String? {
         let components = self
         guard
@@ -178,6 +189,8 @@ fileprivate extension Array where Element == String {
 
 extension ExistingTypeDescription {
 
+    /// The name in the `Components.Schemas.` namespace, if the type can appear
+    /// there. Nil otherwise.
     var referencedSchemaComponentName: String? {
         switch self {
         case .member(let components):

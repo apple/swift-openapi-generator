@@ -46,8 +46,10 @@ protocol TypeNodeContainer {
 /// A set of utility functions for recursive type support.
 struct RecursionDetector {
 
+    /// An error thrown by the recursion detector.
     enum RecursionError: Swift.Error, LocalizedError, CustomStringConvertible {
 
+        /// The recursion is not allowed (for example, a ref pointing to itself.)
         case invalidRecursion(String)
 
         var description: String {
