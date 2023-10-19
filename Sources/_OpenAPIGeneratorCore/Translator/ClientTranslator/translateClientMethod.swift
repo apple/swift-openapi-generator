@@ -31,7 +31,7 @@ extension ClientFileTranslator {
             kind: .let,
             left: "path",
             right: .try(
-                .identifier("converter")
+                .identifierPattern("converter")
                     .dot("renderedPath")
                     .call([
                         .init(label: "template", expression: .literal(pathTemplate)),
@@ -42,10 +42,10 @@ extension ClientFileTranslator {
         let requestDecl: Declaration = .variable(
             kind: .var,
             left: "request",
-            type: TypeName.request.fullyQualifiedSwiftName,
+            type: .init(TypeName.request),
             right: .dot("init")
                 .call([
-                    .init(label: "soar_path", expression: .identifier("path")),
+                    .init(label: "soar_path", expression: .identifierPattern("path")),
                     .init(label: "method", expression: .dot(description.httpMethodLowercased)),
                 ])
         )
@@ -74,16 +74,16 @@ extension ClientFileTranslator {
         )
         if !acceptContent.isEmpty {
             let setAcceptHeaderExpr: Expression =
-                .identifier("converter")
+                .identifierPattern("converter")
                 .dot("setAcceptHeader")
                 .call([
                     .init(
                         label: "in",
-                        expression: .inOut(.identifier("request").dot("headerFields"))
+                        expression: .inOut(.identifierPattern("request").dot("headerFields"))
                     ),
                     .init(
                         label: "contentTypes",
-                        expression: .identifier("input").dot("headers").dot("accept")
+                        expression: .identifierPattern("input").dot("headers").dot("accept")
                     ),
                 ])
             requestBlocks.append(.expression(setAcceptHeaderExpr))
@@ -97,11 +97,11 @@ extension ClientFileTranslator {
                     .variable(
                         kind: .let,
                         left: bodyVariableName,
-                        type: TypeName.body.asUsage.asOptional.fullyQualifiedSwiftName
+                        type: .init(TypeName.body.asUsage.asOptional)
                     )
                 )
             )
-            requestBodyReturnExpr = .identifier(bodyVariableName)
+            requestBodyReturnExpr = .identifierPattern(bodyVariableName)
             let requestBodyExpr = try translateRequestBodyInClient(
                 requestBody,
                 requestVariableName: "request",
@@ -115,7 +115,7 @@ extension ClientFileTranslator {
 
         let returnRequestExpr: Expression = .return(
             .tuple([
-                .identifier("request"),
+                .identifierPattern("request"),
                 requestBodyReturnExpr,
             ])
         )
@@ -156,7 +156,10 @@ extension ClientFileTranslator {
             let undocumentedExpr: Expression = .return(
                 .dot(Constants.Operation.Output.undocumentedCaseName)
                     .call([
-                        .init(label: "statusCode", expression: .identifier("response").dot("status").dot("code")),
+                        .init(
+                            label: "statusCode",
+                            expression: .identifierPattern("response").dot("status").dot("code")
+                        ),
                         .init(label: nil, expression: .dot("init").call([])),
                     ])
             )
@@ -170,7 +173,7 @@ extension ClientFileTranslator {
             )
         }
         let switchStatusCodeExpr: Expression = .switch(
-            switchedExpression: .identifier("response").dot("status").dot("code"),
+            switchedExpression: .identifierPattern("response").dot("status").dot("code"),
             cases: cases
         )
         return .closureInvocation(
@@ -192,7 +195,7 @@ extension ClientFileTranslator {
 
         let operationTypeExpr =
             Expression
-            .identifier(Constants.Operations.namespace)
+            .identifierType(.member(Constants.Operations.namespace))
             .dot(description.methodName)
 
         let operationArg = FunctionArgumentDescription(
@@ -201,7 +204,7 @@ extension ClientFileTranslator {
         )
         let inputArg = FunctionArgumentDescription(
             label: "input",
-            expression: .identifier(Constants.Operation.Input.variableName)
+            expression: .identifierPattern(Constants.Operation.Input.variableName)
         )
         let serializerArg = FunctionArgumentDescription(
             label: "serializer",
@@ -215,7 +218,7 @@ extension ClientFileTranslator {
         let sendExpr: Expression = .try(
             .await(
                 .functionCall(
-                    calledExpression: .identifier("client").dot("send"),
+                    calledExpression: .identifierPattern("client").dot("send"),
                     arguments: [
                         inputArg,
                         operationArg,

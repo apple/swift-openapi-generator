@@ -261,8 +261,13 @@ final class Test_TypeMatcher: Test_Core {
     ]
     func testKeyValuePairTypes() {
         for schema in Self.keyValuePairTypes {
+            var referenceStack = ReferenceStack.empty
             XCTAssertTrue(
-                try TypeMatcher.isKeyValuePair(schema, components: components),
+                try TypeMatcher.isKeyValuePair(
+                    schema,
+                    referenceStack: &referenceStack,
+                    components: components
+                ),
                 "Type is expected to be a key-value pair schema: \(schema)"
             )
         }

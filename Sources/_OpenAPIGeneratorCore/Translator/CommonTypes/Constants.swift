@@ -48,9 +48,6 @@ enum Constants {
 
         /// The prefix of each generated method name.
         static let propertyPrefix: String = "server"
-
-        /// The underlying type.
-        static let underlyingType: String = "URL"
     }
 
     /// Constants related to the configuration type, which is used by both
@@ -315,6 +312,12 @@ enum Constants {
 
             /// The name of the namespace.
             static let namespace: String = "Schemas"
+
+            /// The full namespace components.
+            static let components: [String] = [
+                Constants.Components.namespace,
+                Constants.Components.Schemas.namespace,
+            ]
         }
 
         /// Constants related to the Parameters namespace.

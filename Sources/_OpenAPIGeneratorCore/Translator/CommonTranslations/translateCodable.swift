@@ -47,7 +47,7 @@ extension FileTranslator {
                 trailingCodeBlocks: [
                     .expression(
                         .try(
-                            .identifier("decoder")
+                            .identifierPattern("decoder")
                                 .dot("ensureNoAdditionalProperties")
                                 .call([knownKeysFunctionArg])
                         )
@@ -60,9 +60,9 @@ extension FileTranslator {
                 trailingCodeBlocks: [
                     .expression(
                         .assignment(
-                            left: .identifier("additionalProperties"),
+                            left: .identifierPattern("additionalProperties"),
                             right: .try(
-                                .identifier("decoder")
+                                .identifierPattern("decoder")
                                     .dot("decodeAdditionalProperties")
                                     .call([knownKeysFunctionArg])
                             )
@@ -99,12 +99,12 @@ extension FileTranslator {
                 trailingCodeBlocks: [
                     .expression(
                         .try(
-                            .identifier("encoder")
+                            .identifierPattern("encoder")
                                 .dot("encodeAdditionalProperties")
                                 .call([
                                     .init(
                                         label: nil,
-                                        expression: .identifier("additionalProperties")
+                                        expression: .identifierPattern("additionalProperties")
                                     )
                                 ])
                         )
@@ -138,17 +138,15 @@ extension FileTranslator {
         let assignExprs: [Expression] = properties.map { property in
             let typeUsage = property.typeUsage
             return .assignment(
-                left: .identifier(property.swiftSafeName),
+                left: .identifierPattern(property.swiftSafeName),
                 right: .try(
-                    .identifier("container")
+                    .identifierPattern("container")
                         .dot("decode\(typeUsage.isOptional ? "IfPresent" : "")")
                         .call([
                             .init(
                                 label: nil,
                                 expression:
-                                    .identifier(
-                                        typeUsage.fullyQualifiedNonOptionalSwiftName
-                                    )
+                                    .identifierType(typeUsage.withOptional(false))
                                     .dot("self")
                             ),
                             .init(
@@ -186,22 +184,22 @@ extension FileTranslator {
         let containerVarDecl: Declaration = .variable(
             kind: .var,
             left: "container",
-            right: .identifier("encoder").dot("container")
+            right: .identifierPattern("encoder").dot("container")
                 .call([
                     .init(
                         label: "keyedBy",
-                        expression: .identifier("CodingKeys").dot("self")
+                        expression: .identifierType(.member("CodingKeys")).dot("self")
                     )
                 ])
         )
         let encodeExprs: [Expression] = properties.map { property in
             .try(
-                .identifier("container")
+                .identifierPattern("container")
                     .dot("encode\(property.typeUsage.isOptional ? "IfPresent" : "")")
                     .call([
                         .init(
                             label: nil,
-                            expression: .identifier(property.swiftSafeName)
+                            expression: .identifierPattern(property.swiftSafeName)
                         ),
                         .init(
                             label: "forKey",
@@ -236,7 +234,7 @@ extension FileTranslator {
             let decoderExpr: Expression =
                 isKeyValuePair ? .initFromDecoderExpr() : .decodeFromSingleValueContainerExpr()
             return .assignment(
-                left: .identifier(property.swiftSafeName),
+                left: .identifierPattern(property.swiftSafeName),
                 right: .try(decoderExpr)
             )
         }
@@ -251,7 +249,7 @@ extension FileTranslator {
     ) -> Declaration {
         let exprs: [Expression]
         if let firstSingleValue = properties.first(where: { !$0.isKeyValuePair }) {
-            let expr: Expression = .identifier(firstSingleValue.property.swiftSafeName)
+            let expr: Expression = .identifierPattern(firstSingleValue.property.swiftSafeName)
                 .encodeToSingleValueContainerExpr(gracefully: false)
             exprs = [expr]
         } else {
@@ -260,7 +258,7 @@ extension FileTranslator {
                 .filter { $0.isKeyValuePair }
                 .map(\.property.swiftSafeName)
                 .map { name in
-                    .identifier(name).encodeExpr()
+                    .identifierPattern(name).encodeExpr()
                 }
         }
         return encoderFunction(
@@ -280,29 +278,29 @@ extension FileTranslator {
             let decoderExpr: Expression =
                 isKeyValuePair ? .initFromDecoderExpr() : .decodeFromSingleValueContainerExpr()
             return .assignment(
-                left: .identifier(property.swiftSafeName),
+                left: .identifierPattern(property.swiftSafeName),
                 right: .optionalTry(decoderExpr)
             )
         }
         let atLeastOneNotNilCheckExpr: Expression = .try(
-            .identifier("DecodingError")
+            .identifierType(TypeName.decodingError)
                 .dot("verifyAtLeastOneSchemaIsNotNil")
                 .call([
                     .init(
                         label: nil,
                         expression: .literal(
                             .array(
-                                properties.map { .identifier($0.property.swiftSafeName) }
+                                properties.map { .identifierPattern($0.property.swiftSafeName) }
                             )
                         )
                     ),
                     .init(
                         label: "type",
-                        expression: .identifier("Self").dot("self")
+                        expression: .identifierPattern("Self").dot("self")
                     ),
                     .init(
                         label: "codingPath",
-                        expression: .identifier("decoder").dot("codingPath")
+                        expression: .identifierPattern("decoder").dot("codingPath")
                     ),
                 ])
         )
@@ -327,7 +325,7 @@ extension FileTranslator {
             singleValueNames.isEmpty
             ? nil
             : .try(
-                .identifier("encoder")
+                .identifierPattern("encoder")
                     .dot("encodeFirstNonNilValueToSingleValueContainer")
                     .call(
                         [
@@ -335,7 +333,7 @@ extension FileTranslator {
                                 label: nil,
                                 expression: .literal(
                                     .array(
-                                        singleValueNames.map { .identifier($0) }
+                                        singleValueNames.map { .identifierPattern($0) }
                                     )
                                 )
                             )
@@ -348,7 +346,7 @@ extension FileTranslator {
             .filter { $0.isKeyValuePair }
             .map(\.property)
             .map { property in
-                .identifier(property.swiftSafeName)
+                .identifierPattern(property.swiftSafeName)
                     .optionallyChained()
                     .encodeExpr()
             }
@@ -373,7 +371,7 @@ extension FileTranslator {
                     doStatement: [
                         .expression(
                             .assignment(
-                                left: .identifier("self"),
+                                left: .identifierPattern("self"),
                                 right: .dot(caseName)
                                     .call([
                                         .init(
@@ -405,16 +403,16 @@ extension FileTranslator {
     func translateOneOfDecoderThrowOnUnknownExpr() -> Expression {
         .unaryKeyword(
             kind: .throw,
-            expression: .identifier("DecodingError")
+            expression: .identifierType(TypeName.decodingError)
                 .dot("failedToDecodeOneOfSchema")
                 .call([
                     .init(
                         label: "type",
-                        expression: .identifier("Self").dot("self")
+                        expression: .identifierPattern("Self").dot("self")
                     ),
                     .init(
                         label: "codingPath",
-                        expression: .identifier("decoder").dot("codingPath")
+                        expression: .identifierPattern("decoder").dot("codingPath")
                     ),
                 ])
         )
@@ -437,7 +435,7 @@ extension FileTranslator {
                     body: [
                         .expression(
                             .assignment(
-                                left: .identifier("self"),
+                                left: .identifierPattern("self"),
                                 right: .dot(caseName)
                                     .call([
                                         .init(
@@ -464,12 +462,12 @@ extension FileTranslator {
                     kind: .let,
                     left: Constants.OneOf.discriminatorName,
                     right: .try(
-                        .identifier("container")
+                        .identifierPattern("container")
                             .dot("decode")
                             .call([
                                 .init(
                                     label: nil,
-                                    expression: .identifier("String").dot("self")
+                                    expression: .identifierType(TypeName.string).dot("self")
                                 ),
                                 .init(
                                     label: "forKey",
@@ -481,7 +479,7 @@ extension FileTranslator {
             ),
             .expression(
                 .switch(
-                    switchedExpression: .identifier(Constants.OneOf.discriminatorName),
+                    switchedExpression: .identifierPattern(Constants.OneOf.discriminatorName),
                     cases: cases + [
                         .init(
                             kind: .default,
@@ -503,7 +501,7 @@ extension FileTranslator {
         cases: [(name: String, isKeyValuePair: Bool)]
     ) -> Declaration {
         let switchExpr: Expression = .switch(
-            switchedExpression: .identifier("self"),
+            switchedExpression: .identifierPattern("self"),
             cases: cases.map { caseName, isKeyValuePair in
                 let makeEncodeExpr: (Expression, Bool) -> Expression = { expr, isKeyValuePair in
                     if isKeyValuePair {
@@ -517,7 +515,7 @@ extension FileTranslator {
                     body: [
                         .expression(
                             makeEncodeExpr(
-                                .identifier("value"),
+                                .identifierPattern("value"),
                                 isKeyValuePair
                             )
                         )
@@ -544,7 +542,7 @@ fileprivate extension Expression {
                 .call([
                     .init(
                         label: "to",
-                        expression: .identifier("encoder")
+                        expression: .identifierPattern("encoder")
                     )
                 ])
         )
@@ -559,7 +557,7 @@ fileprivate extension Expression {
     /// - Returns: An Expression representing the result of encoding the current expression.
     func encodeToSingleValueContainerExpr(gracefully: Bool) -> Expression {
         .try(
-            .identifier("encoder")
+            .identifierPattern("encoder")
                 .dot("encodeToSingleValueContainer\(gracefully ? "Gracefully" : "")")
                 .call([
                     .init(
@@ -581,7 +579,7 @@ fileprivate extension Expression {
             .call([
                 .init(
                     label: "from",
-                    expression: .identifier("decoder")
+                    expression: .identifierPattern("decoder")
                 )
             ])
     }
@@ -595,7 +593,7 @@ fileprivate extension Expression {
     /// - Returns: An Expression representing the result of calling the decoder initializer
     ///   for non-key-value pair values.
     static func decodeFromSingleValueContainerExpr() -> Expression {
-        .identifier("decoder").dot("decodeFromSingleValueContainer").call([])
+        .identifierPattern("decoder").dot("decodeFromSingleValueContainer").call([])
     }
 }
 
@@ -608,12 +606,12 @@ fileprivate extension Declaration {
             kind: .let,
             left: "container",
             right: .try(
-                .identifier("decoder")
+                .identifierPattern("decoder")
                     .dot("container")
                     .call([
                         .init(
                             label: "keyedBy",
-                            expression: .identifier("CodingKeys").dot("self")
+                            expression: .identifierType(.member("CodingKeys")).dot("self")
                         )
                     ])
             )
@@ -631,7 +629,11 @@ fileprivate extension FileTranslator {
             accessModifier: config.access,
             kind: .function(name: "encode"),
             parameters: [
-                .init(label: "to", name: "encoder", type: "any Encoder")
+                .init(
+                    label: "to",
+                    name: "encoder",
+                    type: .any(.member("Encoder"))
+                )
             ],
             keywords: [
                 .throws
@@ -648,7 +650,11 @@ fileprivate extension FileTranslator {
             accessModifier: config.access,
             kind: .initializer,
             parameters: [
-                .init(label: "from", name: "decoder", type: "any Decoder")
+                .init(
+                    label: "from",
+                    name: "decoder",
+                    type: .any(.member("Decoder"))
+                )
             ],
             keywords: [
                 .throws
@@ -656,5 +662,4 @@ fileprivate extension FileTranslator {
             body: body
         )
     }
-
 }

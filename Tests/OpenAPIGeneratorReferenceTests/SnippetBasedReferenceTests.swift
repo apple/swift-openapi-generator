@@ -411,7 +411,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         value2 = try? .init(from: decoder)
                         value3 = try? decoder.decodeFromSingleValueContainer()
                         value4 = try? decoder.decodeFromSingleValueContainer()
-                        try DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                        try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [value1, value2, value3, value4],
                             type: Self.self,
                             codingPath: decoder.codingPath
@@ -472,12 +472,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public enum CodingKeys: String, CodingKey { case which }
                     public init(from decoder: any Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
-                        let discriminator = try container.decode(String.self, forKey: .which)
+                        let discriminator = try container.decode(Swift.String.self, forKey: .which)
                         switch discriminator {
                         case "A", "#/components/schemas/A": self = .A(try .init(from: decoder))
                         case "B", "#/components/schemas/B": self = .B(try .init(from: decoder))
                         default:
-                            throw DecodingError.failedToDecodeOneOfSchema(
+                            throw Swift.DecodingError.failedToDecodeOneOfSchema(
                                 type: Self.self,
                                 codingPath: decoder.codingPath
                             )
@@ -551,14 +551,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public enum CodingKeys: String, CodingKey { case which }
                     public init(from decoder: any Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
-                        let discriminator = try container.decode(String.self, forKey: .which)
+                        let discriminator = try container.decode(Swift.String.self, forKey: .which)
                         switch discriminator {
                         case "a": self = .a(try .init(from: decoder))
                         case "a2": self = .a2(try .init(from: decoder))
                         case "b": self = .b(try .init(from: decoder))
                         case "C", "#/components/schemas/C": self = .C(try .init(from: decoder))
                         default:
-                            throw DecodingError.failedToDecodeOneOfSchema(
+                            throw Swift.DecodingError.failedToDecodeOneOfSchema(
                                 type: Self.self,
                                 codingPath: decoder.codingPath
                             )
@@ -609,7 +609,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self = .A(try .init(from: decoder))
                             return
                         } catch {}
-                        throw DecodingError.failedToDecodeOneOfSchema(
+                        throw Swift.DecodingError.failedToDecodeOneOfSchema(
                             type: Self.self,
                             codingPath: decoder.codingPath
                         )
@@ -668,7 +668,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 self = .A(try .init(from: decoder))
                                 return
                             } catch {}
-                            throw DecodingError.failedToDecodeOneOfSchema(
+                            throw Swift.DecodingError.failedToDecodeOneOfSchema(
                                 type: Self.self,
                                 codingPath: decoder.codingPath
                             )
@@ -693,7 +693,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(from decoder: any Decoder) throws {
                         value1 = try? .init(from: decoder)
                         value2 = try? .init(from: decoder)
-                        try DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                        try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [value1, value2],
                             type: Self.self,
                             codingPath: decoder.codingPath
@@ -882,7 +882,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(from decoder: any Decoder) throws {
                         value1 = try? decoder.decodeFromSingleValueContainer()
                         value2 = try? decoder.decodeFromSingleValueContainer()
-                        try DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                        try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [value1, value2],
                             type: Self.self,
                             codingPath: decoder.codingPath
@@ -996,6 +996,238 @@ final class SnippetBasedReferenceTests: XCTestCase {
                       self.stuff = stuff
                     }
                     public enum CodingKeys: String, CodingKey { case stuff }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasRecursive_object() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              Node:
+                type: object
+                properties:
+                  parent:
+                    $ref: '#/components/schemas/Node'
+            """,
+            """
+            public enum Schemas {
+                public struct Node: Codable, Hashable, Sendable {
+                    public var parent: Components.Schemas.Node? {
+                        get { storage.value.parent }
+                        _modify { yield &storage.value.parent }
+                    }
+                    public init(parent: Components.Schemas.Node? = nil) { storage = .init(value: .init(parent: parent)) }
+                    public enum CodingKeys: String, CodingKey { case parent }
+                    public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
+                    public func encode(to encoder: any Encoder) throws { try storage.encode(to: encoder) }
+                    private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
+                    private struct Storage: Codable, Hashable, Sendable {
+                        var parent: Components.Schemas.Node?
+                        init(parent: Components.Schemas.Node? = nil) { self.parent = parent }
+                        typealias CodingKeys = Components.Schemas.Node.CodingKeys
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasRecursive_objectNested() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              Node:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  parent:
+                    type: object
+                    properties:
+                      nested:
+                        $ref: '#/components/schemas/Node'
+                    required:
+                      - nested
+                required:
+                  - name
+            """,
+            """
+            public enum Schemas {
+                public struct Node: Codable, Hashable, Sendable {
+                    public var name: Swift.String {
+                        get { storage.value.name }
+                        _modify { yield &storage.value.name }
+                    }
+                    public struct parentPayload: Codable, Hashable, Sendable {
+                        public var nested: Components.Schemas.Node
+                        public init(nested: Components.Schemas.Node) { self.nested = nested }
+                        public enum CodingKeys: String, CodingKey { case nested }
+                    }
+                    public var parent: Components.Schemas.Node.parentPayload? {
+                        get { storage.value.parent }
+                        _modify { yield &storage.value.parent }
+                    }
+                    public init(name: Swift.String, parent: Components.Schemas.Node.parentPayload? = nil) {
+                        storage = .init(value: .init(name: name, parent: parent))
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case name
+                        case parent
+                    }
+                    public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
+                    public func encode(to encoder: any Encoder) throws { try storage.encode(to: encoder) }
+                    private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
+                    private struct Storage: Codable, Hashable, Sendable {
+                        var name: Swift.String
+                        struct parentPayload: Codable, Hashable, Sendable {
+                            public var nested: Components.Schemas.Node
+                            public init(nested: Components.Schemas.Node) { self.nested = nested }
+                            public enum CodingKeys: String, CodingKey { case nested }
+                        }
+                        var parent: Components.Schemas.Node.parentPayload?
+                        init(name: Swift.String, parent: Components.Schemas.Node.parentPayload? = nil) {
+                            self.name = name
+                            self.parent = parent
+                        }
+                        typealias CodingKeys = Components.Schemas.Node.CodingKeys
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasRecursive_allOf() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              Node:
+                allOf:
+                  - type: object
+                    properties:
+                      parent:
+                        $ref: '#/components/schemas/Node'
+            """,
+            """
+            public enum Schemas {
+                public struct Node: Codable, Hashable, Sendable {
+                    public struct Value1Payload: Codable, Hashable, Sendable {
+                        public var parent: Components.Schemas.Node?
+                        public init(parent: Components.Schemas.Node? = nil) { self.parent = parent }
+                        public enum CodingKeys: String, CodingKey { case parent }
+                    }
+                    public var value1: Components.Schemas.Node.Value1Payload {
+                        get { storage.value.value1 }
+                        _modify { yield &storage.value.value1 }
+                    }
+                    public init(value1: Components.Schemas.Node.Value1Payload) { storage = .init(value: .init(value1: value1)) }
+                    public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
+                    public func encode(to encoder: any Encoder) throws { try storage.encode(to: encoder) }
+                    private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
+                    private struct Storage: Codable, Hashable, Sendable {
+                        struct Value1Payload: Codable, Hashable, Sendable {
+                            public var parent: Components.Schemas.Node?
+                            public init(parent: Components.Schemas.Node? = nil) { self.parent = parent }
+                            public enum CodingKeys: String, CodingKey { case parent }
+                        }
+                        var value1: Components.Schemas.Node.Value1Payload
+                        init(value1: Components.Schemas.Node.Value1Payload) { self.value1 = value1 }
+                        init(from decoder: any Decoder) throws { value1 = try .init(from: decoder) }
+                        func encode(to encoder: any Encoder) throws { try value1.encode(to: encoder) }
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasRecursive_anyOf() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              Node:
+                anyOf:
+                  - $ref: '#/components/schemas/Node'
+                  - type: string
+            """,
+            """
+            public enum Schemas {
+                public struct Node: Codable, Hashable, Sendable {
+                    public var value1: Components.Schemas.Node? {
+                        get { storage.value.value1 }
+                        _modify { yield &storage.value.value1 }
+                    }
+                    public var value2: Swift.String? {
+                        get { storage.value.value2 }
+                        _modify { yield &storage.value.value2 }
+                    }
+                    public init(value1: Components.Schemas.Node? = nil, value2: Swift.String? = nil) {
+                        storage = .init(value: .init(value1: value1, value2: value2))
+                    }
+                    public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
+                    public func encode(to encoder: any Encoder) throws { try storage.encode(to: encoder) }
+                    private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
+                    private struct Storage: Codable, Hashable, Sendable {
+                        var value1: Components.Schemas.Node?
+                        var value2: Swift.String?
+                        init(value1: Components.Schemas.Node? = nil, value2: Swift.String? = nil) {
+                            self.value1 = value1
+                            self.value2 = value2
+                        }
+                        init(from decoder: any Decoder) throws {
+                            value1 = try? .init(from: decoder)
+                            value2 = try? decoder.decodeFromSingleValueContainer()
+                            try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                                [value1, value2],
+                                type: Self.self,
+                                codingPath: decoder.codingPath
+                            )
+                        }
+                        func encode(to encoder: any Encoder) throws {
+                            try encoder.encodeFirstNonNilValueToSingleValueContainer([value2])
+                            try value1?.encode(to: encoder)
+                        }
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasRecursive_oneOf() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              Node:
+                oneOf:
+                  - $ref: '#/components/schemas/Node'
+                  - type: string
+            """,
+            """
+            public enum Schemas {
+                @frozen public indirect enum Node: Codable, Hashable, Sendable {
+                    case Node(Components.Schemas.Node)
+                    case case2(Swift.String)
+                    public init(from decoder: any Decoder) throws {
+                        do {
+                            self = .Node(try .init(from: decoder))
+                            return
+                        } catch {}
+                        do {
+                            self = .case2(try decoder.decodeFromSingleValueContainer())
+                            return
+                        } catch {}
+                        throw Swift.DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        switch self {
+                        case let .Node(value): try value.encode(to: encoder)
+                        case let .case2(value): try encoder.encodeToSingleValueContainer(value)
+                        }
+                    }
                 }
             }
             """
@@ -1335,7 +1567,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public func registerHandlers(
                 on transport: any ServerTransport,
-                serverURL: URL = .defaultOpenAPIServerURL,
+                serverURL: Foundation.URL = .defaultOpenAPIServerURL,
                 configuration: Configuration = .init(),
                 middlewares: [any ServerMiddleware] = []
             ) throws {
@@ -1363,7 +1595,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public func registerHandlers(
                 on transport: any ServerTransport,
-                serverURL: URL = .defaultOpenAPIServerURL,
+                serverURL: Foundation.URL = .defaultOpenAPIServerURL,
                 configuration: Configuration = .init(),
                 middlewares: [any ServerMiddleware] = []
             ) throws {

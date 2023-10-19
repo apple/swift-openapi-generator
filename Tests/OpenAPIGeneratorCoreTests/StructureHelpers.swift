@@ -114,13 +114,6 @@ struct UnexpectedDeclError: Error, CustomStringConvertible, LocalizedError {
 }
 
 extension Declaration {
-    var strippingTopComment: Self {
-        guard case let .commentable(_, underlyingDecl) = self else {
-            return self
-        }
-        return underlyingDecl
-    }
-
     var info: DeclInfo {
         switch strippingTopComment {
         case .deprecated:
@@ -182,6 +175,8 @@ extension KeywordKind {
             return "await"
         case .throw:
             return "throw"
+        case .yield:
+            return "yield"
         }
     }
 }
@@ -203,7 +198,14 @@ extension Expression {
         case .literal(let value):
             return .init(name: value.name, kind: .literal)
         case .identifier(let value):
-            return .init(name: value.name, kind: .identifier)
+            let name: String
+            switch value {
+            case .pattern(let pattern):
+                name = pattern
+            case .type(let type):
+                name = TextBasedRenderer().renderedExistingTypeDescription(type)
+            }
+            return .init(name: name, kind: .identifier)
         case .memberAccess(let value):
             return .init(name: value.right, kind: .memberAccess)
         case .functionCall(let value):

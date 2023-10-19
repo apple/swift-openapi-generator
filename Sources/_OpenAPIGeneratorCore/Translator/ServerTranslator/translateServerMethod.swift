@@ -33,7 +33,7 @@ extension ServerFileTranslator {
         ) -> FunctionArgumentDescription {
             .init(
                 label: location.shortVariableName,
-                expression: .identifier(location.shortVariableName)
+                expression: .identifierPattern(location.shortVariableName)
             )
         }
 
@@ -60,7 +60,7 @@ extension ServerFileTranslator {
             let decl: Declaration = .variable(
                 kind: .let,
                 left: variableName,
-                type: type.fullyQualifiedSwiftName,
+                type: .init(type),
                 right: .dot("init").call(arguments)
             )
             let argument = functionArgumentForLocation(location)
@@ -76,12 +76,12 @@ extension ServerFileTranslator {
                 .init(
                     label: Constants.Operation.AcceptableContentType.variableName,
                     expression: .try(
-                        .identifier("converter")
+                        .identifierPattern("converter")
                             .dot("extractAcceptHeaderIfPresent")
                             .call([
                                 .init(
                                     label: "in",
-                                    expression: .identifier("request").dot("headerFields")
+                                    expression: .identifierPattern("request").dot("headerFields")
                                 )
                             ])
                     )
@@ -126,14 +126,14 @@ extension ServerFileTranslator {
                     bodyCodeBlocks,
                     .init(
                         label: "body",
-                        expression: .identifier("body")
+                        expression: .identifierPattern("body")
                     )
                 )
             )
         }
 
         let returnExpr: Expression = .return(
-            .identifier(inputTypeName.fullyQualifiedSwiftName)
+            .identifierType(inputTypeName)
                 .call(inputMembers.map(\.argument))
         )
 
@@ -167,7 +167,7 @@ extension ServerFileTranslator {
                 .tuple([
                     .dot("init")
                         .call([
-                            .init(label: "soar_statusCode", expression: .identifier("statusCode"))
+                            .init(label: "soar_statusCode", expression: .identifierPattern("statusCode"))
                         ]),
                     nil,
                 ])
@@ -188,7 +188,7 @@ extension ServerFileTranslator {
             )
         }
         let switchStatusCodeExpr: Expression = .switch(
-            switchedExpression: .identifier("output"),
+            switchedExpression: .identifierPattern("output"),
             cases: cases
         )
         return .closureInvocation(
@@ -215,7 +215,7 @@ extension ServerFileTranslator {
 
         let operationTypeExpr =
             Expression
-            .identifier(Constants.Operations.namespace)
+            .identifierType(.member(Constants.Operations.namespace))
             .dot(description.methodName)
 
         let operationArg = FunctionArgumentDescription(
@@ -224,25 +224,25 @@ extension ServerFileTranslator {
         )
         let requestArg = FunctionArgumentDescription(
             label: "request",
-            expression: .identifier("request")
+            expression: .identifierPattern("request")
         )
         let requestBodyArg = FunctionArgumentDescription(
             label: "requestBody",
-            expression: .identifier("body")
+            expression: .identifierPattern("body")
         )
         let metadataArg = FunctionArgumentDescription(
             label: "metadata",
-            expression: .identifier("metadata")
+            expression: .identifierPattern("metadata")
         )
         let methodArg = FunctionArgumentDescription(
             label: "using",
             expression: .closureInvocation(
                 body: [
                     .expression(
-                        .identifier(Constants.Server.Universal.apiHandlerName)
+                        .identifierPattern(Constants.Server.Universal.apiHandlerName)
                             .dot(description.methodName)
                             .call([
-                                .init(label: nil, expression: .identifier("$0"))
+                                .init(label: nil, expression: .identifierPattern("$0"))
                             ])
                     )
                 ]
@@ -262,12 +262,12 @@ extension ServerFileTranslator {
                 .expression(
                     .try(
                         .await(
-                            .identifier(serverUrlVariableName)
+                            .identifierPattern(serverUrlVariableName)
                                 .dot(description.methodName)
                                 .call([
-                                    .init(label: "request", expression: .identifier("$0")),
-                                    .init(label: "body", expression: .identifier("$1")),
-                                    .init(label: "metadata", expression: .identifier("$2")),
+                                    .init(label: "request", expression: .identifierPattern("$0")),
+                                    .init(label: "body", expression: .identifierPattern("$1")),
+                                    .init(label: "metadata", expression: .identifierPattern("$2")),
                                 ])
                         )
                     )
@@ -275,13 +275,13 @@ extension ServerFileTranslator {
             ]
         )
         let registerCall: Expression = .try(
-            .identifier("transport").dot("register")
+            .identifierPattern("transport").dot("register")
                 .call([
                     .init(label: nil, expression: wrapperClosureExpr),
                     .init(label: "method", expression: .dot(description.httpMethodLowercased)),
                     .init(
                         label: "path",
-                        expression: .identifier(serverUrlVariableName)
+                        expression: .identifierPattern(serverUrlVariableName)
                             .dot("apiPathComponentsWithServerPrefix")
                             .call([
                                 .init(
@@ -297,7 +297,7 @@ extension ServerFileTranslator {
 
         let handleExpr: Expression = .try(
             .await(
-                .identifier("handle")
+                .identifierPattern("handle")
                     .call([
                         requestArg,
                         requestBodyArg,

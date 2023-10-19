@@ -445,6 +445,63 @@ components:
           type: integer
       required:
         - count
+    RecursivePet:
+      type: object
+      properties:
+        name:
+          type: string
+        parent:
+          $ref: '#/components/schemas/RecursivePet'
+      required:
+        - name
+    RecursivePetNested:
+      type: object
+      properties:
+        name:
+          type: string
+        parent:
+          type: object
+          properties:
+            nested:
+              $ref: '#/components/schemas/RecursivePetNested'
+          required:
+            - nested
+      required:
+        - name
+    RecursivePetOneOfFirst:
+      allOf:
+        - $ref: '#/components/schemas/RecursivePetOneOf'
+        - type: object
+          properties:
+            type:
+              type: string
+          required:
+            - type
+    RecursivePetOneOfSecond:
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          properties:
+            type:
+              type: string
+          required:
+            - type
+    RecursivePetOneOf:
+      oneOf:
+        - $ref: '#/components/schemas/RecursivePetOneOfFirst'
+        - $ref: '#/components/schemas/RecursivePetOneOfSecond'
+      discriminator:
+        propertyName: type
+    RecursivePetAnyOf:
+      anyOf:
+        - $ref: '#/components/schemas/RecursivePetAnyOf'
+        - type: string
+    RecursivePetAllOf:
+      allOf:
+        - type: object
+          properties:
+            parent:
+              $ref: '#/components/schemas/RecursivePetAllOf'
   responses:
     ErrorBadRequest:
       description: Bad request

@@ -25,7 +25,7 @@ public struct Client: APIProtocol {
     ///   - transport: A transport that performs HTTP operations.
     ///   - middlewares: A list of middlewares to call before the transport.
     public init(
-        serverURL: URL,
+        serverURL: Foundation.URL,
         configuration: Configuration = .init(),
         transport: any ClientTransport,
         middlewares: [any ClientMiddleware] = []
@@ -49,7 +49,8 @@ public struct Client: APIProtocol {
         try await client.send(
             input: input,
             forOperation: Operations.listPets.id,
-            serializer: { input in let path = try converter.renderedPath(template: "/pets", parameters: [])
+            serializer: { input in
+                let path = try converter.renderedPath(template: "/pets", parameters: [])
                 var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
                 suppressMutabilityWarning(&request)
                 try converter.setQueryItemAsURI(
@@ -144,7 +145,8 @@ public struct Client: APIProtocol {
         try await client.send(
             input: input,
             forOperation: Operations.createPet.id,
-            serializer: { input in let path = try converter.renderedPath(template: "/pets", parameters: [])
+            serializer: { input in
+                let path = try converter.renderedPath(template: "/pets", parameters: [])
                 var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .post)
                 suppressMutabilityWarning(&request)
                 try converter.setHeaderFieldAsJSON(
@@ -225,7 +227,8 @@ public struct Client: APIProtocol {
         try await client.send(
             input: input,
             forOperation: Operations.createPetWithForm.id,
-            serializer: { input in let path = try converter.renderedPath(template: "/pets/create", parameters: [])
+            serializer: { input in
+                let path = try converter.renderedPath(template: "/pets/create", parameters: [])
                 var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .post)
                 suppressMutabilityWarning(&request)
                 let body: OpenAPIRuntime.HTTPBody?
@@ -253,7 +256,8 @@ public struct Client: APIProtocol {
         try await client.send(
             input: input,
             forOperation: Operations.getStats.id,
-            serializer: { input in let path = try converter.renderedPath(template: "/pets/stats", parameters: [])
+            serializer: { input in
+                let path = try converter.renderedPath(template: "/pets/stats", parameters: [])
                 var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
                 suppressMutabilityWarning(&request)
                 converter.setAcceptHeader(in: &request.headerFields, contentTypes: input.headers.accept)
@@ -302,7 +306,8 @@ public struct Client: APIProtocol {
         try await client.send(
             input: input,
             forOperation: Operations.postStats.id,
-            serializer: { input in let path = try converter.renderedPath(template: "/pets/stats", parameters: [])
+            serializer: { input in
+                let path = try converter.renderedPath(template: "/pets/stats", parameters: [])
                 var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .post)
                 suppressMutabilityWarning(&request)
                 let body: OpenAPIRuntime.HTTPBody?
@@ -342,7 +347,8 @@ public struct Client: APIProtocol {
         try await client.send(
             input: input,
             forOperation: Operations.probe.id,
-            serializer: { input in let path = try converter.renderedPath(template: "/probe/", parameters: [])
+            serializer: { input in
+                let path = try converter.renderedPath(template: "/probe/", parameters: [])
                 var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .post)
                 suppressMutabilityWarning(&request)
                 return (request, nil)

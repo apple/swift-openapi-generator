@@ -20,7 +20,7 @@ extension APIProtocol {
     ///   - middlewares: A list of middlewares to call before the handler.
     public func registerHandlers(
         on transport: any ServerTransport,
-        serverURL: URL = .defaultOpenAPIServerURL,
+        serverURL: Foundation.URL = .defaultOpenAPIServerURL,
         configuration: Configuration = .init(),
         middlewares: [any ServerMiddleware] = []
     ) throws {
@@ -80,9 +80,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
-    func listPets(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody?
-    ) {
+    func listPets(
+        request: HTTPTypes.HTTPRequest,
+        body: OpenAPIRuntime.HTTPBody?,
+        metadata: OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
         try await handle(
             request: request,
             requestBody: body,
@@ -134,7 +136,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .ok(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(soar_statusCode: 200)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 200)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
@@ -146,7 +148,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         name: "My-Tracing-Header",
                         value: value.headers.My_hyphen_Tracing_hyphen_Header
                     )
-                    let body: HTTPBody
+                    let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
@@ -159,9 +161,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     return (response, body)
                 case let .`default`(statusCode, value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(soar_statusCode: statusCode)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: statusCode)
                     suppressMutabilityWarning(&response)
-                    let body: HTTPBody
+                    let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
@@ -180,9 +182,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
-    func createPet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody?
-    ) {
+    func createPet(
+        request: HTTPTypes.HTTPRequest,
+        body: OpenAPIRuntime.HTTPBody?,
+        metadata: OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
         try await handle(
             request: request,
             requestBody: body,
@@ -217,14 +221,14 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .created(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(soar_statusCode: 201)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 201)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsJSON(
                         in: &response.headerFields,
                         name: "X-Extra-Arguments",
                         value: value.headers.X_hyphen_Extra_hyphen_Arguments
                     )
-                    let body: HTTPBody
+                    let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
@@ -237,14 +241,14 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     return (response, body)
                 case let .clientError(statusCode, value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(soar_statusCode: statusCode)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: statusCode)
                     suppressMutabilityWarning(&response)
                     try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
                         name: "X-Reason",
                         value: value.headers.X_hyphen_Reason
                     )
-                    let body: HTTPBody
+                    let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
@@ -264,9 +268,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `POST /pets/create`.
     /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
-    func createPetWithForm(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody?
-    ) {
+    func createPetWithForm(
+        request: HTTPTypes.HTTPRequest,
+        body: OpenAPIRuntime.HTTPBody?,
+        metadata: OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
         try await handle(
             request: request,
             requestBody: body,
@@ -296,7 +302,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .noContent(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(soar_statusCode: 204)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 204)
                     suppressMutabilityWarning(&response)
                     return (response, nil)
                 case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
@@ -306,9 +312,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     }
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
-    func getStats(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody?
-    ) {
+    func getStats(
+        request: HTTPTypes.HTTPRequest,
+        body: OpenAPIRuntime.HTTPBody?,
+        metadata: OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
         try await handle(
             request: request,
             requestBody: body,
@@ -325,9 +333,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .ok(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(soar_statusCode: 200)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 200)
                     suppressMutabilityWarning(&response)
-                    let body: HTTPBody
+                    let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
@@ -359,9 +367,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     }
     /// - Remark: HTTP `POST /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/post(postStats)`.
-    func postStats(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody?
-    ) {
+    func postStats(
+        request: HTTPTypes.HTTPRequest,
+        body: OpenAPIRuntime.HTTPBody?,
+        metadata: OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
         try await handle(
             request: request,
             requestBody: body,
@@ -403,7 +413,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .accepted(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(soar_statusCode: 202)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 202)
                     suppressMutabilityWarning(&response)
                     return (response, nil)
                 case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
@@ -413,9 +423,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    func probe(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody?
-    ) {
+    func probe(
+        request: HTTPTypes.HTTPRequest,
+        body: OpenAPIRuntime.HTTPBody?,
+        metadata: OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
         try await handle(
             request: request,
             requestBody: body,
@@ -427,7 +439,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .noContent(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(soar_statusCode: 204)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 204)
                     suppressMutabilityWarning(&response)
                     return (response, nil)
                 case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
@@ -439,9 +451,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `PATCH /pets/{petId}`.
     /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)`.
-    func updatePet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody?
-    ) {
+    func updatePet(
+        request: HTTPTypes.HTTPRequest,
+        body: OpenAPIRuntime.HTTPBody?,
+        metadata: OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
         try await handle(
             request: request,
             requestBody: body,
@@ -478,14 +492,14 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .noContent(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(soar_statusCode: 204)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 204)
                     suppressMutabilityWarning(&response)
                     return (response, nil)
                 case let .badRequest(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(soar_statusCode: 400)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 400)
                     suppressMutabilityWarning(&response)
-                    let body: HTTPBody
+                    let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
@@ -505,9 +519,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
     ///
     /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
-    func uploadAvatarForPet(request: HTTPRequest, body: HTTPBody?, metadata: ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody?
-    ) {
+    func uploadAvatarForPet(
+        request: HTTPTypes.HTTPRequest,
+        body: OpenAPIRuntime.HTTPBody?,
+        metadata: OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
         try await handle(
             request: request,
             requestBody: body,
@@ -544,9 +560,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch output {
                 case let .ok(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(soar_statusCode: 200)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 200)
                     suppressMutabilityWarning(&response)
-                    let body: HTTPBody
+                    let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .binary(value):
                         try converter.validateAcceptIfPresent("application/octet-stream", in: request.headerFields)
@@ -559,9 +575,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     return (response, body)
                 case let .preconditionFailed(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(soar_statusCode: 412)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 412)
                     suppressMutabilityWarning(&response)
-                    let body: HTTPBody
+                    let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
                         try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
@@ -574,9 +590,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     return (response, body)
                 case let .internalServerError(value):
                     suppressUnusedWarning(value)
-                    var response = HTTPResponse(soar_statusCode: 500)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 500)
                     suppressMutabilityWarning(&response)
-                    let body: HTTPBody
+                    let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .plainText(value):
                         try converter.validateAcceptIfPresent("text/plain", in: request.headerFields)

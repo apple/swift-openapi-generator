@@ -67,7 +67,8 @@ extension FileTranslator {
         _ schema: JSONSchema,
         foundIn: String
     ) throws -> Bool {
-        switch try isSchemaSupported(schema) {
+        var referenceStack = ReferenceStack.empty
+        switch try isSchemaSupported(schema, referenceStack: &referenceStack) {
         case .supported:
             return true
         case .unsupported(reason: let reason, schema: let schema):
@@ -92,7 +93,8 @@ extension FileTranslator {
         _ schema: UnresolvedSchema?,
         foundIn: String
     ) throws -> Bool {
-        switch try isSchemaSupported(schema) {
+        var referenceStack = ReferenceStack.empty
+        switch try isSchemaSupported(schema, referenceStack: &referenceStack) {
         case .supported:
             return true
         case .unsupported(reason: let reason, schema: let schema):
@@ -108,11 +110,14 @@ extension FileTranslator {
     /// Returns whether the schema is supported.
     ///
     /// If a schema is not supported, no references to it should be emitted.
-    /// - Parameter schema: The schema to validate.
+    /// - Parameters:
+    ///   - schema: The schema to validate.
+    ///   - referenceStack: A stack of reference names that lead to this schema.
     /// - Returns: An `IsSchemaSupportedResult` indicating whether the schema is supported or unsupported.
     /// - Throws: An error if there's an issue during the validation process.
     func isSchemaSupported(
-        _ schema: JSONSchema
+        _ schema: JSONSchema,
+        referenceStack: inout ReferenceStack
     ) throws -> IsSchemaSupportedResult {
         switch schema.value {
         case .string,
@@ -127,16 +132,30 @@ extension FileTranslator {
             .fragment:
             return .supported
         case .reference(let ref, _):
+            if try referenceStack.contains(ref) {
+                // Encountered a cycle, but that's okay - return supported.
+                return .supported
+            }
             // reference is supported iff the existing type is supported
             let existingSchema = try components.lookup(ref)
-            return try isSchemaSupported(existingSchema)
+            try referenceStack.push(ref)
+            defer {
+                referenceStack.pop()
+            }
+            return try isSchemaSupported(
+                existingSchema,
+                referenceStack: &referenceStack
+            )
         case .array(_, let array):
             guard let items = array.items else {
                 // an array of fragments is supported
                 return .supported
             }
             // an array is supported iff its element schema is supported
-            return try isSchemaSupported(items)
+            return try isSchemaSupported(
+                items,
+                referenceStack: &referenceStack
+            )
         case .all(of: let schemas, _):
             guard !schemas.isEmpty else {
                 return .unsupported(
@@ -144,7 +163,10 @@ extension FileTranslator {
                     schema: schema
                 )
             }
-            return try areSchemasSupported(schemas)
+            return try areSchemasSupported(
+                schemas,
+                referenceStack: &referenceStack
+            )
         case .any(of: let schemas, _):
             guard !schemas.isEmpty else {
                 return .unsupported(
@@ -152,7 +174,10 @@ extension FileTranslator {
                     schema: schema
                 )
             }
-            return try areSchemasSupported(schemas)
+            return try areSchemasSupported(
+                schemas,
+                referenceStack: &referenceStack
+            )
         case .one(of: let schemas, let context):
             guard !schemas.isEmpty else {
                 return .unsupported(
@@ -161,11 +186,17 @@ extension FileTranslator {
                 )
             }
             guard context.discriminator != nil else {
-                return try areSchemasSupported(schemas)
+                return try areSchemasSupported(
+                    schemas,
+                    referenceStack: &referenceStack
+                )
             }
             // > When using the discriminator, inline schemas will not be considered.
             // > — https://spec.openapis.org/oas/v3.0.3#discriminator-object
-            return try areRefsToObjectishSchemaAndSupported(schemas.filter(\.isReference))
+            return try areRefsToObjectishSchemaAndSupported(
+                schemas.filter(\.isReference),
+                referenceStack: &referenceStack
+            )
         case .not, .null:
             return .unsupported(
                 reason: .schemaType,
@@ -177,11 +208,14 @@ extension FileTranslator {
     /// Returns a result indicating whether the schema is supported.
     ///
     /// If a schema is not supported, no references to it should be emitted.
-    /// - Parameter schema: The schema to validate.
+    /// - Parameters:
+    ///   - schema: The schema to validate.
+    ///   - referenceStack: A stack of reference names that lead to this schema.
     /// - Returns: An `IsSchemaSupportedResult` indicating whether the schema is supported or unsupported.
     /// - Throws: An error if there's an issue during the validation process.
     func isSchemaSupported(
-        _ schema: UnresolvedSchema?
+        _ schema: UnresolvedSchema?,
+        referenceStack: inout ReferenceStack
     ) throws -> IsSchemaSupportedResult {
         guard let schema else {
             // fragment type is supported
@@ -192,18 +226,28 @@ extension FileTranslator {
             // references are supported
             return .supported
         case let .b(schema):
-            return try isSchemaSupported(schema)
+            return try isSchemaSupported(schema, referenceStack: &referenceStack)
         }
     }
 
     /// Returns a result indicating whether the provided schemas
     /// are supported.
-    /// - Parameter schemas: Schemas to check.
-    /// - Returns: An `IsSchemaSupportedResult` indicating whether all schemas are supported or if there's an unsupported schema.
+    /// - Parameters:
+    ///   - schemas: Schemas to check.
+    ///   - referenceStack: A stack of reference names that lead to these
+    ///     schemas.
+    /// - Returns: An `IsSchemaSupportedResult` indicating whether all schemas
+    ///   are supported or if there's an unsupported schema.
     /// - Throws: An error if there's an issue during the validation process.
-    func areSchemasSupported(_ schemas: [JSONSchema]) throws -> IsSchemaSupportedResult {
+    func areSchemasSupported(
+        _ schemas: [JSONSchema],
+        referenceStack: inout ReferenceStack
+    ) throws -> IsSchemaSupportedResult {
         for schema in schemas {
-            let result = try isSchemaSupported(schema)
+            let result = try isSchemaSupported(
+                schema,
+                referenceStack: &referenceStack
+            )
             guard result == .supported else {
                 return result
             }
@@ -213,17 +257,32 @@ extension FileTranslator {
 
     /// Returns a result indicating whether the provided schema
     /// is an reference, object, or allOf (object-ish) schema and is supported.
-    /// - Parameter schema: A schemas to check.
-    /// - Returns: An `IsSchemaSupportedResult` indicating whether the schema is supported or not.
+    /// - Parameters:
+    ///   - schema: A schemas to check.
+    ///   - referenceStack: A stack of reference names that lead to this schema.
+    /// - Returns: An `IsSchemaSupportedResult` indicating whether the schema is
+    ///   supported or not.
     /// - Throws: An error if there's an issue during the validation process.
-    func isObjectishSchemaAndSupported(_ schema: JSONSchema) throws -> IsSchemaSupportedResult {
+    func isObjectishSchemaAndSupported(
+        _ schema: JSONSchema,
+        referenceStack: inout ReferenceStack
+    ) throws -> IsSchemaSupportedResult {
         switch schema.value {
         case .object:
-            return try isSchemaSupported(schema)
+            return try isSchemaSupported(
+                schema,
+                referenceStack: &referenceStack
+            )
         case .reference:
-            return try isRefToObjectishSchemaAndSupported(schema)
+            return try isRefToObjectishSchemaAndSupported(
+                schema,
+                referenceStack: &referenceStack
+            )
         case .all(of: let schemas, _), .any(of: let schemas, _), .one(of: let schemas, _):
-            return try areObjectishSchemasAndSupported(schemas)
+            return try areObjectishSchemasAndSupported(
+                schemas,
+                referenceStack: &referenceStack
+            )
         default:
             return .unsupported(
                 reason: .notObjectish,
@@ -234,12 +293,21 @@ extension FileTranslator {
 
     /// Returns a result indicating whether the provided schemas
     /// are object-ish schemas and supported.
-    /// - Parameter schemas: Schemas to check.
+    /// - Parameters:
+    ///   - schemas: Schemas to check.
+    ///   - referenceStack: A stack of reference names that lead to these
+    ///     schemas.
     /// - Throws: An error if there's an issue while checking the schemas.
     /// - Returns: `.supported` if all schemas match; `.unsupported` otherwise.
-    func areObjectishSchemasAndSupported(_ schemas: [JSONSchema]) throws -> IsSchemaSupportedResult {
+    func areObjectishSchemasAndSupported(
+        _ schemas: [JSONSchema],
+        referenceStack: inout ReferenceStack
+    ) throws -> IsSchemaSupportedResult {
         for schema in schemas {
-            let result = try isObjectishSchemaAndSupported(schema)
+            let result = try isObjectishSchemaAndSupported(
+                schema,
+                referenceStack: &referenceStack
+            )
             guard result == .supported else {
                 return result
             }
@@ -249,12 +317,20 @@ extension FileTranslator {
 
     /// Returns a result indicating whether the provided schemas
     /// are reference schemas that point to object-ish schemas and supported.
-    /// - Parameter schemas: Schemas to check.
+    /// - Parameters:
+    ///   - schemas: Schemas to check.
+    ///   - referenceStack: A stack of reference names that lead to this schema.
     /// - Returns: `.supported` if all schemas match; `.unsupported` otherwise.
     /// - Throws: An error if there's an issue during the validation process.
-    func areRefsToObjectishSchemaAndSupported(_ schemas: [JSONSchema]) throws -> IsSchemaSupportedResult {
+    func areRefsToObjectishSchemaAndSupported(
+        _ schemas: [JSONSchema],
+        referenceStack: inout ReferenceStack
+    ) throws -> IsSchemaSupportedResult {
         for schema in schemas {
-            let result = try isRefToObjectishSchemaAndSupported(schema)
+            let result = try isRefToObjectishSchemaAndSupported(
+                schema,
+                referenceStack: &referenceStack
+            )
             guard result == .supported else {
                 return result
             }
@@ -262,16 +338,34 @@ extension FileTranslator {
         return .supported
     }
 
-    /// Returns a result indicating whether the provided schema
-    /// is a reference schema that points to an object-ish schema and is supported.
-    /// - Parameter schema: A schema to check.
-    /// - Returns: An `IsSchemaSupportedResult` indicating whether the schema is supported or not.
+    /// Returns a result indicating whether the provided schema is a reference
+    /// schema that points to an object-ish schema and is supported.
+    /// - Parameters:
+    ///   - schema: A schema to check.
+    ///   - referenceStack: A stack of reference names that lead to this schema.
+    /// - Returns: An `IsSchemaSupportedResult` indicating whether the schema is
+    ///   supported or not.
     /// - Throws: An error if there's an issue during the validation process.
-    func isRefToObjectishSchemaAndSupported(_ schema: JSONSchema) throws -> IsSchemaSupportedResult {
+    func isRefToObjectishSchemaAndSupported(
+        _ schema: JSONSchema,
+        referenceStack: inout ReferenceStack
+    ) throws -> IsSchemaSupportedResult {
         switch schema.value {
         case let .reference(ref, _):
+            if try referenceStack.contains(ref) {
+                // Encountered a cycle, but that's okay - return supported.
+                return .supported
+            }
+            // reference is supported iff the existing type is supported
             let referencedSchema = try components.lookup(ref)
-            return try isObjectishSchemaAndSupported(referencedSchema)
+            try referenceStack.push(ref)
+            defer {
+                referenceStack.pop()
+            }
+            return try isObjectishSchemaAndSupported(
+                referencedSchema,
+                referenceStack: &referenceStack
+            )
         default:
             return .unsupported(
                 reason: .notRef,

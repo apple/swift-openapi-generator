@@ -55,13 +55,13 @@ let package = Package(
         // Generate Swift code
         .package(
             url: "https://github.com/apple/swift-syntax.git",
-            from: "508.0.1"
+            "508.0.1"..<"510.0.0"
         ),
 
         // Format Swift code
         .package(
             url: "https://github.com/apple/swift-format.git",
-            from: "508.0.1"
+            "508.0.1"..<"510.0.0"
         ),
 
         // General algorithms
@@ -89,7 +89,7 @@ let package = Package(
         // Tests-only: Runtime library linked by generated code, and also
         // helps keep the runtime library new enough to work with the generated
         // code.
-        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.3.2")),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.3.3")),
 
         // Build and preview docs
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),

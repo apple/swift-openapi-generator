@@ -12,7 +12,9 @@ services:
     image: *image
     environment:
       - WARN_AS_ERROR_ARG=-Xswiftc -warnings-as-errors
-      - IMPORT_CHECK_ARG=--explicit-target-dependency-import-check error
+      # SwiftSyntax currently imports a module it does not explicitly depend
+      # on and so we must disable this for the time being.
+      # - IMPORT_CHECK_ARG=--explicit-target-dependency-import-check error
       - STRICT_CONCURRENCY_ARG=-Xswiftc -strict-concurrency=complete
 
   shell:

@@ -44,29 +44,5 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [
             ]
         )
     }
-
-    // Validate that the document is dereferenceable, which
-    // catches reference cycles, which we don't yet support.
-    _ = try doc.locallyDereferenced()
-
-    // Also explicitly dereference the parts of components
-    // that the generator uses. `locallyDereferenced()` above
-    // only dereferences paths/operations, but not components.
-    let components = doc.components
-    try components.schemas.forEach { schema in
-        _ = try schema.value.dereferenced(in: components)
-    }
-    try components.parameters.forEach { schema in
-        _ = try schema.value.dereferenced(in: components)
-    }
-    try components.headers.forEach { schema in
-        _ = try schema.value.dereferenced(in: components)
-    }
-    try components.requestBodies.forEach { schema in
-        _ = try schema.value.dereferenced(in: components)
-    }
-    try components.responses.forEach { schema in
-        _ = try schema.value.dereferenced(in: components)
-    }
     return diagnostics
 }

@@ -91,7 +91,7 @@ extension FileTranslator {
                 (
                     ParameterDescription(
                         label: property.swiftSafeName,
-                        type: property.renderedFullyQualifiedSwiftName,
+                        type: .init(property.typeUsage),
                         defaultValue: property.defaultValue?.asExpression
                     ),
                     property.swiftSafeName
@@ -104,9 +104,9 @@ extension FileTranslator {
                 .expression(
                     .assignment(
                         Expression
-                            .identifier("self")
+                            .identifierPattern("self")
                             .dot(variableName)
-                            .equals(.identifier(variableName))
+                            .equals(.identifierPattern(variableName))
                     )
                 )
             }
@@ -132,7 +132,6 @@ extension FileTranslator {
     func translatePropertyBlueprint(
         _ property: PropertyBlueprint
     ) -> [Declaration] {
-        let propertyTypeName = property.renderedFullyQualifiedSwiftName
         let propertyDecl: Declaration = .commentable(
             property.comment,
             .variable(
@@ -140,7 +139,7 @@ extension FileTranslator {
                     accessModifier: config.access,
                     kind: .var,
                     left: property.swiftSafeName,
-                    type: propertyTypeName
+                    type: .init(property.typeUsage)
                 )
             )
             .deprecate(if: property.isDeprecated)

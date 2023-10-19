@@ -193,11 +193,13 @@ struct TypeMatcher {
     ///
     /// - Parameters:
     ///   - schema: The schema to check.
+    ///   - referenceStack: A stack of reference names that lead to this schema.
     ///   - components: The reusable components from the OpenAPI document.
     /// - Throws: An error if there's an issue while checking the schema.
     /// - Returns: `true` if the schema is a key-value pair; `false` otherwise.
     static func isKeyValuePair(
         _ schema: JSONSchema,
+        referenceStack: inout ReferenceStack,
         components: OpenAPI.Components
     ) throws -> Bool {
         switch schema.value {
@@ -208,14 +210,40 @@ struct TypeMatcher {
         case .all(let subschemas, _):
             // An allOf is a key-value pair schema iff all of its subschemas
             // also are.
-            return try subschemas.allSatisfy { try isKeyValuePair($0, components: components) }
+            return try subschemas.allSatisfy {
+                try isKeyValuePair(
+                    $0,
+                    referenceStack: &referenceStack,
+                    components: components
+                )
+            }
         case .one(let subschemas, _), .any(let subschemas, _):
             // A oneOf/anyOf is a key-value pair schema if at least one
             // subschema is as well, unfortunately the rest is only known
             // at runtime, so we can't validate beyond that here.
-            return try subschemas.contains { try isKeyValuePair($0, components: components) }
+            return try subschemas.contains {
+                try isKeyValuePair(
+                    $0,
+                    referenceStack: &referenceStack,
+                    components: components
+                )
+            }
         case .reference(let ref, _):
-            return try isKeyValuePair(components.lookup(ref), components: components)
+            if try referenceStack.contains(ref) {
+                // Encountered a cycle, but that's okay - return true as
+                // only key-value pair schemas can be valid recursive types.
+                return true
+            }
+            let targetSchema = try components.lookup(ref)
+            try referenceStack.push(ref)
+            defer {
+                referenceStack.pop()
+            }
+            return try isKeyValuePair(
+                targetSchema,
+                referenceStack: &referenceStack,
+                components: components
+            )
         }
     }
 
@@ -229,11 +257,13 @@ struct TypeMatcher {
     ///
     /// - Parameters:
     ///   - schema: The schema to check.
+    ///   - referenceStack: A stack of reference names that lead to this schema.
     ///   - components: The reusable components from the OpenAPI document.
     /// - Throws: An error if there's an issue while checking the schema.
     /// - Returns: `true` if the schema is a key-value pair; `false` otherwise.
     static func isKeyValuePair(
         _ schema: UnresolvedSchema?,
+        referenceStack: inout ReferenceStack,
         components: OpenAPI.Components
     ) throws -> Bool {
         guard let schema else {
@@ -247,7 +277,11 @@ struct TypeMatcher {
         case let .b(schema):
             schemaToCheck = schema
         }
-        return try isKeyValuePair(schemaToCheck, components: components)
+        return try isKeyValuePair(
+            schemaToCheck,
+            referenceStack: &referenceStack,
+            components: components
+        )
     }
 
     /// Returns a Boolean value indicating whether the schema is optional.

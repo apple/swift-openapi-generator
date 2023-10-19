@@ -118,7 +118,12 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders the specified identifier.
     func renderedIdentifier(_ identifier: IdentifierDescription) -> String {
-        return identifier.name
+        switch identifier {
+        case .pattern(let string):
+            return string
+        case .type(let existingTypeDescription):
+            return renderedExistingTypeDescription(existingTypeDescription)
+        }
     }
 
     /// Renders the specified member access expression.
@@ -136,8 +141,15 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified function call.
     func renderedFunctionCall(_ functionCall: FunctionCallDescription) -> String {
         let arguments = functionCall.arguments
+        let trailingClosureString: String
+        if let trailingClosure = functionCall.trailingClosure {
+            trailingClosureString = renderedClosureInvocation(trailingClosure)
+        } else {
+            trailingClosureString = ""
+        }
         return
             "\(renderedExpression(functionCall.calledExpression))(\(arguments.map(renderedFunctionCallArgument).joined(separator: ", ")))"
+            + trailingClosureString
     }
 
     /// Renders the specified assignment expression.
@@ -233,6 +245,8 @@ struct TextBasedRenderer: RendererProtocol {
             return "await"
         case .throw:
             return "throw"
+        case .yield:
+            return "yield"
         }
     }
 
@@ -382,6 +396,24 @@ struct TextBasedRenderer: RendererProtocol {
         return lines.joinedLines()
     }
 
+    /// Renders the specified type reference to an existing type.
+    func renderedExistingTypeDescription(_ type: ExistingTypeDescription) -> String {
+        switch type {
+        case .any(let existingTypeDescription):
+            return "any \(renderedExistingTypeDescription(existingTypeDescription))"
+        case .generic(let wrapper, let wrapped):
+            return "\(renderedExistingTypeDescription(wrapper))<\(renderedExistingTypeDescription(wrapped))>"
+        case .optional(let existingTypeDescription):
+            return "\(renderedExistingTypeDescription(existingTypeDescription))?"
+        case .member(let components):
+            return components.joined(separator: ".")
+        case .array(let existingTypeDescription):
+            return "[\(renderedExistingTypeDescription(existingTypeDescription))]"
+        case .dictionaryValue(let existingTypeDescription):
+            return "[String: \(renderedExistingTypeDescription(existingTypeDescription))]"
+        }
+    }
+
     /// Renders the specified typealias declaration.
     func renderedTypealias(_ alias: TypealiasDescription) -> String {
         var words: [String] = []
@@ -392,7 +424,7 @@ struct TextBasedRenderer: RendererProtocol {
             "typealias",
             alias.name,
             "=",
-            alias.existingType,
+            renderedExistingTypeDescription(alias.existingType),
         ])
         return words.joinedWords()
     }
@@ -419,7 +451,7 @@ struct TextBasedRenderer: RendererProtocol {
         words.append(renderedBindingKind(variable.kind))
         let labelWithOptionalType: String
         if let type = variable.type {
-            labelWithOptionalType = "\(variable.left): \(type)"
+            labelWithOptionalType = "\(variable.left): \(renderedExistingTypeDescription(type))"
         } else {
             labelWithOptionalType = variable.left
         }
@@ -432,11 +464,22 @@ struct TextBasedRenderer: RendererProtocol {
         var lines: [String] = [words.joinedWords()]
         if let body = variable.getter {
             lines.append("{")
-            if !variable.getterEffects.isEmpty {
+            let hasExplicitGetter = !variable.getterEffects.isEmpty || variable.setter != nil || variable.modify != nil
+            if hasExplicitGetter {
                 lines.append("get \(variable.getterEffects.map(renderedFunctionKeyword).joined(separator: " ")) {")
             }
             lines.append(renderedCodeBlocks(body))
-            if !variable.getterEffects.isEmpty {
+            if hasExplicitGetter {
+                lines.append("}")
+            }
+            if let modify = variable.modify {
+                lines.append("_modify {")
+                lines.append(renderedCodeBlocks(modify))
+                lines.append("}")
+            }
+            if let setter = variable.setter {
+                lines.append("set {")
+                lines.append(renderedCodeBlocks(setter))
                 lines.append("}")
             }
             lines.append("}")
@@ -505,6 +548,9 @@ struct TextBasedRenderer: RendererProtocol {
         if let accessModifier = enumDesc.accessModifier {
             words.append(renderedAccessModifier(accessModifier))
         }
+        if enumDesc.isIndirect {
+            words.append("indirect")
+        }
         words.append("enum")
         words.append(enumDesc.name)
         if !enumDesc.conformances.isEmpty {
@@ -532,7 +578,7 @@ struct TextBasedRenderer: RendererProtocol {
             words.append(label)
             words.append(":")
         }
-        words.append(value.type)
+        words.append(renderedExistingTypeDescription(value.type))
         return words.joinedWords()
     }
 
@@ -663,7 +709,7 @@ struct TextBasedRenderer: RendererProtocol {
             }
         }
         words.append(":")
-        words.append(parameterDescription.type)
+        words.append(renderedExistingTypeDescription(parameterDescription.type))
         if let defaultValue = parameterDescription.defaultValue {
             words.append("=")
             words.append(renderedExpression(defaultValue))

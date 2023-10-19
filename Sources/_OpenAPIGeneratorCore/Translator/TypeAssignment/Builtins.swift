@@ -56,6 +56,16 @@ extension TypeName {
         TypeName(swiftKeyPath: ["HTTPTypes", name])
     }
 
+    /// Returns the type name for the URL type.
+    static var url: Self {
+        .foundation("URL")
+    }
+
+    /// Returns the type name for the DecodingError type.
+    static var decodingError: Self {
+        .swift("DecodingError")
+    }
+
     /// Returns the type name for the UndocumentedPayload type.
     static var undocumentedPayload: Self {
         .runtime(Constants.Operation.Output.undocumentedCaseAssociatedValueTypeName)
@@ -81,8 +91,23 @@ extension TypeName {
         .httpTypes("HTTPRequest")
     }
 
+    /// Returns the type name for the response type.
+    static var response: TypeName {
+        .httpTypes("HTTPResponse")
+    }
+
     /// Returns the type name for the body type.
     static var body: TypeName {
         .runtime("HTTPBody")
+    }
+
+    /// Returns the type name for the server request metadata type.
+    static var serverRequestMetadata: TypeName {
+        .runtime("ServerRequestMetadata")
+    }
+
+    /// Returns the type name for the copy-on-write box type.
+    static var box: TypeName {
+        .runtime("CopyOnWriteBox")
     }
 }
