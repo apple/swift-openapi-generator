@@ -119,7 +119,7 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified identifier.
     func renderedIdentifier(_ identifier: IdentifierDescription) -> String {
         switch identifier {
-        case .variable(let string):
+        case .pattern(let string):
             return string
         case .type(let existingTypeDescription):
             return renderedExistingTypeDescription(existingTypeDescription)

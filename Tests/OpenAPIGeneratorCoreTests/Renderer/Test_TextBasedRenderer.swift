@@ -547,7 +547,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testIdentifiers() throws {
         try _test(
-            .variable("foo"),
+            .pattern("foo"),
             renderedBy: renderer.renderedIdentifier,
             rendersAs:
                 #"""

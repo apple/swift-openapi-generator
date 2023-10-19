@@ -200,8 +200,8 @@ extension Expression {
         case .identifier(let value):
             let name: String
             switch value {
-            case .variable(let variable):
-                name = variable
+            case .pattern(let pattern):
+                name = pattern
             case .type(let type):
                 name = TextBasedRenderer().renderedExistingTypeDescription(type)
             }

@@ -121,10 +121,10 @@ enum LiteralDescription: Equatable, Codable {
 /// For example, in `let foo = 42`, `foo` is an identifier.
 enum IdentifierDescription: Equatable, Codable {
 
-    /// A variable identifier.
+    /// A pattern identifier.
     ///
     /// For example, `foo` in `let foo = 42`.
-    case variable(String)
+    case pattern(String)
 
     /// A type identifier.
     ///
@@ -1355,7 +1355,7 @@ extension Expression {
     /// - Returns: A new expression representing an identifier with
     ///   the specified name.
     static func identifierPattern(_ name: String) -> Self {
-        .identifier(.variable(name))
+        .identifier(.pattern(name))
     }
 
     /// Returns a new identifier expression for the provided type name.
