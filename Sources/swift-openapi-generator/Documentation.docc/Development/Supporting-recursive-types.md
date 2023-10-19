@@ -86,8 +86,8 @@ Would look like this when boxed:
 ```swift
 public struct Person {
     public var partner: Person? {
-        set { CopyOnWriteBox.write(to: &storage) { $0.partner = newValue }}
-        get { storage.read().partner }
+        get { storage.value.partner }
+        _modify { yield &storage.value.partner }
     }
     public init(partner: Person? = nil) {
         self.storage = .init(Storage(partner: partner))
