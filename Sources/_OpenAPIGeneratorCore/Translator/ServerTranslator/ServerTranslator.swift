@@ -109,13 +109,27 @@ struct ServerFileTranslator: FileTranslator {
             let registerHandlerServerVarDecl: Declaration = .variable(
                 kind: .let,
                 left: "server",
-                right: .identifier(Constants.Server.Universal.typeName)
-                    .call([
-                        .init(label: "serverURL", expression: .identifier("serverURL")),
-                        .init(label: "handler", expression: .identifier("self")),
-                        .init(label: "configuration", expression: .identifier("configuration")),
-                        .init(label: "middlewares", expression: .identifier("middlewares")),
-                    ])
+                right: .identifierType(.member(Constants.Server.Universal.typeName))
+                    .call(
+                        [
+                            .init(
+                                label: "serverURL",
+                                expression: .identifierPattern("serverURL")
+                            ),
+                            .init(
+                                label: "handler",
+                                expression: .identifierPattern("self")
+                            ),
+                            .init(
+                                label: "configuration",
+                                expression: .identifierPattern("configuration")
+                            ),
+                            .init(
+                                label: "middlewares",
+                                expression: .identifierPattern("middlewares")
+                            ),
+                        ]
+                    )
             )
 
             registerHandlersDeclBody.append(.declaration(registerHandlerServerVarDecl))
@@ -141,21 +155,21 @@ struct ServerFileTranslator: FileTranslator {
                     .init(
                         label: "on",
                         name: "transport",
-                        type: Constants.Server.Transport.typeName
+                        type: .member(Constants.Server.Transport.typeName)
                     ),
                     .init(
                         label: "serverURL",
-                        type: "\(Constants.ServerURL.underlyingType)",
+                        type: .init(TypeName.url),
                         defaultValue: .dot("defaultOpenAPIServerURL")
                     ),
                     .init(
                         label: "configuration",
-                        type: Constants.Configuration.typeName,
+                        type: .member(Constants.Configuration.typeName),
                         defaultValue: .dot("init").call([])
                     ),
                     .init(
                         label: "middlewares",
-                        type: "[\(Constants.Server.Middleware.typeName)]",
+                        type: .array(.member(Constants.Server.Middleware.typeName)),
                         defaultValue: .literal(.array([]))
                     ),
                 ],

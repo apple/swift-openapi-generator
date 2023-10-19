@@ -101,7 +101,7 @@ extension TypesFileTranslator {
                     .enumCase(
                         name: identifier,
                         kind: .nameWithAssociatedValues([
-                            .init(type: associatedType.fullyQualifiedSwiftName)
+                            .init(type: .init(associatedType))
                         ])
                     )
                 )
@@ -109,8 +109,8 @@ extension TypesFileTranslator {
 
                 var throwingGetterSwitchCases = [
                     SwitchCaseDescription(
-                        kind: .case(.identifier(".\(identifier)"), ["body"]),
-                        body: [.expression(.return(.identifier("body")))]
+                        kind: .case(.dot(identifier), ["body"]),
+                        body: [.expression(.return(.identifierPattern("body")))]
                     )
                 ]
                 // We only generate the default branch if there is more than one case to prevent
@@ -122,13 +122,13 @@ extension TypesFileTranslator {
                             body: [
                                 .expression(
                                     .try(
-                                        .identifier("throwUnexpectedResponseBody")
+                                        .identifierPattern("throwUnexpectedResponseBody")
                                             .call([
                                                 .init(
                                                     label: "expectedContent",
                                                     expression: .literal(.string(contentType.headerValueForValidation))
                                                 ),
-                                                .init(label: "body", expression: .identifier("self")),
+                                                .init(label: "body", expression: .identifierPattern("self")),
                                             ])
                                     )
                                 )
@@ -141,11 +141,11 @@ extension TypesFileTranslator {
                     isStatic: false,
                     kind: .var,
                     left: identifier,
-                    type: associatedType.fullyQualifiedSwiftName,
+                    type: .init(associatedType),
                     getter: [
                         .expression(
                             .switch(
-                                switchedExpression: .identifier("self"),
+                                switchedExpression: .identifierPattern("self"),
                                 cases: throwingGetterSwitchCases
                             )
                         )

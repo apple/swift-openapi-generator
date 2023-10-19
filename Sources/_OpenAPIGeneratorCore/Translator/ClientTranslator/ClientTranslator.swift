@@ -56,7 +56,7 @@ struct ClientFileTranslator: FileTranslator {
                 accessModifier: .private,
                 kind: .let,
                 left: Constants.Client.Universal.propertyName,
-                type: Constants.Client.Universal.typeName
+                type: .member(Constants.Client.Universal.typeName)
             )
         )
 
@@ -77,43 +77,46 @@ struct ClientFileTranslator: FileTranslator {
                 accessModifier: config.access,
                 kind: .initializer,
                 parameters: [
-                    .init(label: "serverURL", type: Constants.ServerURL.underlyingType),
+                    .init(
+                        label: "serverURL",
+                        type: .init(TypeName.url)
+                    ),
                     .init(
                         label: "configuration",
-                        type: Constants.Configuration.typeName,
+                        type: .member(Constants.Configuration.typeName),
                         defaultValue: .dot("init").call([])
                     ),
                     .init(
                         label: "transport",
-                        type: Constants.Client.Transport.typeName
+                        type: .member(Constants.Client.Transport.typeName)
                     ),
                     .init(
                         label: "middlewares",
-                        type: "[\(Constants.Client.Middleware.typeName)]",
+                        type: .array(.member(Constants.Client.Middleware.typeName)),
                         defaultValue: .literal(.array([]))
                     ),
                 ],
                 body: [
                     .expression(
                         .assignment(
-                            left: .identifier("self").dot(Constants.Client.Universal.propertyName),
+                            left: .identifierPattern("self").dot(Constants.Client.Universal.propertyName),
                             right: .dot("init")
                                 .call([
                                     .init(
                                         label: "serverURL",
-                                        expression: .identifier("serverURL")
+                                        expression: .identifierPattern("serverURL")
                                     ),
                                     .init(
                                         label: "configuration",
-                                        expression: .identifier("configuration")
+                                        expression: .identifierPattern("configuration")
                                     ),
                                     .init(
                                         label: "transport",
-                                        expression: .identifier("transport")
+                                        expression: .identifierPattern("transport")
                                     ),
                                     .init(
                                         label: "middlewares",
-                                        expression: .identifier("middlewares")
+                                        expression: .identifierPattern("middlewares")
                                     ),
                                 ])
                         )
@@ -126,10 +129,10 @@ struct ClientFileTranslator: FileTranslator {
             accessModifier: .private,
             kind: .var,
             left: "converter",
-            type: Constants.Converter.typeName,
+            type: .member(Constants.Converter.typeName),
             getter: [
                 .expression(
-                    .identifier(Constants.Client.Universal.propertyName)
+                    .identifierPattern(Constants.Client.Universal.propertyName)
                         .dot("converter")
                 )
             ]

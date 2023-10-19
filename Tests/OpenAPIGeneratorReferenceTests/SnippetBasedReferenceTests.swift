@@ -411,7 +411,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         value2 = try? .init(from: decoder)
                         value3 = try? decoder.decodeFromSingleValueContainer()
                         value4 = try? decoder.decodeFromSingleValueContainer()
-                        try DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                        try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [value1, value2, value3, value4],
                             type: Self.self,
                             codingPath: decoder.codingPath
@@ -472,12 +472,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public enum CodingKeys: String, CodingKey { case which }
                     public init(from decoder: any Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
-                        let discriminator = try container.decode(String.self, forKey: .which)
+                        let discriminator = try container.decode(Swift.String.self, forKey: .which)
                         switch discriminator {
                         case "A", "#/components/schemas/A": self = .A(try .init(from: decoder))
                         case "B", "#/components/schemas/B": self = .B(try .init(from: decoder))
                         default:
-                            throw DecodingError.failedToDecodeOneOfSchema(
+                            throw Swift.DecodingError.failedToDecodeOneOfSchema(
                                 type: Self.self,
                                 codingPath: decoder.codingPath
                             )
@@ -551,14 +551,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public enum CodingKeys: String, CodingKey { case which }
                     public init(from decoder: any Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
-                        let discriminator = try container.decode(String.self, forKey: .which)
+                        let discriminator = try container.decode(Swift.String.self, forKey: .which)
                         switch discriminator {
                         case "a": self = .a(try .init(from: decoder))
                         case "a2": self = .a2(try .init(from: decoder))
                         case "b": self = .b(try .init(from: decoder))
                         case "C", "#/components/schemas/C": self = .C(try .init(from: decoder))
                         default:
-                            throw DecodingError.failedToDecodeOneOfSchema(
+                            throw Swift.DecodingError.failedToDecodeOneOfSchema(
                                 type: Self.self,
                                 codingPath: decoder.codingPath
                             )
@@ -609,7 +609,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self = .A(try .init(from: decoder))
                             return
                         } catch {}
-                        throw DecodingError.failedToDecodeOneOfSchema(
+                        throw Swift.DecodingError.failedToDecodeOneOfSchema(
                             type: Self.self,
                             codingPath: decoder.codingPath
                         )
@@ -668,7 +668,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 self = .A(try .init(from: decoder))
                                 return
                             } catch {}
-                            throw DecodingError.failedToDecodeOneOfSchema(
+                            throw Swift.DecodingError.failedToDecodeOneOfSchema(
                                 type: Self.self,
                                 codingPath: decoder.codingPath
                             )
@@ -693,7 +693,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(from decoder: any Decoder) throws {
                         value1 = try? .init(from: decoder)
                         value2 = try? .init(from: decoder)
-                        try DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                        try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [value1, value2],
                             type: Self.self,
                             codingPath: decoder.codingPath
@@ -882,7 +882,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(from decoder: any Decoder) throws {
                         value1 = try? decoder.decodeFromSingleValueContainer()
                         value2 = try? decoder.decodeFromSingleValueContainer()
-                        try DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                        try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [value1, value2],
                             type: Self.self,
                             codingPath: decoder.codingPath
@@ -1335,7 +1335,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public func registerHandlers(
                 on transport: any ServerTransport,
-                serverURL: URL = .defaultOpenAPIServerURL,
+                serverURL: Foundation.URL = .defaultOpenAPIServerURL,
                 configuration: Configuration = .init(),
                 middlewares: [any ServerMiddleware] = []
             ) throws {
@@ -1363,7 +1363,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public func registerHandlers(
                 on transport: any ServerTransport,
-                serverURL: URL = .defaultOpenAPIServerURL,
+                serverURL: Foundation.URL = .defaultOpenAPIServerURL,
                 configuration: Configuration = .init(),
                 middlewares: [any ServerMiddleware] = []
             ) throws {

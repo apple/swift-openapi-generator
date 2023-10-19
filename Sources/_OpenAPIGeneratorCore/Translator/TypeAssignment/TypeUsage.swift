@@ -217,3 +217,41 @@ extension TypeName {
         TypeUsage(wrapped: .name(self), usage: .identity)
     }
 }
+
+extension ExistingTypeDescription {
+
+    /// Creates a new type description from the provided type usage's wrapped
+    /// value.
+    /// - Parameter wrapped: The wrapped value.
+    private init(_ wrapped: TypeUsage.Wrapped) {
+        switch wrapped {
+        case .name(let typeName):
+            self = .init(typeName)
+        case .usage(let typeUsage):
+            self = .init(typeUsage)
+        }
+    }
+
+    /// Creates a new type description from the provided type name.
+    /// - Parameter typeName: A type name.
+    init(_ typeName: TypeName) {
+        self = .member(typeName.swiftKeyPathComponents)
+    }
+
+    /// Creates a new type description from the provided type usage.
+    /// - Parameter typeUsage: A type usage.
+    init(_ typeUsage: TypeUsage) {
+        switch typeUsage.usage {
+        case .generic(wrapper: let wrapper):
+            self = .generic(wrapper: .init(wrapper), wrapped: .init(typeUsage.wrapped))
+        case .optional:
+            self = .optional(.init(typeUsage.wrapped))
+        case .identity:
+            self = .init(typeUsage.wrapped)
+        case .array:
+            self = .array(.init(typeUsage.wrapped))
+        case .dictionaryValue:
+            self = .dictionaryValue(.init(typeUsage.wrapped))
+        }
+    }
+}

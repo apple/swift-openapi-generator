@@ -48,9 +48,6 @@ enum Constants {
 
         /// The prefix of each generated method name.
         static let propertyPrefix: String = "server"
-
-        /// The underlying type.
-        static let underlyingType: String = "URL"
     }
 
     /// Constants related to the configuration type, which is used by both

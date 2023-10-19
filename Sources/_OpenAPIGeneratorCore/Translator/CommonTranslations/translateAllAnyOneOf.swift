@@ -214,7 +214,7 @@ extension FileTranslator {
                         kind: .nameWithAssociatedValues([
                             .init(
                                 label: nil,
-                                type: childType.fullyQualifiedSwiftName
+                                type: .init(childType)
                             )
                         ])
                     )

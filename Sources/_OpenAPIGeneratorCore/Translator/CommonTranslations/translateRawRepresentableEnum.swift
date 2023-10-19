@@ -56,7 +56,7 @@ extension FileTranslator {
                 .enumCase(
                     name: unknownCaseName,
                     kind: .nameWithAssociatedValues([
-                        .init(type: "String")
+                        .init(type: .init(TypeName.string))
                     ])
                 )
             )
@@ -69,7 +69,7 @@ extension FileTranslator {
                             .expression(
                                 .assignment(
                                     Expression
-                                        .identifier("self")
+                                        .identifierPattern("self")
                                         .equals(
                                             .dot(caseName)
                                         )
@@ -84,14 +84,14 @@ extension FileTranslator {
                         .expression(
                             .assignment(
                                 Expression
-                                    .identifier("self")
+                                    .identifierPattern("self")
                                     .equals(
                                         .functionCall(
                                             calledExpression: .dot(
                                                 unknownCaseName
                                             ),
                                             arguments: [
-                                                .identifier("rawValue")
+                                                .identifierPattern("rawValue")
                                             ]
                                         )
                                     )
@@ -104,13 +104,16 @@ extension FileTranslator {
                         accessModifier: config.access,
                         kind: .initializer(failable: true),
                         parameters: [
-                            .init(label: "rawValue", type: "String")
+                            .init(
+                                label: "rawValue",
+                                type: .init(TypeName.string)
+                            )
                         ],
                         body: [
                             .expression(
                                 .switch(
                                     switchedExpression: customSwitchedExpression(
-                                        .identifier("rawValue")
+                                        .identifierPattern("rawValue")
                                     ),
                                     cases: knownCases + [unknownCase]
                                 )
@@ -141,14 +144,14 @@ extension FileTranslator {
                                     unknownCaseName
                                 ),
                                 arguments: [
-                                    .identifier("string")
+                                    .identifierPattern("string")
                                 ]
                             )
                         )
                     ),
                     body: [
                         .expression(
-                            .return(.identifier("string"))
+                            .return(.identifierPattern("string"))
                         )
                     ]
                 )
@@ -157,11 +160,11 @@ extension FileTranslator {
                     accessModifier: config.access,
                     kind: .var,
                     left: "rawValue",
-                    type: "String",
+                    type: .init(TypeName.string),
                     getter: [
                         .expression(
                             .switch(
-                                switchedExpression: .identifier("self"),
+                                switchedExpression: .identifierPattern("self"),
                                 cases: [unknownCase] + knownCases
                             )
                         )
@@ -179,16 +182,14 @@ extension FileTranslator {
                     .memberAccess(.init(right: caseName))
                 }
                 allCasesGetter = .variable(
-                    .init(
-                        accessModifier: config.access,
-                        isStatic: true,
-                        kind: .var,
-                        left: "allCases",
-                        type: "[Self]",
-                        getter: [
-                            .expression(.literal(.array(caseExpressions)))
-                        ]
-                    )
+                    accessModifier: config.access,
+                    isStatic: true,
+                    kind: .var,
+                    left: "allCases",
+                    type: .array(.member("Self")),
+                    getter: [
+                        .expression(.literal(.array(caseExpressions)))
+                    ]
                 )
             }
             otherMembers = [

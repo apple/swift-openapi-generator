@@ -119,8 +119,10 @@ extension APIProtocol {
 /// Server URLs defined in the OpenAPI document.
 public enum Servers {
     /// Example Petstore implementation service
-    public static func server1() throws -> URL { try URL(validatingOpenAPIServerURL: "https://example.com/api") }
-    public static func server2() throws -> URL { try URL(validatingOpenAPIServerURL: "/api") }
+    public static func server1() throws -> Foundation.URL {
+        try Foundation.URL(validatingOpenAPIServerURL: "https://example.com/api")
+    }
+    public static func server2() throws -> Foundation.URL { try Foundation.URL(validatingOpenAPIServerURL: "/api") }
 }
 /// Types generated from the components section of the OpenAPI document.
 public enum Components {
@@ -208,7 +210,7 @@ public enum Components {
                 value2 = try? decoder.decodeFromSingleValueContainer()
                 value3 = try? .init(from: decoder)
                 value4 = try? decoder.decodeFromSingleValueContainer()
-                try DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                     [value1, value2, value3, value4],
                     type: Self.self,
                     codingPath: decoder.codingPath
@@ -240,7 +242,7 @@ public enum Components {
                     self = .Pet(try .init(from: decoder))
                     return
                 } catch {}
-                throw DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
+                throw Swift.DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
             }
             public func encode(to encoder: any Encoder) throws {
                 switch self {
@@ -528,7 +530,7 @@ public enum Components {
             public init(from decoder: any Decoder) throws {
                 value1 = try? .init(from: decoder)
                 value2 = try? .init(from: decoder)
-                try DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                     [value1, value2],
                     type: Self.self,
                     codingPath: decoder.codingPath
@@ -577,7 +579,7 @@ public enum Components {
                     self = .case4(try .init(from: decoder))
                     return
                 } catch {}
-                throw DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
+                throw Swift.DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
             }
             public func encode(to encoder: any Encoder) throws {
                 switch self {
@@ -666,12 +668,13 @@ public enum Components {
             public enum CodingKeys: String, CodingKey { case kind }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                let discriminator = try container.decode(String.self, forKey: .kind)
+                let discriminator = try container.decode(Swift.String.self, forKey: .kind)
                 switch discriminator {
                 case "Walk", "#/components/schemas/Walk": self = .Walk(try .init(from: decoder))
                 case "MessagedExercise", "#/components/schemas/MessagedExercise":
                     self = .MessagedExercise(try .init(from: decoder))
-                default: throw DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
+                default:
+                    throw Swift.DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
                 }
             }
             public func encode(to encoder: any Encoder) throws {
@@ -821,7 +824,7 @@ public enum Operations {
     /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
     public enum listPets {
-        public static let id: String = "listPets"
+        public static let id: Swift.String = "listPets"
         public struct Input: Sendable, Hashable {
             /// - Remark: Generated from `#/paths/pets/GET/query`.
             public struct Query: Sendable, Hashable {
@@ -1010,7 +1013,7 @@ public enum Operations {
             /// - Remark: Generated from `#/paths//pets/get(listPets)/responses/default`.
             ///
             /// HTTP response code: `default`.
-            case `default`(statusCode: Int, Operations.listPets.Output.Default)
+            case `default`(statusCode: Swift.Int, Operations.listPets.Output.Default)
             /// The associated value of the enum case if `self` is `.`default``.
             ///
             /// - Throws: An error if `self` is not `.`default``.
@@ -1026,14 +1029,14 @@ public enum Operations {
         }
         @frozen public enum AcceptableContentType: AcceptableProtocol {
             case json
-            case other(String)
-            public init?(rawValue: String) {
+            case other(Swift.String)
+            public init?(rawValue: Swift.String) {
                 switch rawValue.lowercased() {
                 case "application/json": self = .json
                 default: self = .other(rawValue)
                 }
             }
-            public var rawValue: String {
+            public var rawValue: Swift.String {
                 switch self {
                 case let .other(string): return string
                 case .json: return "application/json"
@@ -1047,7 +1050,7 @@ public enum Operations {
     /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
     public enum createPet {
-        public static let id: String = "createPet"
+        public static let id: Swift.String = "createPet"
         public struct Input: Sendable, Hashable {
             /// - Remark: Generated from `#/paths/pets/POST/header`.
             public struct Headers: Sendable, Hashable {
@@ -1159,7 +1162,7 @@ public enum Operations {
             /// - Remark: Generated from `#/paths//pets/post(createPet)/responses/4XX`.
             ///
             /// HTTP response code: `400...499 clientError`.
-            case clientError(statusCode: Int, Components.Responses.ErrorBadRequest)
+            case clientError(statusCode: Swift.Int, Components.Responses.ErrorBadRequest)
             /// The associated value of the enum case if `self` is `.clientError`.
             ///
             /// - Throws: An error if `self` is not `.clientError`.
@@ -1175,18 +1178,18 @@ public enum Operations {
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
-            case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
+            case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
         }
         @frozen public enum AcceptableContentType: AcceptableProtocol {
             case json
-            case other(String)
-            public init?(rawValue: String) {
+            case other(Swift.String)
+            public init?(rawValue: Swift.String) {
                 switch rawValue.lowercased() {
                 case "application/json": self = .json
                 default: self = .other(rawValue)
                 }
             }
-            public var rawValue: String {
+            public var rawValue: Swift.String {
                 switch self {
                 case let .other(string): return string
                 case .json: return "application/json"
@@ -1200,7 +1203,7 @@ public enum Operations {
     /// - Remark: HTTP `POST /pets/create`.
     /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
     public enum createPetWithForm {
-        public static let id: String = "createPetWithForm"
+        public static let id: Swift.String = "createPetWithForm"
         public struct Input: Sendable, Hashable {
             /// - Remark: Generated from `#/paths/pets/create/POST/requestBody`.
             @frozen public enum Body: Sendable, Hashable {
@@ -1240,13 +1243,13 @@ public enum Operations {
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
-            case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
+            case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
         }
     }
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
     public enum getStats {
-        public static let id: String = "getStats"
+        public static let id: Swift.String = "getStats"
         public struct Input: Sendable, Hashable {
             /// - Remark: Generated from `#/paths/pets/stats/GET/header`.
             public struct Headers: Sendable, Hashable {
@@ -1344,14 +1347,14 @@ public enum Operations {
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
-            case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
+            case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
         }
         @frozen public enum AcceptableContentType: AcceptableProtocol {
             case json
             case plainText
             case binary
-            case other(String)
-            public init?(rawValue: String) {
+            case other(Swift.String)
+            public init?(rawValue: Swift.String) {
                 switch rawValue.lowercased() {
                 case "application/json": self = .json
                 case "text/plain": self = .plainText
@@ -1359,7 +1362,7 @@ public enum Operations {
                 default: self = .other(rawValue)
                 }
             }
-            public var rawValue: String {
+            public var rawValue: Swift.String {
                 switch self {
                 case let .other(string): return string
                 case .json: return "application/json"
@@ -1373,7 +1376,7 @@ public enum Operations {
     /// - Remark: HTTP `POST /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/post(postStats)`.
     public enum postStats {
-        public static let id: String = "postStats"
+        public static let id: Swift.String = "postStats"
         public struct Input: Sendable, Hashable {
             /// - Remark: Generated from `#/paths/pets/stats/POST/requestBody`.
             @frozen public enum Body: Sendable, Hashable {
@@ -1417,13 +1420,13 @@ public enum Operations {
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
-            case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
+            case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
         }
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
     public enum probe {
-        public static let id: String = "probe"
+        public static let id: Swift.String = "probe"
         public struct Input: Sendable, Hashable {
             /// Creates a new `Input`.
             public init() {}
@@ -1454,7 +1457,7 @@ public enum Operations {
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
-            case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
+            case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
         }
     }
     /// Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
@@ -1462,7 +1465,7 @@ public enum Operations {
     /// - Remark: HTTP `PATCH /pets/{petId}`.
     /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)`.
     public enum updatePet {
-        public static let id: String = "updatePet"
+        public static let id: Swift.String = "updatePet"
         public struct Input: Sendable, Hashable {
             /// - Remark: Generated from `#/paths/pets/{petId}/PATCH/path`.
             public struct Path: Sendable, Hashable {
@@ -1587,18 +1590,18 @@ public enum Operations {
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
-            case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
+            case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
         }
         @frozen public enum AcceptableContentType: AcceptableProtocol {
             case json
-            case other(String)
-            public init?(rawValue: String) {
+            case other(Swift.String)
+            public init?(rawValue: Swift.String) {
                 switch rawValue.lowercased() {
                 case "application/json": self = .json
                 default: self = .other(rawValue)
                 }
             }
-            public var rawValue: String {
+            public var rawValue: Swift.String {
                 switch self {
                 case let .other(string): return string
                 case .json: return "application/json"
@@ -1612,7 +1615,7 @@ public enum Operations {
     /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
     public enum uploadAvatarForPet {
-        public static let id: String = "uploadAvatarForPet"
+        public static let id: Swift.String = "uploadAvatarForPet"
         public struct Input: Sendable, Hashable {
             /// - Remark: Generated from `#/paths/pets/{petId}/avatar/PUT/path`.
             public struct Path: Sendable, Hashable {
@@ -1797,14 +1800,14 @@ public enum Operations {
             /// Undocumented response.
             ///
             /// A response with a code that is not documented in the OpenAPI document.
-            case undocumented(statusCode: Int, OpenAPIRuntime.UndocumentedPayload)
+            case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
         }
         @frozen public enum AcceptableContentType: AcceptableProtocol {
             case binary
             case json
             case plainText
-            case other(String)
-            public init?(rawValue: String) {
+            case other(Swift.String)
+            public init?(rawValue: Swift.String) {
                 switch rawValue.lowercased() {
                 case "application/octet-stream": self = .binary
                 case "application/json": self = .json
@@ -1812,7 +1815,7 @@ public enum Operations {
                 default: self = .other(rawValue)
                 }
             }
-            public var rawValue: String {
+            public var rawValue: Swift.String {
                 switch self {
                 case let .other(string): return string
                 case .binary: return "application/octet-stream"
