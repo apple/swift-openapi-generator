@@ -312,6 +312,12 @@ enum Constants {
 
             /// The name of the namespace.
             static let namespace: String = "Schemas"
+
+            /// The full namespace components.
+            static let components: [String] = [
+                Constants.Components.namespace,
+                Constants.Components.Schemas.namespace,
+            ]
         }
 
         /// Constants related to the Parameters namespace.

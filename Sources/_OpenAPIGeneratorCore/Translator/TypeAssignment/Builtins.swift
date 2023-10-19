@@ -105,4 +105,9 @@ extension TypeName {
     static var serverRequestMetadata: TypeName {
         .runtime("ServerRequestMetadata")
     }
+
+    /// Returns the type name for the copy-on-write box type.
+    static var box: TypeName {
+        .runtime("CopyOnWriteBox")
+    }
 }

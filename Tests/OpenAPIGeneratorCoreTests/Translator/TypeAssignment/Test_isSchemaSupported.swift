@@ -121,8 +121,12 @@ class Test_isSchemaSupported: XCTestCase {
     func testSupportedTypes() throws {
         let translator = self.translator
         for schema in Self.supportedTypes {
+            var referenceStack = ReferenceStack.empty
             XCTAssertTrue(
-                try translator.isSchemaSupported(schema) == .supported,
+                try translator.isSchemaSupported(
+                    schema,
+                    referenceStack: &referenceStack
+                ) == .supported,
                 "Expected schema to be supported: \(schema)"
             )
         }
@@ -144,7 +148,13 @@ class Test_isSchemaSupported: XCTestCase {
     func testUnsupportedTypes() throws {
         let translator = self.translator
         for (schema, expectedReason) in Self.unsupportedTypes {
-            guard case let .unsupported(reason, _) = try translator.isSchemaSupported(schema) else {
+            var referenceStack = ReferenceStack.empty
+            guard
+                case let .unsupported(reason, _) = try translator.isSchemaSupported(
+                    schema,
+                    referenceStack: &referenceStack
+                )
+            else {
                 XCTFail("Expected schema to be unsupported: \(schema)")
                 return
             }

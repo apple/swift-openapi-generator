@@ -55,13 +55,16 @@ final class Test_Types: XCTestCase {
         return decoder
     }
 
-    func roundtrip<T: Codable & Equatable>(_ value: T) throws -> T {
+    func roundtrip<T: Codable & Equatable>(_ value: T, verifyingJSON: String? = nil) throws -> T {
         let data = try testEncoder.encode(value)
+        if let verifyingJSON {
+            XCTAssertEqual(String(decoding: data, as: UTF8.self), verifyingJSON)
+        }
         return try testDecoder.decode(T.self, from: data)
     }
 
-    func _testRoundtrip<T: Codable & Equatable>(_ value: T) throws {
-        let decodedValue = try roundtrip(value)
+    func _testRoundtrip<T: Codable & Equatable>(_ value: T, verifyingJSON: String? = nil) throws {
+        let decodedValue = try roundtrip(value, verifyingJSON: verifyingJSON)
         XCTAssertEqual(decodedValue, value)
     }
 
@@ -315,5 +318,66 @@ final class Test_Types: XCTestCase {
                 return
             }
         }
+    }
+
+    func testRecursiveType_roundtrip() throws {
+        try _testRoundtrip(
+            Components.Schemas.RecursivePet(
+                name: "C",
+                parent: .init(
+                    name: "B",
+                    parent: .init(name: "A")
+                )
+            ),
+            verifyingJSON: #"{"name":"C","parent":{"name":"B","parent":{"name":"A"}}}"#
+        )
+    }
+
+    func testRecursiveType_accessors_3levels() throws {
+        var c = Components.Schemas.RecursivePet(name: "C", parent: .init(name: "B"))
+        c.name = "C2"
+        c.parent!.parent = .init(name: "A")
+        XCTAssertEqual(c.parent, .init(name: "B", parent: .init(name: "A")))
+        XCTAssertEqual(
+            c,
+            Components.Schemas.RecursivePet(
+                name: "C2",
+                parent: .init(
+                    name: "B",
+                    parent: .init(name: "A")
+                )
+            )
+        )
+    }
+
+    func testRecursiveType_accessors_2levels() throws {
+        var b = Components.Schemas.RecursivePet(name: "B")
+        b.name = "B2"
+        b.parent = .init(name: "A")
+        XCTAssertEqual(b.parent, .init(name: "A"))
+        XCTAssertEqual(
+            b,
+            .init(
+                name: "B2",
+                parent: .init(name: "A")
+            )
+        )
+    }
+
+    func testRecursiveNestedType_roundtrip() throws {
+        try _testRoundtrip(
+            Components.Schemas.RecursivePetNested(
+                name: "C",
+                parent: .init(
+                    nested: .init(
+                        name: "B",
+                        parent: .init(
+                            nested: .init(name: "A")
+                        )
+                    )
+                )
+            ),
+            verifyingJSON: #"{"name":"C","parent":{"nested":{"name":"B","parent":{"nested":{"name":"A"}}}}}"#
+        )
     }
 }

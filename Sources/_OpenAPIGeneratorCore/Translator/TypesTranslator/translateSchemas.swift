@@ -62,13 +62,13 @@ extension TypesFileTranslator {
         let decls: [Declaration] = try schemas.flatMap { key, value in
             try translateSchema(componentKey: key, schema: value)
         }
-
+        let declsWithBoxingApplied = try boxRecursiveTypes(decls)
         let componentsSchemasEnum = Declaration.commentable(
             JSONSchema.sectionComment(),
             .enum(
                 accessModifier: config.access,
                 name: Constants.Components.Schemas.namespace,
-                members: decls
+                members: declsWithBoxingApplied
             )
         )
         return componentsSchemasEnum
