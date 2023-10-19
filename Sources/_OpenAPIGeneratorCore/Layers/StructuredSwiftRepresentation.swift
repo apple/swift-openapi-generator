@@ -267,6 +267,12 @@ struct VariableDescription: Equatable, Codable {
     /// For example, in `var foo: Int { set { _foo = newValue } }`, `body`
     /// represents `{ _foo = newValue }`.
     var setter: [CodeBlock]? = nil
+
+    /// Body code for the `_modify` accessor.
+    ///
+    /// For example, in `var foo: Int { _modify { yield &_foo } }`, `body`
+    /// represents `{ yield &_foo }`.
+    var modify: [CodeBlock]? = nil
 }
 
 /// A requirement of a where clause.
@@ -832,6 +838,9 @@ enum KeywordKind: Equatable, Codable {
 
     /// The throw keyword.
     case `throw`
+
+    /// The yield keyword.
+    case `yield`
 }
 
 /// A description of an expression that places a keyword before an expression.
@@ -1087,6 +1096,7 @@ extension Declaration {
     ///   - getter: Body code for the getter of the variable.
     ///   - getterEffects: Effects of the getter.
     ///   - setter: Body code for the setter of the variable.
+    ///   - modify: Body code for the `_modify` accessor.
     /// - Returns: Variable declaration.
     static func variable(
         accessModifier: AccessModifier? = nil,
@@ -1097,7 +1107,9 @@ extension Declaration {
         right: Expression? = nil,
         getter: [CodeBlock]? = nil,
         getterEffects: [FunctionKeyword] = [],
-        setter: [CodeBlock]? = nil
+        setter: [CodeBlock]? = nil,
+        modify: [CodeBlock]? = nil
+
     ) -> Self {
         .variable(
             .init(
@@ -1109,7 +1121,8 @@ extension Declaration {
                 right: right,
                 getter: getter,
                 getterEffects: getterEffects,
-                setter: setter
+                setter: setter,
+                modify: modify
             )
         )
     }
@@ -1497,6 +1510,14 @@ extension Expression {
     /// - Returns: A new expression with the `await` keyword placed before the expression.
     static func `await`(_ expression: Expression) -> Self {
         .unaryKeyword(kind: .await, expression: expression)
+    }
+
+    /// Returns a new expression that puts the yield keyword before
+    /// an expression.
+    /// - Parameter expression: The expression to prepend.
+    /// - Returns: A new expression with the `yield` keyword placed before the expression.
+    static func `yield`(_ expression: Expression) -> Self {
+        .unaryKeyword(kind: .yield, expression: expression)
     }
 
     /// Returns a new value binding used in enums with associated values.

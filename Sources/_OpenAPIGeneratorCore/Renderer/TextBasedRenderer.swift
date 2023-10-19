@@ -245,6 +245,8 @@ struct TextBasedRenderer: RendererProtocol {
             return "await"
         case .throw:
             return "throw"
+        case .yield:
+            return "yield"
         }
     }
 
@@ -462,12 +464,17 @@ struct TextBasedRenderer: RendererProtocol {
         var lines: [String] = [words.joinedWords()]
         if let body = variable.getter {
             lines.append("{")
-            let hasExplicitGetter = !variable.getterEffects.isEmpty || variable.setter != nil
+            let hasExplicitGetter = !variable.getterEffects.isEmpty || variable.setter != nil || variable.modify != nil
             if hasExplicitGetter {
                 lines.append("get \(variable.getterEffects.map(renderedFunctionKeyword).joined(separator: " ")) {")
             }
             lines.append(renderedCodeBlocks(body))
             if hasExplicitGetter {
+                lines.append("}")
+            }
+            if let modify = variable.modify {
+                lines.append("_modify {")
+                lines.append(renderedCodeBlocks(modify))
                 lines.append("}")
             }
             if let setter = variable.setter {
