@@ -1016,8 +1016,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public struct Node: Codable, Hashable, Sendable {
                     public var parent: Components.Schemas.Node? {
-                        get { storage.read().parent }
-                        set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.parent = newValue } }
+                        get { storage.value.parent }
+                        _modify { yield &storage.value.parent }
                     }
                     public init(parent: Components.Schemas.Node? = nil) { storage = .init(value: .init(parent: parent)) }
                     public enum CodingKeys: String, CodingKey { case parent }
@@ -1058,8 +1058,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public struct Node: Codable, Hashable, Sendable {
                     public var name: Swift.String {
-                        get { storage.read().name }
-                        set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.name = newValue } }
+                        get { storage.value.name }
+                        _modify { yield &storage.value.name }
                     }
                     public struct parentPayload: Codable, Hashable, Sendable {
                         public var nested: Components.Schemas.Node
@@ -1067,8 +1067,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         public enum CodingKeys: String, CodingKey { case nested }
                     }
                     public var parent: Components.Schemas.Node.parentPayload? {
-                        get { storage.read().parent }
-                        set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.parent = newValue } }
+                        get { storage.value.parent }
+                        _modify { yield &storage.value.parent }
                     }
                     public init(name: Swift.String, parent: Components.Schemas.Node.parentPayload? = nil) {
                         storage = .init(value: .init(name: name, parent: parent))
@@ -1120,8 +1120,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         public enum CodingKeys: String, CodingKey { case parent }
                     }
                     public var value1: Components.Schemas.Node.Value1Payload {
-                        get { storage.read().value1 }
-                        set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.value1 = newValue } }
+                        get { storage.value.value1 }
+                        _modify { yield &storage.value.value1 }
                     }
                     public init(value1: Components.Schemas.Node.Value1Payload) { storage = .init(value: .init(value1: value1)) }
                     public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
@@ -1157,12 +1157,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public struct Node: Codable, Hashable, Sendable {
                     public var value1: Components.Schemas.Node? {
-                        get { storage.read().value1 }
-                        set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.value1 = newValue } }
+                        get { storage.value.value1 }
+                        _modify { yield &storage.value.value1 }
                     }
                     public var value2: Swift.String? {
-                        get { storage.read().value2 }
-                        set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.value2 = newValue } }
+                        get { storage.value.value2 }
+                        _modify { yield &storage.value.value2 }
                     }
                     public init(value1: Components.Schemas.Node? = nil, value2: Swift.String? = nil) {
                         storage = .init(value: .init(value1: value1, value2: value2))

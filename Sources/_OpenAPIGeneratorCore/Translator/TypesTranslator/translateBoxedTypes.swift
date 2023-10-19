@@ -134,33 +134,17 @@ extension TypesFileTranslator {
             variableDescription.getter = [
                 .expression(
                     .identifierPattern("storage")
-                        .dot("read")
-                        .call([])
+                        .dot("value")
                         .dot(name)
                 )
             ]
-            variableDescription.setter = [
+            variableDescription.modify = [
                 .expression(
-                    .functionCall(
-                        calledExpression:
-                            .identifierType(TypeName.box)
-                            .dot("write"),
-                        arguments: [
-                            .init(
-                                label: "to",
-                                expression: .inOut(.identifierPattern("storage"))
-                            )
-                        ],
-                        trailingClosure: .init(
-                            argumentNames: [],
-                            body: [
-                                .expression(
-                                    .assignment(
-                                        left: .identifierPattern("$0").dot(name),
-                                        right: .identifierPattern("newValue")
-                                    )
-                                )
-                            ]
+                    .yield(
+                        .inOut(
+                            .identifierPattern("storage")
+                                .dot("value")
+                                .dot(name)
                         )
                     )
                 )

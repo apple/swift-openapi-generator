@@ -175,6 +175,8 @@ extension KeywordKind {
             return "await"
         case .throw:
             return "throw"
+        case .yield:
+            return "yield"
         }
     }
 }

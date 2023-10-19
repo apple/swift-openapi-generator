@@ -429,7 +429,16 @@ extension FileTranslator {
     ) throws -> IsSchemaSupportedResult {
         switch schema.value {
         case let .reference(ref, _):
+            if try referenceStack.contains(ref) {
+                // Encountered a cycle, but that's okay - return supported.
+                return .supported
+            }
+            // reference is supported iff the existing type is supported
             let referencedSchema = try components.lookup(ref)
+            try referenceStack.push(ref)
+            defer {
+                referenceStack.pop()
+            }
             return try isObjectishSchemaAndSupported(
                 referencedSchema,
                 referenceStack: &referenceStack

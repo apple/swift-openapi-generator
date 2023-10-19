@@ -699,13 +699,13 @@ public enum Components {
         public struct RecursivePet: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/RecursivePet/name`.
             public var name: Swift.String {
-                get { storage.read().name }
-                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.name = newValue } }
+                get { storage.value.name }
+                _modify { yield &storage.value.name }
             }
             /// - Remark: Generated from `#/components/schemas/RecursivePet/parent`.
             public var parent: Components.Schemas.RecursivePet? {
-                get { storage.read().parent }
-                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.parent = newValue } }
+                get { storage.value.parent }
+                _modify { yield &storage.value.parent }
             }
             /// Creates a new `RecursivePet`.
             ///
@@ -739,8 +739,8 @@ public enum Components {
         public struct RecursivePetNested: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/RecursivePetNested/name`.
             public var name: Swift.String {
-                get { storage.read().name }
-                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.name = newValue } }
+                get { storage.value.name }
+                _modify { yield &storage.value.name }
             }
             /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent`.
             public struct parentPayload: Codable, Hashable, Sendable {
@@ -755,8 +755,8 @@ public enum Components {
             }
             /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent`.
             public var parent: Components.Schemas.RecursivePetNested.parentPayload? {
-                get { storage.read().parent }
-                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.parent = newValue } }
+                get { storage.value.parent }
+                _modify { yield &storage.value.parent }
             }
             /// Creates a new `RecursivePetNested`.
             ///
@@ -797,27 +797,136 @@ public enum Components {
                 typealias CodingKeys = Components.Schemas.RecursivePetNested.CodingKeys
             }
         }
-        /// - Remark: Generated from `#/components/schemas/RecursivePetOneOf`.
-        @frozen public indirect enum RecursivePetOneOf: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/RecursivePetOneOf/case1`.
-            case RecursivePetOneOf(Components.Schemas.RecursivePetOneOf)
-            /// - Remark: Generated from `#/components/schemas/RecursivePetOneOf/case2`.
-            case case2(Swift.String)
+        /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst`.
+        public struct RecursivePetOneOfFirst: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value1`.
+            public var value1: Components.Schemas.RecursivePetOneOf {
+                get { storage.value.value1 }
+                _modify { yield &storage.value.value1 }
+            }
+            /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value2`.
+            public struct Value2Payload: Codable, Hashable, Sendable {
+                /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value2/type`.
+                public var _type: Swift.String
+                /// Creates a new `Value2Payload`.
+                ///
+                /// - Parameters:
+                ///   - _type:
+                public init(_type: Swift.String) { self._type = _type }
+                public enum CodingKeys: String, CodingKey { case _type = "type" }
+            }
+            /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value2`.
+            public var value2: Components.Schemas.RecursivePetOneOfFirst.Value2Payload {
+                get { storage.value.value2 }
+                _modify { yield &storage.value.value2 }
+            }
+            /// Creates a new `RecursivePetOneOfFirst`.
+            ///
+            /// - Parameters:
+            ///   - value1:
+            ///   - value2:
+            public init(
+                value1: Components.Schemas.RecursivePetOneOf,
+                value2: Components.Schemas.RecursivePetOneOfFirst.Value2Payload
+            ) { storage = .init(value: .init(value1: value1, value2: value2)) }
+            public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
+            public func encode(to encoder: any Encoder) throws { try storage.encode(to: encoder) }
+            /// Internal reference storage to allow type recursion.
+            private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
+            private struct Storage: Codable, Hashable, Sendable {
+                /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value1`.
+                var value1: Components.Schemas.RecursivePetOneOf
+                /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value2`.
+                struct Value2Payload: Codable, Hashable, Sendable {
+                    /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value2/type`.
+                    public var _type: Swift.String
+                    /// Creates a new `Value2Payload`.
+                    ///
+                    /// - Parameters:
+                    ///   - _type:
+                    public init(_type: Swift.String) { self._type = _type }
+                    public enum CodingKeys: String, CodingKey { case _type = "type" }
+                }
+                /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value2`.
+                var value2: Components.Schemas.RecursivePetOneOfFirst.Value2Payload
+                init(
+                    value1: Components.Schemas.RecursivePetOneOf,
+                    value2: Components.Schemas.RecursivePetOneOfFirst.Value2Payload
+                ) {
+                    self.value1 = value1
+                    self.value2 = value2
+                }
+                init(from decoder: any Decoder) throws {
+                    value1 = try .init(from: decoder)
+                    value2 = try .init(from: decoder)
+                }
+                func encode(to encoder: any Encoder) throws {
+                    try value1.encode(to: encoder)
+                    try value2.encode(to: encoder)
+                }
+            }
+        }
+        /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfSecond`.
+        public struct RecursivePetOneOfSecond: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfSecond/value1`.
+            public var value1: Components.Schemas.Pet
+            /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfSecond/value2`.
+            public struct Value2Payload: Codable, Hashable, Sendable {
+                /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfSecond/value2/type`.
+                public var _type: Swift.String
+                /// Creates a new `Value2Payload`.
+                ///
+                /// - Parameters:
+                ///   - _type:
+                public init(_type: Swift.String) { self._type = _type }
+                public enum CodingKeys: String, CodingKey { case _type = "type" }
+            }
+            /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfSecond/value2`.
+            public var value2: Components.Schemas.RecursivePetOneOfSecond.Value2Payload
+            /// Creates a new `RecursivePetOneOfSecond`.
+            ///
+            /// - Parameters:
+            ///   - value1:
+            ///   - value2:
+            public init(
+                value1: Components.Schemas.Pet,
+                value2: Components.Schemas.RecursivePetOneOfSecond.Value2Payload
+            ) {
+                self.value1 = value1
+                self.value2 = value2
+            }
             public init(from decoder: any Decoder) throws {
-                do {
-                    self = .RecursivePetOneOf(try .init(from: decoder))
-                    return
-                } catch {}
-                do {
-                    self = .case2(try decoder.decodeFromSingleValueContainer())
-                    return
-                } catch {}
-                throw Swift.DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
+                value1 = try .init(from: decoder)
+                value2 = try .init(from: decoder)
+            }
+            public func encode(to encoder: any Encoder) throws {
+                try value1.encode(to: encoder)
+                try value2.encode(to: encoder)
+            }
+        }
+        /// - Remark: Generated from `#/components/schemas/RecursivePetOneOf`.
+        @frozen public enum RecursivePetOneOf: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/RecursivePetOneOf/RecursivePetOneOfFirst`.
+            case RecursivePetOneOfFirst(Components.Schemas.RecursivePetOneOfFirst)
+            /// - Remark: Generated from `#/components/schemas/RecursivePetOneOf/RecursivePetOneOfSecond`.
+            case RecursivePetOneOfSecond(Components.Schemas.RecursivePetOneOfSecond)
+            public enum CodingKeys: String, CodingKey { case _type = "type" }
+            public init(from decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                let discriminator = try container.decode(Swift.String.self, forKey: ._type)
+                switch discriminator {
+                case "RecursivePetOneOfFirst", "#/components/schemas/RecursivePetOneOfFirst":
+                    self = .RecursivePetOneOfFirst(try .init(from: decoder))
+                case "RecursivePetOneOfSecond", "#/components/schemas/RecursivePetOneOfSecond":
+                    self = .RecursivePetOneOfSecond(try .init(from: decoder))
+                default:
+                    throw Swift.DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
+                }
             }
             public func encode(to encoder: any Encoder) throws {
                 switch self {
-                case let .RecursivePetOneOf(value): try value.encode(to: encoder)
-                case let .case2(value): try encoder.encodeToSingleValueContainer(value)
+                case let .RecursivePetOneOfFirst(value): try value.encode(to: encoder)
+                case let .RecursivePetOneOfSecond(value): try value.encode(to: encoder)
                 }
             }
         }
@@ -825,13 +934,13 @@ public enum Components {
         public struct RecursivePetAnyOf: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/RecursivePetAnyOf/value1`.
             public var value1: Components.Schemas.RecursivePetAnyOf? {
-                get { storage.read().value1 }
-                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.value1 = newValue } }
+                get { storage.value.value1 }
+                _modify { yield &storage.value.value1 }
             }
             /// - Remark: Generated from `#/components/schemas/RecursivePetAnyOf/value2`.
             public var value2: Swift.String? {
-                get { storage.read().value2 }
-                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.value2 = newValue } }
+                get { storage.value.value2 }
+                _modify { yield &storage.value.value2 }
             }
             /// Creates a new `RecursivePetAnyOf`.
             ///
@@ -884,8 +993,8 @@ public enum Components {
             }
             /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf/value1`.
             public var value1: Components.Schemas.RecursivePetAllOf.Value1Payload {
-                get { storage.read().value1 }
-                set { OpenAPIRuntime.CopyOnWriteBox.write(to: &storage) { $0.value1 = newValue } }
+                get { storage.value.value1 }
+                _modify { yield &storage.value.value1 }
             }
             /// Creates a new `RecursivePetAllOf`.
             ///
