@@ -346,7 +346,12 @@ struct TextBasedRenderer: RendererProtocol {
     func renderedLiteral(_ literal: LiteralDescription) -> String {
         switch literal {
         case let .string(string):
-            return "\"\(string)\""
+            // Use a raw literal if the string contains a quote/backslash.
+            if string.contains("\"") || string.contains("\\") {
+                return "#\"\(string)\"#"
+            } else {
+                return "\"\(string)\""
+            }
         case let .int(int):
             return "\(int)"
         case let .bool(bool):

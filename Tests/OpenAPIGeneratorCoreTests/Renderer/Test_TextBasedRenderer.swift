@@ -188,6 +188,14 @@ final class Test_TextBasedRenderer: XCTestCase {
                 """#
         )
         try _test(
+            .string("this string: \"foo\""),
+            renderedBy: renderer.renderedLiteral,
+            rendersAs:
+                #"""
+                #"this string: "foo""#
+                """#
+        )
+        try _test(
             .nil,
             renderedBy: renderer.renderedLiteral,
             rendersAs:

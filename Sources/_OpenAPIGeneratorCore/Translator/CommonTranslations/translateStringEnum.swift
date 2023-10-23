@@ -60,7 +60,12 @@ extension FileTranslator {
                     let caseName = swiftSafeName(for: rawValue)
                     return (caseName, .string(rawValue))
                 case .integer:
-                    guard let rawValue = anyValue as? Int else {
+                    let rawValue: Int
+                    if let intRawValue = anyValue as? Int {
+                        rawValue = intRawValue
+                    } else if let stringRawValue = anyValue as? String, let intRawValue = Int(stringRawValue) {
+                        rawValue = intRawValue
+                    } else {
                         throw GenericError(message: "Disallowed value for an integer enum '\(typeName)': \(anyValue)")
                     }
                     let caseName = rawValue < 0 ? "_n\(abs(rawValue))" : "_\(rawValue)"
