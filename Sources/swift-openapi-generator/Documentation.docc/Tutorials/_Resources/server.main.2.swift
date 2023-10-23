@@ -18,8 +18,7 @@ struct GreetingServiceAPIImpl: APIProtocol {
     ) async throws -> Operations.getEmoji.Output {
         let emojis = "👋👍👏🙏🤙🤘"
         let emoji = String(emojis.randomElement()!)
-        let data = emoji.data(using: .utf8)!
-        return .ok(.init(body: .plainText(.init(data))))
+        return .ok(.init(body: .plainText(.init(emoji))))
     }
 }
 
