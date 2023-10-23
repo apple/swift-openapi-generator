@@ -17,7 +17,6 @@ import OpenAPIKit
 
 final class Test_TypeMatcher: Test_Core {
 
-    /// setUp tests
     override func setUp() async throws {
         try await super.setUp()
         continueAfterFailure = false
