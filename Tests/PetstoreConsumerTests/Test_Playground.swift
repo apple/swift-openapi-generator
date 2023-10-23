@@ -16,6 +16,8 @@ import OpenAPIRuntime
 import PetstoreConsumerTestCore
 
 final class Test_Playground: XCTestCase {
+
+    /// setUp tests
     override func setUp() async throws {
         try await super.setUp()
         continueAfterFailure = false

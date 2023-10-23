@@ -25,6 +25,7 @@ final class Test_Server: XCTestCase {
         }
     }
 
+    /// setUp tests
     override func setUp() async throws {
         try await super.setUp()
         continueAfterFailure = false
