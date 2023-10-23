@@ -36,6 +36,8 @@ extension TestConfig {
 
 /// Tests that the generator produces Swift files that match a reference.
 class FileBasedReferenceTests: XCTestCase {
+
+    /// Setup method called before the invocation of each test method in the class.
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
@@ -56,6 +58,7 @@ class FileBasedReferenceTests: XCTestCase {
 
     var referenceTestResourcesDirectory: URL! = nil
 
+    /// Setup method called before the invocation of each test method in the class.
     override func setUpWithError() throws {
         self.referenceTestResourcesDirectory = try XCTUnwrap(
             Bundle.module.url(forResource: "Resources", withExtension: nil),
