@@ -152,7 +152,18 @@ struct ContentType: Hashable {
     ///   not be empty.
     /// - Throws: If a malformed content type string is encountered.
     init(string: String) throws {
-        precondition(!string.isEmpty, "rawValue of a ContentType cannot be empty.")
+        struct InvalidContentTypeString: Error, LocalizedError, CustomStringConvertible {
+            var string: String
+            var description: String {
+                "Invalid content type string: '\(string)', must have 2 components separated by a slash."
+            }
+            var errorDescription: String? {
+                description
+            }
+        }
+        guard !string.isEmpty else {
+            throw InvalidContentTypeString(string: "")
+        }
         var semiComponents =
             string
             .split(separator: ";")
@@ -170,15 +181,6 @@ struct ContentType: Hashable {
             rawTypeAndSubtype
             .split(separator: "/")
             .map(String.init)
-        struct InvalidContentTypeString: Error, LocalizedError, CustomStringConvertible {
-            var string: String
-            var description: String {
-                "Invalid content type string: '\(string)', must have 2 components separated by a slash."
-            }
-            var errorDescription: String? {
-                description
-            }
-        }
         guard typeAndSubtype.count == 2 else {
             throw InvalidContentTypeString(string: rawTypeAndSubtype)
         }
