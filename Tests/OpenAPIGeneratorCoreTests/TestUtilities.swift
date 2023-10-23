@@ -18,6 +18,8 @@ import OpenAPIKit
 @testable import _OpenAPIGeneratorCore
 
 class Test_Core: XCTestCase {
+
+    /// Setup method called before the invocation of each test method in the class.
     override func setUp() async throws {
         try await super.setUp()
         continueAfterFailure = false
