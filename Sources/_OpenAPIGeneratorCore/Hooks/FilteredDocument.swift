@@ -63,43 +63,87 @@ struct FilteredDocumentBuilder {
     /// - Returns: The filtered OpenAPI document.
     /// - Throws: If any dependencies of the requested document components cannot be resolved.
     func filter() throws -> OpenAPI.Document {
+        let originalDocument = document
+        let originalComponents = originalDocument.components
         var components = OpenAPI.Components.noComponents
-        for reference in requiredSchemaReferences {
-            components.schemas[try reference.internalComponentKey] = try document.components.lookup(reference)
-        }
-        for reference in requiredPathItemReferences {
-            components.pathItems[try reference.internalComponentKey] = try document.components.lookup(reference)
-        }
-        for reference in requiredParameterReferences {
-            components.parameters[try reference.internalComponentKey] = try document.components.lookup(reference)
-        }
-        for reference in requiredHeaderReferences {
-            components.headers[try reference.internalComponentKey] = try document.components.lookup(reference)
-        }
-        for reference in requiredResponseReferences {
-            components.responses[try reference.internalComponentKey] = try document.components.lookup(reference)
-        }
-        for reference in requiredCallbacksReferences {
-            components.callbacks[try reference.internalComponentKey] = try document.components.lookup(reference)
-        }
-        for reference in requiredExampleReferences {
-            components.examples[try reference.internalComponentKey] = try document.components.lookup(reference)
-        }
-        for reference in requiredLinkReferences {
-            components.links[try reference.internalComponentKey] = try document.components.lookup(reference)
-        }
-        for reference in requiredRequestReferences {
-            components.requestBodies[try reference.internalComponentKey] = try document.components.lookup(reference)
-        }
-        var filteredDocument = document.filteringPaths(with: requiredPaths.contains(_:))
-        for (path, methods) in requiredEndpoints {
-            if filteredDocument.paths.contains(key: path) {
+        for (key, value) in originalComponents.schemas {
+            let reference = OpenAPI.Reference<JSONSchema>.component(named: key.rawValue)
+            guard requiredSchemaReferences.contains(reference) else {
                 continue
             }
-            guard let maybeReference = document.paths[path] else {
+            components.schemas[key] = value
+        }
+        for (key, value) in originalComponents.pathItems {
+            let reference = OpenAPI.Reference<OpenAPI.PathItem>.component(named: key.rawValue)
+            guard requiredPathItemReferences.contains(reference) else {
                 continue
             }
-            switch maybeReference {
+            components.pathItems[key] = value
+        }
+        for (key, value) in originalComponents.parameters {
+            let reference = OpenAPI.Reference<OpenAPI.Parameter>.component(named: key.rawValue)
+            guard requiredParameterReferences.contains(reference) else {
+                continue
+            }
+            components.parameters[key] = value
+        }
+        for (key, value) in originalComponents.headers {
+            let reference = OpenAPI.Reference<OpenAPI.Header>.component(named: key.rawValue)
+            guard requiredHeaderReferences.contains(reference) else {
+                continue
+            }
+            components.headers[key] = value
+        }
+        for (key, value) in originalComponents.responses {
+            let reference = OpenAPI.Reference<OpenAPI.Response>.component(named: key.rawValue)
+            guard requiredResponseReferences.contains(reference) else {
+                continue
+            }
+            components.responses[key] = value
+        }
+        for (key, value) in originalComponents.callbacks {
+            let reference = OpenAPI.Reference<OpenAPI.Callbacks>.component(named: key.rawValue)
+            guard requiredCallbacksReferences.contains(reference) else {
+                continue
+            }
+            components.callbacks[key] = value
+        }
+        for (key, value) in originalComponents.examples {
+            let reference = OpenAPI.Reference<OpenAPI.Example>.component(named: key.rawValue)
+            guard requiredExampleReferences.contains(reference) else {
+                continue
+            }
+            components.examples[key] = value
+        }
+        for (key, value) in originalComponents.links {
+            let reference = OpenAPI.Reference<OpenAPI.Link>.component(named: key.rawValue)
+            guard requiredLinkReferences.contains(reference) else {
+                continue
+            }
+            components.links[key] = value
+        }
+        for (key, value) in originalComponents.requestBodies {
+            let reference = OpenAPI.Reference<OpenAPI.Request>.component(named: key.rawValue)
+            guard requiredRequestReferences.contains(reference) else {
+                continue
+            }
+            components.requestBodies[key] = value
+        }
+        var filteredDocument = document.filteringPaths { path in
+            if requiredPaths.contains(path) {
+                return true
+            }
+            if let methods = requiredEndpoints[path], !methods.isEmpty {
+                return true
+            }
+            return false
+        }
+        let filteredPaths = filteredDocument.paths
+        for (path, pathItem) in filteredPaths {
+            guard let methods = requiredEndpoints[path] else {
+                continue
+            }
+            switch pathItem {
             case .a(let reference):
                 components.pathItems[try reference.internalComponentKey] = try document.components.lookup(reference)
                     .filteringEndpoints { methods.contains($0.method) }

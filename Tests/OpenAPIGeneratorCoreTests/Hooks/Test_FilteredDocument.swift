@@ -16,7 +16,7 @@ import XCTest
 import Yams
 @testable import _OpenAPIGeneratorCore
 
-final class FilteredDocumentTests: XCTestCase {
+final class Test_FilteredDocument: XCTestCase {
 
     func testDocumentFilter() throws {
         let documentYAML = """
