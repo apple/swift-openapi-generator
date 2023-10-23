@@ -11,53 +11,13 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import SwiftFormat
-import SwiftFormatConfiguration
 
 extension String {
     /// A copy of the string formatted using swift-format.
     var swiftFormatted: Self {
         get throws {
-            var formattedString = ""
-            // TODO: Should be loaded from a swift-format file that we also use to format our own code.
-            var configuration = Configuration()
-            configuration.rules["OrderedImports"] = false
-            configuration.rules["NoAccessLevelOnExtensionDeclaration"] = false
-            configuration.rules["UseLetInEveryBoundCaseVariable"] = false
-            configuration.indentation = .spaces(4)
-            configuration.respectsExistingLineBreaks = false
-            configuration.lineBreakBeforeEachArgument = true
-            configuration.lineBreakBeforeControlFlowKeywords = false
-            configuration.lineBreakBeforeEachGenericRequirement = true
-            configuration.lineBreakAroundMultilineExpressionChainComponents = true
-            configuration.indentConditionalCompilationBlocks = false
-            configuration.maximumBlankLines = 0
-            configuration.lineLength = 120
-            let formatter = SwiftFormatter(configuration: configuration)
-            try formatter.format(
-                source: self,
-                assumingFileURL: nil,
-                to: &formattedString
-            ) { diagnostic, sourceLocation in
-                #if canImport(SwiftSyntax509)
-                let location = "\(sourceLocation.line):\(sourceLocation.column)"
-                #else
-                let location = "\(sourceLocation.debugDescription)"
-                #endif
-                print(
-                    """
-                    ===
-                    Formatting the following code produced diagnostic at location \(location) (see end):
-                    ---
-                    \(self.withLineNumberPrefixes)
-                    ---
-                    \(diagnostic.debugDescription)
-                    ===
-                    """
-                )
-                print(diagnostic)
-            }
-            return formattedString
+            // TODO: Formatting can go here.
+            self
         }
     }
 }

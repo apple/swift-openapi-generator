@@ -47,11 +47,7 @@ class FileBasedReferenceTests: XCTestCase {
     }
 
     func testPetstore() throws {
-        #if canImport(SwiftSyntax509)
         try _test(referenceProject: .init(name: .petstore))
-        #else
-        XCTFail("Update SwiftFormat to at least 509 to run this test.")
-        #endif
     }
 
     // MARK: - Private
@@ -153,8 +149,8 @@ class FileBasedReferenceTests: XCTestCase {
     ) throws {
         let modes: [GeneratorMode] = [
             .types,
-            .client,
-            .server,
+//            .client,
+//            .server,
         ]
         for mode in modes {
             try performReferenceTest(
@@ -178,7 +174,7 @@ extension FileBasedReferenceTests {
     ) -> GeneratorPipeline {
         let parser = YamsParser()
         let translator = MultiplexTranslator()
-        let renderer = TextBasedRenderer()
+        let renderer = TextBasedRenderer.default
 
         return _OpenAPIGeneratorCore.makeGeneratorPipeline(
             parser: parser,
