@@ -118,9 +118,7 @@ The algorithm outputs a list of type names that require boxing.
 
 It iterates over the types defined in `#/components/schemas`, in the order defined in the OpenAPI document, and for each type walks all of its references.
 
-Once it detects a reference cycle, it checks whether any of the types involved in the current cycle are already in the list, and if so, considers this cycle to already be addressed.
-
-If no type in the current cycle is found in the list, it adds the first type in the cycle, in other words the one to which the last reference closed the cycle.
+Once it detects a reference cycle, it adds the first type in the cycle, in other words the one to which the last reference closed the cycle.
 
 For example, walking the following:
 ```

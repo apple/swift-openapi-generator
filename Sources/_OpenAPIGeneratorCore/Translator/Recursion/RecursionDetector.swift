@@ -85,12 +85,7 @@ struct RecursionDetector {
         //   document.
         // - Walk all references and keep track of names already visited.
         // - If visiting a schema that is already in the stack, we found a cycle.
-        // - In the cycle, first identify the set of types involved in it, and
-        //   check if any of the types is already recorded as a recursive type.
-        //   If so, no action needed and terminate this branch and continue with
-        //   the next one.
-        // - If no type in the cycle is already included in the set of recursive
-        //   types, find the first boxable type starting from the current one
+        // - Find the first boxable type starting from the current one
         //   ("causing" the recursion) following the cycle, and add it to this
         //   set, and then terminate this branch and continue.
         // - At the end, return the set of recursive types.
@@ -102,21 +97,23 @@ struct RecursionDetector {
 
         func visit(_ node: Node) throws {
             let name = node.name
+            let previousStackSet = stackSet
+
+            // Add to the stack.
+            stack.append(node)
+            stackSet.insert(name)
+            defer {
+                stackSet.remove(name)
+                stack.removeLast()
+            }
 
             // Check if we've seen this node yet.
             if !seen.contains(name) {
 
-                // Add to the stack.
-                stack.append(node)
-                stackSet.insert(name)
-                defer {
-                    stackSet.remove(name)
-                    stack.removeLast()
-                }
-
                 // Not seen this node yet, so add it to seen, and then
                 // visit its edges.
                 seen.insert(name)
+
                 for edge in node.edges {
                     try visit(container.lookup(edge))
                 }
@@ -125,27 +122,17 @@ struct RecursionDetector {
 
             // We have seen this node.
 
-            // If the name is not in the stack, this is not a cycle.
-            if !stackSet.contains(name) {
+            // If the name is not in the stack twice, this is not a cycle.
+            if !previousStackSet.contains(name) {
                 return
             }
 
-            // It is in the stack, so we just closed a cycle.
+            // It is in the stack twice, so we just closed a cycle.
 
             // Identify the names involved in the cycle.
             // Right now, the stack must have the current node there twice.
             // Ignore everything before the first occurrence.
-
             let cycleNodes = stack.drop(while: { $0.name != name })
-            let cycleNames = Set(cycleNodes.map(\.name))
-
-            // Check if any of the names are already boxed.
-            if cycleNames.contains(where: { boxed.contains($0) }) {
-                // Found one, so we know this cycle will already be broken.
-                // No need to add any other type, just return from this
-                // visit.
-                return
-            }
 
             // We now choose which node will be marked as recursive.
             // Only consider boxable nodes, trying from the start of the cycle.
@@ -153,14 +140,20 @@ struct RecursionDetector {
                 throw RecursionError.invalidRecursion(name.description)
             }
 
+            let nameToAdd = firstBoxable.name
+
+            // Check if we're already going to box this type, if so, we're done.
+            if boxed.contains(nameToAdd) {
+                return
+            }
+
             // None of the types are boxed yet, so add the current node.
-            boxed.insert(firstBoxable.name)
+            boxed.insert(nameToAdd)
         }
 
         for node in rootNodes {
             try visit(node)
         }
-
         return boxed
     }
 }

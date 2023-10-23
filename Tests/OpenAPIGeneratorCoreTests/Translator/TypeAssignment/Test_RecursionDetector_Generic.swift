@@ -214,6 +214,28 @@ class Test_RecursionDetector_Generic: Test_Core {
         )
     }
 
+    func testMultipleCycles3() throws {
+        try _test(
+            rootNodes: [
+                "A",
+                "B",
+                "C",
+                "D",
+            ],
+            putIntoContainer: [
+                "A -> C",
+                "B -> D,A",
+                "C -> B,D",
+                "D -> B,C",
+            ],
+            expected: [
+                "A",
+                "B",
+                "C",
+            ]
+        )
+    }
+
     func testNested() throws {
         try _test(
             rootNodes: [
@@ -270,6 +292,25 @@ class Test_RecursionDetector_Generic: Test_Core {
                 "D -> B",
             ],
             expected: ["B"]
+        )
+    }
+
+    func testDifferentCyclesForSameNode() throws {
+        try _test(
+            rootNodes: [
+                "C",
+                "A",
+                "B",
+            ],
+            putIntoContainer: [
+                "A -> B",
+                "B -> C,A",
+                "C -> A",
+            ],
+            expected: [
+                "C",
+                "A",
+            ]
         )
     }
 
