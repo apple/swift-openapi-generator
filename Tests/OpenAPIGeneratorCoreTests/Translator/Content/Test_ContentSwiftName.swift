@@ -45,9 +45,9 @@ final class Test_ContentSwiftName: Test_Core {
             ("application/foo; bar=baz; boo=foo", "application_foo_bar_baz_boo_foo"),
             ("application/foo; bar = baz", "application_foo_bar_baz"),
         ]
-        for item in cases {
-            let contentType = try XCTUnwrap(ContentType(item.0))
-            XCTAssertEqual(nameMaker(contentType), item.1, "Case \(item.0) failed")
+        for (string, name) in cases {
+            let contentType = try XCTUnwrap(ContentType(string: string))
+            XCTAssertEqual(nameMaker(contentType), name, "Case \(string) failed")
         }
     }
 }

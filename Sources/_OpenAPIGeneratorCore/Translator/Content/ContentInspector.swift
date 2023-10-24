@@ -38,7 +38,7 @@ extension FileTranslator {
         inParent parent: TypeName
     ) throws -> TypedSchemaContent? {
         guard
-            let content = bestSingleContent(
+            let content = try bestSingleContent(
                 map,
                 excludeBinary: excludeBinary,
                 foundIn: parent.description
@@ -78,7 +78,7 @@ extension FileTranslator {
         excludeBinary: Bool = false,
         inParent parent: TypeName
     ) throws -> [TypedSchemaContent] {
-        let contents = supportedContents(
+        let contents = try supportedContents(
             map,
             excludeBinary: excludeBinary,
             foundIn: parent.description
@@ -111,18 +111,19 @@ extension FileTranslator {
     ///   - foundIn: The location where this content is parsed.
     /// - Returns: the detected content type + schema, nil if no supported
     /// schema found or if empty.
+    /// - Throws: If parsing of any of the contents throws.
     func supportedContents(
         _ contents: OpenAPI.Content.Map,
         excludeBinary: Bool = false,
         foundIn: String
-    ) -> [SchemaContent] {
+    ) throws -> [SchemaContent] {
         guard !contents.isEmpty else {
             return []
         }
         return
-            contents
+            try contents
             .compactMap { key, value in
-                parseContentIfSupported(
+                try parseContentIfSupported(
                     contentKey: key,
                     contentValue: value,
                     excludeBinary: excludeBinary,
@@ -145,11 +146,12 @@ extension FileTranslator {
     ///   - foundIn: The location where this content is parsed.
     /// - Returns: the detected content type + schema, nil if no supported
     /// schema found or if empty.
+    /// - Throws: If a malformed content type string is encountered.
     func bestSingleContent(
         _ map: OpenAPI.Content.Map,
         excludeBinary: Bool = false,
         foundIn: String
-    ) -> SchemaContent? {
+    ) throws -> SchemaContent? {
         guard !map.isEmpty else {
             return nil
         }
@@ -159,19 +161,25 @@ extension FileTranslator {
                 foundIn: foundIn
             )
         }
-        let chosenContent: (SchemaContent, OpenAPI.Content)?
-        if let (contentKey, contentValue) = map.first(where: { $0.key.isJSON }) {
-            let contentType = contentKey.asGeneratorContentType
+        let mapWithContentTypes = try map.map { key, content in
+            try (type: key.asGeneratorContentType, value: content)
+        }
+
+        let chosenContent: (type: ContentType, schema: SchemaContent, content: OpenAPI.Content)?
+        if let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isJSON }) {
             chosenContent = (
+                contentType,
                 .init(
                     contentType: contentType,
                     schema: contentValue.schema
                 ),
                 contentValue
             )
-        } else if !excludeBinary, let (contentKey, contentValue) = map.first(where: { $0.key.isBinary }) {
-            let contentType = contentKey.asGeneratorContentType
+        } else if !excludeBinary,
+            let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isBinary })
+        {
             chosenContent = (
+                contentType,
                 .init(
                     contentType: contentType,
                     schema: .b(.string(format: .binary))
@@ -186,18 +194,18 @@ extension FileTranslator {
             chosenContent = nil
         }
         if let chosenContent {
-            let contentType = chosenContent.0.contentType
+            let contentType = chosenContent.type
             if contentType.lowercasedType == "multipart"
                 || contentType.lowercasedTypeAndSubtype.contains("application/x-www-form-urlencoded")
             {
                 diagnostics.emitUnsupportedIfNotNil(
-                    chosenContent.1.encoding,
+                    chosenContent.content.encoding,
                     "Custom encoding for multipart/formEncoded content",
                     foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
                 )
             }
         }
-        return chosenContent?.0
+        return chosenContent?.schema
     }
 
     /// Returns a wrapped version of the provided content if supported, returns
@@ -215,14 +223,15 @@ extension FileTranslator {
     ///   type should be skipped, for example used when encoding headers.
     ///   - foundIn: The location where this content is parsed.
     /// - Returns: The detected content type + schema, nil if unsupported.
+    /// - Throws: If a malformed content type string is encountered.
     func parseContentIfSupported(
         contentKey: OpenAPI.ContentType,
         contentValue: OpenAPI.Content,
         excludeBinary: Bool = false,
         foundIn: String
-    ) -> SchemaContent? {
-        if contentKey.isJSON {
-            let contentType = contentKey.asGeneratorContentType
+    ) throws -> SchemaContent? {
+        let contentType = try contentKey.asGeneratorContentType
+        if contentType.isJSON {
             if contentType.lowercasedType == "multipart"
                 || contentType.lowercasedTypeAndSubtype.contains("application/x-www-form-urlencoded")
             {
@@ -237,15 +246,13 @@ extension FileTranslator {
                 schema: contentValue.schema
             )
         }
-        if contentKey.isUrlEncodedForm {
-            let contentType = ContentType(contentKey.typeAndSubtype)
+        if contentType.isUrlEncodedForm {
             return .init(
                 contentType: contentType,
                 schema: contentValue.schema
             )
         }
-        if !excludeBinary, contentKey.isBinary {
-            let contentType = contentKey.asGeneratorContentType
+        if !excludeBinary, contentType.isBinary {
             return .init(
                 contentType: contentType,
                 schema: .b(.string(format: .binary))
