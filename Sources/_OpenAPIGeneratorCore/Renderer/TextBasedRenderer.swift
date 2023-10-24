@@ -96,7 +96,7 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     // MARK: - Internals
-    
+
     /// Returns the current contents of the writer as a string.
     func renderedContents() -> String {
         writer.rendered()
