@@ -231,7 +231,6 @@ fileprivate extension CompatibilityTest {
                 for mode in GeneratorMode.allCases {
                     group.addTask {
                         let generator = makeGeneratorPipeline(
-                            formatter: { $0 },
                             config: Config(mode: mode),
                             diagnostics: diagnosticsCollector
                         )
@@ -243,7 +242,6 @@ fileprivate extension CompatibilityTest {
         } else {
             outputs = try GeneratorMode.allCases.map { mode in
                 let generator = makeGeneratorPipeline(
-                    formatter: { $0 },
                     config: Config(mode: mode),
                     diagnostics: diagnosticsCollector
                 )

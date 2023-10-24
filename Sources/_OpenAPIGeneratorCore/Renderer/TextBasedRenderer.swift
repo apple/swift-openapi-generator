@@ -697,10 +697,14 @@ struct TextBasedRenderer: RendererProtocol {
             writer.nextLineAppendsToLastLine()
         }
         writer.writeLine(" {")
-        writer.withNestedLevel {
-            for member in structDesc.members {
-                renderDeclaration(member)
+        if !structDesc.members.isEmpty {
+            writer.withNestedLevel {
+                for member in structDesc.members {
+                    renderDeclaration(member)
+                }
             }
+        } else {
+            writer.nextLineAppendsToLastLine()
         }
         writer.writeLine("}")
     }
@@ -719,10 +723,14 @@ struct TextBasedRenderer: RendererProtocol {
             writer.nextLineAppendsToLastLine()
         }
         writer.writeLine(" {")
-        writer.withNestedLevel {
-            for member in protocolDesc.members {
-                renderDeclaration(member)
+        if !protocolDesc.members.isEmpty {
+            writer.withNestedLevel {
+                for member in protocolDesc.members {
+                    renderDeclaration(member)
+                }
             }
+        } else {
+            writer.nextLineAppendsToLastLine()
         }
         writer.writeLine("}")
     }
@@ -748,10 +756,14 @@ struct TextBasedRenderer: RendererProtocol {
             writer.nextLineAppendsToLastLine()
         }
         writer.writeLine(" {")
-        writer.withNestedLevel {
-            for member in enumDesc.members {
-                renderDeclaration(member)
+        if !enumDesc.members.isEmpty {
+            writer.withNestedLevel {
+                for member in enumDesc.members {
+                    renderDeclaration(member)
+                }
             }
+        } else {
+            writer.nextLineAppendsToLastLine()
         }
         writer.writeLine("}")
     }

@@ -2599,7 +2599,7 @@ private func XCTAssertSwiftEquivalent(
     let contents = renderer.renderedContents()
     try XCTAssertEqualWithDiff(
         contents,
-        expectedSwift.swiftFormatted,
+        expectedSwift,
         file: file,
         line: line
     )
@@ -2616,7 +2616,7 @@ private func XCTAssertSwiftEquivalent(
     let contents = renderer.renderedContents()
     try XCTAssertEqualWithDiff(
         contents,
-        expectedSwift.swiftFormatted,
+        expectedSwift,
         file: file,
         line: line
     )
@@ -2633,7 +2633,7 @@ private func XCTAssertSwiftEquivalent(
     let contents = renderer.renderedContents()
     try XCTAssertEqualWithDiff(
         contents,
-        expectedSwift.swiftFormatted,
+        expectedSwift,
         file: file,
         line: line
     )
