@@ -28,7 +28,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Headers {
-              public typealias MyHeader = Swift.String
+                public typealias MyHeader = Swift.String
             }
             """
         )
@@ -47,7 +47,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Headers {
-              public typealias MyHeader = Components.Schemas.MySchema
+                public typealias MyHeader = Components.Schemas.MySchema
             }
             """
         )
@@ -65,7 +65,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Parameters {
-              public typealias MyParam = Swift.String
+                public typealias MyParam = Swift.String
             }
             """
         )
@@ -86,7 +86,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Parameters {
-              public typealias MyParam = Components.Schemas.MySchema
+                public typealias MyParam = Components.Schemas.MySchema
             }
             """
         )
@@ -261,10 +261,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   - nullableString
             """,
             """
-                public enum Schemas {
-                  public typealias MyRequiredString = Swift.String
-                  public typealias MyNullableString = Swift.String
-                  public struct MyObject: Codable, Hashable, Sendable {
+            public enum Schemas {
+                public typealias MyRequiredString = Swift.String
+                public typealias MyNullableString = Swift.String
+                public struct MyObject: Codable, Hashable, Sendable {
                     public var id: Swift.Int64
                     public var alias: Swift.String?
                     public var requiredString: Components.Schemas.MyRequiredString
@@ -286,8 +286,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case requiredString
                         case nullableString
                     }
-                  }
                 }
+            }
             """
         )
     }
@@ -312,13 +312,17 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   - binaryProperty
             """,
             """
-                public enum Schemas {
-                  public struct MyObject: Codable, Hashable, Sendable {
+            public enum Schemas {
+                public struct MyObject: Codable, Hashable, Sendable {
                     public var actualString: Swift.String
-                    public init(actualString: Swift.String) { self.actualString = actualString }
-                    public enum CodingKeys: String, CodingKey { case actualString }
-                  }
+                    public init(actualString: Swift.String) {
+                        self.actualString = actualString
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case actualString
+                    }
                 }
+            }
             """
         )
     }
@@ -364,7 +368,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         value3 = try decoder.decodeFromSingleValueContainer()
                         value4 = try decoder.decodeFromSingleValueContainer()
                     }
-                    public func encode(to encoder: any Encoder) throws { try encoder.encodeToSingleValueContainer(value3) }
+                    public func encode(to encoder: any Encoder) throws {
+                        try encoder.encodeToSingleValueContainer(value3)
+                    }
                 }
             }
             """
@@ -458,24 +464,39 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public struct A: Codable, Hashable, Sendable {
                     public var which: Swift.String?
-                    public init(which: Swift.String? = nil) { self.which = which }
-                    public enum CodingKeys: String, CodingKey { case which }
+                    public init(which: Swift.String? = nil) {
+                        self.which = which
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case which
+                    }
                 }
                 public struct B: Codable, Hashable, Sendable {
                     public var which: Swift.String?
-                    public init(which: Swift.String? = nil) { self.which = which }
-                    public enum CodingKeys: String, CodingKey { case which }
+                    public init(which: Swift.String? = nil) {
+                        self.which = which
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case which
+                    }
                 }
                 @frozen public enum MyOneOf: Codable, Hashable, Sendable {
                     case A(Components.Schemas.A)
                     case B(Components.Schemas.B)
-                    public enum CodingKeys: String, CodingKey { case which }
+                    public enum CodingKeys: String, CodingKey {
+                        case which
+                    }
                     public init(from decoder: any Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
-                        let discriminator = try container.decode(Swift.String.self, forKey: .which)
+                        let discriminator = try container.decode(
+                            Swift.String.self,
+                            forKey: .which
+                        )
                         switch discriminator {
-                        case "A", "#/components/schemas/A": self = .A(try .init(from: decoder))
-                        case "B", "#/components/schemas/B": self = .B(try .init(from: decoder))
+                        case "A", "#/components/schemas/A":
+                            self = .A(try .init(from: decoder))
+                        case "B", "#/components/schemas/B":
+                            self = .B(try .init(from: decoder))
                         default:
                             throw Swift.DecodingError.failedToDecodeOneOfSchema(
                                 type: Self.self,
@@ -485,8 +506,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public func encode(to encoder: any Encoder) throws {
                         switch self {
-                        case let .A(value): try value.encode(to: encoder)
-                        case let .B(value): try value.encode(to: encoder)
+                        case let .A(value):
+                            try value.encode(to: encoder)
+                        case let .B(value):
+                            try value.encode(to: encoder)
                         }
                     }
                 }
@@ -530,33 +553,54 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public struct A: Codable, Hashable, Sendable {
                     public var which: Swift.String?
-                    public init(which: Swift.String? = nil) { self.which = which }
-                    public enum CodingKeys: String, CodingKey { case which }
+                    public init(which: Swift.String? = nil) {
+                        self.which = which
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case which
+                    }
                 }
                 public struct B: Codable, Hashable, Sendable {
                     public var which: Swift.String?
-                    public init(which: Swift.String? = nil) { self.which = which }
-                    public enum CodingKeys: String, CodingKey { case which }
+                    public init(which: Swift.String? = nil) {
+                        self.which = which
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case which
+                    }
                 }
                 public struct C: Codable, Hashable, Sendable {
                     public var which: Swift.String?
-                    public init(which: Swift.String? = nil) { self.which = which }
-                    public enum CodingKeys: String, CodingKey { case which }
+                    public init(which: Swift.String? = nil) {
+                        self.which = which
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case which
+                    }
                 }
                 @frozen public enum MyOneOf: Codable, Hashable, Sendable {
                     case a(Components.Schemas.A)
                     case a2(Components.Schemas.A)
                     case b(Components.Schemas.B)
                     case C(Components.Schemas.C)
-                    public enum CodingKeys: String, CodingKey { case which }
+                    public enum CodingKeys: String, CodingKey {
+                        case which
+                    }
                     public init(from decoder: any Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
-                        let discriminator = try container.decode(Swift.String.self, forKey: .which)
+                        let discriminator = try container.decode(
+                            Swift.String.self,
+                            forKey: .which
+                        )
                         switch discriminator {
-                        case "a": self = .a(try .init(from: decoder))
-                        case "a2": self = .a2(try .init(from: decoder))
-                        case "b": self = .b(try .init(from: decoder))
-                        case "C", "#/components/schemas/C": self = .C(try .init(from: decoder))
+                        case "a":
+                            self = .a(try .init(from: decoder))
+                        case "a2":
+                            self = .a2(try .init(from: decoder))
+                        case "b":
+                            self = .b(try .init(from: decoder))
+                        case "C", "#/components/schemas/C":
+                            self = .C(try .init(from: decoder))
                         default:
                             throw Swift.DecodingError.failedToDecodeOneOfSchema(
                                 type: Self.self,
@@ -566,10 +610,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public func encode(to encoder: any Encoder) throws {
                         switch self {
-                        case let .a(value): try value.encode(to: encoder)
-                        case let .a2(value): try value.encode(to: encoder)
-                        case let .b(value): try value.encode(to: encoder)
-                        case let .C(value): try value.encode(to: encoder)
+                        case let .a(value):
+                            try value.encode(to: encoder)
+                        case let .a2(value):
+                            try value.encode(to: encoder)
+                        case let .b(value):
+                            try value.encode(to: encoder)
+                        case let .C(value):
+                            try value.encode(to: encoder)
                         }
                     }
                 }
@@ -616,9 +664,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public func encode(to encoder: any Encoder) throws {
                         switch self {
-                        case let .case1(value): try encoder.encodeToSingleValueContainer(value)
-                        case let .case2(value): try encoder.encodeToSingleValueContainer(value)
-                        case let .A(value): try value.encode(to: encoder)
+                        case let .case1(value):
+                            try encoder.encodeToSingleValueContainer(value)
+                        case let .case2(value):
+                            try encoder.encodeToSingleValueContainer(value)
+                        case let .A(value):
+                            try value.encode(to: encoder)
                         }
                     }
                 }
@@ -675,9 +726,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         }
                         public func encode(to encoder: any Encoder) throws {
                             switch self {
-                            case let .case1(value): try encoder.encodeToSingleValueContainer(value)
-                            case let .case2(value): try encoder.encodeToSingleValueContainer(value)
-                            case let .A(value): try value.encode(to: encoder)
+                            case let .case1(value):
+                                try encoder.encodeToSingleValueContainer(value)
+                            case let .case2(value):
+                                try encoder.encodeToSingleValueContainer(value)
+                            case let .A(value):
+                                try value.encode(to: encoder)
                             }
                         }
                     }
@@ -727,8 +781,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(value1: Components.Schemas.A) {
                         self.value1 = value1
                     }
-                    public init(from decoder: any Decoder) throws { value1 = try decoder.decodeFromSingleValueContainer() }
-                    public func encode(to encoder: any Encoder) throws { try encoder.encodeToSingleValueContainer(value1) }
+                    public init(from decoder: any Decoder) throws {
+                        value1 = try decoder.decodeFromSingleValueContainer()
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        try encoder.encodeToSingleValueContainer(value1)
+                    }
                 }
             }
             """
@@ -756,13 +814,23 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct B: Codable, Hashable, Sendable {
                     public struct cPayload: Codable, Hashable, Sendable {
                         public var value1: Components.Schemas.A
-                        public init(value1: Components.Schemas.A) { self.value1 = value1 }
-                        public init(from decoder: any Decoder) throws { value1 = try decoder.decodeFromSingleValueContainer() }
-                        public func encode(to encoder: any Encoder) throws { try encoder.encodeToSingleValueContainer(value1) }
+                        public init(value1: Components.Schemas.A) {
+                            self.value1 = value1
+                        }
+                        public init(from decoder: any Decoder) throws {
+                            value1 = try decoder.decodeFromSingleValueContainer()
+                        }
+                        public func encode(to encoder: any Encoder) throws {
+                            try encoder.encodeToSingleValueContainer(value1)
+                        }
                     }
                     public var c: Components.Schemas.B.cPayload
-                    public init(c: Components.Schemas.B.cPayload) { self.c = c }
-                    public enum CodingKeys: String, CodingKey { case c }
+                    public init(c: Components.Schemas.B.cPayload) {
+                        self.c = c
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case c
+                    }
                 }
             }
             """
@@ -789,13 +857,23 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct B: Codable, Hashable, Sendable {
                     public struct cPayload: Codable, Hashable, Sendable {
                         public var value1: Components.Schemas.A
-                        public init(value1: Components.Schemas.A) { self.value1 = value1 }
-                        public init(from decoder: any Decoder) throws { value1 = try decoder.decodeFromSingleValueContainer() }
-                        public func encode(to encoder: any Encoder) throws { try encoder.encodeToSingleValueContainer(value1) }
+                        public init(value1: Components.Schemas.A) {
+                            self.value1 = value1
+                        }
+                        public init(from decoder: any Decoder) throws {
+                            value1 = try decoder.decodeFromSingleValueContainer()
+                        }
+                        public func encode(to encoder: any Encoder) throws {
+                            try encoder.encodeToSingleValueContainer(value1)
+                        }
                     }
                     public var c: Components.Schemas.B.cPayload?
-                    public init(c: Components.Schemas.B.cPayload? = nil) { self.c = c }
-                    public enum CodingKeys: String, CodingKey { case c }
+                    public init(c: Components.Schemas.B.cPayload? = nil) {
+                        self.c = c
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case c
+                    }
                 }
             }
             """
@@ -865,8 +943,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Schemas {
                 public struct MyOpenEnum: Codable, Hashable, Sendable {
-                    @frozen
-                    public enum Value1Payload: String, Codable, Hashable, Sendable {
+                    @frozen public enum Value1Payload: String, Codable, Hashable, Sendable {
                         case one = "one"
                         case two = "two"
                     }
@@ -937,8 +1014,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct MyObject: Codable, Hashable, Sendable {
                     @available(*, deprecated)
                     public var id: Swift.String?
-                    public init(id: Swift.String? = nil) { self.id = id }
-                    public enum CodingKeys: String, CodingKey { case id }
+                    public init(id: Swift.String? = nil) {
+                        self.id = id
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case id
+                    }
                 }
             }
             """
@@ -993,9 +1074,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct MyObj: Codable, Hashable, Sendable {
                     public var stuff: OpenAPIRuntime.Base64EncodedData?
                     public init(stuff: OpenAPIRuntime.Base64EncodedData? = nil) {
-                      self.stuff = stuff
+                        self.stuff = stuff
                     }
-                    public enum CodingKeys: String, CodingKey { case stuff }
+                    public enum CodingKeys: String, CodingKey {
+                        case stuff
+                    }
                 }
             }
             """
@@ -1016,17 +1099,31 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public struct Node: Codable, Hashable, Sendable {
                     public var parent: Components.Schemas.Node? {
-                        get { storage.value.parent }
-                        _modify { yield &storage.value.parent }
+                        get  {
+                            storage.value.parent
+                        }
+                        _modify {
+                            yield &storage.value.parent
+                        }
                     }
-                    public init(parent: Components.Schemas.Node? = nil) { storage = .init(value: .init(parent: parent)) }
-                    public enum CodingKeys: String, CodingKey { case parent }
-                    public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
-                    public func encode(to encoder: any Encoder) throws { try storage.encode(to: encoder) }
+                    public init(parent: Components.Schemas.Node? = nil) {
+                        storage = .init(value: .init(parent: parent))
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case parent
+                    }
+                    public init(from decoder: any Decoder) throws {
+                        storage = try .init(from: decoder)
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        try storage.encode(to: encoder)
+                    }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
                         var parent: Components.Schemas.Node?
-                        init(parent: Components.Schemas.Node? = nil) { self.parent = parent }
+                        init(parent: Components.Schemas.Node? = nil) {
+                            self.parent = parent
+                        }
                         typealias CodingKeys = Components.Schemas.Node.CodingKeys
                     }
                 }
@@ -1058,37 +1155,66 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public struct Node: Codable, Hashable, Sendable {
                     public var name: Swift.String {
-                        get { storage.value.name }
-                        _modify { yield &storage.value.name }
+                        get  {
+                            storage.value.name
+                        }
+                        _modify {
+                            yield &storage.value.name
+                        }
                     }
                     public struct parentPayload: Codable, Hashable, Sendable {
                         public var nested: Components.Schemas.Node
-                        public init(nested: Components.Schemas.Node) { self.nested = nested }
-                        public enum CodingKeys: String, CodingKey { case nested }
+                        public init(nested: Components.Schemas.Node) {
+                            self.nested = nested
+                        }
+                        public enum CodingKeys: String, CodingKey {
+                            case nested
+                        }
                     }
                     public var parent: Components.Schemas.Node.parentPayload? {
-                        get { storage.value.parent }
-                        _modify { yield &storage.value.parent }
+                        get  {
+                            storage.value.parent
+                        }
+                        _modify {
+                            yield &storage.value.parent
+                        }
                     }
-                    public init(name: Swift.String, parent: Components.Schemas.Node.parentPayload? = nil) {
-                        storage = .init(value: .init(name: name, parent: parent))
+                    public init(
+                        name: Swift.String,
+                        parent: Components.Schemas.Node.parentPayload? = nil
+                    ) {
+                        storage = .init(value: .init(
+                            name: name,
+                            parent: parent
+                        ))
                     }
                     public enum CodingKeys: String, CodingKey {
                         case name
                         case parent
                     }
-                    public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
-                    public func encode(to encoder: any Encoder) throws { try storage.encode(to: encoder) }
+                    public init(from decoder: any Decoder) throws {
+                        storage = try .init(from: decoder)
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        try storage.encode(to: encoder)
+                    }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
                         var name: Swift.String
                         struct parentPayload: Codable, Hashable, Sendable {
                             public var nested: Components.Schemas.Node
-                            public init(nested: Components.Schemas.Node) { self.nested = nested }
-                            public enum CodingKeys: String, CodingKey { case nested }
+                            public init(nested: Components.Schemas.Node) {
+                                self.nested = nested
+                            }
+                            public enum CodingKeys: String, CodingKey {
+                                case nested
+                            }
                         }
                         var parent: Components.Schemas.Node.parentPayload?
-                        init(name: Swift.String, parent: Components.Schemas.Node.parentPayload? = nil) {
+                        init(
+                            name: Swift.String,
+                            parent: Components.Schemas.Node.parentPayload? = nil
+                        ) {
                             self.name = name
                             self.parent = parent
                         }
@@ -1116,27 +1242,51 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct Node: Codable, Hashable, Sendable {
                     public struct Value1Payload: Codable, Hashable, Sendable {
                         public var parent: Components.Schemas.Node?
-                        public init(parent: Components.Schemas.Node? = nil) { self.parent = parent }
-                        public enum CodingKeys: String, CodingKey { case parent }
+                        public init(parent: Components.Schemas.Node? = nil) {
+                            self.parent = parent
+                        }
+                        public enum CodingKeys: String, CodingKey {
+                            case parent
+                        }
                     }
                     public var value1: Components.Schemas.Node.Value1Payload {
-                        get { storage.value.value1 }
-                        _modify { yield &storage.value.value1 }
+                        get  {
+                            storage.value.value1
+                        }
+                        _modify {
+                            yield &storage.value.value1
+                        }
                     }
-                    public init(value1: Components.Schemas.Node.Value1Payload) { storage = .init(value: .init(value1: value1)) }
-                    public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
-                    public func encode(to encoder: any Encoder) throws { try storage.encode(to: encoder) }
+                    public init(value1: Components.Schemas.Node.Value1Payload) {
+                        storage = .init(value: .init(value1: value1))
+                    }
+                    public init(from decoder: any Decoder) throws {
+                        storage = try .init(from: decoder)
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        try storage.encode(to: encoder)
+                    }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
                         struct Value1Payload: Codable, Hashable, Sendable {
                             public var parent: Components.Schemas.Node?
-                            public init(parent: Components.Schemas.Node? = nil) { self.parent = parent }
-                            public enum CodingKeys: String, CodingKey { case parent }
+                            public init(parent: Components.Schemas.Node? = nil) {
+                                self.parent = parent
+                            }
+                            public enum CodingKeys: String, CodingKey {
+                                case parent
+                            }
                         }
                         var value1: Components.Schemas.Node.Value1Payload
-                        init(value1: Components.Schemas.Node.Value1Payload) { self.value1 = value1 }
-                        init(from decoder: any Decoder) throws { value1 = try .init(from: decoder) }
-                        func encode(to encoder: any Encoder) throws { try value1.encode(to: encoder) }
+                        init(value1: Components.Schemas.Node.Value1Payload) {
+                            self.value1 = value1
+                        }
+                        init(from decoder: any Decoder) throws {
+                            value1 = try .init(from: decoder)
+                        }
+                        func encode(to encoder: any Encoder) throws {
+                            try value1.encode(to: encoder)
+                        }
                     }
                 }
             }
@@ -1157,23 +1307,44 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public struct Node: Codable, Hashable, Sendable {
                     public var value1: Components.Schemas.Node? {
-                        get { storage.value.value1 }
-                        _modify { yield &storage.value.value1 }
+                        get  {
+                            storage.value.value1
+                        }
+                        _modify {
+                            yield &storage.value.value1
+                        }
                     }
                     public var value2: Swift.String? {
-                        get { storage.value.value2 }
-                        _modify { yield &storage.value.value2 }
+                        get  {
+                            storage.value.value2
+                        }
+                        _modify {
+                            yield &storage.value.value2
+                        }
                     }
-                    public init(value1: Components.Schemas.Node? = nil, value2: Swift.String? = nil) {
-                        storage = .init(value: .init(value1: value1, value2: value2))
+                    public init(
+                        value1: Components.Schemas.Node? = nil,
+                        value2: Swift.String? = nil
+                    ) {
+                        storage = .init(value: .init(
+                            value1: value1,
+                            value2: value2
+                        ))
                     }
-                    public init(from decoder: any Decoder) throws { storage = try .init(from: decoder) }
-                    public func encode(to encoder: any Encoder) throws { try storage.encode(to: encoder) }
+                    public init(from decoder: any Decoder) throws {
+                        storage = try .init(from: decoder)
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        try storage.encode(to: encoder)
+                    }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
                         var value1: Components.Schemas.Node?
                         var value2: Swift.String?
-                        init(value1: Components.Schemas.Node? = nil, value2: Swift.String? = nil) {
+                        init(
+                            value1: Components.Schemas.Node? = nil,
+                            value2: Swift.String? = nil
+                        ) {
                             self.value1 = value1
                             self.value2 = value2
                         }
@@ -1220,12 +1391,17 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self = .case2(try decoder.decodeFromSingleValueContainer())
                             return
                         } catch {}
-                        throw Swift.DecodingError.failedToDecodeOneOfSchema(type: Self.self, codingPath: decoder.codingPath)
+                        throw Swift.DecodingError.failedToDecodeOneOfSchema(
+                            type: Self.self,
+                            codingPath: decoder.codingPath
+                        )
                     }
                     public func encode(to encoder: any Encoder) throws {
                         switch self {
-                        case let .Node(value): try value.encode(to: encoder)
-                        case let .case2(value): try encoder.encodeToSingleValueContainer(value)
+                        case let .Node(value):
+                            try value.encode(to: encoder)
+                        case let .case2(value):
+                            try encoder.encodeToSingleValueContainer(value)
                         }
                     }
                 }
@@ -1270,15 +1446,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         public var json: Swift.String {
                             get throws {
                                 switch self {
-                                case let .json(body): return body
+                                case let .json(body):
+                                    return body
                                 }
                             }
                         }
                     }
                     public var body: Components.Responses.BadRequest.Body
-                    public init(
-                        body: Components.Responses.BadRequest.Body
-                    ) {
+                    public init(body: Components.Responses.BadRequest.Body) {
                         self.body = body
                     }
                 }
@@ -1308,38 +1483,64 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct MultipleContentTypes: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.Int)
-                        public var json: Swift.Int { get throws {
-                            switch self {
-                            case let .json(body): return body
-                            default: try throwUnexpectedResponseBody(expectedContent: "application/json", body: self)
+                        public var json: Swift.Int {
+                            get throws {
+                                switch self {
+                                case let .json(body):
+                                    return body
+                                default:
+                                    try throwUnexpectedResponseBody(
+                                        expectedContent: "application/json",
+                                        body: self
+                                    )
+                                }
                             }
-                        }}
+                        }
                         case application_json_foo_bar(Swift.Int)
-                        public var application_json_foo_bar: Swift.Int { get throws {
-                            switch self {
-                            case let .application_json_foo_bar(body): return body
-                            default: try throwUnexpectedResponseBody(expectedContent: "application/json", body: self)
+                        public var application_json_foo_bar: Swift.Int {
+                            get throws {
+                                switch self {
+                                case let .application_json_foo_bar(body):
+                                    return body
+                                default:
+                                    try throwUnexpectedResponseBody(
+                                        expectedContent: "application/json",
+                                        body: self
+                                    )
+                                }
                             }
-                        }}
+                        }
                         case plainText(OpenAPIRuntime.HTTPBody)
-                        public var plainText: OpenAPIRuntime.HTTPBody { get throws {
-                            switch self {
-                            case let .plainText(body): return body
-                            default: try throwUnexpectedResponseBody(expectedContent: "text/plain", body: self)
+                        public var plainText: OpenAPIRuntime.HTTPBody {
+                            get throws {
+                                switch self {
+                                case let .plainText(body):
+                                    return body
+                                default:
+                                    try throwUnexpectedResponseBody(
+                                        expectedContent: "text/plain",
+                                        body: self
+                                    )
+                                }
                             }
-                        }}
+                        }
                         case binary(OpenAPIRuntime.HTTPBody)
-                        public var binary: OpenAPIRuntime.HTTPBody { get throws {
-                            switch self {
-                            case let .binary(body): return body
-                            default: try throwUnexpectedResponseBody(expectedContent: "application/octet-stream", body: self)
+                        public var binary: OpenAPIRuntime.HTTPBody {
+                            get throws {
+                                switch self {
+                                case let .binary(body):
+                                    return body
+                                default:
+                                    try throwUnexpectedResponseBody(
+                                        expectedContent: "application/octet-stream",
+                                        body: self
+                                    )
+                                }
                             }
-                        }}
+                        }
                     }
                     public var body: Components.Responses.MultipleContentTypes.Body
-                    public init(
-                        body: Components.Responses.MultipleContentTypes.Body
-                    ) {
+                    public init(body: Components.Responses.MultipleContentTypes.Body) {
                         self.body = body
                     }
                 }
@@ -1365,12 +1566,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public struct Headers: Sendable, Hashable {
                         public var X_hyphen_Reason: Swift.String?
                         public init(X_hyphen_Reason: Swift.String? = nil) {
-                            self.X_hyphen_Reason = X_hyphen_Reason }
+                            self.X_hyphen_Reason = X_hyphen_Reason
+                        }
                     }
                     public var headers: Components.Responses.BadRequest.Headers
-                    public init(
-                        headers: Components.Responses.BadRequest.Headers = .init()
-                    ) {
+                    public init(headers: Components.Responses.BadRequest.Headers = .init()) {
                         self.headers = headers
                     }
                 }
@@ -1397,12 +1597,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public struct Headers: Sendable, Hashable {
                         public var X_hyphen_Reason: Swift.String
                         public init(X_hyphen_Reason: Swift.String) {
-                            self.X_hyphen_Reason = X_hyphen_Reason }
+                            self.X_hyphen_Reason = X_hyphen_Reason
+                        }
                     }
                     public var headers: Components.Responses.BadRequest.Headers
-                    public init(
-                        headers: Components.Responses.BadRequest.Headers
-                    ) {
+                    public init(headers: Components.Responses.BadRequest.Headers) {
                         self.headers = headers
                     }
                 }
@@ -1494,8 +1693,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 @frozen public enum MyRequestBody: Sendable, Hashable {
                     public struct urlEncodedFormPayload: Codable, Hashable, Sendable {
                         public var foo: Swift.String
-                        public init(foo: Swift.String) { self.foo = foo }
-                        public enum CodingKeys: String, CodingKey { case foo }
+                        public init(foo: Swift.String) {
+                            self.foo = foo
+                        }
+                        public enum CodingKeys: String, CodingKey {
+                            case foo
+                        }
                     }
                     case urlEncodedForm(Components.RequestBodies.MyRequestBody.urlEncodedFormPayload)
                 }
@@ -1578,7 +1781,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     middlewares: middlewares
                 )
                 try transport.register(
-                    { try await server.getHealth(request: $0, body: $1, metadata: $2) },
+                    {
+                        try await server.getHealth(
+                            request: $0,
+                            body: $1,
+                            metadata: $2
+                        )
+                    },
                     method: .get,
                     path: server.apiPathComponentsWithServerPrefix("/health")
                 )
@@ -1598,8 +1807,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 serverURL: Foundation.URL = .defaultOpenAPIServerURL,
                 configuration: Configuration = .init(),
                 middlewares: [any ServerMiddleware] = []
-            ) throws {
-            }
+            ) throws {}
             """
         )
     }
@@ -1649,13 +1857,16 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
                         public var json: Swift.String {
-                            get throws { switch self { case let .json(body): return body } }
+                            get throws {
+                                switch self {
+                                case let .json(body):
+                                    return body
+                                }
+                            }
                         }
                     }
                     public var body: Components.Responses.MyResponse.Body
-                    public init(
-                        body: Components.Responses.MyResponse.Body
-                    ) {
+                    public init(body: Components.Responses.MyResponse.Body) {
                         self.body = body
                     }
                 }
@@ -1684,13 +1895,16 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
                         public var json: Swift.String {
-                            get throws { switch self { case let .json(body): return body } }
+                            get throws {
+                                switch self {
+                                case let .json(body):
+                                    return body
+                                }
+                            }
                         }
                     }
                     public var body: Components.Responses.MyResponse.Body
-                    public init(
-                        body: Components.Responses.MyResponse.Body
-                    ) {
+                    public init(body: Components.Responses.MyResponse.Body) {
                         self.body = body
                     }
                 }
@@ -1750,8 +1964,15 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 }
                 """,
             client: """
-                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
-                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                { input in
+                    let path = try converter.renderedPath(
+                        template: "/foo",
+                        parameters: []
+                    )
+                    var request: HTTPTypes.HTTPRequest = .init(
+                        soar_path: path,
+                        method: .get
+                    )
                     suppressMutabilityWarning(&request)
                     try converter.setQueryItemAsURI(
                         in: &request,
@@ -1825,14 +2046,25 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             types: """
                 public struct Input: Sendable, Hashable {
-                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    @frozen public enum Body: Sendable, Hashable {
+                        case json(Swift.String)
+                    }
                     public var body: Operations.get_sol_foo.Input.Body
-                    public init(body: Operations.get_sol_foo.Input.Body) { self.body = body }
+                    public init(body: Operations.get_sol_foo.Input.Body) {
+                        self.body = body
+                    }
                 }
                 """,
             client: """
-                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
-                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                { input in
+                    let path = try converter.renderedPath(
+                        template: "/foo",
+                        parameters: []
+                    )
+                    var request: HTTPTypes.HTTPRequest = .init(
+                        soar_path: path,
+                        method: .get
+                    )
                     suppressMutabilityWarning(&request)
                     let body: OpenAPIRuntime.HTTPBody?
                     switch input.body {
@@ -1847,14 +2079,19 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 }
                 """,
             server: """
-                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                { request, requestBody, metadata in
+                    let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                     let body: Operations.get_sol_foo.Input.Body
-                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
-                    {
+                    if try contentType == nil || converter.isMatchingContentType(
+                        received: contentType,
+                        expectedRaw: "application/json"
+                    ) {
                         body = try await converter.getRequiredRequestBodyAsJSON(
                             Swift.String.self,
                             from: requestBody,
-                            transforming: { value in .json(value) }
+                            transforming: { value in
+                                .json(value)
+                            }
                         )
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
@@ -1882,14 +2119,25 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             types: """
                 public struct Input: Sendable, Hashable {
-                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    @frozen public enum Body: Sendable, Hashable {
+                        case json(Swift.String)
+                    }
                     public var body: Operations.get_sol_foo.Input.Body
-                    public init(body: Operations.get_sol_foo.Input.Body) { self.body = body }
+                    public init(body: Operations.get_sol_foo.Input.Body) {
+                        self.body = body
+                    }
                 }
                 """,
             client: """
-                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
-                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                { input in
+                    let path = try converter.renderedPath(
+                        template: "/foo",
+                        parameters: []
+                    )
+                    var request: HTTPTypes.HTTPRequest = .init(
+                        soar_path: path,
+                        method: .get
+                    )
                     suppressMutabilityWarning(&request)
                     let body: OpenAPIRuntime.HTTPBody?
                     switch input.body {
@@ -1904,14 +2152,19 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 }
                 """,
             server: """
-                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                { request, requestBody, metadata in
+                    let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                     let body: Operations.get_sol_foo.Input.Body
-                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
-                    {
+                    if try contentType == nil || converter.isMatchingContentType(
+                        received: contentType,
+                        expectedRaw: "application/json"
+                    ) {
                         body = try await converter.getRequiredRequestBodyAsJSON(
                             Swift.String.self,
                             from: requestBody,
-                            transforming: { value in .json(value) }
+                            transforming: { value in
+                                .json(value)
+                            }
                         )
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
@@ -1939,18 +2192,30 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             types: """
                 public struct Input: Sendable, Hashable {
-                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    @frozen public enum Body: Sendable, Hashable {
+                        case json(Swift.String)
+                    }
                     public var body: Operations.get_sol_foo.Input.Body?
-                    public init(body: Operations.get_sol_foo.Input.Body? = nil) { self.body = body }
+                    public init(body: Operations.get_sol_foo.Input.Body? = nil) {
+                        self.body = body
+                    }
                 }
                 """,
             client: """
-                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
-                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                { input in
+                    let path = try converter.renderedPath(
+                        template: "/foo",
+                        parameters: []
+                    )
+                    var request: HTTPTypes.HTTPRequest = .init(
+                        soar_path: path,
+                        method: .get
+                    )
                     suppressMutabilityWarning(&request)
                     let body: OpenAPIRuntime.HTTPBody?
                     switch input.body {
-                    case .none: body = nil
+                    case .none:
+                        body = nil
                     case let .json(value):
                         body = try converter.setOptionalRequestBodyAsJSON(
                             value,
@@ -1962,14 +2227,19 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 }
                 """,
             server: """
-                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                { request, requestBody, metadata in
+                    let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                     let body: Operations.get_sol_foo.Input.Body?
-                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
-                    {
+                    if try contentType == nil || converter.isMatchingContentType(
+                        received: contentType,
+                        expectedRaw: "application/json"
+                    ) {
                         body = try await converter.getOptionalRequestBodyAsJSON(
                             Swift.String.self,
                             from: requestBody,
-                            transforming: { value in .json(value) }
+                            transforming: { value in
+                                .json(value)
+                            }
                         )
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
@@ -1997,18 +2267,30 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             types: """
                 public struct Input: Sendable, Hashable {
-                    @frozen public enum Body: Sendable, Hashable { case json(Swift.String) }
+                    @frozen public enum Body: Sendable, Hashable {
+                        case json(Swift.String)
+                    }
                     public var body: Operations.get_sol_foo.Input.Body?
-                    public init(body: Operations.get_sol_foo.Input.Body? = nil) { self.body = body }
+                    public init(body: Operations.get_sol_foo.Input.Body? = nil) {
+                        self.body = body
+                    }
                 }
                 """,
             client: """
-                { input in let path = try converter.renderedPath(template: "/foo", parameters: [])
-                    var request: HTTPTypes.HTTPRequest = .init(soar_path: path, method: .get)
+                { input in
+                    let path = try converter.renderedPath(
+                        template: "/foo",
+                        parameters: []
+                    )
+                    var request: HTTPTypes.HTTPRequest = .init(
+                        soar_path: path,
+                        method: .get
+                    )
                     suppressMutabilityWarning(&request)
                     let body: OpenAPIRuntime.HTTPBody?
                     switch input.body {
-                    case .none: body = nil
+                    case .none:
+                        body = nil
                     case let .json(value):
                         body = try converter.setOptionalRequestBodyAsJSON(
                             value,
@@ -2020,14 +2302,19 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 }
                 """,
             server: """
-                { request, requestBody, metadata in let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                { request, requestBody, metadata in
+                    let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                     let body: Operations.get_sol_foo.Input.Body?
-                    if try contentType == nil || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
-                    {
+                    if try contentType == nil || converter.isMatchingContentType(
+                        received: contentType,
+                        expectedRaw: "application/json"
+                    ) {
                         body = try await converter.getOptionalRequestBodyAsJSON(
                             Swift.String.self,
                             from: requestBody,
-                            transforming: { value in .json(value) }
+                            transforming: { value in
+                                .json(value)
+                            }
                         )
                     } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
@@ -2061,14 +2348,15 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case json(OpenAPIRuntime.Base64EncodedData)
                         public var json: OpenAPIRuntime.Base64EncodedData {
                             get throws {
-                                switch self { case let .json(body): return body }
+                                switch self {
+                                case let .json(body):
+                                    return body
+                                }
                             }
                         }
                     }
                     public var body: Components.Responses.MyResponse.Body
-                    public init(
-                        body: Components.Responses.MyResponse.Body
-                    ) {
+                    public init(body: Components.Responses.MyResponse.Body) {
                         self.body = body
                     }
                 }
@@ -2306,13 +2594,15 @@ private func XCTAssertSwiftEquivalent(
     file: StaticString = #filePath,
     line: UInt = #line
 ) throws {
-    XCTFail("Unimplemented")
-    //    try XCTAssertEqualWithDiff(
-    //        TextBasedRenderer().renderedDeclaration(declaration.strippingComments).swiftFormatted,
-    //        expectedSwift.swiftFormatted,
-    //        file: file,
-    //        line: line
-    //    )
+    let renderer = TextBasedRenderer.default
+    renderer.renderDeclaration(declaration.strippingComments)
+    let contents = renderer.renderedContents()
+    try XCTAssertEqualWithDiff(
+        contents,
+        expectedSwift.swiftFormatted,
+        file: file,
+        line: line
+    )
 }
 
 private func XCTAssertSwiftEquivalent(
@@ -2321,13 +2611,15 @@ private func XCTAssertSwiftEquivalent(
     file: StaticString = #filePath,
     line: UInt = #line
 ) throws {
-    XCTFail("Unimplemented")
-    //    try XCTAssertEqualWithDiff(
-    //        TextBasedRenderer().renderedCodeBlock(codeBlock).swiftFormatted,
-    //        expectedSwift.swiftFormatted,
-    //        file: file,
-    //        line: line
-    //    )
+    let renderer = TextBasedRenderer.default
+    renderer.renderCodeBlock(codeBlock)
+    let contents = renderer.renderedContents()
+    try XCTAssertEqualWithDiff(
+        contents,
+        expectedSwift.swiftFormatted,
+        file: file,
+        line: line
+    )
 }
 
 private func XCTAssertSwiftEquivalent(
@@ -2336,13 +2628,15 @@ private func XCTAssertSwiftEquivalent(
     file: StaticString = #filePath,
     line: UInt = #line
 ) throws {
-    XCTFail("Unimplemented")
-    //    try XCTAssertEqualWithDiff(
-    //        TextBasedRenderer().renderedExpression(expression).swiftFormatted,
-    //        expectedSwift.swiftFormatted,
-    //        file: file,
-    //        line: line
-    //    )
+    let renderer = TextBasedRenderer.default
+    renderer.renderExpression(expression)
+    let contents = renderer.renderedContents()
+    try XCTAssertEqualWithDiff(
+        contents,
+        expectedSwift.swiftFormatted,
+        file: file,
+        line: line
+    )
 }
 
 private func diff(expected: String, actual: String) throws -> String {

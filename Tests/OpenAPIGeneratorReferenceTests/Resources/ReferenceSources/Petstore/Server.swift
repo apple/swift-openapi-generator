@@ -277,7 +277,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .json(value)
                         }
                     )
-                }else {
+                } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                 }
                 return Operations.createPet.Input(
@@ -370,7 +370,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .urlEncodedForm(value)
                         }
                     )
-                }else {
+                } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                 }
                 return Operations.createPetWithForm.Input(body: body)
@@ -482,7 +482,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .json(value)
                         }
                     )
-                }else if try converter.isMatchingContentType(
+                } else if try converter.isMatchingContentType(
                     received: contentType,
                     expectedRaw: "text/plain"
                 ) {
@@ -493,7 +493,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .plainText(value)
                         }
                     )
-                }else if try converter.isMatchingContentType(
+                } else if try converter.isMatchingContentType(
                     received: contentType,
                     expectedRaw: "application/octet-stream"
                 ) {
@@ -504,7 +504,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .binary(value)
                         }
                     )
-                }else {
+                } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                 }
                 return Operations.postStats.Input(body: body)
@@ -590,7 +590,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .json(value)
                         }
                     )
-                }else {
+                } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                 }
                 return Operations.updatePet.Input(
@@ -667,7 +667,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .binary(value)
                         }
                     )
-                }else {
+                } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                 }
                 return Operations.uploadAvatarForPet.Input(

@@ -96,6 +96,11 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     // MARK: - Internals
+    
+    /// Returns the current contents of the writer as a string.
+    func renderedContents() -> String {
+        writer.rendered()
+    }
 
     /// Renders the specified Swift file.
     func renderFile(_ description: FileDescription) {
@@ -326,7 +331,7 @@ struct TextBasedRenderer: RendererProtocol {
         writer.writeLine("}")
         for branch in ifDesc.elseIfBranches {
             writer.nextLineAppendsToLastLine()
-            writer.writeLine("else if ")
+            writer.writeLine(" else if ")
             writer.nextLineAppendsToLastLine()
             renderExpression(branch.condition)
             writer.nextLineAppendsToLastLine()
@@ -338,7 +343,7 @@ struct TextBasedRenderer: RendererProtocol {
         }
         if let elseBody = ifDesc.elseBody {
             writer.nextLineAppendsToLastLine()
-            writer.writeLine("else {")
+            writer.writeLine(" else {")
             writer.withNestedLevel {
                 renderCodeBlocks(elseBody)
             }

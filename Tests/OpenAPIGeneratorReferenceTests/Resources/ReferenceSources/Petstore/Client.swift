@@ -128,7 +128,7 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    }else {
+                    } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
                     return .ok(.init(
@@ -149,7 +149,7 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    }else {
+                    } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
                     return .`default`(
@@ -219,7 +219,7 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    }else {
+                    } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
                     return .created(.init(
@@ -245,7 +245,7 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    }else {
+                    } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
                     return .clientError(
@@ -344,7 +344,7 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    }else if try converter.isMatchingContentType(
+                    } else if try converter.isMatchingContentType(
                         received: contentType,
                         expectedRaw: "text/plain"
                     ) {
@@ -355,7 +355,7 @@ public struct Client: APIProtocol {
                                 .plainText(value)
                             }
                         )
-                    }else if try converter.isMatchingContentType(
+                    } else if try converter.isMatchingContentType(
                         received: contentType,
                         expectedRaw: "application/octet-stream"
                     ) {
@@ -366,7 +366,7 @@ public struct Client: APIProtocol {
                                 .binary(value)
                             }
                         )
-                    }else {
+                    } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
                     return .ok(.init(body: body))
@@ -515,7 +515,7 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    }else {
+                    } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
                     return .badRequest(.init(body: body))
@@ -577,7 +577,7 @@ public struct Client: APIProtocol {
                                 .binary(value)
                             }
                         )
-                    }else {
+                    } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
                     return .ok(.init(body: body))
@@ -595,7 +595,7 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    }else {
+                    } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
                     return .preconditionFailed(.init(body: body))
@@ -613,7 +613,7 @@ public struct Client: APIProtocol {
                                 .plainText(value)
                             }
                         )
-                    }else {
+                    } else {
                         throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                     }
                     return .internalServerError(.init(body: body))
