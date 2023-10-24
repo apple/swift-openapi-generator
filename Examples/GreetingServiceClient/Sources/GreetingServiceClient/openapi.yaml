@@ -1,12 +1,12 @@
-openapi: '3.0.3'
+openapi: '3.1.0'
 info:
   title: GreetingService
   version: 1.0.0
 servers:
   - url: https://example.com/api
-    description: Example
-  - url: http://localhost:8080/api
-    description: Localhost
+    description: Example service deployment.
+  - url: http://127.0.0.1:8080/api
+    description: Localhost deployment.
 paths:
   /greet:
     get:
@@ -15,7 +15,7 @@ paths:
       - name: name
         required: false
         in: query
-        description: A name used in the returned greeting.
+        description: The name used in the returned greeting.
         schema:
           type: string
       responses:

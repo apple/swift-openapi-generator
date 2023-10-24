@@ -1,5 +1,5 @@
 @Tutorial(time: 20) {
-    @XcodeRequirement(title: "Swift 5.8 ", destination: "https://developer.apple.com/download/")
+    @XcodeRequirement(title: "Swift 5.9 ", destination: "https://developer.apple.com/download/applications/")
 
     @Intro(title: "Generating server stubs in a Swift package") {
 
