@@ -166,13 +166,9 @@ struct TextBasedRenderer: RendererProtocol {
             render(preconcurrency: false)
         case .onOS(let operatingSystems):
             writer.writeLine("#if \(operatingSystems.map { "os(\($0))" }.joined(separator: " || "))")
-            writer.withNestedLevel {
-                render(preconcurrency: true)
-            }
+            render(preconcurrency: true)
             writer.writeLine("#else")
-            writer.withNestedLevel {
-                render(preconcurrency: false)
-            }
+            render(preconcurrency: false)
             writer.writeLine("#endif")
         }
     }
@@ -224,15 +220,23 @@ struct TextBasedRenderer: RendererProtocol {
         renderExpression(functionCall.calledExpression)
         writer.nextLineAppendsToLastLine()
         writer.writeLine("(")
-        writer.withNestedLevel {
-            let arguments = functionCall.arguments
-            for (index, argument) in arguments.enumerated() {
-                renderFunctionCallArgument(argument)
-                if index < arguments.count - 1 {
-                    writer.nextLineAppendsToLastLine()
-                    writer.writeLine(", ")
+        let arguments = functionCall.arguments
+        if arguments.count > 1 {
+            writer.withNestedLevel {
+                for (index, argument) in arguments.enumerated() {
+                    renderFunctionCallArgument(argument)
+                    if index < arguments.count - 1 {
+                        writer.nextLineAppendsToLastLine()
+                        writer.writeLine(", ")
+                    }
                 }
             }
+        } else {
+            writer.nextLineAppendsToLastLine()
+            if let argument = arguments.first {
+                renderFunctionCallArgument(argument)
+            }
+            writer.nextLineAppendsToLastLine()
         }
         writer.writeLine(")")
         if let trailingClosure = functionCall.trailingClosure {
@@ -274,10 +278,11 @@ struct TextBasedRenderer: RendererProtocol {
             writer.nextLineAppendsToLastLine()
             for (index, expression) in expressions.enumerated() {
                 renderExpression(expression)
+                writer.nextLineAppendsToLastLine()
                 if index < expressions.count - 1 {
-                    writer.nextLineAppendsToLastLine()
                     writer.writeLine(", ")
                 }
+                writer.nextLineAppendsToLastLine()
             }
         case .`default`:
             writer.writeLine("default")
@@ -301,10 +306,8 @@ struct TextBasedRenderer: RendererProtocol {
         renderExpression(switchDesc.switchedExpression)
         writer.nextLineAppendsToLastLine()
         writer.writeLine(" {")
-        writer.withNestedLevel {
-            for caseDesc in switchDesc.cases {
-                renderSwitchCase(caseDesc)
-            }
+        for caseDesc in switchDesc.cases {
+            renderSwitchCase(caseDesc)
         }
         writer.writeLine("}")
     }
@@ -351,8 +354,12 @@ struct TextBasedRenderer: RendererProtocol {
         }
         if let catchBody = description.catchBody {
             writer.writeLine("} catch {")
-            writer.withNestedLevel {
-                renderCodeBlocks(catchBody)
+            if !catchBody.isEmpty {
+                writer.withNestedLevel {
+                    renderCodeBlocks(catchBody)
+                }
+            } else {
+                writer.nextLineAppendsToLastLine()
             }
         }
         writer.writeLine("}")
@@ -538,20 +545,21 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders the specified extension declaration.
     func renderExtension(_ extensionDescription: ExtensionDescription) {
-        var signatureWords: [String] = []
         if let accessModifier = extensionDescription.accessModifier {
-            signatureWords.append(renderedAccessModifier(accessModifier))
+            writer.writeLine(renderedAccessModifier(accessModifier) + " ")
+            writer.nextLineAppendsToLastLine()
         }
-        signatureWords.append("extension")
-        signatureWords.append(extensionDescription.onType)
+        writer.writeLine("extension \(extensionDescription.onType)")
+        writer.nextLineAppendsToLastLine()
         if !extensionDescription.conformances.isEmpty {
-            signatureWords.append(":")
-            signatureWords.append(extensionDescription.conformances.joined(separator: ", "))
+            writer.writeLine(": \(extensionDescription.conformances.joined(separator: ", "))")
+            writer.nextLineAppendsToLastLine()
         }
         if let whereClause = extensionDescription.whereClause {
-            signatureWords.append(renderedWhereClause(whereClause))
+            writer.writeLine(renderedWhereClause(whereClause))
+            writer.nextLineAppendsToLastLine()
         }
-        writer.writeLine("\(signatureWords.joinedWords()) {")
+        writer.writeLine(" {")
         for declaration in extensionDescription.declarations {
             writer.withNestedLevel {
                 renderDeclaration(declaration)
@@ -667,20 +675,17 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders the specified struct declaration.
     func renderStruct(_ structDesc: StructDescription) {
-        var words: [String] = []
         if let accessModifier = structDesc.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
+            writer.writeLine(renderedAccessModifier(accessModifier) + " ")
+            writer.nextLineAppendsToLastLine()
         }
-        words.append("struct")
-        words.append(structDesc.name)
+        writer.writeLine("struct \(structDesc.name)")
+        writer.nextLineAppendsToLastLine()
         if !structDesc.conformances.isEmpty {
-            words.append(":")
-            words.append(structDesc.conformances.joined(separator: ", "))
+            writer.writeLine(": \(structDesc.conformances.joined(separator: ", "))")
+            writer.nextLineAppendsToLastLine()
         }
-        words.append("{")
-        let declarationLine = words.joinedWords()
-
-        writer.writeLine(declarationLine)
+        writer.writeLine(" {")
         writer.withNestedLevel {
             for member in structDesc.members {
                 renderDeclaration(member)
@@ -691,20 +696,18 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders the specified protocol declaration.
     func renderProtocol(_ protocolDesc: ProtocolDescription) {
-        var words: [String] = []
         if let accessModifier = protocolDesc.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
+            writer.writeLine("\(renderedAccessModifier(accessModifier)) ")
+            writer.nextLineAppendsToLastLine()
         }
-        words.append("protocol")
-        words.append(protocolDesc.name)
+        writer.writeLine("protocol \(protocolDesc.name)")
+        writer.nextLineAppendsToLastLine()
         if !protocolDesc.conformances.isEmpty {
-            words.append(":")
-            words.append(protocolDesc.conformances.joined(separator: ", "))
+            let conformances = protocolDesc.conformances.joined(separator: ", ")
+            writer.writeLine(": \(conformances)")
+            writer.nextLineAppendsToLastLine()
         }
-        words.append("{")
-        let declarationLine = words.joinedWords()
-
-        writer.writeLine(declarationLine)
+        writer.writeLine(" {")
         writer.withNestedLevel {
             for member in protocolDesc.members {
                 renderDeclaration(member)
@@ -715,26 +718,25 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders the specified enum declaration.
     func renderEnum(_ enumDesc: EnumDescription) {
-        var words: [String] = []
         if enumDesc.isFrozen {
-            words.append("@frozen")
+            writer.writeLine("@frozen ")
+            writer.nextLineAppendsToLastLine()
         }
         if let accessModifier = enumDesc.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
+            writer.writeLine("\(renderedAccessModifier(accessModifier)) ")
+            writer.nextLineAppendsToLastLine()
         }
         if enumDesc.isIndirect {
-            words.append("indirect")
+            writer.writeLine("indirect ")
+            writer.nextLineAppendsToLastLine()
         }
-        words.append("enum")
-        words.append(enumDesc.name)
+        writer.writeLine("enum \(enumDesc.name)")
+        writer.nextLineAppendsToLastLine()
         if !enumDesc.conformances.isEmpty {
-            words.append(":")
-            words.append(enumDesc.conformances.joined(separator: ", "))
+            writer.writeLine(": \(enumDesc.conformances.joined(separator: ", "))")
+            writer.nextLineAppendsToLastLine()
         }
-        words.append("{")
-        let declarationLine = words.joinedWords()
-
-        writer.writeLine(declarationLine)
+        writer.writeLine(" {")
         writer.withNestedLevel {
             for member in enumDesc.members {
                 renderDeclaration(member)
@@ -747,8 +749,7 @@ struct TextBasedRenderer: RendererProtocol {
     func renderedEnumCaseAssociatedValue(_ value: EnumCaseAssociatedValueDescription) -> String {
         var words: [String] = []
         if let label = value.label {
-            words.append(label)
-            words.append(":")
+            words.append(label + ":")
         }
         words.append(renderedExistingTypeDescription(value.type))
         return words.joinedWords()
@@ -827,32 +828,41 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified function signature.
     func renderFunctionSignature(_ signature: FunctionSignatureDescription) {
         do {
-            var words: [String] = []
             if let accessModifier = signature.accessModifier {
-                words.append(renderedAccessModifier(accessModifier))
+                writer.writeLine(renderedAccessModifier(accessModifier) + " ")
+                writer.nextLineAppendsToLastLine()
             }
-            words.append(renderedFunctionKind(signature.kind))
-            words.append("(")
-            writer.writeLine(words.joinedWords())
-            writer.withNestedLevel {
-                for (index, parameter) in signature.parameters.enumerated() {
-                    renderParameter(parameter)
-                    if index <= signature.parameters.count - 1 {
-                        writer.nextLineAppendsToLastLine()
-                        writer.writeLine(",")
+            writer.writeLine(renderedFunctionKind(signature.kind) + "(")
+            let parameters = signature.parameters
+            let separateLines = parameters.count > 1
+            if separateLines {
+                writer.withNestedLevel {
+                    for (index, parameter) in signature.parameters.enumerated() {
+                        renderParameter(parameter)
+                        if index < parameters.count - 1 {
+                            writer.nextLineAppendsToLastLine()
+                            writer.writeLine(",")
+                        }
                     }
                 }
+            } else {
+                writer.nextLineAppendsToLastLine()
+                if let parameter = parameters.first {
+                    renderParameter(parameter)
+                }
+                writer.nextLineAppendsToLastLine()
             }
             writer.writeLine(")")
         }
 
         do {
-            var words: [String] = []
-            for keyword in signature.keywords {
-                words.append(renderedFunctionKeyword(keyword))
+            let keywords = signature.keywords
+            if !keywords.isEmpty {
+                for keyword in keywords {
+                    writer.nextLineAppendsToLastLine()
+                    writer.writeLine(" " + renderedFunctionKeyword(keyword))
+                }
             }
-            writer.nextLineAppendsToLastLine()
-            writer.writeLine(words.joinedWords())
         }
 
         if let returnType = signature.returnType {
@@ -870,7 +880,7 @@ struct TextBasedRenderer: RendererProtocol {
             return
         }
         writer.nextLineAppendsToLastLine()
-        writer.writeLine("{")
+        writer.writeLine(" {")
         writer.withNestedLevel {
             renderCodeBlocks(body)
         }
@@ -879,22 +889,22 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders the specified parameter declaration.
     func renderParameter(_ parameterDescription: ParameterDescription) {
-        var words: [String] = []
         if let label = parameterDescription.label {
-            words.append(label)
+            writer.writeLine(label)
         } else {
-            words.append("_")
+            writer.writeLine("_")
         }
-        if let name = parameterDescription.name {
-            // If the label and name are the same value, don't repeat it, otherwise
-            // swift-format emits a warning.
-            if name != parameterDescription.label {
-                words.append(name)
-            }
+        writer.nextLineAppendsToLastLine()
+        if let name = parameterDescription.name, name != parameterDescription.label {
+            // If the label and name are the same value, don't repeat it.
+            writer.writeLine(" ")
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine(name)
+            writer.nextLineAppendsToLastLine()
         }
-        words.append(":")
-        words.append(renderedExistingTypeDescription(parameterDescription.type))
-        writer.writeLine(words.joinedWords())
+        writer.writeLine(": ")
+        writer.nextLineAppendsToLastLine()
+        writer.writeLine(renderedExistingTypeDescription(parameterDescription.type))
         if let defaultValue = parameterDescription.defaultValue {
             writer.nextLineAppendsToLastLine()
             writer.writeLine(" = ")
