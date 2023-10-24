@@ -556,7 +556,7 @@ struct TextBasedRenderer: RendererProtocol {
             writer.nextLineAppendsToLastLine()
         }
         if let whereClause = extensionDescription.whereClause {
-            writer.writeLine(renderedWhereClause(whereClause))
+            writer.writeLine(" " + renderedWhereClause(whereClause))
             writer.nextLineAppendsToLastLine()
         }
         writer.writeLine(" {")

@@ -121,7 +121,7 @@ extension APIProtocol {
     }
 }
 
-fileprivate extension UniversalServerwhere APIHandler: APIProtocol {
+fileprivate extension UniversalServer where APIHandler: APIProtocol {
     /// List all pets
     ///
     /// You can fetch
