@@ -12,6 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
+import Foundation
 
 /// A content type of a request, response, and other types.
 ///
@@ -147,12 +148,24 @@ struct ContentType: Hashable {
     }
 
     /// Creates a new content type by parsing the specified MIME type.
-    /// - Parameter rawValue: A MIME type, for example "application/json". Must
+    /// - Parameter string: A MIME type, for example "application/json". Must
     ///   not be empty.
-    init(_ rawValue: String) {
-        precondition(!rawValue.isEmpty, "rawValue of a ContentType cannot be empty.")
+    /// - Throws: If a malformed content type string is encountered.
+    init(string: String) throws {
+        struct InvalidContentTypeString: Error, LocalizedError, CustomStringConvertible {
+            var string: String
+            var description: String {
+                "Invalid content type string: '\(string)', must have 2 components separated by a slash."
+            }
+            var errorDescription: String? {
+                description
+            }
+        }
+        guard !string.isEmpty else {
+            throw InvalidContentTypeString(string: "")
+        }
         var semiComponents =
-            rawValue
+            string
             .split(separator: ";")
         let typeAndSubtypeComponent = semiComponents.removeFirst()
         self.originallyCasedParameterPairs = semiComponents.map { component in
@@ -168,10 +181,9 @@ struct ContentType: Hashable {
             rawTypeAndSubtype
             .split(separator: "/")
             .map(String.init)
-        precondition(
-            typeAndSubtype.count == 2,
-            "Invalid ContentType string, must have 2 components separated by a slash."
-        )
+        guard typeAndSubtype.count == 2 else {
+            throw InvalidContentTypeString(string: rawTypeAndSubtype)
+        }
         self.originallyCasedType = typeAndSubtype[0]
         self.originallyCasedSubtype = typeAndSubtype[1]
     }
@@ -251,27 +263,11 @@ struct ContentType: Hashable {
 
 extension OpenAPI.ContentType {
 
-    /// A Boolean value that indicates whether the content type
-    /// is a type of JSON.
-    var isJSON: Bool {
-        asGeneratorContentType.isJSON
-    }
-
-    /// A Boolean value that indicates whether the content type
-    /// is a URL-encoded form.
-    var isUrlEncodedForm: Bool {
-        asGeneratorContentType.isUrlEncodedForm
-    }
-
-    /// A Boolean value that indicates whether the content type
-    /// is just binary data.
-    var isBinary: Bool {
-        asGeneratorContentType.isBinary
-    }
-
     /// Returns the content type wrapped in the generator's representation
     /// of a content type, as opposed to the one from OpenAPIKit.
     var asGeneratorContentType: ContentType {
-        ContentType(rawValue)
+        get throws {
+            try ContentType(string: rawValue)
+        }
     }
 }

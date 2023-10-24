@@ -28,6 +28,7 @@ final class CompatibilityTest: XCTestCase {
     let compatibilityTestParallelCodegen = getBoolEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_PARALLEL_CODEGEN") ?? false
     let compatibilityTestNumBuildJobs = getIntEnv("SWIFT_OPENAPI_COMPATIBILITY_TEST_NUM_BUILD_JOBS")
 
+    /// Setup method called before the invocation of each test method in the class.
     override func setUp() async throws {
         continueAfterFailure = false
         try XCTSkipUnless(compatibilityTestEnabled)

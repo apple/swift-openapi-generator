@@ -31,7 +31,7 @@ extension FileTranslator {
             .responseOutcomes
             .flatMap { outcome in
                 let response = try outcome.response.resolve(in: components)
-                return supportedContents(response.content, foundIn: description.operationID)
+                return try supportedContents(response.content, foundIn: description.operationID)
             }
             .map { content in
                 content.contentType
