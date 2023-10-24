@@ -148,9 +148,9 @@ class FileBasedReferenceTests: XCTestCase {
         ignoredDiagnosticMessages: Set<String> = []
     ) throws {
         let modes: [GeneratorMode] = [
-            .types,
-//            .client,
-//            .server,
+            .types
+            //            .client,
+            //            .server,
         ]
         for mode in modes {
             try performReferenceTest(

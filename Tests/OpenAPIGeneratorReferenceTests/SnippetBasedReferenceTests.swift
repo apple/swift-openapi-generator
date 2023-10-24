@@ -2307,12 +2307,12 @@ private func XCTAssertSwiftEquivalent(
     line: UInt = #line
 ) throws {
     XCTFail("Unimplemented")
-//    try XCTAssertEqualWithDiff(
-//        TextBasedRenderer().renderedDeclaration(declaration.strippingComments).swiftFormatted,
-//        expectedSwift.swiftFormatted,
-//        file: file,
-//        line: line
-//    )
+    //    try XCTAssertEqualWithDiff(
+    //        TextBasedRenderer().renderedDeclaration(declaration.strippingComments).swiftFormatted,
+    //        expectedSwift.swiftFormatted,
+    //        file: file,
+    //        line: line
+    //    )
 }
 
 private func XCTAssertSwiftEquivalent(
@@ -2322,12 +2322,12 @@ private func XCTAssertSwiftEquivalent(
     line: UInt = #line
 ) throws {
     XCTFail("Unimplemented")
-//    try XCTAssertEqualWithDiff(
-//        TextBasedRenderer().renderedCodeBlock(codeBlock).swiftFormatted,
-//        expectedSwift.swiftFormatted,
-//        file: file,
-//        line: line
-//    )
+    //    try XCTAssertEqualWithDiff(
+    //        TextBasedRenderer().renderedCodeBlock(codeBlock).swiftFormatted,
+    //        expectedSwift.swiftFormatted,
+    //        file: file,
+    //        line: line
+    //    )
 }
 
 private func XCTAssertSwiftEquivalent(
@@ -2337,12 +2337,12 @@ private func XCTAssertSwiftEquivalent(
     line: UInt = #line
 ) throws {
     XCTFail("Unimplemented")
-//    try XCTAssertEqualWithDiff(
-//        TextBasedRenderer().renderedExpression(expression).swiftFormatted,
-//        expectedSwift.swiftFormatted,
-//        file: file,
-//        line: line
-//    )
+    //    try XCTAssertEqualWithDiff(
+    //        TextBasedRenderer().renderedExpression(expression).swiftFormatted,
+    //        expectedSwift.swiftFormatted,
+    //        file: file,
+    //        line: line
+    //    )
 }
 
 private func diff(expected: String, actual: String) throws -> String {

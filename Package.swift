@@ -110,7 +110,7 @@ let package = Package(
         .testTarget(
             name: "OpenAPIGeneratorReferenceTests",
             dependencies: [
-                "_OpenAPIGeneratorCore",
+                "_OpenAPIGeneratorCore"
             ],
             resources: [
                 .copy("Resources")
