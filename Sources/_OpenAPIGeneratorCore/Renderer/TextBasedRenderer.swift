@@ -49,11 +49,11 @@ final class StringCodeWriter {
         nextWriteAppendsToLastLine = false
     }
 
-    private func push() {
+    func push() {
         level += 1
     }
 
-    private func pop() {
+    func pop() {
         precondition(level > 0, "Cannot pop below 0")
         level -= 1
     }
@@ -227,7 +227,7 @@ struct TextBasedRenderer: RendererProtocol {
                     renderFunctionCallArgument(argument)
                     if index < arguments.count - 1 {
                         writer.nextLineAppendsToLastLine()
-                        writer.writeLine(", ")
+                        writer.writeLine(",")
                     }
                 }
             }
@@ -454,8 +454,8 @@ struct TextBasedRenderer: RendererProtocol {
                 writer.nextLineAppendsToLastLine()
                 writer.writeLine(", ")
             }
+            writer.nextLineAppendsToLastLine()
         }
-        writer.nextLineAppendsToLastLine()
         writer.writeLine(")")
     }
 
@@ -516,15 +516,15 @@ struct TextBasedRenderer: RendererProtocol {
             write("nil")
         case .array(let items):
             writer.writeLine("[")
+            writer.nextLineAppendsToLastLine()
             for (index, item) in items.enumerated() {
-                writer.nextLineAppendsToLastLine()
                 renderExpression(item)
                 if index < items.count - 1 {
                     writer.nextLineAppendsToLastLine()
                     writer.writeLine(", ")
                 }
+                writer.nextLineAppendsToLastLine()
             }
-            writer.nextLineAppendsToLastLine()
             writer.writeLine("]")
         }
     }
@@ -653,19 +653,25 @@ struct TextBasedRenderer: RendererProtocol {
                         .joined(separator: " ")
                     let line = "get \(keywords) {"
                     writer.writeLine(line)
+                    writer.push()
                 }
                 renderCodeBlocks(body)
                 if hasExplicitGetter {
+                    writer.pop()
                     writer.writeLine("}")
                 }
                 if let modify = variable.modify {
                     writer.writeLine("_modify {")
-                    renderCodeBlocks(modify)
+                    writer.withNestedLevel {
+                        renderCodeBlocks(modify)
+                    }
                     writer.writeLine("}")
                 }
                 if let setter = variable.setter {
                     writer.writeLine("set {")
-                    renderCodeBlocks(setter)
+                    writer.withNestedLevel {
+                        renderCodeBlocks(setter)
+                    }
                     writer.writeLine("}")
                 }
             }
@@ -881,8 +887,12 @@ struct TextBasedRenderer: RendererProtocol {
         }
         writer.nextLineAppendsToLastLine()
         writer.writeLine(" {")
-        writer.withNestedLevel {
-            renderCodeBlocks(body)
+        if !body.isEmpty {
+            writer.withNestedLevel {
+                renderCodeBlocks(body)
+            }
+        } else {
+            writer.nextLineAppendsToLastLine()
         }
         writer.writeLine("}")
     }

@@ -148,9 +148,9 @@ class FileBasedReferenceTests: XCTestCase {
         ignoredDiagnosticMessages: Set<String> = []
     ) throws {
         let modes: [GeneratorMode] = [
-            .types
-            //            .client,
-            //            .server,
+            .types,
+            .client,
+            .server,
         ]
         for mode in modes {
             try performReferenceTest(
@@ -272,9 +272,10 @@ extension FileBasedReferenceTests {
         let pipe = Pipe()
         process.standardOutput = pipe
         try process.run()
+        let stdoutData = try pipe.fileHandleForReading.readToEnd()
         process.waitUntilExit()
         let pipeData = try XCTUnwrap(
-            pipe.fileHandleForReading.readToEnd(),
+            stdoutData,
             """
             No output from command:
             \(process.executableURL!.path) \(process.arguments!.joined(separator: " "))
