@@ -55,7 +55,7 @@ struct Main {
         let handler = Handler()
 
         // Call the generated protocol function on the handler to configure the Vapor application.
-        try handler.registerHandlers(on: transport, serverURL: Servers.server1())
+        try handler.registerHandlers(on: transport, serverURL: Servers.server2())
 
         // Start the Vapor application, in the same way as if it was manually configured.
         try app.run()
