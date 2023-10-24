@@ -170,7 +170,7 @@ final class Test_ContentType: Test_Core {
             originallyCasedTypeAndSubtype,
             originallyCasedOutputWithParameters
         ) in cases {
-            let contentType = ContentType(rawValue)
+            let contentType = try ContentType(string: rawValue)
             XCTAssertEqual(contentType.category, category)
             XCTAssertEqual(contentType.lowercasedType, type)
             XCTAssertEqual(contentType.lowercasedSubtype, subtype)
