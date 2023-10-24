@@ -203,8 +203,7 @@ extension Expression {
             case .pattern(let pattern):
                 name = pattern
             case .type(let type):
-                //                name = TextBasedRenderer().renderedExistingTypeDescription(type)
-                name = "\(type)"  // TODO: Fix
+                name = TextBasedRenderer.default.renderedExistingTypeDescription(type)
             }
             return .init(name: name, kind: .identifier)
         case .memberAccess(let value):

@@ -13,29 +13,41 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 
+/// An object for building up a generated file line-by-line.
+///
+/// After creation, make calls such as `writeLine` to build up the file,
+/// and call `rendered` at the end to get the full file contents.
 final class StringCodeWriter {
 
+    /// The stored lines of code.
     private var lines: [String]
+
+    /// The current nesting level.
     private var level: Int
+
+    /// Whether the next call to `writeLine` will continue writing to the last
+    /// stored line. Otherwise a new line is appended.
     private var nextWriteAppendsToLastLine: Bool = false
 
-    convenience init() {
-        self.init(level: 0, lines: [])
+    /// Creates a new empty writer.
+    init() {
+        self.level = 0
+        self.lines = []
     }
 
-    init(level: Int, lines: [String]) {
-        self.level = level
-        self.lines = lines
-    }
-
+    /// Concatenates the stored lines of code into a single string.
+    /// - Returns: The contents of the full file in a single string.
     func rendered() -> String {
         lines.joined(separator: "\n")
     }
 
-    func writeLines(_ newLines: [String]) {
-        newLines.forEach(writeLine)
-    }
-
+    /// Writes a line of code.
+    ///
+    /// By default, a new line is appended to the file.
+    ///
+    /// To continue the last line, make a call to `nextLineAppendsToLastLine`
+    /// before calling `writeLine`.
+    /// - Parameter line: The contents of the line to write.
     func writeLine(_ line: String) {
         let newLine: String
         if nextWriteAppendsToLastLine && !lines.isEmpty {
@@ -49,15 +61,21 @@ final class StringCodeWriter {
         nextWriteAppendsToLastLine = false
     }
 
+    /// Increases the indentation level by 1.
     func push() {
         level += 1
     }
 
+    /// Decreases the indentation level by 1.
+    /// - Precondition: Current level must be greater than 0.
     func pop() {
         precondition(level > 0, "Cannot pop below 0")
         level -= 1
     }
 
+    /// Executes the provided closure with one level deeper indentation.
+    /// - Parameter work: The closure to execute.
+    /// - Returns: The result of the closure execution.
     func withNestedLevel<R>(_ work: () -> R) -> R {
         push()
         defer {
@@ -66,6 +84,10 @@ final class StringCodeWriter {
         return work()
     }
 
+    /// Sets a flag on the writer so that the next call to `writeLine` continues
+    /// the last stored line instead of starting a new line.
+    ///
+    /// Safe to call repeatedly, it gets reset by `writeLine`.
     func nextLineAppendsToLastLine() {
         nextWriteAppendsToLastLine = true
     }
@@ -89,8 +111,10 @@ struct TextBasedRenderer: RendererProtocol {
         )
     }
 
-    let writer: StringCodeWriter
+    /// The underlying writer.
+    private let writer: StringCodeWriter
 
+    /// Creates a new empty renderer.
     static var `default`: TextBasedRenderer {
         .init(writer: StringCodeWriter())
     }
@@ -142,7 +166,7 @@ struct TextBasedRenderer: RendererProtocol {
                 }
                 return "\(prefix) \(line)"
             }
-        writer.writeLines(lines)
+        lines.forEach(writer.writeLine)
     }
 
     /// Renders the specified import statements.
