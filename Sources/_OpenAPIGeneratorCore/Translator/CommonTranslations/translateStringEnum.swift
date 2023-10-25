@@ -42,18 +42,14 @@ extension FileTranslator {
         isNullable: Bool,
         allowedValues: [AnyCodable]
     ) throws -> Declaration {
-        let cases: [(String, LiteralDescription)] =
-            try allowedValues
-            .map(\.value)
+        let cases: [(String, LiteralDescription)] = try allowedValues.map(\.value)
             .map { anyValue in
                 switch backingType {
                 case .string:
                     // In nullable enum schemas, empty strings are parsed as Void.
                     // This is unlikely to be fixed, so handling that case here.
                     // https://github.com/apple/swift-openapi-generator/issues/118
-                    if isNullable && anyValue is Void {
-                        return (swiftSafeName(for: ""), .string(""))
-                    }
+                    if isNullable && anyValue is Void { return (swiftSafeName(for: ""), .string("")) }
                     guard let rawValue = anyValue as? String else {
                         throw GenericError(message: "Disallowed value for a string enum '\(typeName)': \(anyValue)")
                     }
@@ -74,10 +70,8 @@ extension FileTranslator {
             }
         let baseConformance: String
         switch backingType {
-        case .string:
-            baseConformance = Constants.RawEnum.baseConformanceString
-        case .integer:
-            baseConformance = Constants.RawEnum.baseConformanceInteger
+        case .string: baseConformance = Constants.RawEnum.baseConformanceString
+        case .integer: baseConformance = Constants.RawEnum.baseConformanceInteger
         }
         let conformances = [baseConformance] + Constants.RawEnum.conformances
         return try translateRawRepresentableEnum(

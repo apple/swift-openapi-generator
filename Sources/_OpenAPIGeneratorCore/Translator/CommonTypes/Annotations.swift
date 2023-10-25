@@ -16,9 +16,7 @@ extension VariableDescription {
     /// Returns an expression that suppresses mutability warnings.
     var suppressMutabilityWarningExpr: Expression {
         .identifierPattern("suppressMutabilityWarning")
-            .call([
-                .init(label: nil, expression: .inOut(.identifierPattern(left)))
-            ])
+            .call([.init(label: nil, expression: .inOut(.identifierPattern(left)))])
     }
 }
 
@@ -27,10 +25,8 @@ extension Declaration {
     /// Returns an expression that suppresses mutability warnings.
     var suppressMutabilityWarningExpr: Expression {
         switch self {
-        case .variable(let variableDescription):
-            return variableDescription.suppressMutabilityWarningExpr
-        default:
-            fatalError("Must not request mutability warning expr from non-variable decls")
+        case .variable(let variableDescription): return variableDescription.suppressMutabilityWarningExpr
+        default: fatalError("Must not request mutability warning expr from non-variable decls")
         }
     }
 }
@@ -42,9 +38,6 @@ extension Expression {
     /// the warning.
     /// - Returns: An expression that represents the call to suppress the unused variable warning.
     static func suppressUnusedWarning(for name: String) -> Self {
-        .identifierPattern("suppressUnusedWarning")
-            .call([
-                .init(label: nil, expression: .identifierPattern(name))
-            ])
+        .identifierPattern("suppressUnusedWarning").call([.init(label: nil, expression: .identifierPattern(name))])
     }
 }

@@ -34,10 +34,7 @@ enum Constants {
         ]
 
         /// The descriptions of modules imported by client and server files.
-        static let clientServerImports: [ImportDescription] =
-            imports + [
-                ImportDescription(moduleName: "HTTPTypes")
-            ]
+        static let clientServerImports: [ImportDescription] = imports + [ImportDescription(moduleName: "HTTPTypes")]
     }
 
     /// Constants related to the OpenAPI server object.
@@ -132,18 +129,12 @@ enum Constants {
     enum ObjectStruct {
 
         /// The types that every struct conforms to.
-        static let conformances: [String] = [
-            "Codable",
-            "Hashable",
-            "Sendable",
-        ]
+        static let conformances: [String] = ["Codable", "Hashable", "Sendable"]
     }
 
     /// Constants related to the additional properties feature in
     /// JSON schema.
-    enum AdditionalProperties {
-        static let variableName: String = "additionalProperties"
-    }
+    enum AdditionalProperties { static let variableName: String = "additionalProperties" }
 
     /// Constants related to all generated raw enums.
     enum RawEnum {
@@ -155,11 +146,7 @@ enum Constants {
         static let baseConformanceInteger: String = "Int"
 
         /// The types that every enum conforms to.
-        static let conformances: [String] = [
-            "Codable",
-            "Hashable",
-            "Sendable",
-        ]
+        static let conformances: [String] = ["Codable", "Hashable", "Sendable"]
     }
 
     /// Constants related to generated oneOf enums.
@@ -183,9 +170,7 @@ enum Constants {
         static let typeName: String = "APIProtocol"
 
         /// The types that the protocol conforms to.
-        static let conformances: [String] = [
-            "Sendable"
-        ]
+        static let conformances: [String] = ["Sendable"]
     }
 
     /// Constants related to each generated type that represents an OpenAPI
@@ -203,10 +188,7 @@ enum Constants {
             static let variableName: String = "body"
 
             /// The types that the body conforms to.
-            static let conformances: [String] = [
-                "Sendable",
-                "Hashable",
-            ]
+            static let conformances: [String] = ["Sendable", "Hashable"]
         }
 
         /// Constants related to every OpenAPI operation's Input struct.
@@ -219,10 +201,7 @@ enum Constants {
             static let variableName: String = "input"
 
             /// The types that the Input type conforms to.
-            static let conformances: [String] = [
-                "Sendable",
-                "Hashable",
-            ]
+            static let conformances: [String] = ["Sendable", "Hashable"]
         }
 
         /// Constants related to every OpenAPI operation's Output type.
@@ -232,19 +211,13 @@ enum Constants {
             static let typeName: String = "Output"
 
             /// The types that the Output type conforms to.
-            static let conformances: [String] = [
-                "Sendable",
-                "Hashable",
-            ]
+            static let conformances: [String] = ["Sendable", "Hashable"]
 
             /// Constants related to the payload type of a response.
             enum Payload {
 
                 /// The types that the Payload type conforms to.
-                static let conformances: [String] = [
-                    "Sendable",
-                    "Hashable",
-                ]
+                static let conformances: [String] = ["Sendable", "Hashable"]
 
                 /// Constants related to the status code in a response.
                 enum StatusCode {
@@ -263,10 +236,7 @@ enum Constants {
                     static let variableName: String = "headers"
 
                     /// The types that the Headers type conforms to.
-                    static let conformances: [String] = [
-                        "Sendable",
-                        "Hashable",
-                    ]
+                    static let conformances: [String] = ["Sendable", "Hashable"]
                 }
             }
 
@@ -285,9 +255,7 @@ enum Constants {
             static let typeName: String = "AcceptableContentType"
 
             /// The types that the AcceptableContentType type conforms to.
-            static let conformances: [String] = [
-                "AcceptableProtocol"
-            ]
+            static let conformances: [String] = ["AcceptableProtocol"]
 
             /// The name of the variable on Input given to the acceptable
             /// content types array.
@@ -314,10 +282,7 @@ enum Constants {
             static let namespace: String = "Schemas"
 
             /// The full namespace components.
-            static let components: [String] = [
-                Constants.Components.namespace,
-                Constants.Components.Schemas.namespace,
-            ]
+            static let components: [String] = [Constants.Components.namespace, Constants.Components.Schemas.namespace]
         }
 
         /// Constants related to the Parameters namespace.
@@ -363,10 +328,7 @@ enum Constants {
         static let codingKeysName: String = "CodingKeys"
 
         /// The types that every coding keys enum type conforms to.
-        static let conformances: [String] = [
-            "String",
-            "CodingKey",
-        ]
+        static let conformances: [String] = ["String", "CodingKey"]
     }
 
     /// Constants related to the coding strategy.

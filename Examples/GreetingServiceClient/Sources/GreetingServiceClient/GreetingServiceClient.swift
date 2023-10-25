@@ -14,8 +14,7 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 
-@main
-struct GreetingServiceClient {
+@main struct GreetingServiceClient {
 
     static func main() async throws {
         // Create an instance of the generated client type.
@@ -45,6 +44,7 @@ struct GreetingServiceClient {
 
         // Use shorthand APIs to get an expected response or otherwise throw a runtime error.
         print(try await client.getGreeting().ok.body.json.message)
+
         //                     ^             ^       ^
         //                     |             |       `- Throws if body did not parse as documented JSON.
         //                     |             |

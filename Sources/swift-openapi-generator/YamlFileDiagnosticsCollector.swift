@@ -33,9 +33,7 @@ final class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecked Senda
 
     /// Creates a new collector.
     /// - Parameter url: A file path where to persist the YAML file.
-    init(url: URL) {
-        self.url = url
-    }
+    init(url: URL) { self.url = url }
 
     func emit(_ diagnostic: Diagnostic) {
         lock.lock()
@@ -48,18 +46,11 @@ final class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecked Senda
     func finalize() throws {
         lock.lock()
         defer { lock.unlock() }
-        let sortedDiagnostics = diagnostics.sorted(by: { a, b in
-            a.description < b.description
-        })
+        let sortedDiagnostics = diagnostics.sorted(by: { a, b in a.description < b.description })
         let uniqueMessages = Set(sortedDiagnostics.map(\.message)).sorted()
         let encoder = YAMLEncoder()
         encoder.options.sortKeys = true
-        let container = _DiagnosticsYamlFileContent(
-            uniqueMessages: uniqueMessages,
-            diagnostics: sortedDiagnostics
-        )
-        try encoder
-            .encode(container)
-            .write(to: url, atomically: true, encoding: .utf8)
+        let container = _DiagnosticsYamlFileContent(uniqueMessages: uniqueMessages, diagnostics: sortedDiagnostics)
+        try encoder.encode(container).write(to: url, atomically: true, encoding: .utf8)
     }
 }

@@ -26,26 +26,17 @@ extension TypesFileTranslator {
 
         let nodes = decls.compactMap(DeclarationRecursionDetector.Node.init)
         let nodeLookup = Dictionary(uniqueKeysWithValues: nodes.map { ($0.name, $0) })
-        let container = DeclarationRecursionDetector.Container(
-            lookupMap: nodeLookup
-        )
+        let container = DeclarationRecursionDetector.Container(lookupMap: nodeLookup)
 
-        let boxedNames = try RecursionDetector.computeBoxedTypes(
-            rootNodes: nodes,
-            container: container
-        )
+        let boxedNames = try RecursionDetector.computeBoxedTypes(rootNodes: nodes, container: container)
 
         var decls = decls
         for (index, decl) in decls.enumerated() {
-            guard let name = decl.name, boxedNames.contains(name) else {
-                continue
-            }
+            guard let name = decl.name, boxedNames.contains(name) else { continue }
             diagnostics.emit(
                 .note(
                     message: "Detected a recursive type; it will be boxed to break the reference cycle.",
-                    context: [
-                        "name": name
-                    ]
+                    context: ["name": name]
                 )
             )
             decls[index] = boxedType(decl)
@@ -59,14 +50,11 @@ extension TypesFileTranslator {
     /// - Returns: A boxed variant of the provided declaration.
     private func boxedType(_ decl: Declaration) -> Declaration {
         switch decl {
-        case .commentable(let comment, let declaration):
-            return .commentable(comment, boxedType(declaration))
+        case .commentable(let comment, let declaration): return .commentable(comment, boxedType(declaration))
         case .deprecated(let deprecationDescription, let declaration):
             return .deprecated(deprecationDescription, boxedType(declaration))
-        case .struct(let structDescription):
-            return .struct(boxedStruct(structDescription))
-        case .enum(let enumDescription):
-            return .enum(boxedEnum(enumDescription))
+        case .struct(let structDescription): return .struct(boxedStruct(structDescription))
+        case .enum(let enumDescription): return .enum(boxedEnum(enumDescription))
         case .variable, .extension, .typealias, .protocol, .function, .enumCase:
             preconditionFailure("Unexpected boxed type: \(decl.name ?? "<nil>")")
         }
@@ -85,13 +73,10 @@ extension TypesFileTranslator {
 
         // Remove the explicit initializer's comment.
         storageDesc.members = storageDesc.members.map { member in
-            guard
-                case .function(let funcDesc) = member.strippingTopComment,
+            guard case .function(let funcDesc) = member.strippingTopComment,
                 funcDesc.signature.kind == .initializer(failable: false),
                 funcDesc.signature.parameters.first?.name != "decoder"
-            else {
-                return member
-            }
+            else { return member }
             return member.strippingTopComment
         }
 
@@ -104,18 +89,12 @@ extension TypesFileTranslator {
 
         // Change CodingKeys, if present, into a typealias to the outer struct.
         storageDesc.members = storageDesc.members.map { member in
-            guard
-                case .enum(let enumDescription) = member,
-                enumDescription.name == Constants.Codable.codingKeysName
-            else {
-                return member
-            }
+            guard case .enum(let enumDescription) = member, enumDescription.name == Constants.Codable.codingKeysName
+            else { return member }
             return .typealias(
                 name: Constants.Codable.codingKeysName,
                 existingType: .member(
-                    Constants.Components.Schemas.components + [
-                        desc.name, Constants.Codable.codingKeysName,
-                    ]
+                    Constants.Components.Schemas.components + [desc.name, Constants.Codable.codingKeysName]
                 )
             )
         }
@@ -124,48 +103,25 @@ extension TypesFileTranslator {
 
         // Define explicit setters/getters for properties and call into storage.
         desc.members = desc.members.map { member in
-            guard
-                case .commentable(let comment, let commented) = member,
+            guard case .commentable(let comment, let commented) = member,
                 case .variable(var variableDescription) = commented
-            else {
-                return member
-            }
+            else { return member }
             let name = variableDescription.left
-            variableDescription.getter = [
-                .expression(
-                    .identifierPattern("storage")
-                        .dot("value")
-                        .dot(name)
-                )
-            ]
+            variableDescription.getter = [.expression(.identifierPattern("storage").dot("value").dot(name))]
             variableDescription.modify = [
-                .expression(
-                    .yield(
-                        .inOut(
-                            .identifierPattern("storage")
-                                .dot("value")
-                                .dot(name)
-                        )
-                    )
-                )
+                .expression(.yield(.inOut(.identifierPattern("storage").dot("value").dot(name))))
             ]
             return .commentable(comment, .variable(variableDescription))
         }
 
         // Change the initializer to call into storage instead.
         desc.members = desc.members.map { member in
-            guard
-                case .commentable(let comment, let commented) = member,
-                case .function(var funcDesc) = commented,
+            guard case .commentable(let comment, let commented) = member, case .function(var funcDesc) = commented,
                 funcDesc.signature.kind == .initializer(failable: false),
                 funcDesc.signature.parameters.first?.name != "decoder"
-            else {
-                return member
-            }
+            else { return member }
             let propertyNames: [String] = desc.members.compactMap { member in
-                guard case .variable(let variableDescription) = member.strippingTopComment else {
-                    return nil
-                }
+                guard case .variable(let variableDescription) = member.strippingTopComment else { return nil }
                 return variableDescription.left
             }
             funcDesc.body = [
@@ -178,9 +134,7 @@ extension TypesFileTranslator {
                                     label: "value",
                                     expression: .dot("init")
                                         .call(
-                                            propertyNames.map {
-                                                .init(label: $0, expression: .identifierPattern($0))
-                                            }
+                                            propertyNames.map { .init(label: $0, expression: .identifierPattern($0)) }
                                         )
                                 )
                             ])
@@ -193,50 +147,29 @@ extension TypesFileTranslator {
         // Define a custom encoder/decoder to call into storage.
         // First remove any existing ones, then add the new ones.
         desc.members = desc.members.filter { member in
-            guard
-                case .function(let funcDesc) = member,
-                funcDesc.signature.kind == .initializer(failable: false),
+            guard case .function(let funcDesc) = member, funcDesc.signature.kind == .initializer(failable: false),
                 funcDesc.signature.parameters.first?.name == "decoder"
-            else {
-                return true
-            }
+            else { return true }
             return false
         }
         desc.members = desc.members.filter { member in
-            guard
-                case .function(let funcDesc) = member,
+            guard case .function(let funcDesc) = member,
                 funcDesc.signature.kind == .function(name: "encode", isStatic: false)
-            else {
-                return true
-            }
+            else { return true }
             return false
         }
         desc.members.append(
             .function(
                 accessModifier: desc.accessModifier,
                 kind: .initializer(failable: false),
-                parameters: [
-                    .init(
-                        label: "from",
-                        name: "decoder",
-                        type: .any(.member("Decoder"))
-                    )
-                ],
-                keywords: [
-                    .throws
-                ],
+                parameters: [.init(label: "from", name: "decoder", type: .any(.member("Decoder")))],
+                keywords: [.throws],
                 body: [
                     .expression(
                         .assignment(
                             left: .identifierPattern("storage"),
                             right: .try(
-                                .dot("init")
-                                    .call([
-                                        .init(
-                                            label: "from",
-                                            expression: .identifierPattern("decoder")
-                                        )
-                                    ])
+                                .dot("init").call([.init(label: "from", expression: .identifierPattern("decoder"))])
                             )
                         )
                     )
@@ -247,27 +180,13 @@ extension TypesFileTranslator {
             .function(
                 accessModifier: desc.accessModifier,
                 kind: .function(name: "encode"),
-                parameters: [
-                    .init(
-                        label: "to",
-                        name: "encoder",
-                        type: .any(.member("Encoder"))
-                    )
-                ],
-                keywords: [
-                    .throws
-                ],
+                parameters: [.init(label: "to", name: "encoder", type: .any(.member("Encoder")))],
+                keywords: [.throws],
                 body: [
                     .expression(
                         .try(
-                            .identifierPattern("storage")
-                                .dot("encode")
-                                .call([
-                                    .init(
-                                        label: "to",
-                                        expression: .identifierPattern("encoder")
-                                    )
-                                ])
+                            .identifierPattern("storage").dot("encode")
+                                .call([.init(label: "to", expression: .identifierPattern("encoder"))])
                         )
                     )
                 ]
@@ -281,10 +200,7 @@ extension TypesFileTranslator {
                     accessModifier: .private,
                     kind: .var,
                     left: "storage",
-                    type: .generic(
-                        wrapper: .init(TypeName.box),
-                        wrapped: .member("Storage")
-                    )
+                    type: .generic(wrapper: .init(TypeName.box), wrapped: .member("Storage"))
                 )
             )
         )

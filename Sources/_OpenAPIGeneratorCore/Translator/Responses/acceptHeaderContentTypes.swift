@@ -23,19 +23,13 @@ extension FileTranslator {
     /// - Returns: A list of content types. Might be empty, in which case no
     /// Accept header should be sent in the request.
     /// - Throws: Any errors that occur during the process of analyzing the responses.
-    func acceptHeaderContentTypes(
-        for description: OperationDescription
-    ) throws -> [ContentType] {
-        let contentTypes =
-            try description
-            .responseOutcomes
+    func acceptHeaderContentTypes(for description: OperationDescription) throws -> [ContentType] {
+        let contentTypes = try description.responseOutcomes
             .flatMap { outcome in
                 let response = try outcome.response.resolve(in: components)
                 return try supportedContents(response.content, foundIn: description.operationID)
             }
-            .map { content in
-                content.contentType
-            }
+            .map { content in content.contentType }
         return Array(contentTypes.uniqued())
     }
 }

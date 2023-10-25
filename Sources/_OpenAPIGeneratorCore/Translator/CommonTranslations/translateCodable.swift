@@ -27,28 +27,20 @@ extension FileTranslator {
         strategy: StructBlueprint.OpenAPICodableStrategy,
         properties: [PropertyBlueprint]
     ) -> Declaration? {
-        let knownKeys =
-            properties
-            .map(\.originalName)
+        let knownKeys = properties.map(\.originalName)
         let knownKeysFunctionArg = FunctionArgumentDescription(
             label: "knownKeys",
-            expression: .literal(
-                .array(
-                    knownKeys.map { .literal($0) }
-                )
-            )
+            expression: .literal(.array(knownKeys.map { .literal($0) }))
         )
         switch strategy {
-        case .synthesized:
-            return nil
+        case .synthesized: return nil
         case .enforcingNoAdditionalProperties:
             return translateStructBlueprintCustomDecoder(
                 properties: properties,
                 trailingCodeBlocks: [
                     .expression(
                         .try(
-                            .identifierPattern("decoder")
-                                .dot("ensureNoAdditionalProperties")
+                            .identifierPattern("decoder").dot("ensureNoAdditionalProperties")
                                 .call([knownKeysFunctionArg])
                         )
                     )
@@ -62,8 +54,7 @@ extension FileTranslator {
                         .assignment(
                             left: .identifierPattern("additionalProperties"),
                             right: .try(
-                                .identifierPattern("decoder")
-                                    .dot("decodeAdditionalProperties")
+                                .identifierPattern("decoder").dot("decodeAdditionalProperties")
                                     .call([knownKeysFunctionArg])
                             )
                         )
@@ -71,13 +62,9 @@ extension FileTranslator {
                 ]
             )
         case .allOf(propertiesIsKeyValuePairSchema: let isKeyValuePairs):
-            return translateStructBlueprintAllOfDecoder(
-                properties: Array(zip(properties, isKeyValuePairs))
-            )
+            return translateStructBlueprintAllOfDecoder(properties: Array(zip(properties, isKeyValuePairs)))
         case .anyOf(propertiesIsKeyValuePairSchema: let isKeyValuePairs):
-            return translateStructBlueprintAnyOfDecoder(
-                properties: Array(zip(properties, isKeyValuePairs))
-            )
+            return translateStructBlueprintAnyOfDecoder(properties: Array(zip(properties, isKeyValuePairs)))
         }
     }
 
@@ -91,34 +78,23 @@ extension FileTranslator {
         properties: [PropertyBlueprint]
     ) -> Declaration? {
         switch strategy {
-        case .synthesized, .enforcingNoAdditionalProperties:
-            return nil
+        case .synthesized, .enforcingNoAdditionalProperties: return nil
         case .allowingAdditionalProperties:
             return translateStructBlueprintCustomEncoder(
                 properties: properties,
                 trailingCodeBlocks: [
                     .expression(
                         .try(
-                            .identifierPattern("encoder")
-                                .dot("encodeAdditionalProperties")
-                                .call([
-                                    .init(
-                                        label: nil,
-                                        expression: .identifierPattern("additionalProperties")
-                                    )
-                                ])
+                            .identifierPattern("encoder").dot("encodeAdditionalProperties")
+                                .call([.init(label: nil, expression: .identifierPattern("additionalProperties"))])
                         )
                     )
                 ]
             )
         case .allOf(propertiesIsKeyValuePairSchema: let isKeyValuePairs):
-            return translateStructBlueprintAllOfEncoder(
-                properties: Array(zip(properties, isKeyValuePairs))
-            )
+            return translateStructBlueprintAllOfEncoder(properties: Array(zip(properties, isKeyValuePairs)))
         case .anyOf(propertiesIsKeyValuePairSchema: let isKeyValuePairs):
-            return translateStructBlueprintAnyOfEncoder(
-                properties: Array(zip(properties, isKeyValuePairs))
-            )
+            return translateStructBlueprintAnyOfEncoder(properties: Array(zip(properties, isKeyValuePairs)))
         }
     }
 
@@ -130,45 +106,30 @@ extension FileTranslator {
     ///   - trailingCodeBlocks: Additional code blocks to add at the end of
     ///   the body of the decoder initializer.
     /// - Returns: A declaration representing the custom decoder implementation.
-    func translateStructBlueprintCustomDecoder(
-        properties: [PropertyBlueprint],
-        trailingCodeBlocks: [CodeBlock] = []
-    ) -> Declaration {
+    func translateStructBlueprintCustomDecoder(properties: [PropertyBlueprint], trailingCodeBlocks: [CodeBlock] = [])
+        -> Declaration
+    {
         let containerVarDecl: Declaration = .decoderContainerOfKeysVar()
         let assignExprs: [Expression] = properties.map { property in
             let typeUsage = property.typeUsage
             return .assignment(
                 left: .identifierPattern(property.swiftSafeName),
                 right: .try(
-                    .identifierPattern("container")
-                        .dot("decode\(typeUsage.isOptional ? "IfPresent" : "")")
+                    .identifierPattern("container").dot("decode\(typeUsage.isOptional ? "IfPresent" : "")")
                         .call([
-                            .init(
-                                label: nil,
-                                expression:
-                                    .identifierType(typeUsage.withOptional(false))
-                                    .dot("self")
-                            ),
-                            .init(
-                                label: "forKey",
-                                expression: .dot(property.swiftSafeName)
-                            ),
+                            .init(label: nil, expression: .identifierType(typeUsage.withOptional(false)).dot("self")),
+                            .init(label: "forKey", expression: .dot(property.swiftSafeName)),
                         ])
                 )
             )
         }
         let decodingCodeBlocks: [CodeBlock]
         if !properties.isEmpty {
-            decodingCodeBlocks =
-                [
-                    .declaration(containerVarDecl)
-                ] + assignExprs.map { .expression($0) }
+            decodingCodeBlocks = [.declaration(containerVarDecl)] + assignExprs.map { .expression($0) }
         } else {
             decodingCodeBlocks = []
         }
-        return decoderInitializer(
-            body: decodingCodeBlocks + trailingCodeBlocks
-        )
+        return decoderInitializer(body: decodingCodeBlocks + trailingCodeBlocks)
     }
 
     /// Returns a declaration of an encoder implementation.
@@ -177,49 +138,31 @@ extension FileTranslator {
     ///   - trailingCodeBlocks: Additional code blocks to add at the end of
     ///   the body of the encoder initializer.
     /// - Returns: A `Declaration` representing the custom decoder implementation.
-    func translateStructBlueprintCustomEncoder(
-        properties: [PropertyBlueprint],
-        trailingCodeBlocks: [CodeBlock] = []
-    ) -> Declaration {
+    func translateStructBlueprintCustomEncoder(properties: [PropertyBlueprint], trailingCodeBlocks: [CodeBlock] = [])
+        -> Declaration
+    {
         let containerVarDecl: Declaration = .variable(
             kind: .var,
             left: "container",
             right: .identifierPattern("encoder").dot("container")
-                .call([
-                    .init(
-                        label: "keyedBy",
-                        expression: .identifierType(.member("CodingKeys")).dot("self")
-                    )
-                ])
+                .call([.init(label: "keyedBy", expression: .identifierType(.member("CodingKeys")).dot("self"))])
         )
         let encodeExprs: [Expression] = properties.map { property in
             .try(
-                .identifierPattern("container")
-                    .dot("encode\(property.typeUsage.isOptional ? "IfPresent" : "")")
+                .identifierPattern("container").dot("encode\(property.typeUsage.isOptional ? "IfPresent" : "")")
                     .call([
-                        .init(
-                            label: nil,
-                            expression: .identifierPattern(property.swiftSafeName)
-                        ),
-                        .init(
-                            label: "forKey",
-                            expression: .dot(property.swiftSafeName)
-                        ),
+                        .init(label: nil, expression: .identifierPattern(property.swiftSafeName)),
+                        .init(label: "forKey", expression: .dot(property.swiftSafeName)),
                     ])
             )
         }
         let encodingCodeBlocks: [CodeBlock]
         if !properties.isEmpty {
-            encodingCodeBlocks =
-                [
-                    .declaration(containerVarDecl)
-                ] + encodeExprs.map { .expression($0) }
+            encodingCodeBlocks = [.declaration(containerVarDecl)] + encodeExprs.map { .expression($0) }
         } else {
             encodingCodeBlocks = []
         }
-        return encoderFunction(
-            body: encodingCodeBlocks + trailingCodeBlocks
-        )
+        return encoderFunction(body: encodingCodeBlocks + trailingCodeBlocks)
     }
 
     // MARK: - AllOf encoder and decoder
@@ -227,16 +170,13 @@ extension FileTranslator {
     /// Returns a declaration of an allOf decoder implementation.
     /// - Parameter properties: The properties to decode.
     /// - Returns: A `Declaration` representing the `allOf` decoder implementation.
-    func translateStructBlueprintAllOfDecoder(
-        properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)]
-    ) -> Declaration {
+    func translateStructBlueprintAllOfDecoder(properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)])
+        -> Declaration
+    {
         let assignExprs: [Expression] = properties.map { property, isKeyValuePair in
             let decoderExpr: Expression =
                 isKeyValuePair ? .initFromDecoderExpr() : .decodeFromSingleValueContainerExpr()
-            return .assignment(
-                left: .identifierPattern(property.swiftSafeName),
-                right: .try(decoderExpr)
-            )
+            return .assignment(left: .identifierPattern(property.swiftSafeName), right: .try(decoderExpr))
         }
         return decoderInitializer(body: assignExprs.map { .expression($0) })
     }
@@ -244,26 +184,19 @@ extension FileTranslator {
     /// Returns a declaration of an allOf encoder implementation.
     /// - Parameter properties: The properties to encode.
     /// - Returns: A `Declaration` representing the `allOf` encoder implementation.
-    func translateStructBlueprintAllOfEncoder(
-        properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)]
-    ) -> Declaration {
+    func translateStructBlueprintAllOfEncoder(properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)])
+        -> Declaration
+    {
         let exprs: [Expression]
         if let firstSingleValue = properties.first(where: { !$0.isKeyValuePair }) {
             let expr: Expression = .identifierPattern(firstSingleValue.property.swiftSafeName)
                 .encodeToSingleValueContainerExpr(gracefully: false)
             exprs = [expr]
         } else {
-            exprs =
-                properties
-                .filter { $0.isKeyValuePair }
-                .map(\.property.swiftSafeName)
-                .map { name in
-                    .identifierPattern(name).encodeExpr()
-                }
+            exprs = properties.filter { $0.isKeyValuePair }.map(\.property.swiftSafeName)
+                .map { name in .identifierPattern(name).encodeExpr() }
         }
-        return encoderFunction(
-            body: exprs.map { .expression($0) }
-        )
+        return encoderFunction(body: exprs.map { .expression($0) })
     }
 
     // MARK: - AnyOf encoder and decoder
@@ -271,88 +204,48 @@ extension FileTranslator {
     /// Returns a declaration of an anyOf decoder implementation.
     /// - Parameter properties: The properties to be decoded using the `AnyOf` schema.
     /// - Returns: A `Declaration` representing the `anyOf` decoder implementation.
-    func translateStructBlueprintAnyOfDecoder(
-        properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)]
-    ) -> Declaration {
+    func translateStructBlueprintAnyOfDecoder(properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)])
+        -> Declaration
+    {
         let assignExprs: [Expression] = properties.map { (property, isKeyValuePair) in
             let decoderExpr: Expression =
                 isKeyValuePair ? .initFromDecoderExpr() : .decodeFromSingleValueContainerExpr()
-            return .assignment(
-                left: .identifierPattern(property.swiftSafeName),
-                right: .optionalTry(decoderExpr)
-            )
+            return .assignment(left: .identifierPattern(property.swiftSafeName), right: .optionalTry(decoderExpr))
         }
         let atLeastOneNotNilCheckExpr: Expression = .try(
-            .identifierType(TypeName.decodingError)
-                .dot("verifyAtLeastOneSchemaIsNotNil")
+            .identifierType(TypeName.decodingError).dot("verifyAtLeastOneSchemaIsNotNil")
                 .call([
                     .init(
                         label: nil,
-                        expression: .literal(
-                            .array(
-                                properties.map { .identifierPattern($0.property.swiftSafeName) }
-                            )
-                        )
-                    ),
-                    .init(
-                        label: "type",
-                        expression: .identifierPattern("Self").dot("self")
-                    ),
-                    .init(
-                        label: "codingPath",
-                        expression: .identifierPattern("decoder").dot("codingPath")
-                    ),
+                        expression: .literal(.array(properties.map { .identifierPattern($0.property.swiftSafeName) }))
+                    ), .init(label: "type", expression: .identifierPattern("Self").dot("self")),
+                    .init(label: "codingPath", expression: .identifierPattern("decoder").dot("codingPath")),
                 ])
         )
-        return decoderInitializer(
-            body: assignExprs.map { .expression($0) } + [
-                .expression(atLeastOneNotNilCheckExpr)
-            ]
-        )
+        return decoderInitializer(body: assignExprs.map { .expression($0) } + [.expression(atLeastOneNotNilCheckExpr)])
     }
 
     /// Returns a declaration of an anyOf encoder implementation.
     /// - Parameter properties: The properties to be encoded using the `AnyOf` schema.
     /// - Returns: A `Declaration` representing the `AnyOf` encoder implementation.
-    func translateStructBlueprintAnyOfEncoder(
-        properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)]
-    ) -> Declaration {
-        let singleValueNames =
-            properties
-            .filter { !$0.isKeyValuePair }
-            .map(\.property.swiftSafeName)
+    func translateStructBlueprintAnyOfEncoder(properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)])
+        -> Declaration
+    {
+        let singleValueNames = properties.filter { !$0.isKeyValuePair }.map(\.property.swiftSafeName)
         let encodeSingleValuesExpr: Expression? =
             singleValueNames.isEmpty
             ? nil
             : .try(
-                .identifierPattern("encoder")
-                    .dot("encodeFirstNonNilValueToSingleValueContainer")
-                    .call(
-                        [
-                            .init(
-                                label: nil,
-                                expression: .literal(
-                                    .array(
-                                        singleValueNames.map { .identifierPattern($0) }
-                                    )
-                                )
-                            )
-                        ]
-                    )
+                .identifierPattern("encoder").dot("encodeFirstNonNilValueToSingleValueContainer")
+                    .call([
+                        .init(label: nil, expression: .literal(.array(singleValueNames.map { .identifierPattern($0) })))
+                    ])
             )
         let encodeExprs: [Expression] =
             (encodeSingleValuesExpr.flatMap { [$0] } ?? [])
-            + properties
-            .filter { $0.isKeyValuePair }
-            .map(\.property)
-            .map { property in
-                .identifierPattern(property.swiftSafeName)
-                    .optionallyChained()
-                    .encodeExpr()
-            }
-        return encoderFunction(
-            body: encodeExprs.map { .expression($0) }
-        )
+            + properties.filter { $0.isKeyValuePair }.map(\.property)
+            .map { property in .identifierPattern(property.swiftSafeName).optionallyChained().encodeExpr() }
+        return encoderFunction(body: encodeExprs.map { .expression($0) })
     }
 
     // MARK: - OneOf encoder and decoder
@@ -360,9 +253,7 @@ extension FileTranslator {
     /// Returns a declaration of a oneOf without discriminator decoder implementation.
     /// - Parameter cases: The names of the cases to be decoded.
     /// - Returns: A `Declaration` representing the `OneOf` decoder implementation.
-    func translateOneOfWithoutDiscriminatorDecoder(
-        cases: [(name: String, isKeyValuePair: Bool)]
-    ) -> Declaration {
+    func translateOneOfWithoutDiscriminatorDecoder(cases: [(name: String, isKeyValuePair: Bool)]) -> Declaration {
         let assignExprs: [Expression] = cases.map { (caseName, isKeyValuePair) in
             let decoderExpr: Expression =
                 isKeyValuePair ? .initFromDecoderExpr() : .decodeFromSingleValueContainerExpr()
@@ -372,30 +263,17 @@ extension FileTranslator {
                         .expression(
                             .assignment(
                                 left: .identifierPattern("self"),
-                                right: .dot(caseName)
-                                    .call([
-                                        .init(
-                                            label: nil,
-                                            expression: .try(decoderExpr)
-                                        )
-                                    ])
+                                right: .dot(caseName).call([.init(label: nil, expression: .try(decoderExpr))])
                             )
-                        ),
-                        .expression(.return()),
+                        ), .expression(.return()),
                     ],
                     catchBody: []
                 )
             )
         }
 
-        let otherExprs: [CodeBlock] = [
-            .expression(
-                translateOneOfDecoderThrowOnUnknownExpr()
-            )
-        ]
-        return decoderInitializer(
-            body: (assignExprs).map { .expression($0) } + otherExprs
-        )
+        let otherExprs: [CodeBlock] = [.expression(translateOneOfDecoderThrowOnUnknownExpr())]
+        return decoderInitializer(body: (assignExprs).map { .expression($0) } + otherExprs)
     }
 
     /// Returns an expression that throws an error when a oneOf failed
@@ -403,17 +281,10 @@ extension FileTranslator {
     func translateOneOfDecoderThrowOnUnknownExpr() -> Expression {
         .unaryKeyword(
             kind: .throw,
-            expression: .identifierType(TypeName.decodingError)
-                .dot("failedToDecodeOneOfSchema")
+            expression: .identifierType(TypeName.decodingError).dot("failedToDecodeOneOfSchema")
                 .call([
-                    .init(
-                        label: "type",
-                        expression: .identifierPattern("Self").dot("self")
-                    ),
-                    .init(
-                        label: "codingPath",
-                        expression: .identifierPattern("decoder").dot("codingPath")
-                    ),
+                    .init(label: "type", expression: .identifierPattern("Self").dot("self")),
+                    .init(label: "codingPath", expression: .identifierPattern("decoder").dot("codingPath")),
                 ])
         )
     }
@@ -427,34 +298,20 @@ extension FileTranslator {
         discriminatorName: String,
         cases: [(caseName: String, rawNames: [String])]
     ) -> Declaration {
-        let cases: [SwitchCaseDescription] =
-            cases
-            .map { caseName, rawNames in
-                .init(
-                    kind: .multiCase(rawNames.map { .literal($0) }),
-                    body: [
-                        .expression(
-                            .assignment(
-                                left: .identifierPattern("self"),
-                                right: .dot(caseName)
-                                    .call([
-                                        .init(
-                                            label: nil,
-                                            expression: .try(
-                                                .initFromDecoderExpr()
-                                            )
-                                        )
-                                    ])
-                            )
+        let cases: [SwitchCaseDescription] = cases.map { caseName, rawNames in
+            .init(
+                kind: .multiCase(rawNames.map { .literal($0) }),
+                body: [
+                    .expression(
+                        .assignment(
+                            left: .identifierPattern("self"),
+                            right: .dot(caseName).call([.init(label: nil, expression: .try(.initFromDecoderExpr()))])
                         )
-                    ]
-                )
-            }
-        let otherExprs: [CodeBlock] = [
-            .expression(
-                translateOneOfDecoderThrowOnUnknownExpr()
+                    )
+                ]
             )
-        ]
+        }
+        let otherExprs: [CodeBlock] = [.expression(translateOneOfDecoderThrowOnUnknownExpr())]
         let body: [CodeBlock] = [
             .declaration(.decoderContainerOfKeysVar()),
             .declaration(
@@ -462,17 +319,10 @@ extension FileTranslator {
                     kind: .let,
                     left: Constants.OneOf.discriminatorName,
                     right: .try(
-                        .identifierPattern("container")
-                            .dot("decode")
+                        .identifierPattern("container").dot("decode")
                             .call([
-                                .init(
-                                    label: nil,
-                                    expression: .identifierType(TypeName.string).dot("self")
-                                ),
-                                .init(
-                                    label: "forKey",
-                                    expression: .dot(discriminatorName)
-                                ),
+                                .init(label: nil, expression: .identifierType(TypeName.string).dot("self")),
+                                .init(label: "forKey", expression: .dot(discriminatorName)),
                             ])
                     )
                 )
@@ -480,26 +330,17 @@ extension FileTranslator {
             .expression(
                 .switch(
                     switchedExpression: .identifierPattern(Constants.OneOf.discriminatorName),
-                    cases: cases + [
-                        .init(
-                            kind: .default,
-                            body: otherExprs
-                        )
-                    ]
+                    cases: cases + [.init(kind: .default, body: otherExprs)]
                 )
             ),
         ]
-        return decoderInitializer(
-            body: body
-        )
+        return decoderInitializer(body: body)
     }
 
     /// Returns a declaration of a oneOf encoder implementation.
     /// - Parameter cases: The case names to be encoded, including the special case for undocumented cases.
     /// - Returns: A `Declaration` representing the `OneOf` encoder implementation.
-    func translateOneOfEncoder(
-        cases: [(name: String, isKeyValuePair: Bool)]
-    ) -> Declaration {
+    func translateOneOfEncoder(cases: [(name: String, isKeyValuePair: Bool)]) -> Declaration {
         let switchExpr: Expression = .switch(
             switchedExpression: .identifierPattern("self"),
             cases: cases.map { caseName, isKeyValuePair in
@@ -512,14 +353,7 @@ extension FileTranslator {
                 }
                 return .init(
                     kind: .case(.dot(caseName), ["value"]),
-                    body: [
-                        .expression(
-                            makeEncodeExpr(
-                                .identifierPattern("value"),
-                                isKeyValuePair
-                            )
-                        )
-                    ]
+                    body: [.expression(makeEncodeExpr(.identifierPattern("value"), isKeyValuePair))]
                 )
             }
         )
@@ -536,16 +370,7 @@ fileprivate extension Expression {
     /// Assumes the existence of an "encoder" variable in the current scope.
     /// - Returns: An expression representing the encoding of the current value using the "encoder" variable.
     func encodeExpr() -> Expression {
-        .try(
-            self
-                .dot("encode")
-                .call([
-                    .init(
-                        label: "to",
-                        expression: .identifierPattern("encoder")
-                    )
-                ])
-        )
+        .try(self.dot("encode").call([.init(label: "to", expression: .identifierPattern("encoder"))]))
     }
 
     /// Returns a new expression that calls the encode method on the current
@@ -557,14 +382,8 @@ fileprivate extension Expression {
     /// - Returns: An Expression representing the result of encoding the current expression.
     func encodeToSingleValueContainerExpr(gracefully: Bool) -> Expression {
         .try(
-            .identifierPattern("encoder")
-                .dot("encodeToSingleValueContainer\(gracefully ? "Gracefully" : "")")
-                .call([
-                    .init(
-                        label: nil,
-                        expression: self
-                    )
-                ])
+            .identifierPattern("encoder").dot("encodeToSingleValueContainer\(gracefully ? "Gracefully" : "")")
+                .call([.init(label: nil, expression: self)])
         )
     }
 
@@ -575,13 +394,7 @@ fileprivate extension Expression {
     /// type, as the type checking relies on type inference.
     /// - Returns: An expression representing the initialization of an instance using the decoder.
     static func initFromDecoderExpr() -> Expression {
-        .dot("init")
-            .call([
-                .init(
-                    label: "from",
-                    expression: .identifierPattern("decoder")
-                )
-            ])
+        .dot("init").call([.init(label: "from", expression: .identifierPattern("decoder"))])
     }
 
     /// Returns a new expression that calls the decoder initializer for
@@ -606,14 +419,8 @@ fileprivate extension Declaration {
             kind: .let,
             left: "container",
             right: .try(
-                .identifierPattern("decoder")
-                    .dot("container")
-                    .call([
-                        .init(
-                            label: "keyedBy",
-                            expression: .identifierType(.member("CodingKeys")).dot("self")
-                        )
-                    ])
+                .identifierPattern("decoder").dot("container")
+                    .call([.init(label: "keyedBy", expression: .identifierType(.member("CodingKeys")).dot("self"))])
             )
         )
     }
@@ -628,16 +435,8 @@ fileprivate extension FileTranslator {
         .function(
             accessModifier: config.access,
             kind: .function(name: "encode"),
-            parameters: [
-                .init(
-                    label: "to",
-                    name: "encoder",
-                    type: .any(.member("Encoder"))
-                )
-            ],
-            keywords: [
-                .throws
-            ],
+            parameters: [.init(label: "to", name: "encoder", type: .any(.member("Encoder")))],
+            keywords: [.throws],
             body: body
         )
     }
@@ -649,16 +448,8 @@ fileprivate extension FileTranslator {
         .function(
             accessModifier: config.access,
             kind: .initializer,
-            parameters: [
-                .init(
-                    label: "from",
-                    name: "decoder",
-                    type: .any(.member("Decoder"))
-                )
-            ],
-            keywords: [
-                .throws
-            ],
+            parameters: [.init(label: "from", name: "decoder", type: .any(.member("Decoder")))],
+            keywords: [.throws],
             body: body
         )
     }

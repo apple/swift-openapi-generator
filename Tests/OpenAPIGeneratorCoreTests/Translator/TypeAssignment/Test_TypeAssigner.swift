@@ -20,57 +20,37 @@ class Test_TypeAssigner: Test_Core {
     func testTypeNameForReferences() throws {
         try XCTAssertEqual(
             typeAssigner.typeName(for: OpenAPI.Reference<JSONSchema>.component(named: "mumble")),
-            newTypeName(
-                swiftFQName: "Components.Schemas.mumble",
-                jsonFQName: "#/components/schemas/mumble"
-            )
+            newTypeName(swiftFQName: "Components.Schemas.mumble", jsonFQName: "#/components/schemas/mumble")
         )
         try XCTAssertEqual(
             typeAssigner.typeName(for: OpenAPI.Reference<OpenAPI.Parameter>.component(named: "mumble")),
-            newTypeName(
-                swiftFQName: "Components.Parameters.mumble",
-                jsonFQName: "#/components/parameters/mumble"
-            )
+            newTypeName(swiftFQName: "Components.Parameters.mumble", jsonFQName: "#/components/parameters/mumble")
         )
         try XCTAssertEqual(
             typeAssigner.typeName(for: OpenAPI.Reference<OpenAPI.Header>.component(named: "mumble")),
-            newTypeName(
-                swiftFQName: "Components.Headers.mumble",
-                jsonFQName: "#/components/headers/mumble"
-            )
+            newTypeName(swiftFQName: "Components.Headers.mumble", jsonFQName: "#/components/headers/mumble")
 
         )
         try XCTAssertEqual(
             typeAssigner.typeName(for: OpenAPI.Reference<OpenAPI.Request>.component(named: "mumble")),
-            newTypeName(
-                swiftFQName: "Components.RequestBodies.mumble",
-                jsonFQName: "#/components/requestBodies/mumble"
-            )
+            newTypeName(swiftFQName: "Components.RequestBodies.mumble", jsonFQName: "#/components/requestBodies/mumble")
 
         )
         try XCTAssertEqual(
             typeAssigner.typeName(for: OpenAPI.Reference<OpenAPI.Response>.component(named: "mumble")),
-            newTypeName(
-                swiftFQName: "Components.Responses.mumble",
-                jsonFQName: "#/components/responses/mumble"
-            )
+            newTypeName(swiftFQName: "Components.Responses.mumble", jsonFQName: "#/components/responses/mumble")
         )
     }
 
     func testTypeNameForComponentKeys() {
         let expectedSchemaTypeNames: [OpenAPI.ComponentKey: String] = [
             // camel-casing behaviour
-            "customtype": "customtype",
-            "customType": "customType",
-            "custom_type": "custom_type",
-            "custom__type": "custom__type",
-            "custom_type_": "custom_type_",
+            "customtype": "customtype", "customType": "customType", "custom_type": "custom_type",
+            "custom__type": "custom__type", "custom_type_": "custom_type_",
             // preserve leading underscores
-            "_custom_type": "_custom_type",
-            "__custom__type": "__custom__type",
+            "_custom_type": "_custom_type", "__custom__type": "__custom__type",
             // sanitization
-            "1customtype": "_1customtype",
-            "custom.type": "custom_period_type",
+            "1customtype": "_1customtype", "custom.type": "custom_period_type",
             ".custom$type": "_period_custom_dollar_type",
             // keywords
             "enum": "_enum",
@@ -81,11 +61,7 @@ class Test_TypeAssigner: Test_Core {
     }
 
     func testTypeNameForComponentPairs() throws {
-        let components = OpenAPI.Components(
-            schemas: [
-                "my_reusable_schema": .object
-            ]
-        )
+        let components = OpenAPI.Components(schemas: ["my_reusable_schema": .object])
         XCTAssertEqual(
             components.schemas.map(typeAssigner.typeName(for:)),
             [
@@ -98,21 +74,10 @@ class Test_TypeAssigner: Test_Core {
     }
 
     func testTypeNameForNamedComponent() throws {
-        let expected: [(String, TypeLocation, String)] = [
-            (
-                "Foo",
-                .schemas,
-                "Components.Schemas.Foo"
-            )
-        ]
+        let expected: [(String, TypeLocation, String)] = [("Foo", .schemas, "Components.Schemas.Foo")]
         for (originalName, location, typeNameString) in expected {
             XCTAssertEqual(
-                typeAssigner
-                    .typeName(
-                        forComponentOriginallyNamed: originalName,
-                        in: location
-                    )
-                    .fullyQualifiedSwiftName,
+                typeAssigner.typeName(forComponentOriginallyNamed: originalName, in: location).fullyQualifiedSwiftName,
                 typeNameString
             )
         }
@@ -122,26 +87,8 @@ class Test_TypeAssigner: Test_Core {
         let parent = TypeName(swiftKeyPath: ["MyType"])
         let components: OpenAPI.Components = .noComponents
         let expected: [(String, JSONSchema, String)] = [
-            (
-                "foo",
-                .object(
-                    .init(),
-                    .init(properties: [
-                        "bar": .string
-                    ])
-                ),
-                "MyType.fooPayload"
-            ),
-            (
-                "foo",
-                .object(
-                    .init(nullable: true),
-                    .init(properties: [
-                        "bar": .string
-                    ])
-                ),
-                "MyType.fooPayload?"
-            ),
+            ("foo", .object(.init(), .init(properties: ["bar": .string])), "MyType.fooPayload"),
+            ("foo", .object(.init(nullable: true), .init(properties: ["bar": .string])), "MyType.fooPayload?"),
         ]
         for (originalName, schema, typeNameString) in expected {
             try XCTAssertEqual(

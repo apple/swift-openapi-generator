@@ -23,10 +23,7 @@ extension TypesFileTranslator {
     ///   - server: The server URL information.
     /// - Returns: A static method declaration, and a name for the variable to
     /// declare the method under.
-    func translateServer(
-        index: Int,
-        server: OpenAPI.Server
-    ) -> Declaration {
+    func translateServer(index: Int, server: OpenAPI.Server) -> Declaration {
         let methodName = "\(Constants.ServerURL.propertyPrefix)\(index+1)"
         let methodDecl = Declaration.commentable(
             server.description.flatMap { .doc($0) },
@@ -34,9 +31,7 @@ extension TypesFileTranslator {
                 accessModifier: config.access,
                 kind: .function(name: methodName, isStatic: true),
                 parameters: [],
-                keywords: [
-                    .throws
-                ],
+                keywords: [.throws],
                 returnType: .identifierType(TypeName.url),
                 body: [
                     .expression(
@@ -45,11 +40,7 @@ extension TypesFileTranslator {
                                 .call([
                                     .init(
                                         label: "validatingOpenAPIServerURL",
-                                        expression: .literal(
-                                            .string(
-                                                server.urlTemplate.absoluteString
-                                            )
-                                        )
+                                        expression: .literal(.string(server.urlTemplate.absoluteString))
                                     )
                                 ])
                         )
@@ -69,11 +60,7 @@ extension TypesFileTranslator {
         let serverDecls = servers.enumerated().map(translateServer)
         return .commentable(
             .doc("Server URLs defined in the OpenAPI document."),
-            .enum(
-                accessModifier: config.access,
-                name: Constants.ServerURL.namespace,
-                members: serverDecls
-            )
+            .enum(accessModifier: config.access, name: Constants.ServerURL.namespace, members: serverDecls)
         )
     }
 }

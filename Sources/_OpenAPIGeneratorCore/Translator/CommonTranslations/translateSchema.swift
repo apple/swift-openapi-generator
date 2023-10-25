@@ -30,29 +30,22 @@ extension FileTranslator {
     ///   instead of extracted from the schema.
     /// - Throws: An error if there is an issue during translation.
     /// - Returns: A list of declarations representing the translated schema.
-    func translateSchema(
-        typeName: TypeName,
-        schema: UnresolvedSchema?,
-        overrides: SchemaOverrides
-    ) throws -> [Declaration] {
+    func translateSchema(typeName: TypeName, schema: UnresolvedSchema?, overrides: SchemaOverrides) throws
+        -> [Declaration]
+    {
         let unwrappedSchema: JSONSchema
         if let schema {
             switch schema {
             case let .a(ref):
                 // reference, wrap that into JSONSchema
                 unwrappedSchema = .reference(ref.jsonReference)
-            case let .b(schema):
-                unwrappedSchema = schema
+            case let .b(schema): unwrappedSchema = schema
             }
         } else {
             // fragment
             unwrappedSchema = .fragment
         }
-        return try translateSchema(
-            typeName: typeName,
-            schema: unwrappedSchema,
-            overrides: overrides
-        )
+        return try translateSchema(typeName: typeName, schema: unwrappedSchema, overrides: overrides)
     }
 
     /// Returns a list of declarations for the specified schema.
@@ -70,11 +63,7 @@ extension FileTranslator {
     ///   instead of extracted from the schema.
     /// - Throws: An error if there is an issue during translation.
     /// - Returns: A list of declarations representing the translated schema.
-    func translateSchema(
-        typeName: TypeName,
-        schema: JSONSchema,
-        overrides: SchemaOverrides
-    ) throws -> [Declaration] {
+    func translateSchema(typeName: TypeName, schema: JSONSchema, overrides: SchemaOverrides) throws -> [Declaration] {
 
         let value = schema.value
 
@@ -93,10 +82,7 @@ extension FileTranslator {
         }
 
         // If this type maps to a referenceable schema, define a typealias
-        if let builtinType = try typeMatcher.tryMatchReferenceableType(
-            for: schema,
-            components: components
-        ) {
+        if let builtinType = try typeMatcher.tryMatchReferenceableType(for: schema, components: components) {
             let typealiasDecl = try translateTypealias(
                 named: typeName,
                 userDescription: overrides.userDescription ?? schema.description,
@@ -171,8 +157,7 @@ extension FileTranslator {
                 schemas: schemas
             )
             return [oneOfDecl]
-        default:
-            return []
+        default: return []
         }
     }
 }

@@ -19,27 +19,15 @@ final class Test_OperationDescription: Test_Core {
 
     func testAllParameters_duplicates_retainOnlyOperationParameters() throws {
         let pathLevelParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(
-                name: "test",
-                context: .query(required: false),
-                schema: .integer
-            )
+            OpenAPI.Parameter(name: "test", context: .query(required: false), schema: .integer)
         )
         let operationLevelParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(
-                name: "test",
-                context: .query(required: false),
-                schema: .string
-            )
+            OpenAPI.Parameter(name: "test", context: .query(required: false), schema: .string)
         )
 
         let pathItem = OpenAPI.PathItem(
             parameters: [pathLevelParameter],
-            get: .init(
-                parameters: [operationLevelParameter],
-                requestBody: .b(.init(content: [:])),
-                responses: [:]
-            ),
+            get: .init(parameters: [operationLevelParameter], requestBody: .b(.init(content: [:])), responses: [:]),
             vendorExtensions: [:]
         )
         let allParameters = try _test(pathItem)
@@ -49,27 +37,15 @@ final class Test_OperationDescription: Test_Core {
 
     func testAllParameters_duplicates_keepsDuplicatesFromDifferentLocation() throws {
         let pathLevelParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(
-                name: "test",
-                context: .query(required: false),
-                schema: .integer
-            )
+            OpenAPI.Parameter(name: "test", context: .query(required: false), schema: .integer)
         )
         let operationLevelParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(
-                name: "test",
-                context: .path,
-                schema: .string
-            )
+            OpenAPI.Parameter(name: "test", context: .path, schema: .string)
         )
 
         let pathItem = OpenAPI.PathItem(
             parameters: [pathLevelParameter],
-            get: .init(
-                parameters: [operationLevelParameter],
-                requestBody: .b(.init(content: [:])),
-                responses: [:]
-            ),
+            get: .init(parameters: [operationLevelParameter], requestBody: .b(.init(content: [:])), responses: [:]),
             vendorExtensions: [:]
         )
         let allParameters = try _test(pathItem)
@@ -79,25 +55,13 @@ final class Test_OperationDescription: Test_Core {
 
     func testAllParameters_duplicates_ordering() throws {
         let pathLevelParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(
-                name: "test1",
-                context: .query(required: false),
-                schema: .integer
-            )
+            OpenAPI.Parameter(name: "test1", context: .query(required: false), schema: .integer)
         )
         let duplicatedParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(
-                name: "test2",
-                context: .query(required: false),
-                schema: .integer
-            )
+            OpenAPI.Parameter(name: "test2", context: .query(required: false), schema: .integer)
         )
         let operationLevelParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(
-                name: "test3",
-                context: .query(required: false),
-                schema: .string
-            )
+            OpenAPI.Parameter(name: "test3", context: .query(required: false), schema: .string)
         )
 
         let pathItem = OpenAPI.PathItem(

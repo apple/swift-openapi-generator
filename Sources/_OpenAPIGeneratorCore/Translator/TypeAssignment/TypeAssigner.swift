@@ -61,15 +61,9 @@ struct TypeAssigner {
     ///   the OpenAPI document.
     ///   - location: The location of the type in the OpenAPI document.
     /// - Returns: A Swift type name for the specified component type.
-    func typeName(
-        forComponentOriginallyNamed originalName: String,
-        in location: TypeLocation
-    ) -> TypeName {
+    func typeName(forComponentOriginallyNamed originalName: String, in location: TypeLocation) -> TypeName {
         typeName(forLocation: location)
-            .appending(
-                swiftComponent: asSwiftSafeName(originalName),
-                jsonComponent: originalName
-            )
+            .appending(swiftComponent: asSwiftSafeName(originalName), jsonComponent: originalName)
     }
 
     /// Returns the type name for an OpenAPI-named component namespace.
@@ -77,10 +71,8 @@ struct TypeAssigner {
     /// - Returns: A Swift type name representing the specified component namespace.
     func typeName(forLocation location: TypeLocation) -> TypeName {
         switch location {
-        case .schemas:
-            return typeName(for: JSONSchema.self)
-        case .parameters:
-            return typeName(for: OpenAPI.Parameter.self)
+        case .schemas: return typeName(for: JSONSchema.self)
+        case .parameters: return typeName(for: OpenAPI.Parameter.self)
         }
     }
 
@@ -101,8 +93,7 @@ struct TypeAssigner {
         let associatedType: TypeUsage?
         if let schema {
             switch schema {
-            case let .a(reference):
-                associatedType = try typeName(for: reference).asUsage
+            case let .a(reference): associatedType = try typeName(for: reference).asUsage
             case let .b(schema):
                 associatedType = try _typeUsage(
                     forPotentiallyInlinedValueNamed: hint,
@@ -287,27 +278,21 @@ struct TypeAssigner {
         )
         // Check if this type can be simply referenced without
         // creating a new inline type.
-        if let referenceableType = try typeMatcher.tryMatchReferenceableType(
-            for: schema,
-            components: components
-        ) {
+        if let referenceableType = try typeMatcher.tryMatchReferenceableType(for: schema, components: components) {
             return referenceableType
         }
         // Otherwise it's an inline, non-referenceable type
         let baseType: TypeName
         switch subtype {
-        case .appendScope:
-            baseType = parent
-        case .appendToLastPathComponent:
-            baseType = parent.parent
+        case .appendScope: baseType = parent
+        case .appendToLastPathComponent: baseType = parent.parent
         }
         return
             baseType.appending(
                 swiftComponent: asSwiftSafeName(originalName) + suffix,
                 jsonComponent: jsonReferenceComponentOverride ?? originalName
             )
-            .asUsage
-            .withOptional(try typeMatcher.isOptional(schema, components: components))
+            .asUsage.withOptional(try typeMatcher.isOptional(schema, components: components))
     }
 
     /// Returns a type name for a reusable component.
@@ -335,9 +320,7 @@ struct TypeAssigner {
     /// - Returns: A type name for a reusable component.
     func typeName<Component: ComponentDictionaryLocatable>(
         for component: OpenAPI.ComponentDictionary<Component>.Element
-    ) -> TypeName {
-        typeName(for: component.key, of: Component.self)
-    }
+    ) -> TypeName { typeName(for: component.key, of: Component.self) }
 
     /// Returns a type name for a reusable component key.
     ///
@@ -369,10 +352,7 @@ struct TypeAssigner {
         of componentType: Component.Type
     ) -> TypeName {
         typeName(for: Component.self)
-            .appending(
-                swiftComponent: asSwiftSafeName(key.rawValue),
-                jsonComponent: key.rawValue
-            )
+            .appending(swiftComponent: asSwiftSafeName(key.rawValue), jsonComponent: key.rawValue)
     }
 
     /// Returns a type name for a JSON reference.
@@ -418,12 +398,7 @@ struct TypeAssigner {
     func typeName<Component: ComponentDictionaryLocatable>(
         for reference: OpenAPI.Reference<Component>,
         in componentType: Component.Type = Component.self
-    ) throws -> TypeName {
-        try typeName(
-            for: reference.jsonReference,
-            in: componentType
-        )
-    }
+    ) throws -> TypeName { try typeName(for: reference.jsonReference, in: componentType) }
 
     /// Returns a type name for an internal reference to a component.
     ///
@@ -439,15 +414,9 @@ struct TypeAssigner {
         in componentType: Component.Type = Component.self
     ) throws -> TypeName {
         guard case let .component(name) = reference else {
-            throw
-                JSONReferenceParsingError
-                .nonComponentPathsUnsupported(reference.name)
+            throw JSONReferenceParsingError.nonComponentPathsUnsupported(reference.name)
         }
-        return typeName(for: componentType)
-            .appending(
-                swiftComponent: asSwiftSafeName(name),
-                jsonComponent: name
-            )
+        return typeName(for: componentType).appending(swiftComponent: asSwiftSafeName(name), jsonComponent: name)
     }
 
     /// Returns a type name for the namespace for the specified component type.
@@ -466,16 +435,12 @@ struct TypeAssigner {
     ///
     /// - Parameter componentType: The type of the component.
     /// - Returns: A type name for the namespace for the specified component type.
-    func typeName<Component: ComponentDictionaryLocatable>(
-        for componentType: Component.Type = Component.self
-    ) -> TypeName {
+    func typeName<Component: ComponentDictionaryLocatable>(for componentType: Component.Type = Component.self)
+        -> TypeName
+    {
         typeNameForComponents()
             .appending(
-                swiftComponent: asSwiftSafeName(
-                    componentType
-                        .openAPIComponentsKey
-                )
-                .uppercasingFirstLetter,
+                swiftComponent: asSwiftSafeName(componentType.openAPIComponentsKey).uppercasingFirstLetter,
                 jsonComponent: componentType.openAPIComponentsKey
             )
     }
@@ -483,10 +448,7 @@ struct TypeAssigner {
     /// Returns the root namespace for all OpenAPI components.
     /// - Returns: The root namespace for all OpenAPI components.
     func typeNameForComponents() -> TypeName {
-        TypeName(components: [
-            .root,
-            .init(swift: Constants.Components.namespace, json: "components"),
-        ])
+        TypeName(components: [.root, .init(swift: Constants.Components.namespace, json: "components")])
     }
 }
 
@@ -533,8 +495,4 @@ extension JSONReferenceParsingError: CustomStringConvertible {
     }
 }
 
-extension JSONReferenceParsingError: LocalizedError {
-    var errorDescription: String? {
-        description
-    }
-}
+extension JSONReferenceParsingError: LocalizedError { var errorDescription: String? { description } }

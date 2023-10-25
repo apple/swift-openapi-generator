@@ -22,14 +22,8 @@ extension TypesFileTranslator {
     /// - Throws: If `paths` contains any references.
     func translateAPIProtocol(_ paths: OpenAPI.PathItem.Map) throws -> Declaration {
 
-        let operations = try OperationDescription.all(
-            from: paths,
-            in: components,
-            asSwiftSafeName: swiftSafeName
-        )
-        let functionDecls =
-            operations
-            .map(translateAPIProtocolDeclaration(operation:))
+        let operations = try OperationDescription.all(from: paths, in: components, asSwiftSafeName: swiftSafeName)
+        let functionDecls = operations.map(translateAPIProtocolDeclaration(operation:))
 
         let protocolDescription = ProtocolDescription(
             accessModifier: config.access,
@@ -39,19 +33,12 @@ extension TypesFileTranslator {
         )
         let protocolComment: Comment = .doc("A type that performs HTTP operations defined by the OpenAPI document.")
 
-        return .commentable(
-            protocolComment,
-            .protocol(protocolDescription)
-        )
+        return .commentable(protocolComment, .protocol(protocolDescription))
     }
 
     /// Returns an extension to the `APIProtocol` protocol, with some syntactic sugar APIs.
     func translateAPIProtocolExtension(_ paths: OpenAPI.PathItem.Map) throws -> Declaration {
-        let operations = try OperationDescription.all(
-            from: paths,
-            in: components,
-            asSwiftSafeName: swiftSafeName
-        )
+        let operations = try OperationDescription.all(from: paths, in: components, asSwiftSafeName: swiftSafeName)
 
         // This looks for all initializers in the operation input struct and creates a flattened function.
         let flattenedOperations = try operations.flatMap { operation in
@@ -61,9 +48,7 @@ extension TypesFileTranslator {
             return input.members.compactMap { member -> Declaration? in
                 guard case let .commentable(_, .function(initializer)) = member,
                     case .initializer = initializer.signature.kind
-                else {
-                    return nil
-                }
+                else { return nil }
                 let function = FunctionDescription(
                     accessModifier: config.access,
                     kind: .function(name: operation.methodName),
@@ -80,9 +65,7 @@ extension TypesFileTranslator {
                                             expression: .identifierType(operation.inputTypeName)
                                                 .call(
                                                     initializer.signature.parameters.map { parameter in
-                                                        guard let label = parameter.label else {
-                                                            preconditionFailure()
-                                                        }
+                                                        guard let label = parameter.label else { preconditionFailure() }
                                                         return FunctionArgumentDescription(
                                                             label: label,
                                                             expression: .identifierPattern(label)
@@ -101,12 +84,7 @@ extension TypesFileTranslator {
 
         return .commentable(
             .doc("Convenience overloads for operation inputs."),
-            .extension(
-                ExtensionDescription(
-                    onType: Constants.APIProtocol.typeName,
-                    declarations: flattenedOperations
-                )
-            )
+            .extension(ExtensionDescription(onType: Constants.APIProtocol.typeName, declarations: flattenedOperations))
         )
     }
 
@@ -116,15 +94,10 @@ extension TypesFileTranslator {
     /// document.
     /// - Parameter description: The OpenAPI operation.
     /// - Returns: A function declaration.
-    func translateAPIProtocolDeclaration(
-        operation description: OperationDescription
-    ) -> Declaration {
+    func translateAPIProtocolDeclaration(operation description: OperationDescription) -> Declaration {
         let operationComment = description.comment
         let signature = description.protocolSignatureDescription
         let function = FunctionDescription(signature: signature)
-        return .commentable(
-            operationComment,
-            .function(function).deprecate(if: description.operation.deprecated)
-        )
+        return .commentable(operationComment, .function(function).deprecate(if: description.operation.deprecated))
     }
 }

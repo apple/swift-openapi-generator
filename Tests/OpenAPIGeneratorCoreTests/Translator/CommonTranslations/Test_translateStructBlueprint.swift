@@ -22,16 +22,13 @@ final class Test_translateStructBlueprint: Test_Core {
             .init(
                 typeName: Self.testTypeName,
                 shouldGenerateCodingKeys: true,
-                properties: [
-                    makeProperty(originalName: "bar", typeUsage: TypeName.int.asUsage)
-                ]
+                properties: [makeProperty(originalName: "bar", typeUsage: TypeName.int.asUsage)]
             )
         )
         XCTAssertEqual(
             members,
             [
-                .init(name: "bar", kind: .variable),
-                .init(name: "init", kind: .function),
+                .init(name: "bar", kind: .variable), .init(name: "init", kind: .function),
                 .init(name: "CodingKeys", kind: .enum),
             ]
         )
@@ -39,18 +36,9 @@ final class Test_translateStructBlueprint: Test_Core {
 
     func testEmptyStruct() throws {
         let members = try _testStruct(
-            .init(
-                typeName: Self.testTypeName,
-                shouldGenerateCodingKeys: true,
-                properties: []
-            )
+            .init(typeName: Self.testTypeName, shouldGenerateCodingKeys: true, properties: [])
         )
-        XCTAssertEqual(
-            members,
-            [
-                .init(name: "init", kind: .function)
-            ]
-        )
+        XCTAssertEqual(members, [.init(name: "init", kind: .function)])
     }
 
     func testDeprecatedStruct() throws {

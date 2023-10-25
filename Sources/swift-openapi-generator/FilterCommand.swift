@@ -32,14 +32,12 @@ struct _FilterCommand: AsyncParsableCommand {
             """
     )
 
-    @Option(help: "Path to a YAML configuration file.")
-    var config: URL
+    @Option(help: "Path to a YAML configuration file.") var config: URL
 
     @Option(help: "Output format, either \(OutputFormat.yaml.rawValue) or \(OutputFormat.json.rawValue).")
     var outputFormat: OutputFormat = .yaml
 
-    @Argument(help: "Path to the OpenAPI document, either in YAML or JSON.")
-    var docPath: URL
+    @Argument(help: "Path to the OpenAPI document, either in YAML or JSON.") var docPath: URL
 
     func run() async throws {
         let configData = try Data(contentsOf: config)
@@ -61,8 +59,7 @@ struct _FilterCommand: AsyncParsableCommand {
 
 private func encode(_ document: OpenAPI.Document, _ format: OutputFormat) throws -> Data {
     switch format {
-    case .yaml:
-        return Data(try YAMLEncoder().encode(document).utf8)
+    case .yaml: return Data(try YAMLEncoder().encode(document).utf8)
     case .json:
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]

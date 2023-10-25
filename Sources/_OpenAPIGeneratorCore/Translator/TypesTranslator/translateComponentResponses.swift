@@ -20,40 +20,20 @@ extension TypesFileTranslator {
     /// - Parameter responses: The reusable responses.
     /// - Returns: An enum declaration representing the responses namespace.
     /// - Throws: An error if there's an issue during translation or request body processing
-    func translateComponentResponses(
-        _ responses: OpenAPI.ComponentDictionary<OpenAPI.Response>
-    ) throws -> Declaration {
+    func translateComponentResponses(_ responses: OpenAPI.ComponentDictionary<OpenAPI.Response>) throws -> Declaration {
 
-        let typedResponses: [TypedResponse] =
-            responses
-            .map { key, response in
-                let typeName = typeAssigner.typeName(
-                    for: key,
-                    of: OpenAPI.Response.self
-                )
-                let value = TypedResponse(
-                    response: response,
-                    typeUsage: typeName.asUsage,
-                    isInlined: false
-                )
-                return value
-            }
-        let decls: [Declaration] =
-            try typedResponses
-            .map { value in
-                try translateResponseInTypes(
-                    typeName: value.typeUsage.typeName,
-                    response: value
-                )
-            }
+        let typedResponses: [TypedResponse] = responses.map { key, response in
+            let typeName = typeAssigner.typeName(for: key, of: OpenAPI.Response.self)
+            let value = TypedResponse(response: response, typeUsage: typeName.asUsage, isInlined: false)
+            return value
+        }
+        let decls: [Declaration] = try typedResponses.map { value in
+            try translateResponseInTypes(typeName: value.typeUsage.typeName, response: value)
+        }
 
         let componentsResponsesEnum = Declaration.commentable(
             OpenAPI.Response.sectionComment(),
-            .enum(
-                accessModifier: config.access,
-                name: Constants.Components.Responses.namespace,
-                members: decls
-            )
+            .enum(accessModifier: config.access, name: Constants.Components.Responses.namespace, members: decls)
         )
         return componentsResponsesEnum
     }

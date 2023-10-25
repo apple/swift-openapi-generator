@@ -29,24 +29,12 @@ extension TypesFileTranslator {
     /// if the specified schema contains unnamed types that need to be declared
     /// inline.
     /// - Throws: An error if there is an issue during the matching process.
-    func translateSchema(
-        componentKey: OpenAPI.ComponentKey,
-        schema: JSONSchema
-    ) throws -> [Declaration] {
-        guard
-            try validateSchemaIsSupported(
-                schema,
-                foundIn: "#/components/schemas/\(componentKey.rawValue)"
-            )
-        else {
+    func translateSchema(componentKey: OpenAPI.ComponentKey, schema: JSONSchema) throws -> [Declaration] {
+        guard try validateSchemaIsSupported(schema, foundIn: "#/components/schemas/\(componentKey.rawValue)") else {
             return []
         }
         let typeName = typeAssigner.typeName(for: (componentKey, schema))
-        return try translateSchema(
-            typeName: typeName,
-            schema: schema,
-            overrides: .none
-        )
+        return try translateSchema(typeName: typeName, schema: schema, overrides: .none)
     }
 
     /// Returns a declaration of the namespace that contains all the reusable
@@ -55,9 +43,7 @@ extension TypesFileTranslator {
     /// - Returns: A declaration of the schemas namespace in the parent
     /// components namespace.
     /// - Throws: An error if there is an issue during schema translation.
-    func translateSchemas(
-        _ schemas: OpenAPI.ComponentDictionary<JSONSchema>
-    ) throws -> Declaration {
+    func translateSchemas(_ schemas: OpenAPI.ComponentDictionary<JSONSchema>) throws -> Declaration {
 
         let decls: [Declaration] = try schemas.flatMap { key, value in
             try translateSchema(componentKey: key, schema: value)

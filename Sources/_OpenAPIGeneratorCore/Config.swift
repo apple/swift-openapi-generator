@@ -53,7 +53,5 @@ public struct Config: Sendable {
 
 extension Config {
     /// Returns the access modifier to use for generated declarations.
-    var access: AccessModifier? {
-        .public
-    }
+    var access: AccessModifier? { .public }
 }

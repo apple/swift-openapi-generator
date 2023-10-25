@@ -30,9 +30,7 @@ public func XCTAssertEqualStringifiedData(
         }
         let actualString = String(decoding: value1, as: UTF8.self)
         XCTAssertEqual(actualString, try expression2(), file: file, line: line)
-    } catch {
-        XCTFail(error.localizedDescription, file: file, line: line)
-    }
+    } catch { XCTFail(error.localizedDescription, file: file, line: line) }
 }
 /// Asserts that the stringified data matches the expected string value.
 public func XCTAssertEqualStringifiedData<S: Sequence>(
@@ -49,9 +47,7 @@ public func XCTAssertEqualStringifiedData<S: Sequence>(
         }
         let actualString = String(decoding: Array(value1), as: UTF8.self)
         XCTAssertEqual(actualString, try expression2(), file: file, line: line)
-    } catch {
-        XCTFail(error.localizedDescription, file: file, line: line)
-    }
+    } catch { XCTFail(error.localizedDescription, file: file, line: line) }
 }
 /// Asserts that the stringified data matches the expected string value.
 public func XCTAssertEqualStringifiedData(
@@ -62,10 +58,6 @@ public func XCTAssertEqualStringifiedData(
     line: UInt = #line
 ) async throws {
     let data: Data
-    if let body = try expression1() {
-        data = try await Data(collecting: body, upTo: .max)
-    } else {
-        data = .init()
-    }
+    if let body = try expression1() { data = try await Data(collecting: body, upTo: .max) } else { data = .init() }
     XCTAssertEqualStringifiedData(data, try expression2(), message(), file: file, line: line)
 }

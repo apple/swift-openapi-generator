@@ -27,11 +27,7 @@ extension _GenerateOptions {
     ///   making any actual changes.
     /// - Throws: An error if any part of the generator execution encounters an issue, including loading configuration,
     /// resolving options, generating code, and handling diagnostics.
-    func runGenerator(
-        outputDirectory: URL,
-        pluginSource: PluginSource?,
-        isDryRun: Bool
-    ) async throws {
+    func runGenerator(outputDirectory: URL, pluginSource: PluginSource?, isDryRun: Bool) async throws {
         let config = try loadedConfig()
         let sortedModes = try resolvedModes(config)
         let resolvedAdditionalImports = resolvedAdditionalImports(config)

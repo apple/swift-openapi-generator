@@ -75,10 +75,9 @@ struct RecursionDetector {
     /// - Returns: The types that cause recusion and should have a reference
     ///   type for internal storage.
     /// - Throws: If a referenced node is not found in the container.
-    static func computeBoxedTypes<Node: TypeNode, Container: TypeNodeContainer>(
-        rootNodes: [Node],
-        container: Container
-    ) throws -> Set<Node.NameType> where Container.Node == Node {
+    static func computeBoxedTypes<Node: TypeNode, Container: TypeNodeContainer>(rootNodes: [Node], container: Container)
+        throws -> Set<Node.NameType> where Container.Node == Node
+    {
 
         // The current algorithm works as follows:
         // - Iterate over the types, in the order provided in the OpenAPI
@@ -114,18 +113,14 @@ struct RecursionDetector {
                 // visit its edges.
                 seen.insert(name)
 
-                for edge in node.edges {
-                    try visit(container.lookup(edge))
-                }
+                for edge in node.edges { try visit(container.lookup(edge)) }
                 return
             }
 
             // We have seen this node.
 
             // If the name is not in the stack twice, this is not a cycle.
-            if !previousStackSet.contains(name) {
-                return
-            }
+            if !previousStackSet.contains(name) { return }
 
             // It is in the stack twice, so we just closed a cycle.
 
@@ -143,17 +138,13 @@ struct RecursionDetector {
             let nameToAdd = firstBoxable.name
 
             // Check if we're already going to box this type, if so, we're done.
-            if boxed.contains(nameToAdd) {
-                return
-            }
+            if boxed.contains(nameToAdd) { return }
 
             // None of the types are boxed yet, so add the current node.
             boxed.insert(nameToAdd)
         }
 
-        for node in rootNodes {
-            try visit(node)
-        }
+        for node in rootNodes { try visit(node) }
         return boxed
     }
 }

@@ -47,69 +47,47 @@ enum ResponseKind {
         /// Creates a new range that matches the specified OpenAPI range.
         init(_ range: OpenAPI.Response.StatusCode.Range) {
             switch range {
-            case .information:
-                self = ._1XX
-            case .success:
-                self = ._2XX
-            case .redirect:
-                self = ._3XX
-            case .clientError:
-                self = ._4XX
-            case .serverError:
-                self = ._5XX
+            case .information: self = ._1XX
+            case .success: self = ._2XX
+            case .redirect: self = ._3XX
+            case .clientError: self = ._4XX
+            case .serverError: self = ._5XX
             }
         }
 
         /// A JSON path component for the range.
         var jsonPathComponent: String {
             switch self {
-            case ._1XX:
-                return "1XX"
-            case ._2XX:
-                return "2XX"
-            case ._3XX:
-                return "3XX"
-            case ._4XX:
-                return "4XX"
-            case ._5XX:
-                return "5XX"
+            case ._1XX: return "1XX"
+            case ._2XX: return "2XX"
+            case ._3XX: return "3XX"
+            case ._4XX: return "4XX"
+            case ._5XX: return "5XX"
             }
         }
 
         /// The lowest HTTP status code in the range.
         var lowerBound: Int {
             switch self {
-            case ._1XX:
-                return 100
-            case ._2XX:
-                return 200
-            case ._3XX:
-                return 300
-            case ._4XX:
-                return 400
-            case ._5XX:
-                return 500
+            case ._1XX: return 100
+            case ._2XX: return 200
+            case ._3XX: return 300
+            case ._4XX: return 400
+            case ._5XX: return 500
             }
         }
 
         /// The highest HTTP status code in the range.
-        var upperBound: Int {
-            lowerBound + 99
-        }
+        var upperBound: Int { lowerBound + 99 }
 
         /// A human-readable name for the range.
         var prettyName: String {
             switch self {
-            case ._1XX:
-                return "informational"
-            case ._2XX:
-                return "successful"
-            case ._3XX:
-                return "redirection"
-            case ._4XX:
-                return "clientError"
-            case ._5XX:
-                return "serverError"
+            case ._1XX: return "informational"
+            case ._2XX: return "successful"
+            case ._3XX: return "redirection"
+            case ._4XX: return "clientError"
+            case ._5XX: return "serverError"
             }
         }
     }
@@ -125,43 +103,32 @@ enum ResponseKind {
     ///
     /// - Returns: `true` for the range and default response, `false` for
     /// code responses.
-    var wantsStatusCode: Bool {
-        code == nil
-    }
+    var wantsStatusCode: Bool { code == nil }
 
     /// A name of the response usable as a Swift identifier.
     var identifier: String {
         switch self {
-        case .`default`:
-            return "`default`"
-        case .code(let code):
-            return HTTPStatusCodes.safeName(for: code)
-        case .range(let range):
-            return range.prettyName
+        case .`default`: return "`default`"
+        case .code(let code): return HTTPStatusCodes.safeName(for: code)
+        case .range(let range): return range.prettyName
         }
     }
 
     /// A JSON path component for the response.
     var jsonPathComponent: String {
         switch self {
-        case .`default`:
-            return "default"
-        case .code(let int):
-            return "\(int)"
-        case .range(let rangeType):
-            return rangeType.jsonPathComponent
+        case .`default`: return "default"
+        case .code(let int): return "\(int)"
+        case .range(let rangeType): return rangeType.jsonPathComponent
         }
     }
 
     /// A human-readable name for the response.
     var prettyName: String {
         switch self {
-        case .`default`:
-            return "default"
-        case .code(let code):
-            return HTTPStatusCodes.safeName(for: code)
-        case .range(let range):
-            return range.prettyName
+        case .`default`: return "default"
+        case .code(let code): return HTTPStatusCodes.safeName(for: code)
+        case .range(let range): return range.prettyName
         }
     }
 
@@ -171,40 +138,28 @@ enum ResponseKind {
     /// represent multiple codes, such as a range or default.
     var code: Int? {
         switch self {
-        case .`default`, .range:
-            return nil
-        case .code(let code):
-            return code
+        case .`default`, .range: return nil
+        case .code(let code): return code
         }
     }
 
     /// Returns a new type name that appends the response's Swift name to
     /// the specified parent type name.
     func typeName(in parent: TypeName) -> TypeName {
-        parent.appending(
-            swiftComponent: prettyName.uppercasingFirstLetter,
-            jsonComponent: jsonPathComponent
-        )
+        parent.appending(swiftComponent: prettyName.uppercasingFirstLetter, jsonComponent: jsonPathComponent)
     }
 }
 
-extension ResponseKind: CustomStringConvertible {
-    var description: String {
-        prettyName
-    }
-}
+extension ResponseKind: CustomStringConvertible { var description: String { prettyName } }
 
 extension OpenAPI.Response.StatusCode.Code {
 
     /// Returns the matching OpenAPI response kind.
     var asKind: ResponseKind {
         switch self {
-        case .`default`:
-            return .`default`
-        case .status(let code):
-            return .code(code)
-        case .range(let range):
-            return .range(.init(range))
+        case .`default`: return .`default`
+        case .status(let code): return .code(code)
+        case .range(let range): return .range(.init(range))
         }
     }
 }

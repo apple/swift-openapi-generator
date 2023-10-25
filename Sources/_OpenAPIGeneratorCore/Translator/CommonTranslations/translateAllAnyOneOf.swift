@@ -37,15 +37,10 @@ extension FileTranslator {
     ///   - schemas: The child schemas of the allOf/anyOf.
     /// - Throws: An error if there is an issue during translation.
     /// - Returns: A declaration representing the translated allOf/anyOf structure.
-    func translateAllOrAnyOf(
-        typeName: TypeName,
-        openAPIDescription: String?,
-        type: AllOrAnyOf,
-        schemas: [JSONSchema]
-    ) throws -> Declaration {
-        let properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)] =
-            try schemas
-            .enumerated()
+    func translateAllOrAnyOf(typeName: TypeName, openAPIDescription: String?, type: AllOrAnyOf, schemas: [JSONSchema])
+        throws -> Declaration
+    {
+        let properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)] = try schemas.enumerated()
             .map { index, schema in
                 let key = "value\(index+1)"
                 let rawPropertyType = try typeAssigner.typeUsage(
@@ -93,17 +88,13 @@ extension FileTranslator {
                 )
                 return (blueprint, isKeyValuePairSchema)
             }
-        let comment: Comment? =
-            typeName
-            .docCommentWithUserDescription(openAPIDescription)
+        let comment: Comment? = typeName.docCommentWithUserDescription(openAPIDescription)
         let isKeyValuePairValues = properties.map(\.isKeyValuePair)
         let propertyValues = properties.map(\.property)
         let codableStrategy: StructBlueprint.OpenAPICodableStrategy
         switch type {
-        case .allOf:
-            codableStrategy = .allOf(propertiesIsKeyValuePairSchema: isKeyValuePairValues)
-        case .anyOf:
-            codableStrategy = .anyOf(propertiesIsKeyValuePairSchema: isKeyValuePairValues)
+        case .allOf: codableStrategy = .allOf(propertiesIsKeyValuePairSchema: isKeyValuePairValues)
+        case .anyOf: codableStrategy = .anyOf(propertiesIsKeyValuePairSchema: isKeyValuePairValues)
         }
         let structDecl = translateStructBlueprint(
             .init(
@@ -142,18 +133,11 @@ extension FileTranslator {
         if let discriminator {
             // > When using the discriminator, inline schemas will not be considered.
             // > — https://spec.openapis.org/oas/v3.0.3#discriminator-object
-            let includedSchemas: [JSONReference<JSONSchema>] =
-                schemas
-                .compactMap { schema in
-                    guard case let .reference(ref, _) = schema.value else {
-                        return nil
-                    }
-                    return ref
-                }
-            let mappedTypes = try discriminator.allTypes(
-                schemas: includedSchemas,
-                typeAssigner: typeAssigner
-            )
+            let includedSchemas: [JSONReference<JSONSchema>] = schemas.compactMap { schema in
+                guard case let .reference(ref, _) = schema.value else { return nil }
+                return ref
+            }
+            let mappedTypes = try discriminator.allTypes(schemas: includedSchemas, typeAssigner: typeAssigner)
             cases = mappedTypes.map { mappedType in
                 let comment: Comment? = .child(
                     originalName: mappedType.typeName.shortSwiftName,
@@ -215,12 +199,7 @@ extension FileTranslator {
                     comment,
                     .enumCase(
                         name: caseName,
-                        kind: .nameWithAssociatedValues([
-                            .init(
-                                label: nil,
-                                type: .init(childType)
-                            )
-                        ])
+                        kind: .nameWithAssociatedValues([.init(label: nil, type: .init(childType))])
                     )
                 )
             ]
@@ -250,25 +229,18 @@ extension FileTranslator {
             )
         } else {
             codingKeysDecls = []
-            decoder = translateOneOfWithoutDiscriminatorDecoder(
-                cases: cases.map { ($0.0, $0.2) }
-            )
+            decoder = translateOneOfWithoutDiscriminatorDecoder(cases: cases.map { ($0.0, $0.2) })
         }
 
         let encoder = translateOneOfEncoder(cases: cases.map { ($0.0, $0.2) })
 
-        let comment: Comment? =
-            typeName
-            .docCommentWithUserDescription(openAPIDescription)
+        let comment: Comment? = typeName.docCommentWithUserDescription(openAPIDescription)
         let enumDecl: Declaration = .enum(
             isFrozen: true,
             accessModifier: config.access,
             name: typeName.shortSwiftName,
             conformances: Constants.ObjectStruct.conformances,
-            members: caseDecls + codingKeysDecls + [
-                decoder,
-                encoder,
-            ]
+            members: caseDecls + codingKeysDecls + [decoder, encoder]
         )
         return .commentable(comment, enumDecl)
     }

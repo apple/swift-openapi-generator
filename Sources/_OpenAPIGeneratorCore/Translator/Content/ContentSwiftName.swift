@@ -23,48 +23,28 @@ extension FileTranslator {
     func contentSwiftName(_ contentType: ContentType) -> String {
         let rawContentType = contentType.lowercasedTypeSubtypeAndParameters
         switch rawContentType {
-        case "application/json":
-            return "json"
-        case "application/x-www-form-urlencoded":
-            return "urlEncodedForm"
-        case "multipart/form-data":
-            return "multipartForm"
-        case "text/plain":
-            return "plainText"
-        case "*/*":
-            return "any"
-        case "application/xml":
-            return "xml"
-        case "application/octet-stream":
-            return "binary"
-        case "text/html":
-            return "html"
-        case "application/yaml":
-            return "yaml"
-        case "text/csv":
-            return "csv"
-        case "image/png":
-            return "png"
-        case "application/pdf":
-            return "pdf"
-        case "image/jpeg":
-            return "jpeg"
+        case "application/json": return "json"
+        case "application/x-www-form-urlencoded": return "urlEncodedForm"
+        case "multipart/form-data": return "multipartForm"
+        case "text/plain": return "plainText"
+        case "*/*": return "any"
+        case "application/xml": return "xml"
+        case "application/octet-stream": return "binary"
+        case "text/html": return "html"
+        case "application/yaml": return "yaml"
+        case "text/csv": return "csv"
+        case "image/png": return "png"
+        case "application/pdf": return "pdf"
+        case "image/jpeg": return "jpeg"
         default:
             let safedType = swiftSafeName(for: contentType.originallyCasedType)
             let safedSubtype = swiftSafeName(for: contentType.originallyCasedSubtype)
             let prefix = "\(safedType)_\(safedSubtype)"
-            let params = contentType
-                .lowercasedParameterPairs
-            guard !params.isEmpty else {
-                return prefix
-            }
+            let params = contentType.lowercasedParameterPairs
+            guard !params.isEmpty else { return prefix }
             let safedParams =
-                params
-                .map { pair in
-                    pair
-                        .split(separator: "=")
-                        .map { swiftSafeName(for: String($0)) }
-                        .joined(separator: "_")
+                params.map { pair in
+                    pair.split(separator: "=").map { swiftSafeName(for: String($0)) }.joined(separator: "_")
                 }
                 .joined(separator: "_")
             return prefix + "_" + safedParams

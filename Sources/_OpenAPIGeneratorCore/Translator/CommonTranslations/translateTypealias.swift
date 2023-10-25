@@ -22,22 +22,15 @@ extension FileTranslator {
     ///   - existingTypeUsage: The existing type the alias points to.
     /// - Throws: An error if there is an issue during translation.
     /// - Returns: A declaration representing the translated typealias.
-    func translateTypealias(
-        named typeName: TypeName,
-        userDescription: String?,
-        to existingTypeUsage: TypeUsage
-    ) throws -> Declaration {
+    func translateTypealias(named typeName: TypeName, userDescription: String?, to existingTypeUsage: TypeUsage) throws
+        -> Declaration
+    {
         let typealiasDescription = TypealiasDescription(
             accessModifier: config.access,
             name: typeName.shortSwiftName,
             existingType: .init(existingTypeUsage.withOptional(false))
         )
-        let typealiasComment: Comment? =
-            typeName
-            .docCommentWithUserDescription(userDescription)
-        return .commentable(
-            typealiasComment,
-            .typealias(typealiasDescription)
-        )
+        let typealiasComment: Comment? = typeName.docCommentWithUserDescription(userDescription)
+        return .commentable(typealiasComment, .typealias(typealiasDescription))
     }
 }

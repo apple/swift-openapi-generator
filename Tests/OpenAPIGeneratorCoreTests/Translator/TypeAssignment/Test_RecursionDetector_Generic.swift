@@ -17,300 +17,101 @@ import OpenAPIKit
 
 class Test_RecursionDetector_Generic: Test_Core {
 
-    func testEmpty() throws {
-        try _test(
-            rootNodes: [],
-            putIntoContainer: [],
-            expected: []
-        )
-    }
+    func testEmpty() throws { try _test(rootNodes: [], putIntoContainer: [], expected: []) }
 
-    func testSingleNode() throws {
-        try _test(
-            rootNodes: [
-                "A"
-            ],
-            putIntoContainer: [
-                "A ->"
-            ],
-            expected: []
-        )
-    }
+    func testSingleNode() throws { try _test(rootNodes: ["A"], putIntoContainer: ["A ->"], expected: []) }
 
     func testMultipleNodesNoEdges() throws {
-        try _test(
-            rootNodes: [
-                "A",
-                "B",
-                "C",
-            ],
-            putIntoContainer: [
-                "A ->",
-                "B ->",
-                "C ->",
-            ],
-            expected: []
-        )
+        try _test(rootNodes: ["A", "B", "C"], putIntoContainer: ["A ->", "B ->", "C ->"], expected: [])
     }
 
     func testNoCycle() throws {
         try _test(
-            rootNodes: [
-                "A",
-                "B",
-                "C",
-                "D",
-            ],
-            putIntoContainer: [
-                "A -> B",
-                "B -> C",
-                "C -> D",
-                "D ->",
-            ],
+            rootNodes: ["A", "B", "C", "D"],
+            putIntoContainer: ["A -> B", "B -> C", "C -> D", "D ->"],
             expected: []
         )
     }
 
     func testNoCycleAndDoubleEdge() throws {
         try _test(
-            rootNodes: [
-                "A",
-                "B",
-                "C",
-                "D",
-            ],
-            putIntoContainer: [
-                "A -> B",
-                "B -> C,D",
-                "C -> D",
-                "D ->",
-            ],
+            rootNodes: ["A", "B", "C", "D"],
+            putIntoContainer: ["A -> B", "B -> C,D", "C -> D", "D ->"],
             expected: []
         )
     }
 
-    func testSelfLoop() throws {
-        try _test(
-            rootNodes: [
-                "A"
-            ],
-            putIntoContainer: [
-                "A -> A"
-            ],
-            expected: [
-                "A"
-            ]
-        )
-    }
+    func testSelfLoop() throws { try _test(rootNodes: ["A"], putIntoContainer: ["A -> A"], expected: ["A"]) }
 
     func testSimpleCycle() throws {
-        try _test(
-            rootNodes: [
-                "A",
-                "B",
-            ],
-            putIntoContainer: [
-                "A -> B",
-                "B -> A",
-            ],
-            expected: [
-                "A"
-            ]
-        )
+        try _test(rootNodes: ["A", "B"], putIntoContainer: ["A -> B", "B -> A"], expected: ["A"])
     }
 
     func testLongerCycleStartA() throws {
-        try _test(
-            rootNodes: [
-                "A",
-                "C",
-                "B",
-            ],
-            putIntoContainer: [
-                "A -> B",
-                "B -> C",
-                "C -> A",
-            ],
-            expected: [
-                "A"
-            ]
-        )
+        try _test(rootNodes: ["A", "C", "B"], putIntoContainer: ["A -> B", "B -> C", "C -> A"], expected: ["A"])
     }
 
     func testLongerCycleStartC() throws {
-        try _test(
-            rootNodes: [
-                "C",
-                "A",
-                "B",
-            ],
-            putIntoContainer: [
-                "A -> B",
-                "B -> C",
-                "C -> A",
-            ],
-            expected: [
-                "C"
-            ]
-        )
+        try _test(rootNodes: ["C", "A", "B"], putIntoContainer: ["A -> B", "B -> C", "C -> A"], expected: ["C"])
     }
 
     func testLongerCycleStartAButNotBoxable() throws {
-        try _test(
-            rootNodes: [
-                "A",
-                "C",
-                "B",
-            ],
-            putIntoContainer: [
-                "A! -> B",
-                "B -> C",
-                "C -> A",
-            ],
-            expected: [
-                "B"
-            ]
-        )
+        try _test(rootNodes: ["A", "C", "B"], putIntoContainer: ["A! -> B", "B -> C", "C -> A"], expected: ["B"])
     }
 
     func testMultipleCycles() throws {
         try _test(
-            rootNodes: [
-                "A",
-                "C",
-                "B",
-                "D",
-            ],
-            putIntoContainer: [
-                "A -> B",
-                "B -> A",
-                "C -> D",
-                "D -> C",
-            ],
-            expected: [
-                "A",
-                "C",
-            ]
+            rootNodes: ["A", "C", "B", "D"],
+            putIntoContainer: ["A -> B", "B -> A", "C -> D", "D -> C"],
+            expected: ["A", "C"]
         )
     }
 
     func testMultipleCyclesOverlapping() throws {
         try _test(
-            rootNodes: [
-                "C",
-                "A",
-                "B",
-                "D",
-            ],
-            putIntoContainer: [
-                "A -> B",
-                "B -> C",
-                "C -> A,D",
-                "D -> C",
-            ],
-            expected: [
-                "C"
-            ]
+            rootNodes: ["C", "A", "B", "D"],
+            putIntoContainer: ["A -> B", "B -> C", "C -> A,D", "D -> C"],
+            expected: ["C"]
         )
     }
 
     func testMultipleCycles3() throws {
         try _test(
-            rootNodes: [
-                "A",
-                "B",
-                "C",
-                "D",
-            ],
-            putIntoContainer: [
-                "A -> C",
-                "B -> D,A",
-                "C -> B,D",
-                "D -> B,C",
-            ],
-            expected: [
-                "A",
-                "B",
-                "C",
-            ]
+            rootNodes: ["A", "B", "C", "D"],
+            putIntoContainer: ["A -> C", "B -> D,A", "C -> B,D", "D -> B,C"],
+            expected: ["A", "B", "C"]
         )
     }
 
     func testNested() throws {
         try _test(
-            rootNodes: [
-                "A",
-                "C",
-                "B",
-                "D",
-            ],
-            putIntoContainer: [
-                "A -> B",
-                "B -> C",
-                "C -> B,D",
-                "D -> C",
-            ],
-            expected: [
-                "B",
-                "C",
-            ]
+            rootNodes: ["A", "C", "B", "D"],
+            putIntoContainer: ["A -> B", "B -> C", "C -> B,D", "D -> C"],
+            expected: ["B", "C"]
         )
     }
 
     func testDisconnected() throws {
         try _test(
-            rootNodes: [
-                "A",
-                "C",
-                "B",
-                "D",
-            ],
-            putIntoContainer: [
-                "A -> B",
-                "B -> A",
-                "C -> D",
-                "D ->",
-            ],
-            expected: [
-                "A"
-            ]
+            rootNodes: ["A", "C", "B", "D"],
+            putIntoContainer: ["A -> B", "B -> A", "C -> D", "D ->"],
+            expected: ["A"]
         )
     }
 
     func testCycleWithLeadingNode() throws {
         try _test(
-            rootNodes: [
-                "A",
-                "B",
-                "C",
-                "D",
-            ],
-            putIntoContainer: [
-                "A -> B",
-                "B -> C",
-                "C -> D",
-                "D -> B",
-            ],
+            rootNodes: ["A", "B", "C", "D"],
+            putIntoContainer: ["A -> B", "B -> C", "C -> D", "D -> B"],
             expected: ["B"]
         )
     }
 
     func testDifferentCyclesForSameNode() throws {
         try _test(
-            rootNodes: [
-                "C",
-                "A",
-                "B",
-            ],
-            putIntoContainer: [
-                "A -> B",
-                "B -> C,A",
-                "C -> A",
-            ],
-            expected: [
-                "C",
-                "A",
-            ]
+            rootNodes: ["C", "A", "B"],
+            putIntoContainer: ["A -> B", "B -> C,A", "C -> A"],
+            expected: ["C", "A"]
         )
     }
 
@@ -324,11 +125,7 @@ class Test_RecursionDetector_Generic: Test_Core {
         line: UInt = #line
     ) throws {
         precondition(Set(rootNodes).count == nodesForContainer.count, "Not all nodes are mentioned in rootNodes")
-        let container = TestContainer(
-            nodes: Dictionary(
-                uniqueKeysWithValues: nodesForContainer.map { ($0.name, $0) }
-            )
-        )
+        let container = TestContainer(nodes: Dictionary(uniqueKeysWithValues: nodesForContainer.map { ($0.name, $0) }))
         let recursedNodes = try RecursionDetector.computeBoxedTypes(
             rootNodes: rootNodes.map { try container.lookup($0) },
             container: container
@@ -352,24 +149,14 @@ private struct TestNode: TypeNode, ExpressibleByStringLiteral {
     init(stringLiteral value: StringLiteralType) {
         // A -> B,C,D for boxable
         // A! -> B,C,D for unboxable
-        let comps =
-            value
-            .split(separator: "->", omittingEmptySubsequences: false)
+        let comps = value.split(separator: "->", omittingEmptySubsequences: false)
             .map { $0.trimmingCharacters(in: .whitespaces) }
         precondition(comps.count == 2, "Invalid syntax")
-        let edges = comps[1]
-            .split(
-                separator: ","
-            )
-            .map(String.init)
+        let edges = comps[1].split(separator: ",").map(String.init)
         let nameComp = comps[0]
         let isBoxable = !nameComp.hasSuffix("!")
         let name: String
-        if isBoxable {
-            name = String(nameComp)
-        } else {
-            name = String(nameComp.dropLast())
-        }
+        if isBoxable { name = String(nameComp) } else { name = String(nameComp.dropLast()) }
         self.init(name: name, isBoxable: isBoxable, edges: edges)
     }
 }
@@ -377,16 +164,12 @@ private struct TestNode: TypeNode, ExpressibleByStringLiteral {
 private struct TestContainer: TypeNodeContainer {
     typealias Node = TestNode
 
-    struct MissingNodeError: Error {
-        var name: String
-    }
+    struct MissingNodeError: Error { var name: String }
 
     var nodes: [String: TestNode]
 
     func lookup(_ name: String) throws -> TestNode {
-        guard let node = nodes[name] else {
-            throw MissingNodeError(name: name)
-        }
+        guard let node = nodes[name] else { throw MissingNodeError(name: name) }
         return node
     }
 }

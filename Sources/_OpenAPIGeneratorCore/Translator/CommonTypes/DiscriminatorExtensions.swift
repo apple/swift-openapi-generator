@@ -61,14 +61,11 @@ struct OneOfMappedType: Hashable {
             switch self {
             case .invalidMappingValue(let value):
                 return "Invalid discriminator.mapping value: '\(value)', must be an internal JSON reference."
-            case .invalidReference(let reference):
-                return "Invalid reference: '\(reference)'."
+            case .invalidReference(let reference): return "Invalid reference: '\(reference)'."
             }
         }
 
-        var errorDescription: String? {
-            description
-        }
+        var errorDescription: String? { description }
     }
 }
 
@@ -82,9 +79,7 @@ extension FileTranslator {
     /// component.
     /// - Parameter type: The `OneOfMappedType` for which to determine the case name.
     /// - Returns: A string representing the safe Swift name for the specified `OneOfMappedType`.
-    func safeSwiftNameForOneOfMappedType(_ type: OneOfMappedType) -> String {
-        swiftSafeName(for: type.rawNames[0])
-    }
+    func safeSwiftNameForOneOfMappedType(_ type: OneOfMappedType) -> String { swiftSafeName(for: type.rawNames[0]) }
 }
 
 extension OpenAPI.Discriminator {
@@ -112,10 +107,7 @@ extension OpenAPI.Discriminator {
     ///   - typeAssigner: The current type assigner.
     /// - Throws: An error if there's an issue while discovering the types.
     /// - Returns: The list of discovered types.
-    func allTypes(
-        schemas: [JSONReference<JSONSchema>],
-        typeAssigner: TypeAssigner
-    ) throws -> [OneOfMappedType] {
+    func allTypes(schemas: [JSONReference<JSONSchema>], typeAssigner: TypeAssigner) throws -> [OneOfMappedType] {
         let mapped = try pairsFromMapping(typeAssigner: typeAssigner)
         let mappedTypes = Set(mapped.map(\.typeName))
         var merged = mapped
@@ -123,9 +115,7 @@ extension OpenAPI.Discriminator {
         // Now, we only include a type here if it's not already mentioned
         // by the mapping.
         for subschema in subschemas {
-            if mappedTypes.contains(subschema.typeName) {
-                continue
-            }
+            if mappedTypes.contains(subschema.typeName) { continue }
             merged.append(subschema)
         }
         return merged
@@ -137,42 +127,28 @@ extension OpenAPI.Discriminator {
     /// - Throws: An error if there's an issue while extracting mapped types from the mapping.
     /// - Returns: An array of found mapped types, but might also be empty.
     private func pairsFromMapping(typeAssigner: TypeAssigner) throws -> [OneOfMappedType] {
-        guard let mapping else {
-            return []
-        }
+        guard let mapping else { return [] }
         // Mapping is a Swift dictionary, so order isn't defined. To produce
         // stable output, sort by keys here before going through the pairs.
-        let pairs = mapping.sorted(by: { a, b in
-            a.key.localizedCaseInsensitiveCompare(b.key) == .orderedAscending
-        })
+        let pairs = mapping.sorted(by: { a, b in a.key.localizedCaseInsensitiveCompare(b.key) == .orderedAscending })
         return try pairs.map { key, value in
             // If a discriminator was specified, we know all the subschemas
             // are references to objectish schemas. The reference is all we
             // need to derive the Swift name.
             // The value in the mapping is the raw JSON reference.
-            guard
-                let ref = JSONReference<JSONSchema>
-                    .InternalReference(
-                        rawValue: value
-                    )
-            else {
+            guard let ref = JSONReference<JSONSchema>.InternalReference(rawValue: value) else {
                 throw OneOfMappedType.MappingError.invalidMappingValue(value)
             }
             let typeName = try typeAssigner.typeName(for: ref)
-            return .init(
-                rawNames: [key],
-                typeName: typeName,
-                reference: .internal(ref)
-            )
+            return .init(rawNames: [key], typeName: typeName, reference: .internal(ref))
         }
     }
 
     /// Returns the mapped types for the provided subschema.
     /// - Throws: When an inconsistency is detected.
-    private func pairsFromReferences(
-        _ refs: [JSONReference<JSONSchema>],
-        typeAssigner: TypeAssigner
-    ) throws -> [OneOfMappedType] {
+    private func pairsFromReferences(_ refs: [JSONReference<JSONSchema>], typeAssigner: TypeAssigner) throws
+        -> [OneOfMappedType]
+    {
         try refs.map { ref in
             guard case let .internal(internalRef) = ref else {
                 throw JSONReferenceParsingError.externalPathsUnsupported(ref.absoluteString)
@@ -180,15 +156,9 @@ extension OpenAPI.Discriminator {
             // Check both for "Foo" and "#/components/schemas/Foo", as both
             // are supported.
             let jsonPath = internalRef.rawValue
-            guard let name = internalRef.name else {
-                throw OneOfMappedType.MappingError.invalidReference(jsonPath)
-            }
+            guard let name = internalRef.name else { throw OneOfMappedType.MappingError.invalidReference(jsonPath) }
             let typeName = try typeAssigner.typeName(for: internalRef)
-            return OneOfMappedType(
-                rawNames: [name, jsonPath],
-                typeName: typeName,
-                reference: ref
-            )
+            return OneOfMappedType(rawNames: [name, jsonPath], typeName: typeName, reference: ref)
         }
     }
 }

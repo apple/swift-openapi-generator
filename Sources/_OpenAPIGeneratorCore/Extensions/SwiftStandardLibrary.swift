@@ -17,9 +17,7 @@ extension Int {
     /// - Returns: An array of digits.
     func digits(radix: Self = 10) -> [Self] {
         sequence(state: self) { quotient in
-            guard quotient > 0 else {
-                return nil
-            }
+            guard quotient > 0 else { return nil }
             let division = quotient.quotientAndRemainder(dividingBy: radix)
             quotient = division.quotient
             return division.remainder
@@ -35,11 +33,8 @@ extension String {
     var withLineNumberPrefixes: String {
         let lines = self.split(separator: "\n")
         let lineNumberCols = lines.count.digits().count
-        return
-            lines
-            .enumerated()
-            .map { (i, line) in
-                "\(String(i+1).padding(toLength: lineNumberCols, withPad: " ", startingAt: 0)): \(line)"
+        return lines.enumerated()
+            .map { (i, line) in "\(String(i+1).padding(toLength: lineNumberCols, withPad: " ", startingAt: 0)): \(line)"
             }
             .joined(separator: "\n")
     }

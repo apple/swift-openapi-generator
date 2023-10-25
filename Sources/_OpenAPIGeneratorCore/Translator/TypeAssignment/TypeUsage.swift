@@ -72,19 +72,13 @@ struct TypeUsage {
     fileprivate var usage: Usage
 }
 
-extension TypeUsage: CustomStringConvertible {
-    var description: String {
-        fullyQualifiedSwiftName
-    }
-}
+extension TypeUsage: CustomStringConvertible { var description: String { fullyQualifiedSwiftName } }
 
 extension TypeUsage {
 
     /// A Boolean value that indicates whether the type is optional.
     var isOptional: Bool {
-        guard case .optional = usage else {
-            return false
-        }
+        guard case .optional = usage else { return false }
         return true
     }
 
@@ -94,10 +88,8 @@ extension TypeUsage {
     var shortSwiftName: String {
         let component: String
         switch wrapped {
-        case let .name(typeName):
-            component = typeName.shortSwiftName
-        case let .usage(usage):
-            component = usage.shortSwiftName
+        case let .name(typeName): component = typeName.shortSwiftName
+        case let .usage(usage): component = usage.shortSwiftName
         }
         return applied(to: component)
     }
@@ -108,10 +100,8 @@ extension TypeUsage {
     var fullyQualifiedSwiftName: String {
         let component: String
         switch wrapped {
-        case let .name(typeName):
-            component = typeName.fullyQualifiedSwiftName
-        case let .usage(usage):
-            component = usage.fullyQualifiedSwiftName
+        case let .name(typeName): component = typeName.fullyQualifiedSwiftName
+        case let .usage(usage): component = usage.fullyQualifiedSwiftName
         }
         return applied(to: component)
     }
@@ -120,9 +110,7 @@ extension TypeUsage {
     /// any optional wrapping removed.
     ///
     /// For example: `Swift.Int`.
-    var fullyQualifiedNonOptionalSwiftName: String {
-        withOptional(false).fullyQualifiedSwiftName
-    }
+    var fullyQualifiedNonOptionalSwiftName: String { withOptional(false).fullyQualifiedSwiftName }
 
     /// Returns a string representation of the type usage applied to the
     /// specified Swift path component.
@@ -130,26 +118,19 @@ extension TypeUsage {
     /// - Returns: A string representation of the specified Swift path component with the applied type usage.
     private func applied(to component: String) -> String {
         switch usage {
-        case .identity:
-            return component
-        case .optional:
-            return component + "?"
-        case .array:
-            return "[" + component + "]"
-        case .dictionaryValue:
-            return "[String: " + component + "]"
-        case .generic(wrapper: let wrapper):
-            return "\(wrapper.fullyQualifiedSwiftName)<" + component + ">"
+        case .identity: return component
+        case .optional: return component + "?"
+        case .array: return "[" + component + "]"
+        case .dictionaryValue: return "[String: " + component + "]"
+        case .generic(wrapper: let wrapper): return "\(wrapper.fullyQualifiedSwiftName)<" + component + ">"
         }
     }
 
     /// The type name wrapped by the current type usage.
     var typeName: TypeName {
         switch wrapped {
-        case .name(let typeName):
-            return typeName
-        case .usage(let typeUsage):
-            return typeUsage.typeName
+        case .name(let typeName): return typeName
+        case .usage(let typeUsage): return typeUsage.typeName
         }
     }
 
@@ -157,19 +138,15 @@ extension TypeUsage {
     /// type.
     var asOptional: Self {
         // Don't double wrap optionals
-        guard !isOptional else {
-            return self
-        }
+        guard !isOptional else { return self }
         return TypeUsage(wrapped: .usage(self), usage: .optional)
     }
 
     /// A type usage created by removing the outer type usage wrapper.
     private var unwrappedOneLevel: Self {
         switch wrapped {
-        case let .usage(usage):
-            return usage
-        case let .name(typeName):
-            return typeName.asUsage
+        case let .usage(usage): return usage
+        case let .name(typeName): return typeName.asUsage
         }
     }
 
@@ -180,42 +157,30 @@ extension TypeUsage {
     /// top level.
     /// - Returns: A type usage with the adjusted optionality based on the `isOptional` parameter.
     func withOptional(_ isOptional: Bool) -> Self {
-        if (isOptional && self.isOptional) || (!isOptional && !self.isOptional) {
-            return self
-        }
-        guard isOptional else {
-            return unwrappedOneLevel
-        }
+        if (isOptional && self.isOptional) || (!isOptional && !self.isOptional) { return self }
+        guard isOptional else { return unwrappedOneLevel }
         return asOptional
     }
 
     /// A type usage created by treating the current type usage as the element
     /// type of an array.
     /// - Returns: A type usage for the array.
-    var asArray: Self {
-        TypeUsage(wrapped: .usage(self), usage: .array)
-    }
+    var asArray: Self { TypeUsage(wrapped: .usage(self), usage: .array) }
 
     /// A type usage created by treating the current type usage as the value
     /// type of a dictionary.
     /// - Returns: A type usage for the dictionary.
-    var asDictionaryValue: Self {
-        TypeUsage(wrapped: .usage(self), usage: .dictionaryValue)
-    }
+    var asDictionaryValue: Self { TypeUsage(wrapped: .usage(self), usage: .dictionaryValue) }
 
     /// A type usage created by wrapping the current type usage inside the
     /// wrapper type, where the wrapper type is generic over the current type.
-    func asWrapped(in wrapper: TypeName) -> Self {
-        TypeUsage(wrapped: .usage(self), usage: .generic(wrapper: wrapper))
-    }
+    func asWrapped(in wrapper: TypeName) -> Self { TypeUsage(wrapped: .usage(self), usage: .generic(wrapper: wrapper)) }
 }
 
 extension TypeName {
 
     /// A type usage that wraps the current type name without changing it.
-    var asUsage: TypeUsage {
-        TypeUsage(wrapped: .name(self), usage: .identity)
-    }
+    var asUsage: TypeUsage { TypeUsage(wrapped: .name(self), usage: .identity) }
 }
 
 extension ExistingTypeDescription {
@@ -225,33 +190,24 @@ extension ExistingTypeDescription {
     /// - Parameter wrapped: The wrapped value.
     private init(_ wrapped: TypeUsage.Wrapped) {
         switch wrapped {
-        case .name(let typeName):
-            self = .init(typeName)
-        case .usage(let typeUsage):
-            self = .init(typeUsage)
+        case .name(let typeName): self = .init(typeName)
+        case .usage(let typeUsage): self = .init(typeUsage)
         }
     }
 
     /// Creates a new type description from the provided type name.
     /// - Parameter typeName: A type name.
-    init(_ typeName: TypeName) {
-        self = .member(typeName.swiftKeyPathComponents)
-    }
+    init(_ typeName: TypeName) { self = .member(typeName.swiftKeyPathComponents) }
 
     /// Creates a new type description from the provided type usage.
     /// - Parameter typeUsage: A type usage.
     init(_ typeUsage: TypeUsage) {
         switch typeUsage.usage {
-        case .generic(wrapper: let wrapper):
-            self = .generic(wrapper: .init(wrapper), wrapped: .init(typeUsage.wrapped))
-        case .optional:
-            self = .optional(.init(typeUsage.wrapped))
-        case .identity:
-            self = .init(typeUsage.wrapped)
-        case .array:
-            self = .array(.init(typeUsage.wrapped))
-        case .dictionaryValue:
-            self = .dictionaryValue(.init(typeUsage.wrapped))
+        case .generic(wrapper: let wrapper): self = .generic(wrapper: .init(wrapper), wrapped: .init(typeUsage.wrapped))
+        case .optional: self = .optional(.init(typeUsage.wrapped))
+        case .identity: self = .init(typeUsage.wrapped)
+        case .array: self = .array(.init(typeUsage.wrapped))
+        case .dictionaryValue: self = .dictionaryValue(.init(typeUsage.wrapped))
         }
     }
 }

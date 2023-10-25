@@ -52,16 +52,9 @@ struct DeclarationRecursionDetector {
         /// Returns nil when the declaration is missing a name.
         /// - Parameter decl: A declaration.
         init?(_ decl: Declaration) {
-            guard let name = decl.name else {
-                return nil
-            }
+            guard let name = decl.name else { return nil }
             let edges = decl.schemaComponentNamesOfUnbreakableReferences
-            self.init(
-                name: name,
-                isBoxable: decl.isBoxable,
-                edges: edges,
-                decl: decl
-            )
+            self.init(name: name, isBoxable: decl.isBoxable, edges: edges, decl: decl)
         }
     }
 
@@ -82,9 +75,7 @@ struct DeclarationRecursionDetector {
         var lookupMap: [String: Node]
 
         func lookup(_ name: String) throws -> DeclarationRecursionDetector.Node {
-            guard let node = lookupMap[name] else {
-                throw ContainerError.nodeNotFound(name)
-            }
+            guard let node = lookupMap[name] else { throw ContainerError.nodeNotFound(name) }
             return node
         }
     }
@@ -95,28 +86,20 @@ extension Declaration {
     /// A name of the declaration, if it has one.
     var name: String? {
         switch self {
-        case .struct(let desc):
-            return desc.name
-        case .enum(let desc):
-            return desc.name
-        case .typealias(let desc):
-            return desc.name
-        case .commentable(_, let decl), .deprecated(_, let decl):
-            return decl.name
-        case .variable, .extension, .protocol, .function, .enumCase:
-            return nil
+        case .struct(let desc): return desc.name
+        case .enum(let desc): return desc.name
+        case .typealias(let desc): return desc.name
+        case .commentable(_, let decl), .deprecated(_, let decl): return decl.name
+        case .variable, .extension, .protocol, .function, .enumCase: return nil
         }
     }
 
     /// A Boolean value representing whether this declaration can be boxed.
     var isBoxable: Bool {
         switch self {
-        case .struct, .enum:
-            return true
-        case .commentable(_, let decl), .deprecated(_, let decl):
-            return decl.isBoxable
-        case .typealias, .variable, .extension, .protocol, .function, .enumCase:
-            return false
+        case .struct, .enum: return true
+        case .commentable(_, let decl), .deprecated(_, let decl): return decl.isBoxable
+        case .typealias, .variable, .extension, .protocol, .function, .enumCase: return false
         }
     }
 
@@ -126,48 +109,34 @@ extension Declaration {
     var schemaComponentNamesOfUnbreakableReferences: [String] {
         switch self {
         case .struct(let desc):
-            return desc
-                .members
+            return desc.members
                 .compactMap { (member) -> [String]? in
                     switch member.strippingTopComment {
                     case .variable,  // A reference to a reusable type.
                         .struct, .enum:  // An inline type.
                         return member.schemaComponentNamesOfUnbreakableReferences
-                    default:
-                        return nil
+                    default: return nil
                     }
                 }
                 .flatMap { $0 }
         case .enum(let desc):
-            return desc
-                .members
+            return desc.members
                 .compactMap { (member) -> [String]? in
-                    guard case .enumCase = member.strippingTopComment else {
-                        return nil
-                    }
-                    return member
-                        .schemaComponentNamesOfUnbreakableReferences
+                    guard case .enumCase = member.strippingTopComment else { return nil }
+                    return member.schemaComponentNamesOfUnbreakableReferences
                 }
                 .flatMap { $0 }
         case .commentable(_, let decl), .deprecated(_, let decl):
-            return decl
-                .schemaComponentNamesOfUnbreakableReferences
-        case .typealias(let desc):
-            return desc
-                .existingType
-                .referencedSchemaComponentName
-                .map { [$0] } ?? []
-        case .variable(let desc):
-            return desc.type?.referencedSchemaComponentName.map { [$0] } ?? []
+            return decl.schemaComponentNamesOfUnbreakableReferences
+        case .typealias(let desc): return desc.existingType.referencedSchemaComponentName.map { [$0] } ?? []
+        case .variable(let desc): return desc.type?.referencedSchemaComponentName.map { [$0] } ?? []
         case .enumCase(let desc):
             switch desc.kind {
             case .nameWithAssociatedValues(let values):
                 return values.compactMap { $0.type.referencedSchemaComponentName }
-            default:
-                return []
+            default: return []
             }
-        case .extension, .protocol, .function:
-            return []
+        case .extension, .protocol, .function: return []
         }
     }
 }
@@ -177,10 +146,7 @@ fileprivate extension Array where Element == String {
     /// The name in the `Components.Schemas.` namespace.
     var nameIfTopLevelSchemaComponent: String? {
         let components = self
-        guard
-            components.count == 3,
-            components.starts(with: Constants.Components.Schemas.components)
-        else {
+        guard components.count == 3, components.starts(with: Constants.Components.Schemas.components) else {
             return nil
         }
         return components[2]
@@ -193,12 +159,10 @@ extension ExistingTypeDescription {
     /// there. Nil otherwise.
     var referencedSchemaComponentName: String? {
         switch self {
-        case .member(let components):
-            return components.nameIfTopLevelSchemaComponent
+        case .member(let components): return components.nameIfTopLevelSchemaComponent
         case .array(let desc), .dictionaryValue(let desc), .any(let desc), .optional(let desc):
             return desc.referencedSchemaComponentName
-        case .generic:
-            return nil
+        case .generic: return nil
         }
     }
 }

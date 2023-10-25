@@ -33,26 +33,22 @@ struct _GenerateCommand: AsyncParsableCommand {
             """
     )
 
-    @OptionGroup
-    var generate: _GenerateOptions
+    @OptionGroup var generate: _GenerateOptions
 
     @Option(
         help:
             "Output directory where the generated files are written. Warning: Replaces any existing files with the same filename. Reserved filenames: \(GeneratorMode.allOutputFileNames.joined(separator: ", "))"
-    )
-    var outputDirectory: URL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+    ) var outputDirectory: URL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
 
     @Option(
         help:
             "Source of invocation if by a plugin. The generator needs to produce all files when invoked as a build plugin, so non-requested modes produce empty files."
-    )
-    var pluginSource: PluginSource?
+    ) var pluginSource: PluginSource?
 
     @Flag(
         name: .customLong("dry-run"),
         help: "Simulate the command and print the operations, without actually affecting the file system."
-    )
-    var isDryRun: Bool = false
+    ) var isDryRun: Bool = false
 
     func run() async throws {
         try await generate.runGenerator(

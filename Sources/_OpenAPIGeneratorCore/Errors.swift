@@ -23,14 +23,6 @@ struct GenericError: Error {
     var message: String
 }
 
-extension GenericError: CustomStringConvertible {
-    var description: String {
-        message
-    }
-}
+extension GenericError: CustomStringConvertible { var description: String { message } }
 
-extension GenericError: LocalizedError {
-    var errorDescription: String? {
-        description
-    }
-}
+extension GenericError: LocalizedError { var errorDescription: String? { description } }

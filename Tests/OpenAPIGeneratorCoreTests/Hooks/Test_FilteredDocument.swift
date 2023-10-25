@@ -69,13 +69,7 @@ final class Test_FilteredDocument: XCTestCase {
                   description: success
             """
         let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: documentYAML)
-        assert(
-            filtering: document,
-            filter: DocumentFilter(),
-            hasPaths: [],
-            hasOperations: [],
-            hasSchemas: []
-        )
+        assert(filtering: document, filter: DocumentFilter(), hasPaths: [], hasOperations: [], hasSchemas: [])
         assert(
             filtering: document,
             filter: DocumentFilter(tags: ["t"]),
@@ -151,9 +145,7 @@ final class Test_FilteredDocument: XCTestCase {
         line: UInt = #line
     ) {
         let filteredDocument: OpenAPI.Document
-        do {
-            filteredDocument = try filter.filter(document)
-        } catch {
+        do { filteredDocument = try filter.filter(document) } catch {
             XCTFail("Filter threw error: \(error)", file: file, line: line)
             return
         }

@@ -34,14 +34,11 @@ final class Test_Playground: XCTestCase {
                 // the body it's receiviving from the request, with every
                 // byte being decremented by 1.
 
-                guard input.path.petId == 1 else {
-                    return .preconditionFailed(.init(body: .json("bad id")))
-                }
+                guard input.path.petId == 1 else { return .preconditionFailed(.init(body: .json("bad id"))) }
 
                 let requestSequence: HTTPBody
                 switch input.body {
-                case .binary(let body):
-                    requestSequence = body
+                case .binary(let body): requestSequence = body
                 }
 
                 let responseSequence = requestSequence.map { chunk in
@@ -69,21 +66,14 @@ final class Test_Playground: XCTestCase {
 
         // Create the request stream.
         var requestContinuation: AsyncStream<String>.Continuation!
-        let requestStream = AsyncStream(String.self) { _continuation in
-            requestContinuation = _continuation
-        }
+        let requestStream = AsyncStream(String.self) { _continuation in requestContinuation = _continuation }
 
         // Create a request body wrapping the request stream.
         let requestBody = HTTPBody(requestStream, length: .unknown)
 
         // Send the request, wait for the response.
         // At this point, both the request and response streams are still open.
-        let response = try await client.uploadAvatarForPet(
-            .init(
-                path: .init(petId: 1),
-                body: .binary(requestBody)
-            )
-        )
+        let response = try await client.uploadAvatarForPet(.init(path: .init(petId: 1), body: .binary(requestBody)))
 
         // Verify the response status and content type, extract the response stream.
         guard case .ok(let ok) = response, case .binary(let body) = ok.body else {
@@ -123,10 +113,7 @@ final class Test_Playground: XCTestCase {
             // The server handler sends back the start of the 200 response,
             // and then sends a few chunks.
 
-            let responseStream = AsyncStream(
-                String.self,
-                bufferingPolicy: .unbounded
-            ) { continuation in
+            let responseStream = AsyncStream(String.self, bufferingPolicy: .unbounded) { continuation in
                 continuation.yield("hello")
                 continuation.yield("world")
                 continuation.finish()
@@ -182,19 +169,13 @@ final class Test_Playground: XCTestCase {
                 private var chunks: [String] = ["hello", "world"]
 
                 func produceNext() -> String? {
-                    guard !chunks.isEmpty else {
-                        return nil
-                    }
+                    guard !chunks.isEmpty else { return nil }
                     return chunks.removeFirst()
                 }
             }
             let chunkProducer = ChunkProducer()
 
-            let responseStream = AsyncStream<String>(
-                unfolding: {
-                    await chunkProducer.produceNext()
-                }
-            )
+            let responseStream = AsyncStream<String>(unfolding: { await chunkProducer.produceNext() })
 
             let responseBody = HTTPBody(responseStream, length: .unknown)
             return .ok(.init(body: .binary(responseBody)))

@@ -21,9 +21,7 @@ final class Test_DiscriminatorExtensions: Test_Core {
         var rawNames: [String]
         var typeName: String
 
-        var description: String {
-            "rawNames: \(rawNames.joined(separator: ", ")), typeName: \(typeName)"
-        }
+        var description: String { "rawNames: \(rawNames.joined(separator: ", ")), typeName: \(typeName)" }
     }
 
     func testMappedTypes() throws {
@@ -35,10 +33,7 @@ final class Test_DiscriminatorExtensions: Test_Core {
             file: StaticString = #file,
             line: UInt = #line
         ) throws {
-            let discriminator = OpenAPI.Discriminator(
-                propertyName: "which",
-                mapping: mapping
-            )
+            let discriminator = OpenAPI.Discriminator(propertyName: "which", mapping: mapping)
             let types = try discriminator.allTypes(
                 schemas: schemaNames.map { JSONReference<JSONSchema>.component(named: $0) },
                 typeAssigner: typeAssigner
@@ -64,29 +59,19 @@ final class Test_DiscriminatorExtensions: Test_Core {
         do {
             // with mapping, all overlap
             try _test(
-                mapping: [
-                    "a": "#/components/schemas/A",
-                    "b": "#/components/schemas/B",
-                ],
+                mapping: ["a": "#/components/schemas/A", "b": "#/components/schemas/B"],
                 schemaNames: ["A", "B"],
-                expectedOutputs: [
-                    .init(rawNames: ["a"], typeName: "A"),
-                    .init(rawNames: ["b"], typeName: "B"),
-                ]
+                expectedOutputs: [.init(rawNames: ["a"], typeName: "A"), .init(rawNames: ["b"], typeName: "B")]
             )
         }
 
         do {
             // with mapping, some overlap, duplicate for A
             try _test(
-                mapping: [
-                    "a": "#/components/schemas/A",
-                    "a2": "#/components/schemas/A",
-                ],
+                mapping: ["a": "#/components/schemas/A", "a2": "#/components/schemas/A"],
                 schemaNames: ["A", "B"],
                 expectedOutputs: [
-                    .init(rawNames: ["a"], typeName: "A"),
-                    .init(rawNames: ["a2"], typeName: "A"),
+                    .init(rawNames: ["a"], typeName: "A"), .init(rawNames: ["a2"], typeName: "A"),
                     .init(rawNames: ["B", "#/components/schemas/B"], typeName: "B"),
                 ]
             )

@@ -14,8 +14,7 @@
 import PackagePlugin
 import Foundation
 
-@main
-struct SwiftOpenAPIGeneratorPlugin {
+@main struct SwiftOpenAPIGeneratorPlugin {
     func createBuildCommands(
         pluginWorkDirectory: Path,
         tool: (String) throws -> PluginContext.Tool,
@@ -37,10 +36,7 @@ struct SwiftOpenAPIGeneratorPlugin {
                 executable: inputs.tool.path,
                 arguments: inputs.arguments,
                 environment: [:],
-                inputFiles: [
-                    inputs.config,
-                    inputs.doc,
-                ],
+                inputFiles: [inputs.config, inputs.doc],
                 outputFiles: outputFiles
             )
         ]
@@ -48,10 +44,7 @@ struct SwiftOpenAPIGeneratorPlugin {
 }
 
 extension SwiftOpenAPIGeneratorPlugin: BuildToolPlugin {
-    func createBuildCommands(
-        context: PluginContext,
-        target: Target
-    ) async throws -> [Command] {
+    func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
         guard let swiftTarget = target as? SwiftSourceModuleTarget else {
             throw PluginError.incompatibleTarget(name: target.name)
         }
@@ -68,10 +61,7 @@ extension SwiftOpenAPIGeneratorPlugin: BuildToolPlugin {
 import XcodeProjectPlugin
 
 extension SwiftOpenAPIGeneratorPlugin: XcodeBuildToolPlugin {
-    func createBuildCommands(
-        context: XcodePluginContext,
-        target: XcodeTarget
-    ) throws -> [Command] {
+    func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
         return try createBuildCommands(
             pluginWorkDirectory: context.pluginWorkDirectory,
             tool: context.tool,

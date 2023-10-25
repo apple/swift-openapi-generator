@@ -20,44 +20,22 @@ extension TypesFileTranslator {
     /// - Parameter headers: The reusable response headers.
     /// - Returns: An enum declaration representing the headers namespace.
     /// - Throws: An error if there's an issue during translation or header processing.
-    func translateComponentHeaders(
-        _ headers: OpenAPI.ComponentDictionary<OpenAPI.Header>
-    ) throws -> Declaration {
+    func translateComponentHeaders(_ headers: OpenAPI.ComponentDictionary<OpenAPI.Header>) throws -> Declaration {
 
-        let typedHeaders: [(OpenAPI.ComponentKey, TypedResponseHeader)] =
-            try headers
-            .compactMap { key, header in
-                let parent = typeAssigner.typeName(
-                    for: key,
-                    of: OpenAPI.Header.self
-                )
-                guard
-                    let value = try typedResponseHeader(
-                        from: .b(header),
-                        named: key.rawValue,
-                        inParent: parent
-                    )
-                else {
-                    return nil
-                }
-                return (key, value)
+        let typedHeaders: [(OpenAPI.ComponentKey, TypedResponseHeader)] = try headers.compactMap { key, header in
+            let parent = typeAssigner.typeName(for: key, of: OpenAPI.Header.self)
+            guard let value = try typedResponseHeader(from: .b(header), named: key.rawValue, inParent: parent) else {
+                return nil
             }
-        let decls: [Declaration] =
-            try typedHeaders
-            .flatMap { key, value in
-                try translateResponseHeaderInTypes(
-                    componentKey: key,
-                    header: value
-                )
-            }
+            return (key, value)
+        }
+        let decls: [Declaration] = try typedHeaders.flatMap { key, value in
+            try translateResponseHeaderInTypes(componentKey: key, header: value)
+        }
 
         let componentsParametersEnum = Declaration.commentable(
             OpenAPI.Header.sectionComment(),
-            .enum(
-                accessModifier: config.access,
-                name: Constants.Components.Headers.namespace,
-                members: decls
-            )
+            .enum(accessModifier: config.access, name: Constants.Components.Headers.namespace, members: decls)
         )
         return componentsParametersEnum
     }

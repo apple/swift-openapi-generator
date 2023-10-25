@@ -33,9 +33,7 @@ struct ReferenceStack {
     }
 
     /// An empty stack.
-    static var empty: Self {
-        .init(stack: [], names: [])
-    }
+    static var empty: Self { .init(stack: [], names: []) }
 
     /// Pushes the provided name to the stack.
     /// - Parameter name: The name to push.
@@ -47,9 +45,7 @@ struct ReferenceStack {
     /// Pushes the provided ref to the stack.
     /// - Parameter ref: The ref to push.
     /// - Throws: When the reference isn't an internal component one.
-    mutating func push(_ ref: JSONReference<JSONSchema>) throws {
-        try push(ref.requiredName)
-    }
+    mutating func push(_ ref: JSONReference<JSONSchema>) throws { try push(ref.requiredName) }
 
     /// Removes the top item from the stack.
     mutating func pop() {
@@ -60,17 +56,13 @@ struct ReferenceStack {
     /// Returns whether the provided name is present in the stack.
     /// - Parameter name: The name to check.
     /// - Returns: `true` if present, `false` otherwise.
-    func contains(_ name: String) -> Bool {
-        names.contains(name)
-    }
+    func contains(_ name: String) -> Bool { names.contains(name) }
 
     /// Returns whether the provided ref is present in the stack.
     /// - Parameter ref: The ref to check.
     /// - Returns: `true` if present, `false` otherwise.
     /// - Throws: When the reference isn't an internal component one.
-    func contains(_ ref: JSONReference<JSONSchema>) throws -> Bool {
-        try contains(ref.requiredName)
-    }
+    func contains(_ ref: JSONReference<JSONSchema>) throws -> Bool { try contains(ref.requiredName) }
 }
 
 extension JSONReference<JSONSchema> {
@@ -80,12 +72,8 @@ extension JSONReference<JSONSchema> {
     /// - Throws: If the reference is not an internal component one.
     var requiredName: String {
         get throws {
-            guard
-                case .internal(let internalReference) = self,
-                case .component(name: let name) = internalReference
-            else {
-                throw JSONReferenceParsingError.externalPathsUnsupported(absoluteString)
-            }
+            guard case .internal(let internalReference) = self, case .component(name: let name) = internalReference
+            else { throw JSONReferenceParsingError.externalPathsUnsupported(absoluteString) }
             return name
         }
     }

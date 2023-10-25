@@ -22,23 +22,14 @@ final class Test_ContentSwiftName: Test_Core {
         let cases: [(String, String)] = [
 
             // Short names.
-            ("application/json", "json"),
-            ("application/x-www-form-urlencoded", "urlEncodedForm"),
-            ("multipart/form-data", "multipartForm"),
-            ("text/plain", "plainText"),
-            ("*/*", "any"),
-            ("application/xml", "xml"),
-            ("application/octet-stream", "binary"),
-            ("text/html", "html"),
-            ("application/yaml", "yaml"),
-            ("text/csv", "csv"),
-            ("image/png", "png"),
-            ("application/pdf", "pdf"),
+            ("application/json", "json"), ("application/x-www-form-urlencoded", "urlEncodedForm"),
+            ("multipart/form-data", "multipartForm"), ("text/plain", "plainText"), ("*/*", "any"),
+            ("application/xml", "xml"), ("application/octet-stream", "binary"), ("text/html", "html"),
+            ("application/yaml", "yaml"), ("text/csv", "csv"), ("image/png", "png"), ("application/pdf", "pdf"),
             ("image/jpeg", "jpeg"),
 
             // Generic names.
-            ("application/myformat+json", "application_myformat_plus_json"),
-            ("foo/bar", "foo_bar"),
+            ("application/myformat+json", "application_myformat_plus_json"), ("foo/bar", "foo_bar"),
 
             // Names with a parameter.
             ("application/foo", "application_foo"),

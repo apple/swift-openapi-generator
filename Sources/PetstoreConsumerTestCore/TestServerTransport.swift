@@ -91,12 +91,5 @@ public final class TestServerTransport: ServerTransport {
         ),
         method: HTTPRequest.Method,
         path: String
-    ) throws {
-        registered.append(
-            Operation(
-                inputs: .init(method: method, path: path),
-                closure: handler
-            )
-        )
-    }
+    ) throws { registered.append(Operation(inputs: .init(method: method, path: path), closure: handler)) }
 }

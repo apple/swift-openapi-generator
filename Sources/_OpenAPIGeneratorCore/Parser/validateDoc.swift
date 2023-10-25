@@ -30,16 +30,12 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [
     // block the generator from running.
     // Validation errors continue to be fatal, such as
     // structural issues, like non-unique operationIds, etc.
-    let warnings = try doc.validate(
-        using: Validator().validating(.operationsContainResponses),
-        strict: false
-    )
+    let warnings = try doc.validate(using: Validator().validating(.operationsContainResponses), strict: false)
     let diagnostics: [Diagnostic] = warnings.map { warning in
         .warning(
             message: "Validation warning: \(warning.description)",
             context: [
-                "codingPath": warning.codingPathString ?? "<none>",
-                "contextString": warning.contextString ?? "<none>",
+                "codingPath": warning.codingPathString ?? "<none>", "contextString": warning.contextString ?? "<none>",
                 "subjectName": warning.subjectName ?? "<none>",
             ]
         )

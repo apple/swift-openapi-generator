@@ -20,16 +20,13 @@ struct XCTestDiagnosticCollector: DiagnosticCollector {
     var ignoredDiagnosticMessages: Set<String> = []
 
     func emit(_ diagnostic: Diagnostic) {
-        guard !ignoredDiagnosticMessages.contains(diagnostic.message) else {
-            return
-        }
+        guard !ignoredDiagnosticMessages.contains(diagnostic.message) else { return }
         print("Test emitted diagnostic: \(diagnostic.description)")
         switch diagnostic.severity {
         case .note:
             // no need to fail, just print
             break
-        case .warning, .error:
-            XCTFail("Failing with a diagnostic: \(diagnostic.description)")
+        case .warning, .error: XCTFail("Failing with a diagnostic: \(diagnostic.description)")
         }
     }
 }

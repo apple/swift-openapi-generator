@@ -15,9 +15,7 @@ import GreetingService
 
 // Mock operates on value types, and requires no concrete client or server transport.
 struct MockGreetingService: APIProtocol {
-    func getGreeting(
-        _ input: Operations.getGreeting.Input
-    ) async throws -> Operations.getGreeting.Output {
+    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
         let name = input.query.name ?? "<unknown>"
         return .ok(.init(body: .json(.init(message: "(mock) Hello, \(name)"))))
     }
