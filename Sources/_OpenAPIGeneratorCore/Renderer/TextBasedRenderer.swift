@@ -54,7 +54,7 @@ final class StringCodeWriter {
             let existingLine = lines.removeLast()
             newLine = existingLine + line
         } else {
-            let indentation = Array(repeating: "    ", count: level).joined()
+            let indentation = Array(repeating: " ", count: 4 * level).joined()
             newLine = indentation + line
         }
         lines.append(newLine)
@@ -252,9 +252,9 @@ struct TextBasedRenderer: RendererProtocol {
         let arguments = functionCall.arguments
         if arguments.count > 1 {
             writer.withNestedLevel {
-                for (index, argument) in arguments.enumerated() {
+                for (argument, isLast) in arguments.enumeratedWithLastMarker() {
                     renderFunctionCallArgument(argument)
-                    if index < arguments.count - 1 {
+                    if !isLast {
                         writer.nextLineAppendsToLastLine()
                         writer.writeLine(",")
                     }
@@ -305,10 +305,10 @@ struct TextBasedRenderer: RendererProtocol {
         case .multiCase(let expressions):
             writer.writeLine("case ")
             writer.nextLineAppendsToLastLine()
-            for (index, expression) in expressions.enumerated() {
+            for (expression, isLast) in expressions.enumeratedWithLastMarker() {
                 renderExpression(expression)
                 writer.nextLineAppendsToLastLine()
-                if index < expressions.count - 1 {
+                if !isLast {
                     writer.writeLine(", ")
                 }
                 writer.nextLineAppendsToLastLine()
@@ -477,9 +477,9 @@ struct TextBasedRenderer: RendererProtocol {
         writer.writeLine("(")
         writer.nextLineAppendsToLastLine()
         let members = description.members
-        for (index, member) in members.enumerated() {
+        for (member, isLast) in members.enumeratedWithLastMarker() {
             renderExpression(member)
-            if index < members.count - 1 {
+            if !isLast {
                 writer.nextLineAppendsToLastLine()
                 writer.writeLine(", ")
             }
@@ -546,9 +546,9 @@ struct TextBasedRenderer: RendererProtocol {
         case .array(let items):
             writer.writeLine("[")
             writer.nextLineAppendsToLastLine()
-            for (index, item) in items.enumerated() {
+            for (item, isLast) in items.enumeratedWithLastMarker() {
                 renderExpression(item)
-                if index < items.count - 1 {
+                if !isLast {
                     writer.nextLineAppendsToLastLine()
                     writer.writeLine(", ")
                 }
@@ -884,9 +884,9 @@ struct TextBasedRenderer: RendererProtocol {
             let separateLines = parameters.count > 1
             if separateLines {
                 writer.withNestedLevel {
-                    for (index, parameter) in signature.parameters.enumerated() {
+                    for (parameter, isLast) in signature.parameters.enumeratedWithLastMarker() {
                         renderParameter(parameter)
-                        if index < parameters.count - 1 {
+                        if !isLast {
                             writer.nextLineAppendsToLastLine()
                             writer.writeLine(",")
                         }
@@ -1015,31 +1015,22 @@ struct TextBasedRenderer: RendererProtocol {
     }
 }
 
+fileprivate extension Array {
+
+    /// Returns a collection of tuples, where the first element is
+    /// the collection element and the second is a Boolean value indicating
+    /// whether it is the last element in the collection.
+    /// - Returns: A collection of tuples.
+    func enumeratedWithLastMarker() -> [(Element, isLast: Bool)] {
+        let count = count
+        return enumerated()
+            .map { index, element in
+                (element, index == count - 1)
+            }
+    }
+}
+
 fileprivate extension Array where Element == String {
-
-    /// Appends the lines from the specified string.
-    /// - Parameter string: The string whose lines to append.
-    mutating func appendLines(from string: String) {
-        append(contentsOf: string.asLines())
-    }
-
-    /// Returns a string where the elements of the array are
-    /// joined by a newline character, with optionally omitting
-    /// empty lines.
-    /// - Parameter omittingEmptyLines: If `true`, omits empty lines in the
-    /// output. Otherwise, all lines are included in the output.
-    /// - Returns: A string with the elements of the array joined by newline characters.
-    func joinedLines(omittingEmptyLines: Bool = true) -> String {
-        filter { !omittingEmptyLines || !$0.isEmpty }
-            .joined(separator: "\n")
-    }
-
-    func joinedLines(level: Int, omittingEmptyLines: Bool = true) -> String {
-        filter { !omittingEmptyLines || !$0.isEmpty }
-            .map { "\(Array(repeating: "    ", count: level).joined())\($0)" }
-            .joined(separator: "\n")
-    }
-
     /// Returns a string where the elements of the array are joined
     /// by a space character.
     /// - Returns: A string with the elements of the array joined by space characters.
