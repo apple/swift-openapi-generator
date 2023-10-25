@@ -81,7 +81,8 @@ final class Test_Playground: XCTestCase {
             return
         }
 
-        let loggedBody = body.map { chunk in print("Client received a chunk: \(String(decoding: chunk, as: UTF8.self))")
+        let loggedBody = body.map { chunk in
+            print("Client received a chunk: \(String(decoding: chunk, as: UTF8.self))")
             return chunk
         }
         var responseIterator = loggedBody.makeAsyncIterator()
@@ -136,7 +137,8 @@ final class Test_Playground: XCTestCase {
             return
         }
 
-        let loggedBody = body.map { chunk in print("Client received a chunk: \(String(decoding: chunk, as: UTF8.self))")
+        let loggedBody = body.map { chunk in
+            print("Client received a chunk: \(String(decoding: chunk, as: UTF8.self))")
             return chunk
         }
         var responseIterator = loggedBody.makeAsyncIterator()
@@ -194,7 +196,8 @@ final class Test_Playground: XCTestCase {
             return
         }
 
-        let loggedBody = body.map { chunk in print("Client received a chunk: \(String(decoding: chunk, as: UTF8.self))")
+        let loggedBody = body.map { chunk in
+            print("Client received a chunk: \(String(decoding: chunk, as: UTF8.self))")
             return chunk
         }
         var responseIterator = loggedBody.makeAsyncIterator()

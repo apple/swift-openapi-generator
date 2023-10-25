@@ -41,7 +41,8 @@ extension FileTranslator {
         throws -> Declaration
     {
         let properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)] = try schemas.enumerated()
-            .map { index, schema in let key = "value\(index+1)"
+            .map { index, schema in
+                let key = "value\(index+1)"
                 let rawPropertyType = try typeAssigner.typeUsage(
                     forAllOrAnyOrOneOfChildSchemaNamed: key,
                     withSchema: schema,
@@ -148,7 +149,8 @@ extension FileTranslator {
             }
         } else {
             cases = try schemas.enumerated()
-                .map { index, schema in let key = "case\(index+1)"
+                .map { index, schema in
+                    let key = "case\(index+1)"
                     let childType = try typeAssigner.typeUsage(
                         forAllOrAnyOrOneOfChildSchemaNamed: key,
                         withSchema: schema,

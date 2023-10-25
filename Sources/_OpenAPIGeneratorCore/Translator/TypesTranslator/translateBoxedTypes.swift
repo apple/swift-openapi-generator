@@ -81,7 +81,8 @@ extension TypesFileTranslator {
         }
 
         // Make all members internal by removing the explicit access modifier.
-        storageDesc.members = storageDesc.members.map { member in var member = member
+        storageDesc.members = storageDesc.members.map { member in
+            var member = member
             member.accessModifier = nil
             return member
         }

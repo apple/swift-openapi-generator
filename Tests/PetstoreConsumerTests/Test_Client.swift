@@ -76,7 +76,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testListPets_default() async throws {
-        transport = .init { request, body, baseURL, operationID in XCTAssertEqual(operationID, "listPets")
+        transport = .init { request, body, baseURL, operationID in
+            XCTAssertEqual(operationID, "listPets")
             XCTAssertEqual(request.path, "/pets?limit=24")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .get)
@@ -109,7 +110,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testCreatePet_201() async throws {
-        transport = .init { request, body, baseURL, operationID in XCTAssertEqual(operationID, "createPet")
+        transport = .init { request, body, baseURL, operationID in
+            XCTAssertEqual(operationID, "createPet")
             XCTAssertEqual(request.path, "/pets")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
@@ -185,7 +187,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testCreatePetWithForm_204() async throws {
-        transport = .init { request, body, baseURL, operationID in XCTAssertEqual(operationID, "createPetWithForm")
+        transport = .init { request, body, baseURL, operationID in
+            XCTAssertEqual(operationID, "createPetWithForm")
             XCTAssertEqual(request.path, "/pets/create")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
@@ -204,7 +207,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testUpdatePet_204_withBody() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "updatePet")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "updatePet")
             XCTAssertEqual(request.path, "/pets/1")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .patch)
@@ -230,7 +234,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testUpdatePet_204_withoutBody() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "updatePet")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "updatePet")
             XCTAssertEqual(request.path, "/pets/1")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .patch)
@@ -246,7 +251,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testCreatePet_201_withBase64() async throws {
-        transport = .init { request, body, baseURL, operationID in XCTAssertEqual(operationID, "createPet")
+        transport = .init { request, body, baseURL, operationID in
+            XCTAssertEqual(operationID, "createPet")
             XCTAssertEqual(request.path, "/pets")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
@@ -318,7 +324,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testUpdatePet_400() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "updatePet")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "updatePet")
             XCTAssertEqual(request.path, "/pets/1")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .patch)
@@ -344,7 +351,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testGetStats_200_json() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "getStats")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(request.method, .get)
             XCTAssertEqual(request.headerFields, [.accept: "application/json, text/plain, application/octet-stream"])
@@ -370,7 +378,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testGetStats_200_default_json() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "getStats")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(request.method, .get)
             XCTAssertNil(requestBody)
@@ -395,7 +404,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testGetStats_200_text() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "getStats")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(request.method, .get)
             XCTAssertEqual(request.headerFields, [.accept: "application/json, text/plain, application/octet-stream"])
@@ -419,7 +429,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testGetStats_200_text_requestedSpecific() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "getStats")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(request.method, .get)
             XCTAssertEqual(request.headerFields, [.accept: "text/plain, application/json; q=0.500"])
@@ -445,7 +456,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testGetStats_200_text_customAccept() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "getStats")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(request.method, .get)
             XCTAssertEqual(request.headerFields, [.accept: "application/json; q=0.800, text/plain"])
@@ -471,7 +483,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testGetStats_200_binary() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "getStats")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(request.method, .get)
             XCTAssertNil(requestBody)
@@ -494,7 +507,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testGetStats_200_unexpectedContentType() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "getStats")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(request.method, .get)
             XCTAssertNil(requestBody)
@@ -512,7 +526,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testPostStats_202_json() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "postStats")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "postStats")
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
@@ -535,7 +550,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testPostStats_202_text() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "postStats")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "postStats")
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
@@ -556,7 +572,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testPostStats_202_binary() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "postStats")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "postStats")
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
@@ -577,7 +594,8 @@ final class Test_Client: XCTestCase {
     }
 
     @available(*, deprecated) func testProbe_204() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in XCTAssertEqual(operationID, "probe")
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "probe")
             XCTAssertEqual(request.path, "/probe/")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)

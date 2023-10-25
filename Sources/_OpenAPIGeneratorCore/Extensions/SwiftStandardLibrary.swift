@@ -16,7 +16,8 @@ extension Int {
     /// - Parameter radix: The radix used to format the integer.
     /// - Returns: An array of digits.
     func digits(radix: Self = 10) -> [Self] {
-        sequence(state: self) { quotient in guard quotient > 0 else { return nil }
+        sequence(state: self) { quotient in
+            guard quotient > 0 else { return nil }
             let division = quotient.quotientAndRemainder(dividingBy: radix)
             quotient = division.quotient
             return division.remainder

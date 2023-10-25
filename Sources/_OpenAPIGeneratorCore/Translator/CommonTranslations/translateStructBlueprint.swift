@@ -122,7 +122,8 @@ extension FileTranslator {
     /// - Parameter properties: The properties of the structure.
     /// - Returns: A coding keys enum declaration.
     func translateStructBlueprintCodingKeys(properties: [PropertyBlueprint]) -> Declaration {
-        let members: [Declaration] = properties.map { property in let swiftName = property.swiftSafeName
+        let members: [Declaration] = properties.map { property in
+            let swiftName = property.swiftSafeName
             let rawName = property.originalName
             return .enumCase(
                 name: swiftName,

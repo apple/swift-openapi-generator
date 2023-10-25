@@ -737,8 +737,10 @@ extension Test_TextBasedRenderer {
     ) throws {
         try _test(
             input,
-            renderedBy: { renderer in let closure = renderClosure(renderer)
-                return { input in closure(input)
+            renderedBy: { renderer in
+                let closure = renderClosure(renderer)
+                return { input in
+                    closure(input)
                     return renderer.renderedContents()
                 }
             },

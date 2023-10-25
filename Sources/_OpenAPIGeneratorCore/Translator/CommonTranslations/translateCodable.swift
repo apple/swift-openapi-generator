@@ -110,7 +110,8 @@ extension FileTranslator {
         -> Declaration
     {
         let containerVarDecl: Declaration = .decoderContainerOfKeysVar()
-        let assignExprs: [Expression] = properties.map { property in let typeUsage = property.typeUsage
+        let assignExprs: [Expression] = properties.map { property in
+            let typeUsage = property.typeUsage
             return .assignment(
                 left: .identifierPattern(property.swiftSafeName),
                 right: .try(

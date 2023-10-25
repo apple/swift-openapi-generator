@@ -28,7 +28,8 @@ final class Test_Server: XCTestCase {
     }
 
     func testListPets_200() async throws {
-        client = .init(listPetsBlock: { input in XCTAssertEqual(input.query.limit, 24)
+        client = .init(listPetsBlock: { input in
+            XCTAssertEqual(input.query.limit, 24)
             XCTAssertEqual(input.query.habitat, .water)
             XCTAssertEqual(input.query.since, .test)
             XCTAssertEqual(input.query.feeds, [.carnivore, .herbivore])
@@ -181,7 +182,8 @@ final class Test_Server: XCTestCase {
     }
 
     func testCreatePet_withIncorrectContentType() async throws {
-        client = .init(createPetBlock: { input in XCTFail("The handler should not have been called")
+        client = .init(createPetBlock: { input in
+            XCTFail("The handler should not have been called")
             fatalError("Unreachable")
         })
         do {
@@ -284,7 +286,8 @@ final class Test_Server: XCTestCase {
     }
 
     func testUpdatePet_204_withBody() async throws {
-        client = .init(updatePetBlock: { input in XCTAssertEqual(input.path.petId, 1)
+        client = .init(updatePetBlock: { input in
+            XCTAssertEqual(input.path.petId, 1)
             guard let body = input.body else { throw TestError.unexpectedMissingRequestBody }
             guard case let .json(updatePet) = body else { throw TestError.unexpectedValue(body) }
             XCTAssertEqual(updatePet, .init(name: "Fluffz"))
@@ -311,7 +314,8 @@ final class Test_Server: XCTestCase {
     }
 
     func testUpdatePet_204_withBody_default_json() async throws {
-        client = .init(updatePetBlock: { input in XCTAssertEqual(input.path.petId, 1)
+        client = .init(updatePetBlock: { input in
+            XCTAssertEqual(input.path.petId, 1)
             guard let body = input.body else { throw TestError.unexpectedMissingRequestBody }
             guard case let .json(updatePet) = body else { throw TestError.unexpectedValue(body) }
             XCTAssertEqual(updatePet, .init(name: "Fluffz"))
@@ -334,7 +338,8 @@ final class Test_Server: XCTestCase {
     }
 
     func testUpdatePet_204_withoutBody() async throws {
-        client = .init(updatePetBlock: { input in XCTAssertEqual(input.path.petId, 1)
+        client = .init(updatePetBlock: { input in
+            XCTAssertEqual(input.path.petId, 1)
             XCTAssertNil(input.body)
             return .noContent(.init())
         })
@@ -349,7 +354,8 @@ final class Test_Server: XCTestCase {
     }
 
     func testUpdatePet_400() async throws {
-        client = .init(updatePetBlock: { input in XCTAssertEqual(input.path.petId, 1)
+        client = .init(updatePetBlock: { input in
+            XCTAssertEqual(input.path.petId, 1)
             XCTAssertNil(input.body)
             return .badRequest(.init(body: .json(.init(message: "Oh no!"))))
         })
@@ -429,7 +435,8 @@ final class Test_Server: XCTestCase {
     func testGetStats_200_streaming_text() async throws {
         client = .init(getStatsBlock: { input in
             let body = HTTPBody(
-                AsyncStream { continuation in continuation.yield([72])
+                AsyncStream { continuation in
+                    continuation.yield([72])
                     continuation.yield([69])
                     continuation.yield([76])
                     continuation.yield([76])
@@ -681,7 +688,8 @@ final class Test_Server: XCTestCase {
         let chunkSizeCollector = CollectedChunkSizes()
         client = .init(uploadAvatarForPetBlock: { input in
             guard case let .binary(avatar) = input.body else { throw TestError.unexpectedValue(input.body) }
-            let responseSequence = avatar.map { chunk in await chunkSizeCollector.record(size: chunk.count)
+            let responseSequence = avatar.map { chunk in
+                await chunkSizeCollector.record(size: chunk.count)
                 return chunk
             }
             return .ok(

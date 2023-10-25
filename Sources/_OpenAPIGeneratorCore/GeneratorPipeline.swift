@@ -108,10 +108,12 @@ func makeGeneratorPipeline(
             preTransitionHooks: [],
             transition: { input in try parser.parseOpenAPI(input, config: config, diagnostics: diagnostics) },
             postTransitionHooks: [
-                { document in guard let documentFilter = config.filter else { return document }
+                { document in
+                    guard let documentFilter = config.filter else { return document }
                     return try documentFilter.filter(document)
                 },
-                { doc in let validationDiagnostics = try validator(doc, config)
+                { doc in
+                    let validationDiagnostics = try validator(doc, config)
                     for diagnostic in validationDiagnostics { diagnostics.emit(diagnostic) }
                     return doc
                 },

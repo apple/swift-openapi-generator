@@ -66,7 +66,8 @@ extension OperationDescription {
         in components: OpenAPI.Components,
         asSwiftSafeName: @escaping (String) -> String
     ) throws -> [OperationDescription] {
-        try map.flatMap { path, value in let value = try value.resolve(in: components)
+        try map.flatMap { path, value in
+            let value = try value.resolve(in: components)
             return value.endpoints.map { endpoint in
                 OperationDescription(
                     path: path,

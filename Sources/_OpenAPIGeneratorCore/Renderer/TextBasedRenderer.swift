@@ -137,7 +137,8 @@ struct TextBasedRenderer: RendererProtocol {
             prefix = "// MARK:"
             commentString = string
         }
-        let lines = commentString.transformingLines { line in if line.isEmpty { return prefix }
+        let lines = commentString.transformingLines { line in
+            if line.isEmpty { return prefix }
             return "\(prefix) \(line)"
         }
         lines.forEach(writer.writeLine)

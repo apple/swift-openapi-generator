@@ -143,7 +143,8 @@ extension ClientFileTranslator {
         inputVariableName: String
     ) throws -> Expression {
         let contents = requestBody.contents
-        var cases: [SwitchCaseDescription] = contents.map { typedContent in let content = typedContent.content
+        var cases: [SwitchCaseDescription] = contents.map { typedContent in
+            let content = typedContent.content
             let contentType = content.contentType
             let contentTypeIdentifier = contentSwiftName(contentType)
             let contentTypeHeaderValue = contentType.headerValueForSending

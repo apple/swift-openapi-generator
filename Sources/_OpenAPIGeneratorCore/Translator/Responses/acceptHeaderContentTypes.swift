@@ -25,7 +25,8 @@ extension FileTranslator {
     /// - Throws: Any errors that occur during the process of analyzing the responses.
     func acceptHeaderContentTypes(for description: OperationDescription) throws -> [ContentType] {
         let contentTypes = try description.responseOutcomes
-            .flatMap { outcome in let response = try outcome.response.resolve(in: components)
+            .flatMap { outcome in
+                let response = try outcome.response.resolve(in: components)
                 return try supportedContents(response.content, foundIn: description.operationID)
             }
             .map { content in content.contentType }

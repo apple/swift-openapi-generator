@@ -111,7 +111,8 @@ struct FilteredDocumentBuilder {
             guard requiredRequestReferences.contains(reference) else { continue }
             components.requestBodies[key] = value
         }
-        var filteredDocument = document.filteringPaths { path in if requiredPaths.contains(path) { return true }
+        var filteredDocument = document.filteringPaths { path in
+            if requiredPaths.contains(path) { return true }
             if let methods = requiredEndpoints[path], !methods.isEmpty { return true }
             return false
         }

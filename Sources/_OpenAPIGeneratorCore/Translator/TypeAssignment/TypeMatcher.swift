@@ -96,7 +96,8 @@ struct TypeMatcher {
         // This logic should be kept in sync with `tryMatchReferenceableType`.
         _tryMatchRecursive(
             for: schema.value,
-            test: { schema in if _tryMatchBuiltinNonRecursive(for: schema) != nil { return true }
+            test: { schema in
+                if _tryMatchBuiltinNonRecursive(for: schema) != nil { return true }
                 guard case .reference = schema else { return false }
                 return true
             },
