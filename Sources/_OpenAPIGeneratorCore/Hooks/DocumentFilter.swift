@@ -39,12 +39,7 @@ public struct DocumentFilter: Codable, Sendable {
     ///   - tags: Operations tagged with these tags will be included in the filter.
     ///   - paths: These paths will be included in the filter.
     ///   - schemas: These (additional) schemas will be included in the filter.
-    public init(
-        operations: [String] = [],
-        tags: [String] = [],
-        paths: [OpenAPI.Path] = [],
-        schemas: [String] = []
-    ) {
+    public init(operations: [String] = [], tags: [String] = [], paths: [OpenAPI.Path] = [], schemas: [String] = []) {
         self.operations = operations
         self.tags = tags
         self.paths = paths
@@ -59,18 +54,10 @@ public struct DocumentFilter: Codable, Sendable {
     /// - Throws: If any dependencies of the requested document components cannot be resolved.
     public func filter(_ document: OpenAPI.Document) throws -> OpenAPI.Document {
         var builder = FilteredDocumentBuilder(document: document)
-        for tag in tags ?? [] {
-            try builder.includeOperations(tagged: tag)
-        }
-        for operationID in operations ?? [] {
-            try builder.includeOperation(operationID: operationID)
-        }
-        for path in paths ?? [] {
-            try builder.includePath(path)
-        }
-        for schema in schemas ?? [] {
-            try builder.includeSchema(schema)
-        }
+        for tag in tags ?? [] { try builder.includeOperations(tagged: tag) }
+        for operationID in operations ?? [] { try builder.includeOperation(operationID: operationID) }
+        for path in paths ?? [] { try builder.includePath(path) }
+        for schema in schemas ?? [] { try builder.includeSchema(schema) }
         return try builder.filter()
     }
 }

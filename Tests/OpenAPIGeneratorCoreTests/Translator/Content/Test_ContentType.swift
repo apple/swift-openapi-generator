@@ -20,154 +20,51 @@ final class Test_ContentType: Test_Core {
     func testDecoding() throws {
         let cases:
             [(
-                input: String,
-                category: ContentType.Category,
-                type: String,
-                subtype: String,
-                parameters: String,
-                lowercasedOutput: String,
-                originallyCasedOutput: String,
-                originallyCasedOutputWithParameters: String
+                input: String, category: ContentType.Category, type: String, subtype: String, parameters: String,
+                lowercasedOutput: String, originallyCasedOutput: String, originallyCasedOutputWithParameters: String
             )] = [
                 (
-                    "application/json",
-                    .json,
-                    "application",
-                    "json",
-                    "",
-                    "application/json",
-                    "application/json",
+                    "application/json", .json, "application", "json", "", "application/json", "application/json",
                     "application/json"
                 ),
                 (
-                    "APPLICATION/JSON",
-                    .json,
-                    "application",
-                    "json",
-                    "",
-                    "application/json",
-                    "APPLICATION/JSON",
+                    "APPLICATION/JSON", .json, "application", "json", "", "application/json", "APPLICATION/JSON",
                     "APPLICATION/JSON"
                 ),
                 (
-                    "application/json; charset=utf-8",
-                    .json,
-                    "application",
-                    "json",
-                    "; charset=utf-8",
-                    "application/json",
-                    "application/json",
-                    "application/json; charset=utf-8"
+                    "application/json; charset=utf-8", .json, "application", "json", "; charset=utf-8",
+                    "application/json", "application/json", "application/json; charset=utf-8"
                 ),
                 (
-                    "application/x-www-form-urlencoded",
-                    .urlEncodedForm,
-                    "application",
-                    "x-www-form-urlencoded",
-                    "",
-                    "application/x-www-form-urlencoded",
-                    "application/x-www-form-urlencoded",
+                    "application/x-www-form-urlencoded", .urlEncodedForm, "application", "x-www-form-urlencoded", "",
+                    "application/x-www-form-urlencoded", "application/x-www-form-urlencoded",
                     "application/x-www-form-urlencoded"
                 ),
                 (
-                    "multipart/form-data",
-                    .binary,
-                    "multipart",
-                    "form-data",
-                    "",
-                    "multipart/form-data",
-                    "multipart/form-data",
-                    "multipart/form-data"
-                ),
+                    "multipart/form-data", .binary, "multipart", "form-data", "", "multipart/form-data",
+                    "multipart/form-data", "multipart/form-data"
+                ), ("text/plain", .binary, "text", "plain", "", "text/plain", "text/plain", "text/plain"),
+                ("*/*", .binary, "*", "*", "", "*/*", "*/*", "*/*"),
                 (
-                    "text/plain",
-                    .binary,
-                    "text",
-                    "plain",
-                    "",
-                    "text/plain",
-                    "text/plain",
-                    "text/plain"
-                ),
-                (
-                    "*/*",
-                    .binary,
-                    "*",
-                    "*",
-                    "",
-                    "*/*",
-                    "*/*",
-                    "*/*"
-                ),
-                (
-                    "application/xml",
-                    .binary,
-                    "application",
-                    "xml",
-                    "",
-                    "application/xml",
-                    "application/xml",
+                    "application/xml", .binary, "application", "xml", "", "application/xml", "application/xml",
                     "application/xml"
                 ),
                 (
-                    "application/octet-stream",
-                    .binary,
-                    "application",
-                    "octet-stream",
-                    "",
-                    "application/octet-stream",
-                    "application/octet-stream",
-                    "application/octet-stream"
+                    "application/octet-stream", .binary, "application", "octet-stream", "", "application/octet-stream",
+                    "application/octet-stream", "application/octet-stream"
                 ),
                 (
-                    "application/myformat+json",
-                    .json,
-                    "application",
-                    "myformat+json",
-                    "",
-                    "application/myformat+json",
-                    "application/myformat+json",
-                    "application/myformat+json"
-                ),
+                    "application/myformat+json", .json, "application", "myformat+json", "", "application/myformat+json",
+                    "application/myformat+json", "application/myformat+json"
+                ), ("foo/bar", .binary, "foo", "bar", "", "foo/bar", "foo/bar", "foo/bar"),
+                ("foo/bar+json", .json, "foo", "bar+json", "", "foo/bar+json", "foo/bar+json", "foo/bar+json"),
                 (
-                    "foo/bar",
-                    .binary,
-                    "foo",
-                    "bar",
-                    "",
-                    "foo/bar",
-                    "foo/bar",
-                    "foo/bar"
-                ),
-                (
-                    "foo/bar+json",
-                    .json,
-                    "foo",
-                    "bar+json",
-                    "",
-                    "foo/bar+json",
-                    "foo/bar+json",
-                    "foo/bar+json"
-                ),
-                (
-                    "foo/bar+json; param1=a; param2=b",
-                    .json,
-                    "foo",
-                    "bar+json",
-                    "; param1=a; param2=b",
-                    "foo/bar+json",
-                    "foo/bar+json",
-                    "foo/bar+json; param1=a; param2=b"
+                    "foo/bar+json; param1=a; param2=b", .json, "foo", "bar+json", "; param1=a; param2=b",
+                    "foo/bar+json", "foo/bar+json", "foo/bar+json; param1=a; param2=b"
                 ),
             ]
         for (
-            rawValue,
-            category,
-            type,
-            subtype,
-            parameters,
-            lowercasedTypeAndSubtype,
-            originallyCasedTypeAndSubtype,
+            rawValue, category, type, subtype, parameters, lowercasedTypeAndSubtype, originallyCasedTypeAndSubtype,
             originallyCasedOutputWithParameters
         ) in cases {
             let contentType = try ContentType(string: rawValue)

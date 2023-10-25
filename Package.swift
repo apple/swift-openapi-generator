@@ -28,8 +28,7 @@ swiftSettings.append(
 // Strict concurrency is enabled in CI; use this environment variable to enable it locally.
 if ProcessInfo.processInfo.environment["SWIFT_OPENAPI_STRICT_CONCURRENCY"].flatMap(Bool.init) ?? false {
     swiftSettings.append(contentsOf: [
-        .define("SWIFT_OPENAPI_STRICT_CONCURRENCY"),
-        .enableExperimentalFeature("StrictConcurrency"),
+        .define("SWIFT_OPENAPI_STRICT_CONCURRENCY"), .enableExperimentalFeature("StrictConcurrency"),
     ])
 }
 #endif
@@ -53,26 +52,14 @@ let package = Package(
     dependencies: [
 
         // General algorithms
-        .package(
-            url: "https://github.com/apple/swift-algorithms",
-            from: "1.0.0"
-        ),
+        .package(url: "https://github.com/apple/swift-algorithms", from: "1.0.0"),
 
         // Read OpenAPI documents
-        .package(
-            url: "https://github.com/mattpolzin/OpenAPIKit.git",
-            exact: "3.0.0-rc.2"
-        ),
-        .package(
-            url: "https://github.com/jpsim/Yams.git",
-            "4.0.0"..<"6.0.0"
-        ),
+        .package(url: "https://github.com/mattpolzin/OpenAPIKit.git", exact: "3.0.0-rc.2"),
+        .package(url: "https://github.com/jpsim/Yams.git", "4.0.0"..<"6.0.0"),
 
         // CLI Tool
-        .package(
-            url: "https://github.com/apple/swift-argument-parser.git",
-            from: "1.0.1"
-        ),
+        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.0.1"),
 
         // Tests-only: Runtime library linked by generated code, and also
         // helps keep the runtime library new enough to work with the generated
@@ -91,8 +78,7 @@ let package = Package(
                 .product(name: "OpenAPIKit", package: "OpenAPIKit"),
                 .product(name: "OpenAPIKit30", package: "OpenAPIKit"),
                 .product(name: "OpenAPIKitCompat", package: "OpenAPIKit"),
-                .product(name: "Algorithms", package: "swift-algorithms"),
-                .product(name: "Yams", package: "Yams"),
+                .product(name: "Algorithms", package: "swift-algorithms"), .product(name: "Yams", package: "Yams"),
             ],
             swiftSettings: swiftSettings
         ),
@@ -100,30 +86,22 @@ let package = Package(
         // Generator Core Tests
         .testTarget(
             name: "OpenAPIGeneratorCoreTests",
-            dependencies: [
-                "_OpenAPIGeneratorCore"
-            ],
+            dependencies: ["_OpenAPIGeneratorCore"],
             swiftSettings: swiftSettings
         ),
 
         // GeneratorReferenceTests
         .testTarget(
             name: "OpenAPIGeneratorReferenceTests",
-            dependencies: [
-                "_OpenAPIGeneratorCore"
-            ],
-            resources: [
-                .copy("Resources")
-            ],
+            dependencies: ["_OpenAPIGeneratorCore"],
+            resources: [.copy("Resources")],
             swiftSettings: swiftSettings
         ),
 
         // Common types for concrete PetstoreConsumer*Tests test targets.
         .target(
             name: "PetstoreConsumerTestCore",
-            dependencies: [
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")
-            ],
+            dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
             swiftSettings: swiftSettings
         ),
 
@@ -132,9 +110,7 @@ let package = Package(
         // to ensure it actually works correctly at runtime.
         .testTarget(
             name: "PetstoreConsumerTests",
-            dependencies: [
-                "PetstoreConsumerTestCore"
-            ],
+            dependencies: ["PetstoreConsumerTestCore"],
             swiftSettings: swiftSettings
         ),
 
@@ -142,20 +118,13 @@ let package = Package(
         .executableTarget(
             name: "swift-openapi-generator",
             dependencies: [
-                "_OpenAPIGeneratorCore",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                "_OpenAPIGeneratorCore", .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
             swiftSettings: swiftSettings
         ),
 
         // Build Plugin
-        .plugin(
-            name: "OpenAPIGenerator",
-            capability: .buildTool(),
-            dependencies: [
-                "swift-openapi-generator"
-            ]
-        ),
+        .plugin(name: "OpenAPIGenerator", capability: .buildTool(), dependencies: ["swift-openapi-generator"]),
 
         // Command Plugin
         .plugin(
@@ -171,9 +140,7 @@ let package = Package(
                     )
                 ]
             ),
-            dependencies: [
-                "swift-openapi-generator"
-            ]
+            dependencies: ["swift-openapi-generator"]
         ),
     ]
 )

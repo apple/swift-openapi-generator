@@ -22,9 +22,7 @@ extension TypesFileTranslator {
     /// - Returns: A code block with the enum representing the components
     /// namespace.
     /// - Throws: An error if there's an issue during translation of components.
-    func translateComponents(
-        _ components: OpenAPI.Components
-    ) throws -> CodeBlock {
+    func translateComponents(_ components: OpenAPI.Components) throws -> CodeBlock {
 
         let schemas = try translateSchemas(components.schemas)
         let parameters = try translateComponentParameters(components.parameters)
@@ -42,13 +40,7 @@ extension TypesFileTranslator {
                 .init(
                     accessModifier: config.access,
                     name: "Components",
-                    members: [
-                        schemas,
-                        parameters,
-                        requestBodies,
-                        responses,
-                        headers,
-                    ]
+                    members: [schemas, parameters, requestBodies, responses, headers]
                 )
             )
         )

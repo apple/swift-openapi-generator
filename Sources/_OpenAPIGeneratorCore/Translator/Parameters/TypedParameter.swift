@@ -40,40 +40,28 @@ struct TypedParameter {
 }
 
 extension TypedParameter: CustomStringConvertible {
-    var description: String {
-        typeUsage.description + "/param:\(name)"
-    }
+    var description: String { typeUsage.description + "/param:\(name)" }
 }
 
 extension TypedParameter {
 
     /// The name of the parameter exactly as specified in the OpenAPI document.
-    var name: String {
-        parameter.name
-    }
+    var name: String { parameter.name }
 
     /// The name of the parameter sanitized to be a valid Swift identifier.
-    var variableName: String {
-        asSwiftSafeName(name)
-    }
+    var variableName: String { asSwiftSafeName(name) }
 
     /// A Boolean value that indicates whether the parameter must be specified
     /// when performing the OpenAPI operation.
-    var required: Bool {
-        parameter.required
-    }
+    var required: Bool { parameter.required }
 
     /// The location of the parameter in the HTTP request.
-    var location: OpenAPI.Parameter.Context.Location {
-        parameter.location
-    }
+    var location: OpenAPI.Parameter.Context.Location { parameter.location }
 
     /// A schema to be inlined.
     ///
     /// - Returns: Nil when schema is referenceable.
-    var inlineableSchema: JSONSchema? {
-        schema.inlineableSchema
-    }
+    var inlineableSchema: JSONSchema? { schema.inlineableSchema }
 }
 
 extension UnresolvedSchema {
@@ -83,12 +71,9 @@ extension UnresolvedSchema {
     /// - Returns: Nil when schema is referenceable.
     var inlineableSchema: JSONSchema? {
         switch self {
-        case .a:
-            return nil
+        case .a: return nil
         case let .b(schema):
-            if TypeMatcher.isInlinable(schema) {
-                return schema
-            }
+            if TypeMatcher.isInlinable(schema) { return schema }
             return nil
         }
     }
@@ -103,19 +88,11 @@ extension FileTranslator {
     /// - Parameter operation: The operation to extract parameters from.
     /// - Returns: A list of `TypedParameter` instances representing the supported parameters of the operation.
     /// - Throws: An error if there is an issue parsing and typing the parameters.
-    func typedParameters(
-        from operation: OperationDescription
-    ) throws -> [TypedParameter] {
+    func typedParameters(from operation: OperationDescription) throws -> [TypedParameter] {
         let inputTypeName = operation.inputTypeName
-        return
-            try operation
-            .allParameters
-            .compactMap { parameter in
-                try parseAsTypedParameter(
-                    from: parameter,
-                    inParent: inputTypeName
-                )
-            }
+        return try operation.allParameters.compactMap { parameter in
+            try parseAsTypedParameter(from: parameter, inParent: inputTypeName)
+        }
     }
 
     /// Returns a typed parameter if the specified unresolved parameter is supported.
@@ -124,28 +101,23 @@ extension FileTranslator {
     ///   - parent: The parent type of the parameter.
     /// - Returns: A typed parameter. Nil if the parameter is unsupported.
     /// - Throws: An error if there is an issue parsing and typing the parameter.
-    func parseAsTypedParameter(
-        from unresolvedParameter: UnresolvedParameter,
-        inParent parent: TypeName
-    ) throws -> TypedParameter? {
+    func parseAsTypedParameter(from unresolvedParameter: UnresolvedParameter, inParent parent: TypeName) throws
+        -> TypedParameter?
+    {
 
         // Collect the parameter
         let parameter: OpenAPI.Parameter
         switch unresolvedParameter {
-        case let .a(ref):
-            parameter = try components.lookup(ref)
-        case let .b(_parameter):
-            parameter = _parameter
+        case let .a(ref): parameter = try components.lookup(ref)
+        case let .b(_parameter): parameter = _parameter
         }
 
         // OpenAPI 3.0.3: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#fixed-fields-10
         // > If in is "header" and the name field is "Accept", "Content-Type" or "Authorization", the parameter definition SHALL be ignored.
         if parameter.location == .header {
             switch parameter.name.lowercased() {
-            case "accept", "content-type", "authorization":
-                return nil
-            default:
-                break
+            case "accept", "content-type", "authorization": return nil
+            default: break
             }
         }
 
@@ -183,10 +155,7 @@ extension FileTranslator {
                     return nil
                 }
             case .cookie:
-                diagnostics.emitUnsupported(
-                    "Cookie params",
-                    foundIn: foundIn
-                )
+                diagnostics.emitUnsupported("Cookie params", foundIn: foundIn)
                 return nil
             }
 
@@ -197,15 +166,9 @@ extension FileTranslator {
                     excludeBinary: true,
                     inParent: locationTypeName
                 )
-            else {
-                return nil
-            }
+            else { return nil }
             schema = typedContent.content.schema ?? .b(.fragment)
-            codingStrategy =
-                typedContent
-                .content
-                .contentType
-                .codingStrategy
+            codingStrategy = typedContent.content.contentType.codingStrategy
 
             // Defaults are defined by the OpenAPI specification:
             // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#fixed-fields-10
@@ -220,23 +183,14 @@ extension FileTranslator {
         }
 
         // Check if the underlying schema is supported
-        guard
-            try validateSchemaIsSupported(
-                schema,
-                foundIn: foundIn
-            )
-        else {
-            return nil
-        }
+        guard try validateSchemaIsSupported(schema, foundIn: foundIn) else { return nil }
 
         let type: TypeUsage
         switch unresolvedParameter {
-        case let .a(ref):
-            type = try typeAssigner.typeName(for: ref).asUsage
+        case let .a(ref): type = try typeAssigner.typeName(for: ref).asUsage
         case let .b(_parameter):
             switch schema {
-            case let .a(reference):
-                type = try typeAssigner.typeName(for: reference).asUsage
+            case let .a(reference): type = try typeAssigner.typeName(for: reference).asUsage
             case let .b(schema):
                 type = try typeAssigner.typeUsage(
                     forParameterNamed: _parameter.name,
@@ -269,36 +223,25 @@ extension OpenAPI.Parameter.Context.Location {
     /// A name of the location usable as a Swift type name.
     var shortTypeName: String {
         switch self {
-        case .path:
-            return "Path"
-        case .header:
-            return "Headers"
-        case .query:
-            return "Query"
-        case .cookie:
-            return "Cookies"
+        case .path: return "Path"
+        case .header: return "Headers"
+        case .query: return "Query"
+        case .cookie: return "Cookies"
         }
     }
 
     /// Returns a type name that's nested in the provided type name with the location's name appended.
     func typeName(in parent: TypeName) -> TypeName {
-        parent.appending(
-            swiftComponent: shortTypeName,
-            jsonComponent: rawValue
-        )
+        parent.appending(swiftComponent: shortTypeName, jsonComponent: rawValue)
     }
 
     /// A name of the location usable as a Swift variable name.
     var shortVariableName: String {
         switch self {
-        case .path:
-            return "path"
-        case .header:
-            return "headers"
-        case .query:
-            return "query"
-        case .cookie:
-            return "cookies"
+        case .path: return "path"
+        case .header: return "headers"
+        case .query: return "query"
+        case .cookie: return "cookies"
         }
     }
 }
@@ -308,10 +251,8 @@ extension OpenAPI.Parameter.SchemaContext.Style {
     /// The runtime name for the style.
     var runtimeName: String {
         switch self {
-        case .form:
-            return Constants.Components.Parameters.Style.form
-        default:
-            preconditionFailure("Unsupported style")
+        case .form: return Constants.Components.Parameters.Style.form
+        default: preconditionFailure("Unsupported style")
         }
     }
 }

@@ -28,18 +28,13 @@ struct TypesFileTranslator: FileTranslator {
     var diagnostics: any DiagnosticCollector
     var components: OpenAPI.Components
 
-    func translateFile(
-        parsedOpenAPI: ParsedOpenAPIRepresentation
-    ) throws -> StructuredSwiftRepresentation {
+    func translateFile(parsedOpenAPI: ParsedOpenAPIRepresentation) throws -> StructuredSwiftRepresentation {
 
         let doc = parsedOpenAPI
 
         let topComment: Comment = .inline(Constants.File.topComment)
 
-        let imports =
-            Constants.File.imports
-            + config.additionalImports
-            .map { ImportDescription(moduleName: $0) }
+        let imports = Constants.File.imports + config.additionalImports.map { ImportDescription(moduleName: $0) }
 
         let apiProtocol = try translateAPIProtocol(doc.paths)
 
@@ -60,19 +55,11 @@ struct TypesFileTranslator: FileTranslator {
             topComment: topComment,
             imports: imports,
             codeBlocks: [
-                .declaration(apiProtocol),
-                .declaration(apiProtocolExtension),
-                .declaration(serversDecl),
-                components,
+                .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl), components,
                 operations,
             ]
         )
 
-        return StructuredSwiftRepresentation(
-            file: .init(
-                name: GeneratorMode.types.outputFileName,
-                contents: typesFile
-            )
-        )
+        return StructuredSwiftRepresentation(file: .init(name: GeneratorMode.types.outputFileName, contents: typesFile))
     }
 }

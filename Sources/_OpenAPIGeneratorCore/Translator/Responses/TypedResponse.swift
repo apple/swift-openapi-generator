@@ -35,10 +35,9 @@ extension FileTranslator {
     /// - Returns: A typed response.
     /// - Throws: An error if there's an issue resolving the type name, fetching the response,
     ///           or determining the inlined status.
-    func typedResponse(
-        from outcome: OpenAPI.Operation.ResponseOutcome,
-        operation: OperationDescription
-    ) throws -> TypedResponse {
+    func typedResponse(from outcome: OpenAPI.Operation.ResponseOutcome, operation: OperationDescription) throws
+        -> TypedResponse
+    {
         let unresolvedResponse = outcome.response
         let typeName: TypeName
         let response: OpenAPI.Response
@@ -54,11 +53,7 @@ extension FileTranslator {
             response = _response
             isInlined = true
         }
-        return .init(
-            response: response,
-            typeUsage: typeName.asUsage,
-            isInlined: isInlined
-        )
+        return .init(response: response, typeUsage: typeName.asUsage, isInlined: isInlined)
     }
 }
 

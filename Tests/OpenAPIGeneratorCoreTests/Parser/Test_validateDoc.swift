@@ -29,14 +29,9 @@ final class Test_validateDoc: Test_Core {
             info: .init(title: "Test", version: "1.0.0"),
             servers: [],
             paths: [:],
-            components: .init(schemas: [
-                "myImperfectSchema": schemaWithWarnings
-            ])
+            components: .init(schemas: ["myImperfectSchema": schemaWithWarnings])
         )
-        let diagnostics = try validateDoc(
-            doc,
-            config: .init(mode: .types)
-        )
+        let diagnostics = try validateDoc(doc, config: .init(mode: .types))
         XCTAssertEqual(diagnostics.count, 1)
     }
 
@@ -58,12 +53,7 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        XCTAssertThrowsError(
-            try validateDoc(
-                doc,
-                config: .init(mode: .types)
-            )
-        )
+        XCTAssertThrowsError(try validateDoc(doc, config: .init(mode: .types)))
     }
 
 }

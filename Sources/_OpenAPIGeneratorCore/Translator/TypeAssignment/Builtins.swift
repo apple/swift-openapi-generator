@@ -15,56 +15,40 @@
 extension TypeName {
 
     /// Returns the type name for the String type.
-    static var string: Self {
-        .swift("String")
-    }
+    static var string: Self { .swift("String") }
 
     /// Returns the type name for the Int type.
-    static var int: Self {
-        .swift("Int")
-    }
+    static var int: Self { .swift("Int") }
 
     /// Returns a type name for a type with the specified name in the
     /// Swift module.
     /// - Parameter name: The name of the type.
     /// - Returns: A TypeName representing the specified type within the Swift module.
-    static func swift(_ name: String) -> TypeName {
-        TypeName(swiftKeyPath: ["Swift", name])
-    }
+    static func swift(_ name: String) -> TypeName { TypeName(swiftKeyPath: ["Swift", name]) }
 
     /// Returns a type name for a type with the specified name in the
     /// Foundation module.
     /// - Parameter name: The name of the type.
     /// - Returns: A TypeName representing the specified type within the Foundation module.
-    static func foundation(_ name: String) -> TypeName {
-        TypeName(swiftKeyPath: ["Foundation", name])
-    }
+    static func foundation(_ name: String) -> TypeName { TypeName(swiftKeyPath: ["Foundation", name]) }
 
     /// Returns a type name for a type with the specified name in the
     /// OpenAPIRuntime module.
     /// - Parameter name: The name of the type.
     /// - Returns: A TypeName representing the specified type within the OpenAPIRuntime module.
-    static func runtime(_ name: String) -> TypeName {
-        TypeName(swiftKeyPath: ["OpenAPIRuntime", name])
-    }
+    static func runtime(_ name: String) -> TypeName { TypeName(swiftKeyPath: ["OpenAPIRuntime", name]) }
 
     /// Returns a type name for a type with the specified name in the
     /// HTTPTypes module.
     /// - Parameter name: The name of the type.
     /// - Returns: A TypeName representing the type with the given name in the HTTPTypes module.
-    static func httpTypes(_ name: String) -> TypeName {
-        TypeName(swiftKeyPath: ["HTTPTypes", name])
-    }
+    static func httpTypes(_ name: String) -> TypeName { TypeName(swiftKeyPath: ["HTTPTypes", name]) }
 
     /// Returns the type name for the URL type.
-    static var url: Self {
-        .foundation("URL")
-    }
+    static var url: Self { .foundation("URL") }
 
     /// Returns the type name for the DecodingError type.
-    static var decodingError: Self {
-        .swift("DecodingError")
-    }
+    static var decodingError: Self { .swift("DecodingError") }
 
     /// Returns the type name for the UndocumentedPayload type.
     static var undocumentedPayload: Self {
@@ -72,42 +56,26 @@ extension TypeName {
     }
 
     /// Returns the type name of generic JSON payload.
-    static var valueContainer: TypeName {
-        .runtime("OpenAPIValueContainer")
-    }
+    static var valueContainer: TypeName { .runtime("OpenAPIValueContainer") }
 
     /// Returns the type name of an object of generic JSON payload.
-    static var objectContainer: TypeName {
-        .runtime("OpenAPIObjectContainer")
-    }
+    static var objectContainer: TypeName { .runtime("OpenAPIObjectContainer") }
 
     /// Returns the type name of an array of generic JSON payload.
-    static var arrayContainer: TypeName {
-        .runtime("OpenAPIArrayContainer")
-    }
+    static var arrayContainer: TypeName { .runtime("OpenAPIArrayContainer") }
 
     /// Returns the type name for the request type.
-    static var request: TypeName {
-        .httpTypes("HTTPRequest")
-    }
+    static var request: TypeName { .httpTypes("HTTPRequest") }
 
     /// Returns the type name for the response type.
-    static var response: TypeName {
-        .httpTypes("HTTPResponse")
-    }
+    static var response: TypeName { .httpTypes("HTTPResponse") }
 
     /// Returns the type name for the body type.
-    static var body: TypeName {
-        .runtime("HTTPBody")
-    }
+    static var body: TypeName { .runtime("HTTPBody") }
 
     /// Returns the type name for the server request metadata type.
-    static var serverRequestMetadata: TypeName {
-        .runtime("ServerRequestMetadata")
-    }
+    static var serverRequestMetadata: TypeName { .runtime("ServerRequestMetadata") }
 
     /// Returns the type name for the copy-on-write box type.
-    static var box: TypeName {
-        .runtime("CopyOnWriteBox")
-    }
+    static var box: TypeName { .runtime("CopyOnWriteBox") }
 }

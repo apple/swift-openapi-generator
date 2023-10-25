@@ -25,9 +25,6 @@ protocol RendererProtocol {
     ///   - diagnostics: The collector to which to emit diagnostics.
     /// - Returns: A raw file with Swift contents.
     /// - Throws: An error if an issue occurs during rendering.
-    func render(
-        structured code: StructuredSwiftRepresentation,
-        config: Config,
-        diagnostics: any DiagnosticCollector
-    ) throws -> InMemoryOutputFile
+    func render(structured code: StructuredSwiftRepresentation, config: Config, diagnostics: any DiagnosticCollector)
+        throws -> InMemoryOutputFile
 }

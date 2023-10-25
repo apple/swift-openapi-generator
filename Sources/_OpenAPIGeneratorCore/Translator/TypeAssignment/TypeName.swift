@@ -40,18 +40,14 @@ struct TypeName: Hashable {
     private let components: [Component]
 
     /// The list of Swift path components.
-    var swiftKeyPathComponents: [String] {
-        components.compactMap(\.swift)
-    }
+    var swiftKeyPathComponents: [String] { components.compactMap(\.swift) }
 
     /// The list of JSON path components.
     ///
     /// Returns nil when the type name has no JSON path components.
     private var jsonKeyPathComponents: [String]? {
         let jsonComponents = components.compactMap(\.json)
-        guard !jsonComponents.isEmpty else {
-            return nil
-        }
+        guard !jsonComponents.isEmpty else { return nil }
         return jsonComponents
     }
 
@@ -75,17 +71,13 @@ struct TypeName: Hashable {
     /// A string representation of the fully qualified Swift type name.
     ///
     /// For example: `Swift.Int`.
-    var fullyQualifiedSwiftName: String {
-        swiftKeyPathComponents.joined(separator: ".")
-    }
+    var fullyQualifiedSwiftName: String { swiftKeyPathComponents.joined(separator: ".") }
 
     /// A string representation of the last path component of the Swift
     /// type name.
     ///
     /// For example: `Int`.
-    var shortSwiftName: String {
-        swiftKeyPathComponents.last!
-    }
+    var shortSwiftName: String { swiftKeyPathComponents.last! }
 
     /// A string representation of the fully qualified JSON path.
     ///
@@ -93,9 +85,7 @@ struct TypeName: Hashable {
     /// - Returns: A string representation; nil if the type name has no
     /// JSON path components or if the last JSON path component is nil.
     var fullyQualifiedJSONPath: String? {
-        guard components.last?.json != nil else {
-            return nil
-        }
+        guard components.last?.json != nil else { return nil }
         return jsonKeyPathComponents?.joined(separator: "/")
     }
 
@@ -104,9 +94,7 @@ struct TypeName: Hashable {
     /// For example: `Foo`.
     /// - Returns: A string representation; nil if the type name has no
     /// JSON path components.
-    var shortJSONName: String? {
-        jsonKeyPathComponents?.last
-    }
+    var shortJSONName: String? { jsonKeyPathComponents?.last }
 
     /// Returns a type name by appending the specified components to the
     /// current type name.
@@ -135,9 +123,7 @@ struct TypeName: Hashable {
 
 extension TypeName: CustomStringConvertible {
     var description: String {
-        if let fullyQualifiedJSONPath {
-            return "\(fullyQualifiedSwiftName) (\(fullyQualifiedJSONPath))"
-        }
+        if let fullyQualifiedJSONPath { return "\(fullyQualifiedSwiftName) (\(fullyQualifiedJSONPath))" }
         return fullyQualifiedSwiftName
     }
 }
@@ -148,7 +134,5 @@ extension TypeName.Component {
     /// are child types of.
     ///
     /// Has a nil Swift component and the JSON path component `#`.
-    static var root: Self {
-        .init(swift: nil, json: "#")
-    }
+    static var root: Self { .init(swift: nil, json: "#") }
 }

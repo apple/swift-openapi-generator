@@ -15,9 +15,7 @@ import XCTest
 import HTTPTypes
 
 extension Operations.listPets.Output {
-    static var success: Self {
-        .ok(.init(headers: .init(My_hyphen_Response_hyphen_UUID: "abcd"), body: .json([])))
-    }
+    static var success: Self { .ok(.init(headers: .init(My_hyphen_Response_hyphen_UUID: "abcd"), body: .json([]))) }
 }
 
 extension HTTPRequest {

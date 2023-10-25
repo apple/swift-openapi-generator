@@ -30,14 +30,10 @@ enum CodingStrategy: String, Hashable, Sendable {
     /// The name of the coding strategy in the runtime library.
     var runtimeName: String {
         switch self {
-        case .json:
-            return Constants.CodingStrategy.json
-        case .uri:
-            return Constants.CodingStrategy.uri
-        case .binary:
-            return Constants.CodingStrategy.binary
-        case .urlEncodedForm:
-            return Constants.CodingStrategy.urlEncodedForm
+        case .json: return Constants.CodingStrategy.json
+        case .uri: return Constants.CodingStrategy.uri
+        case .binary: return Constants.CodingStrategy.binary
+        case .urlEncodedForm: return Constants.CodingStrategy.urlEncodedForm
         }
     }
 }

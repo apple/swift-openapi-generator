@@ -24,23 +24,13 @@ final class Test_Types: XCTestCase {
     }
 
     func testStructCodingKeys() throws {
-        let cases: [(Components.Schemas._Error.CodingKeys, String)] = [
-            (.code, "code"),
-            (.me_dollar_sage, "me$sage"),
-        ]
-        for (value, rawValue) in cases {
-            XCTAssertEqual(value.rawValue, rawValue)
-        }
+        let cases: [(Components.Schemas._Error.CodingKeys, String)] = [(.code, "code"), (.me_dollar_sage, "me$sage")]
+        for (value, rawValue) in cases { XCTAssertEqual(value.rawValue, rawValue) }
     }
 
     func testEnumCoding() throws {
-        let cases: [(Components.Schemas.PetKind, String)] = [
-            (.cat, "cat"),
-            (._dollar_nake, "$nake"),
-        ]
-        for (value, rawValue) in cases {
-            XCTAssertEqual(value.rawValue, rawValue)
-        }
+        let cases: [(Components.Schemas.PetKind, String)] = [(.cat, "cat"), (._dollar_nake, "$nake")]
+        for (value, rawValue) in cases { XCTAssertEqual(value.rawValue, rawValue) }
     }
 
     var testEncoder: JSONEncoder {
@@ -58,9 +48,7 @@ final class Test_Types: XCTestCase {
 
     func roundtrip<T: Codable & Equatable>(_ value: T, verifyingJSON: String? = nil) throws -> T {
         let data = try testEncoder.encode(value)
-        if let verifyingJSON {
-            XCTAssertEqual(String(decoding: data, as: UTF8.self), verifyingJSON)
-        }
+        if let verifyingJSON { XCTAssertEqual(String(decoding: data, as: UTF8.self), verifyingJSON) }
         return try testDecoder.decode(T.self, from: data)
     }
 
@@ -70,9 +58,7 @@ final class Test_Types: XCTestCase {
     }
 
     func testNoAdditionalPropertiesCoding_roundtrip() throws {
-        try _testRoundtrip(
-            Components.Schemas.NoAdditionalProperties(foo: "hi")
-        )
+        try _testRoundtrip(Components.Schemas.NoAdditionalProperties(foo: "hi"))
     }
 
     func testNoAdditionalPropertiesCoding_extraProperty() throws {
@@ -85,52 +71,28 @@ final class Test_Types: XCTestCase {
     }
 
     func testAnyAdditionalPropertiesCoding_roundtrip_noExtraProperty() throws {
-        try _testRoundtrip(
-            Components.Schemas.AnyAdditionalProperties(
-                foo: "hi",
-                additionalProperties: .init()
-            )
-        )
+        try _testRoundtrip(Components.Schemas.AnyAdditionalProperties(foo: "hi", additionalProperties: .init()))
     }
 
     func testAnyAdditionalPropertiesCoding_roundtrip_withExtraProperty() throws {
         try _testRoundtrip(
             Components.Schemas.AnyAdditionalProperties(
                 foo: "hi",
-                additionalProperties: .init(unvalidatedValue: [
-                    "hello": 1
-                ])
+                additionalProperties: .init(unvalidatedValue: ["hello": 1])
             )
         )
     }
 
     func testTypedAdditionalPropertiesCoding_roundtrip_noExtraProperty() throws {
-        try _testRoundtrip(
-            Components.Schemas.TypedAdditionalProperties(
-                foo: "hi",
-                additionalProperties: [:]
-            )
-        )
+        try _testRoundtrip(Components.Schemas.TypedAdditionalProperties(foo: "hi", additionalProperties: [:]))
     }
 
     func testTypedAdditionalPropertiesCoding_roundtrip_withExtraProperty() throws {
-        try _testRoundtrip(
-            Components.Schemas.TypedAdditionalProperties(
-                foo: "hi",
-                additionalProperties: [
-                    "hello": 1
-                ]
-            )
-        )
+        try _testRoundtrip(Components.Schemas.TypedAdditionalProperties(foo: "hi", additionalProperties: ["hello": 1]))
     }
 
     func testAllOf_roundtrip() throws {
-        try _testRoundtrip(
-            Components.Schemas.AllOfObjects(
-                value1: .init(message: "hi"),
-                value2: .init(code: 1)
-            )
-        )
+        try _testRoundtrip(Components.Schemas.AllOfObjects(value1: .init(message: "hi"), value2: .init(code: 1)))
     }
 
     func testAllAnyOneOf_withDate_roundtrip() throws {
@@ -154,35 +116,21 @@ final class Test_Types: XCTestCase {
             expectedJSON: #""2023-01-18T10:04:11Z""#
         )
         try testJSON(
-            Components.Schemas.MixedAnyOf(
-                value2: .BIG_ELEPHANT_1,
-                value4: #"BIG_ELEPHANT_1"#
-            ),
+            Components.Schemas.MixedAnyOf(value2: .BIG_ELEPHANT_1, value4: #"BIG_ELEPHANT_1"#),
             expectedJSON: #""BIG_ELEPHANT_1""#
         )
         try testJSON(
-            Components.Schemas.MixedAnyOf(
-                value3: .init(id: 1, name: "Fluffz")
-            ),
+            Components.Schemas.MixedAnyOf(value3: .init(id: 1, name: "Fluffz")),
             expectedJSON: #"{"id":1,"name":"Fluffz"}"#
         )
 
         try testJSON(
-            Components.Schemas.MixedOneOf.case1(
-                Date(timeIntervalSince1970: 1_674_036_251)
-            ),
+            Components.Schemas.MixedOneOf.case1(Date(timeIntervalSince1970: 1_674_036_251)),
             expectedJSON: #""2023-01-18T10:04:11Z""#
         )
+        try testJSON(Components.Schemas.MixedOneOf.PetKind(.BIG_ELEPHANT_1), expectedJSON: #""BIG_ELEPHANT_1""#)
         try testJSON(
-            Components.Schemas.MixedOneOf.PetKind(
-                .BIG_ELEPHANT_1
-            ),
-            expectedJSON: #""BIG_ELEPHANT_1""#
-        )
-        try testJSON(
-            Components.Schemas.MixedOneOf.Pet(
-                .init(id: 1, name: "Fluffz")
-            ),
+            Components.Schemas.MixedOneOf.Pet(.init(id: 1, name: "Fluffz")),
             expectedJSON: #"{"id":1,"name":"Fluffz"}"#
         )
 
@@ -196,98 +144,44 @@ final class Test_Types: XCTestCase {
     }
 
     func testAllOf_missingProperty() throws {
+        XCTAssertThrowsError(try testDecoder.decode(Components.Schemas.AllOfObjects.self, from: Data(#"{}"#.utf8)))
         XCTAssertThrowsError(
-            try testDecoder.decode(
-                Components.Schemas.AllOfObjects.self,
-                from: Data(#"{}"#.utf8)
-            )
+            try testDecoder.decode(Components.Schemas.AllOfObjects.self, from: Data(#"{"message":"hi"}"#.utf8))
         )
         XCTAssertThrowsError(
-            try testDecoder.decode(
-                Components.Schemas.AllOfObjects.self,
-                from: Data(#"{"message":"hi"}"#.utf8)
-            )
-        )
-        XCTAssertThrowsError(
-            try testDecoder.decode(
-                Components.Schemas.AllOfObjects.self,
-                from: Data(#"{"code":1}"#.utf8)
-            )
+            try testDecoder.decode(Components.Schemas.AllOfObjects.self, from: Data(#"{"code":1}"#.utf8))
         )
     }
 
     func testAnyOf_roundtrip() throws {
-        try _testRoundtrip(
-            Components.Schemas.AnyOfObjects(
-                value1: .init(message: "hi"),
-                value2: .init(code: 1)
-            )
-        )
-        try _testRoundtrip(
-            Components.Schemas.AnyOfObjects(
-                value1: .init(message: "hi"),
-                value2: nil
-            )
-        )
-        try _testRoundtrip(
-            Components.Schemas.AnyOfObjects(
-                value1: nil,
-                value2: .init(code: 1)
-            )
-        )
+        try _testRoundtrip(Components.Schemas.AnyOfObjects(value1: .init(message: "hi"), value2: .init(code: 1)))
+        try _testRoundtrip(Components.Schemas.AnyOfObjects(value1: .init(message: "hi"), value2: nil))
+        try _testRoundtrip(Components.Schemas.AnyOfObjects(value1: nil, value2: .init(code: 1)))
     }
 
     func testAnyOf_allFailedToDecode() throws {
-        XCTAssertThrowsError(
-            try testDecoder.decode(
-                Components.Schemas.AnyOfObjects.self,
-                from: Data(#"{}"#.utf8)
-            )
-        )
+        XCTAssertThrowsError(try testDecoder.decode(Components.Schemas.AnyOfObjects.self, from: Data(#"{}"#.utf8)))
     }
 
     func testOneOfAny_roundtrip() throws {
-        try _testRoundtrip(
-            Components.Schemas.OneOfAny.case1("hi")
-        )
-        try _testRoundtrip(
-            Components.Schemas.OneOfAny.case2(1)
-        )
-        try _testRoundtrip(
-            Components.Schemas.OneOfAny.CodeError(.init(code: 2))
-        )
-        try _testRoundtrip(
-            Components.Schemas.OneOfAny.case4(.init(message: "hello"))
-        )
+        try _testRoundtrip(Components.Schemas.OneOfAny.case1("hi"))
+        try _testRoundtrip(Components.Schemas.OneOfAny.case2(1))
+        try _testRoundtrip(Components.Schemas.OneOfAny.CodeError(.init(code: 2)))
+        try _testRoundtrip(Components.Schemas.OneOfAny.case4(.init(message: "hello")))
     }
 
     func testOneOfWithDiscriminator_roundtrip() throws {
+        try _testRoundtrip(Components.Schemas.OneOfObjectsWithDiscriminator.Walk(.init(kind: "Walk", length: 1)))
         try _testRoundtrip(
-            Components.Schemas.OneOfObjectsWithDiscriminator
-                .Walk(
-                    .init(
-                        kind: "Walk",
-                        length: 1
-                    )
-                )
-        )
-        try _testRoundtrip(
-            Components.Schemas.OneOfObjectsWithDiscriminator
-                .MessagedExercise(
-                    .init(
-                        value1: .init(kind: "MessagedExercise"),
-                        value2: .init(message: "hello")
-                    )
-                )
+            Components.Schemas.OneOfObjectsWithDiscriminator.MessagedExercise(
+                .init(value1: .init(kind: "MessagedExercise"), value2: .init(message: "hello"))
+            )
         )
     }
 
     func testOneOfWithDiscriminator_invalidDiscriminator() throws {
         XCTAssertThrowsError(
-            try testDecoder.decode(
-                Components.Schemas.OneOfObjectsWithDiscriminator.self,
-                from: Data(#"{}"#.utf8)
-            )
+            try testDecoder.decode(Components.Schemas.OneOfObjectsWithDiscriminator.self, from: Data(#"{}"#.utf8))
         )
     }
 
@@ -296,10 +190,8 @@ final class Test_Types: XCTestCase {
         let output = Operations.createPet.Output.created(created)
         XCTAssertEqual(try output.created, created)
         XCTAssertThrowsError(try output.clientError) { error in
-            guard
-                case let .unexpectedResponseStatus(expectedStatus, actualOutput) = error as? RuntimeError,
-                expectedStatus == "clientError",
-                actualOutput as? Operations.createPet.Output == output
+            guard case let .unexpectedResponseStatus(expectedStatus, actualOutput) = error as? RuntimeError,
+                expectedStatus == "clientError", actualOutput as? Operations.createPet.Output == output
             else {
                 XCTFail("Expected error, but not this: \(error)")
                 return
@@ -310,10 +202,8 @@ final class Test_Types: XCTestCase {
         let ok = Operations.getStats.Output.Ok(body: .json(stats))
         XCTAssertEqual(try ok.body.json, stats)
         XCTAssertThrowsError(try ok.body.plainText) { error in
-            guard
-                case let .unexpectedResponseBody(expectedContentType, actualBody) = error as? RuntimeError,
-                expectedContentType == "text/plain",
-                actualBody as? Operations.getStats.Output.Ok.Body == .json(stats)
+            guard case let .unexpectedResponseBody(expectedContentType, actualBody) = error as? RuntimeError,
+                expectedContentType == "text/plain", actualBody as? Operations.getStats.Output.Ok.Body == .json(stats)
             else {
                 XCTFail("Expected error, but not this: \(error)")
                 return
@@ -323,13 +213,7 @@ final class Test_Types: XCTestCase {
 
     func testRecursiveType_roundtrip() throws {
         try _testRoundtrip(
-            Components.Schemas.RecursivePet(
-                name: "C",
-                parent: .init(
-                    name: "B",
-                    parent: .init(name: "A")
-                )
-            ),
+            Components.Schemas.RecursivePet(name: "C", parent: .init(name: "B", parent: .init(name: "A"))),
             verifyingJSON: #"{"name":"C","parent":{"name":"B","parent":{"name":"A"}}}"#
         )
     }
@@ -341,13 +225,7 @@ final class Test_Types: XCTestCase {
         XCTAssertEqual(c.parent, .init(name: "B", parent: .init(name: "A")))
         XCTAssertEqual(
             c,
-            Components.Schemas.RecursivePet(
-                name: "C2",
-                parent: .init(
-                    name: "B",
-                    parent: .init(name: "A")
-                )
-            )
+            Components.Schemas.RecursivePet(name: "C2", parent: .init(name: "B", parent: .init(name: "A")))
         )
     }
 
@@ -356,27 +234,14 @@ final class Test_Types: XCTestCase {
         b.name = "B2"
         b.parent = .init(name: "A")
         XCTAssertEqual(b.parent, .init(name: "A"))
-        XCTAssertEqual(
-            b,
-            .init(
-                name: "B2",
-                parent: .init(name: "A")
-            )
-        )
+        XCTAssertEqual(b, .init(name: "B2", parent: .init(name: "A")))
     }
 
     func testRecursiveNestedType_roundtrip() throws {
         try _testRoundtrip(
             Components.Schemas.RecursivePetNested(
                 name: "C",
-                parent: .init(
-                    nested: .init(
-                        name: "B",
-                        parent: .init(
-                            nested: .init(name: "A")
-                        )
-                    )
-                )
+                parent: .init(nested: .init(name: "B", parent: .init(nested: .init(name: "A"))))
             ),
             verifyingJSON: #"{"name":"C","parent":{"nested":{"name":"B","parent":{"nested":{"name":"A"}}}}}"#
         )

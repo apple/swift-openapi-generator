@@ -17,9 +17,7 @@ extension InMemoryInputFile {
     /// Creates a new in-memory file by reading the contents at the specified path.
     /// - Parameter url: The path to the file to read.
     /// - Throws: An error if there's an issue reading the file or initializing the in-memory file.
-    init(fromFileAt url: URL) throws {
-        try self.init(absolutePath: url, contents: Data(contentsOf: url))
-    }
+    init(fromFileAt url: URL) throws { try self.init(absolutePath: url, contents: Data(contentsOf: url)) }
 }
 
 /// File handle to stderr.
@@ -32,7 +30,5 @@ extension FileHandle: TextOutputStream {
     /// representation.
     ///
     /// - Parameter string: The string to be written to the file handle.
-    public func write(_ string: String) {
-        write(Data(string.utf8))
-    }
+    public func write(_ string: String) { write(Data(string.utf8)) }
 }

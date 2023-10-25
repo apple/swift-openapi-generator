@@ -19,9 +19,7 @@ extension TypesFileTranslator {
     /// - Parameter description: The OpenAPI operation.
     /// - Returns: A structure declaration that represents the Input type.
     /// - Throws: An error if there's an issue during translation of the input type.
-    func translateOperationInput(
-        _ description: OperationDescription
-    ) throws -> Declaration {
+    func translateOperationInput(_ description: OperationDescription) throws -> Declaration {
 
         let inputTypeName = description.inputTypeName
 
@@ -33,16 +31,10 @@ extension TypesFileTranslator {
             let inputTypeName = description.inputTypeName
             let structTypeName = location.typeName(in: inputTypeName)
             let structProperties: [PropertyBlueprint] =
-                try parameters
-                .compactMap { parameter in
-                    try parseParameterAsProperty(
-                        for: parameter,
-                        inParent: inputTypeName
-                    )
+                try parameters.compactMap { parameter in
+                    try parseParameterAsProperty(for: parameter, inParent: inputTypeName)
                 } + extraProperties
-            guard !structProperties.isEmpty else {
-                return nil
-            }
+            guard !structProperties.isEmpty else { return nil }
             let structDecl: Declaration = .commentable(
                 structTypeName.docCommentWithUserDescription(nil),
                 translateStructBlueprint(
@@ -78,9 +70,7 @@ extension TypesFileTranslator {
                 originalName: location.shortVariableName,
                 typeUsage: structTypeName.asUsage,
                 default: defaultValue,
-                associatedDeclarations: [
-                    structDecl
-                ],
+                associatedDeclarations: [structDecl],
                 asSwiftSafeName: swiftSafeName
             )
         }
@@ -127,8 +117,7 @@ extension TypesFileTranslator {
                     try propertyBlueprintForNamespacedStruct(
                         locatedIn: .cookie,
                         withPropertiesFrom: description.allCookieParameters
-                    ),
-                    bodyProperty,
+                    ), bodyProperty,
                 ]
                 .compactMap { $0 }
             )
@@ -140,27 +129,21 @@ extension TypesFileTranslator {
     /// - Parameter description: The OpenAPI operation.
     /// - Returns: An enum declaration that represents the Output type.
     /// - Throws: An error if there's an issue during translation of the output type.
-    func translateOperationOutput(
-        _ description: OperationDescription
-    ) throws -> Declaration {
+    func translateOperationOutput(_ description: OperationDescription) throws -> Declaration {
 
         let outputTypeName = description.outputTypeName
 
-        let documentedOutcomes =
-            try description
-            .responseOutcomes
-            .map { outcome in
-                try translateResponseOutcomeInTypes(
-                    outcome,
-                    operation: description,
-                    operationJSONPath: description.jsonPathComponent
-                )
-            }
+        let documentedOutcomes = try description.responseOutcomes.map { outcome in
+            try translateResponseOutcomeInTypes(
+                outcome,
+                operation: description,
+                operationJSONPath: description.jsonPathComponent
+            )
+        }
         let documentedMembers: [Declaration] = documentedOutcomes.flatMap {
             inlineResponseDecl,
             caseDecl,
-            throwingGetter in
-            [inlineResponseDecl, caseDecl, throwingGetter].compactMap { $0 }
+            throwingGetter in [inlineResponseDecl, caseDecl, throwingGetter].compactMap { $0 }
         }
 
         let allMembers: [Declaration]
@@ -178,13 +161,8 @@ extension TypesFileTranslator {
                 .enumCase(
                     name: Constants.Operation.Output.undocumentedCaseName,
                     kind: .nameWithAssociatedValues([
-                        .init(
-                            label: "statusCode",
-                            type: .init(TypeName.int)
-                        ),
-                        .init(
-                            type: .init(TypeName.undocumentedPayload)
-                        ),
+                        .init(label: "statusCode", type: .init(TypeName.int)),
+                        .init(type: .init(TypeName.undocumentedPayload)),
                     ])
                 )
             )
@@ -208,19 +186,13 @@ extension TypesFileTranslator {
     /// the AcceptableContentType type, or nil if no acceptable content types
     /// were specified.
     /// - Throws: An error if there's an issue generating the declaration.
-    func translateOperationAcceptableContentType(
-        _ description: OperationDescription
-    ) throws -> Declaration? {
+    func translateOperationAcceptableContentType(_ description: OperationDescription) throws -> Declaration? {
         let acceptableContentTypeName = description.acceptableContentTypeName
         let contentTypes = try acceptHeaderContentTypes(for: description)
-        guard !contentTypes.isEmpty else {
-            return nil
+        guard !contentTypes.isEmpty else { return nil }
+        let cases: [(caseName: String, rawExpr: LiteralDescription)] = contentTypes.map { contentType in
+            (contentSwiftName(contentType), .string(contentType.lowercasedTypeAndSubtype))
         }
-        let cases: [(caseName: String, rawExpr: LiteralDescription)] =
-            contentTypes
-            .map { contentType in
-                (contentSwiftName(contentType), .string(contentType.lowercasedTypeAndSubtype))
-            }
         return try translateRawRepresentableEnum(
             typeName: acceptableContentTypeName,
             conformances: Constants.Operation.AcceptableContentType.conformances,
@@ -243,9 +215,7 @@ extension TypesFileTranslator {
     /// - Returns: An enum declaration that represents the operation's
     /// namespace.
     /// - Throws: An error if there's an issue during translation of the operation's namespace.
-    func translateOperation(
-        _ operation: OperationDescription
-    ) throws -> Declaration {
+    func translateOperation(_ operation: OperationDescription) throws -> Declaration {
 
         let idPropertyDecl: Declaration = .variable(
             .init(
@@ -269,11 +239,7 @@ extension TypesFileTranslator {
                 .init(
                     accessModifier: config.access,
                     name: operationNamespace.shortSwiftName,
-                    members: [
-                        idPropertyDecl,
-                        inputDecl,
-                        outputDecl,
-                    ] + (acceptDecl.flatMap { [$0] } ?? [])
+                    members: [idPropertyDecl, inputDecl, outputDecl] + (acceptDecl.flatMap { [$0] } ?? [])
                 )
             )
         )
@@ -286,9 +252,7 @@ extension TypesFileTranslator {
     /// - Returns: A code block that contains an enum declaration with a
     /// separate namespace type for each operation.
     /// - Throws: An error if there is an issue during operation translation.
-    func translateOperations(
-        _ operations: [OperationDescription]
-    ) throws -> CodeBlock {
+    func translateOperations(_ operations: [OperationDescription]) throws -> CodeBlock {
 
         let operationDecls = try operations.map(translateOperation)
 
@@ -296,11 +260,7 @@ extension TypesFileTranslator {
             comment: .operationsNamespace(),
             item: .declaration(
                 .enum(
-                    .init(
-                        accessModifier: config.access,
-                        name: Constants.Operations.namespace,
-                        members: operationDecls
-                    )
+                    .init(accessModifier: config.access, name: Constants.Operations.namespace, members: operationDecls)
                 )
             )
         )

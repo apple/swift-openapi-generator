@@ -18,20 +18,12 @@ import Foundation
 import HTTPTypes
 
 struct MockClientTransport: ClientTransport {
-    func send(
-        _ request: HTTPTypes.HTTPRequest,
-        body: OpenAPIRuntime.HTTPBody?,
-        baseURL: URL,
-        operationID: String
-    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
-        (HTTPTypes.HTTPResponse(status: 200), nil)
-    }
+    func send(_ request: HTTPTypes.HTTPRequest, body: OpenAPIRuntime.HTTPBody?, baseURL: URL, operationID: String)
+        async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?)
+    { (HTTPTypes.HTTPResponse(status: 200), nil) }
 }
 
 func run() async throws {
-    let client = Client(
-        serverURL: try Servers.server1(),
-        transport: MockClientTransport()
-    )
+    let client = Client(serverURL: try Servers.server1(), transport: MockClientTransport())
     _ = try await client.getGreeting(.init())
 }

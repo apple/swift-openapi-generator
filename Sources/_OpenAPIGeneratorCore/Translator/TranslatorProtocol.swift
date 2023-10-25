@@ -26,9 +26,6 @@ protocol TranslatorProtocol {
     ///   diagnostics.
     /// - Returns: A structured Swift representation of the generated code.
     /// - Throws: An error if there are issues parsing or translating the request body.
-    func translate(
-        parsedOpenAPI: ParsedOpenAPIRepresentation,
-        config: Config,
-        diagnostics: any DiagnosticCollector
-    ) throws -> StructuredSwiftRepresentation
+    func translate(parsedOpenAPI: ParsedOpenAPIRepresentation, config: Config, diagnostics: any DiagnosticCollector)
+        throws -> StructuredSwiftRepresentation
 }

@@ -61,13 +61,10 @@ final class Test_String: Test_Core {
             ("$مرحبا", "_dollar_مرحبا"),
 
             // Content type components
-            ("application", "application"),
-            ("vendor1+json", "vendor1_plus_json"),
+            ("application", "application"), ("vendor1+json", "vendor1_plus_json"),
         ]
         let translator = makeTranslator()
         let asSwiftSafeName: (String) -> String = translator.swiftSafeName
-        for (input, sanitized) in cases {
-            XCTAssertEqual(asSwiftSafeName(input), sanitized)
-        }
+        for (input, sanitized) in cases { XCTAssertEqual(asSwiftSafeName(input), sanitized) }
     }
 }

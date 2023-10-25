@@ -18,12 +18,9 @@ extension Comment {
     /// Returns the string contents of the comment.
     var contents: String {
         switch self {
-        case .inline(let string):
-            return string
-        case .doc(let string):
-            return string
-        case .mark(let string, _):
-            return string
+        case .inline(let string): return string
+        case .doc(let string): return string
+        case .mark(let string, _): return string
         }
     }
 
@@ -32,9 +29,7 @@ extension Comment {
     /// Lines starting with a dash are appended remarks, which don't
     /// describe the property.
     var firstLineOfContent: String? {
-        guard let line = contents.split(separator: "\n").first, !line.hasPrefix("-") else {
-            return nil
-        }
+        guard let line = contents.split(separator: "\n").first, !line.hasPrefix("-") else { return nil }
         return String(line)
     }
 
@@ -48,9 +43,7 @@ extension Comment {
     ///   - prefix: The string that comes first.
     ///   - suffix: The string that comes second.
     /// - Returns: A documentation comment if either prefix or suffix is provided; otherwise, nil.
-    static func doc(prefix: String?, suffix: String?) -> Self? {
-        text(prefix: prefix, suffix: suffix).map { .doc($0) }
-    }
+    static func doc(prefix: String?, suffix: String?) -> Self? { text(prefix: prefix, suffix: suffix).map { .doc($0) } }
 
     /// Returns a string created by joining the specified prefix and
     /// suffix strings with a newline.
@@ -63,15 +56,9 @@ extension Comment {
     ///   - suffix: The string that comes second.
     /// - Returns: A string with the joined prefix and suffix separated by a newline, or nil if both are nil.
     private static func text(prefix: String?, suffix: String?) -> String? {
-        if let prefix, let suffix {
-            return "\(prefix)\n\n\(suffix)"
-        }
-        if let prefix {
-            return prefix
-        }
-        if let suffix {
-            return suffix
-        }
+        if let prefix, let suffix { return "\(prefix)\n\n\(suffix)" }
+        if let prefix { return prefix }
+        if let suffix { return suffix }
         return nil
     }
 }
@@ -82,9 +69,7 @@ extension TypeName {
     ///
     /// Returns nil if the type name has no JSON path.
     var generatedFromCommentText: String? {
-        guard let fullyQualifiedJSONPath else {
-            return nil
-        }
+        guard let fullyQualifiedJSONPath else { return nil }
         return "- Remark: Generated from `\(fullyQualifiedJSONPath)`."
     }
 
@@ -94,10 +79,7 @@ extension TypeName {
     /// in the OpenAPI document.
     /// - Returns: A documentation comment combining the user description and the "generated from" string.
     func docCommentWithUserDescription(_ userDescription: String?) -> Comment? {
-        .doc(
-            prefix: userDescription,
-            suffix: generatedFromCommentText
-        )
+        .doc(prefix: userDescription, suffix: generatedFromCommentText)
     }
 
     /// Returns a documentation comment by appending the "generated from"
@@ -114,10 +96,7 @@ extension TypeName {
         guard let jsonPath = appending(jsonComponent: subPath).fullyQualifiedJSONPath else {
             return Comment.doc(prefix: userDescription, suffix: nil)
         }
-        return Comment.doc(
-            prefix: userDescription,
-            suffix: "- Remark: Generated from `\(jsonPath)`."
-        )
+        return Comment.doc(prefix: userDescription, suffix: "- Remark: Generated from `\(jsonPath)`.")
     }
 }
 
@@ -127,12 +106,9 @@ extension ResponseKind {
     /// generated documentation comment.
     private var commentDescription: String {
         switch self {
-        case .`default`:
-            return "default"
-        case .code(let int):
-            return "\(int) \(HTTPStatusCodes.safeName(for: int))"
-        case .range(let rangeType):
-            return "\(rangeType.lowerBound)...\(rangeType.upperBound) \(rangeType.prettyName)"
+        case .`default`: return "default"
+        case .code(let int): return "\(int) \(HTTPStatusCodes.safeName(for: int))"
+        case .range(let rangeType): return "\(rangeType.lowerBound)...\(rangeType.upperBound) \(rangeType.prettyName)"
         }
     }
 
@@ -172,10 +148,7 @@ extension ContentType {
     /// - Parameter typeName: The type name of the content.
     /// - Returns: A documentation comment for the content type or nil if not available.
     func docComment(typeName: TypeName) -> Comment? {
-        typeName.docCommentWithUserDescription(
-            nil,
-            subPath: lowercasedTypeSubtypeAndParametersWithEscape
-        )
+        typeName.docCommentWithUserDescription(nil, subPath: lowercasedTypeSubtypeAndParametersWithEscape)
     }
 }
 
@@ -239,11 +212,7 @@ extension Comment {
     ///   - parent: The Swift type name of the structure of which this is
     ///   a property of.
     /// - Returns: A documentation comment for the property.
-    static func property(
-        originalName: String,
-        userDescription: String?,
-        parent: TypeName
-    ) -> Comment? {
+    static func property(originalName: String, userDescription: String?, parent: TypeName) -> Comment? {
         .doc(
             prefix: userDescription,
             suffix: parent.fullyQualifiedJSONPath.flatMap { jsonPath in
@@ -261,11 +230,7 @@ extension Comment {
     ///   - parent: The Swift type name of the structure of which this is
     ///   a child of.
     /// - Returns: A documentation comment for the property.
-    static func child(
-        originalName: String,
-        userDescription: String?,
-        parent: TypeName
-    ) -> Comment? {
+    static func child(originalName: String, userDescription: String?, parent: TypeName) -> Comment? {
         .doc(
             prefix: userDescription,
             suffix: parent.fullyQualifiedJSONPath.flatMap { jsonPath in

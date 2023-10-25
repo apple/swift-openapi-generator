@@ -32,28 +32,13 @@ extension FileTranslator {
     /// supported schema found or if empty.
     /// - Throws: An error if there's a problem while selecting the best content, validating
     ///           the schema, or assigning the associated type.
-    func bestSingleTypedContent(
-        _ map: OpenAPI.Content.Map,
-        excludeBinary: Bool = false,
-        inParent parent: TypeName
-    ) throws -> TypedSchemaContent? {
-        guard
-            let content = try bestSingleContent(
-                map,
-                excludeBinary: excludeBinary,
-                foundIn: parent.description
-            )
-        else {
+    func bestSingleTypedContent(_ map: OpenAPI.Content.Map, excludeBinary: Bool = false, inParent parent: TypeName)
+        throws -> TypedSchemaContent?
+    {
+        guard let content = try bestSingleContent(map, excludeBinary: excludeBinary, foundIn: parent.description) else {
             return nil
         }
-        guard
-            try validateSchemaIsSupported(
-                content.schema,
-                foundIn: parent.description
-            )
-        else {
-            return nil
-        }
+        guard try validateSchemaIsSupported(content.schema, foundIn: parent.description) else { return nil }
         let identifier = contentSwiftName(content.contentType)
         let associatedType = try typeAssigner.typeUsage(
             usingNamingHint: identifier,
@@ -73,25 +58,12 @@ extension FileTranslator {
     /// - Returns: The supported content type + schema + type names.
     /// - Throws: An error if there's a problem while extracting or validating the supported
     ///           content types or assigning the associated types.
-    func supportedTypedContents(
-        _ map: OpenAPI.Content.Map,
-        excludeBinary: Bool = false,
-        inParent parent: TypeName
-    ) throws -> [TypedSchemaContent] {
-        let contents = try supportedContents(
-            map,
-            excludeBinary: excludeBinary,
-            foundIn: parent.description
-        )
+    func supportedTypedContents(_ map: OpenAPI.Content.Map, excludeBinary: Bool = false, inParent parent: TypeName)
+        throws -> [TypedSchemaContent]
+    {
+        let contents = try supportedContents(map, excludeBinary: excludeBinary, foundIn: parent.description)
         return try contents.compactMap { content in
-            guard
-                try validateSchemaIsSupported(
-                    content.schema,
-                    foundIn: parent.description
-                )
-            else {
-                return nil
-            }
+            guard try validateSchemaIsSupported(content.schema, foundIn: parent.description) else { return nil }
             let identifier = contentSwiftName(content.contentType)
             let associatedType = try typeAssigner.typeUsage(
                 usingNamingHint: identifier,
@@ -112,24 +84,18 @@ extension FileTranslator {
     /// - Returns: the detected content type + schema, nil if no supported
     /// schema found or if empty.
     /// - Throws: If parsing of any of the contents throws.
-    func supportedContents(
-        _ contents: OpenAPI.Content.Map,
-        excludeBinary: Bool = false,
-        foundIn: String
-    ) throws -> [SchemaContent] {
-        guard !contents.isEmpty else {
-            return []
+    func supportedContents(_ contents: OpenAPI.Content.Map, excludeBinary: Bool = false, foundIn: String) throws
+        -> [SchemaContent]
+    {
+        guard !contents.isEmpty else { return [] }
+        return try contents.compactMap { key, value in
+            try parseContentIfSupported(
+                contentKey: key,
+                contentValue: value,
+                excludeBinary: excludeBinary,
+                foundIn: foundIn + "/\(key.rawValue)"
+            )
         }
-        return
-            try contents
-            .compactMap { key, value in
-                try parseContentIfSupported(
-                    contentKey: key,
-                    contentValue: value,
-                    excludeBinary: excludeBinary,
-                    foundIn: foundIn + "/\(key.rawValue)"
-                )
-            }
     }
 
     /// While we only support a single content at a time, choose the best one.
@@ -147,50 +113,24 @@ extension FileTranslator {
     /// - Returns: the detected content type + schema, nil if no supported
     /// schema found or if empty.
     /// - Throws: If a malformed content type string is encountered.
-    func bestSingleContent(
-        _ map: OpenAPI.Content.Map,
-        excludeBinary: Bool = false,
-        foundIn: String
-    ) throws -> SchemaContent? {
-        guard !map.isEmpty else {
-            return nil
-        }
-        if map.count > 1 {
-            diagnostics.emitUnsupported(
-                "Multiple content types",
-                foundIn: foundIn
-            )
-        }
-        let mapWithContentTypes = try map.map { key, content in
-            try (type: key.asGeneratorContentType, value: content)
-        }
+    func bestSingleContent(_ map: OpenAPI.Content.Map, excludeBinary: Bool = false, foundIn: String) throws
+        -> SchemaContent?
+    {
+        guard !map.isEmpty else { return nil }
+        if map.count > 1 { diagnostics.emitUnsupported("Multiple content types", foundIn: foundIn) }
+        let mapWithContentTypes = try map.map { key, content in try (type: key.asGeneratorContentType, value: content) }
 
         let chosenContent: (type: ContentType, schema: SchemaContent, content: OpenAPI.Content)?
         if let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isJSON }) {
-            chosenContent = (
-                contentType,
-                .init(
-                    contentType: contentType,
-                    schema: contentValue.schema
-                ),
-                contentValue
-            )
+            chosenContent = (contentType, .init(contentType: contentType, schema: contentValue.schema), contentValue)
         } else if !excludeBinary,
             let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isBinary })
         {
             chosenContent = (
-                contentType,
-                .init(
-                    contentType: contentType,
-                    schema: .b(.string(format: .binary))
-                ),
-                contentValue
+                contentType, .init(contentType: contentType, schema: .b(.string(format: .binary))), contentValue
             )
         } else {
-            diagnostics.emitUnsupported(
-                "Unsupported content",
-                foundIn: foundIn
-            )
+            diagnostics.emitUnsupported("Unsupported content", foundIn: foundIn)
             chosenContent = nil
         }
         if let chosenContent {
@@ -241,27 +181,13 @@ extension FileTranslator {
                     foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
                 )
             }
-            return .init(
-                contentType: contentType,
-                schema: contentValue.schema
-            )
+            return .init(contentType: contentType, schema: contentValue.schema)
         }
-        if contentType.isUrlEncodedForm {
-            return .init(
-                contentType: contentType,
-                schema: contentValue.schema
-            )
-        }
+        if contentType.isUrlEncodedForm { return .init(contentType: contentType, schema: contentValue.schema) }
         if !excludeBinary, contentType.isBinary {
-            return .init(
-                contentType: contentType,
-                schema: .b(.string(format: .binary))
-            )
+            return .init(contentType: contentType, schema: .b(.string(format: .binary)))
         }
-        diagnostics.emitUnsupported(
-            "Unsupported content",
-            foundIn: foundIn
-        )
+        diagnostics.emitUnsupported("Unsupported content", foundIn: foundIn)
         return nil
     }
 }

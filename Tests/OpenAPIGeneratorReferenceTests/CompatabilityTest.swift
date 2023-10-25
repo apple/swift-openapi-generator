@@ -32,9 +32,7 @@ final class CompatibilityTest: XCTestCase {
     override func setUp() async throws {
         continueAfterFailure = false
         try XCTSkipUnless(compatibilityTestEnabled)
-        if _isDebugAssertConfiguration() {
-            log("Warning: Compatility test running in debug mode")
-        }
+        if _isDebugAssertConfiguration() { log("Warning: Compatility test running in debug mode") }
     }
 
     func testAWSLambdaRuntime() async throws {
@@ -208,12 +206,9 @@ fileprivate extension CompatibilityTest {
     ///   - expectedDiagnostics: A set of diagnostics that should _not_ result in a test failure.
     ///   - skipBuild: A boolean value that indicates whether to skip the Swift package creation and build step.
     /// - Throws: An error of if any step in the compatibility test harness fails.
-    func _test(
-        _ documentURL: String,
-        license: License,
-        expectedDiagnostics: Set<String> = [],
-        skipBuild: Bool = false
-    ) async throws {
+    func _test(_ documentURL: String, license: License, expectedDiagnostics: Set<String> = [], skipBuild: Bool = false)
+        async throws
+    {
         let diagnosticsCollector = RecordingDiagnosticCollector()
 
         // Download the OpenAPI document.
@@ -241,10 +236,7 @@ fileprivate extension CompatibilityTest {
             }
         } else {
             outputs = try GeneratorMode.allCases.map { mode in
-                let generator = makeGeneratorPipeline(
-                    config: Config(mode: mode),
-                    diagnostics: diagnosticsCollector
-                )
+                let generator = makeGeneratorPipeline(config: Config(mode: mode), diagnostics: diagnosticsCollector)
                 return try assertNoThrowWithValue(generator.run(input))
             }
         }
@@ -277,9 +269,7 @@ fileprivate extension CompatibilityTest {
                 FileManager.default.createFile(atPath: packageSwiftPath.path, contents: Data(packageSwiftContents.utf8))
             )
 
-            let targetSourceDirectory =
-                packageDir
-                .appendingPathComponent("Sources", isDirectory: false)
+            let targetSourceDirectory = packageDir.appendingPathComponent("Sources", isDirectory: false)
                 .appendingPathComponent("Harness", isDirectory: true)
             XCTAssertNoThrow(
                 try FileManager.default.createDirectory(at: targetSourceDirectory, withIntermediateDirectories: true)
@@ -295,9 +285,8 @@ fileprivate extension CompatibilityTest {
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
             process.arguments = [
-                "swift", "build",
-                "--package-path", packageDir.path,
-                "-Xswiftc", "-Xllvm", "-Xswiftc", "-vectorize-slp=false",
+                "swift", "build", "--package-path", packageDir.path, "-Xswiftc", "-Xllvm", "-Xswiftc",
+                "-vectorize-slp=false",
             ]
             if let numBuildJobs = compatibilityTestNumBuildJobs {
                 process.arguments!.append(contentsOf: ["-j", String(numBuildJobs)])
@@ -335,9 +324,7 @@ fileprivate extension CompatibilityTest {
     }
 
     /// Prints a message with the current test name prepended (useful in parallel CI logs).
-    func log(_ message: String) {
-        print("\(name) \(message)")
-    }
+    func log(_ message: String) { print("\(name) \(message)") }
 
     var testCaseName: String {
         /// The `name` property is `<test-suite-name>.<test-case-name>` on Linux,
@@ -367,9 +354,7 @@ private final class RecordingDiagnosticCollector: DiagnosticCollector, @unchecke
         lock.lock()
         defer { lock.unlock() }
         _diagnostics.append(diagnostic)
-        if verbose {
-            print("Collected diagnostic: \(diagnostic.description)")
-        }
+        if verbose { print("Collected diagnostic: \(diagnostic.description)") }
     }
 }
 
@@ -380,33 +365,22 @@ private func assertNoThrowWithValue<T>(
     file: StaticString = #filePath,
     line: UInt = #line
 ) rethrows -> T {
-    do {
-        return try body()
-    } catch {
+    do { return try body() } catch {
         XCTFail("\(message.map { $0 + ": " } ?? "")unexpected error \(error) thrown", file: file, line: line)
-        if let defaultValue = defaultValue {
-            return defaultValue
-        } else {
-            throw error
-        }
+        if let defaultValue = defaultValue { return defaultValue } else { throw error }
     }
 }
 
 /// Returns true if `key` is a truthy string, otherwise returns false.
 private func getBoolEnv(_ key: String) -> Bool? {
     switch ProcessInfo.processInfo.environment[key]?.lowercased() {
-    case .none:
-        return nil
-    case "true", "y", "yes", "on", "1":
-        return true
-    default:
-        return false
+    case .none: return nil
+    case "true", "y", "yes", "on", "1": return true
+    default: return false
     }
 }
 
-private func getIntEnv(_ key: String) -> Int? {
-    ProcessInfo.processInfo.environment[key].flatMap(Int.init(_:))
-}
+private func getIntEnv(_ key: String) -> Int? { ProcessInfo.processInfo.environment[key].flatMap(Int.init(_:)) }
 
 fileprivate extension URLSession {
     func data(from url: URL) async throws -> (Data, URLResponse) {

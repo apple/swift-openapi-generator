@@ -24,18 +24,15 @@ final class Test_TypeMatcher: Test_Core {
     }
 
     static let builtinTypes: [(JSONSchema, String)] = [
-        (.string, "Swift.String"),
-        (.string(.init(format: .binary), .init()), "OpenAPIRuntime.HTTPBody"),
+        (.string, "Swift.String"), (.string(.init(format: .binary), .init()), "OpenAPIRuntime.HTTPBody"),
         (.string(.init(format: .byte), .init()), "OpenAPIRuntime.Base64EncodedData"),
         (.string(.init(format: .date), .init()), "Swift.String"),
         (.string(.init(format: .dateTime), .init()), "Foundation.Date"),
 
-        (.integer, "Swift.Int"),
-        (.integer(.init(format: .int32), .init()), "Swift.Int32"),
+        (.integer, "Swift.Int"), (.integer(.init(format: .int32), .init()), "Swift.Int32"),
         (.integer(.init(format: .int64), .init()), "Swift.Int64"),
 
-        (.number, "Swift.Double"),
-        (.number(.init(format: .float), .init()), "Swift.Float"),
+        (.number, "Swift.Double"), (.number(.init(format: .float), .init()), "Swift.Float"),
         (.number(.init(format: .double), .init()), "Swift.Double"),
 
         (.boolean, "Swift.Bool"),
@@ -49,92 +46,44 @@ final class Test_TypeMatcher: Test_Core {
         (.object, "OpenAPIRuntime.OpenAPIObjectContainer"),
 
         // an array with double nested string
-        (
-            .array(
-                .init(),
-                .init(
-                    items: .array(
-                        .init(),
-                        .init(items: .string)
-                    )
-                )
-            ), "[[Swift.String]]"
-        ),
+        (.array(.init(), .init(items: .array(.init(), .init(items: .string)))), "[[Swift.String]]"),
     ]
     func testBuiltinTypes() {
         for (schema, name) in Self.builtinTypes {
-            XCTAssertEqual(
-                typeMatcher.tryMatchBuiltinType(for: schema.value)?
-                    .fullyQualifiedSwiftName,
-                name
-            )
+            XCTAssertEqual(typeMatcher.tryMatchBuiltinType(for: schema.value)?.fullyQualifiedSwiftName, name)
         }
     }
 
     static let nonBuiltinTypes: [JSONSchema] = [
         // a string enum
-        .string(allowedValues: [
-            AnyCodable("Foo")
-        ]),
+        .string(allowedValues: [AnyCodable("Foo")]),
         // an int enum
-        .integer(allowedValues: [
-            AnyCodable(1)
-        ]),
+        .integer(allowedValues: [AnyCodable(1)]),
 
         // an object with at least one property
-        .object(properties: [
-            "Foo": .string
-        ]),
+        .object(properties: ["Foo": .string]),
 
         // an empty object with any non-nil additional properties value
-        .object(additionalProperties: .boolean(true)),
-        .object(additionalProperties: .boolean(false)),
+        .object(additionalProperties: .boolean(true)), .object(additionalProperties: .boolean(false)),
         .object(additionalProperties: .schema(.integer)),
 
         // allOf with two schemas
-        .all(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .reference(.component(named: "Bar")),
-        ]),
+        .all(of: [.object(properties: ["Foo": .string]), .reference(.component(named: "Bar"))]),
 
         // oneOf with two schemas
-        .one(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .reference(.component(named: "Bar")),
-        ]),
+        .one(of: [.object(properties: ["Foo": .string]), .reference(.component(named: "Bar"))]),
 
         // anyOf with two schemas
-        .any(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .reference(.component(named: "Bar")),
-        ]),
+        .any(of: [.object(properties: ["Foo": .string]), .reference(.component(named: "Bar"))]),
 
         // a reference
         .reference(.component(named: "Foo")),
 
         // an array with a non-builtin type
-        .array(
-            .init(),
-            .init(items: .reference(.component(named: "Foo")))
-        ),
+        .array(.init(), .init(items: .reference(.component(named: "Foo")))),
 
         // double-nested array with non-builtin type
-        .array(
-            .init(),
-            .init(
-                items:
-                    .array(
-                        .init(),
-                        .init(items: .reference(.component(named: "Foo")))
-                    )
-            )
-        ),
+        .array(.init(), .init(items: .array(.init(), .init(items: .reference(.component(named: "Foo")))))),
 
         // a not
         .not(.string),
@@ -166,21 +115,13 @@ final class Test_TypeMatcher: Test_Core {
             (.reference(.component(named: "Foo")), "Components.Schemas.Foo"),
 
             // an array of referenceable types
-            (
-                .array(
-                    .init(),
-                    .init(items: .reference(.component(named: "Foo")))
-                ), "[Components.Schemas.Foo]"
-            ),
+            (.array(.init(), .init(items: .reference(.component(named: "Foo")))), "[Components.Schemas.Foo]"),
         ]
     func testReferenceableTypes() {
         for (schema, name) in Self.referenceableTypes {
             try XCTAssertEqual(
                 XCTUnwrap(
-                    typeMatcher.tryMatchReferenceableType(
-                        for: schema,
-                        components: components
-                    ),
+                    typeMatcher.tryMatchReferenceableType(for: schema, components: components),
                     "Expected schema to be referenceable: \(schema)"
                 )
                 .fullyQualifiedSwiftName,
@@ -193,20 +134,10 @@ final class Test_TypeMatcher: Test_Core {
 
     static let nonReferenceableTypes: [JSONSchema] = [
         // a soundness check – string enum
-        .string(allowedValues: [
-            "Foo"
-        ]),
+        .string(allowedValues: ["Foo"]),
 
         // an array with a nested enum
-        .array(
-            .init(),
-            .init(
-                items: .string(
-                    .init(allowedValues: ["a", "b"]),
-                    .init()
-                )
-            )
-        ),
+        .array(.init(), .init(items: .string(.init(allowedValues: ["a", "b"]), .init()))),
     ]
     func testNonReferenceableTypes() {
         for schema in Self.nonReferenceableTypes {
@@ -219,43 +150,23 @@ final class Test_TypeMatcher: Test_Core {
         }
     }
 
-    let components: OpenAPI.Components = .init(schemas: [
-        "Foo": .string,
-        "MyObj": .object,
-    ])
+    let components: OpenAPI.Components = .init(schemas: ["Foo": .string, "MyObj": .object])
 
     static let keyValuePairTypes: [JSONSchema] = [
         // an object with at least one property
-        .object(properties: [
-            "Foo": .string
-        ]),
+        .object(properties: ["Foo": .string]),
 
         // a fragment
         .fragment,
 
         // allOf with two object schemas
-        .all(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .reference(.component(named: "MyObj")),
-        ]),
+        .all(of: [.object(properties: ["Foo": .string]), .reference(.component(named: "MyObj"))]),
 
         // oneOf with one object schema and one primitive
-        .one(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .integer,
-        ]),
+        .one(of: [.object(properties: ["Foo": .string]), .integer]),
 
         // anyOf with one object schema and one primitive
-        .any(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .integer,
-        ]),
+        .any(of: [.object(properties: ["Foo": .string]), .integer]),
 
         // a reference to an object
         .reference(.component(named: "MyObj")),
@@ -264,11 +175,7 @@ final class Test_TypeMatcher: Test_Core {
         for schema in Self.keyValuePairTypes {
             var referenceStack = ReferenceStack.empty
             XCTAssertTrue(
-                try TypeMatcher.isKeyValuePair(
-                    schema,
-                    referenceStack: &referenceStack,
-                    components: components
-                ),
+                try TypeMatcher.isKeyValuePair(schema, referenceStack: &referenceStack, components: components),
                 "Type is expected to be a key-value pair schema: \(schema)"
             )
         }
@@ -276,43 +183,25 @@ final class Test_TypeMatcher: Test_Core {
 
     static let nonKeyValuePairTypes: [JSONSchema] = [
         // a string enum
-        .string(allowedValues: [
-            AnyCodable("Foo")
-        ]),
+        .string(allowedValues: [AnyCodable("Foo")]),
 
         // an int enum
-        .integer(allowedValues: [
-            AnyCodable(1)
-        ]),
+        .integer(allowedValues: [AnyCodable(1)]),
 
         // allOf with one non-object schema
-        .all(of: [
-            .object(properties: [
-                "Foo": .string
-            ]),
-            .integer,
-        ]),
+        .all(of: [.object(properties: ["Foo": .string]), .integer]),
 
         // oneOf with only non-object schemas
-        .one(of: [
-            .integer,
-            .string,
-        ]),
+        .one(of: [.integer, .string]),
 
         // anyOf with only non-object schemas
-        .any(of: [
-            .integer,
-            .string,
-        ]),
+        .any(of: [.integer, .string]),
 
         // a reference to a string
         .reference(.component(named: "Foo")),
 
         // an array with a non-builtin type
-        .array(
-            .init(),
-            .init(items: .reference(.component(named: "Foo")))
-        ),
+        .array(.init(), .init(items: .reference(.component(named: "Foo")))),
 
         // a not
         .not(.string),
@@ -329,12 +218,10 @@ final class Test_TypeMatcher: Test_Core {
     static let optionalTestCases: [(JSONSchema, Bool)] = [
 
         // A required string.
-        (.string, false),
-        (.string(required: true, nullable: false), false),
+        (.string, false), (.string(required: true, nullable: false), false),
 
         // An optional string.
-        (.string(required: false, nullable: false), true),
-        (.string(required: true, nullable: true), true),
+        (.string(required: false, nullable: false), true), (.string(required: true, nullable: true), true),
         (.string(required: false, nullable: true), true),
 
         // A reference pointing to a required schema.
@@ -342,12 +229,9 @@ final class Test_TypeMatcher: Test_Core {
         (.reference(.component(named: "NullableString")), true),
     ]
     func testOptionalSchemas() throws {
-        let components = OpenAPI.Components(
-            schemas: [
-                "RequiredString": .string,
-                "NullableString": .string(nullable: true),
-            ]
-        )
+        let components = OpenAPI.Components(schemas: [
+            "RequiredString": .string, "NullableString": .string(nullable: true),
+        ])
         for (schema, expectedIsOptional) in Self.optionalTestCases {
             let actualIsOptional = try typeMatcher.isOptional(schema, components: components)
             XCTAssertEqual(

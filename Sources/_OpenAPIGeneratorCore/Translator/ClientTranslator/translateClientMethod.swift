@@ -20,19 +20,14 @@ extension ClientFileTranslator {
     /// - Parameter description: The OpenAPI operation.
     /// - Returns: An expression representing the converted request.
     /// - Throws: An error if there is an issue during translation.
-    func translateClientSerializer(
-        _ description: OperationDescription
-    ) throws -> Expression {
+    func translateClientSerializer(_ description: OperationDescription) throws -> Expression {
 
-        let (pathTemplate, pathParamsArrayExpr) = try translatePathParameterInClient(
-            description: description
-        )
+        let (pathTemplate, pathParamsArrayExpr) = try translatePathParameterInClient(description: description)
         let pathDecl: Declaration = .variable(
             kind: .let,
             left: "path",
             right: .try(
-                .identifierPattern("converter")
-                    .dot("renderedPath")
+                .identifierPattern("converter").dot("renderedPath")
                     .call([
                         .init(label: "template", expression: .literal(pathTemplate)),
                         .init(label: "parameters", expression: pathParamsArrayExpr),
@@ -50,41 +45,21 @@ extension ClientFileTranslator {
                 ])
         )
 
-        let typedParameters = try typedParameters(
-            from: description
-        )
+        let typedParameters = try typedParameters(from: description)
         var requestBlocks: [CodeBlock] = []
 
-        let nonPathParameters =
-            typedParameters
-            .filter { $0.location != .path }
-        let nonPathParamExprs: [Expression] =
-            try nonPathParameters
-            .compactMap { parameter in
-                try translateNonPathParameterInClient(
-                    parameter,
-                    requestVariableName: "request",
-                    inputVariableName: "input"
-                )
-            }
+        let nonPathParameters = typedParameters.filter { $0.location != .path }
+        let nonPathParamExprs: [Expression] = try nonPathParameters.compactMap { parameter in
+            try translateNonPathParameterInClient(parameter, requestVariableName: "request", inputVariableName: "input")
+        }
         requestBlocks.append(contentsOf: nonPathParamExprs.map { .expression($0) })
 
-        let acceptContent = try acceptHeaderContentTypes(
-            for: description
-        )
+        let acceptContent = try acceptHeaderContentTypes(for: description)
         if !acceptContent.isEmpty {
-            let setAcceptHeaderExpr: Expression =
-                .identifierPattern("converter")
-                .dot("setAcceptHeader")
+            let setAcceptHeaderExpr: Expression = .identifierPattern("converter").dot("setAcceptHeader")
                 .call([
-                    .init(
-                        label: "in",
-                        expression: .inOut(.identifierPattern("request").dot("headerFields"))
-                    ),
-                    .init(
-                        label: "contentTypes",
-                        expression: .identifierPattern("input").dot("headers").dot("accept")
-                    ),
+                    .init(label: "in", expression: .inOut(.identifierPattern("request").dot("headerFields"))),
+                    .init(label: "contentTypes", expression: .identifierPattern("input").dot("headers").dot("accept")),
                 ])
             requestBlocks.append(.expression(setAcceptHeaderExpr))
         }
@@ -94,11 +69,7 @@ extension ClientFileTranslator {
             let bodyVariableName = "body"
             requestBlocks.append(
                 .declaration(
-                    .variable(
-                        kind: .let,
-                        left: bodyVariableName,
-                        type: .init(TypeName.body.asUsage.asOptional)
-                    )
+                    .variable(kind: .let, left: bodyVariableName, type: .init(TypeName.body.asUsage.asOptional))
                 )
             )
             requestBodyReturnExpr = .identifierPattern(bodyVariableName)
@@ -113,24 +84,14 @@ extension ClientFileTranslator {
             requestBodyReturnExpr = nil
         }
 
-        let returnRequestExpr: Expression = .return(
-            .tuple([
-                .identifierPattern("request"),
-                requestBodyReturnExpr,
-            ])
-        )
+        let returnRequestExpr: Expression = .return(.tuple([.identifierPattern("request"), requestBodyReturnExpr]))
 
         return .closureInvocation(
-            argumentNames: [
-                "input"
-            ],
+            argumentNames: ["input"],
             body: [
-                .declaration(pathDecl),
-                .declaration(requestDecl),
+                .declaration(pathDecl), .declaration(requestDecl),
                 .expression(requestDecl.suppressMutabilityWarningExpr),
-            ] + requestBlocks + [
-                .expression(returnRequestExpr)
-            ]
+            ] + requestBlocks + [.expression(returnRequestExpr)]
         )
     }
 
@@ -140,18 +101,10 @@ extension ClientFileTranslator {
     /// - Parameter description: The OpenAPI operation.
     /// - Throws: An error if there is an issue during translation.
     /// - Returns: An expression representing the translation of a Response to an Output.
-    func translateClientDeserializer(
-        _ description: OperationDescription
-    ) throws -> Expression {
-        var cases: [SwitchCaseDescription] =
-            try description
-            .responseOutcomes
-            .map { outcome in
-                try translateResponseOutcomeInClient(
-                    outcome: outcome,
-                    operation: description
-                )
-            }
+    func translateClientDeserializer(_ description: OperationDescription) throws -> Expression {
+        var cases: [SwitchCaseDescription] = try description.responseOutcomes.map { outcome in
+            try translateResponseOutcomeInClient(outcome: outcome, operation: description)
+        }
         if !description.containsDefaultResponse {
             let undocumentedExpr: Expression = .return(
                 .dot(Constants.Operation.Output.undocumentedCaseName)
@@ -159,18 +112,10 @@ extension ClientFileTranslator {
                         .init(
                             label: "statusCode",
                             expression: .identifierPattern("response").dot("status").dot("code")
-                        ),
-                        .init(label: nil, expression: .dot("init").call([])),
+                        ), .init(label: nil, expression: .dot("init").call([])),
                     ])
             )
-            cases.append(
-                .init(
-                    kind: .default,
-                    body: [
-                        .expression(undocumentedExpr)
-                    ]
-                )
-            )
+            cases.append(.init(kind: .default, body: [.expression(undocumentedExpr)]))
         }
         let switchStatusCodeExpr: Expression = .switch(
             switchedExpression: .identifierPattern("response").dot("status").dot("code"),
@@ -178,9 +123,7 @@ extension ClientFileTranslator {
         )
         return .closureInvocation(
             argumentNames: ["response", "responseBody"],
-            body: [
-                .expression(switchStatusCodeExpr)
-            ]
+            body: [.expression(switchStatusCodeExpr)]
         )
     }
 
@@ -189,19 +132,12 @@ extension ClientFileTranslator {
     /// - Parameter description: The OpenAPI operation.
     /// - Throws: An error if there is an issue during translation.
     /// - Returns: A declaration representing the translated client method.
-    func translateClientMethod(
-        _ description: OperationDescription
-    ) throws -> Declaration {
+    func translateClientMethod(_ description: OperationDescription) throws -> Declaration {
 
-        let operationTypeExpr =
-            Expression
-            .identifierType(.member(Constants.Operations.namespace))
+        let operationTypeExpr = Expression.identifierType(.member(Constants.Operations.namespace))
             .dot(description.methodName)
 
-        let operationArg = FunctionArgumentDescription(
-            label: "forOperation",
-            expression: operationTypeExpr.dot("id")
-        )
+        let operationArg = FunctionArgumentDescription(label: "forOperation", expression: operationTypeExpr.dot("id"))
         let inputArg = FunctionArgumentDescription(
             label: "input",
             expression: .identifierPattern(Constants.Operation.Input.variableName)
@@ -219,24 +155,15 @@ extension ClientFileTranslator {
             .await(
                 .functionCall(
                     calledExpression: .identifierPattern("client").dot("send"),
-                    arguments: [
-                        inputArg,
-                        operationArg,
-                        serializerArg,
-                        deserializerArg,
-                    ]
+                    arguments: [inputArg, operationArg, serializerArg, deserializerArg]
                 )
             )
         )
         return .commentable(
             description.comment,
             .function(
-                signature: description
-                    .protocolSignatureDescription
-                    .withAccessModifier(config.access),
-                body: [
-                    .expression(sendExpr)
-                ]
+                signature: description.protocolSignatureDescription.withAccessModifier(config.access),
+                body: [.expression(sendExpr)]
             )
             .deprecate(if: description.operation.deprecated)
         )

@@ -19,29 +19,20 @@ extension FileTranslator {
     /// - Parameter blueprint: Structure blueprint containing the information
     /// required to generate the Swift structure.
     /// - Returns: A `Declaration` representing the generated Swift structure.
-    func translateStructBlueprint(
-        _ blueprint: StructBlueprint
-    ) -> Declaration {
+    func translateStructBlueprint(_ blueprint: StructBlueprint) -> Declaration {
 
         let typeName = blueprint.typeName
         let allProperties = blueprint.properties
         let serializableProperties = allProperties.filter(\.isSerializedInTopLevelDictionary)
 
-        let propertyDecls =
-            allProperties
-            .flatMap(translatePropertyBlueprint)
+        let propertyDecls = allProperties.flatMap(translatePropertyBlueprint)
 
         var members = propertyDecls
-        let initDecl = translateStructBlueprintInitializer(
-            typeName: typeName,
-            properties: allProperties
-        )
+        let initDecl = translateStructBlueprintInitializer(typeName: typeName, properties: allProperties)
         members.append(initDecl)
 
         if blueprint.shouldGenerateCodingKeys && !serializableProperties.isEmpty {
-            let codingKeysDecl = translateStructBlueprintCodingKeys(
-                properties: serializableProperties
-            )
+            let codingKeysDecl = translateStructBlueprintCodingKeys(properties: serializableProperties)
             members.append(codingKeysDecl)
         }
 
@@ -74,51 +65,33 @@ extension FileTranslator {
     ///   - typeName: The type name of the structure.
     ///   - properties: The properties to include in the initializer.
     /// - Returns: A `Declaration` representing the translated struct.
-    func translateStructBlueprintInitializer(
-        typeName: TypeName,
-        properties: [PropertyBlueprint]
-    ) -> Declaration {
+    func translateStructBlueprintInitializer(typeName: TypeName, properties: [PropertyBlueprint]) -> Declaration {
 
-        let comment: Comment = .doc(
-            properties.initializerComment(
-                typeName: typeName.shortSwiftName
+        let comment: Comment = .doc(properties.initializerComment(typeName: typeName.shortSwiftName))
+
+        let decls: [(ParameterDescription, String)] = properties.map { property in
+            (
+                ParameterDescription(
+                    label: property.swiftSafeName,
+                    type: .init(property.typeUsage),
+                    defaultValue: property.defaultValue?.asExpression
+                ), property.swiftSafeName
             )
-        )
-
-        let decls: [(ParameterDescription, String)] =
-            properties
-            .map { property in
-                (
-                    ParameterDescription(
-                        label: property.swiftSafeName,
-                        type: .init(property.typeUsage),
-                        defaultValue: property.defaultValue?.asExpression
-                    ),
-                    property.swiftSafeName
-                )
-            }
+        }
 
         let parameters = decls.map(\.0)
         let assignments: [CodeBlock] = decls.map(\.1)
             .map { variableName in
                 .expression(
                     .assignment(
-                        Expression
-                            .identifierPattern("self")
-                            .dot(variableName)
-                            .equals(.identifierPattern(variableName))
+                        Expression.identifierPattern("self").dot(variableName).equals(.identifierPattern(variableName))
                     )
                 )
             }
 
         return .commentable(
             comment,
-            .function(
-                accessModifier: config.access,
-                kind: .initializer,
-                parameters: parameters,
-                body: assignments
-            )
+            .function(accessModifier: config.access, kind: .initializer, parameters: parameters, body: assignments)
         )
     }
 
@@ -129,9 +102,7 @@ extension FileTranslator {
     /// in the returned array.
     /// - Parameter property: Information about the property.
     /// - Returns: A list of Swift declarations representing the translated property.
-    func translatePropertyBlueprint(
-        _ property: PropertyBlueprint
-    ) -> [Declaration] {
+    func translatePropertyBlueprint(_ property: PropertyBlueprint) -> [Declaration] {
         let propertyDecl: Declaration = .commentable(
             property.comment,
             .variable(
@@ -150,19 +121,14 @@ extension FileTranslator {
     /// Returns a declaration of a coding keys enum.
     /// - Parameter properties: The properties of the structure.
     /// - Returns: A coding keys enum declaration.
-    func translateStructBlueprintCodingKeys(
-        properties: [PropertyBlueprint]
-    ) -> Declaration {
-        let members: [Declaration] =
-            properties
-            .map { property in
-                let swiftName = property.swiftSafeName
-                let rawName = property.originalName
-                return .enumCase(
-                    name: swiftName,
-                    kind: swiftName == rawName ? .nameOnly : .nameWithRawValue(.string(property.originalName))
-                )
-            }
+    func translateStructBlueprintCodingKeys(properties: [PropertyBlueprint]) -> Declaration {
+        let members: [Declaration] = properties.map { property in let swiftName = property.swiftSafeName
+            let rawName = property.originalName
+            return .enumCase(
+                name: swiftName,
+                kind: swiftName == rawName ? .nameOnly : .nameWithRawValue(.string(property.originalName))
+            )
+        }
         return .enum(
             accessModifier: config.access,
             name: Constants.Codable.codingKeysName,
@@ -179,9 +145,7 @@ fileprivate extension Array where Element == PropertyBlueprint {
     /// - Parameter typeName: The name of the structure type.
     /// - Returns: A comment string describing the initializer.
     func initializerComment(typeName: String) -> String {
-        var components: [String] = [
-            "Creates a new `\(typeName)`."
-        ]
+        var components: [String] = ["Creates a new `\(typeName)`."]
         if !isEmpty {
             var parameterComponents: [String] = []
             parameterComponents.append("- Parameters:")

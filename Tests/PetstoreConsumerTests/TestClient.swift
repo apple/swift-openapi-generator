@@ -17,92 +17,63 @@ import Foundation
 struct TestClient: APIProtocol {
     typealias ListPetsSignature = @Sendable (Operations.listPets.Input) async throws -> Operations.listPets.Output
     var listPetsBlock: ListPetsSignature?
-    func listPets(
-        _ input: Operations.listPets.Input
-    ) async throws -> Operations.listPets.Output {
-        guard let block = listPetsBlock else {
-            throw UnspecifiedBlockError()
-        }
+    func listPets(_ input: Operations.listPets.Input) async throws -> Operations.listPets.Output {
+        guard let block = listPetsBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
 
     typealias CreatePetSignature = @Sendable (Operations.createPet.Input) async throws -> Operations.createPet.Output
     var createPetBlock: CreatePetSignature?
-    func createPet(
-        _ input: Operations.createPet.Input
-    ) async throws -> Operations.createPet.Output {
-        guard let block = createPetBlock else {
-            throw UnspecifiedBlockError()
-        }
+    func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output {
+        guard let block = createPetBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
 
-    typealias CreatePetWithFormSignature = @Sendable (Operations.createPetWithForm.Input) async throws ->
-        Operations.createPetWithForm.Output
+    typealias CreatePetWithFormSignature = @Sendable (Operations.createPetWithForm.Input) async throws -> Operations
+        .createPetWithForm.Output
     var createPetWithFormBlock: CreatePetWithFormSignature?
-    func createPetWithForm(
-        _ input: Operations.createPetWithForm.Input
-    ) async throws -> Operations.createPetWithForm.Output {
-        guard let block = createPetWithFormBlock else {
-            throw UnspecifiedBlockError()
-        }
+    func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws
+        -> Operations.createPetWithForm.Output
+    {
+        guard let block = createPetWithFormBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
 
     typealias GetStatsSignature = @Sendable (Operations.getStats.Input) async throws -> Operations.getStats.Output
     var getStatsBlock: GetStatsSignature?
-    func getStats(
-        _ input: Operations.getStats.Input
-    ) async throws -> Operations.getStats.Output {
-        guard let block = getStatsBlock else {
-            throw UnspecifiedBlockError()
-        }
+    func getStats(_ input: Operations.getStats.Input) async throws -> Operations.getStats.Output {
+        guard let block = getStatsBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
 
     typealias PostStatsSignature = @Sendable (Operations.postStats.Input) async throws -> Operations.postStats.Output
     var postStatsBlock: PostStatsSignature?
-    func postStats(
-        _ input: Operations.postStats.Input
-    ) async throws -> Operations.postStats.Output {
-        guard let block = postStatsBlock else {
-            throw UnspecifiedBlockError()
-        }
+    func postStats(_ input: Operations.postStats.Input) async throws -> Operations.postStats.Output {
+        guard let block = postStatsBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
 
     typealias ProbeSignature = @Sendable (Operations.probe.Input) async throws -> Operations.probe.Output
     var probeBlock: ProbeSignature?
-    func probe(
-        _ input: Operations.probe.Input
-    ) async throws -> Operations.probe.Output {
-        guard let block = probeBlock else {
-            throw UnspecifiedBlockError()
-        }
+    func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output {
+        guard let block = probeBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
 
     typealias UpdatePetSignature = @Sendable (Operations.updatePet.Input) async throws -> Operations.updatePet.Output
     var updatePetBlock: UpdatePetSignature?
-    func updatePet(
-        _ input: Operations.updatePet.Input
-    ) async throws -> Operations.updatePet.Output {
-        guard let block = updatePetBlock else {
-            throw UnspecifiedBlockError()
-        }
+    func updatePet(_ input: Operations.updatePet.Input) async throws -> Operations.updatePet.Output {
+        guard let block = updatePetBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
 
-    typealias UploadAvatarForPetSignature = @Sendable (Operations.uploadAvatarForPet.Input) async throws ->
-        Operations
+    typealias UploadAvatarForPetSignature = @Sendable (Operations.uploadAvatarForPet.Input) async throws -> Operations
         .uploadAvatarForPet.Output
     var uploadAvatarForPetBlock: UploadAvatarForPetSignature?
-    func uploadAvatarForPet(
-        _ input: Operations.uploadAvatarForPet.Input
-    ) async throws -> Operations.uploadAvatarForPet.Output {
-        guard let block = uploadAvatarForPetBlock else {
-            throw UnspecifiedBlockError()
-        }
+    func uploadAvatarForPet(_ input: Operations.uploadAvatarForPet.Input) async throws
+        -> Operations.uploadAvatarForPet.Output
+    {
+        guard let block = uploadAvatarForPetBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
 }
@@ -110,15 +81,9 @@ struct TestClient: APIProtocol {
 struct UnspecifiedBlockError: Swift.Error, LocalizedError, CustomStringConvertible {
     var function: StaticString
 
-    var description: String {
-        "Unspecified block for \(function)"
-    }
+    var description: String { "Unspecified block for \(function)" }
 
-    var errorDescription: String? {
-        description
-    }
+    var errorDescription: String? { description }
 
-    init(function: StaticString = #function) {
-        self.function = function
-    }
+    init(function: StaticString = #function) { self.function = function }
 }

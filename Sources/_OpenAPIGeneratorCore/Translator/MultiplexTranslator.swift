@@ -16,11 +16,9 @@ import OpenAPIKit
 /// A translator that inspects the generator configuration and delegates
 /// the code generation logic to the appropriate translator.
 struct MultiplexTranslator: TranslatorProtocol {
-    func translate(
-        parsedOpenAPI: ParsedOpenAPIRepresentation,
-        config: Config,
-        diagnostics: any DiagnosticCollector
-    ) throws -> StructuredSwiftRepresentation {
+    func translate(parsedOpenAPI: ParsedOpenAPIRepresentation, config: Config, diagnostics: any DiagnosticCollector)
+        throws -> StructuredSwiftRepresentation
+    {
         let translator: any FileTranslator
         switch config.mode {
         case .types:

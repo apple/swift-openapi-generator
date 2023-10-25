@@ -68,81 +68,56 @@ struct FilteredDocumentBuilder {
         var components = OpenAPI.Components.noComponents
         for (key, value) in originalComponents.schemas {
             let reference = OpenAPI.Reference<JSONSchema>.component(named: key.rawValue)
-            guard requiredSchemaReferences.contains(reference) else {
-                continue
-            }
+            guard requiredSchemaReferences.contains(reference) else { continue }
             components.schemas[key] = value
         }
         for (key, value) in originalComponents.pathItems {
             let reference = OpenAPI.Reference<OpenAPI.PathItem>.component(named: key.rawValue)
-            guard requiredPathItemReferences.contains(reference) else {
-                continue
-            }
+            guard requiredPathItemReferences.contains(reference) else { continue }
             components.pathItems[key] = value
         }
         for (key, value) in originalComponents.parameters {
             let reference = OpenAPI.Reference<OpenAPI.Parameter>.component(named: key.rawValue)
-            guard requiredParameterReferences.contains(reference) else {
-                continue
-            }
+            guard requiredParameterReferences.contains(reference) else { continue }
             components.parameters[key] = value
         }
         for (key, value) in originalComponents.headers {
             let reference = OpenAPI.Reference<OpenAPI.Header>.component(named: key.rawValue)
-            guard requiredHeaderReferences.contains(reference) else {
-                continue
-            }
+            guard requiredHeaderReferences.contains(reference) else { continue }
             components.headers[key] = value
         }
         for (key, value) in originalComponents.responses {
             let reference = OpenAPI.Reference<OpenAPI.Response>.component(named: key.rawValue)
-            guard requiredResponseReferences.contains(reference) else {
-                continue
-            }
+            guard requiredResponseReferences.contains(reference) else { continue }
             components.responses[key] = value
         }
         for (key, value) in originalComponents.callbacks {
             let reference = OpenAPI.Reference<OpenAPI.Callbacks>.component(named: key.rawValue)
-            guard requiredCallbacksReferences.contains(reference) else {
-                continue
-            }
+            guard requiredCallbacksReferences.contains(reference) else { continue }
             components.callbacks[key] = value
         }
         for (key, value) in originalComponents.examples {
             let reference = OpenAPI.Reference<OpenAPI.Example>.component(named: key.rawValue)
-            guard requiredExampleReferences.contains(reference) else {
-                continue
-            }
+            guard requiredExampleReferences.contains(reference) else { continue }
             components.examples[key] = value
         }
         for (key, value) in originalComponents.links {
             let reference = OpenAPI.Reference<OpenAPI.Link>.component(named: key.rawValue)
-            guard requiredLinkReferences.contains(reference) else {
-                continue
-            }
+            guard requiredLinkReferences.contains(reference) else { continue }
             components.links[key] = value
         }
         for (key, value) in originalComponents.requestBodies {
             let reference = OpenAPI.Reference<OpenAPI.Request>.component(named: key.rawValue)
-            guard requiredRequestReferences.contains(reference) else {
-                continue
-            }
+            guard requiredRequestReferences.contains(reference) else { continue }
             components.requestBodies[key] = value
         }
-        var filteredDocument = document.filteringPaths { path in
-            if requiredPaths.contains(path) {
-                return true
-            }
-            if let methods = requiredEndpoints[path], !methods.isEmpty {
-                return true
-            }
+        var filteredDocument = document.filteringPaths { path in if requiredPaths.contains(path) { return true }
+            if let methods = requiredEndpoints[path], !methods.isEmpty { return true }
             return false
         }
         let filteredPaths = filteredDocument.paths
         for (path, pathItem) in filteredPaths {
-            guard let methods = requiredEndpoints[path] else {
-                continue
-            }
+            guard let methods = requiredEndpoints[path] else { continue }
             switch pathItem {
             case .a(let reference):
                 components.pathItems[try reference.internalComponentKey] = try document.components.lookup(reference)
@@ -163,9 +138,7 @@ struct FilteredDocumentBuilder {
     /// - Parameter path: The path to be included in the filter.
     /// - Throws: If the path does not exist in original OpenAPI document.
     mutating func includePath(_ path: OpenAPI.Path) throws {
-        guard let pathItem = document.paths[path] else {
-            throw FilteredDocumentBuilderError.pathDoesNotExist(path)
-        }
+        guard let pathItem = document.paths[path] else { throw FilteredDocumentBuilderError.pathDoesNotExist(path) }
         guard requiredPaths.insert(path).inserted else { return }
         try includePathItem(pathItem)
     }
@@ -178,9 +151,7 @@ struct FilteredDocumentBuilder {
     /// - Parameter tag: The tag to use to include operations (and their paths).
     /// - Throws: If the tag does not exist in original OpenAPI document.
     mutating func includeOperations(tagged tag: String) throws {
-        guard document.allTags.contains(tag) else {
-            throw FilteredDocumentBuilderError.tagDoesNotExist(tag)
-        }
+        guard document.allTags.contains(tag) else { throw FilteredDocumentBuilderError.tagDoesNotExist(tag) }
         try includeOperations { endpoint in endpoint.operation.tags?.contains(tag) ?? false }
     }
 
@@ -191,9 +162,7 @@ struct FilteredDocumentBuilder {
     ///
     /// - Parameter tag: The tag by which to include operations (and their paths).
     /// - Throws: If the tag does not exist in original OpenAPI document.
-    mutating func includeOperations(tagged tag: OpenAPI.Tag) throws {
-        try includeOperations(tagged: tag.name)
-    }
+    mutating func includeOperations(tagged tag: OpenAPI.Tag) throws { try includeOperations(tagged: tag.name) }
 
     /// Include the operation with a given ID (and all its component dependencies).
     ///
@@ -229,10 +198,8 @@ enum FilteredDocumentBuilderError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .pathDoesNotExist(let path):
-            return "Required path does not exist in OpenAPI document: \(path)"
-        case .tagDoesNotExist(let tag):
-            return "Required tag does not exist in OpenAPI document: \(tag)"
+        case .pathDoesNotExist(let path): return "Required path does not exist in OpenAPI document: \(path)"
+        case .tagDoesNotExist(let tag): return "Required tag does not exist in OpenAPI document: \(tag)"
         case .operationDoesNotExist(let operationID):
             return "Required operation does not exist in OpenAPI document: \(operationID)"
         case .cannotResolveInternalReference(let reference):
@@ -249,8 +216,7 @@ private extension FilteredDocumentBuilder {
         case .a(let reference):
             guard requiredPathItemReferences.insert(reference).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
-        case .b(let value):
-            try includeComponentsReferencedBy(value)
+        case .b(let value): try includeComponentsReferencedBy(value)
         }
     }
 
@@ -259,8 +225,7 @@ private extension FilteredDocumentBuilder {
         case .a(let reference):
             guard requiredSchemaReferences.insert(reference).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
-        case .b(let value):
-            try includeComponentsReferencedBy(value)
+        case .b(let value): try includeComponentsReferencedBy(value)
         }
     }
 
@@ -271,8 +236,7 @@ private extension FilteredDocumentBuilder {
         case .a(let reference):
             guard requiredParameterReferences.insert(reference).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
-        case .b(let value):
-            try includeComponentsReferencedBy(value)
+        case .b(let value): try includeComponentsReferencedBy(value)
         }
     }
 
@@ -283,8 +247,7 @@ private extension FilteredDocumentBuilder {
         case .a(let reference):
             guard requiredResponseReferences.insert(reference).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
-        case .b(let value):
-            try includeComponentsReferencedBy(value)
+        case .b(let value): try includeComponentsReferencedBy(value)
         }
     }
 
@@ -293,8 +256,7 @@ private extension FilteredDocumentBuilder {
         case .a(let reference):
             guard requiredHeaderReferences.insert(reference).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
-        case .b(let value):
-            try includeComponentsReferencedBy(value)
+        case .b(let value): try includeComponentsReferencedBy(value)
         }
     }
 
@@ -303,8 +265,7 @@ private extension FilteredDocumentBuilder {
         case .a(let reference):
             guard requiredLinkReferences.insert(reference).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
-        case .b(let value):
-            try includeComponentsReferencedBy(value)
+        case .b(let value): try includeComponentsReferencedBy(value)
         }
     }
 
@@ -315,8 +276,7 @@ private extension FilteredDocumentBuilder {
         case .a(let reference):
             guard requiredCallbacksReferences.insert(reference).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
-        case .b(let value):
-            try includeComponentsReferencedBy(value)
+        case .b(let value): try includeComponentsReferencedBy(value)
         }
     }
 
@@ -327,8 +287,7 @@ private extension FilteredDocumentBuilder {
         case .a(let reference):
             guard requiredRequestReferences.insert(reference).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
-        case .b(let value):
-            try includeComponentsReferencedBy(value)
+        case .b(let value): try includeComponentsReferencedBy(value)
         }
     }
 
@@ -337,8 +296,7 @@ private extension FilteredDocumentBuilder {
         case .a(let reference):
             guard requiredExampleReferences.insert(reference).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
-        case .b(let value):
-            try includeComponentsReferencedBy(value)
+        case .b(let value): try includeComponentsReferencedBy(value)
         }
     }
 
@@ -346,19 +304,13 @@ private extension FilteredDocumentBuilder {
         for (path, maybePathItemReference) in document.paths {
             let originalPathItem: OpenAPI.PathItem
             switch maybePathItemReference {
-            case .a(let reference):
-                originalPathItem = try document.components.lookup(reference)
-            case .b(let pathItem):
-                originalPathItem = pathItem
+            case .a(let reference): originalPathItem = try document.components.lookup(reference)
+            case .b(let pathItem): originalPathItem = pathItem
             }
 
             for endpoint in originalPathItem.endpoints {
-                guard predicate(endpoint) else {
-                    continue
-                }
-                if requiredEndpoints[path] == nil {
-                    requiredEndpoints[path] = Set()
-                }
+                guard predicate(endpoint) else { continue }
+                if requiredEndpoints[path] == nil { requiredEndpoints[path] = Set() }
                 if requiredEndpoints[path]!.insert(endpoint.method).inserted {
                     try includeComponentsReferencedBy(endpoint.operation)
                 }
@@ -370,38 +322,22 @@ private extension FilteredDocumentBuilder {
 private extension FilteredDocumentBuilder {
 
     mutating func includeComponentsReferencedBy(_ pathItem: OpenAPI.PathItem) throws {
-        for endpoint in pathItem.endpoints {
-            try includeComponentsReferencedBy(endpoint.operation)
-        }
-        for parameter in pathItem.parameters {
-            try includeParameter(parameter)
-        }
+        for endpoint in pathItem.endpoints { try includeComponentsReferencedBy(endpoint.operation) }
+        for parameter in pathItem.parameters { try includeParameter(parameter) }
     }
 
     mutating func includeComponentsReferencedBy(_ operation: OpenAPI.Operation) throws {
-        for parameter in operation.parameters {
-            try includeParameter(parameter)
-        }
-        for response in operation.responses.values {
-            try includeResponse(response)
-        }
-        if let requestBody = operation.requestBody {
-            try includeRequestBody(requestBody)
-        }
-        for callbacks in operation.callbacks.values {
-            try includeCallbacks(callbacks)
-        }
+        for parameter in operation.parameters { try includeParameter(parameter) }
+        for response in operation.responses.values { try includeResponse(response) }
+        if let requestBody = operation.requestBody { try includeRequestBody(requestBody) }
+        for callbacks in operation.callbacks.values { try includeCallbacks(callbacks) }
     }
 
     mutating func includeComponentsReferencedBy(_ request: OpenAPI.Request) throws {
-        for content in request.content.values {
-            try includeComponentsReferencedBy(content)
-        }
+        for content in request.content.values { try includeComponentsReferencedBy(content) }
     }
     mutating func includeComponentsReferencedBy(_ callbacks: OpenAPI.Callbacks) throws {
-        for pathItem in callbacks.values {
-            try includePathItem(pathItem)
-        }
+        for pathItem in callbacks.values { try includePathItem(pathItem) }
     }
 
     mutating func includeComponentsReferencedBy(_ schema: JSONSchema) throws {
@@ -412,25 +348,15 @@ private extension FilteredDocumentBuilder {
             try includeComponentsReferencedBy(document.components.lookup(reference))
 
         case .object(_, let object):
-            for schema in object.properties.values {
-                try includeComponentsReferencedBy(schema)
-            }
-            if case .b(let schema) = object.additionalProperties {
-                try includeComponentsReferencedBy(schema)
-            }
+            for schema in object.properties.values { try includeComponentsReferencedBy(schema) }
+            if case .b(let schema) = object.additionalProperties { try includeComponentsReferencedBy(schema) }
 
-        case .array(_, let array):
-            if let schema = array.items {
-                try includeComponentsReferencedBy(schema)
-            }
+        case .array(_, let array): if let schema = array.items { try includeComponentsReferencedBy(schema) }
 
-        case .not(let schema, _):
-            try includeComponentsReferencedBy(schema)
+        case .not(let schema, _): try includeComponentsReferencedBy(schema)
 
         case .all(of: let schemas, _), .one(of: let schemas, _), .any(of: let schemas, _):
-            for schema in schemas {
-                try includeComponentsReferencedBy(schema)
-            }
+            for schema in schemas { try includeComponentsReferencedBy(schema) }
         case .null, .boolean, .number, .integer, .string, .fragment: return
         }
     }
@@ -452,8 +378,7 @@ private extension FilteredDocumentBuilder {
             case .a(let reference):
                 guard requiredSchemaReferences.insert(reference).inserted else { return }
                 try includeComponentsReferencedBy(try document.components.lookup(reference))
-            case .b(let schema):
-                try includeComponentsReferencedBy(schema)
+            case .b(let schema): try includeComponentsReferencedBy(schema)
             }
         case .b(let contentMap):
             for value in contentMap.values {
@@ -461,47 +386,27 @@ private extension FilteredDocumentBuilder {
                 case .a(let reference):
                     guard requiredSchemaReferences.insert(reference).inserted else { return }
                     try includeComponentsReferencedBy(try document.components.lookup(reference))
-                case .b(let schema):
-                    try includeComponentsReferencedBy(schema)
-                case .none:
-                    continue
+                case .b(let schema): try includeComponentsReferencedBy(schema)
+                case .none: continue
                 }
             }
         }
     }
 
     mutating func includeComponentsReferencedBy(_ response: OpenAPI.Response) throws {
-        if let headers = response.headers {
-            for header in headers.values {
-                try includeHeader(header)
-            }
-        }
-        for content in response.content.values {
-            try includeComponentsReferencedBy(content)
-        }
-        for link in response.links.values {
-            try includeLink(link)
-        }
+        if let headers = response.headers { for header in headers.values { try includeHeader(header) } }
+        for content in response.content.values { try includeComponentsReferencedBy(content) }
+        for link in response.links.values { try includeLink(link) }
     }
 
     mutating func includeComponentsReferencedBy(_ content: OpenAPI.Content) throws {
-        if let schema = content.schema {
-            try includeSchema(schema)
-        }
+        if let schema = content.schema { try includeSchema(schema) }
         if let encoding = content.encoding {
             for encoding in encoding.values {
-                if let headers = encoding.headers {
-                    for header in headers.values {
-                        try includeHeader(header)
-                    }
-                }
+                if let headers = encoding.headers { for header in headers.values { try includeHeader(header) } }
             }
         }
-        if let examples = content.examples {
-            for example in examples.values {
-                try includeExample(example)
-            }
-        }
+        if let examples = content.examples { for example in examples.values { try includeExample(example) } }
     }
 
     mutating func includeComponentsReferencedBy(_ content: OpenAPI.Link) throws {}
@@ -524,9 +429,7 @@ fileprivate extension OpenAPI.PathItem {
     func filteringEndpoints(_ isIncluded: (Endpoint) -> Bool) -> Self {
         var filteredPathItem = self
         for endpoint in filteredPathItem.endpoints {
-            if !isIncluded(endpoint) {
-                filteredPathItem.set(operation: nil, for: endpoint.method)
-            }
+            if !isIncluded(endpoint) { filteredPathItem.set(operation: nil, for: endpoint.method) }
         }
         return filteredPathItem
     }

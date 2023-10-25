@@ -14,8 +14,7 @@
 import PackagePlugin
 import Foundation
 
-@main
-struct SwiftOpenAPIGeneratorPlugin {
+@main struct SwiftOpenAPIGeneratorPlugin {
     func runCommand(
         targetWorkingDirectory: Path,
         tool: (String) throws -> PluginContext.Tool,
@@ -37,17 +36,12 @@ struct SwiftOpenAPIGeneratorPlugin {
         process.environment = [:]
         try process.run()
         process.waitUntilExit()
-        guard process.terminationStatus == 0 else {
-            throw PluginError.generatorFailure(targetName: targetName)
-        }
+        guard process.terminationStatus == 0 else { throw PluginError.generatorFailure(targetName: targetName) }
     }
 }
 
 extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
-    func performCommand(
-        context: PluginContext,
-        arguments: [String]
-    ) async throws {
+    func performCommand(context: PluginContext, arguments: [String]) async throws {
         let targetNameArguments = arguments.filter({ $0 != "--target" })
         let targets: [Target]
         if targetNameArguments.isEmpty {
@@ -66,9 +60,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
             targets = sortedUniqueTargets
         }
 
-        guard !targets.isEmpty else {
-            throw PluginError.noTargetsMatchingTargetNames(targetNameArguments)
-        }
+        guard !targets.isEmpty else { throw PluginError.noTargetsMatchingTargetNames(targetNameArguments) }
 
         var hadASuccessfulRun = false
 
@@ -98,8 +90,6 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
             }
         }
 
-        guard hadASuccessfulRun else {
-            throw PluginError.noTargetsWithExpectedFiles(targetNames: targets.map(\.name))
-        }
+        guard hadASuccessfulRun else { throw PluginError.noTargetsWithExpectedFiles(targetNames: targets.map(\.name)) }
     }
 }
