@@ -187,7 +187,7 @@ fileprivate extension Array where Element == PropertyBlueprint {
             parameterComponents.append("- Parameters:")
             for parameter in self {
                 parameterComponents.append(
-                    "  - \(parameter.swiftSafeName): \(parameter.comment?.firstLineOfContent ?? "")"
+                    "  - \(parameter.swiftSafeName):\(parameter.comment?.firstLineOfContent.map { " \($0)" } ?? "")"
                 )
             }
             components.append("")

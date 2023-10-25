@@ -31,47 +31,96 @@ extension APIProtocol {
             middlewares: middlewares
         )
         try transport.register(
-            { try await server.listPets(request: $0, body: $1, metadata: $2) },
+            {
+                try await server.listPets(
+                    request: $0,
+                    body: $1,
+                    metadata: $2
+                )
+            },
             method: .get,
             path: server.apiPathComponentsWithServerPrefix("/pets")
         )
         try transport.register(
-            { try await server.createPet(request: $0, body: $1, metadata: $2) },
+            {
+                try await server.createPet(
+                    request: $0,
+                    body: $1,
+                    metadata: $2
+                )
+            },
             method: .post,
             path: server.apiPathComponentsWithServerPrefix("/pets")
         )
         try transport.register(
-            { try await server.createPetWithForm(request: $0, body: $1, metadata: $2) },
+            {
+                try await server.createPetWithForm(
+                    request: $0,
+                    body: $1,
+                    metadata: $2
+                )
+            },
             method: .post,
             path: server.apiPathComponentsWithServerPrefix("/pets/create")
         )
         try transport.register(
-            { try await server.getStats(request: $0, body: $1, metadata: $2) },
+            {
+                try await server.getStats(
+                    request: $0,
+                    body: $1,
+                    metadata: $2
+                )
+            },
             method: .get,
             path: server.apiPathComponentsWithServerPrefix("/pets/stats")
         )
         try transport.register(
-            { try await server.postStats(request: $0, body: $1, metadata: $2) },
+            {
+                try await server.postStats(
+                    request: $0,
+                    body: $1,
+                    metadata: $2
+                )
+            },
             method: .post,
             path: server.apiPathComponentsWithServerPrefix("/pets/stats")
         )
         try transport.register(
-            { try await server.probe(request: $0, body: $1, metadata: $2) },
+            {
+                try await server.probe(
+                    request: $0,
+                    body: $1,
+                    metadata: $2
+                )
+            },
             method: .post,
             path: server.apiPathComponentsWithServerPrefix("/probe/")
         )
         try transport.register(
-            { try await server.updatePet(request: $0, body: $1, metadata: $2) },
+            {
+                try await server.updatePet(
+                    request: $0,
+                    body: $1,
+                    metadata: $2
+                )
+            },
             method: .patch,
             path: server.apiPathComponentsWithServerPrefix("/pets/{petId}")
         )
         try transport.register(
-            { try await server.uploadAvatarForPet(request: $0, body: $1, metadata: $2) },
+            {
+                try await server.uploadAvatarForPet(
+                    request: $0,
+                    body: $1,
+                    metadata: $2
+                )
+            },
             method: .put,
             path: server.apiPathComponentsWithServerPrefix("/pets/{petId}/avatar")
         )
     }
 }
+
 fileprivate extension UniversalServer where APIHandler: APIProtocol {
     /// List all pets
     ///
@@ -90,7 +139,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             requestBody: body,
             metadata: metadata,
             forOperation: Operations.listPets.id,
-            using: { APIHandler.listPets($0) },
+            using: {
+                APIHandler.listPets($0)
+            },
             deserializer: { request, requestBody, metadata in
                 let query: Operations.listPets.Input.Query = .init(
                     limit: try converter.getOptionalQueryItemAsURI(
@@ -130,7 +181,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     ),
                     accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
                 )
-                return Operations.listPets.Input(query: query, headers: headers)
+                return Operations.listPets.Input(
+                    query: query,
+                    headers: headers
+                )
             },
             serializer: { output, request in
                 switch output {
@@ -151,7 +205,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
+                        try converter.validateAcceptIfPresent(
+                            "application/json",
+                            in: request.headerFields
+                        )
                         body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -166,7 +223,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
+                        try converter.validateAcceptIfPresent(
+                            "application/json",
+                            in: request.headerFields
+                        )
                         body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -192,7 +252,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             requestBody: body,
             metadata: metadata,
             forOperation: Operations.createPet.id,
-            using: { APIHandler.createPet($0) },
+            using: {
+                APIHandler.createPet($0)
+            },
             deserializer: { request, requestBody, metadata in
                 let headers: Operations.createPet.Input.Headers = .init(
                     X_hyphen_Extra_hyphen_Arguments: try converter.getOptionalHeaderFieldAsJSON(
@@ -204,18 +266,24 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 )
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.createPet.Input.Body
-                if try contentType == nil
-                    || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
-                {
+                if try contentType == nil || converter.isMatchingContentType(
+                    received: contentType,
+                    expectedRaw: "application/json"
+                ) {
                     body = try await converter.getRequiredRequestBodyAsJSON(
                         Components.Schemas.CreatePetRequest.self,
                         from: requestBody,
-                        transforming: { value in .json(value) }
+                        transforming: { value in
+                            .json(value)
+                        }
                     )
                 } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                 }
-                return Operations.createPet.Input(headers: headers, body: body)
+                return Operations.createPet.Input(
+                    headers: headers,
+                    body: body
+                )
             },
             serializer: { output, request in
                 switch output {
@@ -231,7 +299,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
+                        try converter.validateAcceptIfPresent(
+                            "application/json",
+                            in: request.headerFields
+                        )
                         body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -251,7 +322,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
+                        try converter.validateAcceptIfPresent(
+                            "application/json",
+                            in: request.headerFields
+                        )
                         body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -259,7 +333,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
+                case let .undocumented(statusCode, _):
+                    return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
@@ -278,20 +353,22 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             requestBody: body,
             metadata: metadata,
             forOperation: Operations.createPetWithForm.id,
-            using: { APIHandler.createPetWithForm($0) },
+            using: {
+                APIHandler.createPetWithForm($0)
+            },
             deserializer: { request, requestBody, metadata in
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.createPetWithForm.Input.Body
-                if try contentType == nil
-                    || converter.isMatchingContentType(
-                        received: contentType,
-                        expectedRaw: "application/x-www-form-urlencoded"
-                    )
-                {
+                if try contentType == nil || converter.isMatchingContentType(
+                    received: contentType,
+                    expectedRaw: "application/x-www-form-urlencoded"
+                ) {
                     body = try await converter.getRequiredRequestBodyAsURLEncodedForm(
                         Components.Schemas.CreatePetRequest.self,
                         from: requestBody,
-                        transforming: { value in .urlEncodedForm(value) }
+                        transforming: { value in
+                            .urlEncodedForm(value)
+                        }
                     )
                 } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
@@ -305,7 +382,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     var response = HTTPTypes.HTTPResponse(soar_statusCode: 204)
                     suppressMutabilityWarning(&response)
                     return (response, nil)
-                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
+                case let .undocumented(statusCode, _):
+                    return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
@@ -322,11 +400,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             requestBody: body,
             metadata: metadata,
             forOperation: Operations.getStats.id,
-            using: { APIHandler.getStats($0) },
+            using: {
+                APIHandler.getStats($0)
+            },
             deserializer: { request, requestBody, metadata in
-                let headers: Operations.getStats.Input.Headers = .init(
-                    accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
-                )
+                let headers: Operations.getStats.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
                 return Operations.getStats.Input(headers: headers)
             },
             serializer: { output, request in
@@ -338,21 +416,30 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
+                        try converter.validateAcceptIfPresent(
+                            "application/json",
+                            in: request.headerFields
+                        )
                         body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "application/json; charset=utf-8"
                         )
                     case let .plainText(value):
-                        try converter.validateAcceptIfPresent("text/plain", in: request.headerFields)
+                        try converter.validateAcceptIfPresent(
+                            "text/plain",
+                            in: request.headerFields
+                        )
                         body = try converter.setResponseBodyAsBinary(
                             value,
                             headerFields: &response.headerFields,
                             contentType: "text/plain"
                         )
                     case let .binary(value):
-                        try converter.validateAcceptIfPresent("application/octet-stream", in: request.headerFields)
+                        try converter.validateAcceptIfPresent(
+                            "application/octet-stream",
+                            in: request.headerFields
+                        )
                         body = try converter.setResponseBodyAsBinary(
                             value,
                             headerFields: &response.headerFields,
@@ -360,7 +447,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
+                case let .undocumented(statusCode, _):
+                    return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
@@ -377,23 +465,33 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             requestBody: body,
             metadata: metadata,
             forOperation: Operations.postStats.id,
-            using: { APIHandler.postStats($0) },
+            using: {
+                APIHandler.postStats($0)
+            },
             deserializer: { request, requestBody, metadata in
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.postStats.Input.Body
-                if try contentType == nil
-                    || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
-                {
+                if try contentType == nil || converter.isMatchingContentType(
+                    received: contentType,
+                    expectedRaw: "application/json"
+                ) {
                     body = try await converter.getRequiredRequestBodyAsJSON(
                         Components.Schemas.PetStats.self,
                         from: requestBody,
-                        transforming: { value in .json(value) }
+                        transforming: { value in
+                            .json(value)
+                        }
                     )
-                } else if try converter.isMatchingContentType(received: contentType, expectedRaw: "text/plain") {
+                } else if try converter.isMatchingContentType(
+                    received: contentType,
+                    expectedRaw: "text/plain"
+                ) {
                     body = try converter.getRequiredRequestBodyAsBinary(
                         OpenAPIRuntime.HTTPBody.self,
                         from: requestBody,
-                        transforming: { value in .plainText(value) }
+                        transforming: { value in
+                            .plainText(value)
+                        }
                     )
                 } else if try converter.isMatchingContentType(
                     received: contentType,
@@ -402,7 +500,9 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     body = try converter.getRequiredRequestBodyAsBinary(
                         OpenAPIRuntime.HTTPBody.self,
                         from: requestBody,
-                        transforming: { value in .binary(value) }
+                        transforming: { value in
+                            .binary(value)
+                        }
                     )
                 } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
@@ -416,7 +516,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     var response = HTTPTypes.HTTPResponse(soar_statusCode: 202)
                     suppressMutabilityWarning(&response)
                     return (response, nil)
-                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
+                case let .undocumented(statusCode, _):
+                    return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
@@ -433,8 +534,12 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             requestBody: body,
             metadata: metadata,
             forOperation: Operations.probe.id,
-            using: { APIHandler.probe($0) },
-            deserializer: { request, requestBody, metadata in return Operations.probe.Input() },
+            using: {
+                APIHandler.probe($0)
+            },
+            deserializer: { request, requestBody, metadata in
+                return Operations.probe.Input()
+            },
             serializer: { output, request in
                 switch output {
                 case let .noContent(value):
@@ -442,7 +547,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     var response = HTTPTypes.HTTPResponse(soar_statusCode: 204)
                     suppressMutabilityWarning(&response)
                     return (response, nil)
-                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
+                case let .undocumented(statusCode, _):
+                    return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
@@ -461,32 +567,37 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             requestBody: body,
             metadata: metadata,
             forOperation: Operations.updatePet.id,
-            using: { APIHandler.updatePet($0) },
+            using: {
+                APIHandler.updatePet($0)
+            },
             deserializer: { request, requestBody, metadata in
-                let path: Operations.updatePet.Input.Path = .init(
-                    petId: try converter.getPathParameterAsURI(
-                        in: metadata.pathParameters,
-                        name: "petId",
-                        as: Swift.Int64.self
-                    )
-                )
-                let headers: Operations.updatePet.Input.Headers = .init(
-                    accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
-                )
+                let path: Operations.updatePet.Input.Path = .init(petId: try converter.getPathParameterAsURI(
+                    in: metadata.pathParameters,
+                    name: "petId",
+                    as: Swift.Int64.self
+                ))
+                let headers: Operations.updatePet.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Components.RequestBodies.UpdatePetRequest?
-                if try contentType == nil
-                    || converter.isMatchingContentType(received: contentType, expectedRaw: "application/json")
-                {
+                if try contentType == nil || converter.isMatchingContentType(
+                    received: contentType,
+                    expectedRaw: "application/json"
+                ) {
                     body = try await converter.getOptionalRequestBodyAsJSON(
                         Components.RequestBodies.UpdatePetRequest.jsonPayload.self,
                         from: requestBody,
-                        transforming: { value in .json(value) }
+                        transforming: { value in
+                            .json(value)
+                        }
                     )
                 } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                 }
-                return Operations.updatePet.Input(path: path, headers: headers, body: body)
+                return Operations.updatePet.Input(
+                    path: path,
+                    headers: headers,
+                    body: body
+                )
             },
             serializer: { output, request in
                 switch output {
@@ -502,7 +613,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
+                        try converter.validateAcceptIfPresent(
+                            "application/json",
+                            in: request.headerFields
+                        )
                         body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -510,7 +624,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
+                case let .undocumented(statusCode, _):
+                    return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )
@@ -529,32 +644,37 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             requestBody: body,
             metadata: metadata,
             forOperation: Operations.uploadAvatarForPet.id,
-            using: { APIHandler.uploadAvatarForPet($0) },
+            using: {
+                APIHandler.uploadAvatarForPet($0)
+            },
             deserializer: { request, requestBody, metadata in
-                let path: Operations.uploadAvatarForPet.Input.Path = .init(
-                    petId: try converter.getPathParameterAsURI(
-                        in: metadata.pathParameters,
-                        name: "petId",
-                        as: Components.Parameters.path_period_petId.self
-                    )
-                )
-                let headers: Operations.uploadAvatarForPet.Input.Headers = .init(
-                    accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
-                )
+                let path: Operations.uploadAvatarForPet.Input.Path = .init(petId: try converter.getPathParameterAsURI(
+                    in: metadata.pathParameters,
+                    name: "petId",
+                    as: Components.Parameters.path_period_petId.self
+                ))
+                let headers: Operations.uploadAvatarForPet.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.uploadAvatarForPet.Input.Body
-                if try contentType == nil
-                    || converter.isMatchingContentType(received: contentType, expectedRaw: "application/octet-stream")
-                {
+                if try contentType == nil || converter.isMatchingContentType(
+                    received: contentType,
+                    expectedRaw: "application/octet-stream"
+                ) {
                     body = try converter.getRequiredRequestBodyAsBinary(
                         OpenAPIRuntime.HTTPBody.self,
                         from: requestBody,
-                        transforming: { value in .binary(value) }
+                        transforming: { value in
+                            .binary(value)
+                        }
                     )
                 } else {
                     throw converter.makeUnexpectedContentTypeError(contentType: contentType)
                 }
-                return Operations.uploadAvatarForPet.Input(path: path, headers: headers, body: body)
+                return Operations.uploadAvatarForPet.Input(
+                    path: path,
+                    headers: headers,
+                    body: body
+                )
             },
             serializer: { output, request in
                 switch output {
@@ -565,7 +685,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .binary(value):
-                        try converter.validateAcceptIfPresent("application/octet-stream", in: request.headerFields)
+                        try converter.validateAcceptIfPresent(
+                            "application/octet-stream",
+                            in: request.headerFields
+                        )
                         body = try converter.setResponseBodyAsBinary(
                             value,
                             headerFields: &response.headerFields,
@@ -580,7 +703,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .json(value):
-                        try converter.validateAcceptIfPresent("application/json", in: request.headerFields)
+                        try converter.validateAcceptIfPresent(
+                            "application/json",
+                            in: request.headerFields
+                        )
                         body = try converter.setResponseBodyAsJSON(
                             value,
                             headerFields: &response.headerFields,
@@ -595,7 +721,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
                     case let .plainText(value):
-                        try converter.validateAcceptIfPresent("text/plain", in: request.headerFields)
+                        try converter.validateAcceptIfPresent(
+                            "text/plain",
+                            in: request.headerFields
+                        )
                         body = try converter.setResponseBodyAsBinary(
                             value,
                             headerFields: &response.headerFields,
@@ -603,7 +732,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         )
                     }
                     return (response, body)
-                case let .undocumented(statusCode, _): return (.init(soar_statusCode: statusCode), nil)
+                case let .undocumented(statusCode, _):
+                    return (.init(soar_statusCode: statusCode), nil)
                 }
             }
         )

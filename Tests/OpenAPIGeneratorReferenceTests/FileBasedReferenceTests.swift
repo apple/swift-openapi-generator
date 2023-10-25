@@ -47,11 +47,7 @@ class FileBasedReferenceTests: XCTestCase {
     }
 
     func testPetstore() throws {
-        #if canImport(SwiftSyntax509)
         try _test(referenceProject: .init(name: .petstore))
-        #else
-        XCTFail("Update SwiftFormat to at least 509 to run this test.")
-        #endif
     }
 
     // MARK: - Private
@@ -178,17 +174,12 @@ extension FileBasedReferenceTests {
     ) -> GeneratorPipeline {
         let parser = YamsParser()
         let translator = MultiplexTranslator()
-        let renderer = TextBasedRenderer()
+        let renderer = TextBasedRenderer.default
 
         return _OpenAPIGeneratorCore.makeGeneratorPipeline(
             parser: parser,
             translator: translator,
             renderer: renderer,
-            formatter: { file in
-                var newFile = file
-                newFile.contents = try newFile.contents.swiftFormatted
-                return newFile
-            },
             config: config,
             diagnostics: XCTestDiagnosticCollector(
                 test: self,
@@ -276,9 +267,10 @@ extension FileBasedReferenceTests {
         let pipe = Pipe()
         process.standardOutput = pipe
         try process.run()
+        let stdoutData = try pipe.fileHandleForReading.readToEnd()
         process.waitUntilExit()
         let pipeData = try XCTUnwrap(
-            pipe.fileHandleForReading.readToEnd(),
+            stdoutData,
             """
             No output from command:
             \(process.executableURL!.path) \(process.arguments!.joined(separator: " "))

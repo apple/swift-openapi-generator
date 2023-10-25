@@ -101,7 +101,6 @@ public func runGenerator(
 ///   - validator: A validator for parsed OpenAPI documents.
 ///   - translator: A translator from OpenAPI to Swift.
 ///   - renderer: A Swift code renderer.
-///   - formatter: A Swift code formatter.
 ///   - config: A set of configuration values for the generator.
 ///   - diagnostics: A collector to which the generator emits diagnostics.
 /// - Returns: A configured generator pipeline that can be executed with
@@ -110,8 +109,7 @@ func makeGeneratorPipeline(
     parser: any ParserProtocol = YamsParser(),
     validator: @escaping (ParsedOpenAPIRepresentation, Config) throws -> [Diagnostic] = validateDoc,
     translator: any TranslatorProtocol = MultiplexTranslator(),
-    renderer: any RendererProtocol = TextBasedRenderer(),
-    formatter: @escaping (InMemoryOutputFile) throws -> InMemoryOutputFile = { try $0.swiftFormatted },
+    renderer: any RendererProtocol = TextBasedRenderer.default,
     config: Config,
     diagnostics: any DiagnosticCollector
 ) -> GeneratorPipeline {
@@ -161,9 +159,7 @@ func makeGeneratorPipeline(
                     diagnostics: diagnostics
                 )
             },
-            postTransitionHooks: [
-                formatter
-            ]
+            postTransitionHooks: []
         )
     )
 }

@@ -52,18 +52,6 @@ let package = Package(
     ],
     dependencies: [
 
-        // Generate Swift code
-        .package(
-            url: "https://github.com/apple/swift-syntax.git",
-            "508.0.1"..<"510.0.0"
-        ),
-
-        // Format Swift code
-        .package(
-            url: "https://github.com/apple/swift-format.git",
-            "508.0.1"..<"510.0.0"
-        ),
-
         // General algorithms
         .package(
             url: "https://github.com/apple/swift-algorithms",
@@ -105,10 +93,6 @@ let package = Package(
                 .product(name: "OpenAPIKitCompat", package: "OpenAPIKit"),
                 .product(name: "Algorithms", package: "swift-algorithms"),
                 .product(name: "Yams", package: "Yams"),
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
-                .product(name: "SwiftFormat", package: "swift-format"),
-                .product(name: "SwiftFormatConfiguration", package: "swift-format"),
             ],
             swiftSettings: swiftSettings
         ),
@@ -126,9 +110,7 @@ let package = Package(
         .testTarget(
             name: "OpenAPIGeneratorReferenceTests",
             dependencies: [
-                "_OpenAPIGeneratorCore",
-                .product(name: "SwiftFormat", package: "swift-format"),
-                .product(name: "SwiftFormatConfiguration", package: "swift-format"),
+                "_OpenAPIGeneratorCore"
             ],
             resources: [
                 .copy("Resources")

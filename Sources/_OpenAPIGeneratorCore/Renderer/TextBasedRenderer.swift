@@ -13,6 +13,86 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 
+/// An object for building up a generated file line-by-line.
+///
+/// After creation, make calls such as `writeLine` to build up the file,
+/// and call `rendered` at the end to get the full file contents.
+final class StringCodeWriter {
+
+    /// The stored lines of code.
+    private var lines: [String]
+
+    /// The current nesting level.
+    private var level: Int
+
+    /// Whether the next call to `writeLine` will continue writing to the last
+    /// stored line. Otherwise a new line is appended.
+    private var nextWriteAppendsToLastLine: Bool = false
+
+    /// Creates a new empty writer.
+    init() {
+        self.level = 0
+        self.lines = []
+    }
+
+    /// Concatenates the stored lines of code into a single string.
+    /// - Returns: The contents of the full file in a single string.
+    func rendered() -> String {
+        lines.joined(separator: "\n")
+    }
+
+    /// Writes a line of code.
+    ///
+    /// By default, a new line is appended to the file.
+    ///
+    /// To continue the last line, make a call to `nextLineAppendsToLastLine`
+    /// before calling `writeLine`.
+    /// - Parameter line: The contents of the line to write.
+    func writeLine(_ line: String) {
+        let newLine: String
+        if nextWriteAppendsToLastLine && !lines.isEmpty {
+            let existingLine = lines.removeLast()
+            newLine = existingLine + line
+        } else {
+            let indentation = Array(repeating: " ", count: 4 * level).joined()
+            newLine = indentation + line
+        }
+        lines.append(newLine)
+        nextWriteAppendsToLastLine = false
+    }
+
+    /// Increases the indentation level by 1.
+    func push() {
+        level += 1
+    }
+
+    /// Decreases the indentation level by 1.
+    /// - Precondition: Current level must be greater than 0.
+    func pop() {
+        precondition(level > 0, "Cannot pop below 0")
+        level -= 1
+    }
+
+    /// Executes the provided closure with one level deeper indentation.
+    /// - Parameter work: The closure to execute.
+    /// - Returns: The result of the closure execution.
+    func withNestedLevel<R>(_ work: () -> R) -> R {
+        push()
+        defer {
+            pop()
+        }
+        return work()
+    }
+
+    /// Sets a flag on the writer so that the next call to `writeLine` continues
+    /// the last stored line instead of starting a new line.
+    ///
+    /// Safe to call repeatedly, it gets reset by `writeLine`.
+    func nextLineAppendsToLastLine() {
+        nextWriteAppendsToLastLine = true
+    }
+}
+
 /// A renderer that uses string interpolation and concatenation
 /// to convert the provided structure code into raw string form.
 struct TextBasedRenderer: RendererProtocol {
@@ -23,21 +103,45 @@ struct TextBasedRenderer: RendererProtocol {
         diagnostics: any DiagnosticCollector
     ) throws -> InMemoryOutputFile {
         let namedFile = structured.file
+        renderFile(namedFile.contents)
+        let string = writer.rendered()
         return InMemoryOutputFile(
             baseName: namedFile.name,
-            contents: renderFile(namedFile.contents)
+            contents: Data(string.utf8)
         )
+    }
+
+    /// The underlying writer.
+    private let writer: StringCodeWriter
+
+    /// Creates a new empty renderer.
+    static var `default`: TextBasedRenderer {
+        .init(writer: StringCodeWriter())
     }
 
     // MARK: - Internals
 
+    /// Returns the current contents of the writer as a string.
+    func renderedContents() -> String {
+        writer.rendered()
+    }
+
     /// Renders the specified Swift file.
-    func renderFile(_ description: FileDescription) -> Data {
-        Data(renderedFile(description).utf8)
+    func renderFile(_ description: FileDescription) {
+        if let topComment = description.topComment {
+            renderComment(topComment)
+        }
+        if let imports = description.imports {
+            renderImports(imports)
+        }
+        for codeBlock in description.codeBlocks {
+            renderCodeBlock(codeBlock)
+            writer.writeLine("")
+        }
     }
 
     /// Renders the specified comment.
-    func renderedComment(_ comment: Comment) -> String {
+    func renderComment(_ comment: Comment) {
         let prefix: String
         let commentString: String
         switch comment {
@@ -54,7 +158,7 @@ struct TextBasedRenderer: RendererProtocol {
             prefix = "// MARK:"
             commentString = string
         }
-        return
+        let lines =
             commentString
             .transformingLines { line in
                 if line.isEmpty {
@@ -62,43 +166,39 @@ struct TextBasedRenderer: RendererProtocol {
                 }
                 return "\(prefix) \(line)"
             }
+        lines.forEach(writer.writeLine)
     }
 
     /// Renders the specified import statements.
-    func renderedImports(_ imports: [ImportDescription]?) -> String {
-        (imports ?? [])
-            .map(renderImport(_:))
-            .joinedLines()
+    func renderImports(_ imports: [ImportDescription]?) {
+        (imports ?? []).forEach(renderImport)
     }
 
     /// Renders a single import statement.
-    func renderImport(_ description: ImportDescription) -> String {
-        func render(preconcurrency: Bool) -> String {
+    func renderImport(_ description: ImportDescription) {
+        func render(preconcurrency: Bool) {
             let spiPrefix = description.spi.map { "@_spi(\($0)) " } ?? ""
             let preconcurrencyPrefix = preconcurrency ? "@preconcurrency " : ""
-            var types = [String]()
             if let moduleTypes = description.moduleTypes {
-                types = moduleTypes.map {
-                    "\(preconcurrencyPrefix)\(spiPrefix)import \($0)"
+                for type in moduleTypes {
+                    writer.writeLine("\(preconcurrencyPrefix)\(spiPrefix)import \(type)")
                 }
-                return types.joinedLines()
+            } else {
+                writer.writeLine("\(preconcurrencyPrefix)\(spiPrefix)import \(description.moduleName)")
             }
-            return "\(preconcurrencyPrefix)\(spiPrefix)import \(description.moduleName)"
         }
 
         switch description.preconcurrency {
         case .always:
-            return render(preconcurrency: true)
+            render(preconcurrency: true)
         case .never:
-            return render(preconcurrency: false)
+            render(preconcurrency: false)
         case .onOS(let operatingSystems):
-            var lines = [String]()
-            lines.append("#if \(operatingSystems.map { "os(\($0))" }.joined(separator: " || "))")
-            lines.append(render(preconcurrency: true))
-            lines.append("#else")
-            lines.append(render(preconcurrency: false))
-            lines.append("#endif")
-            return lines.joinedLines()
+            writer.writeLine("#if \(operatingSystems.map { "os(\($0))" }.joined(separator: " || "))")
+            render(preconcurrency: true)
+            writer.writeLine("#else")
+            render(preconcurrency: false)
+            writer.writeLine("#endif")
         }
     }
 
@@ -127,38 +227,65 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     /// Renders the specified member access expression.
-    func renderedMemberAccess(_ memberAccess: MemberAccessDescription) -> String {
-        let left = memberAccess.left.flatMap { renderedExpression($0) } ?? ""
-        return "\(left).\(memberAccess.right)"
+    func renderMemberAccess(_ memberAccess: MemberAccessDescription) {
+        if let left = memberAccess.left {
+            renderExpression(left)
+            writer.nextLineAppendsToLastLine()
+        }
+        writer.writeLine(".\(memberAccess.right)")
     }
 
     /// Renders the specified function call argument.
-    func renderedFunctionCallArgument(_ arg: FunctionArgumentDescription) -> String {
-        let left = arg.label.flatMap { "\($0): " } ?? ""
-        return left + renderedExpression(arg.expression)
+    func renderFunctionCallArgument(_ arg: FunctionArgumentDescription) {
+        if let left = arg.label {
+            writer.writeLine("\(left): ")
+            writer.nextLineAppendsToLastLine()
+        }
+        renderExpression(arg.expression)
     }
 
     /// Renders the specified function call.
-    func renderedFunctionCall(_ functionCall: FunctionCallDescription) -> String {
+    func renderFunctionCall(_ functionCall: FunctionCallDescription) {
+        renderExpression(functionCall.calledExpression)
+        writer.nextLineAppendsToLastLine()
+        writer.writeLine("(")
         let arguments = functionCall.arguments
-        let trailingClosureString: String
-        if let trailingClosure = functionCall.trailingClosure {
-            trailingClosureString = renderedClosureInvocation(trailingClosure)
+        if arguments.count > 1 {
+            writer.withNestedLevel {
+                for (argument, isLast) in arguments.enumeratedWithLastMarker() {
+                    renderFunctionCallArgument(argument)
+                    if !isLast {
+                        writer.nextLineAppendsToLastLine()
+                        writer.writeLine(",")
+                    }
+                }
+            }
         } else {
-            trailingClosureString = ""
+            writer.nextLineAppendsToLastLine()
+            if let argument = arguments.first {
+                renderFunctionCallArgument(argument)
+            }
+            writer.nextLineAppendsToLastLine()
         }
-        return
-            "\(renderedExpression(functionCall.calledExpression))(\(arguments.map(renderedFunctionCallArgument).joined(separator: ", ")))"
-            + trailingClosureString
+        writer.writeLine(")")
+        if let trailingClosure = functionCall.trailingClosure {
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine(" ")
+            renderClosureInvocation(trailingClosure)
+        }
     }
 
     /// Renders the specified assignment expression.
-    func renderedAssignment(_ assignment: AssignmentDescription) -> String {
-        return "\(renderedExpression(assignment.left)) = \(renderedExpression(assignment.right))"
+    func renderAssignment(_ assignment: AssignmentDescription) {
+        renderExpression(assignment.left)
+        writer.nextLineAppendsToLastLine()
+        writer.writeLine(" = ")
+        writer.nextLineAppendsToLastLine()
+        renderExpression(assignment.right)
     }
 
     /// Renders the specified switch case kind.
-    func renderedSwitchCaseKind(_ kind: SwitchCaseKind) -> String {
+    func renderSwitchCaseKind(_ kind: SwitchCaseKind) {
         switch kind {
         case let .`case`(expression, associatedValueNames):
             let associatedValues: String
@@ -170,68 +297,108 @@ struct TextBasedRenderer: RendererProtocol {
                 associatedValues = ""
                 maybeLet = ""
             }
-            return "case \(maybeLet)\(renderedExpression(expression))\(associatedValues)"
+            writer.writeLine("case \(maybeLet)")
+            writer.nextLineAppendsToLastLine()
+            renderExpression(expression)
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine(associatedValues)
         case .multiCase(let expressions):
-            let expressions = expressions.map(renderedExpression).joined(separator: ", ")
-            return "case \(expressions)"
+            writer.writeLine("case ")
+            writer.nextLineAppendsToLastLine()
+            for (expression, isLast) in expressions.enumeratedWithLastMarker() {
+                renderExpression(expression)
+                writer.nextLineAppendsToLastLine()
+                if !isLast {
+                    writer.writeLine(", ")
+                }
+                writer.nextLineAppendsToLastLine()
+            }
         case .`default`:
-            return "default"
+            writer.writeLine("default")
         }
     }
 
     /// Renders the specified switch case.
-    func renderedSwitchCase(_ switchCase: SwitchCaseDescription) -> String {
-        var lines: [String] = []
-        lines.append(renderedSwitchCaseKind(switchCase.kind) + ":")
-        lines.append(renderedCodeBlocks(switchCase.body))
-        return lines.joinedLines()
+    func renderSwitchCase(_ switchCase: SwitchCaseDescription) {
+        renderSwitchCaseKind(switchCase.kind)
+        writer.nextLineAppendsToLastLine()
+        writer.writeLine(":")
+        writer.withNestedLevel {
+            renderCodeBlocks(switchCase.body)
+        }
     }
 
     /// Renders the specified switch expression.
-    func renderedSwitch(_ switchDesc: SwitchDescription) -> String {
-        var lines: [String] = ["switch \(renderedExpression(switchDesc.switchedExpression)) {"]
+    func renderSwitch(_ switchDesc: SwitchDescription) {
+        writer.writeLine("switch ")
+        writer.nextLineAppendsToLastLine()
+        renderExpression(switchDesc.switchedExpression)
+        writer.nextLineAppendsToLastLine()
+        writer.writeLine(" {")
         for caseDesc in switchDesc.cases {
-            lines.append(renderedSwitchCase(caseDesc))
+            renderSwitchCase(caseDesc)
         }
-        lines.append("}")
-        return lines.joinedLines()
+        writer.writeLine("}")
     }
 
     /// Renders the specified if statement.
-    func renderedIf(_ ifDesc: IfStatementDescription) -> String {
-        var lines: [String] = []
+    func renderIf(_ ifDesc: IfStatementDescription) {
         let ifBranch = ifDesc.ifBranch
-        lines.append("if \(renderedExpression(ifBranch.condition)) {")
-        lines.append(renderedCodeBlocks(ifBranch.body))
-        lines.append("}")
+        writer.writeLine("if ")
+        writer.nextLineAppendsToLastLine()
+        renderExpression(ifBranch.condition)
+        writer.nextLineAppendsToLastLine()
+        writer.writeLine(" {")
+        writer.withNestedLevel {
+            renderCodeBlocks(ifBranch.body)
+        }
+        writer.writeLine("}")
         for branch in ifDesc.elseIfBranches {
-            lines.append("else if \(renderedExpression(branch.condition)) {")
-            lines.append(renderedCodeBlocks(branch.body))
-            lines.append("}")
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine(" else if ")
+            writer.nextLineAppendsToLastLine()
+            renderExpression(branch.condition)
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine(" {")
+            writer.withNestedLevel {
+                renderCodeBlocks(branch.body)
+            }
+            writer.writeLine("}")
         }
         if let elseBody = ifDesc.elseBody {
-            lines.append("else {")
-            lines.append(renderedCodeBlocks(elseBody))
-            lines.append("}")
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine(" else {")
+            writer.withNestedLevel {
+                renderCodeBlocks(elseBody)
+            }
+            writer.writeLine("}")
         }
-        return lines.joinedLines()
     }
 
     /// Renders the specified switch expression.
-    func renderedDoStatement(_ description: DoStatementDescription) -> String {
-        var lines: [String] = ["do {"]
-        lines.append(renderedCodeBlocks(description.doStatement))
-        if let catchBody = description.catchBody {
-            lines.append("} catch {")
-            lines.append(renderedCodeBlocks(catchBody))
+    func renderDoStatement(_ description: DoStatementDescription) {
+        writer.writeLine("do {")
+        writer.withNestedLevel {
+            renderCodeBlocks(description.doStatement)
         }
-        lines.append("}")
-        return lines.joinedLines()
+        if let catchBody = description.catchBody {
+            writer.writeLine("} catch {")
+            if !catchBody.isEmpty {
+                writer.withNestedLevel {
+                    renderCodeBlocks(catchBody)
+                }
+            } else {
+                writer.nextLineAppendsToLastLine()
+            }
+        }
+        writer.writeLine("}")
     }
 
     /// Renders the specified value binding expression.
-    func renderedValueBinding(_ valueBinding: ValueBindingDescription) -> String {
-        return "\(renderedBindingKind(valueBinding.kind)) \(renderedFunctionCall(valueBinding.value))"
+    func renderValueBinding(_ valueBinding: ValueBindingDescription) {
+        writer.writeLine("\(renderedBindingKind(valueBinding.kind)) ")
+        writer.nextLineAppendsToLastLine()
+        renderFunctionCall(valueBinding.value)
     }
 
     /// Renders the specified keyword.
@@ -251,28 +418,30 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     /// Renders the specified unary keyword expression.
-    func renderedUnaryKeywordExpression(_ expression: UnaryKeywordDescription) -> String {
-        let keyword = renderedKeywordKind(expression.kind)
+    func renderUnaryKeywordExpression(_ expression: UnaryKeywordDescription) {
+        writer.writeLine(renderedKeywordKind(expression.kind))
         guard let expr = expression.expression else {
-            return keyword
+            return
         }
-        return "\(keyword) \(renderedExpression(expr))"
+        writer.nextLineAppendsToLastLine()
+        writer.writeLine(" ")
+        writer.nextLineAppendsToLastLine()
+        renderExpression(expr)
     }
 
     /// Renders the specified closure invocation.
-    func renderedClosureInvocation(_ invocation: ClosureInvocationDescription) -> String {
-        var lines: [String] = []
-        var signatureWords: [String] = ["{"]
+    func renderClosureInvocation(_ invocation: ClosureInvocationDescription) {
+        writer.writeLine("{")
         if !invocation.argumentNames.isEmpty {
-            signatureWords.append(invocation.argumentNames.joined(separator: ", "))
-            signatureWords.append("in")
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine(" \(invocation.argumentNames.joined(separator: ", ")) in")
         }
-        lines.append(signatureWords.joinedWords())
         if let body = invocation.body {
-            lines.append(renderedCodeBlocks(body))
+            writer.withNestedLevel {
+                renderCodeBlocks(body)
+            }
         }
-        lines.append("}")
-        return lines.joinedLines()
+        writer.writeLine("}")
     }
 
     /// Renders the specified binary operator.
@@ -281,85 +450,111 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     /// Renders the specified binary operation.
-    func renderedBinaryOperation(_ operation: BinaryOperationDescription) -> String {
-        renderedExpression(operation.left) + " "
-            + renderedBinaryOperator(operation.operation) + " "
-            + renderedExpression(operation.right)
+    func renderBinaryOperation(_ operation: BinaryOperationDescription) {
+        renderExpression(operation.left)
+        writer.nextLineAppendsToLastLine()
+        writer.writeLine(" \(renderedBinaryOperator(operation.operation)) ")
+        writer.nextLineAppendsToLastLine()
+        renderExpression(operation.right)
     }
 
     /// Renders the specified inout expression.
-    func renderedInOutDescription(_ description: InOutDescription) -> String {
-        "&" + renderedExpression(description.referencedExpr)
+    func renderInOutDescription(_ description: InOutDescription) {
+        writer.writeLine("&")
+        writer.nextLineAppendsToLastLine()
+        renderExpression(description.referencedExpr)
     }
 
     /// Renders the specified optional chaining expression.
-    func renderedOptionalChainingDescription(
-        _ description: OptionalChainingDescription
-    ) -> String {
-        renderedExpression(description.referencedExpr) + "?"
+    func renderOptionalChainingDescription(_ description: OptionalChainingDescription) {
+        renderExpression(description.referencedExpr)
+        writer.nextLineAppendsToLastLine()
+        writer.writeLine("?")
     }
 
     /// Renders the specified tuple expression.
-    func renderedTupleDescription(
-        _ description: TupleDescription
-    ) -> String {
-        "(" + description.members.map(renderedExpression).joined(separator: ", ") + ")"
+    func renderTupleDescription(_ description: TupleDescription) {
+        writer.writeLine("(")
+        writer.nextLineAppendsToLastLine()
+        let members = description.members
+        for (member, isLast) in members.enumeratedWithLastMarker() {
+            renderExpression(member)
+            if !isLast {
+                writer.nextLineAppendsToLastLine()
+                writer.writeLine(", ")
+            }
+            writer.nextLineAppendsToLastLine()
+        }
+        writer.writeLine(")")
     }
 
     /// Renders the specified expression.
-    func renderedExpression(_ expression: Expression) -> String {
+    func renderExpression(_ expression: Expression) {
         switch expression {
         case .literal(let literalDescription):
-            return renderedLiteral(literalDescription)
+            renderLiteral(literalDescription)
         case .identifier(let identifierDescription):
-            return renderedIdentifier(identifierDescription)
+            writer.writeLine(renderedIdentifier(identifierDescription))
         case .memberAccess(let memberAccessDescription):
-            return renderedMemberAccess(memberAccessDescription)
+            renderMemberAccess(memberAccessDescription)
         case .functionCall(let functionCallDescription):
-            return renderedFunctionCall(functionCallDescription)
+            renderFunctionCall(functionCallDescription)
         case .assignment(let assignment):
-            return renderedAssignment(assignment)
+            renderAssignment(assignment)
         case .switch(let switchDesc):
-            return renderedSwitch(switchDesc)
+            renderSwitch(switchDesc)
         case .ifStatement(let ifDesc):
-            return renderedIf(ifDesc)
+            renderIf(ifDesc)
         case .doStatement(let doStmt):
-            return renderedDoStatement(doStmt)
+            renderDoStatement(doStmt)
         case .valueBinding(let valueBinding):
-            return renderedValueBinding(valueBinding)
+            renderValueBinding(valueBinding)
         case .unaryKeyword(let unaryKeyword):
-            return renderedUnaryKeywordExpression(unaryKeyword)
+            renderUnaryKeywordExpression(unaryKeyword)
         case .closureInvocation(let closureInvocation):
-            return renderedClosureInvocation(closureInvocation)
+            renderClosureInvocation(closureInvocation)
         case .binaryOperation(let binaryOperation):
-            return renderedBinaryOperation(binaryOperation)
+            renderBinaryOperation(binaryOperation)
         case .inOut(let inOut):
-            return renderedInOutDescription(inOut)
+            renderInOutDescription(inOut)
         case .optionalChaining(let optionalChaining):
-            return renderedOptionalChainingDescription(optionalChaining)
+            renderOptionalChainingDescription(optionalChaining)
         case .tuple(let tuple):
-            return renderedTupleDescription(tuple)
+            renderTupleDescription(tuple)
         }
     }
 
     /// Renders the specified literal expression.
-    func renderedLiteral(_ literal: LiteralDescription) -> String {
+    func renderLiteral(_ literal: LiteralDescription) {
+        func write(_ string: String) {
+            writer.writeLine(string)
+        }
         switch literal {
         case let .string(string):
             // Use a raw literal if the string contains a quote/backslash.
             if string.contains("\"") || string.contains("\\") {
-                return "#\"\(string)\"#"
+                write("#\"\(string)\"#")
             } else {
-                return "\"\(string)\""
+                write("\"\(string)\"")
             }
         case let .int(int):
-            return "\(int)"
+            write("\(int)")
         case let .bool(bool):
-            return bool ? "true" : "false"
+            write(bool ? "true" : "false")
         case .nil:
-            return "nil"
+            write("nil")
         case .array(let items):
-            return "[\(items.map { renderedExpression($0) }.joined(separator: ", "))]"
+            writer.writeLine("[")
+            writer.nextLineAppendsToLastLine()
+            for (item, isLast) in items.enumeratedWithLastMarker() {
+                renderExpression(item)
+                if !isLast {
+                    writer.nextLineAppendsToLastLine()
+                    writer.writeLine(", ")
+                }
+                writer.nextLineAppendsToLastLine()
+            }
+            writer.writeLine("]")
         }
     }
 
@@ -378,27 +573,28 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     /// Renders the specified extension declaration.
-    func renderedExtension(_ extensionDescription: ExtensionDescription) -> String {
-        var signatureWords: [String] = []
+    func renderExtension(_ extensionDescription: ExtensionDescription) {
         if let accessModifier = extensionDescription.accessModifier {
-            signatureWords.append(renderedAccessModifier(accessModifier))
+            writer.writeLine(renderedAccessModifier(accessModifier) + " ")
+            writer.nextLineAppendsToLastLine()
         }
-        signatureWords.append("extension")
-        signatureWords.append(extensionDescription.onType)
+        writer.writeLine("extension \(extensionDescription.onType)")
+        writer.nextLineAppendsToLastLine()
         if !extensionDescription.conformances.isEmpty {
-            signatureWords.append(":")
-            signatureWords.append(extensionDescription.conformances.joined(separator: ", "))
+            writer.writeLine(": \(extensionDescription.conformances.joined(separator: ", "))")
+            writer.nextLineAppendsToLastLine()
         }
         if let whereClause = extensionDescription.whereClause {
-            signatureWords.append(renderedWhereClause(whereClause))
+            writer.writeLine(" " + renderedWhereClause(whereClause))
+            writer.nextLineAppendsToLastLine()
         }
-        var lines: [String] = []
-        lines.append("\(signatureWords.joinedWords()) {")
+        writer.writeLine(" {")
         for declaration in extensionDescription.declarations {
-            lines.append(renderedDeclaration(declaration))
+            writer.withNestedLevel {
+                renderDeclaration(declaration)
+            }
         }
-        lines.append("}")
-        return lines.joinedLines()
+        writer.writeLine("}")
     }
 
     /// Renders the specified type reference to an existing type.
@@ -420,7 +616,7 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     /// Renders the specified typealias declaration.
-    func renderedTypealias(_ alias: TypealiasDescription) -> String {
+    func renderTypealias(_ alias: TypealiasDescription) {
         var words: [String] = []
         if let accessModifier = alias.accessModifier {
             words.append(renderedAccessModifier(accessModifier))
@@ -431,7 +627,7 @@ struct TextBasedRenderer: RendererProtocol {
             "=",
             renderedExistingTypeDescription(alias.existingType),
         ])
-        return words.joinedWords()
+        writer.writeLine(words.joinedWords())
     }
 
     /// Renders the specified binding kind.
@@ -445,195 +641,214 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     /// Renders the specified variable declaration.
-    func renderedVariable(_ variable: VariableDescription) -> String {
-        var words: [String] = []
-        if let accessModifier = variable.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
+    func renderVariable(_ variable: VariableDescription) {
+        do {
+            var words: [String] = []
+            if let accessModifier = variable.accessModifier {
+                words.append(renderedAccessModifier(accessModifier))
+            }
+            if variable.isStatic {
+                words.append("static")
+            }
+            words.append(renderedBindingKind(variable.kind))
+            let labelWithOptionalType: String
+            if let type = variable.type {
+                labelWithOptionalType = "\(variable.left): \(renderedExistingTypeDescription(type))"
+            } else {
+                labelWithOptionalType = variable.left
+            }
+            words.append(labelWithOptionalType)
+            writer.writeLine(words.joinedWords())
         }
-        if variable.isStatic {
-            words.append("static")
-        }
-        words.append(renderedBindingKind(variable.kind))
-        let labelWithOptionalType: String
-        if let type = variable.type {
-            labelWithOptionalType = "\(variable.left): \(renderedExistingTypeDescription(type))"
-        } else {
-            labelWithOptionalType = variable.left
-        }
-        words.append(labelWithOptionalType)
 
         if let right = variable.right {
-            words.append("= \(renderedExpression(right))")
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine(" = ")
+            writer.nextLineAppendsToLastLine()
+            renderExpression(right)
         }
 
-        var lines: [String] = [words.joinedWords()]
         if let body = variable.getter {
-            lines.append("{")
-            let hasExplicitGetter = !variable.getterEffects.isEmpty || variable.setter != nil || variable.modify != nil
-            if hasExplicitGetter {
-                lines.append("get \(variable.getterEffects.map(renderedFunctionKeyword).joined(separator: " ")) {")
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine(" {")
+            writer.withNestedLevel {
+                let hasExplicitGetter =
+                    !variable.getterEffects.isEmpty
+                    || variable.setter != nil || variable.modify != nil
+                if hasExplicitGetter {
+                    let keywords = variable
+                        .getterEffects
+                        .map(renderedFunctionKeyword)
+                        .joined(separator: " ")
+                    let line = "get \(keywords) {"
+                    writer.writeLine(line)
+                    writer.push()
+                }
+                renderCodeBlocks(body)
+                if hasExplicitGetter {
+                    writer.pop()
+                    writer.writeLine("}")
+                }
+                if let modify = variable.modify {
+                    writer.writeLine("_modify {")
+                    writer.withNestedLevel {
+                        renderCodeBlocks(modify)
+                    }
+                    writer.writeLine("}")
+                }
+                if let setter = variable.setter {
+                    writer.writeLine("set {")
+                    writer.withNestedLevel {
+                        renderCodeBlocks(setter)
+                    }
+                    writer.writeLine("}")
+                }
             }
-            lines.append(renderedCodeBlocks(body))
-            if hasExplicitGetter {
-                lines.append("}")
-            }
-            if let modify = variable.modify {
-                lines.append("_modify {")
-                lines.append(renderedCodeBlocks(modify))
-                lines.append("}")
-            }
-            if let setter = variable.setter {
-                lines.append("set {")
-                lines.append(renderedCodeBlocks(setter))
-                lines.append("}")
-            }
-            lines.append("}")
+            writer.writeLine("}")
         }
-        return lines.joinedLines()
     }
 
     /// Renders the specified struct declaration.
-    func renderedStruct(_ structDesc: StructDescription) -> String {
-        var words: [String] = []
+    func renderStruct(_ structDesc: StructDescription) {
         if let accessModifier = structDesc.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
+            writer.writeLine(renderedAccessModifier(accessModifier) + " ")
+            writer.nextLineAppendsToLastLine()
         }
-        words.append("struct")
-        words.append(structDesc.name)
+        writer.writeLine("struct \(structDesc.name)")
+        writer.nextLineAppendsToLastLine()
         if !structDesc.conformances.isEmpty {
-            words.append(":")
-            words.append(structDesc.conformances.joined(separator: ", "))
+            writer.writeLine(": \(structDesc.conformances.joined(separator: ", "))")
+            writer.nextLineAppendsToLastLine()
         }
-        words.append("{")
-        let declarationLine = words.joinedWords()
-
-        var lines: [String] = []
-        lines.append(declarationLine)
-
-        for member in structDesc.members {
-            lines.append(contentsOf: renderedDeclaration(member).asLines())
+        writer.writeLine(" {")
+        if !structDesc.members.isEmpty {
+            writer.withNestedLevel {
+                for member in structDesc.members {
+                    renderDeclaration(member)
+                }
+            }
+        } else {
+            writer.nextLineAppendsToLastLine()
         }
-
-        lines.append("}")
-        return lines.joinedLines()
+        writer.writeLine("}")
     }
 
     /// Renders the specified protocol declaration.
-    func renderedProtocol(_ protocolDesc: ProtocolDescription) -> String {
-        var words: [String] = []
+    func renderProtocol(_ protocolDesc: ProtocolDescription) {
         if let accessModifier = protocolDesc.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
+            writer.writeLine("\(renderedAccessModifier(accessModifier)) ")
+            writer.nextLineAppendsToLastLine()
         }
-        words.append("protocol")
-        words.append(protocolDesc.name)
+        writer.writeLine("protocol \(protocolDesc.name)")
+        writer.nextLineAppendsToLastLine()
         if !protocolDesc.conformances.isEmpty {
-            words.append(":")
-            words.append(protocolDesc.conformances.joined(separator: ", "))
+            let conformances = protocolDesc.conformances.joined(separator: ", ")
+            writer.writeLine(": \(conformances)")
+            writer.nextLineAppendsToLastLine()
         }
-        words.append("{")
-        let declarationLine = words.joinedWords()
-
-        var lines: [String] = []
-        lines.append(declarationLine)
-
-        for member in protocolDesc.members {
-            lines.append(contentsOf: renderedDeclaration(member).asLines())
+        writer.writeLine(" {")
+        if !protocolDesc.members.isEmpty {
+            writer.withNestedLevel {
+                for member in protocolDesc.members {
+                    renderDeclaration(member)
+                }
+            }
+        } else {
+            writer.nextLineAppendsToLastLine()
         }
-
-        lines.append("}")
-        return lines.joinedLines()
+        writer.writeLine("}")
     }
 
     /// Renders the specified enum declaration.
-    func renderedEnum(_ enumDesc: EnumDescription) -> String {
-        var words: [String] = []
+    func renderEnum(_ enumDesc: EnumDescription) {
         if enumDesc.isFrozen {
-            words.append("@frozen")
+            writer.writeLine("@frozen ")
+            writer.nextLineAppendsToLastLine()
         }
         if let accessModifier = enumDesc.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
+            writer.writeLine("\(renderedAccessModifier(accessModifier)) ")
+            writer.nextLineAppendsToLastLine()
         }
         if enumDesc.isIndirect {
-            words.append("indirect")
+            writer.writeLine("indirect ")
+            writer.nextLineAppendsToLastLine()
         }
-        words.append("enum")
-        words.append(enumDesc.name)
+        writer.writeLine("enum \(enumDesc.name)")
+        writer.nextLineAppendsToLastLine()
         if !enumDesc.conformances.isEmpty {
-            words.append(":")
-            words.append(enumDesc.conformances.joined(separator: ", "))
+            writer.writeLine(": \(enumDesc.conformances.joined(separator: ", "))")
+            writer.nextLineAppendsToLastLine()
         }
-        words.append("{")
-        let declarationLine = words.joinedWords()
-
-        var lines: [String] = []
-        lines.append(declarationLine)
-
-        for member in enumDesc.members {
-            lines.append(contentsOf: renderedDeclaration(member).asLines())
+        writer.writeLine(" {")
+        if !enumDesc.members.isEmpty {
+            writer.withNestedLevel {
+                for member in enumDesc.members {
+                    renderDeclaration(member)
+                }
+            }
+        } else {
+            writer.nextLineAppendsToLastLine()
         }
-
-        lines.append("}")
-        return lines.joinedLines()
+        writer.writeLine("}")
     }
 
     /// Renders the specified enum case associated value.
     func renderedEnumCaseAssociatedValue(_ value: EnumCaseAssociatedValueDescription) -> String {
         var words: [String] = []
         if let label = value.label {
-            words.append(label)
-            words.append(":")
+            words.append(label + ":")
         }
         words.append(renderedExistingTypeDescription(value.type))
         return words.joinedWords()
     }
 
-    /// Renders the specified enum case kind.
-    func renderedEnumCaseKind(_ kind: EnumCaseKind) -> String {
-        switch kind {
+    /// Renders the specified enum case declaration.
+    func renderEnumCase(_ enumCase: EnumCaseDescription) {
+        writer.writeLine("case \(enumCase.name)")
+        switch enumCase.kind {
         case .nameOnly:
-            return ""
+            break
         case .nameWithRawValue(let rawValue):
-            return " = \(renderedLiteral(rawValue))"
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine(" = ")
+            writer.nextLineAppendsToLastLine()
+            renderLiteral(rawValue)
         case .nameWithAssociatedValues(let values):
             if values.isEmpty {
-                return ""
+                break
             }
             let associatedValues =
                 values
                 .map(renderedEnumCaseAssociatedValue)
                 .joined(separator: ", ")
-            return "(\(associatedValues))"
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine("(\(associatedValues))")
         }
     }
 
-    /// Renders the specified enum case declaration.
-    func renderedEnumCase(_ enumCase: EnumCaseDescription) -> String {
-        return "case \(enumCase.name)\(renderedEnumCaseKind(enumCase.kind))"
-    }
-
     /// Renders the specified declaration.
-    func renderedDeclaration(_ declaration: Declaration) -> String {
+    func renderDeclaration(_ declaration: Declaration) {
         switch declaration {
         case let .commentable(comment, nestedDeclaration):
-            return renderedCommentableDeclaration(comment: comment, declaration: nestedDeclaration)
+            renderCommentableDeclaration(comment: comment, declaration: nestedDeclaration)
         case let .deprecated(deprecation, nestedDeclaration):
-            return renderedDeprecatedDeclaration(deprecation: deprecation, declaration: nestedDeclaration)
+            renderDeprecatedDeclaration(deprecation: deprecation, declaration: nestedDeclaration)
         case .variable(let variableDescription):
-            return renderedVariable(variableDescription)
+            renderVariable(variableDescription)
         case .extension(let extensionDescription):
-            return renderedExtension(extensionDescription)
+            renderExtension(extensionDescription)
         case .struct(let structDescription):
-            return renderedStruct(structDescription)
+            renderStruct(structDescription)
         case .protocol(let protocolDescription):
-            return renderedProtocol(protocolDescription)
+            renderProtocol(protocolDescription)
         case .enum(let enumDescription):
-            return renderedEnum(enumDescription)
+            renderEnum(enumDescription)
         case .typealias(let typealiasDescription):
-            return renderedTypealias(typealiasDescription)
+            renderTypealias(typealiasDescription)
         case .function(let functionDescription):
-            return renderedFunction(functionDescription)
+            renderFunction(functionDescription)
         case .enumCase(let enumCase):
-            return renderedEnumCase(enumCase)
+            renderEnumCase(enumCase)
         }
     }
 
@@ -658,89 +873,112 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     /// Renders the specified function signature.
-    func renderedFunctionSignature(_ signature: FunctionSignatureDescription) -> String {
-        var words: [String] = []
-        if let accessModifier = signature.accessModifier {
-            words.append(renderedAccessModifier(accessModifier))
+    func renderFunctionSignature(_ signature: FunctionSignatureDescription) {
+        do {
+            if let accessModifier = signature.accessModifier {
+                writer.writeLine(renderedAccessModifier(accessModifier) + " ")
+                writer.nextLineAppendsToLastLine()
+            }
+            writer.writeLine(renderedFunctionKind(signature.kind) + "(")
+            let parameters = signature.parameters
+            let separateLines = parameters.count > 1
+            if separateLines {
+                writer.withNestedLevel {
+                    for (parameter, isLast) in signature.parameters.enumeratedWithLastMarker() {
+                        renderParameter(parameter)
+                        if !isLast {
+                            writer.nextLineAppendsToLastLine()
+                            writer.writeLine(",")
+                        }
+                    }
+                }
+            } else {
+                writer.nextLineAppendsToLastLine()
+                if let parameter = parameters.first {
+                    renderParameter(parameter)
+                }
+                writer.nextLineAppendsToLastLine()
+            }
+            writer.writeLine(")")
         }
-        words.append(renderedFunctionKind(signature.kind))
-        words.append("(")
-        words.append(signature.parameters.map(renderedParameter).joined(separator: ", "))
-        words.append(")")
-        for keyword in signature.keywords {
-            words.append(renderedFunctionKeyword(keyword))
+
+        do {
+            let keywords = signature.keywords
+            if !keywords.isEmpty {
+                for keyword in keywords {
+                    writer.nextLineAppendsToLastLine()
+                    writer.writeLine(" " + renderedFunctionKeyword(keyword))
+                }
+            }
         }
+
         if let returnType = signature.returnType {
-            words.append("->")
-            words.append(renderedExpression(returnType))
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine(" -> ")
+            writer.nextLineAppendsToLastLine()
+            renderExpression(returnType)
         }
-        return words.joinedWords()
     }
 
     /// Renders the specified function declaration.
-    func renderedFunction(_ functionDescription: FunctionDescription) -> String {
-        var lines: [String] = []
-        var words: [String] = [
-            renderedFunctionSignature(functionDescription.signature)
-        ]
-        if functionDescription.body != nil {
-            words.append("{")
+    func renderFunction(_ functionDescription: FunctionDescription) {
+        renderFunctionSignature(functionDescription.signature)
+        guard let body = functionDescription.body else {
+            return
         }
-        lines.append(words.joinedWords())
-
-        if let body = functionDescription.body {
-            lines.append(contentsOf: body.map(renderedCodeBlock))
+        writer.nextLineAppendsToLastLine()
+        writer.writeLine(" {")
+        if !body.isEmpty {
+            writer.withNestedLevel {
+                renderCodeBlocks(body)
+            }
+        } else {
+            writer.nextLineAppendsToLastLine()
         }
-
-        if functionDescription.body != nil {
-            lines.append("}")
-        }
-        return lines.joinedLines()
+        writer.writeLine("}")
     }
 
     /// Renders the specified parameter declaration.
-    func renderedParameter(_ parameterDescription: ParameterDescription) -> String {
-        var words: [String] = []
+    func renderParameter(_ parameterDescription: ParameterDescription) {
         if let label = parameterDescription.label {
-            words.append(label)
+            writer.writeLine(label)
         } else {
-            words.append("_")
+            writer.writeLine("_")
         }
-        if let name = parameterDescription.name {
-            // If the label and name are the same value, don't repeat it, otherwise
-            // swift-format emits a warning.
-            if name != parameterDescription.label {
-                words.append(name)
-            }
+        writer.nextLineAppendsToLastLine()
+        if let name = parameterDescription.name, name != parameterDescription.label {
+            // If the label and name are the same value, don't repeat it.
+            writer.writeLine(" ")
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine(name)
+            writer.nextLineAppendsToLastLine()
         }
-        words.append(":")
-        words.append(renderedExistingTypeDescription(parameterDescription.type))
+        writer.writeLine(": ")
+        writer.nextLineAppendsToLastLine()
+        writer.writeLine(renderedExistingTypeDescription(parameterDescription.type))
         if let defaultValue = parameterDescription.defaultValue {
-            words.append("=")
-            words.append(renderedExpression(defaultValue))
+            writer.nextLineAppendsToLastLine()
+            writer.writeLine(" = ")
+            writer.nextLineAppendsToLastLine()
+            renderExpression(defaultValue)
         }
-        return words.joinedWords()
     }
 
     /// Renders the specified declaration with a comment.
-    func renderedCommentableDeclaration(comment: Comment?, declaration: Declaration) -> String {
-        return [
-            comment.map(renderedComment),
-            renderedDeclaration(declaration),
-        ]
-        .compactMap({ $0 }).joinedLines()
+    func renderCommentableDeclaration(comment: Comment?, declaration: Declaration) {
+        if let comment {
+            renderComment(comment)
+        }
+        renderDeclaration(declaration)
     }
 
     /// Renders the specified declaration with a deprecation annotation.
-    func renderedDeprecatedDeclaration(deprecation: DeprecationDescription, declaration: Declaration) -> String {
-        return [
-            renderedDeprecation(deprecation),
-            renderedDeclaration(declaration),
-        ]
-        .joinedLines()
+    func renderDeprecatedDeclaration(deprecation: DeprecationDescription, declaration: Declaration) {
+        renderDeprecation(deprecation)
+        renderDeclaration(declaration)
     }
 
-    func renderedDeprecation(_ deprecation: DeprecationDescription) -> String {
+    func renderDeprecation(_ deprecation: DeprecationDescription) {
         let things: [String] = [
             "*",
             "deprecated",
@@ -748,72 +986,51 @@ struct TextBasedRenderer: RendererProtocol {
             deprecation.renamed.map { "renamed: \"\($0)\"" },
         ]
         .compactMap({ $0 })
-        return "@available(\(things.joined(separator: ", ")))"
+        let line = "@available(\(things.joined(separator: ", ")))"
+        writer.writeLine(line)
     }
 
     /// Renders the specified code block item.
-    func renderedCodeBlockItem(_ description: CodeBlockItem) -> String {
+    func renderCodeBlockItem(_ description: CodeBlockItem) {
         switch description {
         case .declaration(let declaration):
-            return renderedDeclaration(declaration)
+            renderDeclaration(declaration)
         case .expression(let expression):
-            return renderedExpression(expression)
+            renderExpression(expression)
         }
     }
 
     /// Renders the specified code block.
-    func renderedCodeBlock(_ description: CodeBlock) -> String {
-        var lines: [String] = []
+    func renderCodeBlock(_ description: CodeBlock) {
         if let comment = description.comment {
-            lines.append(contentsOf: renderedComment(comment).asLines())
+            renderComment(comment)
         }
         let item = description.item
-        lines.append(contentsOf: renderedCodeBlockItem(item).asLines())
-        return lines.joinedLines()
+        renderCodeBlockItem(item)
     }
 
     /// Renders the specified code blocks.
-    func renderedCodeBlocks(_ blocks: [CodeBlock]) -> String {
-        blocks.map(renderedCodeBlock).joinedLines()
+    func renderCodeBlocks(_ blocks: [CodeBlock]) {
+        blocks.forEach(renderCodeBlock)
     }
+}
 
-    /// Renders the specified file.
-    func renderedFile(_ description: FileDescription) -> String {
-        var lines: [String] = []
-        if let topComment = description.topComment {
-            lines.appendLines(from: renderedComment(topComment))
-        }
-        if let imports = description.imports {
-            lines.appendLines(from: renderedImports(imports))
-        }
-        let renderedCodeBlocks = description.codeBlocks.map(renderedCodeBlock)
-        for block in renderedCodeBlocks {
-            lines.append(block)
-            lines.append("")
-        }
-        return lines.joinedLines()
+fileprivate extension Array {
+
+    /// Returns a collection of tuples, where the first element is
+    /// the collection element and the second is a Boolean value indicating
+    /// whether it is the last element in the collection.
+    /// - Returns: A collection of tuples.
+    func enumeratedWithLastMarker() -> [(Element, isLast: Bool)] {
+        let count = count
+        return enumerated()
+            .map { index, element in
+                (element, index == count - 1)
+            }
     }
 }
 
 fileprivate extension Array where Element == String {
-
-    /// Appends the lines from the specified string.
-    /// - Parameter string: The string whose lines to append.
-    mutating func appendLines(from string: String) {
-        append(contentsOf: string.asLines())
-    }
-
-    /// Returns a string where the elements of the array are
-    /// joined by a newline character, with optionally omitting
-    /// empty lines.
-    /// - Parameter omittingEmptyLines: If `true`, omits empty lines in the
-    /// output. Otherwise, all lines are included in the output.
-    /// - Returns: A string with the elements of the array joined by newline characters.
-    func joinedLines(omittingEmptyLines: Bool = true) -> String {
-        filter { !omittingEmptyLines || !$0.isEmpty }
-            .joined(separator: "\n")
-    }
-
     /// Returns a string where the elements of the array are joined
     /// by a space character.
     /// - Returns: A string with the elements of the array joined by space characters.
@@ -836,7 +1053,7 @@ fileprivate extension String {
     /// The closure takes a string representing one line as a parameter.
     /// - Parameter work: The closure that transforms each line.
     /// - Returns: A new string where each line has been transformed using the given closure.
-    func transformingLines(_ work: (String) -> String) -> String {
-        asLines().map(work).joinedLines()
+    func transformingLines(_ work: (String) -> String) -> [String] {
+        asLines().map(work)
     }
 }

@@ -34,7 +34,7 @@ if [ "${SWIFT_FORMAT_RC}" -ne 0 ]; then
 
   To fix, run the following command:
 
-    % git ls-files -z '*.swift' | xargs -0 swift-format --in-place --parallel
+    % git ls-files -z '*.swift' | grep -z -v -e 'Tests/OpenAPIGeneratorReferenceTests/Resources' -e 'Sources/swift-openapi-generator/Documentation.docc' | xargs -0 swift-format --in-place --parallel
   "
   exit "${SWIFT_FORMAT_RC}"
 fi
