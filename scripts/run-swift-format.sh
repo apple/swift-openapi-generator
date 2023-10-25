@@ -21,10 +21,10 @@ fatal() { error "$@"; exit 1; }
 CURRENT_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$(git -C "${CURRENT_SCRIPT_DIR}" rev-parse --show-toplevel)"
 
-FORMAT_COMMAND="lint --strict"
+FORMAT_COMMAND=(lint --strict)
 for arg in "$@"; do
   if [ "$arg" == "--fix" ]; then
-    FORMAT_COMMAND="format --in-place"
+    FORMAT_COMMAND=(format --in-place)
   fi
 done
 
@@ -33,7 +33,7 @@ SWIFTFORMAT_BIN=${SWIFTFORMAT_BIN:-$(command -v swift-format)} || fatal "❌ SWI
 git -C "${REPO_ROOT}" ls-files -z '*.swift' \
     | grep -z -v -e 'Tests/OpenAPIGeneratorReferenceTests/Resources' \
     -e 'Sources/swift-openapi-generator/Documentation.docc' \
-  | xargs -0 "${SWIFTFORMAT_BIN}" ${FORMAT_COMMAND} --parallel \
+  | xargs -0 "${SWIFTFORMAT_BIN}" "${FORMAT_COMMAND[@]}" --parallel \
   && SWIFT_FORMAT_RC=$? || SWIFT_FORMAT_RC=$?
 
 if [ "${SWIFT_FORMAT_RC}" -ne 0 ]; then
