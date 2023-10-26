@@ -180,14 +180,19 @@ final class Test_TextBasedRenderer: XCTestCase {
             .array([.literal(.nil)]),
             renderedBy: TextBasedRenderer.renderLiteral,
             rendersAs: #"""
-                [nil]
+                [
+                    nil
+                ]
                 """#
         )
         try _test(
             .array([.literal(.nil), .literal(.nil)]),
             renderedBy: TextBasedRenderer.renderLiteral,
             rendersAs: #"""
-                [nil, nil]
+                [
+                    nil,
+                    nil
+                ]
                 """#
         )
     }

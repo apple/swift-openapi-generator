@@ -473,7 +473,9 @@ public struct Client: APIProtocol {
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/{}",
-                    parameters: [input.path.petId]
+                    parameters: [
+                        input.path.petId
+                    ]
                 )
                 var request: HTTPTypes.HTTPRequest = .init(
                     soar_path: path,
@@ -539,7 +541,9 @@ public struct Client: APIProtocol {
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/{}/avatar",
-                    parameters: [input.path.petId]
+                    parameters: [
+                        input.path.petId
+                    ]
                 )
                 var request: HTTPTypes.HTTPRequest = .init(
                     soar_path: path,
