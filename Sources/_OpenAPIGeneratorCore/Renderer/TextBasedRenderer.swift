@@ -456,13 +456,17 @@ struct TextBasedRenderer: RendererProtocol {
         case .nil: write("nil")
         case .array(let items):
             writer.writeLine("[")
-            writer.nextLineAppendsToLastLine()
-            for (item, isLast) in items.enumeratedWithLastMarker() {
-                renderExpression(item)
-                if !isLast {
-                    writer.nextLineAppendsToLastLine()
-                    writer.writeLine(", ")
+            if !items.isEmpty {
+                writer.withNestedLevel {
+                    for (item, isLast) in items.enumeratedWithLastMarker() {
+                        renderExpression(item)
+                        if !isLast {
+                            writer.nextLineAppendsToLastLine()
+                            writer.writeLine(",")
+                        }
+                    }
                 }
+            } else {
                 writer.nextLineAppendsToLastLine()
             }
             writer.writeLine("]")

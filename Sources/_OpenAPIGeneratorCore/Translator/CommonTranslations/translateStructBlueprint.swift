@@ -67,7 +67,7 @@ extension FileTranslator {
     /// - Returns: A `Declaration` representing the translated struct.
     func translateStructBlueprintInitializer(typeName: TypeName, properties: [PropertyBlueprint]) -> Declaration {
 
-        let comment: Comment = .doc(properties.initializerComment(typeName: typeName.shortSwiftName))
+        let comment: Comment = properties.initializerComment(typeName: typeName.shortSwiftName)
 
         let decls: [(ParameterDescription, String)] = properties.map { property in
             (
@@ -145,19 +145,11 @@ fileprivate extension Array where Element == PropertyBlueprint {
     /// the properties contained in the current array.
     /// - Parameter typeName: The name of the structure type.
     /// - Returns: A comment string describing the initializer.
-    func initializerComment(typeName: String) -> String {
-        var components: [String] = ["Creates a new `\(typeName)`."]
-        if !isEmpty {
-            var parameterComponents: [String] = []
-            parameterComponents.append("- Parameters:")
-            for parameter in self {
-                parameterComponents.append(
-                    "  - \(parameter.swiftSafeName):\(parameter.comment?.firstLineOfContent.map { " \($0)" } ?? "")"
-                )
-            }
-            components.append("")
-            components.append(parameterComponents.joined(separator: "\n"))
-        }
-        return components.joined(separator: "\n")
+    func initializerComment(typeName: String) -> Comment {
+        Comment.functionComment(
+            abstract: "Creates a new `\(typeName)`.",
+            parameters: map { ($0.swiftSafeName, $0.comment?.firstLineOfContent) }
+        )!  // This force-unwrap is safe as the method never returns nil when
+        // a non-nil abstract is provided.
     }
 }

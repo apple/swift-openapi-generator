@@ -238,7 +238,30 @@ extension Comment {
             }
         )
     }
-
+    /// Returns a documentation comment for a function with the provided
+    /// parameters.
+    /// - Parameters:
+    ///   - abstract: The documentation of the function.
+    ///   - parameters: The parameters.
+    /// - Returns: A documentation comment for the function.
+    static func functionComment(abstract: String?, parameters: [(name: String, comment: String?)]) -> Comment? {
+        guard !parameters.isEmpty else { return abstract.map { .doc($0) } }
+        var components: [String] = abstract.map { [$0] } ?? []
+        var parameterComponents: [String] = []
+        parameterComponents.append("- Parameters:")
+        for (name, comment) in parameters {
+            let parameterComment: String
+            if let comment {
+                parameterComment = Comment.doc(comment).firstLineOfContent.map { " \($0)" } ?? ""
+            } else {
+                parameterComment = ""
+            }
+            parameterComponents.append("  - \(name):\(parameterComment)")
+        }
+        components.append("")
+        components.append(parameterComponents.joined(separator: "\n"))
+        return .doc(components.joined(separator: "\n"))
+    }
 }
 
 extension ComponentDictionaryLocatable {

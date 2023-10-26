@@ -139,10 +139,49 @@ extension APIProtocol {
 public enum Servers {
     /// Example Petstore implementation service
     public static func server1() throws -> Foundation.URL {
-        try Foundation.URL(validatingOpenAPIServerURL: "https://example.com/api")
+        try Foundation.URL(
+            validatingOpenAPIServerURL: "https://example.com/api",
+            variables: []
+        )
     }
     public static func server2() throws -> Foundation.URL {
-        try Foundation.URL(validatingOpenAPIServerURL: "/api")
+        try Foundation.URL(
+            validatingOpenAPIServerURL: "/api",
+            variables: []
+        )
+    }
+    /// A custom domain.
+    ///
+    /// - Parameters:
+    ///   - subdomain: A subdomain name.
+    ///   - port:
+    ///   - basePath: The base API path.
+    public static func server3(
+        subdomain: Swift.String = "test",
+        port: Swift.String = "443",
+        basePath: Swift.String = "v1"
+    ) throws -> Foundation.URL {
+        try Foundation.URL(
+            validatingOpenAPIServerURL: "https://{subdomain}.example.com:{port}/{basePath}",
+            variables: [
+                .init(
+                    name: "subdomain",
+                    value: subdomain
+                ),
+                .init(
+                    name: "port",
+                    value: port,
+                    allowedValues: [
+                        "443",
+                        "8443"
+                    ]
+                ),
+                .init(
+                    name: "basePath",
+                    value: basePath
+                )
+            ]
+        )
     }
 }
 
@@ -233,13 +272,22 @@ public enum Components {
                 value3 = try? .init(from: decoder)
                 value4 = try? decoder.decodeFromSingleValueContainer()
                 try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
-                    [value1, value2, value3, value4],
+                    [
+                        value1,
+                        value2,
+                        value3,
+                        value4
+                    ],
                     type: Self.self,
                     codingPath: decoder.codingPath
                 )
             }
             public func encode(to encoder: any Encoder) throws {
-                try encoder.encodeFirstNonNilValueToSingleValueContainer([value1, value2, value4])
+                try encoder.encodeFirstNonNilValueToSingleValueContainer([
+                    value1,
+                    value2,
+                    value4
+                ])
                 try value3?.encode(to: encoder)
             }
         }
@@ -438,7 +486,9 @@ public enum Components {
                     Swift.String.self,
                     forKey: .foo
                 )
-                try decoder.ensureNoAdditionalProperties(knownKeys: ["foo"])
+                try decoder.ensureNoAdditionalProperties(knownKeys: [
+                    "foo"
+                ])
             }
         }
         /// - Remark: Generated from `#/components/schemas/AnyAdditionalProperties`.
@@ -468,7 +518,9 @@ public enum Components {
                     Swift.String.self,
                     forKey: .foo
                 )
-                additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: ["foo"])
+                additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [
+                    "foo"
+                ])
             }
             public func encode(to encoder: any Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
@@ -506,7 +558,9 @@ public enum Components {
                     Swift.String.self,
                     forKey: .foo
                 )
-                additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: ["foo"])
+                additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [
+                    "foo"
+                ])
             }
             public func encode(to encoder: any Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
@@ -611,7 +665,10 @@ public enum Components {
                 value1 = try? .init(from: decoder)
                 value2 = try? .init(from: decoder)
                 try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
-                    [value1, value2],
+                    [
+                        value1,
+                        value2
+                    ],
                     type: Self.self,
                     codingPath: decoder.codingPath
                 )
@@ -1194,13 +1251,18 @@ public enum Components {
                     value1 = try? .init(from: decoder)
                     value2 = try? decoder.decodeFromSingleValueContainer()
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
-                        [value1, value2],
+                        [
+                            value1,
+                            value2
+                        ],
                         type: Self.self,
                         codingPath: decoder.codingPath
                     )
                 }
                 func encode(to encoder: any Encoder) throws {
-                    try encoder.encodeFirstNonNilValueToSingleValueContainer([value2])
+                    try encoder.encodeFirstNonNilValueToSingleValueContainer([
+                        value2
+                    ])
                     try value1?.encode(to: encoder)
                 }
             }
@@ -1651,7 +1713,9 @@ public enum Operations {
                 }
             }
             public static var allCases: [Self] {
-                [.json]
+                [
+                    .json
+                ]
             }
         }
     }
@@ -1823,7 +1887,9 @@ public enum Operations {
                 }
             }
             public static var allCases: [Self] {
-                [.json]
+                [
+                    .json
+                ]
             }
         }
     }
@@ -2037,7 +2103,11 @@ public enum Operations {
                 }
             }
             public static var allCases: [Self] {
-                [.json, .plainText, .binary]
+                [
+                    .json,
+                    .plainText,
+                    .binary
+                ]
             }
         }
     }
@@ -2310,7 +2380,9 @@ public enum Operations {
                 }
             }
             public static var allCases: [Self] {
-                [.json]
+                [
+                    .json
+                ]
             }
         }
     }
@@ -2559,7 +2631,11 @@ public enum Operations {
                 }
             }
             public static var allCases: [Self] {
-                [.binary, .json, .plainText]
+                [
+                    .binary,
+                    .json,
+                    .plainText
+                ]
             }
         }
     }

@@ -25,12 +25,33 @@ extension TypesFileTranslator {
     /// declare the method under.
     func translateServer(index: Int, server: OpenAPI.Server) -> Declaration {
         let methodName = "\(Constants.ServerURL.propertyPrefix)\(index+1)"
+        let parameters: [ParameterDescription] = server.variables.map { (key, value) in
+            .init(label: key, type: .init(TypeName.string), defaultValue: .literal(value.default))
+        }
+        let variableInitializers: [Expression] = server.variables.map { (key, value) in
+            let allowedValuesArg: FunctionArgumentDescription?
+            if let allowedValues = value.enum {
+                allowedValuesArg = .init(
+                    label: "allowedValues",
+                    expression: .literal(.array(allowedValues.map { .literal($0) }))
+                )
+            } else {
+                allowedValuesArg = nil
+            }
+            return .dot("init")
+                .call(
+                    [
+                        .init(label: "name", expression: .literal(key)),
+                        .init(label: "value", expression: .identifierPattern(key)),
+                    ] + (allowedValuesArg.flatMap { [$0] } ?? [])
+                )
+        }
         let methodDecl = Declaration.commentable(
-            server.description.flatMap { .doc($0) },
+            .functionComment(abstract: server.description, parameters: server.variables.map { ($0, $1.description) }),
             .function(
                 accessModifier: config.access,
                 kind: .function(name: methodName, isStatic: true),
-                parameters: [],
+                parameters: parameters,
                 keywords: [.throws],
                 returnType: .identifierType(TypeName.url),
                 body: [
@@ -41,7 +62,7 @@ extension TypesFileTranslator {
                                     .init(
                                         label: "validatingOpenAPIServerURL",
                                         expression: .literal(.string(server.urlTemplate.absoluteString))
-                                    )
+                                    ), .init(label: "variables", expression: .literal(.array(variableInitializers))),
                                 ])
                         )
                     )

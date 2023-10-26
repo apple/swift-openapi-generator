@@ -418,13 +418,21 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         value3 = try? decoder.decodeFromSingleValueContainer()
                         value4 = try? decoder.decodeFromSingleValueContainer()
                         try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
-                            [value1, value2, value3, value4],
+                            [
+                                value1,
+                                value2,
+                                value3,
+                                value4
+                            ],
                             type: Self.self,
                             codingPath: decoder.codingPath
                         )
                     }
                     public func encode(to encoder: any Encoder) throws {
-                        try encoder.encodeFirstNonNilValueToSingleValueContainer([value3, value4])
+                        try encoder.encodeFirstNonNilValueToSingleValueContainer([
+                            value3,
+                            value4
+                        ])
                         try value1?.encode(to: encoder)
                         try value2?.encode(to: encoder)
                     }
@@ -748,7 +756,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         value1 = try? .init(from: decoder)
                         value2 = try? .init(from: decoder)
                         try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
-                            [value1, value2],
+                            [
+                                value1,
+                                value2
+                            ],
                             type: Self.self,
                             codingPath: decoder.codingPath
                         )
@@ -960,13 +971,19 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         value1 = try? decoder.decodeFromSingleValueContainer()
                         value2 = try? decoder.decodeFromSingleValueContainer()
                         try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
-                            [value1, value2],
+                            [
+                                value1,
+                                value2
+                            ],
                             type: Self.self,
                             codingPath: decoder.codingPath
                         )
                     }
                     public func encode(to encoder: any Encoder) throws {
-                        try encoder.encodeFirstNonNilValueToSingleValueContainer([value1, value2])
+                        try encoder.encodeFirstNonNilValueToSingleValueContainer([
+                            value1,
+                            value2
+                        ])
                     }
                 }
             }
@@ -1352,13 +1369,18 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             value1 = try? .init(from: decoder)
                             value2 = try? decoder.decodeFromSingleValueContainer()
                             try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
-                                [value1, value2],
+                                [
+                                    value1,
+                                    value2
+                                ],
                                 type: Self.self,
                                 codingPath: decoder.codingPath
                             )
                         }
                         func encode(to encoder: any Encoder) throws {
-                            try encoder.encodeFirstNonNilValueToSingleValueContainer([value2])
+                            try encoder.encodeFirstNonNilValueToSingleValueContainer([
+                                value2
+                            ])
                             try value1?.encode(to: encoder)
                         }
                     }
