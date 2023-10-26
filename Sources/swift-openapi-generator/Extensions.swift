@@ -16,7 +16,17 @@ import ArgumentParser
 import _OpenAPIGeneratorCore
 import Yams
 
-extension URL: ExpressibleByArgument {
+#if compiler(>=5.11)
+extension URL: @retroactive ExpressibleByArgument {}
+extension GeneratorMode: @retroactive ExpressibleByArgument {}
+extension FeatureFlag: @retroactive ExpressibleByArgument {}
+#else
+extension URL: ExpressibleByArgument {}
+extension GeneratorMode: ExpressibleByArgument {}
+extension FeatureFlag: ExpressibleByArgument {}
+#endif
+
+extension URL {
 
     /// Creates a `URL` instance from a string argument.
     ///
@@ -24,9 +34,6 @@ extension URL: ExpressibleByArgument {
     /// - Parameter argument: The string argument representing the path for the URL.
     public init?(argument: String) { self.init(fileURLWithPath: argument) }
 }
-
-extension GeneratorMode: ExpressibleByArgument {}
-extension FeatureFlag: ExpressibleByArgument {}
 
 extension CaseIterable where Self: RawRepresentable, Self.RawValue == String {
 

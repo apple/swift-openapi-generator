@@ -13,6 +13,12 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 
+#if compiler(>=5.11)
+extension FileHandle: @retroactive TextOutputStream {}
+#else
+extension FileHandle: TextOutputStream {}
+#endif
+
 extension InMemoryInputFile {
     /// Creates a new in-memory file by reading the contents at the specified path.
     /// - Parameter url: The path to the file to read.
@@ -23,7 +29,7 @@ extension InMemoryInputFile {
 /// File handle to stderr.
 let stdErrHandle = FileHandle.standardError
 
-extension FileHandle: TextOutputStream {
+extension FileHandle {
     /// Writes the given string to the file handle.
     ///
     /// This method writes the provided string to the file handle using its UTF-8
