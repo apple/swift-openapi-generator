@@ -2104,10 +2104,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                     let body: Operations.get_sol_foo.Input.Body
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getRequiredRequestBodyAsJSON(
                             Swift.String.self,
                             from: requestBody,
@@ -2115,8 +2119,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return Operations.get_sol_foo.Input(body: body)
                 }
@@ -2177,10 +2181,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                     let body: Operations.get_sol_foo.Input.Body
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getRequiredRequestBodyAsJSON(
                             Swift.String.self,
                             from: requestBody,
@@ -2188,8 +2196,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return Operations.get_sol_foo.Input(body: body)
                 }
@@ -2252,10 +2260,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                     let body: Operations.get_sol_foo.Input.Body?
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getOptionalRequestBodyAsJSON(
                             Swift.String.self,
                             from: requestBody,
@@ -2263,8 +2275,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return Operations.get_sol_foo.Input(body: body)
                 }
@@ -2327,10 +2339,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                     let body: Operations.get_sol_foo.Input.Body?
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getOptionalRequestBodyAsJSON(
                             Swift.String.self,
                             from: requestBody,
@@ -2338,8 +2354,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return Operations.get_sol_foo.Input(body: body)
                 }
