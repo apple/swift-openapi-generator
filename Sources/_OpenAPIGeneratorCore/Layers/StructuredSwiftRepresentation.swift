@@ -1435,6 +1435,16 @@ extension Expression {
     /// - Returns: A new expression with the `yield` keyword placed before the expression.
     static func `yield`(_ expression: Expression) -> Self { .unaryKeyword(kind: .yield, expression: expression) }
 
+    /// Returns a new expression that puts the provided code blocks into
+    /// a do/catch block.
+    /// - Parameter:
+    ///   - doStatement: The code blocks in the `do` statement body.
+    ///   - catchBody: The code blocks in the `catch` statement.
+    /// - Returns: The expression.
+    static func `do`(_ doStatement: [CodeBlock], catchBody: [CodeBlock]? = nil) -> Self {
+        .doStatement(.init(doStatement: doStatement, catchBody: catchBody))
+    }
+
     /// Returns a new value binding used in enums with associated values.
     ///
     /// For example: `let foo(bar)`.

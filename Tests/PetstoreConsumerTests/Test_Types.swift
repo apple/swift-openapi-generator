@@ -159,6 +159,12 @@ final class Test_Types: XCTestCase {
         XCTAssertThrowsError(
             try testDecoder.decode(Components.Schemas.OneOfObjectsWithDiscriminator.self, from: Data(#"{}"#.utf8))
         )
+        XCTAssertThrowsError(
+            try testDecoder.decode(
+                Components.Schemas.OneOfObjectsWithDiscriminator.self,
+                from: Data(#"{"kind": "FooBar"}"#.utf8)
+            )
+        )
     }
     func testThrowingShorthandAPIs() throws {
         let created = Operations.createPet.Output.Created(body: .json(.init(id: 42, name: "Scruffy")))
