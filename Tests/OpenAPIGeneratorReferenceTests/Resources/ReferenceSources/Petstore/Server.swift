@@ -266,10 +266,14 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 )
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.createPet.Input.Body
-                if try contentType == nil || converter.isMatchingContentType(
+                let chosenContentType = try converter.bestContentType(
                     received: contentType,
-                    expectedRaw: "application/json"
-                ) {
+                    options: [
+                        "application/json"
+                    ]
+                )
+                switch chosenContentType {
+                case "application/json":
                     body = try await converter.getRequiredRequestBodyAsJSON(
                         Components.Schemas.CreatePetRequest.self,
                         from: requestBody,
@@ -277,8 +281,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .json(value)
                         }
                     )
-                } else {
-                    throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                default:
+                    preconditionFailure("bestContentType chose an invalid content type.")
                 }
                 return Operations.createPet.Input(
                     headers: headers,
@@ -359,10 +363,14 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             deserializer: { request, requestBody, metadata in
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.createPetWithForm.Input.Body
-                if try contentType == nil || converter.isMatchingContentType(
+                let chosenContentType = try converter.bestContentType(
                     received: contentType,
-                    expectedRaw: "application/x-www-form-urlencoded"
-                ) {
+                    options: [
+                        "application/x-www-form-urlencoded"
+                    ]
+                )
+                switch chosenContentType {
+                case "application/x-www-form-urlencoded":
                     body = try await converter.getRequiredRequestBodyAsURLEncodedForm(
                         Components.Schemas.CreatePetRequest.self,
                         from: requestBody,
@@ -370,8 +378,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .urlEncodedForm(value)
                         }
                     )
-                } else {
-                    throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                default:
+                    preconditionFailure("bestContentType chose an invalid content type.")
                 }
                 return Operations.createPetWithForm.Input(body: body)
             },
@@ -471,10 +479,16 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             deserializer: { request, requestBody, metadata in
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.postStats.Input.Body
-                if try contentType == nil || converter.isMatchingContentType(
+                let chosenContentType = try converter.bestContentType(
                     received: contentType,
-                    expectedRaw: "application/json"
-                ) {
+                    options: [
+                        "application/json",
+                        "text/plain",
+                        "application/octet-stream"
+                    ]
+                )
+                switch chosenContentType {
+                case "application/json":
                     body = try await converter.getRequiredRequestBodyAsJSON(
                         Components.Schemas.PetStats.self,
                         from: requestBody,
@@ -482,10 +496,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .json(value)
                         }
                     )
-                } else if try converter.isMatchingContentType(
-                    received: contentType,
-                    expectedRaw: "text/plain"
-                ) {
+                case "text/plain":
                     body = try converter.getRequiredRequestBodyAsBinary(
                         OpenAPIRuntime.HTTPBody.self,
                         from: requestBody,
@@ -493,10 +504,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .plainText(value)
                         }
                     )
-                } else if try converter.isMatchingContentType(
-                    received: contentType,
-                    expectedRaw: "application/octet-stream"
-                ) {
+                case "application/octet-stream":
                     body = try converter.getRequiredRequestBodyAsBinary(
                         OpenAPIRuntime.HTTPBody.self,
                         from: requestBody,
@@ -504,8 +512,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .binary(value)
                         }
                     )
-                } else {
-                    throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                default:
+                    preconditionFailure("bestContentType chose an invalid content type.")
                 }
                 return Operations.postStats.Input(body: body)
             },
@@ -579,10 +587,14 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let headers: Operations.updatePet.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Components.RequestBodies.UpdatePetRequest?
-                if try contentType == nil || converter.isMatchingContentType(
+                let chosenContentType = try converter.bestContentType(
                     received: contentType,
-                    expectedRaw: "application/json"
-                ) {
+                    options: [
+                        "application/json"
+                    ]
+                )
+                switch chosenContentType {
+                case "application/json":
                     body = try await converter.getOptionalRequestBodyAsJSON(
                         Components.RequestBodies.UpdatePetRequest.jsonPayload.self,
                         from: requestBody,
@@ -590,8 +602,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .json(value)
                         }
                     )
-                } else {
-                    throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                default:
+                    preconditionFailure("bestContentType chose an invalid content type.")
                 }
                 return Operations.updatePet.Input(
                     path: path,
@@ -656,10 +668,14 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 let headers: Operations.uploadAvatarForPet.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Operations.uploadAvatarForPet.Input.Body
-                if try contentType == nil || converter.isMatchingContentType(
+                let chosenContentType = try converter.bestContentType(
                     received: contentType,
-                    expectedRaw: "application/octet-stream"
-                ) {
+                    options: [
+                        "application/octet-stream"
+                    ]
+                )
+                switch chosenContentType {
+                case "application/octet-stream":
                     body = try converter.getRequiredRequestBodyAsBinary(
                         OpenAPIRuntime.HTTPBody.self,
                         from: requestBody,
@@ -667,8 +683,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             .binary(value)
                         }
                     )
-                } else {
-                    throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                default:
+                    preconditionFailure("bestContentType chose an invalid content type.")
                 }
                 return Operations.uploadAvatarForPet.Input(
                     path: path,
