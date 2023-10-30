@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 #if os(Linux)
 @preconcurrency import struct Foundation.URL
-@preconcurrency import struct Foundation.Data
+import struct Foundation.Data
 #else
 import struct Foundation.URL
 import struct Foundation.Data
