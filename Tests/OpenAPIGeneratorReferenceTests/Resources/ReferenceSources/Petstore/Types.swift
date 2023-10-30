@@ -153,17 +153,23 @@ public enum Servers {
     /// A custom domain.
     ///
     /// - Parameters:
+    ///   - _protocol:
     ///   - subdomain: A subdomain name.
     ///   - port:
     ///   - basePath: The base API path.
     public static func server3(
+        _protocol: Swift.String = "https",
         subdomain: Swift.String = "test",
         port: Swift.String = "443",
         basePath: Swift.String = "v1"
     ) throws -> Foundation.URL {
         try Foundation.URL(
-            validatingOpenAPIServerURL: "https://{subdomain}.example.com:{port}/{basePath}",
+            validatingOpenAPIServerURL: "{protocol}://{subdomain}.example.com:{port}/{basePath}",
             variables: [
+                .init(
+                    name: "protocol",
+                    value: _protocol
+                ),
                 .init(
                     name: "subdomain",
                     value: subdomain
