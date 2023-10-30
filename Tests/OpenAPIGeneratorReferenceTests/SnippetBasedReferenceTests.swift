@@ -413,10 +413,27 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         self.value4 = value4
                     }
                     public init(from decoder: any Decoder) throws {
-                        value1 = try? .init(from: decoder)
-                        value2 = try? .init(from: decoder)
-                        value3 = try? decoder.decodeFromSingleValueContainer()
-                        value4 = try? decoder.decodeFromSingleValueContainer()
+                        var errors: [any Error] = []
+                        do {
+                            value1 = try .init(from: decoder)
+                        } catch {
+                            errors.append(error)
+                        }
+                        do {
+                            value2 = try .init(from: decoder)
+                        } catch {
+                            errors.append(error)
+                        }
+                        do {
+                            value3 = try decoder.decodeFromSingleValueContainer()
+                        } catch {
+                            errors.append(error)
+                        }
+                        do {
+                            value4 = try decoder.decodeFromSingleValueContainer()
+                        } catch {
+                            errors.append(error)
+                        }
                         try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [
                                 value1,
@@ -425,7 +442,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 value4
                             ],
                             type: Self.self,
-                            codingPath: decoder.codingPath
+                            codingPath: decoder.codingPath,
+                            errors: errors
                         )
                     }
                     public func encode(to encoder: any Encoder) throws {
@@ -506,8 +524,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case "B", "#/components/schemas/B":
                             self = .B(try .init(from: decoder))
                         default:
-                            throw Swift.DecodingError.failedToDecodeOneOfSchema(
-                                type: Self.self,
+                            throw Swift.DecodingError.unknownOneOfDiscriminator(
+                                discriminatorKey: CodingKeys.which,
+                                discriminatorValue: discriminator,
                                 codingPath: decoder.codingPath
                             )
                         }
@@ -610,8 +629,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case "C", "#/components/schemas/C":
                             self = .C(try .init(from: decoder))
                         default:
-                            throw Swift.DecodingError.failedToDecodeOneOfSchema(
-                                type: Self.self,
+                            throw Swift.DecodingError.unknownOneOfDiscriminator(
+                                discriminatorKey: CodingKeys.which,
+                                discriminatorValue: discriminator,
                                 codingPath: decoder.codingPath
                             )
                         }
@@ -653,21 +673,29 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     case case2(Swift.Int)
                     case A(Components.Schemas.A)
                     public init(from decoder: any Decoder) throws {
+                        var errors: [any Error] = []
                         do {
                             self = .case1(try decoder.decodeFromSingleValueContainer())
                             return
-                        } catch {}
+                        } catch {
+                            errors.append(error)
+                        }
                         do {
                             self = .case2(try decoder.decodeFromSingleValueContainer())
                             return
-                        } catch {}
+                        } catch {
+                            errors.append(error)
+                        }
                         do {
                             self = .A(try .init(from: decoder))
                             return
-                        } catch {}
+                        } catch {
+                            errors.append(error)
+                        }
                         throw Swift.DecodingError.failedToDecodeOneOfSchema(
                             type: Self.self,
-                            codingPath: decoder.codingPath
+                            codingPath: decoder.codingPath,
+                            errors: errors
                         )
                     }
                     public func encode(to encoder: any Encoder) throws {
@@ -715,21 +743,29 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case case2(Swift.Int)
                         case A(Components.Schemas.A)
                         public init(from decoder: any Decoder) throws {
+                            var errors: [any Error] = []
                             do {
                                 self = .case1(try decoder.decodeFromSingleValueContainer())
                                 return
-                            } catch {}
+                            } catch {
+                                errors.append(error)
+                            }
                             do {
                                 self = .case2(try decoder.decodeFromSingleValueContainer())
                                 return
-                            } catch {}
+                            } catch {
+                                errors.append(error)
+                            }
                             do {
                                 self = .A(try .init(from: decoder))
                                 return
-                            } catch {}
+                            } catch {
+                                errors.append(error)
+                            }
                             throw Swift.DecodingError.failedToDecodeOneOfSchema(
                                 type: Self.self,
-                                codingPath: decoder.codingPath
+                                codingPath: decoder.codingPath,
+                                errors: errors
                             )
                         }
                         public func encode(to encoder: any Encoder) throws {
@@ -753,15 +789,25 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         self.value2 = value2
                     }
                     public init(from decoder: any Decoder) throws {
-                        value1 = try? .init(from: decoder)
-                        value2 = try? .init(from: decoder)
+                        var errors: [any Error] = []
+                        do {
+                            value1 = try .init(from: decoder)
+                        } catch {
+                            errors.append(error)
+                        }
+                        do {
+                            value2 = try .init(from: decoder)
+                        } catch {
+                            errors.append(error)
+                        }
                         try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [
                                 value1,
                                 value2
                             ],
                             type: Self.self,
-                            codingPath: decoder.codingPath
+                            codingPath: decoder.codingPath,
+                            errors: errors
                         )
                     }
                     public func encode(to encoder: any Encoder) throws {
@@ -968,15 +1014,25 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         self.value2 = value2
                     }
                     public init(from decoder: any Decoder) throws {
-                        value1 = try? decoder.decodeFromSingleValueContainer()
-                        value2 = try? decoder.decodeFromSingleValueContainer()
+                        var errors: [any Error] = []
+                        do {
+                            value1 = try decoder.decodeFromSingleValueContainer()
+                        } catch {
+                            errors.append(error)
+                        }
+                        do {
+                            value2 = try decoder.decodeFromSingleValueContainer()
+                        } catch {
+                            errors.append(error)
+                        }
                         try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [
                                 value1,
                                 value2
                             ],
                             type: Self.self,
-                            codingPath: decoder.codingPath
+                            codingPath: decoder.codingPath,
+                            errors: errors
                         )
                     }
                     public func encode(to encoder: any Encoder) throws {
@@ -1366,15 +1422,25 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self.value2 = value2
                         }
                         init(from decoder: any Decoder) throws {
-                            value1 = try? .init(from: decoder)
-                            value2 = try? decoder.decodeFromSingleValueContainer()
+                            var errors: [any Error] = []
+                            do {
+                                value1 = try .init(from: decoder)
+                            } catch {
+                                errors.append(error)
+                            }
+                            do {
+                                value2 = try decoder.decodeFromSingleValueContainer()
+                            } catch {
+                                errors.append(error)
+                            }
                             try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                                 [
                                     value1,
                                     value2
                                 ],
                                 type: Self.self,
-                                codingPath: decoder.codingPath
+                                codingPath: decoder.codingPath,
+                                errors: errors
                             )
                         }
                         func encode(to encoder: any Encoder) throws {
@@ -1405,17 +1471,23 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     case Node(Components.Schemas.Node)
                     case case2(Swift.String)
                     public init(from decoder: any Decoder) throws {
+                        var errors: [any Error] = []
                         do {
                             self = .Node(try .init(from: decoder))
                             return
-                        } catch {}
+                        } catch {
+                            errors.append(error)
+                        }
                         do {
                             self = .case2(try decoder.decodeFromSingleValueContainer())
                             return
-                        } catch {}
+                        } catch {
+                            errors.append(error)
+                        }
                         throw Swift.DecodingError.failedToDecodeOneOfSchema(
                             type: Self.self,
-                            codingPath: decoder.codingPath
+                            codingPath: decoder.codingPath,
+                            errors: errors
                         )
                     }
                     public func encode(to encoder: any Encoder) throws {
@@ -2104,10 +2176,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                     let body: Operations.get_sol_foo.Input.Body
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getRequiredRequestBodyAsJSON(
                             Swift.String.self,
                             from: requestBody,
@@ -2115,8 +2191,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return Operations.get_sol_foo.Input(body: body)
                 }
@@ -2177,10 +2253,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                     let body: Operations.get_sol_foo.Input.Body
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getRequiredRequestBodyAsJSON(
                             Swift.String.self,
                             from: requestBody,
@@ -2188,8 +2268,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return Operations.get_sol_foo.Input(body: body)
                 }
@@ -2252,10 +2332,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                     let body: Operations.get_sol_foo.Input.Body?
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getOptionalRequestBodyAsJSON(
                             Swift.String.self,
                             from: requestBody,
@@ -2263,8 +2347,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return Operations.get_sol_foo.Input(body: body)
                 }
@@ -2327,10 +2411,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                     let body: Operations.get_sol_foo.Input.Body?
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getOptionalRequestBodyAsJSON(
                             Swift.String.self,
                             from: requestBody,
@@ -2338,8 +2426,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return Operations.get_sol_foo.Input(body: body)
                 }

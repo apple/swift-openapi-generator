@@ -117,10 +117,14 @@ public struct Client: APIProtocol {
                     )
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.listPets.Output.Ok.Body
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
                             Components.Schemas.Pets.self,
                             from: responseBody,
@@ -128,8 +132,8 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return .ok(.init(
                         headers: headers,
@@ -138,10 +142,14 @@ public struct Client: APIProtocol {
                 default:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.listPets.Output.Default.Body
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
                             Components.Schemas._Error.self,
                             from: responseBody,
@@ -149,8 +157,8 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return .`default`(
                         statusCode: response.status.code,
@@ -208,10 +216,14 @@ public struct Client: APIProtocol {
                     ))
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.createPet.Output.Created.Body
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
                             Components.Schemas.Pet.self,
                             from: responseBody,
@@ -219,8 +231,8 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return .created(.init(
                         headers: headers,
@@ -234,10 +246,14 @@ public struct Client: APIProtocol {
                     ))
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Components.Responses.ErrorBadRequest.Body
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
                             Components.Responses.ErrorBadRequest.Body.jsonPayload.self,
                             from: responseBody,
@@ -245,8 +261,8 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return .clientError(
                         statusCode: response.status.code,
@@ -333,10 +349,16 @@ public struct Client: APIProtocol {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.getStats.Output.Ok.Body
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json",
+                            "text/plain",
+                            "application/octet-stream"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
                             Components.Schemas.PetStats.self,
                             from: responseBody,
@@ -344,10 +366,7 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    } else if try converter.isMatchingContentType(
-                        received: contentType,
-                        expectedRaw: "text/plain"
-                    ) {
+                    case "text/plain":
                         body = try converter.getResponseBodyAsBinary(
                             OpenAPIRuntime.HTTPBody.self,
                             from: responseBody,
@@ -355,10 +374,7 @@ public struct Client: APIProtocol {
                                 .plainText(value)
                             }
                         )
-                    } else if try converter.isMatchingContentType(
-                        received: contentType,
-                        expectedRaw: "application/octet-stream"
-                    ) {
+                    case "application/octet-stream":
                         body = try converter.getResponseBodyAsBinary(
                             OpenAPIRuntime.HTTPBody.self,
                             from: responseBody,
@@ -366,8 +382,8 @@ public struct Client: APIProtocol {
                                 .binary(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return .ok(.init(body: body))
                 default:
@@ -506,10 +522,14 @@ public struct Client: APIProtocol {
                 case 400:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.updatePet.Output.BadRequest.Body
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
                             Operations.updatePet.Output.BadRequest.Body.jsonPayload.self,
                             from: responseBody,
@@ -517,8 +537,8 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return .badRequest(.init(body: body))
                 default:
@@ -570,10 +590,14 @@ public struct Client: APIProtocol {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.uploadAvatarForPet.Output.Ok.Body
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/octet-stream"
-                    ) {
+                        options: [
+                            "application/octet-stream"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/octet-stream":
                         body = try converter.getResponseBodyAsBinary(
                             OpenAPIRuntime.HTTPBody.self,
                             from: responseBody,
@@ -581,17 +605,21 @@ public struct Client: APIProtocol {
                                 .binary(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return .ok(.init(body: body))
                 case 412:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "application/json"
-                    ) {
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
                             Swift.String.self,
                             from: responseBody,
@@ -599,17 +627,21 @@ public struct Client: APIProtocol {
                                 .json(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return .preconditionFailed(.init(body: body))
                 case 500:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
                     let body: Operations.uploadAvatarForPet.Output.InternalServerError.Body
-                    if try contentType == nil || converter.isMatchingContentType(
+                    let chosenContentType = try converter.bestContentType(
                         received: contentType,
-                        expectedRaw: "text/plain"
-                    ) {
+                        options: [
+                            "text/plain"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "text/plain":
                         body = try converter.getResponseBodyAsBinary(
                             OpenAPIRuntime.HTTPBody.self,
                             from: responseBody,
@@ -617,8 +649,8 @@ public struct Client: APIProtocol {
                                 .plainText(value)
                             }
                         )
-                    } else {
-                        throw converter.makeUnexpectedContentTypeError(contentType: contentType)
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return .internalServerError(.init(body: body))
                 default:

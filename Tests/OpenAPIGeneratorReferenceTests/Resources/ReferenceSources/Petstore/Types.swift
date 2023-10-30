@@ -273,10 +273,27 @@ public enum Components {
                 self.value4 = value4
             }
             public init(from decoder: any Decoder) throws {
-                value1 = try? decoder.decodeFromSingleValueContainer()
-                value2 = try? decoder.decodeFromSingleValueContainer()
-                value3 = try? .init(from: decoder)
-                value4 = try? decoder.decodeFromSingleValueContainer()
+                var errors: [any Error] = []
+                do {
+                    value1 = try decoder.decodeFromSingleValueContainer()
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    value2 = try decoder.decodeFromSingleValueContainer()
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    value3 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    value4 = try decoder.decodeFromSingleValueContainer()
+                } catch {
+                    errors.append(error)
+                }
                 try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                     [
                         value1,
@@ -285,7 +302,8 @@ public enum Components {
                         value4
                     ],
                     type: Self.self,
-                    codingPath: decoder.codingPath
+                    codingPath: decoder.codingPath,
+                    errors: errors
                 )
             }
             public func encode(to encoder: any Encoder) throws {
@@ -306,21 +324,29 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/MixedOneOf/case3`.
             case Pet(Components.Schemas.Pet)
             public init(from decoder: any Decoder) throws {
+                var errors: [any Error] = []
                 do {
                     self = .case1(try decoder.decodeFromSingleValueContainer())
                     return
-                } catch {}
+                } catch {
+                    errors.append(error)
+                }
                 do {
                     self = .PetKind(try decoder.decodeFromSingleValueContainer())
                     return
-                } catch {}
+                } catch {
+                    errors.append(error)
+                }
                 do {
                     self = .Pet(try .init(from: decoder))
                     return
-                } catch {}
+                } catch {
+                    errors.append(error)
+                }
                 throw Swift.DecodingError.failedToDecodeOneOfSchema(
                     type: Self.self,
-                    codingPath: decoder.codingPath
+                    codingPath: decoder.codingPath,
+                    errors: errors
                 )
             }
             public func encode(to encoder: any Encoder) throws {
@@ -668,15 +694,25 @@ public enum Components {
                 self.value2 = value2
             }
             public init(from decoder: any Decoder) throws {
-                value1 = try? .init(from: decoder)
-                value2 = try? .init(from: decoder)
+                var errors: [any Error] = []
+                do {
+                    value1 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    value2 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
                 try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                     [
                         value1,
                         value2
                     ],
                     type: Self.self,
-                    codingPath: decoder.codingPath
+                    codingPath: decoder.codingPath,
+                    errors: errors
                 )
             }
             public func encode(to encoder: any Encoder) throws {
@@ -710,25 +746,35 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/OneOfAny/case4`.
             case case4(Components.Schemas.OneOfAny.Case4Payload)
             public init(from decoder: any Decoder) throws {
+                var errors: [any Error] = []
                 do {
                     self = .case1(try decoder.decodeFromSingleValueContainer())
                     return
-                } catch {}
+                } catch {
+                    errors.append(error)
+                }
                 do {
                     self = .case2(try decoder.decodeFromSingleValueContainer())
                     return
-                } catch {}
+                } catch {
+                    errors.append(error)
+                }
                 do {
                     self = .CodeError(try .init(from: decoder))
                     return
-                } catch {}
+                } catch {
+                    errors.append(error)
+                }
                 do {
                     self = .case4(try .init(from: decoder))
                     return
-                } catch {}
+                } catch {
+                    errors.append(error)
+                }
                 throw Swift.DecodingError.failedToDecodeOneOfSchema(
                     type: Self.self,
-                    codingPath: decoder.codingPath
+                    codingPath: decoder.codingPath,
+                    errors: errors
                 )
             }
             public func encode(to encoder: any Encoder) throws {
@@ -845,8 +891,9 @@ public enum Components {
                 case "MessagedExercise", "#/components/schemas/MessagedExercise":
                     self = .MessagedExercise(try .init(from: decoder))
                 default:
-                    throw Swift.DecodingError.failedToDecodeOneOfSchema(
-                        type: Self.self,
+                    throw Swift.DecodingError.unknownOneOfDiscriminator(
+                        discriminatorKey: CodingKeys.kind,
+                        discriminatorValue: discriminator,
                         codingPath: decoder.codingPath
                     )
                 }
@@ -1184,8 +1231,9 @@ public enum Components {
                 case "RecursivePetOneOfSecond", "#/components/schemas/RecursivePetOneOfSecond":
                     self = .RecursivePetOneOfSecond(try .init(from: decoder))
                 default:
-                    throw Swift.DecodingError.failedToDecodeOneOfSchema(
-                        type: Self.self,
+                    throw Swift.DecodingError.unknownOneOfDiscriminator(
+                        discriminatorKey: CodingKeys._type,
+                        discriminatorValue: discriminator,
                         codingPath: decoder.codingPath
                     )
                 }
@@ -1254,15 +1302,25 @@ public enum Components {
                     self.value2 = value2
                 }
                 init(from decoder: any Decoder) throws {
-                    value1 = try? .init(from: decoder)
-                    value2 = try? decoder.decodeFromSingleValueContainer()
+                    var errors: [any Error] = []
+                    do {
+                        value1 = try .init(from: decoder)
+                    } catch {
+                        errors.append(error)
+                    }
+                    do {
+                        value2 = try decoder.decodeFromSingleValueContainer()
+                    } catch {
+                        errors.append(error)
+                    }
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                         [
                             value1,
                             value2
                         ],
                         type: Self.self,
-                        codingPath: decoder.codingPath
+                        codingPath: decoder.codingPath,
+                        errors: errors
                     )
                 }
                 func encode(to encoder: any Encoder) throws {

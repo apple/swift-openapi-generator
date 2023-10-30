@@ -191,29 +191,26 @@ extension ClientFileTranslator {
             let bodyDecl: Declaration = .variable(kind: .let, left: "body", type: .init(bodyTypeName))
             codeBlocks.append(.declaration(bodyDecl))
 
-            func makeIfBranch(typedContent: TypedSchemaContent, isFirstBranch: Bool) -> IfBranch {
-                let isMatchingContentTypeExpr: Expression = .identifierPattern("converter").dot("isMatchingContentType")
-                    .call([
-                        .init(label: "received", expression: .identifierPattern("contentType")),
-                        .init(
-                            label: "expectedRaw",
-                            expression: .literal(typedContent.content.contentType.headerValueForValidation)
-                        ),
-                    ])
-                let condition: Expression
-                if isFirstBranch {
-                    condition = .binaryOperation(
-                        left: .binaryOperation(
-                            left: .identifierPattern("contentType"),
-                            operation: .equals,
-                            right: .literal(.nil)
-                        ),
-                        operation: .booleanOr,
-                        right: isMatchingContentTypeExpr
-                    )
-                } else {
-                    condition = isMatchingContentTypeExpr
-                }
+            let contentTypeOptions = typedContents.map { typedContent in
+                typedContent.content.contentType.headerValueForValidation
+            }
+            let chosenContentTypeDecl: Declaration = .variable(
+                kind: .let,
+                left: "chosenContentType",
+                right: .try(
+                    .identifierPattern("converter").dot("bestContentType")
+                        .call([
+                            .init(label: "received", expression: .identifierPattern("contentType")),
+                            .init(
+                                label: "options",
+                                expression: .literal(.array(contentTypeOptions.map { .literal($0) }))
+                            ),
+                        ])
+                )
+            )
+            codeBlocks.append(.declaration(chosenContentTypeDecl))
+
+            func makeCase(typedContent: TypedSchemaContent) -> SwitchCaseDescription {
                 let contentTypeUsage = typedContent.resolvedTypeUsage
                 let transformExpr: Expression = .closureInvocation(
                     argumentNames: ["value"],
@@ -238,36 +235,33 @@ extension ClientFileTranslator {
                 } else {
                     bodyExpr = .try(.await(converterExpr))
                 }
+                let bodyAssignExpr: Expression = .assignment(left: .identifierPattern("body"), right: bodyExpr)
                 return .init(
-                    condition: .try(condition),
-                    body: [.expression(.assignment(left: .identifierPattern("body"), right: bodyExpr))]
+                    kind: .case(.literal(typedContent.content.contentType.headerValueForValidation)),
+                    body: [.expression(bodyAssignExpr)]
                 )
             }
-
-            let primaryIfBranch = makeIfBranch(typedContent: typedContents[0], isFirstBranch: true)
-            let elseIfBranches = typedContents.dropFirst()
-                .map { typedContent in makeIfBranch(typedContent: typedContent, isFirstBranch: false) }
-
-            codeBlocks.append(
-                .expression(
-                    .ifStatement(
-                        ifBranch: primaryIfBranch,
-                        elseIfBranches: elseIfBranches,
-                        elseBody: [
+            let cases = typedContents.map(makeCase)
+            let switchExpr: Expression = .switch(
+                switchedExpression: .identifierPattern("chosenContentType"),
+                cases: cases + [
+                    .init(
+                        kind: .default,
+                        body: [
                             .expression(
-                                .unaryKeyword(
-                                    kind: .throw,
-                                    expression: .identifierPattern("converter").dot("makeUnexpectedContentTypeError")
-                                        .call([
-                                            .init(label: "contentType", expression: .identifierPattern("contentType"))
-                                        ])
-                                )
+                                .identifierPattern("preconditionFailure")
+                                    .call([
+                                        .init(
+                                            label: nil,
+                                            expression: .literal("bestContentType chose an invalid content type.")
+                                        )
+                                    ])
                             )
                         ]
                     )
-                )
+                ]
             )
-
+            codeBlocks.append(.expression(switchExpr))
             bodyVarExpr = .identifierPattern("body")
         } else {
             bodyVarExpr = nil
