@@ -10,9 +10,11 @@ servers:
   - url: https://example.com/api
     description: Example Petstore implementation service
   - url: /api
-  - url: https://{subdomain}.example.com:{port}/{basePath}
+  - url: '{protocol}://{subdomain}.example.com:{port}/{basePath}'
     description: A custom domain.
     variables:
+      protocol:
+        default: https
       subdomain:
         default: test
         description: A subdomain name.
