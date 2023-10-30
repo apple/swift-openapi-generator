@@ -207,10 +207,15 @@ extension FileTranslator {
     func translateStructBlueprintAnyOfDecoder(properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)])
         -> Declaration
     {
-        let assignExprs: [Expression] = properties.map { (property, isKeyValuePair) in
+        let errorArrayDecl: Declaration = .createErrorArrayDecl()
+        let assignBlocks: [CodeBlock] = properties.map { (property, isKeyValuePair) in
             let decoderExpr: Expression =
                 isKeyValuePair ? .initFromDecoderExpr() : .decodeFromSingleValueContainerExpr()
-            return .assignment(left: .identifierPattern(property.swiftSafeName), right: .optionalTry(decoderExpr))
+            let assignExpr: Expression = .assignment(
+                left: .identifierPattern(property.swiftSafeName),
+                right: .try(decoderExpr)
+            )
+            return .expression(assignExpr.wrapInDoCatchAppendArrayExpr())
         }
         let atLeastOneNotNilCheckExpr: Expression = .try(
             .identifierType(TypeName.decodingError).dot("verifyAtLeastOneSchemaIsNotNil")
@@ -220,9 +225,12 @@ extension FileTranslator {
                         expression: .literal(.array(properties.map { .identifierPattern($0.property.swiftSafeName) }))
                     ), .init(label: "type", expression: .identifierPattern("Self").dot("self")),
                     .init(label: "codingPath", expression: .identifierPattern("decoder").dot("codingPath")),
+                    .init(label: "errors", expression: .identifierPattern("errors")),
                 ])
         )
-        return decoderInitializer(body: assignExprs.map { .expression($0) } + [.expression(atLeastOneNotNilCheckExpr)])
+        return decoderInitializer(
+            body: [.declaration(errorArrayDecl)] + assignBlocks + [.expression(atLeastOneNotNilCheckExpr)]
+        )
     }
 
     /// Returns a declaration of an anyOf encoder implementation.
@@ -254,37 +262,51 @@ extension FileTranslator {
     /// - Parameter cases: The names of the cases to be decoded.
     /// - Returns: A `Declaration` representing the `OneOf` decoder implementation.
     func translateOneOfWithoutDiscriminatorDecoder(cases: [(name: String, isKeyValuePair: Bool)]) -> Declaration {
+        let errorArrayDecl: Declaration = .createErrorArrayDecl()
         let assignExprs: [Expression] = cases.map { (caseName, isKeyValuePair) in
             let decoderExpr: Expression =
                 isKeyValuePair ? .initFromDecoderExpr() : .decodeFromSingleValueContainerExpr()
-            return .doStatement(
-                .init(
-                    doStatement: [
-                        .expression(
-                            .assignment(
-                                left: .identifierPattern("self"),
-                                right: .dot(caseName).call([.init(label: nil, expression: .try(decoderExpr))])
-                            )
-                        ), .expression(.return()),
-                    ],
-                    catchBody: []
-                )
-            )
+            let body: [CodeBlock] = [
+                .expression(
+                    .assignment(
+                        left: .identifierPattern("self"),
+                        right: .dot(caseName).call([.init(label: nil, expression: .try(decoderExpr))])
+                    )
+                ), .expression(.return()),
+            ]
+            return body.wrapInDoCatchAppendArrayExpr()
         }
-
-        let otherExprs: [CodeBlock] = [.expression(translateOneOfDecoderThrowOnUnknownExpr())]
-        return decoderInitializer(body: (assignExprs).map { .expression($0) } + otherExprs)
+        let otherExprs: [CodeBlock] = [.expression(translateOneOfDecoderThrowOnNoCaseDecodedExpr())]
+        return decoderInitializer(
+            body: [.declaration(errorArrayDecl)] + (assignExprs).map { .expression($0) } + otherExprs
+        )
     }
 
+    /// Returns an expression that throws an error when a oneOf discriminator
+    /// failed to match any known cases.
+    func translateOneOfDecoderThrowOnUnknownExpr(discriminatorSwiftName: String) -> Expression {
+        .unaryKeyword(
+            kind: .throw,
+            expression: .identifierType(TypeName.decodingError).dot("unknownOneOfDiscriminator")
+                .call([
+                    .init(
+                        label: "discriminatorKey",
+                        expression: .identifierPattern(Constants.Codable.codingKeysName).dot(discriminatorSwiftName)
+                    ), .init(label: "discriminatorValue", expression: .identifierPattern("discriminator")),
+                    .init(label: "codingPath", expression: .identifierPattern("decoder").dot("codingPath")),
+                ])
+        )
+    }
     /// Returns an expression that throws an error when a oneOf failed
     /// to match any documented cases.
-    func translateOneOfDecoderThrowOnUnknownExpr() -> Expression {
+    func translateOneOfDecoderThrowOnNoCaseDecodedExpr() -> Expression {
         .unaryKeyword(
             kind: .throw,
             expression: .identifierType(TypeName.decodingError).dot("failedToDecodeOneOfSchema")
                 .call([
                     .init(label: "type", expression: .identifierPattern("Self").dot("self")),
                     .init(label: "codingPath", expression: .identifierPattern("decoder").dot("codingPath")),
+                    .init(label: "errors", expression: .identifierPattern("errors")),
                 ])
         )
     }
@@ -311,7 +333,9 @@ extension FileTranslator {
                 ]
             )
         }
-        let otherExprs: [CodeBlock] = [.expression(translateOneOfDecoderThrowOnUnknownExpr())]
+        let otherExprs: [CodeBlock] = [
+            .expression(translateOneOfDecoderThrowOnUnknownExpr(discriminatorSwiftName: discriminatorName))
+        ]
         let body: [CodeBlock] = [
             .declaration(.decoderContainerOfKeysVar()),
             .declaration(
@@ -408,6 +432,31 @@ fileprivate extension Expression {
     static func decodeFromSingleValueContainerExpr() -> Expression {
         .identifierPattern("decoder").dot("decodeFromSingleValueContainer").call([])
     }
+    /// Returns a new expression that wraps the provided expression in
+    /// a do/catch block where the error is appended to an array.
+    ///
+    /// Assumes the existence of an "errors" variable in the current scope.
+    /// - Returns: The expression.
+    func wrapInDoCatchAppendArrayExpr() -> Expression { [CodeBlock.expression(self)].wrapInDoCatchAppendArrayExpr() }
+}
+
+fileprivate extension Array where Element == CodeBlock {
+    /// Returns a new expression that wraps the provided code blocks in
+    /// a do/catch block where the error is appended to an array.
+    ///
+    /// Assumes the existence of an "errors" variable in the current scope.
+    /// - Returns: The expression.
+    func wrapInDoCatchAppendArrayExpr() -> Expression {
+        .do(
+            self,
+            catchBody: [
+                .expression(
+                    .identifierPattern("errors").dot("append")
+                        .call([.init(label: nil, expression: .identifierPattern("error"))])
+                )
+            ]
+        )
+    }
 }
 
 fileprivate extension Declaration {
@@ -423,6 +472,11 @@ fileprivate extension Declaration {
                     .call([.init(label: "keyedBy", expression: .identifierType(.member("CodingKeys")).dot("self"))])
             )
         )
+    }
+    /// Creates a new declaration that creates a local array of errors.
+    /// - Returns: The declaration.
+    static func createErrorArrayDecl() -> Declaration {
+        .variable(kind: .var, left: "errors", type: .array(.any(.member("Error"))), right: .literal(.array([])))
     }
 }
 
