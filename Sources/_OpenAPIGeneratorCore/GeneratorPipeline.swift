@@ -117,10 +117,7 @@ func makeGeneratorPipeline(
         parseOpenAPIFileStage: .init(
             preTransitionHooks: [],
             transition: { input in try parser.parseOpenAPI(input, config: config, diagnostics: diagnostics) },
-            postTransitionHooks: [
-                filterDoc,
-                validateDoc,
-            ]
+            postTransitionHooks: [filterDoc, validateDoc]
         ),
         translateOpenAPIToStructuredSwiftStage: .init(
             preTransitionHooks: [],
