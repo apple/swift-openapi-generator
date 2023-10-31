@@ -102,7 +102,7 @@ extension OperationDescription {
 
     /// Returns the type name of the namespace unique to the operation.
     var operationNamespace: TypeName {
-        return .init(
+        .init(
             components: [.root, .init(swift: Constants.Operations.namespace, json: "paths")]
                 + path.components.map { .init(swift: nil, json: $0) } + [
                     .init(swift: methodName, json: httpMethod.rawValue)

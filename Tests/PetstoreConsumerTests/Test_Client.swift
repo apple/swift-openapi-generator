@@ -676,7 +676,7 @@ final class Test_Client: XCTestCase {
 
     func testUploadAvatarForPet_500() async throws {
         transport = .init { request, requestBody, baseURL, operationID in
-            return try HTTPResponse(status: .internalServerError, headerFields: [.contentType: "text/plain"])
+            try HTTPResponse(status: .internalServerError, headerFields: [.contentType: "text/plain"])
                 .withEncodedBody(Data.efghString)
         }
         let response = try await client.uploadAvatarForPet(.init(path: .init(petId: 1), body: .binary(.init(.abcd))))

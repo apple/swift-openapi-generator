@@ -62,7 +62,7 @@ import XcodeProjectPlugin
 
 extension SwiftOpenAPIGeneratorPlugin: XcodeBuildToolPlugin {
     func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
-        return try createBuildCommands(
+        try createBuildCommands(
             pluginWorkDirectory: context.pluginWorkDirectory,
             tool: context.tool,
             sourceFiles: target.inputFiles,
