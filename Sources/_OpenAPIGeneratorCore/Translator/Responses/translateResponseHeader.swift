@@ -24,13 +24,21 @@ extension TypesFileTranslator {
     /// - Returns: A property blueprint.
     /// - Throws: An error if there's an issue while parsing the response header.
     func parseResponseHeaderAsProperty(for header: TypedResponseHeader, parent: TypeName) throws -> PropertyBlueprint {
+        let schema = header.schema
+        let typeUsage = header.typeUsage
+        let associatedDeclarations: [Declaration]
+        if TypeMatcher.isInlinable(schema) {
+            associatedDeclarations = try translateSchema(typeName: typeUsage.typeName, schema: schema, overrides: .none)
+        } else {
+            associatedDeclarations = []
+        }
         let comment = parent.docCommentWithUserDescription(header.header.description, subPath: header.name)
         return .init(
             comment: comment,
             originalName: header.name,
-            typeUsage: header.typeUsage,
+            typeUsage: typeUsage,
             default: header.header.required ? nil : .nil,
-            associatedDeclarations: [],
+            associatedDeclarations: associatedDeclarations,
             asSwiftSafeName: swiftSafeName
         )
     }

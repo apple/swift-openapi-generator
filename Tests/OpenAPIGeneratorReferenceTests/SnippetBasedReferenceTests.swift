@@ -1673,6 +1673,41 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsResponsesResponseWithInlineHeader() throws {
+        try self.assertResponsesTranslation(
+            """
+            responses:
+              BadRequest:
+                description: Bad request
+                headers:
+                  X-Reason:
+                    schema:
+                      type: string
+                      enum:
+                        - badLuck
+            """,
+            """
+            public enum Responses {
+                public struct BadRequest: Sendable, Hashable {
+                    public struct Headers: Sendable, Hashable {
+                        @frozen public enum X_hyphen_ReasonPayload: String, Codable, Hashable, Sendable {
+                            case badLuck = "badLuck"
+                        }
+                        public var X_hyphen_Reason: Components.Responses.BadRequest.Headers.X_hyphen_ReasonPayload?
+                        public init(X_hyphen_Reason: Components.Responses.BadRequest.Headers.X_hyphen_ReasonPayload? = nil) {
+                            self.X_hyphen_Reason = X_hyphen_Reason
+                        }
+                    }
+                    public var headers: Components.Responses.BadRequest.Headers
+                    public init(headers: Components.Responses.BadRequest.Headers = .init()) {
+                        self.headers = headers
+                    }
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsResponsesResponseWithRequiredHeader() throws {
         try self.assertResponsesTranslation(
             """
