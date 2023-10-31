@@ -129,7 +129,8 @@ extension FileTranslator {
                 )
             }
         }
-        let usage = type.withOptional(!header.required)
+        let isOptional = try !header.required || typeMatcher.isOptional(schema, components: components)
+        let usage = type.withOptional(isOptional)
         return .init(
             header: header,
             name: name,
