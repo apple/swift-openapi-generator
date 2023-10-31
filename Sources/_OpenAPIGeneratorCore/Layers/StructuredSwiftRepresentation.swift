@@ -1251,7 +1251,7 @@ extension Declaration {
 
 extension FunctionKind {
     /// Returns a non-failable initializer, for example `init()`.
-    static var initializer: Self { return .initializer(failable: false) }
+    static var initializer: Self { .initializer(failable: false) }
 
     /// Returns a non-static function kind.
     static func function(name: String) -> Self { .function(name: name, isStatic: false) }
@@ -1262,12 +1262,12 @@ extension CodeBlock {
     /// Returns a new declaration code block wrapping the provided declaration.
     /// - Parameter declaration: The declaration to wrap.
     /// - Returns: A new `CodeBlock` instance containing the provided declaration.
-    static func declaration(_ declaration: Declaration) -> Self { return CodeBlock(item: .declaration(declaration)) }
+    static func declaration(_ declaration: Declaration) -> Self { CodeBlock(item: .declaration(declaration)) }
 
     /// Returns a new expression code block wrapping the provided expression.
     /// - Parameter expression: The expression to wrap.
     /// - Returns: A new `CodeBlock` instance containing the provided declaration.
-    static func expression(_ expression: Expression) -> Self { return CodeBlock(item: .expression(expression)) }
+    static func expression(_ expression: Expression) -> Self { CodeBlock(item: .expression(expression)) }
 }
 
 extension Expression {
@@ -1290,7 +1290,7 @@ extension Expression {
     /// expression.
     /// - Parameter member: The name of the member to access on the expression.
     /// - Returns: A new expression representing member access.
-    func dot(_ member: String) -> Expression { return .memberAccess(.init(left: self, right: member)) }
+    func dot(_ member: String) -> Expression { .memberAccess(.init(left: self, right: member)) }
 
     /// Returns a new expression that calls the current expression as a function
     /// with the specified arguments.
@@ -1306,7 +1306,7 @@ extension Expression {
     /// For example: `.foo`, where `member` is `foo`.
     /// - Parameter member: The name of the member to access.
     /// - Returns: A new expression representing member access with a dot prefix.
-    static func dot(_ member: String) -> Self { return Self.memberAccess(.init(right: member)) }
+    static func dot(_ member: String) -> Self { Self.memberAccess(.init(right: member)) }
 
     /// Returns a new identifier expression for the provided pattern, such
     /// as a variable or function name.

@@ -27,7 +27,7 @@ public struct YamsParser: ParserProtocol {
     /// - Returns: An array of top-level keys as strings.
     /// - Throws: An error if there are any issues with parsing the YAML string.
     public static func extractTopLevelKeys(fromYAMLString yamlString: String) throws -> [String] {
-        var yamlKeys = [String]()
+        var yamlKeys: [String] = []
         let parser = try Parser(yaml: yamlString)
 
         if let rootNode = try parser.singleRoot(), case let .mapping(mapping) = rootNode {
@@ -126,7 +126,7 @@ extension Diagnostic {
     ///   - location: Describes the input file being worked on when the error occurred.
     /// - Returns: An error diagnostic.
     static func openAPIVersionError(versionString: String, location: Location) -> Diagnostic {
-        return error(
+        error(
             message:
                 "Unsupported document version: \(versionString). Please provide a document with OpenAPI versions in the 3.0.x or 3.1.x sets.",
             location: location
@@ -137,7 +137,7 @@ extension Diagnostic {
     /// - Parameter location: Describes the input file being worked on when the error occurred
     /// - Returns: An error diagnostic.
     static func openAPIMissingVersionError(location: Location) -> Diagnostic {
-        return error(
+        error(
             message:
                 "No openapi key found, please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x or 3.1.x sets.",
             location: location

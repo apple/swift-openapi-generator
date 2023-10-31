@@ -98,7 +98,7 @@ extension _GenerateOptions {
         do {
             let data = try Data(contentsOf: config)
             let configAsString = String(decoding: data, as: UTF8.self)
-            var yamlKeys = [String]()
+            var yamlKeys: [String] = []
 
             do { yamlKeys = try YamsParser.extractTopLevelKeys(fromYAMLString: configAsString) } catch {
                 throw ValidationError("The config isn't valid. \(error)")

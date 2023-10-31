@@ -79,7 +79,7 @@ final class Test_Server: XCTestCase {
 
     func testListPets_default() async throws {
         client = .init(listPetsBlock: { input in
-            return .default(statusCode: 400, .init(body: .json(.init(code: 1, me_dollar_sage: "Oh no!"))))
+            .default(statusCode: 400, .init(body: .json(.init(code: 1, me_dollar_sage: "Oh no!"))))
         })
         let (response, responseBody) = try await server.listPets(
             .init(soar_path: "/api/pets", method: .get),
@@ -377,7 +377,7 @@ final class Test_Server: XCTestCase {
     }
 
     func testGetStats_200_json() async throws {
-        client = .init(getStatsBlock: { input in return .ok(.init(body: .json(.init(count: 1)))) })
+        client = .init(getStatsBlock: { input in .ok(.init(body: .json(.init(count: 1)))) })
         let (response, responseBody) = try await server.getStats(
             .init(
                 soar_path: "/api/pets/stats",
@@ -400,7 +400,7 @@ final class Test_Server: XCTestCase {
     }
 
     func testGetStats_200_unexpectedAccept() async throws {
-        client = .init(getStatsBlock: { input in return .ok(.init(body: .json(.init(count: 1)))) })
+        client = .init(getStatsBlock: { input in .ok(.init(body: .json(.init(count: 1)))) })
         do {
             _ = try await server.getStats(
                 .init(soar_path: "/api/pets/stats", method: .patch, headerFields: [.accept: "foo/bar"]),
@@ -412,7 +412,7 @@ final class Test_Server: XCTestCase {
     }
 
     func testGetStats_200_text() async throws {
-        client = .init(getStatsBlock: { input in return .ok(.init(body: .plainText("count is 1"))) })
+        client = .init(getStatsBlock: { input in .ok(.init(body: .plainText("count is 1"))) })
         let (response, responseBody) = try await server.getStats(
             .init(
                 soar_path: "/api/pets/stats",
@@ -521,7 +521,7 @@ final class Test_Server: XCTestCase {
     }
 
     func testGetStats_200_binary() async throws {
-        client = .init(getStatsBlock: { input in return .ok(.init(body: .binary("count_is_1"))) })
+        client = .init(getStatsBlock: { input in .ok(.init(body: .binary("count_is_1"))) })
         let (response, responseBody) = try await server.getStats(
             .init(
                 soar_path: "/api/pets/stats",
@@ -634,7 +634,7 @@ final class Test_Server: XCTestCase {
     }
 
     func testProbe_204() async throws {
-        client = .init(probeBlock: { input in return .noContent(.init()) })
+        client = .init(probeBlock: { input in .noContent(.init()) })
         let (response, responseBody) = try await server.probe(
             .init(soar_path: "/api/probe/", method: .post),
             nil,

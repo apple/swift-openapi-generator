@@ -126,7 +126,7 @@ extension ServerFileTranslator {
     func translateResponseHeaderInServer(_ header: TypedResponseHeader, responseVariableName: String) throws
         -> Expression
     {
-        return .try(
+        .try(
             .identifierPattern("converter").dot("setHeaderFieldAs\(header.codingStrategy.runtimeName)")
                 .call([
                     .init(
