@@ -44,6 +44,9 @@ extension TypeName {
     /// - Returns: A TypeName representing the type with the given name in the HTTPTypes module.
     static func httpTypes(_ name: String) -> TypeName { TypeName(swiftKeyPath: ["HTTPTypes", name]) }
 
+    /// Returns the type name for the Date type.
+    static var date: Self { .foundation("Date") }
+
     /// Returns the type name for the URL type.
     static var url: Self { .foundation("URL") }
 
@@ -78,4 +81,7 @@ extension TypeName {
 
     /// Returns the type name for the copy-on-write box type.
     static var box: TypeName { .runtime("CopyOnWriteBox") }
+
+    /// Returns the type name for the base64 wrapper.
+    static var base64: TypeName { .runtime("Base64EncodedData") }
 }
