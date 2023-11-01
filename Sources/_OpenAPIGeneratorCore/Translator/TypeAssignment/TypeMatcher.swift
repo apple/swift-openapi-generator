@@ -293,16 +293,22 @@ struct TypeMatcher {
             case .int64: typeName = .swift("Int64")
             default: typeName = .swift("Int")
             }
-        case .string(let core, _):
+        case .string(let core, let stringContext):
             if core.allowedValues != nil {
                 // custom enum isn't a builtin
                 return nil
             }
-            switch core.format {
+            switch stringContext.contentEncoding {
             case .binary: typeName = .body
-            case .byte: typeName = .runtime("Base64EncodedData")
-            case .dateTime: typeName = .foundation("Date")
-            default: typeName = .swift("String")
+            case .base64: typeName = .base64
+            default:
+                // Check the format as well, for docs converted from OpenAPI 3.0.
+                switch core.format {
+                case .binary: typeName = .body
+                case .byte: typeName = .base64
+                case .dateTime: typeName = .date
+                default: typeName = .string
+                }
             }
         case .fragment: typeName = .valueContainer
         case let .object(_, objectContext):
