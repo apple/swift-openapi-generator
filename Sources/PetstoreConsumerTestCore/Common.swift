@@ -74,6 +74,31 @@ public extension Data {
     static var quotedEfghString: String { #""efgh""# }
 
     static var efgh: Data { Data(efghString.utf8) }
+    static var crlf: ArraySlice<UInt8> = [0xd, 0xa]
+    static var multipartBodyString: String { String(decoding: multipartBodyAsSlice, as: UTF8.self) }
+    static var multipartBodyAsSlice: [UInt8] {
+        var bytes: [UInt8] = []
+        bytes.append(contentsOf: "--__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__".utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: #"content-disposition: form-data; name="efficiency""#.utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: "4.2".utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: "--__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__".utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: #"content-disposition: form-data; name="name""#.utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: "Vitamin C and friends".utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: "--__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__--".utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: Data.crlf)
+        return bytes
+    }
+
+    static var multipartBody: Data { Data(multipartBodyAsSlice) }
 }
 
 public extension HTTPRequest {

@@ -118,6 +118,17 @@ extension APIProtocol {
             method: .put,
             path: server.apiPathComponentsWithServerPrefix("/pets/{petId}/avatar")
         )
+        try transport.register(
+            {
+                try await server.multipartEcho(
+                    request: $0,
+                    body: $1,
+                    metadata: $2
+                )
+            },
+            method: .post,
+            path: server.apiPathComponentsWithServerPrefix("/pets/multipart-echo")
+        )
     }
 }
 
@@ -745,6 +756,79 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             value,
                             headerFields: &response.headerFields,
                             contentType: "text/plain"
+                        )
+                    }
+                    return (response, body)
+                case let .undocumented(statusCode, _):
+                    return (.init(soar_statusCode: statusCode), nil)
+                }
+            }
+        )
+    }
+    /// - Remark: HTTP `POST /pets/multipart-echo`.
+    /// - Remark: Generated from `#/paths//pets/multipart-echo/post(multipartEcho)`.
+    func multipartEcho(
+        request: HTTPTypes.HTTPRequest,
+        body: OpenAPIRuntime.HTTPBody?,
+        metadata: OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
+        try await handle(
+            request: request,
+            requestBody: body,
+            metadata: metadata,
+            forOperation: Operations.multipartEcho.id,
+            using: {
+                APIHandler.multipartEcho($0)
+            },
+            deserializer: { request, requestBody, metadata in
+                let headers: Operations.multipartEcho.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
+                let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                let body: Components.RequestBodies.MultipartRequestFragment
+                let chosenContentType = try converter.bestContentType(
+                    received: contentType,
+                    options: [
+                        "multipart/form-data"
+                    ]
+                )
+                switch chosenContentType {
+                case "multipart/form-data":
+                    body = try converter.getRequiredRequestBodyAsMultipart(
+                        OpenAPIRuntime.MultipartBody.self,
+                        from: requestBody,
+                        transforming: { value in
+                            .multipartForm(value)
+                        }
+                    )
+                default:
+                    preconditionFailure("bestContentType chose an invalid content type.")
+                }
+                return Operations.multipartEcho.Input(
+                    headers: headers,
+                    body: body
+                )
+            },
+            serializer: { output, request in
+                switch output {
+                case let .ok(value):
+                    suppressUnusedWarning(value)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 200)
+                    suppressMutabilityWarning(&response)
+                    try converter.setHeaderFieldAsURI(
+                        in: &response.headerFields,
+                        name: "X-Multipart-Flavor",
+                        value: value.headers.X_hyphen_Multipart_hyphen_Flavor
+                    )
+                    let body: OpenAPIRuntime.HTTPBody
+                    switch value.body {
+                    case let .multipartForm(value):
+                        try converter.validateAcceptIfPresent(
+                            "multipart/form-data",
+                            in: request.headerFields
+                        )
+                        body = try converter.setResponseBodyAsMultipart(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "multipart/form-data"
                         )
                     }
                     return (response, body)

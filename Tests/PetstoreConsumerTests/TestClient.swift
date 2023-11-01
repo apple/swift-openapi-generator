@@ -76,6 +76,13 @@ struct TestClient: APIProtocol {
         guard let block = uploadAvatarForPetBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
+    typealias MultipartEchoSignature = @Sendable (Operations.multipartEcho.Input) async throws ->
+        Operations.multipartEcho.Output
+    var multipartEchoBlock: MultipartEchoSignature?
+    func multipartEcho(_ input: Operations.multipartEcho.Input) async throws -> Operations.multipartEcho.Output {
+        guard let block = multipartEchoBlock else { throw UnspecifiedBlockError() }
+        return try await block(input)
+    }
 }
 
 struct UnspecifiedBlockError: Swift.Error, LocalizedError, CustomStringConvertible {

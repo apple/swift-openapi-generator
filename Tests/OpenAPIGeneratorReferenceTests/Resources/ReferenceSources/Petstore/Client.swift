@@ -662,4 +662,76 @@ public struct Client: APIProtocol {
             }
         )
     }
+    /// - Remark: HTTP `POST /pets/multipart-echo`.
+    /// - Remark: Generated from `#/paths//pets/multipart-echo/post(multipartEcho)`.
+    public func multipartEcho(_ input: Operations.multipartEcho.Input) async throws -> Operations.multipartEcho.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.multipartEcho.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/pets/multipart-echo",
+                    parameters: []
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .post
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                let body: OpenAPIRuntime.HTTPBody?
+                switch input.body {
+                case let .multipartForm(value):
+                    body = try converter.setRequiredRequestBodyAsMultipart(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "multipart/form-data"
+                    )
+                }
+                return (request, body)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let headers: Components.Responses.MultipartResponseFragment.Headers = .init(X_hyphen_Multipart_hyphen_Flavor: try converter.getOptionalHeaderFieldAsURI(
+                        in: response.headerFields,
+                        name: "X-Multipart-Flavor",
+                        as: Components.Responses.MultipartResponseFragment.Headers.X_hyphen_Multipart_hyphen_FlavorPayload.self
+                    ))
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Components.Responses.MultipartResponseFragment.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "multipart/form-data"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "multipart/form-data":
+                        body = try converter.getResponseBodyAsMultipart(
+                            OpenAPIRuntime.MultipartBody.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .multipartForm(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(
+                        headers: headers,
+                        body: body
+                    ))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init()
+                    )
+                }
+            }
+        )
+    }
 }

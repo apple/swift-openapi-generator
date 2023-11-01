@@ -48,6 +48,9 @@ public protocol APIProtocol: Sendable {
     /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
     func uploadAvatarForPet(_ input: Operations.uploadAvatarForPet.Input) async throws -> Operations.uploadAvatarForPet.Output
+    /// - Remark: HTTP `POST /pets/multipart-echo`.
+    /// - Remark: Generated from `#/paths//pets/multipart-echo/post(multipartEcho)`.
+    func multipartEcho(_ input: Operations.multipartEcho.Input) async throws -> Operations.multipartEcho.Output
 }
 
 /// Convenience overloads for operation inputs.
@@ -129,6 +132,17 @@ extension APIProtocol {
     ) async throws -> Operations.uploadAvatarForPet.Output {
         try await uploadAvatarForPet(Operations.uploadAvatarForPet.Input(
             path: path,
+            headers: headers,
+            body: body
+        ))
+    }
+    /// - Remark: HTTP `POST /pets/multipart-echo`.
+    /// - Remark: Generated from `#/paths//pets/multipart-echo/post(multipartEcho)`.
+    public func multipartEcho(
+        headers: Operations.multipartEcho.Input.Headers = .init(),
+        body: Components.RequestBodies.MultipartRequestFragment
+    ) async throws -> Operations.multipartEcho.Output {
+        try await multipartEcho(Operations.multipartEcho.Input(
             headers: headers,
             body: body
         ))
@@ -1451,6 +1465,11 @@ public enum Components {
             /// - Remark: Generated from `#/components/requestBodies/UpdatePetRequest/content/application\/json`.
             case json(Components.RequestBodies.UpdatePetRequest.jsonPayload)
         }
+        /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment`.
+        @frozen public enum MultipartRequestFragment: Sendable, Hashable {
+            /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment/content/multipart\/form-data`.
+            case multipartForm(OpenAPIRuntime.MultipartBody)
+        }
     }
     /// Types generated from the `#/components/responses` section of the OpenAPI document.
     public enum Responses {
@@ -1513,6 +1532,58 @@ public enum Components {
             public init(
                 headers: Components.Responses.ErrorBadRequest.Headers = .init(),
                 body: Components.Responses.ErrorBadRequest.Body
+            ) {
+                self.headers = headers
+                self.body = body
+            }
+        }
+        public struct MultipartResponseFragment: Sendable, Hashable {
+            /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/headers`.
+            public struct Headers: Sendable, Hashable {
+                /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/headers/X-Multipart-Flavor`.
+                @frozen public enum X_hyphen_Multipart_hyphen_FlavorPayload: String, Codable, Hashable, Sendable {
+                    case strawberry = "strawberry"
+                    case pistachio = "pistachio"
+                }
+                /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/headers/X-Multipart-Flavor`.
+                public var X_hyphen_Multipart_hyphen_Flavor: Components.Responses.MultipartResponseFragment.Headers.X_hyphen_Multipart_hyphen_FlavorPayload?
+                /// Creates a new `Headers`.
+                ///
+                /// - Parameters:
+                ///   - X_hyphen_Multipart_hyphen_Flavor:
+                public init(X_hyphen_Multipart_hyphen_Flavor: Components.Responses.MultipartResponseFragment.Headers.X_hyphen_Multipart_hyphen_FlavorPayload? = nil) {
+                    self.X_hyphen_Multipart_hyphen_Flavor = X_hyphen_Multipart_hyphen_Flavor
+                }
+            }
+            /// Received HTTP response headers
+            public var headers: Components.Responses.MultipartResponseFragment.Headers
+            /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/content`.
+            @frozen public enum Body: Sendable, Hashable {
+                /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/content/multipart\/form-data`.
+                case multipartForm(OpenAPIRuntime.MultipartBody)
+                /// The associated value of the enum case if `self` is `.multipartForm`.
+                ///
+                /// - Throws: An error if `self` is not `.multipartForm`.
+                /// - SeeAlso: `.multipartForm`.
+                public var multipartForm: OpenAPIRuntime.MultipartBody {
+                    get throws {
+                        switch self {
+                        case let .multipartForm(body):
+                            return body
+                        }
+                    }
+                }
+            }
+            /// Received HTTP response body
+            public var body: Components.Responses.MultipartResponseFragment.Body
+            /// Creates a new `MultipartResponseFragment`.
+            ///
+            /// - Parameters:
+            ///   - headers: Received HTTP response headers
+            ///   - body: Received HTTP response body
+            public init(
+                headers: Components.Responses.MultipartResponseFragment.Headers = .init(),
+                body: Components.Responses.MultipartResponseFragment.Body
             ) {
                 self.headers = headers
                 self.body = body
@@ -2699,6 +2770,92 @@ public enum Operations {
                     .binary,
                     .json,
                     .plainText
+                ]
+            }
+        }
+    }
+    /// - Remark: HTTP `POST /pets/multipart-echo`.
+    /// - Remark: Generated from `#/paths//pets/multipart-echo/post(multipartEcho)`.
+    public enum multipartEcho {
+        public static let id: Swift.String = "multipartEcho"
+        public struct Input: Sendable, Hashable {
+            /// - Remark: Generated from `#/paths/pets/multipart-echo/POST/header`.
+            public struct Headers: Sendable, Hashable {
+                public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.multipartEcho.AcceptableContentType>]
+                /// Creates a new `Headers`.
+                ///
+                /// - Parameters:
+                ///   - accept:
+                public init(accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.multipartEcho.AcceptableContentType>] = .defaultValues()) {
+                    self.accept = accept
+                }
+            }
+            public var headers: Operations.multipartEcho.Input.Headers
+            public var body: Components.RequestBodies.MultipartRequestFragment
+            /// Creates a new `Input`.
+            ///
+            /// - Parameters:
+            ///   - headers:
+            ///   - body:
+            public init(
+                headers: Operations.multipartEcho.Input.Headers = .init(),
+                body: Components.RequestBodies.MultipartRequestFragment
+            ) {
+                self.headers = headers
+                self.body = body
+            }
+        }
+        @frozen public enum Output: Sendable, Hashable {
+            /// A multipart response.
+            ///
+            /// - Remark: Generated from `#/paths//pets/multipart-echo/post(multipartEcho)/responses/200`.
+            ///
+            /// HTTP response code: `200 ok`.
+            case ok(Components.Responses.MultipartResponseFragment)
+            /// The associated value of the enum case if `self` is `.ok`.
+            ///
+            /// - Throws: An error if `self` is not `.ok`.
+            /// - SeeAlso: `.ok`.
+            public var ok: Components.Responses.MultipartResponseFragment {
+                get throws {
+                    switch self {
+                    case let .ok(response):
+                        return response
+                    default:
+                        try throwUnexpectedResponseStatus(
+                            expectedStatus: "ok",
+                            response: self
+                        )
+                    }
+                }
+            }
+            /// Undocumented response.
+            ///
+            /// A response with a code that is not documented in the OpenAPI document.
+            case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
+        }
+        @frozen public enum AcceptableContentType: AcceptableProtocol {
+            case multipartForm
+            case other(Swift.String)
+            public init?(rawValue: Swift.String) {
+                switch rawValue.lowercased() {
+                case "multipart/form-data":
+                    self = .multipartForm
+                default:
+                    self = .other(rawValue)
+                }
+            }
+            public var rawValue: Swift.String {
+                switch self {
+                case let .other(string):
+                    return string
+                case .multipartForm:
+                    return "multipart/form-data"
+                }
+            }
+            public static var allCases: [Self] {
+                [
+                    .multipartForm
                 ]
             }
         }

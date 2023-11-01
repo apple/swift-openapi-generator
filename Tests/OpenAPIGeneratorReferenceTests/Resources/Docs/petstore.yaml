@@ -241,6 +241,14 @@ paths:
             text/plain:
               schema:
                 type: string
+  /pets/multipart-echo:
+    post:
+      operationId: multipartEcho
+      requestBody:
+        $ref: '#/components/requestBodies/MultipartRequestFragment'
+      responses:
+        '200':
+          $ref: '#/components/responses/MultipartResponseFragment'
 components:
   headers:
     TracingHeader:
@@ -535,6 +543,17 @@ components:
                 type: integer
             required:
               - code
+    MultipartResponseFragment:
+      description: A multipart response.
+      headers:
+        X-Multipart-Flavor:
+          schema:
+            type: string
+            enum:
+              - strawberry
+              - pistachio
+      content:
+        multipart/form-data: {}
   requestBodies:
     UpdatePetRequest:
       required: false
@@ -550,3 +569,7 @@ components:
                 $ref: '#/components/schemas/PetKind'
               tag:
                 type: string
+    MultipartRequestFragment:
+      required: true
+      content:
+        multipart/form-data: {}

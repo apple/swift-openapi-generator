@@ -688,4 +688,44 @@ final class Test_Client: XCTestCase {
         case .plainText(let text): try await XCTAssertEqualStringifiedData(text, Data.efghString)
         }
     }
+    func testMultipart_200_sequenceOfParts() async throws {
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "multipartEcho")
+            XCTAssertEqual(request.path, "/pets/multipart-echo")
+            XCTAssertEqual(baseURL.absoluteString, "/api")
+            XCTAssertEqual(request.method, .post)
+            XCTAssertEqual(request.headerFields, [.accept: "multipart/form-data", .contentType: "multipart/form-data"])
+            try await XCTAssertEqualData(requestBody, Data.multipartBodyAsSlice)
+            return try HTTPResponse(status: .ok, headerFields: [.contentType: "multipart/form-data"])
+                .withEncodedBody(Data.multipartBodyString)
+        }
+        let parts: [MultipartPart] = [
+            .init(headerFields: [.contentDisposition: #"form-data; name="efficiency""#], body: "4.2"),
+            .init(headerFields: [.contentDisposition: #"form-data; name="name""#], body: "Vitamin C and friends"),
+        ]
+        let body: MultipartBody = .init(parts, length: .unknown)
+        let response = try await client.multipartEcho(.init(body: .multipartForm(body)))
+        guard case let .ok(value) = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+        switch value.body {
+        case .multipartForm(let body):
+            var iterator = body.makeAsyncIterator()
+            do {
+                let part = try await iterator.next()!
+                XCTAssertEqual(part.headerFields, [.contentDisposition: #"form-data; name="efficiency""#])
+                try await XCTAssertEqualData(part.body, "4.2".utf8)
+            }
+            do {
+                let part = try await iterator.next()!
+                XCTAssertEqual(part.headerFields, [.contentDisposition: #"form-data; name="name""#])
+                try await XCTAssertEqualData(part.body, "Vitamin C and friends".utf8)
+            }
+            do {
+                let part = try await iterator.next()
+                XCTAssertNil(part)
+            }
+        }
+    }
 }
