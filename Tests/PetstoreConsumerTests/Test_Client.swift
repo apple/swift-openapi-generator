@@ -741,17 +741,14 @@ final class Test_Client: XCTestCase {
             try await XCTAssertEqualData(requestBody, Data.multipartBodyAsSlice)
             return (.init(status: .accepted), nil)
         }
-        let parts: [MultipartBodyChunk] = [
-            .headerFields([.contentDisposition: #"form-data; name="efficiency""#]), .bodyChunk(ArraySlice("4.2".utf8)),
-            .headerFields([.contentDisposition: #"form-data; name="name""#]),
-            .bodyChunk(ArraySlice("Vitamin C and friends".utf8)),
+        let parts: [Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart] = [
+            .log(.init("here be logs!\nand more lines\nwheee\n"))
         ]
-        let body: MultipartBody = .init(parts, length: .unknown)
+        let body: MultipartTypedBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart> = .init(parts, length: .unknown)
         let response = try await client.multipartUploadTyped(.init(body: .multipartForm(body)))
         guard case .accepted = response else {
             XCTFail("Unexpected response: \(response)")
             return
         }
     }
-
 }

@@ -753,7 +753,7 @@ public struct Client: APIProtocol {
                 let body: OpenAPIRuntime.HTTPBody?
                 switch input.body {
                 case let .multipartForm(value):
-                    body = try converter.setRequiredRequestBodyAsMultipart(
+                    body = try converter.setRequiredRequestBodyAsTypedMultipart(
                         value,
                         headerFields: &request.headerFields,
                         contentType: "multipart/form-data"

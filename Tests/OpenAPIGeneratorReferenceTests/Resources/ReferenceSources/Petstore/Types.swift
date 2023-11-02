@@ -1475,8 +1475,20 @@ public enum Components {
         }
         /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest`.
         @frozen public enum MultipartUploadTypedRequest: Sendable, Hashable {
+
+            @frozen public enum MultipartPart: Sendable, Hashable, MultipartTypedPart {
+                case log(OpenAPIRuntime.HTTPBody)
+                
+                public var name: String {
+                    switch self {
+                    case .log:
+                        return "log"
+                    }
+                }
+            }
+            
             /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/content/multipart\/form-data`.
-            case multipartForm(OpenAPIRuntime.MultipartBody)
+            case multipartForm(OpenAPIRuntime.MultipartTypedBody<MultipartPart>)
         }
     }
     /// Types generated from the `#/components/responses` section of the OpenAPI document.
