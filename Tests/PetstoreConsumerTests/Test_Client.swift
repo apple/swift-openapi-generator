@@ -688,7 +688,7 @@ final class Test_Client: XCTestCase {
         case .plainText(let text): try await XCTAssertEqualStringifiedData(text, Data.efghString)
         }
     }
-    func testMultipart_200_sequenceOfParts() async throws {
+    func testMultipart_200_sequenceOfPartChunks() async throws {
         transport = .init { request, requestBody, baseURL, operationID in
             XCTAssertEqual(operationID, "multipartEcho")
             XCTAssertEqual(request.path, "/pets/multipart-echo")
@@ -699,11 +699,8 @@ final class Test_Client: XCTestCase {
             return try HTTPResponse(status: .ok, headerFields: [.contentType: "multipart/form-data"])
                 .withEncodedBody(Data.multipartBodyString)
         }
-        let parts: [MultipartPartChunk] = [
-            
-            .headerFields([.contentDisposition: #"form-data; name="efficiency""#]),
-            .bodyChunk(ArraySlice("4.2".utf8)),
-            
+        let parts: [MultipartBodyChunk] = [
+            .headerFields([.contentDisposition: #"form-data; name="efficiency""#]), .bodyChunk(ArraySlice("4.2".utf8)),
             .headerFields([.contentDisposition: #"form-data; name="name""#]),
             .bodyChunk(ArraySlice("Vitamin C and friends".utf8)),
         ]
@@ -719,14 +716,12 @@ final class Test_Client: XCTestCase {
             do {
                 let headerFields = try await iterator.next()!
                 XCTAssertEqual(headerFields, .headerFields([.contentDisposition: #"form-data; name="efficiency""#]))
-                
                 let bodyChunk = try await iterator.next()!
                 XCTAssertEqual(bodyChunk, .bodyChunk(ArraySlice("4.2".utf8)))
             }
             do {
                 let headerFields = try await iterator.next()!
                 XCTAssertEqual(headerFields, .headerFields([.contentDisposition: #"form-data; name="name""#]))
-                
                 let bodyChunk = try await iterator.next()!
                 XCTAssertEqual(bodyChunk, .bodyChunk(ArraySlice("Vitamin C and friends".utf8)))
             }

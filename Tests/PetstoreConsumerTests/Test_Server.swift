@@ -764,4 +764,57 @@ final class Test_Server: XCTestCase {
         XCTAssertEqual(response.headerFields, [.contentType: "text/plain"])
         try await XCTAssertEqualStringifiedData(responseBody, Data.efghString)
     }
+    func testMultipart_200_sequenceOfPartChunks() async throws {
+        client = .init(multipartEchoBlock: { input in
+            let multipart: MultipartBody
+            switch input.body {
+            case .multipartForm(let value): multipart = value
+            }
+            let counter = LockedValueBox(value: 0)
+            let responseMultipart: MultipartBody = .init(
+                multipart.map { partChunk in
+                    let partIndex = counter.withLocked { value in
+                        defer { value += 1 }
+                        return value
+                    }
+                    struct UnexpectedPart: Error {}
+                    func partAsHeaderFields() throws -> HTTPFields {
+                        guard case .headerFields(let headerFields) = partChunk else { throw UnexpectedPart() }
+                        return headerFields
+                    }
+                    func partAsBodyChunk() throws -> ArraySlice<UInt8> {
+                        guard case .bodyChunk(let bodyChunk) = partChunk else { throw UnexpectedPart() }
+                        return bodyChunk
+                    }
+                    switch partIndex {
+                    case 0:
+                        XCTAssertEqual(
+                            try partAsHeaderFields(),
+                            [.contentDisposition: #"form-data; name="efficiency""#]
+                        )
+                    case 1: XCTAssertEqual(try partAsBodyChunk(), ArraySlice("4.2".utf8))
+                    case 2: XCTAssertEqual(try partAsHeaderFields(), [.contentDisposition: #"form-data; name="name""#])
+                    case 3: XCTAssertEqual(try partAsBodyChunk(), ArraySlice("Vitamin C and friends".utf8))
+                    default: throw UnexpectedPart()
+                    }
+                    return partChunk
+                },
+                length: multipart.length,
+                iterationBehavior: multipart.iterationBehavior
+            )
+            return .ok(.init(body: .multipartForm(responseMultipart)))
+        })
+        let (response, responseBody) = try await server.multipartEcho(
+            .init(
+                soar_path: "/api/pets/multipart-echo",
+                method: .put,
+                headerFields: [.accept: "multipart/form-data", .contentType: "multipart/form-data"]
+            ),
+            .init(Data.multipartBodyAsSlice),
+            .init()
+        )
+        XCTAssertEqual(response.status.code, 200)
+        XCTAssertEqual(response.headerFields, [.contentType: "multipart/form-data"])
+        try await XCTAssertEqualData(responseBody, Data.multipartBodyAsSlice)
+    }
 }
