@@ -699,9 +699,13 @@ final class Test_Client: XCTestCase {
             return try HTTPResponse(status: .ok, headerFields: [.contentType: "multipart/form-data"])
                 .withEncodedBody(Data.multipartBodyString)
         }
-        let parts: [MultipartPart] = [
-            .init(headerFields: [.contentDisposition: #"form-data; name="efficiency""#], body: "4.2"),
-            .init(headerFields: [.contentDisposition: #"form-data; name="name""#], body: "Vitamin C and friends"),
+        let parts: [MultipartPartChunk] = [
+            
+            .headerFields([.contentDisposition: #"form-data; name="efficiency""#]),
+            .bodyChunk(ArraySlice("4.2".utf8)),
+            
+            .headerFields([.contentDisposition: #"form-data; name="name""#]),
+            .bodyChunk(ArraySlice("Vitamin C and friends".utf8)),
         ]
         let body: MultipartBody = .init(parts, length: .unknown)
         let response = try await client.multipartEcho(.init(body: .multipartForm(body)))
@@ -713,14 +717,18 @@ final class Test_Client: XCTestCase {
         case .multipartForm(let body):
             var iterator = body.makeAsyncIterator()
             do {
-                let part = try await iterator.next()!
-                XCTAssertEqual(part.headerFields, [.contentDisposition: #"form-data; name="efficiency""#])
-                try await XCTAssertEqualData(part.body, "4.2".utf8)
+                let headerFields = try await iterator.next()!
+                XCTAssertEqual(headerFields, .headerFields([.contentDisposition: #"form-data; name="efficiency""#]))
+                
+                let bodyChunk = try await iterator.next()!
+                XCTAssertEqual(bodyChunk, .bodyChunk(ArraySlice("4.2".utf8)))
             }
             do {
-                let part = try await iterator.next()!
-                XCTAssertEqual(part.headerFields, [.contentDisposition: #"form-data; name="name""#])
-                try await XCTAssertEqualData(part.body, "Vitamin C and friends".utf8)
+                let headerFields = try await iterator.next()!
+                XCTAssertEqual(headerFields, .headerFields([.contentDisposition: #"form-data; name="name""#]))
+                
+                let bodyChunk = try await iterator.next()!
+                XCTAssertEqual(bodyChunk, .bodyChunk(ArraySlice("Vitamin C and friends".utf8)))
             }
             do {
                 let part = try await iterator.next()
