@@ -734,4 +734,44 @@ public struct Client: APIProtocol {
             }
         )
     }
+    /// - Remark: HTTP `POST /pets/multipart-upload-typed`.
+    /// - Remark: Generated from `#/paths//pets/multipart-upload-typed/post(multipartUploadTyped)`.
+    public func multipartUploadTyped(_ input: Operations.multipartUploadTyped.Input) async throws -> Operations.multipartUploadTyped.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.multipartUploadTyped.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/pets/multipart-upload-typed",
+                    parameters: []
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .post
+                )
+                suppressMutabilityWarning(&request)
+                let body: OpenAPIRuntime.HTTPBody?
+                switch input.body {
+                case let .multipartForm(value):
+                    body = try converter.setRequiredRequestBodyAsMultipart(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "multipart/form-data"
+                    )
+                }
+                return (request, body)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 202:
+                    return .accepted(.init())
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init()
+                    )
+                }
+            }
+        )
+    }
 }

@@ -249,6 +249,14 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/MultipartResponseFragment'
+  /pets/multipart-upload-typed:
+    post:
+      operationId: multipartUploadTyped
+      requestBody:
+        $ref: '#/components/requestBodies/MultipartUploadTypedRequest'
+      responses:
+        '202':
+          description: Successfully accepted the data.
 components:
   headers:
     TracingHeader:
@@ -573,3 +581,15 @@ components:
       required: true
       content:
         multipart/form-data: {}
+    MultipartUploadTypedRequest:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              log:
+                type: string
+            required:
+              - log
+          

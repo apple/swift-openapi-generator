@@ -51,6 +51,9 @@ public protocol APIProtocol: Sendable {
     /// - Remark: HTTP `POST /pets/multipart-echo`.
     /// - Remark: Generated from `#/paths//pets/multipart-echo/post(multipartEcho)`.
     func multipartEcho(_ input: Operations.multipartEcho.Input) async throws -> Operations.multipartEcho.Output
+    /// - Remark: HTTP `POST /pets/multipart-upload-typed`.
+    /// - Remark: Generated from `#/paths//pets/multipart-upload-typed/post(multipartUploadTyped)`.
+    func multipartUploadTyped(_ input: Operations.multipartUploadTyped.Input) async throws -> Operations.multipartUploadTyped.Output
 }
 
 /// Convenience overloads for operation inputs.
@@ -1470,6 +1473,11 @@ public enum Components {
             /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment/content/multipart\/form-data`.
             case multipartForm(OpenAPIRuntime.MultipartBody)
         }
+        /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest`.
+        @frozen public enum MultipartUploadTypedRequest: Sendable, Hashable {
+            /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/content/multipart\/form-data`.
+            case multipartForm(OpenAPIRuntime.MultipartBody)
+        }
     }
     /// Types generated from the `#/components/responses` section of the OpenAPI document.
     public enum Responses {
@@ -2858,6 +2866,54 @@ public enum Operations {
                     .multipartForm
                 ]
             }
+        }
+    }
+    /// - Remark: HTTP `POST /pets/multipart-upload-typed`.
+    /// - Remark: Generated from `#/paths//pets/multipart-upload-typed/post(multipartUploadTyped)`.
+    public enum multipartUploadTyped {
+        public static let id: Swift.String = "multipartUploadTyped"
+        public struct Input: Sendable, Hashable {
+            public var body: Components.RequestBodies.MultipartUploadTypedRequest
+            /// Creates a new `Input`.
+            ///
+            /// - Parameters:
+            ///   - body:
+            public init(body: Components.RequestBodies.MultipartUploadTypedRequest) {
+                self.body = body
+            }
+        }
+        @frozen public enum Output: Sendable, Hashable {
+            public struct Accepted: Sendable, Hashable {
+                /// Creates a new `Accepted`.
+                public init() {}
+            }
+            /// Successfully accepted the data.
+            ///
+            /// - Remark: Generated from `#/paths//pets/multipart-upload-typed/post(multipartUploadTyped)/responses/202`.
+            ///
+            /// HTTP response code: `202 accepted`.
+            case accepted(Operations.multipartUploadTyped.Output.Accepted)
+            /// The associated value of the enum case if `self` is `.accepted`.
+            ///
+            /// - Throws: An error if `self` is not `.accepted`.
+            /// - SeeAlso: `.accepted`.
+            public var accepted: Operations.multipartUploadTyped.Output.Accepted {
+                get throws {
+                    switch self {
+                    case let .accepted(response):
+                        return response
+                    default:
+                        try throwUnexpectedResponseStatus(
+                            expectedStatus: "accepted",
+                            response: self
+                        )
+                    }
+                }
+            }
+            /// Undocumented response.
+            ///
+            /// A response with a code that is not documented in the OpenAPI document.
+            case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
         }
     }
 }

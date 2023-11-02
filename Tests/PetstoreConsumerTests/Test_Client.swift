@@ -688,7 +688,7 @@ final class Test_Client: XCTestCase {
         case .plainText(let text): try await XCTAssertEqualStringifiedData(text, Data.efghString)
         }
     }
-    func testMultipart_200_sequenceOfPartChunks() async throws {
+    func testMultipartEcho_200_sequenceOfPartChunks() async throws {
         transport = .init { request, requestBody, baseURL, operationID in
             XCTAssertEqual(operationID, "multipartEcho")
             XCTAssertEqual(request.path, "/pets/multipart-echo")
@@ -731,4 +731,27 @@ final class Test_Client: XCTestCase {
             }
         }
     }
+    func testMultipartUploadTyped_202_typed() async throws {
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "multipartUploadTyped")
+            XCTAssertEqual(request.path, "/pets/multipart-upload-typed")
+            XCTAssertEqual(baseURL.absoluteString, "/api")
+            XCTAssertEqual(request.method, .post)
+            XCTAssertEqual(request.headerFields, [.contentType: "multipart/form-data"])
+            try await XCTAssertEqualData(requestBody, Data.multipartBodyAsSlice)
+            return (.init(status: .accepted), nil)
+        }
+        let parts: [MultipartBodyChunk] = [
+            .headerFields([.contentDisposition: #"form-data; name="efficiency""#]), .bodyChunk(ArraySlice("4.2".utf8)),
+            .headerFields([.contentDisposition: #"form-data; name="name""#]),
+            .bodyChunk(ArraySlice("Vitamin C and friends".utf8)),
+        ]
+        let body: MultipartBody = .init(parts, length: .unknown)
+        let response = try await client.multipartUploadTyped(.init(body: .multipartForm(body)))
+        guard case .accepted = response else {
+            XCTFail("Unexpected response: \(response)")
+            return
+        }
+    }
+
 }
