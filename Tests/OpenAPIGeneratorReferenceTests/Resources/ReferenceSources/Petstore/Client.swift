@@ -734,15 +734,107 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// - Remark: HTTP `POST /pets/multipart-upload-typed`.
-    /// - Remark: Generated from `#/paths//pets/multipart-upload-typed/post(multipartUploadTyped)`.
+    /// - Remark: HTTP `POST /pets/multipart-typed`.
+    /// - Remark: Generated from `#/paths//pets/multipart-typed/post(multipartUploadTyped)`.
+    public func multipartDownloadTyped(_ input: Operations.multipartDownloadTyped.Input) async throws -> Operations.multipartDownloadTyped.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.multipartDownloadTyped.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/pets/multipart-typed",
+                    parameters: []
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .get
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                return (request, nil)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Components.Responses.MultipartDownloadTypedResponse.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "multipart/form-data"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "multipart/form-data":
+                        body = try converter.getResponseBodyAsTypedMultipart(
+                            OpenAPIRuntime.MultipartTypedBody<Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart>.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .multipartForm(value)
+                            },
+                            decoding: { part in
+                                let headerFields = part.headerFields
+                                let partName = try converter.extractContentDispositionName(in: headerFields)
+                                switch partName {
+                                case "log":
+                                    let headers: Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart.logPayload.Headers = .init(
+                                        x_dash_log_dash_type: try converter.getRequiredHeaderFieldAsURI(
+                                            in: response.headerFields,
+                                            name: "x-log-type",
+                                            as: Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart.logPayload.Headers.x_dash_log_dash_typePayload.self
+                                        )
+                                    )
+                                    try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
+                                    let body = try converter.getResponseBodyAsBinary(
+                                        OpenAPIRuntime.HTTPBody.self,
+                                        from: responseBody,
+                                        transforming: { $0 }
+                                    )
+                                    return .log(.init(headers: headers, body: body))
+                                case "metadata":
+                                    try converter.verifyContentTypeIfPresent(in: headerFields, matches: "application/json")
+                                    let body = try await converter.getResponseBodyAsJSON(
+                                        Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart.metadataPayload.metadataPayloadBodyPayload.self,
+                                        from: responseBody,
+                                        transforming: { $0 }
+                                    )
+                                    return .metadata(.init(body: body))
+                                default:
+                                    // What to do with unknown parts? Ignore to allow evolution like we do
+                                    // elsewhere? Or should the part type have an "undocumented" case?
+                                    // Probably the latter - an undocumented case seems the most API evolution
+                                    // friendly.
+                                    fatalError()
+                                }
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(
+                        body: body
+                    ))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init()
+                    )
+                }
+            }
+        )
+    }
+    /// - Remark: HTTP `POST /pets/multipart-typed`.
+    /// - Remark: Generated from `#/paths//pets/multipart-typed/post(multipartUploadTyped)`.
     public func multipartUploadTyped(_ input: Operations.multipartUploadTyped.Input) async throws -> Operations.multipartUploadTyped.Output {
         try await client.send(
             input: input,
             forOperation: Operations.multipartUploadTyped.id,
             serializer: { input in
                 let path = try converter.renderedPath(
-                    template: "/pets/multipart-upload-typed",
+                    template: "/pets/multipart-typed",
                     parameters: []
                 )
                 var request: HTTPTypes.HTTPRequest = .init(

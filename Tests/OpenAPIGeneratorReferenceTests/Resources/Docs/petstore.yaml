@@ -249,7 +249,7 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/MultipartResponseFragment'
-  /pets/multipart-upload-typed:
+  /pets/multipart-typed:
     post:
       operationId: multipartUploadTyped
       requestBody:
@@ -257,6 +257,11 @@ paths:
       responses:
         '202':
           description: Successfully accepted the data.
+    get:
+      operationId: multipartDownloadTyped
+      responses:
+        '200':
+          $ref: '#/components/responses/MultipartDownloadTypedResponse'
 components:
   headers:
     TracingHeader:
@@ -562,6 +567,34 @@ components:
               - pistachio
       content:
         multipart/form-data: {}
+    MultipartDownloadTypedResponse:
+      description: A typed multipart response.
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              log:
+                type: string
+              metadata:
+                type: object
+                properties:
+                  createdAt:
+                    type: string
+                    format: date-time
+                required:
+                  - createdAt
+            required:
+              - log
+          encoding:
+            log:
+              x-log-type:
+                description: The type of the log.
+                schema:
+                  type: string
+                  enum:
+                    - structured
+                    - unstructured
   requestBodies:
     UpdatePetRequest:
       required: false
@@ -597,7 +630,7 @@ components:
                     type: string
                     format: date-time
                 required:
-                  createdAt
+                  - createdAt
             required:
               - log
           encoding:

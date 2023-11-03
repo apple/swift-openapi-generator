@@ -83,6 +83,15 @@ struct TestClient: APIProtocol {
         guard let block = multipartEchoBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
+    typealias MultipartDownloadTypedSignature = @Sendable (Operations.multipartDownloadTyped.Input) async throws ->
+        Operations.multipartDownloadTyped.Output
+    var multipartDownloadTypedBlock: MultipartDownloadTypedSignature?
+    func multipartDownloadTyped(_ input: Operations.multipartDownloadTyped.Input) async throws
+        -> Operations.multipartDownloadTyped.Output
+    {
+        guard let block = multipartDownloadTypedBlock else { throw UnspecifiedBlockError() }
+        return try await block(input)
+    }
     typealias MultipartUploadTypedSignature = @Sendable (Operations.multipartUploadTyped.Input) async throws ->
         Operations.multipartUploadTyped.Output
     var multipartUploadTypedBlock: MultipartUploadTypedSignature?

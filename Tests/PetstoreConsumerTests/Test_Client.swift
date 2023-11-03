@@ -731,10 +731,10 @@ final class Test_Client: XCTestCase {
             }
         }
     }
-    func testMultipartUploadTyped_202_typed() async throws {
+    func testMultipartUploadTyped_202() async throws {
         transport = .init { request, requestBody, baseURL, operationID in
             XCTAssertEqual(operationID, "multipartUploadTyped")
-            XCTAssertEqual(request.path, "/pets/multipart-upload-typed")
+            XCTAssertEqual(request.path, "/pets/multipart-typed")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
             XCTAssertEqual(request.headerFields, [.contentType: "multipart/form-data"])
@@ -757,6 +757,43 @@ final class Test_Client: XCTestCase {
         guard case .accepted = response else {
             XCTFail("Unexpected response: \(response)")
             return
+        }
+    }
+    func testMultipartDownloadTyped_200() async throws {
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "multipartDownloadTyped")
+            XCTAssertEqual(request.path, "/pets/multipart-typed")
+            XCTAssertEqual(baseURL.absoluteString, "/api")
+            XCTAssertEqual(request.method, .get)
+            XCTAssertEqual(request.headerFields, [.accept: "multipart/form-data"])
+            return (.init(status: .ok), .init(Data.multipartTypedBodyAsSlice))
+        }
+        let response = try await client.multipartDownloadTyped()
+        let responseMultipart = try response.ok.body.multipartForm
+
+        var iterator = responseMultipart.makeAsyncIterator()
+        do {
+            let part = try await iterator.next()!
+            XCTAssertEqual(part.name, "log")
+            guard case .log(let log) = part else {
+                XCTFail("Unexpected part")
+                return
+            }
+            XCTAssertEqual(log.headers, .init(x_dash_log_dash_type: .unstructured))
+            try await XCTAssertEqualData(log.body, "here be logs!\nand more lines\nwheee\n".utf8)
+        }
+        do {
+            let part = try await iterator.next()!
+            XCTAssertEqual(part.name, "metadata")
+            guard case .metadata(let metadata) = part else {
+                XCTFail("Unexpected part")
+                return
+            }
+            XCTAssertEqual(metadata.body, .init(createdAt: .test))
+        }
+        do {
+            let part = try await iterator.next()
+            XCTAssertNil(part)
         }
     }
 }
