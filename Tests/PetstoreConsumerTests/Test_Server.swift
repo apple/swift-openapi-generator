@@ -766,12 +766,12 @@ final class Test_Server: XCTestCase {
     }
     func testMultipartEcho_200_sequenceOfPartChunks() async throws {
         client = .init(multipartEchoBlock: { input in
-            let multipart: MultipartBody
+            let multipart: MultipartChunks
             switch input.body {
             case .multipartForm(let value): multipart = value
             }
             let counter = LockedValueBox(value: 0)
-            let responseMultipart: MultipartBody = .init(
+            let responseMultipart: MultipartChunks = .init(
                 multipart.map { partChunk in
                     let partIndex = counter.withLocked { value in
                         defer { value += 1 }

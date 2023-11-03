@@ -793,7 +793,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch chosenContentType {
                 case "multipart/form-data":
                     body = try converter.getRequiredRequestBodyAsMultipart(
-                        OpenAPIRuntime.MultipartBody.self,
+                        OpenAPIRuntime.MultipartChunks.self,
                         from: requestBody,
                         transforming: { value in
                             .multipartForm(value)

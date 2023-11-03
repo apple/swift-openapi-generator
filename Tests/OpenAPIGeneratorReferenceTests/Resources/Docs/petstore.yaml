@@ -590,6 +590,14 @@ components:
             properties:
               log:
                 type: string
+              metadata:
+                type: object
+                properties:
+                  createdAt:
+                    type: string
+                    format: date-time
+                required:
+                  createdAt
             required:
               - log
           encoding:

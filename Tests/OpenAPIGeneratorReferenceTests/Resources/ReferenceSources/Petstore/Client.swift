@@ -712,7 +712,7 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getResponseBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody.self,
+                            OpenAPIRuntime.MultipartChunks.self,
                             from: responseBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -756,7 +756,32 @@ public struct Client: APIProtocol {
                     body = try converter.setRequiredRequestBodyAsTypedMultipart(
                         value,
                         headerFields: &request.headerFields,
-                        contentType: "multipart/form-data"
+                        contentType: "multipart/form-data",
+                        transform: { part in
+                            switch part {
+                            case .log(let value):
+                                var headerFields: HTTPFields = .init()
+                                try converter.setHeaderFieldAsURI(
+                                    in: &headerFields,
+                                    name: "x-log-type",
+                                    value: value.headers.x_dash_log_dash_type
+                                )
+                                let body = try converter.setRequiredRequestBodyAsBinary(
+                                    value.body,
+                                    headerFields: &headerFields,
+                                    contentType: "text/plain"
+                                )
+                                return .init(headerFields: headerFields, body: body)
+                            case .metadata(let value):
+                                var headerFields: HTTPFields = .init()
+                                let body = try converter.setRequiredRequestBodyAsJSON(
+                                    value.body,
+                                    headerFields: &headerFields,
+                                    contentType: "application/json"
+                                )
+                                return .init(headerFields: headerFields, body: body)
+                            }
+                        }
                     )
                 }
                 return (request, body)

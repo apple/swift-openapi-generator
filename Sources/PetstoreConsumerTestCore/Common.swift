@@ -99,6 +99,37 @@ public extension Data {
     }
 
     static var multipartBody: Data { Data(multipartBodyAsSlice) }
+    static var multipartTypedBodyAsSlice: [UInt8] {
+        var bytes: [UInt8] = []
+        bytes.append(contentsOf: "--__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__".utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: #"x-log-type: unstructured"#.utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: #"content-type: text/plain"#.utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: #"content-disposition: form-data; name="log""#.utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: #"content-length: 35"#.utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: "here be logs!\nand more lines\nwheee\n".utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: "--__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__".utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: #"content-type: application/json"#.utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: #"content-disposition: form-data; name="metadata""#.utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: #"content-length: 42"#.utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: "{\n  \"createdAt\" : \"2023-01-18T10:04:11Z\"\n}".utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: "--__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__--".utf8)
+        bytes.append(contentsOf: Data.crlf)
+        bytes.append(contentsOf: Data.crlf)
+        return bytes
+    }
 }
 
 public extension HTTPRequest {

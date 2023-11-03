@@ -1471,34 +1471,54 @@ public enum Components {
         /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment`.
         @frozen public enum MultipartRequestFragment: Sendable, Hashable {
             /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment/content/multipart\/form-data`.
-            case multipartForm(OpenAPIRuntime.MultipartBody)
+            case multipartForm(OpenAPIRuntime.MultipartChunks)
         }
         /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest`.
         @frozen public enum MultipartUploadTypedRequest: Sendable, Hashable {
             @frozen public enum MultipartPart: Sendable, Hashable, MultipartTypedPart {
-                public struct LogPayload: Sendable, Hashable {
+                public struct logPayload: Sendable, Hashable {
                     public struct Headers: Sendable, Hashable {
-                        public enum x_dash_log_dash_typePayload: String, Sendable, Hashable {
+                        public enum x_dash_log_dash_typePayload: String, Codable, Hashable, Sendable {
                             case structured
                             case unstructured
                         }
-                        public var x_dash_log_dash_type: x_dash_log_dash_typePayload?
-                        public init(x_dash_log_dash_type: x_dash_log_dash_typePayload? = nil) {
+                        public var x_dash_log_dash_type: x_dash_log_dash_typePayload
+                        public init(x_dash_log_dash_type: x_dash_log_dash_typePayload) {
                             self.x_dash_log_dash_type = x_dash_log_dash_type
                         }
                     }
                     public var headers: Headers
                     public var body: OpenAPIRuntime.HTTPBody
-                    init(headers: Headers = .init(), body: OpenAPIRuntime.HTTPBody) {
+                    init(headers: Headers, body: OpenAPIRuntime.HTTPBody) {
                         self.headers = headers
                         self.body = body
                     }
                 }
-                case log(LogPayload)
+                case log(logPayload)
+                public struct metadataPayload: Sendable, Hashable {
+                    public struct metadataPayloadBodyPayload: Codable, Hashable, Sendable {
+                        public var createdAt: Foundation.Date
+                        public init(
+                            createdAt: Foundation.Date
+                        ) {
+                            self.createdAt = createdAt
+                        }
+                        public enum CodingKeys: String, CodingKey {
+                            case createdAt
+                        }
+                    }
+                    public var body: metadataPayloadBodyPayload
+                    init(body: metadataPayloadBodyPayload) {
+                        self.body = body
+                    }
+                }
+                case metadata(metadataPayload)
                 public var name: String {
                     switch self {
                     case .log:
                         return "log"
+                    case .metadata:
+                        return "metadata"
                     }
                 }
             }
@@ -1596,12 +1616,12 @@ public enum Components {
             /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/content`.
             @frozen public enum Body: Sendable, Hashable {
                 /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/content/multipart\/form-data`.
-                case multipartForm(OpenAPIRuntime.MultipartBody)
+                case multipartForm(OpenAPIRuntime.MultipartChunks)
                 /// The associated value of the enum case if `self` is `.multipartForm`.
                 ///
                 /// - Throws: An error if `self` is not `.multipartForm`.
                 /// - SeeAlso: `.multipartForm`.
-                public var multipartForm: OpenAPIRuntime.MultipartBody {
+                public var multipartForm: OpenAPIRuntime.MultipartChunks {
                     get throws {
                         switch self {
                         case let .multipartForm(body):

@@ -699,12 +699,12 @@ final class Test_Client: XCTestCase {
             return try HTTPResponse(status: .ok, headerFields: [.contentType: "multipart/form-data"])
                 .withEncodedBody(Data.multipartBodyString)
         }
-        let parts: [MultipartBodyChunk] = [
+        let parts: [MultipartChunk] = [
             .headerFields([.contentDisposition: #"form-data; name="efficiency""#]), .bodyChunk(ArraySlice("4.2".utf8)),
             .headerFields([.contentDisposition: #"form-data; name="name""#]),
             .bodyChunk(ArraySlice("Vitamin C and friends".utf8)),
         ]
-        let body: MultipartBody = .init(parts, length: .unknown)
+        let body: MultipartChunks = .init(parts, length: .unknown)
         let response = try await client.multipartEcho(.init(body: .multipartForm(body)))
         guard case let .ok(value) = response else {
             XCTFail("Unexpected response: \(response)")
@@ -738,11 +738,16 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
             XCTAssertEqual(request.headerFields, [.contentType: "multipart/form-data"])
-            try await XCTAssertEqualData(requestBody, Data.multipartBodyAsSlice)
+            try await XCTAssertEqualData(requestBody, Data.multipartTypedBodyAsSlice)
             return (.init(status: .accepted), nil)
         }
         let parts: [Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart] = [
-            .log(.init(body: .init("here be logs!\nand more lines\nwheee\n")))
+            .log(
+                .init(
+                    headers: .init(x_dash_log_dash_type: .unstructured),
+                    body: .init("here be logs!\nand more lines\nwheee\n")
+                )
+            ), .metadata(.init(body: .init(createdAt: Date.test))),
         ]
         let body: MultipartTypedBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart> = .init(
             parts,
