@@ -792,13 +792,14 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 )
                 switch chosenContentType {
                 case "multipart/form-data":
-                    body = try converter.getRequiredRequestBodyAsMultipart(
-                        OpenAPIRuntime.MultipartChunks.self,
-                        from: requestBody,
-                        transforming: { value in
-                            .multipartForm(value)
-                        }
-                    )
+                    fatalError()
+//                    body = try converter.getRequiredRequestBodyAsTypedMultipart(
+//                        OpenAPIRuntime.MultipartChunks.self,
+//                        from: requestBody,
+//                        transforming: { value in
+//                            .multipartForm(value)
+//                        }
+//                    )
                 default:
                     preconditionFailure("bestContentType chose an invalid content type.")
                 }
@@ -825,11 +826,12 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             "multipart/form-data",
                             in: request.headerFields
                         )
-                        body = try converter.setResponseBodyAsMultipart(
-                            value,
-                            headerFields: &response.headerFields,
-                            contentType: "multipart/form-data"
-                        )
+                        fatalError()
+//                        body = try converter.setResponseBodyAsTypedMultipart(
+//                            value,
+//                            headerFields: &response.headerFields,
+//                            contentType: "multipart/form-data"
+//                        )
                     }
                     return (response, body)
                 case let .undocumented(statusCode, _):

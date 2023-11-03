@@ -685,10 +685,16 @@ public struct Client: APIProtocol {
                 let body: OpenAPIRuntime.HTTPBody?
                 switch input.body {
                 case let .multipartForm(value):
-                    body = try converter.setRequiredRequestBodyAsMultipart(
+                    body = try converter.setRequiredRequestBodyAsTypedMultipart(
                         value,
                         headerFields: &request.headerFields,
-                        contentType: "multipart/form-data"
+                        contentType: "multipart/form-data",
+                        transform: { part in
+                            switch part {
+                            case .undocumented(let value):
+                                return value.part
+                            }
+                        }
                     )
                 }
                 return (request, body)
@@ -711,11 +717,21 @@ public struct Client: APIProtocol {
                     )
                     switch chosenContentType {
                     case "multipart/form-data":
-                        body = try converter.getResponseBodyAsMultipart(
-                            OpenAPIRuntime.MultipartChunks.self,
+                        body = try converter.getResponseBodyAsTypedMultipart(
+                            OpenAPIRuntime.MultipartTypedBody<Components.Responses.MultipartResponseFragment.Body.MultipartPart>.self,
                             from: responseBody,
+                            boundary: contentType.requiredBoundary(),
                             transforming: { value in
                                 .multipartForm(value)
+                            },
+                            decoding: { part in
+                                let headerFields = part.headerFields
+                                let bodyBytes = part.body
+                                let partName = try converter.extractContentDispositionName(in: headerFields)
+                                switch partName {
+                                default:
+                                    return .undocumented(.init(name: partName, part: part))
+                                }
                             }
                         )
                     default:
@@ -771,7 +787,8 @@ public struct Client: APIProtocol {
                     case "multipart/form-data":
                         body = try converter.getResponseBodyAsTypedMultipart(
                             OpenAPIRuntime.MultipartTypedBody<Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart>.self,
-                            from: responseBody,
+                            from: responseBody, 
+                            boundary: contentType.requiredBoundary(),
                             transforming: { value in
                                 .multipartForm(value)
                             },
