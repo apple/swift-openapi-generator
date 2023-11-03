@@ -804,11 +804,7 @@ public struct Client: APIProtocol {
                                     )
                                     return .metadata(.init(body: body))
                                 default:
-                                    // What to do with unknown parts? Ignore to allow evolution like we do
-                                    // elsewhere? Or should the part type have an "undocumented" case?
-                                    // Probably the latter - an undocumented case seems the most API evolution
-                                    // friendly.
-                                    fatalError()
+                                    return .undocumented(.init(name: partName, part: part))
                                 }
                             }
                         )
@@ -873,6 +869,8 @@ public struct Client: APIProtocol {
                                     contentType: "application/json"
                                 )
                                 return .init(headerFields: headerFields, body: body)
+                            case .undocumented(let value):
+                                return value.part
                             }
                         }
                     )

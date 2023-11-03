@@ -1526,12 +1526,15 @@ public enum Components {
                     }
                 }
                 case metadata(metadataPayload)
+                case undocumented(MultipartUntypedNamedPart)
                 public var name: String {
                     switch self {
                     case .log:
                         return "log"
                     case .metadata:
                         return "metadata"
+                    case .undocumented(let value):
+                        return value.name
                     }
                 }
             }
@@ -1699,12 +1702,15 @@ public enum Components {
                         }
                     }
                     case metadata(metadataPayload)
+                    case undocumented(MultipartUntypedNamedPart)
                     public var name: String {
                         switch self {
                         case .log:
                             return "log"
                         case .metadata:
                             return "metadata"
+                        case .undocumented(let value):
+                            return value.name
                         }
                     }
                 }

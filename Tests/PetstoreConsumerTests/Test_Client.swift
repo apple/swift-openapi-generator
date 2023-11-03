@@ -747,7 +747,8 @@ final class Test_Client: XCTestCase {
                     headers: .init(x_dash_log_dash_type: .unstructured),
                     body: .init("here be logs!\nand more lines\nwheee\n")
                 )
-            ), .metadata(.init(body: .init(createdAt: Date.test))),
+            ), .undocumented(.init(name: "foobar", part: .init(headerFields: .init(), body: .init()))),
+            .metadata(.init(body: .init(createdAt: Date.test))),
         ]
         let body: MultipartTypedBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart> = .init(
             parts,
@@ -786,7 +787,19 @@ final class Test_Client: XCTestCase {
             }
             XCTAssertEqual(log.headers, .init(x_dash_log_dash_type: .unstructured))
             try await XCTAssertEqualData(log.body, "here be logs!\nand more lines\nwheee\n".utf8)
-            print()
+        }
+        do {
+            let part = try await iterator.next()!
+            XCTAssertEqual(part.name, "foobar")
+            guard case .undocumented(let undocumented) = part else {
+                XCTFail("Unexpected part")
+                return
+            }
+            XCTAssertEqual(
+                undocumented.part.headerFields,
+                [.contentDisposition: #"form-data; name="foobar""#, .contentLength: "0"]
+            )
+            try await XCTAssertEqualData(undocumented.part.body, [])
         }
         do {
             let part = try await iterator.next()!
