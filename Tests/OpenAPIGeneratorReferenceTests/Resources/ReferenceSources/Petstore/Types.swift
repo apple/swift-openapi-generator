@@ -1475,10 +1475,26 @@ public enum Components {
         }
         /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest`.
         @frozen public enum MultipartUploadTypedRequest: Sendable, Hashable {
-
             @frozen public enum MultipartPart: Sendable, Hashable, MultipartTypedPart {
-                case log(OpenAPIRuntime.HTTPBody)
-                
+                public struct LogPayload: Sendable, Hashable {
+                    public struct Headers: Sendable, Hashable {
+                        public enum x_dash_log_dash_typePayload: String, Sendable, Hashable {
+                            case structured
+                            case unstructured
+                        }
+                        public var x_dash_log_dash_type: x_dash_log_dash_typePayload?
+                        public init(x_dash_log_dash_type: x_dash_log_dash_typePayload? = nil) {
+                            self.x_dash_log_dash_type = x_dash_log_dash_type
+                        }
+                    }
+                    public var headers: Headers
+                    public var body: OpenAPIRuntime.HTTPBody
+                    init(headers: Headers = .init(), body: OpenAPIRuntime.HTTPBody) {
+                        self.headers = headers
+                        self.body = body
+                    }
+                }
+                case log(LogPayload)
                 public var name: String {
                     switch self {
                     case .log:

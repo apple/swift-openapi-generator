@@ -742,9 +742,12 @@ final class Test_Client: XCTestCase {
             return (.init(status: .accepted), nil)
         }
         let parts: [Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart] = [
-            .log(.init("here be logs!\nand more lines\nwheee\n"))
+            .log(.init(body: .init("here be logs!\nand more lines\nwheee\n")))
         ]
-        let body: MultipartTypedBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart> = .init(parts, length: .unknown)
+        let body: MultipartTypedBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart> = .init(
+            parts,
+            length: .unknown
+        )
         let response = try await client.multipartUploadTyped(.init(body: .multipartForm(body)))
         guard case .accepted = response else {
             XCTFail("Unexpected response: \(response)")

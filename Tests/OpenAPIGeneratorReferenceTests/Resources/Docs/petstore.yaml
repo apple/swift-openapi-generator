@@ -592,4 +592,13 @@ components:
                 type: string
             required:
               - log
+          encoding:
+            log:
+              x-log-type:
+                description: The type of the log.
+                schema:
+                  type: string
+                  enum:
+                    - structured
+                    - unstructured
           
