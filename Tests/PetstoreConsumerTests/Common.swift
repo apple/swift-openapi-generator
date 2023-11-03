@@ -29,3 +29,18 @@ extension HTTPRequest {
         self.init(method: method, scheme: nil, authority: nil, path: path, headerFields: headerFields)
     }
 }
+
+extension Collection {
+    func chunked(by count: Int) -> [SubSequence] {
+        var currentIndex = startIndex
+        var slices: [SubSequence] = []
+        while true {
+            guard currentIndex < endIndex else { break }
+            let end = self.index(currentIndex, offsetBy: count, limitedBy: endIndex) ?? endIndex
+            let chunk = self[currentIndex..<end]
+            slices.append(chunk)
+            currentIndex = end
+        }
+        return slices
+    }
+}

@@ -777,12 +777,13 @@ public struct Client: APIProtocol {
                             },
                             decoding: { part in
                                 let headerFields = part.headerFields
+                                let bodyBytes = part.body
                                 let partName = try converter.extractContentDispositionName(in: headerFields)
                                 switch partName {
                                 case "log":
                                     let headers: Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart.logPayload.Headers = .init(
                                         x_dash_log_dash_type: try converter.getRequiredHeaderFieldAsURI(
-                                            in: response.headerFields,
+                                            in: headerFields,
                                             name: "x-log-type",
                                             as: Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart.logPayload.Headers.x_dash_log_dash_typePayload.self
                                         )
@@ -790,7 +791,7 @@ public struct Client: APIProtocol {
                                     try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
                                     let body = try converter.getResponseBodyAsBinary(
                                         OpenAPIRuntime.HTTPBody.self,
-                                        from: responseBody,
+                                        from: bodyBytes,
                                         transforming: { $0 }
                                     )
                                     return .log(.init(headers: headers, body: body))
@@ -798,7 +799,7 @@ public struct Client: APIProtocol {
                                     try converter.verifyContentTypeIfPresent(in: headerFields, matches: "application/json")
                                     let body = try await converter.getResponseBodyAsJSON(
                                         Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart.metadataPayload.metadataPayloadBodyPayload.self,
-                                        from: responseBody,
+                                        from: bodyBytes,
                                         transforming: { $0 }
                                     )
                                     return .metadata(.init(body: body))

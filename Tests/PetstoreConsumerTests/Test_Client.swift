@@ -766,7 +766,12 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .get)
             XCTAssertEqual(request.headerFields, [.accept: "multipart/form-data"])
-            return (.init(status: .ok), .init(Data.multipartTypedBodyAsSlice))
+            let (stream, continuation) = AsyncStream.makeStream(of: ArraySlice<UInt8>.self)
+            let body: HTTPBody = .init(stream, length: .unknown)
+            let bytes = Data.multipartTypedBodyAsSlice
+            for chunk in bytes.chunked(by: 13) { continuation.yield(chunk) }
+            continuation.finish()
+            return (.init(status: .ok), body)
         }
         let response = try await client.multipartDownloadTyped()
         let responseMultipart = try response.ok.body.multipartForm
@@ -781,6 +786,7 @@ final class Test_Client: XCTestCase {
             }
             XCTAssertEqual(log.headers, .init(x_dash_log_dash_type: .unstructured))
             try await XCTAssertEqualData(log.body, "here be logs!\nand more lines\nwheee\n".utf8)
+            print()
         }
         do {
             let part = try await iterator.next()!
