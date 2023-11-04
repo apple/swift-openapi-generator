@@ -777,8 +777,10 @@ final class Test_Client: XCTestCase {
                     ),
                     filename: "process.log"
                 )
-            ), .undocumented(.init(name: "foobar", filename: "barfoo.txt", headerFields: .init(), body: .init())),
+            ), .keyword(.init(payload: .init(body: "fun"), filename: "fun.stuff")),
+            .undocumented(.init(name: "foobar", filename: "barfoo.txt", headerFields: .init(), body: .init())),
             .metadata(.init(payload: .init(body: .init(createdAt: Date.test)))),
+            .keyword(.init(payload: .init(body: "joy"))),
         ]
         let body: MultipartTypedBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart> = .init(
             parts,
@@ -826,6 +828,16 @@ final class Test_Client: XCTestCase {
         }
         do {
             let part = try await iterator.next()!
+            XCTAssertEqual(part.name, "keyword")
+            guard case .keyword(let keyword) = part else {
+                XCTFail("Unexpected part")
+                return
+            }
+            XCTAssertEqual(keyword.filename, "fun.stuff")
+            try await XCTAssertEqualData(keyword.payload.body, "fun".utf8)
+        }
+        do {
+            let part = try await iterator.next()!
             XCTAssertEqual(part.name, "foobar")
             guard case .undocumented(let undocumented) = part else {
                 XCTFail("Unexpected part")
@@ -848,6 +860,16 @@ final class Test_Client: XCTestCase {
             }
             XCTAssertNil(metadata.filename)
             XCTAssertEqual(metadata.payload.body, .init(createdAt: .test))
+        }
+        do {
+            let part = try await iterator.next()!
+            XCTAssertEqual(part.name, "keyword")
+            guard case .keyword(let keyword) = part else {
+                XCTFail("Unexpected part")
+                return
+            }
+            XCTAssertNil(keyword.filename)
+            try await XCTAssertEqualData(keyword.payload.body, "joy".utf8)
         }
         do {
             let part = try await iterator.next()

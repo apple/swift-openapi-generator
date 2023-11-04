@@ -1540,6 +1540,13 @@ public enum Components {
                     }
                 }
                 case metadata(MultipartPartWithInfo<metadataPayload>)
+                public struct keywordPayload: Sendable, Hashable {
+                    public var body: OpenAPIRuntime.HTTPBody
+                    init(body: OpenAPIRuntime.HTTPBody) {
+                        self.body = body
+                    }
+                }
+                case keyword(MultipartPartWithInfo<keywordPayload>)
                 case undocumented(MultipartUntypedPart)
                 public var name: String? {
                     switch self {
@@ -1547,6 +1554,8 @@ public enum Components {
                         return "log"
                     case .metadata:
                         return "metadata"
+                    case .keyword:
+                        return "keyword"
                     case .undocumented(let value):
                         return value.name
                     }
@@ -1556,6 +1565,8 @@ public enum Components {
                     case .log(let value):
                         return value.filename
                     case .metadata(let value):
+                        return value.filename
+                    case .keyword(let value):
                         return value.filename
                     case .undocumented(let value):
                         return value.filename
@@ -1740,6 +1751,13 @@ public enum Components {
                         }
                     }
                     case metadata(MultipartPartWithInfo<metadataPayload>)
+                    public struct keywordPayload: Sendable, Hashable {
+                        public var body: OpenAPIRuntime.HTTPBody
+                        init(body: OpenAPIRuntime.HTTPBody) {
+                            self.body = body
+                        }
+                    }
+                    case keyword(MultipartPartWithInfo<keywordPayload>)
                     case undocumented(MultipartUntypedPart)
                     public var name: String? {
                         switch self {
@@ -1747,6 +1765,8 @@ public enum Components {
                             return "log"
                         case .metadata:
                             return "metadata"
+                        case .keyword:
+                            return "keyword"
                         case .undocumented(let value):
                             return value.name
                         }
@@ -1756,6 +1776,8 @@ public enum Components {
                         case .log(let value):
                             return value.filename
                         case .metadata(let value):
+                            return value.filename
+                        case .keyword(let value):
                             return value.filename
                         case .undocumented(let value):
                             return value.filename

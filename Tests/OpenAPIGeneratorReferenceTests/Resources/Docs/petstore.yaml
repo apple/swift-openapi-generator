@@ -620,7 +620,7 @@ components:
     # - additionalProperties: <schema> -> add an "other" case of a specific type, also captures the part name and provides it
     # - additionalProperties: false -> no "other" case added, in fact if an unknown part is encountered, the sequence fails
     # -> also, the sequence should take the name of required properties (minus arrays, which can be empty) and at the end validate that all required were seen, otherwise fails
-    
+
     MultipartUploadTypedRequest:
       required: true
       content:
@@ -638,6 +638,10 @@ components:
                     format: date-time
                 required:
                   - createdAt
+              keyword:
+                type: array
+                items:
+                  type: string
             required:
               - log
           encoding:

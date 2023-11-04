@@ -689,6 +689,11 @@ public struct Client: APIProtocol {
                         value,
                         headerFields: &request.headerFields,
                         contentType: "multipart/form-data",
+                        allowsUnknownParts: true,
+                        requiredExactlyOncePartNames: [],
+                        requiredAtLeastOncePartNames: [],
+                        atMostOncePartNames: [],
+                        zeroOrMoreTimesPartNames: [],
                         transform: { part in
                             switch part {
                             case .undocumented(let value):
@@ -833,6 +838,21 @@ public struct Client: APIProtocol {
                                     return .metadata(
                                         .init(payload: .init(body: body), filename: filename)
                                     )
+                                case "keyword":
+                                    try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
+                                    let body = try converter.getResponseBodyAsBinary(
+                                        OpenAPIRuntime.HTTPBody.self,
+                                        from: part.body,
+                                        transforming: { $0 }
+                                    )
+                                    return .keyword(
+                                        .init(
+                                            payload: .init(
+                                                body: body
+                                            ),
+                                            filename: filename
+                                        )
+                                    )
                                 default:
                                     return .undocumented(part)
                                 }
@@ -876,6 +896,17 @@ public struct Client: APIProtocol {
                         value,
                         headerFields: &request.headerFields,
                         contentType: "multipart/form-data",
+                        allowsUnknownParts: true,
+                        requiredExactlyOncePartNames: [
+                            "log",
+                        ],
+                        requiredAtLeastOncePartNames: [],
+                        atMostOncePartNames: [
+                            "metadata",
+                        ],
+                        zeroOrMoreTimesPartNames: [
+                            "keyword"
+                        ],
                         transform: { part in
                             switch part {
                             case .log(let wrapped):
@@ -901,6 +932,16 @@ public struct Client: APIProtocol {
                                     value.body,
                                     headerFields: &headerFields,
                                     contentType: "application/json"
+                                )
+                                return .init(headerFields: headerFields, body: body)
+                            case .keyword(let wrapped):
+                                var headerFields: HTTPFields = .init()
+                                converter.setContentDispositionFilename(wrapped.filename, in: &headerFields)
+                                let value = wrapped.payload
+                                let body = try converter.setRequiredRequestBodyAsBinary(
+                                    value.body,
+                                    headerFields: &headerFields,
+                                    contentType: "text/plain"
                                 )
                                 return .init(headerFields: headerFields, body: body)
                             case .undocumented(let value):
