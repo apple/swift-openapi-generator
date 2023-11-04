@@ -1491,6 +1491,12 @@ public enum Components {
                         return value.name
                     }
                 }
+                public var filename: String? {
+                    switch self {
+                    case .undocumented(let value):
+                        return value.filename
+                    }
+                }
             }
             case multipartForm(OpenAPIRuntime.MultipartTypedBody<MultipartPart>)
         }
@@ -1515,7 +1521,7 @@ public enum Components {
                         self.body = body
                     }
                 }
-                case log(logPayload)
+                case log(MultipartPartWithInfo<logPayload>)
                 public struct metadataPayload: Sendable, Hashable {
                     public struct metadataPayloadBodyPayload: Codable, Hashable, Sendable {
                         public var createdAt: Foundation.Date
@@ -1533,7 +1539,7 @@ public enum Components {
                         self.body = body
                     }
                 }
-                case metadata(metadataPayload)
+                case metadata(MultipartPartWithInfo<metadataPayload>)
                 case undocumented(MultipartUntypedPart)
                 public var name: String? {
                     switch self {
@@ -1543,6 +1549,16 @@ public enum Components {
                         return "metadata"
                     case .undocumented(let value):
                         return value.name
+                    }
+                }
+                public var filename: String? {
+                    switch self {
+                    case .log(let value):
+                        return value.filename
+                    case .metadata(let value):
+                        return value.filename
+                    case .undocumented(let value):
+                        return value.filename
                     }
                 }
             }
@@ -1647,6 +1663,12 @@ public enum Components {
                             return value.name
                         }
                     }
+                    public var filename: String? {
+                        switch self {
+                        case .undocumented(let value):
+                            return value.filename
+                        }
+                    }
                 }
                 case multipartForm(OpenAPIRuntime.MultipartTypedBody<MultipartPart>)
                 /// The associated value of the enum case if `self` is `.multipartForm`.
@@ -1699,7 +1721,7 @@ public enum Components {
                             self.body = body
                         }
                     }
-                    case log(logPayload)
+                    case log(MultipartPartWithInfo<logPayload>)
                     public struct metadataPayload: Sendable, Hashable {
                         public struct metadataPayloadBodyPayload: Codable, Hashable, Sendable {
                             public var createdAt: Foundation.Date
@@ -1717,7 +1739,7 @@ public enum Components {
                             self.body = body
                         }
                     }
-                    case metadata(metadataPayload)
+                    case metadata(MultipartPartWithInfo<metadataPayload>)
                     case undocumented(MultipartUntypedPart)
                     public var name: String? {
                         switch self {
@@ -1727,6 +1749,16 @@ public enum Components {
                             return "metadata"
                         case .undocumented(let value):
                             return value.name
+                        }
+                    }
+                    public var filename: String? {
+                        switch self {
+                        case .log(let value):
+                            return value.filename
+                        case .metadata(let value):
+                            return value.filename
+                        case .undocumented(let value):
+                            return value.filename
                         }
                     }
                 }

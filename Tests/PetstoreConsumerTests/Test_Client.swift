@@ -771,11 +771,14 @@ final class Test_Client: XCTestCase {
         let parts: [Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart] = [
             .log(
                 .init(
-                    headers: .init(x_dash_log_dash_type: .unstructured),
-                    body: .init("here be logs!\nand more lines\nwheee\n")
+                    payload: .init(
+                        headers: .init(x_dash_log_dash_type: .unstructured),
+                        body: .init("here be logs!\nand more lines\nwheee\n")
+                    ),
+                    filename: "process.log"
                 )
-            ), .undocumented(.init(name: "foobar", headerFields: .init(), body: .init())),
-            .metadata(.init(body: .init(createdAt: Date.test))),
+            ), .undocumented(.init(name: "foobar", filename: "barfoo.txt", headerFields: .init(), body: .init())),
+            .metadata(.init(payload: .init(body: .init(createdAt: Date.test)))),
         ]
         let body: MultipartTypedBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart> = .init(
             parts,
@@ -817,8 +820,9 @@ final class Test_Client: XCTestCase {
                 XCTFail("Unexpected part")
                 return
             }
-            XCTAssertEqual(log.headers, .init(x_dash_log_dash_type: .unstructured))
-            try await XCTAssertEqualData(log.body, "here be logs!\nand more lines\nwheee\n".utf8)
+            XCTAssertEqual(log.filename, "process.log")
+            XCTAssertEqual(log.payload.headers, .init(x_dash_log_dash_type: .unstructured))
+            try await XCTAssertEqualData(log.payload.body, "here be logs!\nand more lines\nwheee\n".utf8)
         }
         do {
             let part = try await iterator.next()!
@@ -829,8 +833,10 @@ final class Test_Client: XCTestCase {
             }
             XCTAssertEqual(
                 undocumented.headerFields,
-                [.contentDisposition: #"form-data; name="foobar""#, .contentLength: "0"]
+                [.contentDisposition: #"form-data; filename="barfoo.txt"; name="foobar""#, .contentLength: "0"]
             )
+            XCTAssertEqual(undocumented.name, "foobar")
+            XCTAssertEqual(undocumented.filename, "barfoo.txt")
             try await XCTAssertEqualData(undocumented.body, [])
         }
         do {
@@ -840,7 +846,8 @@ final class Test_Client: XCTestCase {
                 XCTFail("Unexpected part")
                 return
             }
-            XCTAssertEqual(metadata.body, .init(createdAt: .test))
+            XCTAssertNil(metadata.filename)
+            XCTAssertEqual(metadata.payload.body, .init(createdAt: .test))
         }
         do {
             let part = try await iterator.next()

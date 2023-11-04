@@ -726,8 +726,8 @@ public struct Client: APIProtocol {
                             },
                             decoding: { part in
                                 let headerFields = part.headerFields
-                                let partName = try converter.extractContentDispositionName(in: headerFields)
-                                switch partName {
+                                let (name, _) = converter.extractContentDispositionNameAndFilename(in: headerFields)
+                                switch name {
                                 default:
                                     return .undocumented(part)
                                 }
@@ -755,7 +755,8 @@ public struct Client: APIProtocol {
         try await client.send(
             input: input,
             forOperation: Operations.multipartDownloadTyped.id,
-            serializer: { input in
+            serializer: {
+                input in
                 let path = try converter.renderedPath(
                     template: "/pets/multipart-typed",
                     parameters: []
@@ -771,7 +772,9 @@ public struct Client: APIProtocol {
                 )
                 return (request, nil)
             },
-            deserializer: { response, responseBody in
+            deserializer: {
+                response,
+                responseBody in
                 switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
@@ -786,15 +789,17 @@ public struct Client: APIProtocol {
                     case "multipart/form-data":
                         body = try converter.getResponseBodyAsTypedMultipart(
                             OpenAPIRuntime.MultipartTypedBody<Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart>.self,
-                            from: responseBody, 
+                            from: responseBody,
+                            
                             boundary: contentType.requiredBoundary(),
-                            transforming: { value in
-                                .multipartForm(value)
+                            transforming: {
+                                value in
+                                    .multipartForm(value)
                             },
                             decoding: { part in
                                 let headerFields = part.headerFields
-                                let partName = try converter.extractContentDispositionName(in: headerFields)
-                                switch partName {
+                                let (name, filename) = converter.extractContentDispositionNameAndFilename(in: headerFields)
+                                switch name {
                                 case "log":
                                     let headers: Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart.logPayload.Headers = .init(
                                         x_dash_log_dash_type: try converter.getRequiredHeaderFieldAsURI(
@@ -809,7 +814,15 @@ public struct Client: APIProtocol {
                                         from: part.body,
                                         transforming: { $0 }
                                     )
-                                    return .log(.init(headers: headers, body: body))
+                                    return .log(
+                                        .init(
+                                            payload: .init(
+                                                headers: headers,
+                                                body: body
+                                            ),
+                                            filename: filename
+                                        )
+                                    )
                                 case "metadata":
                                     try converter.verifyContentTypeIfPresent(in: headerFields, matches: "application/json")
                                     let body = try await converter.getResponseBodyAsJSON(
@@ -817,7 +830,9 @@ public struct Client: APIProtocol {
                                         from: part.body,
                                         transforming: { $0 }
                                     )
-                                    return .metadata(.init(body: body))
+                                    return .metadata(
+                                        .init(payload: .init(body: body), filename: filename)
+                                    )
                                 default:
                                     return .undocumented(part)
                                 }
@@ -863,8 +878,10 @@ public struct Client: APIProtocol {
                         contentType: "multipart/form-data",
                         transform: { part in
                             switch part {
-                            case .log(let value):
+                            case .log(let wrapped):
                                 var headerFields: HTTPFields = .init()
+                                converter.setContentDispositionFilename(wrapped.filename, in: &headerFields)
+                                let value = wrapped.payload
                                 try converter.setHeaderFieldAsURI(
                                     in: &headerFields,
                                     name: "x-log-type",
@@ -876,8 +893,10 @@ public struct Client: APIProtocol {
                                     contentType: "text/plain"
                                 )
                                 return .init(headerFields: headerFields, body: body)
-                            case .metadata(let value):
+                            case .metadata(let wrapped):
                                 var headerFields: HTTPFields = .init()
+                                converter.setContentDispositionFilename(wrapped.filename, in: &headerFields)
+                                let value = wrapped.payload
                                 let body = try converter.setRequiredRequestBodyAsJSON(
                                     value.body,
                                     headerFields: &headerFields,
