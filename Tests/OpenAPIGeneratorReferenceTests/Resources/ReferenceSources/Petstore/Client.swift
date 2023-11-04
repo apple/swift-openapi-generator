@@ -692,7 +692,7 @@ public struct Client: APIProtocol {
                         transform: { part in
                             switch part {
                             case .undocumented(let value):
-                                return value.part
+                                return value
                             }
                         }
                     )
@@ -726,11 +726,10 @@ public struct Client: APIProtocol {
                             },
                             decoding: { part in
                                 let headerFields = part.headerFields
-                                let bodyBytes = part.body
                                 let partName = try converter.extractContentDispositionName(in: headerFields)
                                 switch partName {
                                 default:
-                                    return .undocumented(.init(name: partName, part: part))
+                                    return .undocumented(part)
                                 }
                             }
                         )
@@ -794,7 +793,6 @@ public struct Client: APIProtocol {
                             },
                             decoding: { part in
                                 let headerFields = part.headerFields
-                                let bodyBytes = part.body
                                 let partName = try converter.extractContentDispositionName(in: headerFields)
                                 switch partName {
                                 case "log":
@@ -808,7 +806,7 @@ public struct Client: APIProtocol {
                                     try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
                                     let body = try converter.getResponseBodyAsBinary(
                                         OpenAPIRuntime.HTTPBody.self,
-                                        from: bodyBytes,
+                                        from: part.body,
                                         transforming: { $0 }
                                     )
                                     return .log(.init(headers: headers, body: body))
@@ -816,12 +814,12 @@ public struct Client: APIProtocol {
                                     try converter.verifyContentTypeIfPresent(in: headerFields, matches: "application/json")
                                     let body = try await converter.getResponseBodyAsJSON(
                                         Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart.metadataPayload.metadataPayloadBodyPayload.self,
-                                        from: bodyBytes,
+                                        from: part.body,
                                         transforming: { $0 }
                                     )
                                     return .metadata(.init(body: body))
                                 default:
-                                    return .undocumented(.init(name: partName, part: part))
+                                    return .undocumented(part)
                                 }
                             }
                         )
@@ -887,7 +885,7 @@ public struct Client: APIProtocol {
                                 )
                                 return .init(headerFields: headerFields, body: body)
                             case .undocumented(let value):
-                                return value.part
+                                return value
                             }
                         }
                     )

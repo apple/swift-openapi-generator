@@ -1484,8 +1484,8 @@ public enum Components {
         /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment`.
         @frozen public enum MultipartRequestFragment: Sendable, Hashable {
             @frozen public enum MultipartPart: Sendable, Hashable, MultipartTypedPart {
-                case undocumented(MultipartUntypedNamedPart)
-                public var name: String {
+                case undocumented(MultipartUntypedPart)
+                public var name: String? {
                     switch self {
                     case .undocumented(let value):
                         return value.name
@@ -1534,8 +1534,8 @@ public enum Components {
                     }
                 }
                 case metadata(metadataPayload)
-                case undocumented(MultipartUntypedNamedPart)
-                public var name: String {
+                case undocumented(MultipartUntypedPart)
+                public var name: String? {
                     switch self {
                     case .log:
                         return "log"
@@ -1640,8 +1640,8 @@ public enum Components {
             /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/content`.
             @frozen public enum Body: Sendable, Hashable {
                 @frozen public enum MultipartPart: Sendable, Hashable, MultipartTypedPart {
-                    case undocumented(MultipartUntypedNamedPart)
-                    public var name: String {
+                    case undocumented(MultipartUntypedPart)
+                    public var name: String? {
                         switch self {
                         case .undocumented(let value):
                             return value.name
@@ -1718,8 +1718,8 @@ public enum Components {
                         }
                     }
                     case metadata(metadataPayload)
-                    case undocumented(MultipartUntypedNamedPart)
-                    public var name: String {
+                    case undocumented(MultipartUntypedPart)
+                    public var name: String? {
                         switch self {
                         case .log:
                             return "log"
