@@ -685,7 +685,7 @@ public struct Client: APIProtocol {
                 let body: OpenAPIRuntime.HTTPBody?
                 switch input.body {
                 case let .multipartForm(value):
-                    body = try converter.setRequiredRequestBodyAsTypedMultipart(
+                    body = try converter.setRequiredRequestBodyAsMultipart(
                         value,
                         headerFields: &request.headerFields,
                         contentType: "multipart/form-data",
@@ -722,7 +722,7 @@ public struct Client: APIProtocol {
                     )
                     switch chosenContentType {
                     case "multipart/form-data":
-                        body = try converter.getResponseBodyAsTypedMultipart(
+                        body = try converter.getResponseBodyAsMultipart(
                             OpenAPIRuntime.MultipartTypedBody<Components.Responses.MultipartResponseFragment.Body.MultipartPart>.self,
                             from: responseBody,
                             boundary: contentType.requiredBoundary(),
@@ -792,7 +792,7 @@ public struct Client: APIProtocol {
                     )
                     switch chosenContentType {
                     case "multipart/form-data":
-                        body = try converter.getResponseBodyAsTypedMultipart(
+                        body = try converter.getResponseBodyAsMultipart(
                             OpenAPIRuntime.MultipartTypedBody<Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart>.self,
                             from: responseBody,
                             
@@ -892,7 +892,7 @@ public struct Client: APIProtocol {
                 let body: OpenAPIRuntime.HTTPBody?
                 switch input.body {
                 case let .multipartForm(value):
-                    body = try converter.setRequiredRequestBodyAsTypedMultipart(
+                    body = try converter.setRequiredRequestBodyAsMultipart(
                         value,
                         headerFields: &request.headerFields,
                         contentType: "multipart/form-data",

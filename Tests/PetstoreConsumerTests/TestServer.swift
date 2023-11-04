@@ -53,4 +53,10 @@ extension TestServerTransport {
 
     var uploadAvatarForPet: Handler { get throws { try findHandler(method: .put, path: "/api/pets/{petId}/avatar") } }
     var multipartEcho: Handler { get throws { try findHandler(method: .post, path: "/api/pets/multipart-echo") } }
+    var multipartUploadTyped: Handler {
+        get throws { try findHandler(method: .post, path: "/api/pets/multipart-typed") }
+    }
+    var multipartDownloadTyped: Handler {
+        get throws { try findHandler(method: .get, path: "/api/pets/multipart-typed") }
+    }
 }

@@ -129,6 +129,28 @@ extension APIProtocol {
             method: .post,
             path: server.apiPathComponentsWithServerPrefix("/pets/multipart-echo")
         )
+        try transport.register(
+            {
+                try await server.multipartDownloadTyped(
+                    request: $0,
+                    body: $1,
+                    metadata: $2
+                )
+            },
+            method: .get,
+            path: server.apiPathComponentsWithServerPrefix("/pets/multipart-typed")
+        )
+        try transport.register(
+            {
+                try await server.multipartUploadTyped(
+                    request: $0,
+                    body: $1,
+                    metadata: $2
+                )
+            },
+            method: .post,
+            path: server.apiPathComponentsWithServerPrefix("/pets/multipart-typed")
+        )
     }
 }
 
@@ -792,14 +814,22 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 )
                 switch chosenContentType {
                 case "multipart/form-data":
-                    fatalError()
-//                    body = try converter.getRequiredRequestBodyAsTypedMultipart(
-//                        OpenAPIRuntime.MultipartChunks.self,
-//                        from: requestBody,
-//                        transforming: { value in
-//                            .multipartForm(value)
-//                        }
-//                    )
+                    body = try converter.getRequiredRequestBodyAsMultipart(
+                        MultipartTypedBody<Components.RequestBodies.MultipartRequestFragment.MultipartPart>.self,
+                        from: requestBody,
+                        boundary: contentType.requiredBoundary(),
+                        transforming: { value in
+                            .multipartForm(value)
+                        },
+                        decoding: { part in
+                            let headerFields = part.headerFields
+                            let (name, _) = converter.extractContentDispositionNameAndFilename(in: headerFields)
+                            switch name {
+                            default:
+                                return .undocumented(part)
+                            }
+                        }
+                    )
                 default:
                     preconditionFailure("bestContentType chose an invalid content type.")
                 }
@@ -826,14 +856,229 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             "multipart/form-data",
                             in: request.headerFields
                         )
-                        fatalError()
-//                        body = try converter.setResponseBodyAsTypedMultipart(
-//                            value,
-//                            headerFields: &response.headerFields,
-//                            contentType: "multipart/form-data"
-//                        )
+                        body = try converter.setResponseBodyAsMultipart(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "multipart/form-data",
+                            allowsUnknownParts: true,
+                            requiredExactlyOncePartNames: [],
+                            requiredAtLeastOncePartNames: [],
+                            atMostOncePartNames: [],
+                            zeroOrMoreTimesPartNames: [],
+                            transform: { part in
+                                switch part {
+                                case .undocumented(let value):
+                                    return value
+                                }
+                            }
+                        )
                     }
                     return (response, body)
+                case let .undocumented(statusCode, _):
+                    return (.init(soar_statusCode: statusCode), nil)
+                }
+            }
+        )
+    }
+    func multipartDownloadTyped(
+        request: HTTPTypes.HTTPRequest,
+        body: OpenAPIRuntime.HTTPBody?,
+        metadata: OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
+        try await handle(
+            request: request,
+            requestBody: body,
+            metadata: metadata,
+            forOperation: Operations.multipartDownloadTyped.id,
+            using: {
+                APIHandler.multipartDownloadTyped($0)
+            },
+            deserializer: { request, requestBody, metadata in
+                let headers: Operations.multipartDownloadTyped.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
+                return Operations.multipartDownloadTyped.Input(
+                    headers: headers
+                )
+            },
+            serializer: { output, request in
+                switch output {
+                case let .ok(value):
+                    suppressUnusedWarning(value)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 200)
+                    suppressMutabilityWarning(&response)
+                    let body: OpenAPIRuntime.HTTPBody
+                    switch value.body {
+                    case let .multipartForm(value):
+                        try converter.validateAcceptIfPresent(
+                            "multipart/form-data",
+                            in: request.headerFields
+                        )
+                        body = try converter.setResponseBodyAsMultipart(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "multipart/form-data",
+                            allowsUnknownParts: true,
+                            requiredExactlyOncePartNames: [
+                                "log",
+                            ],
+                            requiredAtLeastOncePartNames: [],
+                            atMostOncePartNames: [
+                                "metadata",
+                            ],
+                            zeroOrMoreTimesPartNames: [
+                                "keyword"
+                            ],
+                            transform: { part in
+                                switch part {
+                                case .log(let wrapped):
+                                    var headerFields: HTTPFields = .init()
+                                    converter.setContentDispositionFilename(wrapped.filename, in: &headerFields)
+                                    let value = wrapped.payload
+                                    try converter.setHeaderFieldAsURI(
+                                        in: &headerFields,
+                                        name: "x-log-type",
+                                        value: value.headers.x_dash_log_dash_type
+                                    )
+                                    let body = try converter.setRequiredRequestBodyAsBinary(
+                                        value.body,
+                                        headerFields: &headerFields,
+                                        contentType: "text/plain"
+                                    )
+                                    return .init(headerFields: headerFields, body: body)
+                                case .metadata(let wrapped):
+                                    var headerFields: HTTPFields = .init()
+                                    converter.setContentDispositionFilename(wrapped.filename, in: &headerFields)
+                                    let value = wrapped.payload
+                                    let body = try converter.setRequiredRequestBodyAsJSON(
+                                        value.body,
+                                        headerFields: &headerFields,
+                                        contentType: "application/json"
+                                    )
+                                    return .init(headerFields: headerFields, body: body)
+                                case .keyword(let wrapped):
+                                    var headerFields: HTTPFields = .init()
+                                    converter.setContentDispositionFilename(wrapped.filename, in: &headerFields)
+                                    let value = wrapped.payload
+                                    let body = try converter.setRequiredRequestBodyAsBinary(
+                                        value.body,
+                                        headerFields: &headerFields,
+                                        contentType: "text/plain"
+                                    )
+                                    return .init(headerFields: headerFields, body: body)
+                                case .undocumented(let value):
+                                    return value
+                                }
+                            }
+                        )
+                    }
+                    return (response, body)
+                case let .undocumented(statusCode, _):
+                    return (.init(soar_statusCode: statusCode), nil)
+                }
+            }
+        )
+    }
+    func multipartUploadTyped(
+        request: HTTPTypes.HTTPRequest,
+        body: OpenAPIRuntime.HTTPBody?,
+        metadata: OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
+        try await handle(
+            request: request,
+            requestBody: body,
+            metadata: metadata,
+            forOperation: Operations.multipartUploadTyped.id,
+            using: {
+                APIHandler.multipartUploadTyped($0)
+            },
+            deserializer: { request, requestBody, metadata in
+                let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                let body: Components.RequestBodies.MultipartUploadTypedRequest
+                let chosenContentType = try converter.bestContentType(
+                    received: contentType,
+                    options: [
+                        "multipart/form-data"
+                    ]
+                )
+                switch chosenContentType {
+                case "multipart/form-data":
+                    body = try converter.getRequiredRequestBodyAsMultipart(
+                        MultipartTypedBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart>.self,
+                        from: requestBody,
+                        boundary: contentType.requiredBoundary(),
+                        transforming: { value in
+                            .multipartForm(value)
+                        },
+                        decoding: { part in
+                            let headerFields = part.headerFields
+                            let (name, filename) = converter.extractContentDispositionNameAndFilename(in: headerFields)
+                            switch name {
+                            case "log":
+                                let headers: Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart.logPayload.Headers = .init(
+                                    x_dash_log_dash_type: try converter.getRequiredHeaderFieldAsURI(
+                                        in: headerFields,
+                                        name: "x-log-type",
+                                        as: Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart.logPayload.Headers.x_dash_log_dash_typePayload.self
+                                    )
+                                )
+                                try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
+                                let body = try converter.getResponseBodyAsBinary(
+                                    OpenAPIRuntime.HTTPBody.self,
+                                    from: part.body,
+                                    transforming: { $0 }
+                                )
+                                return .log(
+                                    .init(
+                                        payload: .init(
+                                            headers: headers,
+                                            body: body
+                                        ),
+                                        filename: filename
+                                    )
+                                )
+                            case "metadata":
+                                try converter.verifyContentTypeIfPresent(in: headerFields, matches: "application/json")
+                                let body = try await converter.getResponseBodyAsJSON(
+                                    Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart.metadataPayload.metadataPayloadBodyPayload.self,
+                                    from: part.body,
+                                    transforming: { $0 }
+                                )
+                                return .metadata(
+                                    .init(payload: .init(body: body), filename: filename)
+                                )
+                            case "keyword":
+                                try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
+                                let body = try converter.getResponseBodyAsBinary(
+                                    OpenAPIRuntime.HTTPBody.self,
+                                    from: part.body,
+                                    transforming: { $0 }
+                                )
+                                return .keyword(
+                                    .init(
+                                        payload: .init(
+                                            body: body
+                                        ),
+                                        filename: filename
+                                    )
+                                )
+                            default:
+                                return .undocumented(part)
+                            }
+                        }
+                    )
+                default:
+                    preconditionFailure("bestContentType chose an invalid content type.")
+                }
+                return Operations.multipartUploadTyped.Input(
+                    body: body
+                )
+            },
+            serializer: { output, request in
+                switch output {
+                case let .accepted(value):
+                    suppressUnusedWarning(value)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 202)
+                    suppressMutabilityWarning(&response)
+                    return (response, nil)
                 case let .undocumented(statusCode, _):
                     return (.init(soar_statusCode: statusCode), nil)
                 }

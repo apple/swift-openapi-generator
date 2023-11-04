@@ -782,11 +782,9 @@ final class Test_Client: XCTestCase {
             .metadata(.init(payload: .init(body: .init(createdAt: Date.test)))),
             .keyword(.init(payload: .init(body: "joy"))),
         ]
-        let body: MultipartTypedBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart> = .init(
-            parts,
-            length: .unknown
+        let response = try await client.multipartUploadTyped(
+            .init(body: .multipartForm(.init(parts, length: .unknown)))
         )
-        let response = try await client.multipartUploadTyped(.init(body: .multipartForm(body)))
         guard case .accepted = response else {
             XCTFail("Unexpected response: \(response)")
             return
