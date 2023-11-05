@@ -127,7 +127,8 @@ extension FileTranslator {
             let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isBinary })
         {
             chosenContent = (
-                contentType, .init(contentType: contentType, schema: .b(.string(format: .binary))), contentValue
+                contentType, .init(contentType: contentType, schema: .b(.string(contentEncoding: .binary))),
+                contentValue
             )
         } else {
             diagnostics.emitUnsupported("Unsupported content", foundIn: foundIn)
@@ -185,7 +186,7 @@ extension FileTranslator {
         }
         if contentType.isUrlEncodedForm { return .init(contentType: contentType, schema: contentValue.schema) }
         if !excludeBinary, contentType.isBinary {
-            return .init(contentType: contentType, schema: .b(.string(format: .binary)))
+            return .init(contentType: contentType, schema: .b(.string(contentEncoding: .binary)))
         }
         diagnostics.emitUnsupported("Unsupported content", foundIn: foundIn)
         return nil
