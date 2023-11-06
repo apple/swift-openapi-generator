@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 
-#if hasFeature(RetroactiveAttribute)
+#if $RetroactiveAttribute
 extension FileHandle: @retroactive TextOutputStream {}
 #else
 extension FileHandle: TextOutputStream {}
