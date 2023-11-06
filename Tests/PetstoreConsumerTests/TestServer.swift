@@ -19,7 +19,11 @@ import PetstoreConsumerTestCore
 extension APIProtocol {
     func configuredServer(for serverURLString: String = "/api") throws -> TestServerTransport {
         let transport = TestServerTransport()
-        try registerHandlers(on: transport, serverURL: try URL(validatingOpenAPIServerURL: serverURLString))
+        try registerHandlers(
+            on: transport,
+            serverURL: try URL(validatingOpenAPIServerURL: serverURLString),
+            configuration: .init(multipartBoundaryGenerator: .constant)
+        )
         return transport
     }
 }

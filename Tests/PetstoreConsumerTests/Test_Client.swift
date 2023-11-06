@@ -20,7 +20,15 @@ final class Test_Client: XCTestCase {
 
     var transport: TestClientTransport!
     var client: Client {
-        get throws { .init(serverURL: try URL(validatingOpenAPIServerURL: "/api"), transport: transport) }
+        get throws {
+            .init(
+                serverURL: try URL(
+                    validatingOpenAPIServerURL: "/api"
+                ),
+                configuration: .init(multipartBoundaryGenerator: .constant),
+                transport: transport
+            )
+        }
     }
 
     /// Setup method called before the invocation of each test method in the class.
