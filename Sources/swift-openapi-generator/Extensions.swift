@@ -16,7 +16,7 @@ import ArgumentParser
 import _OpenAPIGeneratorCore
 import Yams
 
-#if hasFeature(RetroactiveAttribute)
+#if $RetroactiveAttribute
 extension URL: @retroactive ExpressibleByArgument {}
 extension GeneratorMode: @retroactive ExpressibleByArgument {}
 extension FeatureFlag: @retroactive ExpressibleByArgument {}
