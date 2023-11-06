@@ -302,10 +302,7 @@ struct TypeMatcher {
             case .binary: typeName = .body
             case .base64: typeName = .base64
             default:
-                // Check the format as well, for docs converted from OpenAPI 3.0.
                 switch core.format {
-                case .binary: typeName = .body
-                case .byte: typeName = .base64
                 case .dateTime: typeName = .date
                 default: typeName = .string
                 }

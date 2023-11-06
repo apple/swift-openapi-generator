@@ -1121,7 +1121,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             schemas:
               MyData:
                 type: string
-                format: byte
+                contentEncoding: base64
             """,
             """
             public enum Schemas {
@@ -1140,7 +1140,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 properties:
                   stuff:
                     type: string
-                    format: byte
+                    contentEncoding: base64
             """,
             """
             public enum Schemas {
@@ -2481,7 +2481,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   application/json:
                     schema:
                       type: string
-                      format: byte
+                      contentEncoding: base64
                     examples:
                       application/json:
                         summary: "a hello response"
