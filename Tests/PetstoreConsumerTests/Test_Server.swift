@@ -767,7 +767,7 @@ final class Test_Server: XCTestCase {
 
     func testMultipartEcho_200() async throws {
         client = .init(multipartEchoBlock: { input in
-            let body: MultipartBody<Components.RequestBodies.MultipartRequestFragment.MultipartPart>
+            let body: MultipartBody<Components.RequestBodies.MultipartRequestFragment.multipartFormPayload>
             switch input.body {
             case .multipartForm(let value): body = value
             }
@@ -809,7 +809,7 @@ final class Test_Server: XCTestCase {
 
     func testMultipartDownloadTyped_202() async throws {
         client = .init(multipartDownloadTypedBlock: { input in
-            let parts: [Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart] = [
+            let parts: [Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload] = [
                 .log(
                     .init(
                         payload: .init(
@@ -840,7 +840,7 @@ final class Test_Server: XCTestCase {
 
     func testMultipartUploadTyped_202() async throws {
         client = .init(multipartUploadTypedBlock: { input in
-            let body: MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart>
+            let body: MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload>
             switch input.body {
             case .multipartForm(let value): body = value
             }

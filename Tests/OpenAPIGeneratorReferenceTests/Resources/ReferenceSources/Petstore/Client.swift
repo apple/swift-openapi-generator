@@ -723,7 +723,7 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getResponseBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Components.Responses.MultipartResponseFragment.Body.MultipartPart>.self,
+                            OpenAPIRuntime.MultipartBody<Components.Responses.MultipartResponseFragment.Body.multipartFormPayload>.self,
                             from: responseBody,
                             boundary: contentType.requiredBoundary(),
                             allowsUnknownParts: true,
@@ -798,7 +798,7 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getResponseBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart>.self,
+                            OpenAPIRuntime.MultipartBody<Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload>.self,
                             from: responseBody,
                             boundary: contentType.requiredBoundary(),
                             allowsUnknownParts: true,
@@ -821,11 +821,11 @@ public struct Client: APIProtocol {
                                 let (name, filename) = converter.extractContentDispositionNameAndFilename(in: headerFields)
                                 switch name {
                                 case "log":
-                                    let headers: Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart.logPayload.Headers = .init(
+                                    let headers: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers = .init(
                                         x_dash_log_dash_type: try converter.getRequiredHeaderFieldAsURI(
                                             in: headerFields,
                                             name: "x-log-type",
-                                            as: Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart.logPayload.Headers.x_dash_log_dash_typePayload.self
+                                            as: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers.x_dash_log_dash_typePayload.self
                                         )
                                     )
                                     try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
@@ -846,7 +846,7 @@ public struct Client: APIProtocol {
                                 case "metadata":
                                     try converter.verifyContentTypeIfPresent(in: headerFields, matches: "application/json")
                                     let body = try await converter.getResponseBodyAsJSON(
-                                        Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart.metadataPayload.metadataPayloadBodyPayload.self,
+                                        Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.metadataPayload.metadataPayloadBodyPayload.self,
                                         from: part.body,
                                         transforming: { $0 }
                                     )

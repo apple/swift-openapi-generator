@@ -815,7 +815,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch chosenContentType {
                 case "multipart/form-data":
                     body = try converter.getRequiredRequestBodyAsMultipart(
-                        MultipartBody<Components.RequestBodies.MultipartRequestFragment.MultipartPart>.self,
+                        MultipartBody<Components.RequestBodies.MultipartRequestFragment.multipartFormPayload>.self,
                         from: requestBody,
                         boundary: contentType.requiredBoundary(),
                         allowsUnknownParts: true,
@@ -1007,7 +1007,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch chosenContentType {
                 case "multipart/form-data":
                     body = try converter.getRequiredRequestBodyAsMultipart(
-                        MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart>.self,
+                        MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload>.self,
                         from: requestBody,
                         boundary: contentType.requiredBoundary(),
                         allowsUnknownParts: true,
@@ -1029,11 +1029,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             let (name, filename) = converter.extractContentDispositionNameAndFilename(in: headerFields)
                             switch name {
                             case "log":
-                                let headers: Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart.logPayload.Headers = .init(
+                                let headers: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers = .init(
                                     x_dash_log_dash_type: try converter.getRequiredHeaderFieldAsURI(
                                         in: headerFields,
                                         name: "x-log-type",
-                                        as: Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart.logPayload.Headers.x_dash_log_dash_typePayload.self
+                                        as: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers.x_dash_log_dash_typePayload.self
                                     )
                                 )
                                 try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
@@ -1054,7 +1054,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             case "metadata":
                                 try converter.verifyContentTypeIfPresent(in: headerFields, matches: "application/json")
                                 let body = try await converter.getResponseBodyAsJSON(
-                                    Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart.metadataPayload.metadataPayloadBodyPayload.self,
+                                    Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.metadataPayloadBodyPayload.self,
                                     from: part.body,
                                     transforming: { $0 }
                                 )

@@ -714,7 +714,7 @@ final class Test_Client: XCTestCase {
             )
             .withEncodedBody(Data.multipartBodyString)
         }
-        let body: MultipartBody<Components.RequestBodies.MultipartRequestFragment.MultipartPart> = .init(
+        let body: MultipartBody<Components.RequestBodies.MultipartRequestFragment.multipartFormPayload> = .init(
             [
                 .undocumented(.init(name: "efficiency", headerFields: .init(), body: "4.2")),
                 .undocumented(.init(name: "name", headerFields: .init(), body: "Vitamin C and friends")),
@@ -774,7 +774,7 @@ final class Test_Client: XCTestCase {
             try await XCTAssertEqualData(requestBody, Data.multipartTypedBodyAsSlice)
             return (.init(status: .accepted), nil)
         }
-        let parts: [Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart] = [
+        let parts: [Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload] = [
             .log(
                 .init(
                     payload: .init(
@@ -788,6 +788,22 @@ final class Test_Client: XCTestCase {
             .metadata(.init(payload: .init(body: .init(createdAt: Date.test)))),
             .keyword(.init(payload: .init(body: "joy"))),
         ]
+        do {
+            //        let (stream, continuation) = AsyncStream.makeStream(of: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.self)
+            //        continuation.yield(
+            //            .log(
+            //                .init(
+            //                    payload: .init(
+            //                        headers: .init(x_dash_log_dash_type: .unstructured),
+            //                        body: .init("here be logs!\nand more lines\nwheee\n")
+            //                    ),
+            //                    filename: "process.log"
+            //                )
+            //            )
+            //        )
+            //        // ...
+            //        continuation.finish()
+        }
         let response = try await client.multipartUploadTyped(
             .init(body: .multipartForm(.init(parts, length: .unknown)))
         )
