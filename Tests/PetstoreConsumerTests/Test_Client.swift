@@ -716,7 +716,7 @@ final class Test_Client: XCTestCase {
             )
             .withEncodedBody(Data.multipartBodyString)
         }
-        let body: MultipartTypedBody<Components.RequestBodies.MultipartRequestFragment.MultipartPart> = .init(
+        let body: MultipartBody<Components.RequestBodies.MultipartRequestFragment.MultipartPart> = .init(
             [
                 .undocumented(.init(name: "efficiency", headerFields: .init(), body: "4.2")),
                 .undocumented(.init(name: "name", headerFields: .init(), body: "Vitamin C and friends")),

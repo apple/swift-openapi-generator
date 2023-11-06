@@ -815,9 +815,14 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch chosenContentType {
                 case "multipart/form-data":
                     body = try converter.getRequiredRequestBodyAsMultipart(
-                        MultipartTypedBody<Components.RequestBodies.MultipartRequestFragment.MultipartPart>.self,
+                        MultipartBody<Components.RequestBodies.MultipartRequestFragment.MultipartPart>.self,
                         from: requestBody,
                         boundary: contentType.requiredBoundary(),
+                        allowsUnknownParts: true,
+                        requiredExactlyOncePartNames: [],
+                        requiredAtLeastOncePartNames: [],
+                        atMostOncePartNames: [],
+                        zeroOrMoreTimesPartNames: [],
                         transforming: { value in
                             .multipartForm(value)
                         },
@@ -1002,9 +1007,20 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch chosenContentType {
                 case "multipart/form-data":
                     body = try converter.getRequiredRequestBodyAsMultipart(
-                        MultipartTypedBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart>.self,
+                        MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartPart>.self,
                         from: requestBody,
                         boundary: contentType.requiredBoundary(),
+                        allowsUnknownParts: true,
+                        requiredExactlyOncePartNames: [
+                            "log",
+                        ],
+                        requiredAtLeastOncePartNames: [],
+                        atMostOncePartNames: [
+                            "metadata",
+                        ],
+                        zeroOrMoreTimesPartNames: [
+                            "keyword"
+                        ],
                         transforming: { value in
                             .multipartForm(value)
                         },

@@ -1498,7 +1498,7 @@ public enum Components {
                     }
                 }
             }
-            case multipartForm(OpenAPIRuntime.MultipartTypedBody<MultipartPart>)
+            case multipartForm(OpenAPIRuntime.MultipartBody<MultipartPart>)
         }
         /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest`.
         @frozen public enum MultipartUploadTypedRequest: Sendable, Hashable {
@@ -1575,7 +1575,7 @@ public enum Components {
             }
             
             /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/content/multipart\/form-data`.
-            case multipartForm(OpenAPIRuntime.MultipartTypedBody<MultipartPart>)
+            case multipartForm(OpenAPIRuntime.MultipartBody<MultipartPart>)
         }
     }
     /// Types generated from the `#/components/responses` section of the OpenAPI document.
@@ -1681,12 +1681,12 @@ public enum Components {
                         }
                     }
                 }
-                case multipartForm(OpenAPIRuntime.MultipartTypedBody<MultipartPart>)
+                case multipartForm(OpenAPIRuntime.MultipartBody<MultipartPart>)
                 /// The associated value of the enum case if `self` is `.multipartForm`.
                 ///
                 /// - Throws: An error if `self` is not `.multipartForm`.
                 /// - SeeAlso: `.multipartForm`.
-                public var multipartForm: OpenAPIRuntime.MultipartTypedBody<MultipartPart> {
+                public var multipartForm: OpenAPIRuntime.MultipartBody<MultipartPart> {
                     get throws {
                         switch self {
                         case let .multipartForm(body):
@@ -1784,12 +1784,12 @@ public enum Components {
                         }
                     }
                 }
-                case multipartForm(OpenAPIRuntime.MultipartTypedBody<MultipartPart>)
+                case multipartForm(OpenAPIRuntime.MultipartBody<MultipartPart>)
                 /// The associated value of the enum case if `self` is `.multipartForm`.
                 ///
                 /// - Throws: An error if `self` is not `.multipartForm`.
                 /// - SeeAlso: `.multipartForm`.
-                public var multipartForm: OpenAPIRuntime.MultipartTypedBody<MultipartPart> {
+                public var multipartForm: OpenAPIRuntime.MultipartBody<MultipartPart> {
                     get throws {
                         switch self {
                         case let .multipartForm(body):

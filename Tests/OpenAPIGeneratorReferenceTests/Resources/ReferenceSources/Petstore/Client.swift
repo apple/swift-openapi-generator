@@ -723,9 +723,14 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getResponseBodyAsMultipart(
-                            OpenAPIRuntime.MultipartTypedBody<Components.Responses.MultipartResponseFragment.Body.MultipartPart>.self,
+                            OpenAPIRuntime.MultipartBody<Components.Responses.MultipartResponseFragment.Body.MultipartPart>.self,
                             from: responseBody,
                             boundary: contentType.requiredBoundary(),
+                            allowsUnknownParts: true,
+                            requiredExactlyOncePartNames: [],
+                            requiredAtLeastOncePartNames: [],
+                            atMostOncePartNames: [],
+                            zeroOrMoreTimesPartNames: [],
                             transforming: { value in
                                 .multipartForm(value)
                             },
@@ -793,10 +798,20 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getResponseBodyAsMultipart(
-                            OpenAPIRuntime.MultipartTypedBody<Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart>.self,
+                            OpenAPIRuntime.MultipartBody<Components.Responses.MultipartDownloadTypedResponse.Body.MultipartPart>.self,
                             from: responseBody,
-                            
                             boundary: contentType.requiredBoundary(),
+                            allowsUnknownParts: true,
+                            requiredExactlyOncePartNames: [
+                                "log",
+                            ],
+                            requiredAtLeastOncePartNames: [],
+                            atMostOncePartNames: [
+                                "metadata",
+                            ],
+                            zeroOrMoreTimesPartNames: [
+                                "keyword"
+                            ],
                             transforming: {
                                 value in
                                     .multipartForm(value)
