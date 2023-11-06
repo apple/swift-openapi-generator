@@ -219,7 +219,7 @@ paths:
         content:
           application/octet-stream:
             schema:
-              format: binary
+              contentEncoding: binary
               type: string
       responses:
         '200':
@@ -227,7 +227,7 @@ paths:
           content:
             application/octet-stream:
               schema:
-                format: binary
+                contentEncoding: binary
                 type: string
         '412':
           description: Avatar is not acceptable
@@ -284,7 +284,7 @@ components:
         genome:
           description: "Pet genome (base64-encoded)"
           type: string
-          format: byte
+          contentEncoding: base64
         kind:
           $ref: '#/components/schemas/PetKind'
     MixedAnyOf:
@@ -329,7 +329,7 @@ components:
           type: string
         genome:
           type: string
-          format: byte
+          contentEncoding: base64
     Pets:
       type: array
       items:
