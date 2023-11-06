@@ -1483,8 +1483,8 @@ public enum Components {
         }
         /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment`.
         @frozen public enum MultipartRequestFragment: Sendable, Hashable {
-            @frozen public enum MultipartPart: Sendable, Hashable, MultipartTypedPart {
-                case undocumented(MultipartUntypedPart)
+            @frozen public enum MultipartPart: Sendable, Hashable, MultipartPartProtocol {
+                case undocumented(MultipartRawPart)
                 public var name: String? {
                     switch self {
                     case .undocumented(let value):
@@ -1502,7 +1502,7 @@ public enum Components {
         }
         /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest`.
         @frozen public enum MultipartUploadTypedRequest: Sendable, Hashable {
-            @frozen public enum MultipartPart: Sendable, Hashable, MultipartTypedPart {
+            @frozen public enum MultipartPart: Sendable, Hashable, MultipartPartProtocol {
                 public struct logPayload: Sendable, Hashable {
                     public struct Headers: Sendable, Hashable {
                         public enum x_dash_log_dash_typePayload: String, Codable, Hashable, Sendable {
@@ -1521,7 +1521,7 @@ public enum Components {
                         self.body = body
                     }
                 }
-                case log(MultipartPartWithInfo<logPayload>)
+                case log(MultipartCase<logPayload>)
                 public struct metadataPayload: Sendable, Hashable {
                     public struct metadataPayloadBodyPayload: Codable, Hashable, Sendable {
                         public var createdAt: Foundation.Date
@@ -1539,15 +1539,15 @@ public enum Components {
                         self.body = body
                     }
                 }
-                case metadata(MultipartPartWithInfo<metadataPayload>)
+                case metadata(MultipartCase<metadataPayload>)
                 public struct keywordPayload: Sendable, Hashable {
                     public var body: OpenAPIRuntime.HTTPBody
                     init(body: OpenAPIRuntime.HTTPBody) {
                         self.body = body
                     }
                 }
-                case keyword(MultipartPartWithInfo<keywordPayload>)
-                case undocumented(MultipartUntypedPart)
+                case keyword(MultipartCase<keywordPayload>)
+                case undocumented(MultipartRawPart)
                 public var name: String? {
                     switch self {
                     case .log:
@@ -1666,8 +1666,8 @@ public enum Components {
             public var headers: Components.Responses.MultipartResponseFragment.Headers
             /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/content`.
             @frozen public enum Body: Sendable, Hashable {
-                @frozen public enum MultipartPart: Sendable, Hashable, MultipartTypedPart {
-                    case undocumented(MultipartUntypedPart)
+                @frozen public enum MultipartPart: Sendable, Hashable, MultipartPartProtocol {
+                    case undocumented(MultipartRawPart)
                     public var name: String? {
                         switch self {
                         case .undocumented(let value):
@@ -1713,7 +1713,7 @@ public enum Components {
         public struct MultipartDownloadTypedResponse: Sendable, Hashable {
             /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/content`.
             @frozen public enum Body: Sendable, Hashable {
-                @frozen public enum MultipartPart: Sendable, Hashable, MultipartTypedPart {
+                @frozen public enum MultipartPart: Sendable, Hashable, MultipartPartProtocol {
                     public struct logPayload: Sendable, Hashable {
                         public struct Headers: Sendable, Hashable {
                             public enum x_dash_log_dash_typePayload: String, Codable, Hashable, Sendable {
@@ -1732,7 +1732,7 @@ public enum Components {
                             self.body = body
                         }
                     }
-                    case log(MultipartPartWithInfo<logPayload>)
+                    case log(MultipartCase<logPayload>)
                     public struct metadataPayload: Sendable, Hashable {
                         public struct metadataPayloadBodyPayload: Codable, Hashable, Sendable {
                             public var createdAt: Foundation.Date
@@ -1750,15 +1750,15 @@ public enum Components {
                             self.body = body
                         }
                     }
-                    case metadata(MultipartPartWithInfo<metadataPayload>)
+                    case metadata(MultipartCase<metadataPayload>)
                     public struct keywordPayload: Sendable, Hashable {
                         public var body: OpenAPIRuntime.HTTPBody
                         init(body: OpenAPIRuntime.HTTPBody) {
                             self.body = body
                         }
                     }
-                    case keyword(MultipartPartWithInfo<keywordPayload>)
-                    case undocumented(MultipartUntypedPart)
+                    case keyword(MultipartCase<keywordPayload>)
+                    case undocumented(MultipartRawPart)
                     public var name: String? {
                         switch self {
                         case .log:

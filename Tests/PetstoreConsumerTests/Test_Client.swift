@@ -22,9 +22,7 @@ final class Test_Client: XCTestCase {
     var client: Client {
         get throws {
             .init(
-                serverURL: try URL(
-                    validatingOpenAPIServerURL: "/api"
-                ),
+                serverURL: try URL(validatingOpenAPIServerURL: "/api"),
                 configuration: .init(multipartBoundaryGenerator: .constant),
                 transport: transport
             )
