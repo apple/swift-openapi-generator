@@ -1574,6 +1574,11 @@ public enum Components {
                 }
             }
             
+//            public struct multipartFormBufferedPayload {
+//                var log: MultipartCase<logPayload>
+//                var log: MultipartCase<logPayload>
+//            }
+            
             /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/content/multipart\/form-data`.
             case multipartForm(OpenAPIRuntime.MultipartBody<multipartFormPayload>)
         }

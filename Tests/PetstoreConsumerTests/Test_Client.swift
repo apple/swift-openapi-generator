@@ -788,24 +788,24 @@ final class Test_Client: XCTestCase {
             .metadata(.init(payload: .init(body: .init(createdAt: Date.test)))),
             .keyword(.init(payload: .init(body: "joy"))),
         ]
-        do {
-            //        let (stream, continuation) = AsyncStream.makeStream(of: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.self)
-            //        continuation.yield(
-            //            .log(
-            //                .init(
-            //                    payload: .init(
-            //                        headers: .init(x_dash_log_dash_type: .unstructured),
-            //                        body: .init("here be logs!\nand more lines\nwheee\n")
-            //                    ),
-            //                    filename: "process.log"
-            //                )
-            //            )
-            //        )
-            //        // ...
-            //        continuation.finish()
-        }
+        //        do {
+        //            let (stream, continuation) = AsyncStream.makeStream(of: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.self)
+        //            continuation.yield(
+        //                .log(
+        //                    .init(
+        //                        payload: .init(
+        //                            headers: .init(x_dash_log_dash_type: .unstructured),
+        //                            body: .init("here be logs!\nand more lines\nwheee\n")
+        //                        ),
+        //                        filename: "process.log"
+        //                    )
+        //                )
+        //            )
+        //            // ...
+        //            continuation.finish()
+        //        }
         let response = try await client.multipartUploadTyped(
-            .init(body: .multipartForm(.init(parts, length: .unknown)))
+            .init(body: .multipartForm(.init(parts, length: .unknown /* definitely remove! */)))
         )
         guard case .accepted = response else {
             XCTFail("Unexpected response: \(response)")
@@ -833,6 +833,21 @@ final class Test_Client: XCTestCase {
         }
         let response = try await client.multipartDownloadTyped()
         let responseMultipart = try response.ok.body.multipartForm
+
+        //        for try await part in responseMultipart {
+        //            switch part {
+        //            case .log(let log):
+        //                log.payload.headers.x_dash_log_dash_type
+        //                let bufferedLog = try await String(collecting: log.payload.body, upTo: .max)
+        //                print()
+        //            case .metadata(_):
+        //                <#code#>
+        //            case .keyword(_):
+        //                <#code#>
+        //            case .undocumented(_):
+        //                <#code#>
+        //            }
+        //        }
 
         var iterator = responseMultipart.makeAsyncIterator()
         do {
