@@ -33,6 +33,11 @@ public enum FeatureFlag: String, Hashable, Codable, CaseIterable, Sendable {
     ///
     /// Enable interpretation of `type: string, format: byte` as base64-encoded data.
     case base64DataEncodingDecoding
+
+    /// Multipart support.
+    ///
+    /// Subject of the SOAR-0009 proposal, issue: https://github.com/apple/swift-openapi-generator/issues/36.
+    case multipart
 }
 
 /// A set of enabled feature flags.

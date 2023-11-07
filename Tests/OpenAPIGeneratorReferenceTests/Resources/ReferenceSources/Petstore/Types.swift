@@ -1521,7 +1521,7 @@ public enum Components {
                         self.body = body
                     }
                 }
-                case log(MultipartCase<logPayload>)
+                case log(MultipartPartWrapper<logPayload>)
                 public struct metadataPayload: Sendable, Hashable {
                     public struct metadataPayloadBodyPayload: Codable, Hashable, Sendable {
                         public var createdAt: Foundation.Date
@@ -1539,14 +1539,14 @@ public enum Components {
                         self.body = body
                     }
                 }
-                case metadata(MultipartCase<metadataPayload>)
+                case metadata(MultipartPartWrapper<metadataPayload>)
                 public struct keywordPayload: Sendable, Hashable {
                     public var body: OpenAPIRuntime.HTTPBody
                     init(body: OpenAPIRuntime.HTTPBody) {
                         self.body = body
                     }
                 }
-                case keyword(MultipartCase<keywordPayload>)
+                case keyword(MultipartPartWrapper<keywordPayload>)
                 case undocumented(MultipartRawPart)
                 public var name: String? {
                     switch self {
@@ -1737,7 +1737,7 @@ public enum Components {
                             self.body = body
                         }
                     }
-                    case log(MultipartCase<logPayload>)
+                    case log(MultipartPartWrapper<logPayload>)
                     public struct metadataPayload: Sendable, Hashable {
                         public struct metadataPayloadBodyPayload: Codable, Hashable, Sendable {
                             public var createdAt: Foundation.Date
@@ -1755,14 +1755,14 @@ public enum Components {
                             self.body = body
                         }
                     }
-                    case metadata(MultipartCase<metadataPayload>)
+                    case metadata(MultipartPartWrapper<metadataPayload>)
                     public struct keywordPayload: Sendable, Hashable {
                         public var body: OpenAPIRuntime.HTTPBody
                         init(body: OpenAPIRuntime.HTTPBody) {
                             self.body = body
                         }
                     }
-                    case keyword(MultipartCase<keywordPayload>)
+                    case keyword(MultipartPartWrapper<keywordPayload>)
                     case undocumented(MultipartRawPart)
                     public var name: String? {
                         switch self {

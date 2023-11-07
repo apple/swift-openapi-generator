@@ -780,7 +780,6 @@ final class Test_Server: XCTestCase {
                                 case .undocumented(let value): return .undocumented(value)
                                 }
                             },
-                            length: body.length,
                             iterationBehavior: body.iterationBehavior
                         )
                     )
@@ -809,7 +808,7 @@ final class Test_Server: XCTestCase {
 
     func testMultipartDownloadTyped_202() async throws {
         client = .init(multipartDownloadTypedBlock: { input in
-            let parts: [Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload] = [
+            let parts: MultipartBody<Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload> = [
                 .log(
                     .init(
                         payload: .init(
@@ -823,7 +822,7 @@ final class Test_Server: XCTestCase {
                 .metadata(.init(payload: .init(body: .init(createdAt: Date.test)))),
                 .keyword(.init(payload: .init(body: "joy"))),
             ]
-            return .ok(.init(body: .multipartForm(.init(parts, length: .unknown))))
+            return .ok(.init(body: .multipartForm(parts)))
         })
         let (response, responseBody) = try await server.multipartDownloadTyped(
             .init(soar_path: "/api/pets/multipart-typed", method: .get, headerFields: [.accept: "multipart/form-data"]),

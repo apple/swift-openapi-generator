@@ -694,6 +694,7 @@ final class Test_Client: XCTestCase {
         case .plainText(let text): try await XCTAssertEqualStringifiedData(text, Data.efghString)
         }
     }
+
     func testMultipartEcho_200() async throws {
         transport = .init { request, requestBody, baseURL, operationID in
             XCTAssertEqual(operationID, "multipartEcho")
@@ -714,13 +715,10 @@ final class Test_Client: XCTestCase {
             )
             .withEncodedBody(Data.multipartBodyString)
         }
-        let body: MultipartBody<Components.RequestBodies.MultipartRequestFragment.multipartFormPayload> = .init(
-            [
-                .undocumented(.init(name: "efficiency", headerFields: .init(), body: "4.2")),
-                .undocumented(.init(name: "name", headerFields: .init(), body: "Vitamin C and friends")),
-            ],
-            length: .unknown
-        )
+        let body: MultipartBody<Components.RequestBodies.MultipartRequestFragment.multipartFormPayload> = [
+            .undocumented(.init(name: "efficiency", headerFields: .init(), body: "4.2")),
+            .undocumented(.init(name: "name", headerFields: .init(), body: "Vitamin C and friends")),
+        ]
         let response = try await client.multipartEcho(.init(body: .multipartForm(body)))
         guard case let .ok(value) = response else {
             XCTFail("Unexpected response: \(response)")
@@ -761,6 +759,7 @@ final class Test_Client: XCTestCase {
             }
         }
     }
+
     func testMultipartUploadTyped_202() async throws {
         transport = .init { request, requestBody, baseURL, operationID in
             XCTAssertEqual(operationID, "multipartUploadTyped")
@@ -774,7 +773,7 @@ final class Test_Client: XCTestCase {
             try await XCTAssertEqualData(requestBody, Data.multipartTypedBodyAsSlice)
             return (.init(status: .accepted), nil)
         }
-        let parts: [Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload] = [
+        let parts: MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload> = [
             .log(
                 .init(
                     payload: .init(
@@ -804,14 +803,13 @@ final class Test_Client: XCTestCase {
         //            // ...
         //            continuation.finish()
         //        }
-        let response = try await client.multipartUploadTyped(
-            .init(body: .multipartForm(.init(parts, length: .unknown /* definitely remove! */)))
-        )
+        let response = try await client.multipartUploadTyped(.init(body: .multipartForm(parts)))
         guard case .accepted = response else {
             XCTFail("Unexpected response: \(response)")
             return
         }
     }
+
     func testMultipartDownloadTyped_200() async throws {
         transport = .init { request, requestBody, baseURL, operationID in
             XCTAssertEqual(operationID, "multipartDownloadTyped")
