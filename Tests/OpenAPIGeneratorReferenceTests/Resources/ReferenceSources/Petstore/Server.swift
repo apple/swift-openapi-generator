@@ -936,7 +936,6 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                                 switch part {
                                 case .log(let wrapped):
                                     var headerFields: HTTPFields = .init()
-                                    converter.setContentDispositionFilename(wrapped.filename, in: &headerFields)
                                     let value = wrapped.payload
                                     try converter.setHeaderFieldAsURI(
                                         in: &headerFields,
@@ -948,27 +947,40 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                                         headerFields: &headerFields,
                                         contentType: "text/plain"
                                     )
-                                    return .init(headerFields: headerFields, body: body)
+                                    return .init(
+                                        name: "log",
+                                        filename: wrapped.filename,
+                                        headerFields: headerFields,
+                                        body: body
+                                    )
                                 case .metadata(let wrapped):
                                     var headerFields: HTTPFields = .init()
-                                    converter.setContentDispositionFilename(wrapped.filename, in: &headerFields)
                                     let value = wrapped.payload
                                     let body = try converter.setRequiredRequestBodyAsJSON(
                                         value.body,
                                         headerFields: &headerFields,
                                         contentType: "application/json"
                                     )
-                                    return .init(headerFields: headerFields, body: body)
+                                    return .init(
+                                        name: "metadata",
+                                        filename: wrapped.filename,
+                                        headerFields: headerFields,
+                                        body: body
+                                    )
                                 case .keyword(let wrapped):
                                     var headerFields: HTTPFields = .init()
-                                    converter.setContentDispositionFilename(wrapped.filename, in: &headerFields)
                                     let value = wrapped.payload
                                     let body = try converter.setRequiredRequestBodyAsBinary(
                                         value.body,
                                         headerFields: &headerFields,
                                         contentType: "text/plain"
                                     )
-                                    return .init(headerFields: headerFields, body: body)
+                                    return .init(
+                                        name: "keyword",
+                                        filename: wrapped.filename,
+                                        headerFields: headerFields,
+                                        body: body
+                                    )
                                 case .undocumented(let value):
                                     return value
                                 }

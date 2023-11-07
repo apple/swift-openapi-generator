@@ -894,7 +894,8 @@ public struct Client: APIProtocol {
         try await client.send(
             input: input,
             forOperation: Operations.multipartUploadTyped.id,
-            serializer: { input in
+            serializer: {
+                input in
                 let path = try converter.renderedPath(
                     template: "/pets/multipart-typed",
                     parameters: []
@@ -922,11 +923,11 @@ public struct Client: APIProtocol {
                         zeroOrMoreTimesPartNames: [
                             "keyword"
                         ],
-                        transform: { part in
+                        transform: {
+                            part in
                             switch part {
                             case .log(let wrapped):
                                 var headerFields: HTTPFields = .init()
-                                converter.setContentDispositionFilename(wrapped.filename, in: &headerFields)
                                 let value = wrapped.payload
                                 try converter.setHeaderFieldAsURI(
                                     in: &headerFields,
@@ -938,27 +939,40 @@ public struct Client: APIProtocol {
                                     headerFields: &headerFields,
                                     contentType: "text/plain"
                                 )
-                                return .init(headerFields: headerFields, body: body)
+                                return .init(
+                                    name: "log",
+                                    filename: wrapped.filename,
+                                    headerFields: headerFields,
+                                    body: body
+                                )
                             case .metadata(let wrapped):
                                 var headerFields: HTTPFields = .init()
-                                converter.setContentDispositionFilename(wrapped.filename, in: &headerFields)
                                 let value = wrapped.payload
                                 let body = try converter.setRequiredRequestBodyAsJSON(
                                     value.body,
                                     headerFields: &headerFields,
                                     contentType: "application/json"
                                 )
-                                return .init(headerFields: headerFields, body: body)
+                                return .init(
+                                    name: "metadata",
+                                    filename: wrapped.filename,
+                                    headerFields: headerFields,
+                                    body: body
+                                )
                             case .keyword(let wrapped):
                                 var headerFields: HTTPFields = .init()
-                                converter.setContentDispositionFilename(wrapped.filename, in: &headerFields)
                                 let value = wrapped.payload
                                 let body = try converter.setRequiredRequestBodyAsBinary(
                                     value.body,
                                     headerFields: &headerFields,
                                     contentType: "text/plain"
                                 )
-                                return .init(headerFields: headerFields, body: body)
+                                return .init(
+                                    name: "keyword",
+                                    filename: wrapped.filename,
+                                    headerFields: headerFields,
+                                    body: body
+                                )
                             case .undocumented(let value):
                                 return value
                             }

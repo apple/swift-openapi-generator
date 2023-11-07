@@ -729,11 +729,11 @@ final class Test_Client: XCTestCase {
             var iterator = body.makeAsyncIterator()
             do {
                 let part = try await iterator.next()!
-                XCTAssertEqual(part.name, "efficiency")
                 guard case .undocumented(let undocumented) = part else {
                     XCTFail("Unexpected part")
                     return
                 }
+                XCTAssertEqual(undocumented.name, "efficiency")
                 XCTAssertEqual(
                     undocumented.headerFields,
                     [.contentDisposition: #"form-data; name="efficiency""#, .contentLength: "3"]
@@ -742,11 +742,11 @@ final class Test_Client: XCTestCase {
             }
             do {
                 let part = try await iterator.next()!
-                XCTAssertEqual(part.name, "name")
                 guard case .undocumented(let undocumented) = part else {
                     XCTFail("Unexpected part")
                     return
                 }
+                XCTAssertEqual(undocumented.name, "name")
                 XCTAssertEqual(
                     undocumented.headerFields,
                     [.contentDisposition: #"form-data; name="name""#, .contentLength: "21"]
@@ -832,25 +832,9 @@ final class Test_Client: XCTestCase {
         let response = try await client.multipartDownloadTyped()
         let responseMultipart = try response.ok.body.multipartForm
 
-        //        for try await part in responseMultipart {
-        //            switch part {
-        //            case .log(let log):
-        //                log.payload.headers.x_dash_log_dash_type
-        //                let bufferedLog = try await String(collecting: log.payload.body, upTo: .max)
-        //                print()
-        //            case .metadata(_):
-        //                <#code#>
-        //            case .keyword(_):
-        //                <#code#>
-        //            case .undocumented(_):
-        //                <#code#>
-        //            }
-        //        }
-
         var iterator = responseMultipart.makeAsyncIterator()
         do {
             let part = try await iterator.next()!
-            XCTAssertEqual(part.name, "log")
             guard case .log(let log) = part else {
                 XCTFail("Unexpected part")
                 return
@@ -861,7 +845,6 @@ final class Test_Client: XCTestCase {
         }
         do {
             let part = try await iterator.next()!
-            XCTAssertEqual(part.name, "keyword")
             guard case .keyword(let keyword) = part else {
                 XCTFail("Unexpected part")
                 return
@@ -871,7 +854,6 @@ final class Test_Client: XCTestCase {
         }
         do {
             let part = try await iterator.next()!
-            XCTAssertEqual(part.name, "foobar")
             guard case .undocumented(let undocumented) = part else {
                 XCTFail("Unexpected part")
                 return
@@ -886,7 +868,6 @@ final class Test_Client: XCTestCase {
         }
         do {
             let part = try await iterator.next()!
-            XCTAssertEqual(part.name, "metadata")
             guard case .metadata(let metadata) = part else {
                 XCTFail("Unexpected part")
                 return
@@ -896,7 +877,6 @@ final class Test_Client: XCTestCase {
         }
         do {
             let part = try await iterator.next()!
-            XCTAssertEqual(part.name, "keyword")
             guard case .keyword(let keyword) = part else {
                 XCTFail("Unexpected part")
                 return

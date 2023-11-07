@@ -1483,7 +1483,7 @@ public enum Components {
         }
         /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment`.
         @frozen public enum MultipartRequestFragment: Sendable, Hashable {
-            @frozen public enum multipartFormPayload: Sendable, Hashable, MultipartPartProtocol {
+            @frozen public enum multipartFormPayload: Sendable, Hashable {
                 case undocumented(MultipartRawPart)
                 public var name: String? {
                     switch self {
@@ -1502,7 +1502,7 @@ public enum Components {
         }
         /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest`.
         @frozen public enum MultipartUploadTypedRequest: Sendable, Hashable {
-            @frozen public enum multipartFormPayload: Sendable, Hashable, MultipartPartProtocol {
+            @frozen public enum multipartFormPayload: Sendable, Hashable {
                 public struct logPayload: Sendable, Hashable {
                     public struct Headers: Sendable, Hashable {
                         public enum x_dash_log_dash_typePayload: String, Codable, Hashable, Sendable {
@@ -1521,7 +1521,7 @@ public enum Components {
                         self.body = body
                     }
                 }
-                case log(MultipartTypedPartWrapper<logPayload>)
+                case log(MultipartPart<logPayload>)
                 public struct metadataPayload: Sendable, Hashable {
                     public struct metadataPayloadBodyPayload: Codable, Hashable, Sendable {
                         public var createdAt: Foundation.Date
@@ -1539,46 +1539,16 @@ public enum Components {
                         self.body = body
                     }
                 }
-                case metadata(MultipartTypedPartWrapper<metadataPayload>)
+                case metadata(MultipartPart<metadataPayload>)
                 public struct keywordPayload: Sendable, Hashable {
                     public var body: OpenAPIRuntime.HTTPBody
                     init(body: OpenAPIRuntime.HTTPBody) {
                         self.body = body
                     }
                 }
-                case keyword(MultipartTypedPartWrapper<keywordPayload>)
+                case keyword(MultipartPart<keywordPayload>)
                 case undocumented(MultipartRawPart)
-                public var name: String? {
-                    switch self {
-                    case .log:
-                        return "log"
-                    case .metadata:
-                        return "metadata"
-                    case .keyword:
-                        return "keyword"
-                    case .undocumented(let value):
-                        return value.name
-                    }
-                }
-                public var filename: String? {
-                    switch self {
-                    case .log(let value):
-                        return value.filename
-                    case .metadata(let value):
-                        return value.filename
-                    case .keyword(let value):
-                        return value.filename
-                    case .undocumented(let value):
-                        return value.filename
-                    }
-                }
             }
-            
-//            public struct multipartFormBufferedPayload {
-//                var log: MultipartCase<logPayload>
-//                var log: MultipartCase<logPayload>
-//            }
-            
             /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/content/multipart\/form-data`.
             case multipartForm(OpenAPIRuntime.MultipartBody<multipartFormPayload>)
         }
@@ -1671,20 +1641,8 @@ public enum Components {
             public var headers: Components.Responses.MultipartResponseFragment.Headers
             /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/content`.
             @frozen public enum Body: Sendable, Hashable {
-                @frozen public enum multipartFormPayload: Sendable, Hashable, MultipartPartProtocol {
+                @frozen public enum multipartFormPayload: Sendable, Hashable {
                     case undocumented(MultipartRawPart)
-                    public var name: String? {
-                        switch self {
-                        case .undocumented(let value):
-                            return value.name
-                        }
-                    }
-                    public var filename: String? {
-                        switch self {
-                        case .undocumented(let value):
-                            return value.filename
-                        }
-                    }
                 }
                 case multipartForm(OpenAPIRuntime.MultipartBody<multipartFormPayload>)
                 /// The associated value of the enum case if `self` is `.multipartForm`.
@@ -1718,7 +1676,7 @@ public enum Components {
         public struct MultipartDownloadTypedResponse: Sendable, Hashable {
             /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/content`.
             @frozen public enum Body: Sendable, Hashable {
-                @frozen public enum multipartFormPayload: Sendable, Hashable, MultipartPartProtocol {
+                @frozen public enum multipartFormPayload: Sendable, Hashable {
                     public struct logPayload: Sendable, Hashable {
                         public struct Headers: Sendable, Hashable {
                             public enum x_dash_log_dash_typePayload: String, Codable, Hashable, Sendable {
@@ -1737,7 +1695,7 @@ public enum Components {
                             self.body = body
                         }
                     }
-                    case log(MultipartTypedPartWrapper<logPayload>)
+                    case log(MultipartPart<logPayload>)
                     public struct metadataPayload: Sendable, Hashable {
                         public struct metadataPayloadBodyPayload: Codable, Hashable, Sendable {
                             public var createdAt: Foundation.Date
@@ -1755,39 +1713,15 @@ public enum Components {
                             self.body = body
                         }
                     }
-                    case metadata(MultipartTypedPartWrapper<metadataPayload>)
+                    case metadata(MultipartPart<metadataPayload>)
                     public struct keywordPayload: Sendable, Hashable {
                         public var body: OpenAPIRuntime.HTTPBody
                         init(body: OpenAPIRuntime.HTTPBody) {
                             self.body = body
                         }
                     }
-                    case keyword(MultipartTypedPartWrapper<keywordPayload>)
+                    case keyword(MultipartPart<keywordPayload>)
                     case undocumented(MultipartRawPart)
-                    public var name: String? {
-                        switch self {
-                        case .log:
-                            return "log"
-                        case .metadata:
-                            return "metadata"
-                        case .keyword:
-                            return "keyword"
-                        case .undocumented(let value):
-                            return value.name
-                        }
-                    }
-                    public var filename: String? {
-                        switch self {
-                        case .log(let value):
-                            return value.filename
-                        case .metadata(let value):
-                            return value.filename
-                        case .keyword(let value):
-                            return value.filename
-                        case .undocumented(let value):
-                            return value.filename
-                        }
-                    }
                 }
                 case multipartForm(OpenAPIRuntime.MultipartBody<multipartFormPayload>)
                 /// The associated value of the enum case if `self` is `.multipartForm`.

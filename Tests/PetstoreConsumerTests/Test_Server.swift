@@ -846,7 +846,6 @@ final class Test_Server: XCTestCase {
             var iterator = body.makeAsyncIterator()
             do {
                 let part = try await iterator.next()!
-                XCTAssertEqual(part.name, "log")
                 guard case .log(let log) = part else {
                     XCTFail("Unexpected part")
                     return .undocumented(statusCode: 500, .init())
@@ -857,7 +856,6 @@ final class Test_Server: XCTestCase {
             }
             do {
                 let part = try await iterator.next()!
-                XCTAssertEqual(part.name, "keyword")
                 guard case .keyword(let keyword) = part else {
                     XCTFail("Unexpected part")
                     return .undocumented(statusCode: 500, .init())
@@ -867,7 +865,6 @@ final class Test_Server: XCTestCase {
             }
             do {
                 let part = try await iterator.next()!
-                XCTAssertEqual(part.name, "foobar")
                 guard case .undocumented(let undocumented) = part else {
                     XCTFail("Unexpected part")
                     return .undocumented(statusCode: 500, .init())
@@ -882,7 +879,6 @@ final class Test_Server: XCTestCase {
             }
             do {
                 let part = try await iterator.next()!
-                XCTAssertEqual(part.name, "metadata")
                 guard case .metadata(let metadata) = part else {
                     XCTFail("Unexpected part")
                     return .undocumented(statusCode: 500, .init())
@@ -892,7 +888,6 @@ final class Test_Server: XCTestCase {
             }
             do {
                 let part = try await iterator.next()!
-                XCTAssertEqual(part.name, "keyword")
                 guard case .keyword(let keyword) = part else {
                     XCTFail("Unexpected part")
                     return .undocumented(statusCode: 500, .init())
