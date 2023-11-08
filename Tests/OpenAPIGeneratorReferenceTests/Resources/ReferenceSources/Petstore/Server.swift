@@ -870,7 +870,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             requiredAtLeastOncePartNames: [],
                             atMostOncePartNames: [],
                             zeroOrMoreTimesPartNames: [],
-                            transform: { part in
+                            encoding: { part in
                                 switch part {
                                 case .undocumented(let value):
                                     return value
@@ -932,7 +932,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             zeroOrMoreTimesPartNames: [
                                 "keyword"
                             ],
-                            transform: { part in
+                            encoding: { part in
                                 switch part {
                                 case .log(let wrapped):
                                     var headerFields: HTTPFields = .init()

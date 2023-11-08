@@ -694,7 +694,7 @@ public struct Client: APIProtocol {
                         requiredAtLeastOncePartNames: [],
                         atMostOncePartNames: [],
                         zeroOrMoreTimesPartNames: [],
-                        transform: { part in
+                        encoding: { part in
                             switch part {
                             case .undocumented(let value):
                                 return value
@@ -923,7 +923,7 @@ public struct Client: APIProtocol {
                         zeroOrMoreTimesPartNames: [
                             "keyword"
                         ],
-                        transform: {
+                        encoding: {
                             part in
                             switch part {
                             case .log(let wrapped):

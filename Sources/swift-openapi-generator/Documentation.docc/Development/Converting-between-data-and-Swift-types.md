@@ -56,6 +56,9 @@ Below is a list of the "dimensions" across which the helper methods differ:
     - `urlEncodedForm`
         - example: request body with the `application/x-www-form-urlencoded` content type
         - `greeting=Hello+world`
+    - `multipart`
+        - example: request body with the `multipart/form-data` content type
+        - part 1: `{"color": "red", "power": 24}`, part 2: `greeting=Hello+world`
     - `binary`
         - example: `application/octet-stream`
         - serves as the fallback for content types that don't have more specific handling
@@ -94,8 +97,10 @@ method parameters: value or type of value
 | client | set | request body | binary | required | setRequiredRequestBodyAsBinary |
 | client | set | request body | urlEncodedForm | optional | setOptionalRequestBodyAsURLEncodedForm | 
 | client | set | request body | urlEncodedForm | required | setRequiredRequestBodyAsURLEncodedForm | 
+| client | set | request body | multipart | required | setRequiredRequestBodyAsMultipart | 
 | client | get | response body | JSON | required | getResponseBodyAsJSON |
 | client | get | response body | binary | required | getResponseBodyAsBinary |
+| client | get | response body | multipart | required | getResponseBodyAsMultipart |
 | server | get | request path | URI | required | getPathParameterAsURI |
 | server | get | request query | URI | optional | getOptionalQueryItemAsURI |
 | server | get | request query | URI | required | getRequiredQueryItemAsURI |
@@ -105,5 +110,7 @@ method parameters: value or type of value
 | server | get | request body | binary | required | getRequiredRequestBodyAsBinary |
 | server | get | request body | urlEncodedForm | optional | getOptionalRequestBodyAsURLEncodedForm |
 | server | get | request body | urlEncodedForm | required | getRequiredRequestBodyAsURLEncodedForm |
+| server | get | request body | multipart | required | getRequiredRequestBodyAsMultipart |
 | server | set | response body | JSON | required | setResponseBodyAsJSON |
 | server | set | response body | binary | required | setResponseBodyAsBinary |
+| server | set | response body | multipart | required | setResponseBodyAsMultipart |
