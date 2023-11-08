@@ -22,6 +22,9 @@ extension TypesFileTranslator {
     /// unsupported.
     /// - Throws: An error if there is an issue translating and declaring the schema content.
     func translateRequestBodyContentInTypes(_ content: TypedSchemaContent) throws -> [Declaration] {
+        if content.content.contentType.isMultipart {
+            return try translateMultipartBody(content)
+        }
         let decl = try translateSchema(
             typeName: content.resolvedTypeUsage.typeName,
             schema: content.content.schema,

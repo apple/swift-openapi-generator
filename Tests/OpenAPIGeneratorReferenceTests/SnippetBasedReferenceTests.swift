@@ -1835,6 +1835,103 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
+    
+    func testComponentsRequestBodiesInline_multipart() throws {
+        try self.assertRequestBodiesTranslation(
+            """
+            requestBodies:
+              MultipartUploadTypedRequest:
+                required: true
+                content:
+                  multipart/form-data:
+                    schema:
+                      type: object
+                      properties:
+                        log:
+                          type: string
+                        metadata:
+                          type: object
+                          properties:
+                            createdAt:
+                              type: string
+                              format: date-time
+                          required:
+                            - createdAt
+                        keyword:
+                          type: array
+                          items:
+                            type: string
+                      required:
+                        - log
+                    encoding:
+                      log:
+                        headers:
+                          x-log-type:
+                            description: The type of the log.
+                            schema:
+                              type: string
+                              enum:
+                                - structured
+                                - unstructured
+            """,
+            #"""
+            public enum RequestBodies {
+                /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest`.
+                @frozen public enum MultipartUploadTypedRequest: Sendable, Hashable {
+                    @frozen public enum multipartFormPayload: Sendable, Hashable {
+                        public struct logPayload: Sendable, Hashable {
+                            public struct Headers: Sendable, Hashable {
+                                public enum x_dash_log_dash_typePayload: String, Codable, Hashable, Sendable {
+                                    case structured
+                                    case unstructured
+                                }
+                                public var x_dash_log_dash_type: x_dash_log_dash_typePayload
+                                public init(x_dash_log_dash_type: x_dash_log_dash_typePayload) {
+                                    self.x_dash_log_dash_type = x_dash_log_dash_type
+                                }
+                            }
+                            public var headers: Headers
+                            public var body: OpenAPIRuntime.HTTPBody
+                            init(headers: Headers, body: OpenAPIRuntime.HTTPBody) {
+                                self.headers = headers
+                                self.body = body
+                            }
+                        }
+                        case log(MultipartPart<logPayload>)
+                        public struct metadataPayload: Sendable, Hashable {
+                            public struct metadataPayloadBodyPayload: Codable, Hashable, Sendable {
+                                public var createdAt: Foundation.Date
+                                public init(
+                                    createdAt: Foundation.Date
+                                ) {
+                                    self.createdAt = createdAt
+                                }
+                                public enum CodingKeys: String, CodingKey {
+                                    case createdAt
+                                }
+                            }
+                            public var body: metadataPayloadBodyPayload
+                            init(body: metadataPayloadBodyPayload) {
+                                self.body = body
+                            }
+                        }
+                        case metadata(MultipartPart<metadataPayload>)
+                        public struct keywordPayload: Sendable, Hashable {
+                            public var body: OpenAPIRuntime.HTTPBody
+                            init(body: OpenAPIRuntime.HTTPBody) {
+                                self.body = body
+                            }
+                        }
+                        case keyword(MultipartPart<keywordPayload>)
+                        case undocumented(MultipartRawPart)
+                    }
+                    /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/content/multipart\/form-data`.
+                    case multipartForm(OpenAPIRuntime.MultipartBody<multipartFormPayload>)
+                }
+            }
+            """#
+        )
+    }
 
     func testPathsSimplestCase() throws {
         try self.assertPathsTranslation(

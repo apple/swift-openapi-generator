@@ -172,19 +172,22 @@ extension FileTranslator {
         foundIn: String
     ) throws -> SchemaContent? {
         let contentType = try contentKey.asGeneratorContentType
+        if contentType.lowercasedTypeAndSubtype.contains("application/x-www-form-urlencoded") {
+            diagnostics.emitUnsupportedIfNotNil(
+                contentValue.encoding,
+                "Custom encoding for formEncoded content",
+                foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
+            )
+        }
         if contentType.isJSON {
-            if contentType.lowercasedType == "multipart"
-                || contentType.lowercasedTypeAndSubtype.contains("application/x-www-form-urlencoded")
-            {
-                diagnostics.emitUnsupportedIfNotNil(
-                    contentValue.encoding,
-                    "Custom encoding for multipart/formEncoded content",
-                    foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
-                )
-            }
             return .init(contentType: contentType, schema: contentValue.schema)
         }
-        if contentType.isUrlEncodedForm { return .init(contentType: contentType, schema: contentValue.schema) }
+        if contentType.isUrlEncodedForm {
+            return .init(contentType: contentType, schema: contentValue.schema)
+        }
+        if contentType.isMultipart {
+            return .init(contentType: contentType, schema: contentValue.schema)
+        }
         if !excludeBinary, contentType.isBinary {
             return .init(contentType: contentType, schema: .b(.string(contentEncoding: .binary)))
         }

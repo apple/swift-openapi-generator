@@ -42,6 +42,11 @@ struct TypesFileTranslator: FileTranslator {
 
         let serversDecl = translateServers(doc.servers)
 
+        // TODO: Here, go through all schema + encoding pairs, and verify (using a deep comparison, not refs)
+        // that we only ever get one encoding for every schema. Otherwise emit a diagnostic warning
+        // and say we'll skip any request/response body schemas that have a mismatched encoding.
+        // Or use the first one, whichever is easier.
+        
         let components = try translateComponents(doc.components)
 
         let operationDescriptions = try OperationDescription.all(
