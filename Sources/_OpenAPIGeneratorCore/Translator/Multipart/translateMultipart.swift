@@ -39,6 +39,13 @@ extension TypesFileTranslator {
         // TODO: Create a "MultipartCasePayloadKind" enum of: staticallyNamed, dynamicallyNamed, raw
         // TODO: Create a "MultipartCaseKind" enum of: name+staticallyNamed, undocumented+raw, other+dynamicallyNamed, other+raw
         
+        // TODO: Generate the enum members (inline types and cases)
+        
+        // TODO: Create some typesafe MultipartContent struct, as we'll need to parse this out
+        // in more places and use when generating client/server code as well.
+        
+        // TODO: Support both an inline top level schema and a reference top level schema.
+        
         return []
     }
 }
