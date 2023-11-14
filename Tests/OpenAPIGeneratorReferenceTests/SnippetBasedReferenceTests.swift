@@ -156,6 +156,38 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasObjectWithInferredProperty() throws {
+        try self.assertSchemasTranslation(
+            ignoredDiagnosticMessages: [
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property."
+            ],
+            """
+            schemas:
+              MyObj:
+                type: object
+                properties:
+                  fooRequired:
+                    type: string
+                required:
+                  - fooRequired
+                  - fooInferred
+            """,
+            """
+            public enum Schemas {
+                public struct MyObj: Codable, Hashable, Sendable {
+                    public var fooRequired: Swift.String
+                    public init(fooRequired: Swift.String) {
+                        self.fooRequired = fooRequired
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case fooRequired
+                    }
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsObjectNoAdditionalProperties() throws {
         try self.assertSchemasTranslation(
             """
