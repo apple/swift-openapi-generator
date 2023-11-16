@@ -2189,6 +2189,82 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """
         )
     }
+    func testRequestWithPathParams() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo/a/{a}/b/{b}:
+              get:
+                parameters:
+                  - name: b
+                    in: path
+                    required: true
+                    schema:
+                      type: string
+                  - name: a
+                    in: path
+                    required: true
+                    schema:
+                      type: string
+                operationId: getFoo
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    public struct Path: Sendable, Hashable {
+                        public var b: Swift.String
+                        public var a: Swift.String
+                        public init(
+                            b: Swift.String,
+                            a: Swift.String
+                        ) {
+                            self.b = b
+                            self.a = a
+                        }
+                    }
+                    public var path: Operations.getFoo.Input.Path
+                    public init(path: Operations.getFoo.Input.Path) {
+                        self.path = path
+                    }
+                }
+                """,
+            client: """
+                { input in
+                    let path = try converter.renderedPath(
+                        template: "/foo/a/{}/b/{}",
+                        parameters: [
+                            input.path.a,
+                            input.path.b
+                        ]
+                    )
+                    var request: HTTPTypes.HTTPRequest = .init(
+                        soar_path: path,
+                        method: .get
+                    )
+                    suppressMutabilityWarning(&request)
+                    return (request, nil)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in
+                    let path: Operations.getFoo.Input.Path = .init(
+                        b: try converter.getPathParameterAsURI(
+                            in: metadata.pathParameters,
+                            name: "b",
+                            as: Swift.String.self
+                        ),
+                        a: try converter.getPathParameterAsURI(
+                            in: metadata.pathParameters,
+                            name: "a",
+                            as: Swift.String.self
+                        )
+                    )
+                    return Operations.getFoo.Input(path: path)
+                }
+                """
+        )
+    }
 
     func testRequestRequiredBodyPrimitiveSchema() throws {
         try self.assertRequestInTypesClientServerTranslation(
