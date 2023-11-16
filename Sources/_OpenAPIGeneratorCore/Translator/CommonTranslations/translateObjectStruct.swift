@@ -38,6 +38,20 @@ extension FileTranslator {
 
                 let foundIn = "\(typeName.description)/\(key)"
 
+                // Properties that are only defined in the `required` list but don't
+                // have a proper definition in the `properties` map are skipped, as they
+                // often imply a typo or a mistake in the document. So emit a diagnostic as well.
+                guard !value.inferred else {
+                    diagnostics.emit(
+                        .warning(
+                            message:
+                                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property.",
+                            context: ["foundIn": foundIn]
+                        )
+                    )
+                    return false
+                }
+
                 // We need to catch a special case here:
                 // type: string + format: binary.
                 // It means binary data (unlike format: byte, which means base64
