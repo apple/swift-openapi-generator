@@ -251,17 +251,32 @@ extension OperationDescription {
     /// For example, `/cats/{}` and `[input.catId]`.
     var templatedPathForClient: (String, Expression) {
         get throws {
-            let path = self.path.rawValue
-            let pathParameters = try allResolvedParameters.filter { $0.location == .path }
-            // replace "{foo}" with "{}" for each parameter
-            let template = pathParameters.reduce(into: path) { partialResult, parameter in
-                partialResult = partialResult.replacingOccurrences(of: "{\(parameter.name)}", with: "{}")
+            let pathParameterNames = try Set(allResolvedParameters.filter { $0.location == .path }.map(\.name))
+            var orderedPathParameters: [String] = []
+            // Replace "{foo}" with "{}" for each parameter and record the order
+            // in which the parameters are used.
+            var newComponents: [String] = []
+            for component in path.components {
+                guard component.hasPrefix("{") && component.hasSuffix("}") else {
+                    newComponents.append(component)
+                    continue
+                }
+                let componentName = String(component.dropFirst().dropLast())
+                guard pathParameterNames.contains(componentName) else {
+                    throw GenericError(
+                        message:
+                            "Parameter '\(componentName)' used in the path '\(self.path.rawValue)', but not found in the defined list of path parameters."
+                    )
+                }
+                orderedPathParameters.append(componentName)
+                newComponents.append("{}")
             }
-            let names: [Expression] = pathParameters.map { param in
-                .identifierPattern("input").dot("path").dot(asSwiftSafeName(param.name))
+            let newPath = OpenAPI.Path(newComponents, trailingSlash: path.trailingSlash)
+            let names: [Expression] = orderedPathParameters.map { param in
+                .identifierPattern("input").dot("path").dot(asSwiftSafeName(param))
             }
             let arrayExpr: Expression = .literal(.array(names))
-            return (template, arrayExpr)
+            return (newPath.rawValue, arrayExpr)
         }
     }
 
