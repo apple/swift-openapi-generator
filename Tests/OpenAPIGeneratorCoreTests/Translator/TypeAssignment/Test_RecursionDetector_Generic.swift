@@ -19,50 +19,46 @@ class Test_RecursionDetector_Generic: Test_Core {
 
     func testEmpty() throws { try _test(rootNodes: [], putIntoContainer: [], expected: []) }
 
-    func testSingleNode() throws { try _test(rootNodes: ["A"], putIntoContainer: ["A ->"], expected: []) }
+    func testSingleNode() throws { try _test(rootNodes: ["A"], putIntoContainer: ["A >"], expected: []) }
 
     func testMultipleNodesNoEdges() throws {
-        try _test(rootNodes: ["A", "B", "C"], putIntoContainer: ["A ->", "B ->", "C ->"], expected: [])
+        try _test(rootNodes: ["A", "B", "C"], putIntoContainer: ["A >", "B >", "C >"], expected: [])
     }
 
     func testNoCycle() throws {
-        try _test(
-            rootNodes: ["A", "B", "C", "D"],
-            putIntoContainer: ["A -> B", "B -> C", "C -> D", "D ->"],
-            expected: []
-        )
+        try _test(rootNodes: ["A", "B", "C", "D"], putIntoContainer: ["A > B", "B > C", "C > D", "D >"], expected: [])
     }
 
     func testNoCycleAndDoubleEdge() throws {
         try _test(
             rootNodes: ["A", "B", "C", "D"],
-            putIntoContainer: ["A -> B", "B -> C,D", "C -> D", "D ->"],
+            putIntoContainer: ["A > B", "B > C,D", "C > D", "D >"],
             expected: []
         )
     }
 
-    func testSelfLoop() throws { try _test(rootNodes: ["A"], putIntoContainer: ["A -> A"], expected: ["A"]) }
+    func testSelfLoop() throws { try _test(rootNodes: ["A"], putIntoContainer: ["A > A"], expected: ["A"]) }
 
     func testSimpleCycle() throws {
-        try _test(rootNodes: ["A", "B"], putIntoContainer: ["A -> B", "B -> A"], expected: ["A"])
+        try _test(rootNodes: ["A", "B"], putIntoContainer: ["A > B", "B > A"], expected: ["A"])
     }
 
     func testLongerCycleStartA() throws {
-        try _test(rootNodes: ["A", "C", "B"], putIntoContainer: ["A -> B", "B -> C", "C -> A"], expected: ["A"])
+        try _test(rootNodes: ["A", "C", "B"], putIntoContainer: ["A > B", "B > C", "C > A"], expected: ["A"])
     }
 
     func testLongerCycleStartC() throws {
-        try _test(rootNodes: ["C", "A", "B"], putIntoContainer: ["A -> B", "B -> C", "C -> A"], expected: ["C"])
+        try _test(rootNodes: ["C", "A", "B"], putIntoContainer: ["A > B", "B > C", "C > A"], expected: ["C"])
     }
 
     func testLongerCycleStartAButNotBoxable() throws {
-        try _test(rootNodes: ["A", "C", "B"], putIntoContainer: ["A! -> B", "B -> C", "C -> A"], expected: ["B"])
+        try _test(rootNodes: ["A", "C", "B"], putIntoContainer: ["A! > B", "B > C", "C > A"], expected: ["B"])
     }
 
     func testMultipleCycles() throws {
         try _test(
             rootNodes: ["A", "C", "B", "D"],
-            putIntoContainer: ["A -> B", "B -> A", "C -> D", "D -> C"],
+            putIntoContainer: ["A > B", "B > A", "C > D", "D > C"],
             expected: ["A", "C"]
         )
     }
@@ -70,7 +66,7 @@ class Test_RecursionDetector_Generic: Test_Core {
     func testMultipleCyclesOverlapping() throws {
         try _test(
             rootNodes: ["C", "A", "B", "D"],
-            putIntoContainer: ["A -> B", "B -> C", "C -> A,D", "D -> C"],
+            putIntoContainer: ["A > B", "B > C", "C > A,D", "D > C"],
             expected: ["C"]
         )
     }
@@ -78,7 +74,7 @@ class Test_RecursionDetector_Generic: Test_Core {
     func testMultipleCycles3() throws {
         try _test(
             rootNodes: ["A", "B", "C", "D"],
-            putIntoContainer: ["A -> C", "B -> D,A", "C -> B,D", "D -> B,C"],
+            putIntoContainer: ["A > C", "B > D,A", "C > B,D", "D > B,C"],
             expected: ["A", "B", "C"]
         )
     }
@@ -86,7 +82,7 @@ class Test_RecursionDetector_Generic: Test_Core {
     func testNested() throws {
         try _test(
             rootNodes: ["A", "C", "B", "D"],
-            putIntoContainer: ["A -> B", "B -> C", "C -> B,D", "D -> C"],
+            putIntoContainer: ["A > B", "B > C", "C > B,D", "D > C"],
             expected: ["B", "C"]
         )
     }
@@ -94,7 +90,7 @@ class Test_RecursionDetector_Generic: Test_Core {
     func testDisconnected() throws {
         try _test(
             rootNodes: ["A", "C", "B", "D"],
-            putIntoContainer: ["A -> B", "B -> A", "C -> D", "D ->"],
+            putIntoContainer: ["A > B", "B > A", "C > D", "D >"],
             expected: ["A"]
         )
     }
@@ -102,17 +98,13 @@ class Test_RecursionDetector_Generic: Test_Core {
     func testCycleWithLeadingNode() throws {
         try _test(
             rootNodes: ["A", "B", "C", "D"],
-            putIntoContainer: ["A -> B", "B -> C", "C -> D", "D -> B"],
+            putIntoContainer: ["A > B", "B > C", "C > D", "D > B"],
             expected: ["B"]
         )
     }
 
     func testDifferentCyclesForSameNode() throws {
-        try _test(
-            rootNodes: ["C", "A", "B"],
-            putIntoContainer: ["A -> B", "B -> C,A", "C -> A"],
-            expected: ["C", "A"]
-        )
+        try _test(rootNodes: ["C", "A", "B"], putIntoContainer: ["A > B", "B > C,A", "C > A"], expected: ["C", "A"])
     }
 
     // MARK: - Private
@@ -147,9 +139,9 @@ private struct TestNode: TypeNode, ExpressibleByStringLiteral {
     }
 
     init(stringLiteral value: StringLiteralType) {
-        // A -> B,C,D for boxable
-        // A! -> B,C,D for unboxable
-        let comps = value.split(separator: "->", omittingEmptySubsequences: false)
+        // A > B,C,D for boxable
+        // A! > B,C,D for unboxable
+        let comps = value.split(separator: ">", omittingEmptySubsequences: false)
             .map { $0.trimmingCharacters(in: .whitespaces) }
         precondition(comps.count == 2, "Invalid syntax")
         let edges = comps[1].split(separator: ",").map(String.init)
