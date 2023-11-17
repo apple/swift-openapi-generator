@@ -1868,12 +1868,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-    func testPathsSimplestCase() throws {
-        try self.assertPathsTranslation(
-            """
-            /health:
+    func testPaths() throws {
+        let paths = """
+            /healthOld:
               get:
-                operationId: getHealth
+                operationId: getHealthOld
+                deprecated: true
                 responses:
                   '200':
                     description: A success response with a greeting.
@@ -1881,33 +1881,37 @@ final class SnippetBasedReferenceTests: XCTestCase {
                       text/plain:
                         schema:
                           type: string
-            """,
+            /healthNew:
+              get:
+                operationId: getHealthNew
+                responses:
+                  '200':
+                    description: A success response with a greeting.
+                    content:
+                      text/plain:
+                        schema:
+                          type: string
+            """
+        try self.assertPathsTranslation(
+            paths,
             """
             public protocol APIProtocol: Sendable {
-                func getHealth(_ input: Operations.getHealth.Input) async throws -> Operations.getHealth.Output
+                @available(*, deprecated)
+                func getHealthOld(_ input: Operations.getHealthOld.Input) async throws -> Operations.getHealthOld.Output
+                func getHealthNew(_ input: Operations.getHealthNew.Input) async throws -> Operations.getHealthNew.Output
             }
             """
         )
-    }
-
-    func testPathsSimplestCaseExtension() throws {
         try self.assertPathsTranslationExtension(
-            """
-            /health:
-              get:
-                operationId: getHealth
-                responses:
-                  '200':
-                    description: A success response with a greeting.
-                    content:
-                      text/plain:
-                        schema:
-                          type: string
-            """,
+            paths,
             """
             extension APIProtocol {
-                public func getHealth(headers: Operations.getHealth.Input.Headers = .init()) async throws -> Operations.getHealth.Output {
-                    try await getHealth(Operations.getHealth.Input(headers: headers))
+                @available(*, deprecated)
+                public func getHealthOld(headers: Operations.getHealthOld.Input.Headers = .init()) async throws -> Operations.getHealthOld.Output {
+                    try await getHealthOld(Operations.getHealthOld.Input(headers: headers))
+                }
+                public func getHealthNew(headers: Operations.getHealthNew.Input.Headers = .init()) async throws -> Operations.getHealthNew.Output {
+                    try await getHealthNew(Operations.getHealthNew.Input(headers: headers))
                 }
             }
             """
