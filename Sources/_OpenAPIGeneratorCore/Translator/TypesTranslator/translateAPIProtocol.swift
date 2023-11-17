@@ -78,7 +78,11 @@ extension TypesFileTranslator {
                         )
                     ]
                 )
-                return .commentable(operation.comment, .function(function))
+                if operation.operation.deprecated {
+                    return .commentable(operation.comment, .deprecated(.init(), .function(function)))
+                } else {
+                    return .commentable(operation.comment, .function(function))
+                }
             }
         }
 
