@@ -64,15 +64,15 @@ extension TypesFileTranslator {
             return associatedDecls + [caseDecl]
         }
         
-        
-        // TODO: Check additional properties
+        let additionalPropertiesStrategy = parseMultipartAdditionalPropertiesStrategy(topLevelObject.additionalProperties)
+        let additionalPropertiesDecls: [Declaration] = translateMultipartAdditionalPropertiesCase(additionalPropertiesStrategy)
         
         let enumDescription = EnumDescription(
             isFrozen: true,
             accessModifier: config.access,
             name: typeName.shortSwiftName,
             conformances: Constants.Operation.Body.conformances,
-            members: partDecls
+            members: partDecls + additionalPropertiesDecls
         )
         let comment: Comment? = typeName.docCommentWithUserDescription(nil)
         return [.commentable(comment, .enum(enumDescription))]

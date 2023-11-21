@@ -1955,7 +1955,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             }
                         }
                         case keyword(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.keywordPayload>)
-                        case undocumented(MultipartRawPart)
+                        case undocumented(OpenAPIRuntime.MultipartRawPart)
                     }
                     case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload>)
                 }
