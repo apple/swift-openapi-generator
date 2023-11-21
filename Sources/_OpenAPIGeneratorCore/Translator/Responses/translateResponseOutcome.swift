@@ -176,7 +176,11 @@ extension ClientFileTranslator {
             headersVarExpr = nil
         }
 
-        let typedContents = try supportedTypedContents(typedResponse.response.content, inParent: bodyTypeName)
+        let typedContents = try supportedTypedContents(
+            typedResponse.response.content,
+            isRequired: true,
+            inParent: bodyTypeName
+        )
         let bodyVarExpr: Expression?
         if !typedContents.isEmpty {
 
@@ -216,7 +220,7 @@ extension ClientFileTranslator {
                     argumentNames: ["value"],
                     body: [
                         .expression(
-                            .dot(contentSwiftName(typedContent.content.contentType))
+                            .dot(typeAssigner.contentSwiftName(typedContent.content.contentType))
                                 .call([.init(label: nil, expression: .identifierPattern("value"))])
                         )
                     ]
@@ -352,7 +356,11 @@ extension ServerFileTranslator {
         codeBlocks.append(contentsOf: headerExprs.map { .expression($0) })
 
         let bodyReturnExpr: Expression
-        let typedContents = try supportedTypedContents(typedResponse.response.content, inParent: bodyTypeName)
+        let typedContents = try supportedTypedContents(
+            typedResponse.response.content,
+            isRequired: true,
+            inParent: bodyTypeName
+        )
         if !typedContents.isEmpty {
             codeBlocks.append(.declaration(.variable(kind: .let, left: "body", type: .init(TypeName.body))))
             let switchContentCases: [SwitchCaseDescription] = typedContents.map { typedContent in
@@ -386,7 +394,7 @@ extension ServerFileTranslator {
                 )
                 caseCodeBlocks.append(.expression(assignBodyExpr))
 
-                return .init(kind: .case(.dot(contentSwiftName(contentType)), ["value"]), body: caseCodeBlocks)
+                return .init(kind: .case(.dot(typeAssigner.contentSwiftName(contentType)), ["value"]), body: caseCodeBlocks)
             }
 
             codeBlocks.append(

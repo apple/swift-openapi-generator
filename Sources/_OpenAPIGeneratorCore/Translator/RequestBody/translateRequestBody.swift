@@ -53,7 +53,7 @@ extension TypesFileTranslator {
                 bodyMembers.append(contentsOf: inlineTypeDecls)
             }
             let contentType = content.content.contentType
-            let identifier = contentSwiftName(contentType)
+            let identifier = typeAssigner.contentSwiftName(contentType)
             let associatedType = content.resolvedTypeUsage.withOptional(false)
             let contentCase: Declaration = .commentable(
                 contentType.docComment(typeName: contentTypeName),
@@ -149,7 +149,7 @@ extension ClientFileTranslator {
         var cases: [SwitchCaseDescription] = contents.map { typedContent in
             let content = typedContent.content
             let contentType = content.contentType
-            let contentTypeIdentifier = contentSwiftName(contentType)
+            let contentTypeIdentifier = typeAssigner.contentSwiftName(contentType)
             let contentTypeHeaderValue = contentType.headerValueForSending
 
             let bodyAssignExpr: Expression = .assignment(
@@ -244,7 +244,7 @@ extension ServerFileTranslator {
                 argumentNames: ["value"],
                 body: [
                     .expression(
-                        .dot(contentSwiftName(typedContent.content.contentType))
+                        .dot(typeAssigner.contentSwiftName(typedContent.content.contentType))
                             .call([.init(label: nil, expression: .identifierPattern("value"))])
                     )
                 ]

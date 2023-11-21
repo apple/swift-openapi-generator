@@ -86,6 +86,40 @@ extension FileTranslator {
             return false
         }
     }
+    
+    /// Validates that the multipart schema is supported by the generator.
+    ///
+    /// Also emits a diagnostic into the collector if the schema is unsupported.
+    /// - Parameters:
+    ///   - schema: The schema to validate.
+    ///   - foundIn: A description of the schema's context.
+    /// - Returns: `true` if the schema is supported; `false` otherwise.
+    /// - Throws: An error if there's an issue during the validation process.
+    func validateMultipartSchemaIsSupported(_ schema: UnresolvedSchema?, foundIn: String) throws -> Bool {
+        var referenceStack = ReferenceStack.empty
+        switch try isObjectishSchemaAndSupported(schema, referenceStack: &referenceStack) {
+        case .supported: return true
+        case .unsupported(reason: let reason, schema: let schema):
+            diagnostics.emitUnsupportedSchema(reason: reason.description, schema: schema, foundIn: foundIn)
+            return false
+        }
+    }
+
+    /// Validates that the content is supported by the generator.
+    ///
+    /// Also emits a diagnostic into the collector if the content is unsupported.
+    /// - Parameters:
+    ///   - content: The content to validate.
+    ///   - foundIn: A description of the content's context.
+    /// - Returns: `true` if the content is supported; `false` otherwise.
+    /// - Throws: An error if there's an issue during the validation process.
+    func validateContentIsSupported(_ content: SchemaContent, foundIn: String) throws -> Bool {
+        if content.contentType.isMultipart {
+            return try validateMultipartSchemaIsSupported(content.schema, foundIn: foundIn)
+        } else {
+            return try validateSchemaIsSupported(content.schema, foundIn: foundIn)
+        }
+    }
 
     /// Returns whether the schema is supported.
     ///
@@ -188,7 +222,7 @@ extension FileTranslator {
     /// Returns a result indicating whether the provided schema
     /// is an reference, object, or allOf (object-ish) schema and is supported.
     /// - Parameters:
-    ///   - schema: A schemas to check.
+    ///   - schema: A schema to check.
     ///   - referenceStack: A stack of reference names that lead to this schema.
     /// - Returns: An `IsSchemaSupportedResult` indicating whether the schema is
     ///   supported or not.
@@ -202,6 +236,29 @@ extension FileTranslator {
         case .all(of: let schemas, _), .any(of: let schemas, _), .one(of: let schemas, _):
             return try areObjectishSchemasAndSupported(schemas, referenceStack: &referenceStack)
         default: return .unsupported(reason: .notObjectish, schema: schema)
+        }
+    }
+    
+    /// Returns a result indicating whether the provided schema
+    /// is an reference, object, or allOf (object-ish) schema and is supported.
+    /// - Parameters:
+    ///   - schema: A schema to check.
+    ///   - referenceStack: A stack of reference names that lead to this schema.
+    /// - Returns: An `IsSchemaSupportedResult` indicating whether the schema is
+    ///   supported or not.
+    /// - Throws: An error if there's an issue during the validation process.
+    func isObjectishSchemaAndSupported(_ schema: UnresolvedSchema?, referenceStack: inout ReferenceStack) throws
+        -> IsSchemaSupportedResult
+    {
+        guard let schema else {
+            // fragment type is supported
+            return .supported
+        }
+        switch schema {
+        case .a:
+            // references are supported
+            return .supported
+        case let .b(schema): return try isObjectishSchemaAndSupported(schema, referenceStack: &referenceStack)
         }
     }
 

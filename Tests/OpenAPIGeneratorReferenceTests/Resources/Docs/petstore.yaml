@@ -243,6 +243,7 @@ paths:
                 type: string
   /pets/multipart-echo:
     post:
+      # deprecated: true
       operationId: multipartEcho
       requestBody:
         $ref: '#/components/requestBodies/MultipartRequestFragment'
@@ -251,6 +252,7 @@ paths:
           $ref: '#/components/responses/MultipartResponseFragment'
   /pets/multipart-typed:
     post:
+      # deprecated: true
       operationId: multipartUploadTyped
       requestBody:
         $ref: '#/components/requestBodies/MultipartUploadTypedRequest'

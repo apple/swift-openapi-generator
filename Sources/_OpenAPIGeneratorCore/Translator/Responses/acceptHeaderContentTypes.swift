@@ -27,7 +27,11 @@ extension FileTranslator {
         let contentTypes = try description.responseOutcomes
             .flatMap { outcome in
                 let response = try outcome.response.resolve(in: components)
-                return try supportedContents(response.content, foundIn: description.operationID)
+                return try supportedContents(
+                    response.content,
+                    isRequired: true,
+                    foundIn: description.operationID
+                )
             }
             .map { content in content.contentType }
         return Array(contentTypes.uniqued())

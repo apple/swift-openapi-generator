@@ -60,14 +60,18 @@ extension TypesFileTranslator {
             swiftComponent: Constants.Operation.Body.typeName,
             jsonComponent: "content"
         )
-        let typedContents = try supportedTypedContents(response.content, inParent: bodyTypeName)
+        let typedContents = try supportedTypedContents(
+            response.content,
+            isRequired: true,
+            inParent: bodyTypeName
+        )
 
         let bodyProperty: PropertyBlueprint?
         if !typedContents.isEmpty {
             var bodyCases: [Declaration] = []
             for typedContent in typedContents {
                 let contentType = typedContent.content.contentType
-                let identifier = contentSwiftName(contentType)
+                let identifier = typeAssigner.contentSwiftName(contentType)
                 let associatedType = typedContent.resolvedTypeUsage
                 if TypeMatcher.isInlinable(typedContent.content.schema), let inlineType = typedContent.typeUsage {
                     let inlineTypeDecls = try translateSchema(

@@ -149,6 +149,13 @@ struct TypeMatcher {
     /// - Returns: `true` if the schema is inlinable; `false` otherwise.
     static func isInlinable(_ schema: UnresolvedSchema?) -> Bool { !isReferenceable(schema) }
 
+    /// Returns a Boolean value that indicates whether the contents
+    /// needs to be defined inline.
+    ///
+    /// - Parameter schema: The schema to match a referenceable type for.
+    /// - Returns: `true` if the schema is inlinable; `false` otherwise.
+//    static func isInlinable(_ schema: UnresolvedSchema?) -> Bool { !isReferenceable(schema) }
+
     /// Returns a Boolean value that indicates whether the schema
     /// is a key-value pair schema, for example an object.
     ///

@@ -39,10 +39,8 @@ extension FileTranslator {
             return nil
         }
         guard try validateSchemaIsSupported(content.schema, foundIn: parent.description) else { return nil }
-        let identifier = contentSwiftName(content.contentType)
         let associatedType = try typeAssigner.typeUsage(
-            usingNamingHint: identifier,
-            withSchema: content.schema,
+            withContent: content,
             components: components,
             inParent: parent
         )
@@ -54,20 +52,27 @@ extension FileTranslator {
     ///   - map: The content map from the OpenAPI document.
     ///   - excludeBinary: A Boolean value controlling whether binary content
     ///   type should be skipped, for example used when encoding headers.
+    ///   - isRequired: Whether the contents are in a required container.
     ///   - parent: The parent type of the chosen typed schema.
     /// - Returns: The supported content type + schema + type names.
     /// - Throws: An error if there's a problem while extracting or validating the supported
     ///           content types or assigning the associated types.
-    func supportedTypedContents(_ map: OpenAPI.Content.Map, excludeBinary: Bool = false, inParent parent: TypeName)
-        throws -> [TypedSchemaContent]
-    {
-        let contents = try supportedContents(map, excludeBinary: excludeBinary, foundIn: parent.description)
+    func supportedTypedContents(
+        _ map: OpenAPI.Content.Map,
+        excludeBinary: Bool = false,
+        isRequired: Bool,
+        inParent parent: TypeName
+    ) throws -> [TypedSchemaContent] {
+        let contents = try supportedContents(
+            map,
+            excludeBinary: excludeBinary,
+            isRequired: isRequired,
+            foundIn: parent.description
+        )
         return try contents.compactMap { content in
-            guard try validateSchemaIsSupported(content.schema, foundIn: parent.description) else { return nil }
-            let identifier = contentSwiftName(content.contentType)
+            guard try validateContentIsSupported(content, foundIn: parent.description) else { return nil }
             let associatedType = try typeAssigner.typeUsage(
-                usingNamingHint: identifier,
-                withSchema: content.schema,
+                withContent: content,
                 components: components,
                 inParent: parent
             )
@@ -80,19 +85,24 @@ extension FileTranslator {
     ///   - contents: The content map from the OpenAPI document.
     ///   - excludeBinary: A Boolean value controlling whether binary content
     ///   type should be skipped, for example used when encoding headers.
+    ///   - isRequired: Whether the contents are in a required container.
     ///   - foundIn: The location where this content is parsed.
     /// - Returns: the detected content type + schema, nil if no supported
     /// schema found or if empty.
     /// - Throws: If parsing of any of the contents throws.
-    func supportedContents(_ contents: OpenAPI.Content.Map, excludeBinary: Bool = false, foundIn: String) throws
-        -> [SchemaContent]
-    {
+    func supportedContents(
+        _ contents: OpenAPI.Content.Map,
+        excludeBinary: Bool = false,
+        isRequired: Bool,
+        foundIn: String
+    ) throws -> [SchemaContent] {
         guard !contents.isEmpty else { return [] }
         return try contents.compactMap { key, value in
             try parseContentIfSupported(
                 contentKey: key,
                 contentValue: value,
-                excludeBinary: excludeBinary,
+                excludeBinary: excludeBinary, 
+                isRequired: isRequired,
                 foundIn: foundIn + "/\(key.rawValue)"
             )
         }
@@ -162,6 +172,7 @@ extension FileTranslator {
     ///   - contentValue: The content value from the OpenAPI document.
     ///   - excludeBinary: A Boolean value controlling whether binary content
     ///   type should be skipped, for example used when encoding headers.
+    ///   - isRequired: Whether the contents are in a required container.
     ///   - foundIn: The location where this content is parsed.
     /// - Returns: The detected content type + schema, nil if unsupported.
     /// - Throws: If a malformed content type string is encountered.
@@ -169,6 +180,7 @@ extension FileTranslator {
         contentKey: OpenAPI.ContentType,
         contentValue: OpenAPI.Content,
         excludeBinary: Bool = false,
+        isRequired: Bool,
         foundIn: String
     ) throws -> SchemaContent? {
         let contentType = try contentKey.asGeneratorContentType
@@ -186,7 +198,20 @@ extension FileTranslator {
             return .init(contentType: contentType, schema: contentValue.schema)
         }
         if contentType.isMultipart {
-            return .init(contentType: contentType, schema: contentValue.schema)
+            guard isRequired else {
+                diagnostics.emit(
+                    .warning(
+                        message: "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated.",
+                        context: ["foundIn": foundIn]
+                    )
+                )
+                return nil
+            }
+            return .init(
+                contentType: contentType,
+                schema: contentValue.schema,
+                encoding: contentValue.encoding
+            )
         }
         if !excludeBinary, contentType.isBinary {
             return .init(contentType: contentType, schema: .b(.string(contentEncoding: .binary)))

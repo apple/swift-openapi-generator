@@ -37,7 +37,7 @@ extension TypesFileTranslator {
         // TODO: Handle additionalProperties (nil, true, false, schema).
         
         // TODO: Create a "MultipartCasePayloadKind" enum of: staticallyNamed, dynamicallyNamed, raw
-        // TODO: Create a "MultipartCaseKind" enum of: name+staticallyNamed, undocumented+raw, other+dynamicallyNamed, other+raw
+        // TODO: Create a "MultipartCaseKind" enum of: name+staticallyNamed, undocumented+raw, other+dynamicallyNamed, other+raw, disallowed
         
         // TODO: Generate the enum members (inline types and cases)
         
