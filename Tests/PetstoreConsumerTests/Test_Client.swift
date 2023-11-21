@@ -303,7 +303,7 @@ final class Test_Client: XCTestCase {
                     .init(
                         name: "Fluffz",
                         genome: Base64EncodedData(
-                            data: ArraySlice(#""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8)
+                            #""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8
                         )
                     )
                 )
@@ -322,7 +322,7 @@ final class Test_Client: XCTestCase {
                     id: 1,
                     name: "Fluffz",
                     genome: Base64EncodedData(
-                        data: ArraySlice(#""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8)
+                        #""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8
                     )
                 )
             )

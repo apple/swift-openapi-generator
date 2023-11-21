@@ -736,7 +736,7 @@ public struct Client: APIProtocol {
                             },
                             decoding: { part in
                                 let headerFields = part.headerFields
-                                let (name, _) = converter.extractContentDispositionNameAndFilename(in: headerFields)
+                                let (name, _) = try converter.extractContentDispositionNameAndFilename(in: headerFields)
                                 switch name {
                                 default:
                                     return .undocumented(part)
@@ -818,7 +818,7 @@ public struct Client: APIProtocol {
                             },
                             decoding: { part in
                                 let headerFields = part.headerFields
-                                let (name, filename) = converter.extractContentDispositionNameAndFilename(in: headerFields)
+                                let (name, filename) = try converter.extractContentDispositionNameAndFilename(in: headerFields)
                                 switch name {
                                 case "log":
                                     let headers: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers = .init(

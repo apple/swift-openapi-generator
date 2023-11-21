@@ -828,7 +828,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         },
                         decoding: { part in
                             let headerFields = part.headerFields
-                            let (name, _) = converter.extractContentDispositionNameAndFilename(in: headerFields)
+                            let (name, _) = try converter.extractContentDispositionNameAndFilename(in: headerFields)
                             switch name {
                             default:
                                 return .undocumented(part)
@@ -1038,7 +1038,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         },
                         decoding: { part in
                             let headerFields = part.headerFields
-                            let (name, filename) = converter.extractContentDispositionNameAndFilename(in: headerFields)
+                            let (name, filename) = try converter.extractContentDispositionNameAndFilename(in: headerFields)
                             switch name {
                             case "log":
                                 let headers: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers = .init(

@@ -239,7 +239,7 @@ final class Test_Server: XCTestCase {
                 .init(
                     name: "Fluffz",
                     genome: Base64EncodedData(
-                        data: ArraySlice(#""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8)
+                        #""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8
                     )
                 )
             )
