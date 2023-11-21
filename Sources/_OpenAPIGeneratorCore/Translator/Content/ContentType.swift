@@ -215,6 +215,18 @@ struct ContentType: Hashable {
     /// is a multipart form.
     var isMultipart: Bool { category == .multipart }
 
+    static var textPlain: Self {
+        try! .init(string: "text/plain")
+    }
+
+    static var applicationJSON: Self {
+        try! .init(string: "application/json")
+    }
+
+    static var applicationOctetStream: Self {
+        try! .init(string: "application/octet-stream")
+    }
+
     static func == (lhs: Self, rhs: Self) -> Bool {
         // MIME type equality is case-insensitive.
         lhs.lowercasedTypeAndSubtype == rhs.lowercasedTypeAndSubtype

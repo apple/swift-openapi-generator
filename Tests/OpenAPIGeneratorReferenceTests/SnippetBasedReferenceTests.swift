@@ -1908,57 +1908,56 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             #"""
             public enum RequestBodies {
-                /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest`.
                 @frozen public enum MultipartUploadTypedRequest: Sendable, Hashable {
                     @frozen public enum multipartFormPayload: Sendable, Hashable {
                         public struct logPayload: Sendable, Hashable {
                             public struct Headers: Sendable, Hashable {
-                                public enum x_dash_log_dash_typePayload: String, Codable, Hashable, Sendable {
-                                    case structured
-                                    case unstructured
+                                @frozen public enum x_hyphen_log_hyphen_typePayload: String, Codable, Hashable, Sendable {
+                                    case structured = "structured"
+                                    case unstructured = "unstructured"
                                 }
-                                public var x_dash_log_dash_type: x_dash_log_dash_typePayload
-                                public init(x_dash_log_dash_type: x_dash_log_dash_typePayload) {
-                                    self.x_dash_log_dash_type = x_dash_log_dash_type
+                                public var x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.x_hyphen_log_hyphen_typePayload?
+                                public init(x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.x_hyphen_log_hyphen_typePayload? = nil) {
+                                    self.x_hyphen_log_hyphen_type = x_hyphen_log_hyphen_type
                                 }
                             }
-                            public var headers: Headers
+                            public var headers: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers
                             public var body: OpenAPIRuntime.HTTPBody
-                            init(headers: Headers, body: OpenAPIRuntime.HTTPBody) {
+                            public init(
+                                headers: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers = .init(),
+                                body: OpenAPIRuntime.HTTPBody
+                            ) {
                                 self.headers = headers
                                 self.body = body
                             }
                         }
-                        case log(MultipartPart<logPayload>)
+                        case log(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload>)
                         public struct metadataPayload: Sendable, Hashable {
-                            public struct metadataPayloadBodyPayload: Codable, Hashable, Sendable {
+                            public struct bodyPayload: Codable, Hashable, Sendable {
                                 public var createdAt: Foundation.Date
-                                public init(
-                                    createdAt: Foundation.Date
-                                ) {
+                                public init(createdAt: Foundation.Date) {
                                     self.createdAt = createdAt
                                 }
                                 public enum CodingKeys: String, CodingKey {
                                     case createdAt
                                 }
                             }
-                            public var body: metadataPayloadBodyPayload
-                            init(body: metadataPayloadBodyPayload) {
+                            public var body: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.Body.bodyPayload
+                            public init(body: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.Body.bodyPayload) {
                                 self.body = body
                             }
                         }
-                        case metadata(MultipartPart<metadataPayload>)
+                        case metadata(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload>)
                         public struct keywordPayload: Sendable, Hashable {
                             public var body: OpenAPIRuntime.HTTPBody
-                            init(body: OpenAPIRuntime.HTTPBody) {
+                            public init(body: OpenAPIRuntime.HTTPBody) {
                                 self.body = body
                             }
                         }
-                        case keyword(MultipartPart<keywordPayload>)
+                        case keyword(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.keywordPayload>)
                         case undocumented(MultipartRawPart)
                     }
-                    /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/content/multipart\/form-data`.
-                    case multipartForm(OpenAPIRuntime.MultipartBody<multipartFormPayload>)
+                    case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload>)
                 }
             }
             """#

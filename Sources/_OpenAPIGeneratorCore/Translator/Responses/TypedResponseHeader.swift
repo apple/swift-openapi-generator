@@ -67,7 +67,27 @@ extension FileTranslator {
     func typedResponseHeaders(from response: OpenAPI.Response, inParent parent: TypeName) throws
         -> [TypedResponseHeader]
     {
-        guard let headers = response.headers else { return [] }
+        try typedResponseHeaders(from: response.headers, inParent: parent)
+    }
+    
+    /// Returns the response headers declared by the specified response.
+    ///
+    /// Skips any unsupported response headers.
+    /// - Parameters:
+    ///   - headers: The OpenAPI headers.
+    ///   - parent: The Swift type name of the parent type of the headers.
+    /// - Returns: A list of response headers; can be empty if no response
+    /// headers are specified in the OpenAPI document, or if all headers are
+    /// unsupported.
+    /// - Throws: An error if there's an issue processing or generating typed response
+    ///           headers, such as unsupported header types or invalid definitions.
+    func typedResponseHeaders(
+        from headers: OpenAPI.Header.Map?,
+        inParent parent: TypeName
+    ) throws
+        -> [TypedResponseHeader]
+    {
+        guard let headers else { return [] }
         return try headers.compactMap { name, header in
             try typedResponseHeader(from: header, named: name, inParent: parent)
         }

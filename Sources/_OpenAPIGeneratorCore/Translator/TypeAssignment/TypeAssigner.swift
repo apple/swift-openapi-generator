@@ -125,29 +125,37 @@ struct TypeAssigner {
         inParent parent: TypeName
     ) throws -> TypeUsage {
         
-//        // If schema is nil, treat is as a fragment.
-//        let schema = schema ?? .schema(.fragment)
-//        
-//        // If the multipart content has an encoding, we always inline it.
-//        if encoding != nil {
-//
-//        }
-//        
-//        
-//        
-//        switch (schema, encoding) {
-//        case (.a(let reference), .none):
-//            return try typeName(for: reference).asUsage
-//        default:
-//            return try _typeUsage(
-//                forPotentiallyInlinedValueNamed: hint,
-//                withSchema: schema,
-//                components: components,
-//                inParent: parent,
-//                subtype: .appendScope
-//            )
-//        }
-        fatalError()
+        // If schema is nil, treat is as a fragment.
+        let schema = schema ?? .schema(.fragment)
+
+        // By now we already validated that this is an object-ish schema.
+        // That leaves two options:
+        // 1. The schema is a reference and encoding is empty, meaning we can just use the reference.
+        // 2. Or it's not a reference (an inline object-ish schema), or we have encoding, in which case we inline.
+        
+        let outlinedSchema: JSONSchema
+        switch schema {
+        case .a(let ref):
+            guard let encoding, !encoding.isEmpty else {
+                return try typeName(for: ref).asUsage
+            }
+            outlinedSchema = try components.lookup(ref)
+        case .b(let b):
+            outlinedSchema = b
+        }
+        
+        // TODO: The method below needs to be specialized so that e.g. fragment isn't represented
+        // as OpenAPIValue, etc.
+        let elementUsage = try _typeUsage(
+            forPotentiallyInlinedValueNamed: hint,
+            withSchema: outlinedSchema,
+            components: components,
+            inParent: parent,
+            subtype: .appendScope
+        )
+        
+        let bodyUsage = elementUsage.asWrapped(in: .multipartBody)
+        return bodyUsage
     }
 
     /// Returns a type usage for an unresolved schema.

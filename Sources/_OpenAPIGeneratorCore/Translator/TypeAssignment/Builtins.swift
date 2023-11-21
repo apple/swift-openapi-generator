@@ -76,6 +76,15 @@ extension TypeName {
     /// Returns the type name for the body type.
     static var body: TypeName { .runtime("HTTPBody") }
 
+    /// Returns the type name for the body type.
+    static var multipartBody: TypeName { .runtime("MultipartBody") }
+
+    static var multipartPart: TypeName { .runtime("MultipartPart") }
+
+    static var multipartDynamicallyNamedPart: TypeName { .runtime("MultipartDynamicallyNamedPart") }
+
+    static var multipartRawPart: TypeName { .runtime("MultipartRawPart") }
+
     /// Returns the type name for the server request metadata type.
     static var serverRequestMetadata: TypeName { .runtime("ServerRequestMetadata") }
 
