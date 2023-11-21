@@ -777,7 +777,7 @@ final class Test_Client: XCTestCase {
             .log(
                 .init(
                     payload: .init(
-                        headers: .init(x_dash_log_dash_type: .unstructured),
+                        headers: .init(x_hyphen_log_hyphen_type: .unstructured),
                         body: .init("here be logs!\nand more lines\nwheee\n")
                     ),
                     filename: "process.log"

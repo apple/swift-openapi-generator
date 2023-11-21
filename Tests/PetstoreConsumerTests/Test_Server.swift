@@ -851,7 +851,7 @@ final class Test_Server: XCTestCase {
                     return .undocumented(statusCode: 500, .init())
                 }
                 XCTAssertEqual(log.filename, "process.log")
-                XCTAssertEqual(log.payload.headers, .init(x_dash_log_dash_type: .unstructured))
+                XCTAssertEqual(log.payload.headers, .init(x_hyphen_log_hyphen_type: .unstructured))
                 try await XCTAssertEqualData(log.payload.body, "here be logs!\nand more lines\nwheee\n".utf8)
             }
             do {

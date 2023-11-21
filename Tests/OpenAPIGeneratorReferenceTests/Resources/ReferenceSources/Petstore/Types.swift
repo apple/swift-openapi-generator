@@ -1502,21 +1502,41 @@ public enum Components {
         }
         /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest`.
         @frozen public enum MultipartUploadTypedRequest: Sendable, Hashable {
+            /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm`.
             @frozen public enum multipartFormPayload: Sendable, Hashable {
+                /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/log`.
                 public struct logPayload: Sendable, Hashable {
+                    /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/log/headers`.
                     public struct Headers: Sendable, Hashable {
-                        public enum x_dash_log_dash_typePayload: String, Codable, Hashable, Sendable {
-                            case structured
-                            case unstructured
+                        /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/x-log-type`.
+                        @frozen public enum x_hyphen_log_hyphen_typePayload: String, Codable, Hashable, Sendable {
+                            case structured = "structured"
+                            case unstructured = "unstructured"
                         }
-                        public var x_dash_log_dash_type: x_dash_log_dash_typePayload
-                        public init(x_dash_log_dash_type: x_dash_log_dash_typePayload) {
-                            self.x_dash_log_dash_type = x_dash_log_dash_type
+                        /// The type of the log.
+                        ///
+                        /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/log/headers/x-log-type`.
+                        public var x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload?
+                        /// Creates a new `Headers`.
+                        ///
+                        /// - Parameters:
+                        ///   - x_hyphen_log_hyphen_type: The type of the log.
+                        public init(x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload? = nil) {
+                            self.x_hyphen_log_hyphen_type = x_hyphen_log_hyphen_type
                         }
                     }
-                    public var headers: Headers
+                    /// Received HTTP response headers
+                    public var headers: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers
                     public var body: OpenAPIRuntime.HTTPBody
-                    init(headers: Headers, body: OpenAPIRuntime.HTTPBody) {
+                    /// Creates a new `logPayload`.
+                    ///
+                    /// - Parameters:
+                    ///   - headers: Received HTTP response headers
+                    ///   - body:
+                    public init(
+                        headers: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers = .init(),
+                        body: OpenAPIRuntime.HTTPBody
+                    ) {
                         self.headers = headers
                         self.body = body
                     }

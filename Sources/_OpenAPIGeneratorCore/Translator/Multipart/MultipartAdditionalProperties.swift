@@ -46,7 +46,7 @@ extension FileTranslator {
             ]
         case .typed(let schema):
             // TODO:
-            fatalError()
+            fatalError("additionalProperties with a schema not yet supported in multipart")
         case .any:
             return [
                 .enumCase(name: "other", kind: .nameWithAssociatedValues([

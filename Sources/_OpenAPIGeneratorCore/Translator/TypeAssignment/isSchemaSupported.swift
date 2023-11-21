@@ -359,7 +359,7 @@ extension FileTranslator {
         -> IsSchemaSupportedResult
     {
         switch schema.value {
-        case .object:
+        case .object, .fragment:
             return .supported
         case let .reference(ref, _):
             if try referenceStack.contains(ref) {

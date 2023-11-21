@@ -1042,10 +1042,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             switch name {
                             case "log":
                                 let headers: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers = .init(
-                                    x_dash_log_dash_type: try converter.getRequiredHeaderFieldAsURI(
+                                    x_hyphen_log_hyphen_type: try converter.getRequiredHeaderFieldAsURI(
                                         in: headerFields,
                                         name: "x-log-type",
-                                        as: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers.x_dash_log_dash_typePayload.self
+                                        as: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload.self
                                     )
                                 )
                                 try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
