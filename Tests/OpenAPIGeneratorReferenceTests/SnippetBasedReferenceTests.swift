@@ -156,6 +156,38 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasObjectWithInferredProperty() throws {
+        try self.assertSchemasTranslation(
+            ignoredDiagnosticMessages: [
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property."
+            ],
+            """
+            schemas:
+              MyObj:
+                type: object
+                properties:
+                  fooRequired:
+                    type: string
+                required:
+                  - fooRequired
+                  - fooInferred
+            """,
+            """
+            public enum Schemas {
+                public struct MyObj: Codable, Hashable, Sendable {
+                    public var fooRequired: Swift.String
+                    public init(fooRequired: Swift.String) {
+                        self.fooRequired = fooRequired
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case fooRequired
+                    }
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsObjectNoAdditionalProperties() throws {
         try self.assertSchemasTranslation(
             """
@@ -1933,12 +1965,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-    func testPathsSimplestCase() throws {
-        try self.assertPathsTranslation(
-            """
-            /health:
+    func testPaths() throws {
+        let paths = """
+            /healthOld:
               get:
-                operationId: getHealth
+                operationId: getHealthOld
+                deprecated: true
                 responses:
                   '200':
                     description: A success response with a greeting.
@@ -1946,33 +1978,37 @@ final class SnippetBasedReferenceTests: XCTestCase {
                       text/plain:
                         schema:
                           type: string
-            """,
+            /healthNew:
+              get:
+                operationId: getHealthNew
+                responses:
+                  '200':
+                    description: A success response with a greeting.
+                    content:
+                      text/plain:
+                        schema:
+                          type: string
+            """
+        try self.assertPathsTranslation(
+            paths,
             """
             public protocol APIProtocol: Sendable {
-                func getHealth(_ input: Operations.getHealth.Input) async throws -> Operations.getHealth.Output
+                @available(*, deprecated)
+                func getHealthOld(_ input: Operations.getHealthOld.Input) async throws -> Operations.getHealthOld.Output
+                func getHealthNew(_ input: Operations.getHealthNew.Input) async throws -> Operations.getHealthNew.Output
             }
             """
         )
-    }
-
-    func testPathsSimplestCaseExtension() throws {
         try self.assertPathsTranslationExtension(
-            """
-            /health:
-              get:
-                operationId: getHealth
-                responses:
-                  '200':
-                    description: A success response with a greeting.
-                    content:
-                      text/plain:
-                        schema:
-                          type: string
-            """,
+            paths,
             """
             extension APIProtocol {
-                public func getHealth(headers: Operations.getHealth.Input.Headers = .init()) async throws -> Operations.getHealth.Output {
-                    try await getHealth(Operations.getHealth.Input(headers: headers))
+                @available(*, deprecated)
+                public func getHealthOld(headers: Operations.getHealthOld.Input.Headers = .init()) async throws -> Operations.getHealthOld.Output {
+                    try await getHealthOld(Operations.getHealthOld.Input(headers: headers))
+                }
+                public func getHealthNew(headers: Operations.getHealthNew.Input.Headers = .init()) async throws -> Operations.getHealthNew.Output {
+                    try await getHealthNew(Operations.getHealthNew.Input(headers: headers))
                 }
             }
             """
@@ -2250,6 +2286,82 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         )
                     )
                     return Operations.get_sol_foo.Input(query: query)
+                }
+                """
+        )
+    }
+    func testRequestWithPathParams() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo/a/{a}/b/{b}:
+              get:
+                parameters:
+                  - name: b
+                    in: path
+                    required: true
+                    schema:
+                      type: string
+                  - name: a
+                    in: path
+                    required: true
+                    schema:
+                      type: string
+                operationId: getFoo
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    public struct Path: Sendable, Hashable {
+                        public var b: Swift.String
+                        public var a: Swift.String
+                        public init(
+                            b: Swift.String,
+                            a: Swift.String
+                        ) {
+                            self.b = b
+                            self.a = a
+                        }
+                    }
+                    public var path: Operations.getFoo.Input.Path
+                    public init(path: Operations.getFoo.Input.Path) {
+                        self.path = path
+                    }
+                }
+                """,
+            client: """
+                { input in
+                    let path = try converter.renderedPath(
+                        template: "/foo/a/{}/b/{}",
+                        parameters: [
+                            input.path.a,
+                            input.path.b
+                        ]
+                    )
+                    var request: HTTPTypes.HTTPRequest = .init(
+                        soar_path: path,
+                        method: .get
+                    )
+                    suppressMutabilityWarning(&request)
+                    return (request, nil)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in
+                    let path: Operations.getFoo.Input.Path = .init(
+                        b: try converter.getPathParameterAsURI(
+                            in: metadata.pathParameters,
+                            name: "b",
+                            as: Swift.String.self
+                        ),
+                        a: try converter.getPathParameterAsURI(
+                            in: metadata.pathParameters,
+                            name: "a",
+                            as: Swift.String.self
+                        )
+                    )
+                    return Operations.getFoo.Input(path: path)
                 }
                 """
         )
