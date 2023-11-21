@@ -108,14 +108,12 @@ extension FileTranslator {
             swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
             jsonComponent: key
         )
-        
-        let headers = try typedResponseHeaders(from: encoding?.headers, inParent: parent)
         return .init(
             originalName: key,
             caseKind: .documentedTyped(typeName),
             contentType: contentType,
             schema: schema,
-            headers: headers
+            headers: encoding?.headers
         )
     }
     

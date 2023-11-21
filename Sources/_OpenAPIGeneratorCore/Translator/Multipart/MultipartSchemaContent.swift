@@ -29,7 +29,7 @@ struct MultipartSchemaTypedContent {
     
     var schema: JSONSchema
     
-    var headers: [TypedResponseHeader]
+    var headers: OpenAPI.Header.Map?
 }
 
 extension MultipartSchemaTypedContent {

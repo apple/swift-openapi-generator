@@ -1485,20 +1485,8 @@ public enum Components {
         @frozen public enum MultipartRequestFragment: Sendable, Hashable {
             @frozen public enum multipartFormPayload: Sendable, Hashable {
                 case undocumented(MultipartRawPart)
-                public var name: String? {
-                    switch self {
-                    case .undocumented(let value):
-                        return value.name
-                    }
-                }
-                public var filename: String? {
-                    switch self {
-                    case .undocumented(let value):
-                        return value.filename
-                    }
-                }
             }
-            case multipartForm(OpenAPIRuntime.MultipartBody<multipartFormPayload>)
+            case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartRequestFragment.multipartFormPayload>)
         }
         /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest`.
         @frozen public enum MultipartUploadTypedRequest: Sendable, Hashable {
@@ -1508,7 +1496,7 @@ public enum Components {
                 public struct logPayload: Sendable, Hashable {
                     /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/log/headers`.
                     public struct Headers: Sendable, Hashable {
-                        /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/x-log-type`.
+                        /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/log/headers/x-log-type`.
                         @frozen public enum x_hyphen_log_hyphen_typePayload: String, Codable, Hashable, Sendable {
                             case structured = "structured"
                             case unstructured = "unstructured"
@@ -1759,17 +1747,14 @@ public enum Components {
             }
             /// Received HTTP response body
             public var body: Components.Responses.MultipartDownloadTypedResponse.Body
-            /// Creates a new `MultipartResponseFragment`.
+            /// Creates a new `MultipartDownloadTypedResponse`.
             ///
             /// - Parameters:
             ///   - body: Received HTTP response body
-            public init(
-                body: Components.Responses.MultipartDownloadTypedResponse.Body
-            ) {
+            public init(body: Components.Responses.MultipartDownloadTypedResponse.Body) {
                 self.body = body
             }
         }
-
     }
     /// Types generated from the `#/components/headers` section of the OpenAPI document.
     public enum Headers {

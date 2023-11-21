@@ -79,7 +79,7 @@ extension TypesFileTranslator {
     }
     
     func translateMultipartPartContentInTypes(
-        headers: [TypedResponseHeader],
+        headers headerMap: OpenAPI.Header.Map?,
         contentType: ContentType,
         schema: JSONSchema,
         parent: TypeName
@@ -88,6 +88,7 @@ extension TypesFileTranslator {
             swiftComponent: Constants.Operation.Output.Payload.Headers.typeName,
             jsonComponent: "headers"
         )
+        let headers = try typedResponseHeaders(from: headerMap, inParent: parent)
         let headersProperty: PropertyBlueprint?
         if !headers.isEmpty {
             let headerProperties: [PropertyBlueprint] = try headers.map { header in
@@ -152,7 +153,10 @@ extension TypesFileTranslator {
                 properties: [headersProperty, bodyProperty].compactMap { $0 }
             )
         )
-        return structDecl
+        return .commentable(
+            parent.docCommentWithUserDescription(nil),
+            structDecl
+        )
     }
 }
 
