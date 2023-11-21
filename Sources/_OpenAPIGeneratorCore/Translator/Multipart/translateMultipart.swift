@@ -23,7 +23,7 @@ extension TypesFileTranslator {
         let topLevelSchema = schemaContent.schema ?? .b(.fragment)
         let typeUsage = content.typeUsage! /* TODO: remove bang */
         let typeName = typeUsage.typeName
-        
+        print(typeName)
         var referenceStack: ReferenceStack = .empty
         guard let topLevelObject = try flattenedTopLevelMultipartObject(topLevelSchema, referenceStack: &referenceStack) else {
             return []

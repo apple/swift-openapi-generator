@@ -103,7 +103,6 @@ extension FileTranslator {
         }
         
         let swiftSafeName = swiftSafeName(for: key)
-        
         let typeName = parent.appending(
             swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
             jsonComponent: key

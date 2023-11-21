@@ -1483,9 +1483,11 @@ public enum Components {
         }
         /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment`.
         @frozen public enum MultipartRequestFragment: Sendable, Hashable {
+            /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment/multipartForm`.
             @frozen public enum multipartFormPayload: Sendable, Hashable {
-                case undocumented(MultipartRawPart)
+                case undocumented(OpenAPIRuntime.MultipartRawPart)
             }
+            /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment/content/multipart\/form-data`.
             case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartRequestFragment.multipartFormPayload>)
         }
         /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest`.

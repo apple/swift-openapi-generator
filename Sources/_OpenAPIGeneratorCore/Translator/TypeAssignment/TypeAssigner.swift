@@ -133,28 +133,22 @@ struct TypeAssigner {
         // 1. The schema is a reference and encoding is empty, meaning we can just use the reference.
         // 2. Or it's not a reference (an inline object-ish schema), or we have encoding, in which case we inline.
         
-        let outlinedSchema: JSONSchema
         switch schema {
         case .a(let ref):
             guard let encoding, !encoding.isEmpty else {
                 return try typeName(for: ref).asUsage
             }
-            outlinedSchema = try components.lookup(ref)
-        case .b(let b):
-            outlinedSchema = b
+        case .b:
+            break
         }
-        
-        // TODO: The method below needs to be specialized so that e.g. fragment isn't represented
-        // as OpenAPIValue, etc.
-        let elementUsage = try _typeUsage(
-            forPotentiallyInlinedValueNamed: hint,
-            withSchema: outlinedSchema,
-            components: components,
-            inParent: parent,
-            subtype: .appendScope
+  
+        let swiftSafeName = asSwiftSafeName(hint)
+        let typeName = parent.appending(
+            swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
+            jsonComponent: hint
         )
         
-        let bodyUsage = elementUsage.asWrapped(in: .multipartBody)
+        let bodyUsage = typeName.asUsage.asWrapped(in: .multipartBody)
         return bodyUsage
     }
 
