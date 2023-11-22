@@ -821,46 +821,56 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                                         as: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload.self
                                     )
                                 )
-                                try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
-                                let body = try converter.getResponseBodyAsBinary(
+                                try converter.verifyContentTypeIfPresent(
+                                    in: headerFields,
+                                    matches: "text/plain"
+                                )
+                                let body = try converter.getRequiredRequestBodyAsBinary(
                                     OpenAPIRuntime.HTTPBody.self,
                                     from: part.body,
-                                    transforming: { $0 }
+                                    transforming: {
+                                        $0
+                                    }
                                 )
-                                return .log(
-                                    .init(
-                                        payload: .init(
-                                            headers: headers,
-                                            body: body
-                                        ),
-                                        filename: filename
-                                    )
-                                )
+                                return .log(.init(
+                                    payload: .init(
+                                        headers: headers,
+                                        body: body
+                                    ),
+                                    filename: filename
+                                ))
                             case "metadata":
-                                try converter.verifyContentTypeIfPresent(in: headerFields, matches: "application/json")
-                                let body = try await converter.getResponseBodyAsJSON(
+                                try converter.verifyContentTypeIfPresent(
+                                    in: headerFields,
+                                    matches: "application/json"
+                                )
+                                let body = try await converter.getRequiredRequestBodyAsJSON(
                                     Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.bodyPayload.self,
                                     from: part.body,
-                                    transforming: { $0 }
+                                    transforming: {
+                                        $0
+                                    }
                                 )
-                                return .metadata(
-                                    .init(payload: .init(body: body), filename: filename)
-                                )
+                                return .metadata(.init(
+                                    payload: .init(body: body),
+                                    filename: filename
+                                ))
                             case "keyword":
-                                try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
-                                let body = try converter.getResponseBodyAsBinary(
+                                try converter.verifyContentTypeIfPresent(
+                                    in: headerFields,
+                                    matches: "text/plain"
+                                )
+                                let body = try converter.getRequiredRequestBodyAsBinary(
                                     OpenAPIRuntime.HTTPBody.self,
                                     from: part.body,
-                                    transforming: { $0 }
+                                    transforming: {
+                                        $0
+                                    }
                                 )
-                                return .keyword(
-                                    .init(
-                                        payload: .init(
-                                            body: body
-                                        ),
-                                        filename: filename
-                                    )
-                                )
+                                return .keyword(.init(
+                                    payload: .init(body: body),
+                                    filename: filename
+                                ))
                             default:
                                 return .undocumented(part)
                             }

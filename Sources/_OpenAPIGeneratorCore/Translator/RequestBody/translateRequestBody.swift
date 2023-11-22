@@ -263,7 +263,6 @@ extension ServerFileTranslator {
             } else {
                 extraBodyAssignArgs = []
             }
-            
             let converterExpr: Expression = .identifierPattern("converter")
                 .dot("get\(isOptional ? "Optional" : "Required")RequestBodyAs\(codingStrategyName)")
                 .call([

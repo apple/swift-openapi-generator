@@ -62,6 +62,7 @@ extension TypesFileTranslator {
         return [.commentable(comment, .enum(enumDescription))]
     }
     
+    // TODO: Make this take the MultipartContent type
     func translateMultipartPartContentInTypes(
         typeName: TypeName,
         headers headerMap: OpenAPI.Header.Map?,
@@ -98,6 +99,8 @@ extension TypesFileTranslator {
         } else {
             headersProperty = nil
         }
+        
+        // TODO: Factor this out and reuse
         
         let bodyTypeUsage = try typeAssigner.typeUsage(
             forObjectPropertyNamed: Constants.Operation.Body.variableName,
@@ -274,90 +277,132 @@ extension ServerFileTranslator {
     }
     
     func translateMultipartDecodingClosureInServer(_ multipart: MultipartContent) throws -> [CodeBlock] {
-//        let cases: [SwitchCaseDescription] = try multipart.parts.compactMap { part in
-//            switch part {
-//            case .documentedTyped(let part):
-//                let originalName = part.originalName
-//                let identifier = swiftSafeName(for: originalName)
-//                let contentType = part.partInfo.contentType
-//                let contentTypeHeaderValue = contentType.headerValueForSending
+        let cases: [SwitchCaseDescription] = try multipart.parts.compactMap { (part) -> SwitchCaseDescription? in
+            switch part {
+            case .documentedTyped(let part):
+                let originalName = part.originalName
+                let identifier = swiftSafeName(for: originalName)
+                let contentType = part.partInfo.contentType
+                let contentTypeHeaderValue = contentType.headerValueForValidation
+                let codingStrategy = contentType.codingStrategy
+                let schema = part.schema
+                let partTypeName = part.typeName
+                
+                guard try validateSchemaIsSupported(
+                    schema,
+                    foundIn: partTypeName.description
+                ) else {
+                    return nil
+                }
+                let contentTypeUsage = try typeAssigner.typeUsage(
+                    forObjectPropertyNamed: Constants.Operation.Body.variableName,
+                    withSchema: schema.requiredSchemaObject(),
+                    components: components,
+                    inParent: partTypeName.appending(
+                        swiftComponent: nil,
+                        jsonComponent: "content"
+                    )
+                )
+
+                let verifyContentTypeExpr: Expression = .try(
+                    .identifierPattern("converter").dot("verifyContentTypeIfPresent").call([
+                        .init(label: "in", expression: .identifierPattern("headerFields")),
+                        .init(label: "matches", expression: .literal(contentTypeHeaderValue)),
+                    ])
+                )
+                
+                let headersTypeName = part.typeName.appending(
+                    swiftComponent: Constants.Operation.Output.Payload.Headers.typeName,
+                    jsonComponent: "headers"
+                )
+                let headers = try typedResponseHeaders(from: part.headers, inParent: headersTypeName)
+                
 //                let headersDecl: Declaration = .variable(
 //                    kind: .var,
 //                    left: "headerFields",
 //                    type: .init(.httpFields),
 //                    right: .dot("init").call([])
 //                )
-//                
-//                let headersTypeName = part.typeName.appending(
-//                    swiftComponent: Constants.Operation.Output.Payload.Headers.typeName,
-//                    jsonComponent: "headers"
-//                )
-//                let headers = try typedResponseHeaders(from: part.headers, inParent: headersTypeName)
 //                let headerExprs: [Expression] = try headers.map { header in
 //                    try translateMultipartOutgoingHeader(header)
 //                }
-//                
-//                let valueDecl: Declaration = .variable(
-//                    kind: .let,
-//                    left: "value",
-//                    right: .identifierPattern("wrapped").dot("payload")
-//                )
-//                let bodyDecl: Declaration = .variable(
-//                    kind: .let,
-//                    left: "body",
-//                    right: .try(
-//                        .identifierPattern("converter")
-//                        .dot(
-//                            "setRequiredRequestBodyAs\(contentType.codingStrategy.runtimeName)"
-//                        )
-//                        .call([
-//                            .init(label: nil, expression: .identifierPattern("value").dot("body")),
-//                            .init(
-//                                label: "headerFields",
-//                                expression: .inOut(.identifierPattern("headerFields"))
-//                            ), .init(label: "contentType", expression: .literal(contentTypeHeaderValue)),
-//                        ])
-//                    )
-//                )
-//                let returnExpr: Expression = .return(
-//                    .dot("init").call([
-//                        .init(label: "name", expression: .literal(originalName)),
-//                        .init(label: "filename", expression: .identifierPattern("wrapped").dot("filename")),
-//                        .init(label: "headerFields", expression: .identifierPattern("headerFields")),
-//                        .init(label: "body", expression: .identifierPattern("body")),
-//                    ])
-//                )
-//                return .init(
-//                    kind: .case(.dot(identifier), ["wrapped"]),
-//                    body: [
-//                        .declaration(headersDecl),
-//                        .declaration(valueDecl),
-//                    ] +
-//                    headerExprs.map { .expression($0) } +
-//                    [
-//                        .declaration(bodyDecl),
-//                        .expression(returnExpr)
-//                    ]
-//                )
-//            case .undocumented:
-//                return .init(
-//                    kind: .case(.dot("undocumented"), ["value"]),
-//                    body: [
-//                        .expression(.return(.identifierPattern("value")))
-//                    ]
-//                )
-//            case .otherRaw:
-//                return .init(
-//                    kind: .case(.dot("other"), ["value"]),
-//                    body: [
-//                        .expression(.return(.identifierPattern("value")))
-//                    ]
-//                )
-//            case .otherDynamicallyNamed:
-//                return nil
-//            }
-//        }
 
+                let transformExpr: Expression = .closureInvocation(
+                    body: [.expression(.identifierPattern("$0"))]
+                )
+                let converterExpr: Expression = .identifierPattern("converter")
+                    .dot("getRequiredRequestBodyAs\(codingStrategy.runtimeName)")
+                    .call([
+                        .init(label: nil, expression: .identifierType(contentTypeUsage.withOptional(false)).dot("self")),
+                        .init(label: "from", expression: .identifierPattern("part").dot("body")),
+                        .init(label: "transforming", expression: transformExpr),
+                    ])
+                let bodyExpr: Expression
+                switch codingStrategy {
+                case .json, .uri, .urlEncodedForm:
+                    // Buffering.
+                    bodyExpr = .try(.await(converterExpr))
+                case .binary, .multipart:
+                    // Streaming.
+                    bodyExpr = .try(converterExpr)
+                }
+                let bodyDecl: Declaration = .variable(
+                    kind: .let,
+                    left: "body",
+                    right: bodyExpr
+                )
+
+                let headersVarArgs: [FunctionArgumentDescription]
+                if !headers.isEmpty {
+                    headersVarArgs = [
+                        .init(label: "headers", expression: .identifierPattern("headers"))
+                    ]
+                } else {
+                    headersVarArgs = []
+                }
+                let payloadInitExpr: Expression = .dot("init").call(headersVarArgs + [
+                    .init(label: "body", expression: .identifierPattern("body"))
+                ])
+                let returnExpr: Expression = .return(
+                    .dot(identifier).call([
+                        .init(
+                            expression: .dot("init").call([
+                                .init(label: "payload", expression: payloadInitExpr),
+                                .init(label: "filename", expression: .identifierPattern("filename")),
+                            ])
+                        )
+                    ])
+                )
+                return .init(
+                    kind: .case(.literal(originalName)),
+                    body: [
+                        .expression(verifyContentTypeExpr),
+                        .declaration(bodyDecl),
+                        .expression(returnExpr)
+                    ]
+                )
+            case .undocumented:
+                return .init(
+                    kind: .default,
+                    body: [
+                        .expression(.return(.dot("undocumented").call([
+                            .init(expression: .identifierPattern("part"))
+                        ])))
+                    ]
+                )
+            case .otherRaw:
+                return .init(
+                    kind: .default,
+                    body: [
+                        .expression(.return(.dot("other").call([
+                            .init(expression: .identifierPattern("part"))
+                        ])))
+                    ]
+                )
+            case .otherDynamicallyNamed:
+                return nil
+            }
+        }
         return [
             .declaration(
                 .variable(
@@ -378,10 +423,15 @@ extension ServerFileTranslator {
                         ])
                     )
                 )
+            ),
+            .expression(
+                .switch(
+                    switchedExpression: .identifierPattern("name"),
+                    cases: cases
+                )
             )
         ]
     }
-
 }
 
 extension FileTranslator {
