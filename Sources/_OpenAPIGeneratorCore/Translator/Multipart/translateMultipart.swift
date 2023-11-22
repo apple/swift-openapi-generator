@@ -17,64 +17,49 @@ extension TypesFileTranslator {
     
     // TODO: Document
     func translateMultipartBody(_ content: TypedSchemaContent) throws -> [Declaration] {
-        let schemaContent = content.content
-        precondition(schemaContent.contentType.isMultipart, "Unexpected content type passed to translateMultipartBody")
-        
-        let topLevelSchema = schemaContent.schema ?? .b(.fragment)
-        let typeUsage = content.typeUsage! /* TODO: remove bang */
-        let typeName = typeUsage.typeName
-        print(typeName)
-        var referenceStack: ReferenceStack = .empty
-        guard let topLevelObject = try flattenedTopLevelMultipartObject(topLevelSchema, referenceStack: &referenceStack) else {
+        guard let multipart = try parseMultipartContent(content) else {
             return []
         }
-        
-        let encoding = schemaContent.encoding
-        
-        let parts = try topLevelObject.properties.compactMap { (key, value) in
-            try parseMultipartContentIfSupported(
-                key: key,
-                schema: value,
-                encoding: encoding?[key],
-                parent: typeName
-            )
-        }
-        
+        let parts = multipart.parts
+        let multipartBodyTypeName = multipart.typeName
+
         let partDecls: [Declaration] = try parts.flatMap { part in
+            let caseDecl: Declaration
             let associatedDecls: [Declaration]
-            switch part.caseKind {
-            case .documentedTyped(let typeName):
+            switch part {
+            case .documentedTyped(let documentedPart):
+                caseDecl = .enumCase(
+                    name: swiftSafeName(for: documentedPart.originalName),
+                    kind: .nameWithAssociatedValues([
+                        .init(type: .init(part.wrapperTypeUsage))
+                    ])
+                )
                 let decl = try translateMultipartPartContentInTypes(
-                    typeName: typeName,
-                    headers: part.headers,
-                    contentType: part.contentType,
-                    schema: part.schema
+                    typeName: documentedPart.typeName,
+                    headers: documentedPart.headers,
+                    contentType: documentedPart.partInfo.contentType,
+                    schema: documentedPart.schema
                 )
                 associatedDecls = [decl]
             default:
                 // TODO: Handle other cases too
                 associatedDecls = []
+                fatalError("Unsupported")
             }
-            let caseDecl: Declaration = .enumCase(
-                name: swiftSafeName(for: part.originalName),
-                kind: .nameWithAssociatedValues([
-                    .init(type: .init(part.wrapperTypeUsage))
-                ])
-            )
             return associatedDecls + [caseDecl]
         }
         
-        let additionalPropertiesStrategy = parseMultipartAdditionalPropertiesStrategy(topLevelObject.additionalProperties)
+        let additionalPropertiesStrategy = multipart.additionalPropertiesStrategy
         let additionalPropertiesDecls: [Declaration] = translateMultipartAdditionalPropertiesCase(additionalPropertiesStrategy)
         
         let enumDescription = EnumDescription(
             isFrozen: true,
             accessModifier: config.access,
-            name: typeName.shortSwiftName,
+            name: multipartBodyTypeName.shortSwiftName,
             conformances: Constants.Operation.Body.conformances,
             members: partDecls + additionalPropertiesDecls
         )
-        let comment: Comment? = typeName.docCommentWithUserDescription(nil)
+        let comment: Comment? = multipartBodyTypeName.docCommentWithUserDescription(nil)
         return [.commentable(comment, .enum(enumDescription))]
     }
     
@@ -115,21 +100,19 @@ extension TypesFileTranslator {
             headersProperty = nil
         }
         
-        let bodyTypeName = typeName.appending(
-            swiftComponent: nil,
-            jsonComponent: "content"
-        )
-        
-        let propertyType = try typeAssigner.typeUsage(
+        let bodyTypeUsage = try typeAssigner.typeUsage(
             forObjectPropertyNamed: Constants.Operation.Body.variableName,
-            withSchema: schema,
+            withSchema: schema.requiredSchemaObject(),
             components: components,
-            inParent: bodyTypeName
+            inParent: typeName.appending(
+                swiftComponent: nil,
+                jsonComponent: "content"
+            )
         )
         let associatedDeclarations: [Declaration]
         if TypeMatcher.isInlinable(schema) {
             associatedDeclarations = try translateSchema(
-                typeName: propertyType.typeName,
+                typeName: bodyTypeUsage.typeName,
                 schema: schema,
                 overrides: .none
             )
@@ -139,7 +122,7 @@ extension TypesFileTranslator {
         let bodyProperty = PropertyBlueprint(
             comment: nil,
             originalName: Constants.Operation.Body.variableName,
-            typeUsage: propertyType,
+            typeUsage: bodyTypeUsage,
             associatedDeclarations: associatedDeclarations,
             asSwiftSafeName: swiftSafeName
         )
@@ -159,6 +142,29 @@ extension TypesFileTranslator {
         )
     }
 }
+
+extension FileTranslator {
+    func translateSerializerExtraArguments(_ content: TypedSchemaContent) throws -> [FunctionArgumentDescription] {
+        guard let multipart = try parseMultipartContent(content) else {
+            return []
+        }
+        
+        // TODO: Add multipart arguments to the `setRequiredRequestBodyAsMultipart` method here.
+        // TODO: Do this in a separate method, at least, or even better, a separate file.
+        // requirements args (5), encoding closure (1)
+        return []
+    }
+}
+
+//extension ClientFileTranslator {
+//    func translateMultipartRequestBodyInClient(
+//        _ requestBody: TypedRequestBody,
+//        requestVariableName: String,
+//        bodyVariableName: String,
+//        inputVariableName: String
+//    ) throws -> Expression {
+//    }
+//}
 
 // TODO: Add isSchemaSupportedForMultipart, where we check object-ish top level.
 // But make that easily matrix testable, so not here

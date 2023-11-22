@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
-enum MultipartAdditionalPropertiesStrategy {
+enum MultipartAdditionalPropertiesStrategy: Equatable {
     case disallowed
     case allowed
     case typed(JSONSchema)

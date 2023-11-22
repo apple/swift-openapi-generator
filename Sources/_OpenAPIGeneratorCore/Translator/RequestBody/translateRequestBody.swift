@@ -146,12 +146,19 @@ extension ClientFileTranslator {
         inputVariableName: String
     ) throws -> Expression {
         let contents = requestBody.contents
-        var cases: [SwitchCaseDescription] = contents.map { typedContent in
+        var cases: [SwitchCaseDescription] = try contents.map { typedContent in
             let content = typedContent.content
             let contentType = content.contentType
             let contentTypeIdentifier = typeAssigner.contentSwiftName(contentType)
             let contentTypeHeaderValue = contentType.headerValueForSending
 
+            let extraBodyAssignArgs: [FunctionArgumentDescription]
+            if contentType.isMultipart {
+                extraBodyAssignArgs = try translateSerializerExtraArguments(typedContent)
+            } else {
+                extraBodyAssignArgs = []
+            }
+            
             let bodyAssignExpr: Expression = .assignment(
                 left: .identifierPattern(bodyVariableName),
                 right: .try(
@@ -165,7 +172,7 @@ extension ClientFileTranslator {
                                 label: "headerFields",
                                 expression: .inOut(.identifierPattern(requestVariableName).dot("headerFields"))
                             ), .init(label: "contentType", expression: .literal(contentTypeHeaderValue)),
-                        ])
+                        ] + extraBodyAssignArgs)
                 )
             )
             let caseDesc = SwitchCaseDescription(

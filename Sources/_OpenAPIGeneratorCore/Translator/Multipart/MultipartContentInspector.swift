@@ -13,29 +13,143 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
-enum MultipartPartContentTypeKind {
-    case unsupported
-    case explicit(ContentType)
-    case infer(UnderlyingKind)
+struct MultipartPartInfo: Hashable {
     
-    enum UnderlyingKind {
+    enum SerializationStrategy: Hashable {
         case primitive
-        case arrayOfPrimitive
         case complex
-        case arrayOfComplex
         case binary
-        case arrayOfBinary
+        
+        var contentType: ContentType {
+            // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#special-considerations-for-multipart-content
+            // > If the property is a primitive, or an array of primitive values, the default Content-Type is text/plain
+            // > If the property is complex, or an array of complex values, the default Content-Type is application/json
+            // > If the property is a type: string with a contentEncoding, the default Content-Type is application/octet-stream
+            switch self {
+            case .primitive:
+                return .textPlain
+            case .complex:
+                return .applicationJSON
+            case .binary:
+                return .applicationOctetStream
+            }
+        }
     }
+    
+    enum RepetitionKind: Hashable {
+        case single
+        case array
+    }
+    
+    enum ContentTypeSource: Hashable {
+        case explicit(ContentType)
+        case infer(SerializationStrategy)
+        
+        var contentType: ContentType {
+            switch self {
+            case .explicit(let contentType):
+                return contentType
+            case .infer(let serializationStrategy):
+                return serializationStrategy.contentType
+            }
+        }
+    }
+    
+    var repetition: RepetitionKind
+    var contentTypeSource: ContentTypeSource
+    
+    var contentType: ContentType {
+        contentTypeSource.contentType
+    }
+}
+
+struct MultipartRequirements {
+    var allowsUnknownParts: Bool
+    var requiredExactlyOncePartNames: Set<String>
+    var requiredAtLeastOncePartNames: Set<String>
+    var atMostOncePartNames: Set<String>
+    var zeroOrMoreTimesPartNames: Set<String>
 }
 
 /// Utilities for asking questions about multipart content.
 extension FileTranslator {
     
-    func contentTypeForMultipartPart(schema: JSONSchema, encoding: OpenAPI.Content.Encoding?) throws -> MultipartPartContentTypeKind {
-        if let encoding, let contentType = encoding.contentType {
-            return try .explicit(contentType.asGeneratorContentType)
+    func parseMultipartContent(_ content: TypedSchemaContent) throws -> MultipartContent? {
+        let schemaContent = content.content
+        precondition(schemaContent.contentType.isMultipart, "Unexpected content type passed to translateMultipartBody")
+        let topLevelSchema = schemaContent.schema ?? .b(.fragment)
+        let typeUsage = content.typeUsage! /* TODO: remove bang */
+        let typeName = typeUsage.typeName
+        var referenceStack: ReferenceStack = .empty
+        guard let topLevelObject = try flattenedTopLevelMultipartObject(topLevelSchema, referenceStack: &referenceStack) else {
+            return nil
         }
-        func inferStringContent(_ context: JSONSchema.StringContext) throws -> MultipartPartContentTypeKind {
+        let encoding = schemaContent.encoding
+        let parts = try topLevelObject.properties.compactMap { (key, value) in
+            let swiftSafeName = swiftSafeName(for: key)
+            let typeName = typeName.appending(
+                swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
+                jsonComponent: key
+            )
+            return try parseMultipartContentIfSupported(
+                key: key,
+                typeName: typeName,
+                schema: value,
+                encoding: encoding?[key]
+            )
+        }
+        let additionalPropertiesStrategy = parseMultipartAdditionalPropertiesStrategy(topLevelObject.additionalProperties)
+        let requirements = try parseMultipartRequirements(parts: parts, additionalPropertiesStrategy: additionalPropertiesStrategy)
+        return .init(
+            typeName: typeName,
+            parts: parts,
+            additionalPropertiesStrategy: additionalPropertiesStrategy,
+            requirements: requirements
+        )
+    }
+    
+    func parseMultipartRequirements(
+        parts: [MultipartSchemaTypedContent],
+        additionalPropertiesStrategy: MultipartAdditionalPropertiesStrategy
+    ) throws -> MultipartRequirements {
+        var requiredExactlyOncePartNames: Set<String> = []
+        var requiredAtLeastOncePartNames: Set<String> = []
+        var atMostOncePartNames: Set<String> = []
+        var zeroOrMoreTimesPartNames: Set<String> = []
+        for part in parts {
+            switch part {
+            case .documentedTyped(let part):
+                let name = part.originalName
+                let isRequired = try !typeMatcher.isOptional(part.schema, components: components)
+                switch (part.partInfo.repetition, isRequired) {
+                case (.single, true):
+                    requiredExactlyOncePartNames.insert(name)
+                case (.single, false):
+                    atMostOncePartNames.insert(name)
+                case (.array, true):
+                    requiredAtLeastOncePartNames.insert(name)
+                case (.array, false):
+                    zeroOrMoreTimesPartNames.insert(name)
+                }
+            case .otherDynamicallyNamed, .otherRaw, .undocumented:
+                break
+            }
+        }
+        return .init(
+            allowsUnknownParts: additionalPropertiesStrategy != .disallowed,
+            requiredExactlyOncePartNames: requiredExactlyOncePartNames,
+            requiredAtLeastOncePartNames: requiredAtLeastOncePartNames,
+            atMostOncePartNames: atMostOncePartNames,
+            zeroOrMoreTimesPartNames: zeroOrMoreTimesPartNames
+        )
+    }
+    
+    func parseMultipartPartInfo(
+        schema: JSONSchema,
+        encoding: OpenAPI.Content.Encoding?,
+        foundIn: String
+    ) throws -> (MultipartPartInfo, JSONSchema)? {
+        func inferStringContent(_ context: JSONSchema.StringContext) throws -> MultipartPartInfo.ContentTypeSource {
             if let contentMediaType = context.contentMediaType {
                 return try .explicit(contentMediaType.asGeneratorContentType)
             }
@@ -46,100 +160,77 @@ extension FileTranslator {
                 return .infer(.primitive)
             }
         }
-        // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#special-considerations-for-multipart-content
-        // > If the property is a primitive, or an array of primitive values, the default Content-Type is text/plain
-        // > If the property is complex, or an array of complex values, the default Content-Type is application/json
-        // > If the property is a type: string with a contentEncoding, the default Content-Type is application/octet-stream
+        let repetitionKind: MultipartPartInfo.RepetitionKind
+        let candidateSource: MultipartPartInfo.ContentTypeSource
         switch try schema.dereferenced(in: components) {
         case .null, .not:
-            return .unsupported
+            return nil
         case .boolean, .number, .integer:
-            return .infer(.primitive)
+            repetitionKind = .single
+            candidateSource = .infer(.primitive)
         case .string(_, let context):
-            return try inferStringContent(context)
+            repetitionKind = .single
+            candidateSource = try inferStringContent(context)
         case .object, .all, .one, .any, .fragment:
-            return .infer(.complex)
+            repetitionKind = .single
+            candidateSource = .infer(.complex)
         case .array(_, let context):
-            guard let items = context.items else {
-                return .infer(.arrayOfComplex)
-            }
-            switch items {
-            case .null, .not:
-                return .unsupported
-            case .boolean, .number, .integer:
-                return .infer(.arrayOfPrimitive)
-            case .string(_, let context):
-                switch try inferStringContent(context) {
-                case .unsupported, .infer(.arrayOfPrimitive), .infer(.arrayOfComplex), .infer(.arrayOfBinary):
-                    return .unsupported
-                case .explicit(let value):
-                    return .explicit(value)
-                case .infer(.primitive):
-                    return .infer(.arrayOfPrimitive)
-                case .infer(.complex):
-                    return .infer(.arrayOfComplex)
-                case .infer(.binary):
-                    return .infer(.arrayOfBinary)
+            repetitionKind = .array
+            if let items = context.items {
+                switch items {
+                case .null, .not:
+                    return nil
+                case .boolean, .number, .integer:
+                    candidateSource = .infer(.primitive)
+                case .string(_, let context):
+                    candidateSource = try inferStringContent(context)
+                case .object, .all, .one, .any, .fragment, .array:
+                    candidateSource = .infer(.complex)
                 }
-            case .object, .all, .one, .any, .fragment, .array:
-                return .infer(.arrayOfComplex)
+            } else {
+                candidateSource = .infer(.complex)
             }
         }
+        let finalContentTypeSource: MultipartPartInfo.ContentTypeSource
+        if let encoding, let contentType = encoding.contentType {
+            finalContentTypeSource = try .explicit(contentType.asGeneratorContentType)
+        } else {
+            finalContentTypeSource = candidateSource
+        }
+        let contentType = finalContentTypeSource.contentType
+        if finalContentTypeSource.contentType.isMultipart {
+            diagnostics.emitUnsupported("Multipart part cannot nest another multipart content.", foundIn: foundIn)
+            return nil
+        }
+        let info = MultipartPartInfo(repetition: repetitionKind, contentTypeSource: finalContentTypeSource)
+        if contentType.isBinary {
+            return (info, .string(contentEncoding: .binary))
+        }
+        return (info, schema)
     }
     
     func parseMultipartContentIfSupported(
         key: String,
+        typeName: TypeName,
         schema candidateSchema: JSONSchema,
-        encoding: OpenAPI.Content.Encoding?,
-        parent: TypeName
+        encoding: OpenAPI.Content.Encoding?
     ) throws -> MultipartSchemaTypedContent? {
-        let contentKind = try contentTypeForMultipartPart(schema: candidateSchema, encoding: encoding)
-        guard let (contentType, schema) = computeMultipartContentTypeAndSchema(
-            contentKind,
+        guard let (info, resolvedSchema) = try parseMultipartPartInfo(
             schema: candidateSchema,
-            foundIn: parent.description
+            encoding: encoding,
+            foundIn: typeName.description
         ) else {
             return nil
         }
-        
-        let swiftSafeName = swiftSafeName(for: key)
-        let typeName = parent.appending(
-            swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
-            jsonComponent: key
+        // TODO: Support additionalProperties + schema.
+        return .documentedTyped(
+            .init(
+                originalName: key,
+                typeName: typeName,
+                partInfo: info,
+                schema: resolvedSchema,
+                headers: encoding?.headers
+            )
         )
-        return .init(
-            originalName: key,
-            caseKind: .documentedTyped(typeName),
-            contentType: contentType,
-            schema: schema,
-            headers: encoding?.headers
-        )
-    }
-    
-    func computeMultipartContentTypeAndSchema(_ kind: MultipartPartContentTypeKind, schema: JSONSchema, foundIn: String) -> (ContentType, JSONSchema)? {
-        switch kind {
-        case .unsupported:
-            diagnostics.emitUnsupported("Content type of a multipart part.", foundIn: foundIn)
-            return nil
-        case .explicit(let contentType):
-            guard !contentType.isMultipart else {
-                diagnostics.emitUnsupported("Multipart part cannot nest another multipart content.", foundIn: foundIn)
-                return nil
-            }
-            if contentType.isBinary {
-                return (contentType, .string(contentEncoding: .binary))
-            } else {
-                return (contentType, schema.requiredSchemaObject())
-            }
-        case .infer(let underlyingKind):
-            switch underlyingKind {
-            case .primitive, .arrayOfPrimitive:
-                return (.textPlain, .string(contentEncoding: .binary))
-            case .complex, .arrayOfComplex:
-                return (.applicationJSON, schema.requiredSchemaObject())
-            case .binary, .arrayOfBinary:
-                return (.applicationOctetStream, .string(contentEncoding: .binary))
-            }
-        }
     }
 }

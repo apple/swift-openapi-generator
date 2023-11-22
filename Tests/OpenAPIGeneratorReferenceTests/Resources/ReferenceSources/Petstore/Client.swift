@@ -668,8 +668,7 @@ public struct Client: APIProtocol {
         try await client.send(
             input: input,
             forOperation: Operations.multipartUploadTyped.id,
-            serializer: {
-                input in
+            serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/multipart-typed",
                     parameters: []
