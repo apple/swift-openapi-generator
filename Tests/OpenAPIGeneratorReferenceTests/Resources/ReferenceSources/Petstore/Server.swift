@@ -837,7 +837,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             case "metadata":
                                 try converter.verifyContentTypeIfPresent(in: headerFields, matches: "application/json")
                                 let body = try await converter.getResponseBodyAsJSON(
-                                    Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.metadataPayloadBodyPayload.self,
+                                    Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.bodyPayload.self,
                                     from: part.body,
                                     transforming: { $0 }
                                 )

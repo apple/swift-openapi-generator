@@ -45,10 +45,10 @@ extension TypesFileTranslator {
             switch part.caseKind {
             case .documentedTyped(let typeName):
                 let decl = try translateMultipartPartContentInTypes(
-                    headers: part.headers, 
+                    typeName: typeName,
+                    headers: part.headers,
                     contentType: part.contentType,
-                    schema: part.schema,
-                    parent: typeName
+                    schema: part.schema
                 )
                 associatedDecls = [decl]
             default:
@@ -79,16 +79,16 @@ extension TypesFileTranslator {
     }
     
     func translateMultipartPartContentInTypes(
+        typeName: TypeName,
         headers headerMap: OpenAPI.Header.Map?,
         contentType: ContentType,
-        schema: JSONSchema,
-        parent: TypeName
+        schema: JSONSchema
     ) throws -> Declaration {
-        let headersTypeName = parent.appending(
+        let headersTypeName = typeName.appending(
             swiftComponent: Constants.Operation.Output.Payload.Headers.typeName,
             jsonComponent: "headers"
         )
-        let headers = try typedResponseHeaders(from: headerMap, inParent: parent)
+        let headers = try typedResponseHeaders(from: headerMap, inParent: headersTypeName)
         let headersProperty: PropertyBlueprint?
         if !headers.isEmpty {
             let headerProperties: [PropertyBlueprint] = try headers.map { header in
@@ -115,8 +115,8 @@ extension TypesFileTranslator {
             headersProperty = nil
         }
         
-        let bodyTypeName = parent.appending(
-            swiftComponent: Constants.Operation.Body.typeName,
+        let bodyTypeName = typeName.appending(
+            swiftComponent: nil,
             jsonComponent: "content"
         )
         
@@ -148,13 +148,13 @@ extension TypesFileTranslator {
             .init(
                 comment: nil,
                 access: config.access,
-                typeName: parent,
+                typeName: typeName,
                 conformances: Constants.Operation.Output.Payload.conformances,
                 properties: [headersProperty, bodyProperty].compactMap { $0 }
             )
         )
         return .commentable(
-            parent.docCommentWithUserDescription(nil),
+            typeName.docCommentWithUserDescription(nil),
             structDecl
         )
     }

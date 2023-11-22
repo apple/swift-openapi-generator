@@ -1459,15 +1459,6 @@ public enum Components {
             /// - Remark: Generated from `#/components/requestBodies/UpdatePetRequest/content/application\/json`.
             case json(Components.RequestBodies.UpdatePetRequest.jsonPayload)
         }
-        /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment`.
-        @frozen public enum MultipartRequestFragment: Sendable, Hashable {
-            /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment/multipartForm`.
-            @frozen public enum multipartFormPayload: Sendable, Hashable {
-                case undocumented(OpenAPIRuntime.MultipartRawPart)
-            }
-            /// - Remark: Generated from `#/components/requestBodies/MultipartRequestFragment/content/multipart\/form-data`.
-            case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartRequestFragment.multipartFormPayload>)
-        }
         /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest`.
         @frozen public enum MultipartUploadTypedRequest: Sendable, Hashable {
             /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm`.
@@ -1509,36 +1500,50 @@ public enum Components {
                         self.body = body
                     }
                 }
-                case log(MultipartPart<logPayload>)
+                case log(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload>)
+                /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/metadata`.
                 public struct metadataPayload: Sendable, Hashable {
-                    public struct metadataPayloadBodyPayload: Codable, Hashable, Sendable {
+                    /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/metadata/content/body`.
+                    public struct bodyPayload: Codable, Hashable, Sendable {
+                        /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/metadata/content/body/createdAt`.
                         public var createdAt: Foundation.Date
-                        public init(
-                            createdAt: Foundation.Date
-                        ) {
+                        /// Creates a new `bodyPayload`.
+                        ///
+                        /// - Parameters:
+                        ///   - createdAt:
+                        public init(createdAt: Foundation.Date) {
                             self.createdAt = createdAt
                         }
                         public enum CodingKeys: String, CodingKey {
                             case createdAt
                         }
                     }
-                    public var body: metadataPayloadBodyPayload
-                    init(body: metadataPayloadBodyPayload) {
+                    public var body: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.bodyPayload
+                    /// Creates a new `metadataPayload`.
+                    ///
+                    /// - Parameters:
+                    ///   - body:
+                    public init(body: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.bodyPayload) {
                         self.body = body
                     }
                 }
-                case metadata(MultipartPart<metadataPayload>)
+                case metadata(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload>)
+                /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/keyword`.
                 public struct keywordPayload: Sendable, Hashable {
                     public var body: OpenAPIRuntime.HTTPBody
-                    init(body: OpenAPIRuntime.HTTPBody) {
+                    /// Creates a new `keywordPayload`.
+                    ///
+                    /// - Parameters:
+                    ///   - body:
+                    public init(body: OpenAPIRuntime.HTTPBody) {
                         self.body = body
                     }
                 }
-                case keyword(MultipartPart<keywordPayload>)
-                case undocumented(MultipartRawPart)
+                case keyword(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.keywordPayload>)
+                case undocumented(OpenAPIRuntime.MultipartRawPart)
             }
             /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/content/multipart\/form-data`.
-            case multipartForm(OpenAPIRuntime.MultipartBody<multipartFormPayload>)
+            case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload>)
         }
     }
     /// Types generated from the `#/components/responses` section of the OpenAPI document.
@@ -1602,60 +1607,6 @@ public enum Components {
             public init(
                 headers: Components.Responses.ErrorBadRequest.Headers = .init(),
                 body: Components.Responses.ErrorBadRequest.Body
-            ) {
-                self.headers = headers
-                self.body = body
-            }
-        }
-        public struct MultipartResponseFragment: Sendable, Hashable {
-            /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/headers`.
-            public struct Headers: Sendable, Hashable {
-                /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/headers/X-Multipart-Flavor`.
-                @frozen public enum X_hyphen_Multipart_hyphen_FlavorPayload: String, Codable, Hashable, Sendable {
-                    case strawberry = "strawberry"
-                    case pistachio = "pistachio"
-                }
-                /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/headers/X-Multipart-Flavor`.
-                public var X_hyphen_Multipart_hyphen_Flavor: Components.Responses.MultipartResponseFragment.Headers.X_hyphen_Multipart_hyphen_FlavorPayload?
-                /// Creates a new `Headers`.
-                ///
-                /// - Parameters:
-                ///   - X_hyphen_Multipart_hyphen_Flavor:
-                public init(X_hyphen_Multipart_hyphen_Flavor: Components.Responses.MultipartResponseFragment.Headers.X_hyphen_Multipart_hyphen_FlavorPayload? = nil) {
-                    self.X_hyphen_Multipart_hyphen_Flavor = X_hyphen_Multipart_hyphen_Flavor
-                }
-            }
-            /// Received HTTP response headers
-            public var headers: Components.Responses.MultipartResponseFragment.Headers
-            /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/content`.
-            @frozen public enum Body: Sendable, Hashable {
-                @frozen public enum multipartFormPayload: Sendable, Hashable {
-                    case undocumented(MultipartRawPart)
-                }
-                case multipartForm(OpenAPIRuntime.MultipartBody<multipartFormPayload>)
-                /// The associated value of the enum case if `self` is `.multipartForm`.
-                ///
-                /// - Throws: An error if `self` is not `.multipartForm`.
-                /// - SeeAlso: `.multipartForm`.
-                public var multipartForm: OpenAPIRuntime.MultipartBody<multipartFormPayload> {
-                    get throws {
-                        switch self {
-                        case let .multipartForm(body):
-                            return body
-                        }
-                    }
-                }
-            }
-            /// Received HTTP response body
-            public var body: Components.Responses.MultipartResponseFragment.Body
-            /// Creates a new `MultipartResponseFragment`.
-            ///
-            /// - Parameters:
-            ///   - headers: Received HTTP response headers
-            ///   - body: Received HTTP response body
-            public init(
-                headers: Components.Responses.MultipartResponseFragment.Headers = .init(),
-                body: Components.Responses.MultipartResponseFragment.Body
             ) {
                 self.headers = headers
                 self.body = body
