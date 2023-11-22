@@ -867,9 +867,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 default:
                     preconditionFailure("bestContentType chose an invalid content type.")
                 }
-                return Operations.multipartUploadTyped.Input(
-                    body: body
-                )
+                return Operations.multipartUploadTyped.Input(body: body)
             },
             serializer: { output, request in
                 switch output {

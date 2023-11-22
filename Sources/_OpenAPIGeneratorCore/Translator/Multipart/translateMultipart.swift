@@ -143,11 +143,41 @@ extension TypesFileTranslator {
 }
 
 extension ClientFileTranslator {
-    func translateMultipartSerializerExtraArguments(_ content: TypedSchemaContent) throws -> [FunctionArgumentDescription] {
+    func translateMultipartSerializerExtraArgumentsInClient(_ content: TypedSchemaContent) throws -> [FunctionArgumentDescription] {
         guard let multipart = try parseMultipartContent(content) else {
             return []
         }
-        let requirements = multipart.requirements
+        let requirementsArgs = try translateMultipartRequirementsExtraArguments(multipart.requirements)
+        let encoding: FunctionArgumentDescription = .init(
+            label: "encoding",
+            expression: .closureInvocation(
+                argumentNames: ["part"],
+                body: try translateMultipartEncodingClosure(multipart)
+            )
+        )
+        return requirementsArgs + [encoding]
+    }
+}
+
+extension ServerFileTranslator {
+    func translateMultipartDeserializerExtraArgumentsInServer(_ content: TypedSchemaContent) throws -> [FunctionArgumentDescription] {
+        guard let multipart = try parseMultipartContent(content) else {
+            return []
+        }
+        let requirementsArgs = try translateMultipartRequirementsExtraArguments(multipart.requirements)
+        let encoding: FunctionArgumentDescription = .init(
+            label: "encoding",
+            expression: .closureInvocation(
+                argumentNames: ["part"],
+                body: try translateMultipartEncodingClosure(multipart)
+            )
+        )
+        return requirementsArgs + [encoding]
+    }
+}
+
+extension FileTranslator {
+    func translateMultipartRequirementsExtraArguments(_ requirements: MultipartRequirements) throws -> [FunctionArgumentDescription] {
         func sortedStringSetLiteral(_ set: Set<String>) -> Expression {
             .literal(.array(set.sorted().map { .literal($0) }))
         }
@@ -173,14 +203,7 @@ extension ClientFileTranslator {
                 expression: sortedStringSetLiteral(requirements.zeroOrMoreTimesPartNames)
             ),
         ]
-        let encoding: FunctionArgumentDescription = .init(
-            label: "encoding",
-            expression: .closureInvocation(
-                argumentNames: ["part"],
-                body: try translateMultipartEncodingClosure(multipart)
-            )
-        )
-        return requirementsArgs + [encoding]
+        return requirementsArgs
     }
     
     func translateMultipartEncodingClosure(_ multipart: MultipartContent) throws -> [CodeBlock] {
@@ -204,7 +227,7 @@ extension ClientFileTranslator {
                 )
                 let headers = try typedResponseHeaders(from: part.headers, inParent: headersTypeName)
                 let headerExprs: [Expression] = try headers.map { header in
-                    try translateMultipartHeaderInClient(header)
+                    try translateMultipartOutgoingHeader(header)
                 }
                 
                 let valueDecl: Declaration = .variable(
