@@ -109,7 +109,7 @@ extension FileTranslator {
                     body: [.expression(.return(.identifierPattern("string")))]
                 )
 
-                let variableDescription = VariableDescription(
+                rawValueGetter = .variable(
                     accessModifier: config.access,
                     kind: .var,
                     left: "rawValue",
@@ -120,8 +120,6 @@ extension FileTranslator {
                         )
                     ]
                 )
-
-                rawValueGetter = .variable(variableDescription)
             }
 
             let allCasesGetter: Declaration

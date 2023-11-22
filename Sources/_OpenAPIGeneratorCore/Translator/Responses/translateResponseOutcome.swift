@@ -67,7 +67,7 @@ extension TypesFileTranslator {
         let throwingGetterDesc = VariableDescription(
             accessModifier: config.access,
             kind: .var,
-            left: enumCaseName,
+            left: .identifierPattern(enumCaseName),
             type: .init(responseStructTypeName),
             getter: [
                 .expression(
@@ -405,7 +405,7 @@ extension ServerFileTranslator {
 
             bodyReturnExpr = .identifierPattern("body")
         } else {
-            bodyReturnExpr = nil
+            bodyReturnExpr = .literal(nil)
         }
 
         let returnExpr: Expression = .return(.tuple([.identifierPattern("response"), bodyReturnExpr]))

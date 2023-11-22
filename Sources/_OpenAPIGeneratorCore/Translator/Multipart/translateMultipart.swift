@@ -152,61 +152,13 @@ extension ClientFileTranslator {
             label: "encoding",
             expression: .closureInvocation(
                 argumentNames: ["part"],
-                body: try translateMultipartEncodingClosure(multipart)
+                body: try translateMultipartEncodingClosureInClient(multipart)
             )
         )
         return requirementsArgs + [encoding]
-    }
-}
-
-extension ServerFileTranslator {
-    func translateMultipartDeserializerExtraArgumentsInServer(_ content: TypedSchemaContent) throws -> [FunctionArgumentDescription] {
-        guard let multipart = try parseMultipartContent(content) else {
-            return []
-        }
-        let requirementsArgs = try translateMultipartRequirementsExtraArguments(multipart.requirements)
-        let encoding: FunctionArgumentDescription = .init(
-            label: "encoding",
-            expression: .closureInvocation(
-                argumentNames: ["part"],
-                body: try translateMultipartEncodingClosure(multipart)
-            )
-        )
-        return requirementsArgs + [encoding]
-    }
-}
-
-extension FileTranslator {
-    func translateMultipartRequirementsExtraArguments(_ requirements: MultipartRequirements) throws -> [FunctionArgumentDescription] {
-        func sortedStringSetLiteral(_ set: Set<String>) -> Expression {
-            .literal(.array(set.sorted().map { .literal($0) }))
-        }
-        let requirementsArgs: [FunctionArgumentDescription] = [
-            .init(
-                label: "allowsUnknownParts",
-                expression: .literal(.bool(requirements.allowsUnknownParts))
-            ),
-            .init(
-                label: "requiredExactlyOncePartNames",
-                expression: sortedStringSetLiteral(requirements.requiredExactlyOncePartNames)
-            ),
-            .init(
-                label: "requiredAtLeastOncePartNames",
-                expression: sortedStringSetLiteral(requirements.requiredAtLeastOncePartNames)
-            ),
-            .init(
-                label: "atMostOncePartNames",
-                expression: sortedStringSetLiteral(requirements.atMostOncePartNames)
-            ),
-            .init(
-                label: "zeroOrMoreTimesPartNames",
-                expression: sortedStringSetLiteral(requirements.zeroOrMoreTimesPartNames)
-            ),
-        ]
-        return requirementsArgs
     }
     
-    func translateMultipartEncodingClosure(_ multipart: MultipartContent) throws -> [CodeBlock] {
+    func translateMultipartEncodingClosureInClient(_ multipart: MultipartContent) throws -> [CodeBlock] {
         let cases: [SwitchCaseDescription] = try multipart.parts.compactMap { part in
             switch part {
             case .documentedTyped(let part):
@@ -298,6 +250,168 @@ extension FileTranslator {
                 )
             )
         ]
+    }
+}
+
+extension ServerFileTranslator {
+    func translateMultipartDeserializerExtraArgumentsInServer(_ content: TypedSchemaContent) throws -> [FunctionArgumentDescription] {
+        guard let multipart = try parseMultipartContent(content) else {
+            return []
+        }
+        let boundaryArg: FunctionArgumentDescription = .init(
+            label: "boundary",
+            expression: .identifierPattern("contentType").dot("requiredBoundary").call([])
+        )
+        let requirementsArgs = try translateMultipartRequirementsExtraArguments(multipart.requirements)
+        let decoding: FunctionArgumentDescription = .init(
+            label: "decoding",
+            expression: .closureInvocation(
+                argumentNames: ["part"],
+                body: try translateMultipartDecodingClosureInServer(multipart)
+            )
+        )
+        return [boundaryArg] + requirementsArgs + [decoding]
+    }
+    
+    func translateMultipartDecodingClosureInServer(_ multipart: MultipartContent) throws -> [CodeBlock] {
+//        let cases: [SwitchCaseDescription] = try multipart.parts.compactMap { part in
+//            switch part {
+//            case .documentedTyped(let part):
+//                let originalName = part.originalName
+//                let identifier = swiftSafeName(for: originalName)
+//                let contentType = part.partInfo.contentType
+//                let contentTypeHeaderValue = contentType.headerValueForSending
+//                let headersDecl: Declaration = .variable(
+//                    kind: .var,
+//                    left: "headerFields",
+//                    type: .init(.httpFields),
+//                    right: .dot("init").call([])
+//                )
+//                
+//                let headersTypeName = part.typeName.appending(
+//                    swiftComponent: Constants.Operation.Output.Payload.Headers.typeName,
+//                    jsonComponent: "headers"
+//                )
+//                let headers = try typedResponseHeaders(from: part.headers, inParent: headersTypeName)
+//                let headerExprs: [Expression] = try headers.map { header in
+//                    try translateMultipartOutgoingHeader(header)
+//                }
+//                
+//                let valueDecl: Declaration = .variable(
+//                    kind: .let,
+//                    left: "value",
+//                    right: .identifierPattern("wrapped").dot("payload")
+//                )
+//                let bodyDecl: Declaration = .variable(
+//                    kind: .let,
+//                    left: "body",
+//                    right: .try(
+//                        .identifierPattern("converter")
+//                        .dot(
+//                            "setRequiredRequestBodyAs\(contentType.codingStrategy.runtimeName)"
+//                        )
+//                        .call([
+//                            .init(label: nil, expression: .identifierPattern("value").dot("body")),
+//                            .init(
+//                                label: "headerFields",
+//                                expression: .inOut(.identifierPattern("headerFields"))
+//                            ), .init(label: "contentType", expression: .literal(contentTypeHeaderValue)),
+//                        ])
+//                    )
+//                )
+//                let returnExpr: Expression = .return(
+//                    .dot("init").call([
+//                        .init(label: "name", expression: .literal(originalName)),
+//                        .init(label: "filename", expression: .identifierPattern("wrapped").dot("filename")),
+//                        .init(label: "headerFields", expression: .identifierPattern("headerFields")),
+//                        .init(label: "body", expression: .identifierPattern("body")),
+//                    ])
+//                )
+//                return .init(
+//                    kind: .case(.dot(identifier), ["wrapped"]),
+//                    body: [
+//                        .declaration(headersDecl),
+//                        .declaration(valueDecl),
+//                    ] +
+//                    headerExprs.map { .expression($0) } +
+//                    [
+//                        .declaration(bodyDecl),
+//                        .expression(returnExpr)
+//                    ]
+//                )
+//            case .undocumented:
+//                return .init(
+//                    kind: .case(.dot("undocumented"), ["value"]),
+//                    body: [
+//                        .expression(.return(.identifierPattern("value")))
+//                    ]
+//                )
+//            case .otherRaw:
+//                return .init(
+//                    kind: .case(.dot("other"), ["value"]),
+//                    body: [
+//                        .expression(.return(.identifierPattern("value")))
+//                    ]
+//                )
+//            case .otherDynamicallyNamed:
+//                return nil
+//            }
+//        }
+
+        return [
+            .declaration(
+                .variable(
+                    kind: .let,
+                    left: "headerFields",
+                    right: .identifierPattern("part").dot("headerFields")
+                )
+            ),
+            .declaration(
+                .variable(
+                    kind: .let,
+                    left: .tuple([.identifierPattern("name"), .identifierPattern("filename")]),
+                    right: .try(
+                        .identifierPattern("converter")
+                        .dot("extractContentDispositionNameAndFilename")
+                        .call([
+                            .init(label: "in", expression: .identifierPattern("headerFields"))
+                        ])
+                    )
+                )
+            )
+        ]
+    }
+
+}
+
+extension FileTranslator {
+    func translateMultipartRequirementsExtraArguments(_ requirements: MultipartRequirements) throws -> [FunctionArgumentDescription] {
+        func sortedStringSetLiteral(_ set: Set<String>) -> Expression {
+            .literal(.array(set.sorted().map { .literal($0) }))
+        }
+        let requirementsArgs: [FunctionArgumentDescription] = [
+            .init(
+                label: "allowsUnknownParts",
+                expression: .literal(.bool(requirements.allowsUnknownParts))
+            ),
+            .init(
+                label: "requiredExactlyOncePartNames",
+                expression: sortedStringSetLiteral(requirements.requiredExactlyOncePartNames)
+            ),
+            .init(
+                label: "requiredAtLeastOncePartNames",
+                expression: sortedStringSetLiteral(requirements.requiredAtLeastOncePartNames)
+            ),
+            .init(
+                label: "atMostOncePartNames",
+                expression: sortedStringSetLiteral(requirements.atMostOncePartNames)
+            ),
+            .init(
+                label: "zeroOrMoreTimesPartNames",
+                expression: sortedStringSetLiteral(requirements.zeroOrMoreTimesPartNames)
+            ),
+        ]
+        return requirementsArgs
     }
 }
 

@@ -106,12 +106,10 @@ extension FileTranslator {
         let propertyDecl: Declaration = .commentable(
             property.comment,
             .variable(
-                .init(
-                    accessModifier: config.access,
-                    kind: .var,
-                    left: property.swiftSafeName,
-                    type: .init(property.typeUsage)
-                )
+                accessModifier: config.access,
+                kind: .var,
+                left: property.swiftSafeName,
+                type: .init(property.typeUsage)
             )
             .deprecate(if: property.isDeprecated)
         )

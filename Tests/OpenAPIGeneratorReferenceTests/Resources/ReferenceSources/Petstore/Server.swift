@@ -765,6 +765,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             }
         )
     }
+    /// - Remark: HTTP `POST /pets/multipart-typed`.
+    /// - Remark: Generated from `#/paths//pets/multipart-typed/post(multipartUploadTyped)`.
     func multipartUploadTyped(
         request: HTTPTypes.HTTPRequest,
         body: OpenAPIRuntime.HTTPBody?,
@@ -790,23 +792,23 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch chosenContentType {
                 case "multipart/form-data":
                     body = try converter.getRequiredRequestBodyAsMultipart(
-                        MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload>.self,
+                        OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload>.self,
                         from: requestBody,
+                        transforming: { value in
+                            .multipartForm(value)
+                        },
                         boundary: contentType.requiredBoundary(),
                         allowsUnknownParts: true,
                         requiredExactlyOncePartNames: [
-                            "log",
+                            "log"
                         ],
                         requiredAtLeastOncePartNames: [],
                         atMostOncePartNames: [
-                            "metadata",
+                            "metadata"
                         ],
                         zeroOrMoreTimesPartNames: [
                             "keyword"
                         ],
-                        transforming: { value in
-                            .multipartForm(value)
-                        },
                         decoding: { part in
                             let headerFields = part.headerFields
                             let (name, filename) = try converter.extractContentDispositionNameAndFilename(in: headerFields)

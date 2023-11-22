@@ -81,7 +81,7 @@ extension ClientFileTranslator {
             )
             requestBlocks.append(.expression(requestBodyExpr))
         } else {
-            requestBodyReturnExpr = nil
+            requestBodyReturnExpr = .literal(nil)
         }
 
         let returnRequestExpr: Expression = .return(.tuple([.identifierPattern("request"), requestBodyReturnExpr]))

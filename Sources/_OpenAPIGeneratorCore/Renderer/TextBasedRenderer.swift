@@ -543,18 +543,21 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified variable declaration.
     func renderVariable(_ variable: VariableDescription) {
         do {
-            var words: [String] = []
-            if let accessModifier = variable.accessModifier { words.append(renderedAccessModifier(accessModifier)) }
-            if variable.isStatic { words.append("static") }
-            words.append(renderedBindingKind(variable.kind))
-            let labelWithOptionalType: String
-            if let type = variable.type {
-                labelWithOptionalType = "\(variable.left): \(renderedExistingTypeDescription(type))"
-            } else {
-                labelWithOptionalType = variable.left
+            if let accessModifier = variable.accessModifier {
+                writer.writeLine(renderedAccessModifier(accessModifier) + " ")
+                writer.nextLineAppendsToLastLine()
             }
-            words.append(labelWithOptionalType)
-            writer.writeLine(words.joinedWords())
+            if variable.isStatic {
+                writer.writeLine("static ")
+                writer.nextLineAppendsToLastLine()
+            }
+            writer.writeLine(renderedBindingKind(variable.kind) + " ")
+            writer.nextLineAppendsToLastLine()
+            renderExpression(variable.left)
+            if let type = variable.type {
+                writer.nextLineAppendsToLastLine()
+                writer.writeLine(": \(renderedExistingTypeDescription(type))")
+            }
         }
 
         if let right = variable.right {

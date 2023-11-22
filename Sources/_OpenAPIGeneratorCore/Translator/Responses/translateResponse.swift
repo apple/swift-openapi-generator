@@ -120,7 +120,7 @@ extension TypesFileTranslator {
                     accessModifier: config.access,
                     isStatic: false,
                     kind: .var,
-                    left: identifier,
+                    left: .identifierPattern(identifier),
                     type: .init(associatedType),
                     getter: [
                         .expression(

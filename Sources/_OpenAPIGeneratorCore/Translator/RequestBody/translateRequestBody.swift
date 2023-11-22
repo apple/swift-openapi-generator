@@ -241,7 +241,7 @@ extension ServerFileTranslator {
         )
         codeBlocks.append(.declaration(chosenContentTypeDecl))
 
-        func makeCase(typedContent: TypedSchemaContent) -> SwitchCaseDescription {
+        func makeCase(typedContent: TypedSchemaContent) throws -> SwitchCaseDescription {
             let contentTypeUsage = typedContent.resolvedTypeUsage
             let content = typedContent.content
             let contentType = content.contentType
@@ -256,18 +256,29 @@ extension ServerFileTranslator {
                     )
                 ]
             )
+            
+            let extraBodyAssignArgs: [FunctionArgumentDescription]
+            if contentType.isMultipart {
+                extraBodyAssignArgs = try translateMultipartDeserializerExtraArgumentsInServer(typedContent)
+            } else {
+                extraBodyAssignArgs = []
+            }
+            
             let converterExpr: Expression = .identifierPattern("converter")
                 .dot("get\(isOptional ? "Optional" : "Required")RequestBodyAs\(codingStrategyName)")
                 .call([
                     .init(label: nil, expression: .identifierType(contentTypeUsage.withOptional(false)).dot("self")),
                     .init(label: "from", expression: .identifierPattern("requestBody")),
                     .init(label: "transforming", expression: transformExpr),
-                ])
+                ] + extraBodyAssignArgs)
             let bodyExpr: Expression
-            if codingStrategy == .binary {
-                bodyExpr = .try(converterExpr)
-            } else {
+            switch codingStrategy {
+            case .json, .uri, .urlEncodedForm:
+                // Buffering.
                 bodyExpr = .try(.await(converterExpr))
+            case .binary, .multipart:
+                // Streaming.
+                bodyExpr = .try(converterExpr)
             }
             let bodyAssignExpr: Expression = .assignment(left: .identifierPattern("body"), right: bodyExpr)
             return .init(
@@ -276,7 +287,7 @@ extension ServerFileTranslator {
             )
         }
 
-        let cases = typedContents.map(makeCase)
+        let cases = try typedContents.map(makeCase)
         let switchExpr: Expression = .switch(
             switchedExpression: .identifierPattern("chosenContentType"),
             cases: cases + [

@@ -103,7 +103,7 @@ extension ServerFileTranslator {
             let undocumentedExpr: Expression = .return(
                 .tuple([
                     .dot("init").call([.init(label: "soar_statusCode", expression: .identifierPattern("statusCode"))]),
-                    nil,
+                    .literal(nil),
                 ])
             )
             cases.append(

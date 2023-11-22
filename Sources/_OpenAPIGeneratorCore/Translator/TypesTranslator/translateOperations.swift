@@ -218,14 +218,12 @@ extension TypesFileTranslator {
     func translateOperation(_ operation: OperationDescription) throws -> Declaration {
 
         let idPropertyDecl: Declaration = .variable(
-            .init(
-                accessModifier: config.access,
-                isStatic: true,
-                kind: .let,
-                left: "id",
-                type: .init(TypeName.string),
-                right: .literal(operation.operationID)
-            )
+            accessModifier: config.access,
+            isStatic: true,
+            kind: .let,
+            left: "id",
+            type: .init(TypeName.string),
+            right: .literal(operation.operationID)
         )
 
         let inputDecl: Declaration = try translateOperationInput(operation)
