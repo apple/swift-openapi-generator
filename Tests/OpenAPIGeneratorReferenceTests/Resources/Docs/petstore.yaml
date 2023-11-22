@@ -249,6 +249,11 @@ paths:
       responses:
         '202':
           description: Successfully accepted the data.
+    get:
+      operationId: multipartDownloadTyped
+      responses:
+        '200':
+          $ref: '#/components/responses/MultipartDownloadTypedResponse'
 components:
   headers:
     TracingHeader:
@@ -543,6 +548,36 @@ components:
                 type: integer
             required:
               - code
+    MultipartDownloadTypedResponse:
+      description: A typed multipart response.
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              log:
+                type: string
+              metadata:
+                type: object
+                properties:
+                  createdAt:
+                    type: string
+                    format: date-time
+                required:
+                  - createdAt
+            required:
+              - log
+          encoding:
+            log:
+              contentType: text/plain
+              headers:
+                x-log-type:
+                  description: The type of the log.
+                  schema:
+                    type: string
+                    enum:
+                      - structured
+                      - unstructured
   requestBodies:
     UpdatePetRequest:
       required: false

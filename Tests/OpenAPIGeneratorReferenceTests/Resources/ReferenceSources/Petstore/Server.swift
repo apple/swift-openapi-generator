@@ -120,6 +120,17 @@ extension APIProtocol {
         )
         try transport.register(
             {
+                try await server.multipartDownloadTyped(
+                    request: $0,
+                    body: $1,
+                    metadata: $2
+                )
+            },
+            method: .get,
+            path: server.apiPathComponentsWithServerPrefix("/pets/multipart-typed")
+        )
+        try transport.register(
+            {
                 try await server.multipartUploadTyped(
                     request: $0,
                     body: $1,
@@ -756,6 +767,115 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             value,
                             headerFields: &response.headerFields,
                             contentType: "text/plain"
+                        )
+                    }
+                    return (response, body)
+                case let .undocumented(statusCode, _):
+                    return (.init(soar_statusCode: statusCode), nil)
+                }
+            }
+        )
+    }
+    func multipartDownloadTyped(
+        request: HTTPTypes.HTTPRequest,
+        body: OpenAPIRuntime.HTTPBody?,
+        metadata: OpenAPIRuntime.ServerRequestMetadata
+    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
+        try await handle(
+            request: request,
+            requestBody: body,
+            metadata: metadata,
+            forOperation: Operations.multipartDownloadTyped.id,
+            using: {
+                APIHandler.multipartDownloadTyped($0)
+            },
+            deserializer: { request, requestBody, metadata in
+                let headers: Operations.multipartDownloadTyped.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
+                return Operations.multipartDownloadTyped.Input(
+                    headers: headers
+                )
+            },
+            serializer: { output, request in
+                switch output {
+                case let .ok(value):
+                    suppressUnusedWarning(value)
+                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 200)
+                    suppressMutabilityWarning(&response)
+                    let body: OpenAPIRuntime.HTTPBody
+                    switch value.body {
+                    case let .multipartForm(value):
+                        try converter.validateAcceptIfPresent(
+                            "multipart/form-data",
+                            in: request.headerFields
+                        )
+                        body = try converter.setResponseBodyAsMultipart(
+                            value,
+                            headerFields: &response.headerFields,
+                            contentType: "multipart/form-data",
+                            allowsUnknownParts: true,
+                            requiredExactlyOncePartNames: [
+                                "log",
+                            ],
+                            requiredAtLeastOncePartNames: [],
+                            atMostOncePartNames: [
+                                "metadata",
+                            ],
+                            zeroOrMoreTimesPartNames: [
+                                "keyword"
+                            ],
+                            encoding: { part in
+                                switch part {
+                                case .log(let wrapped):
+                                    var headerFields: HTTPFields = .init()
+                                    let value = wrapped.payload
+                                    try converter.setHeaderFieldAsURI(
+                                        in: &headerFields,
+                                        name: "x-log-type",
+                                        value: value.headers.x_dash_log_dash_type
+                                    )
+                                    let body = try converter.setRequiredRequestBodyAsBinary(
+                                        value.body,
+                                        headerFields: &headerFields,
+                                        contentType: "text/plain"
+                                    )
+                                    return .init(
+                                        name: "log",
+                                        filename: wrapped.filename,
+                                        headerFields: headerFields,
+                                        body: body
+                                    )
+                                case .metadata(let wrapped):
+                                    var headerFields: HTTPFields = .init()
+                                    let value = wrapped.payload
+                                    let body = try converter.setRequiredRequestBodyAsJSON(
+                                        value.body,
+                                        headerFields: &headerFields,
+                                        contentType: "application/json; charset=utf-8"
+                                    )
+                                    return .init(
+                                        name: "metadata",
+                                        filename: wrapped.filename,
+                                        headerFields: headerFields,
+                                        body: body
+                                    )
+                                case .keyword(let wrapped):
+                                    var headerFields: HTTPFields = .init()
+                                    let value = wrapped.payload
+                                    let body = try converter.setRequiredRequestBodyAsBinary(
+                                        value.body,
+                                        headerFields: &headerFields,
+                                        contentType: "text/plain"
+                                    )
+                                    return .init(
+                                        name: "keyword",
+                                        filename: wrapped.filename,
+                                        headerFields: headerFields,
+                                        body: body
+                                    )
+                                case .undocumented(let value):
+                                    return value
+                                }
+                            }
                         )
                     }
                     return (response, body)

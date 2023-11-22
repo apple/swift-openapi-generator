@@ -145,7 +145,7 @@ public extension Data {
         bytes.append(contentsOf: Data.crlf)
         bytes.append(contentsOf: #"content-length: 42"#.utf8)
         bytes.append(contentsOf: Data.crlf)
-        bytes.append(contentsOf: #"content-type: application/json"#.utf8)
+        bytes.append(contentsOf: #"content-type: application/json; charset=utf-8"#.utf8)
         bytes.append(contentsOf: Data.crlf)
         bytes.append(contentsOf: Data.crlf)
         bytes.append(contentsOf: "{\n  \"createdAt\" : \"2023-01-18T10:04:11Z\"\n}".utf8)
