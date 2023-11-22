@@ -214,7 +214,7 @@ extension ClientFileTranslator {
             )
             codeBlocks.append(.declaration(chosenContentTypeDecl))
 
-            func makeCase(typedContent: TypedSchemaContent) -> SwitchCaseDescription {
+            func makeCase(typedContent: TypedSchemaContent) throws -> SwitchCaseDescription {
                 let contentTypeUsage = typedContent.resolvedTypeUsage
                 let transformExpr: Expression = .closureInvocation(
                     argumentNames: ["value"],
@@ -226,18 +226,29 @@ extension ClientFileTranslator {
                     ]
                 )
                 let codingStrategy = typedContent.content.contentType.codingStrategy
+                
+                let extraBodyAssignArgs: [FunctionArgumentDescription]
+                if typedContent.content.contentType.isMultipart {
+                    extraBodyAssignArgs = try translateMultipartDeserializerExtraArgumentsInClient(typedContent)
+                } else {
+                    extraBodyAssignArgs = []
+                }
+
                 let converterExpr: Expression = .identifierPattern("converter")
                     .dot("getResponseBodyAs\(codingStrategy.runtimeName)")
                     .call([
                         .init(label: nil, expression: .identifierType(contentTypeUsage).dot("self")),
                         .init(label: "from", expression: .identifierPattern("responseBody")),
                         .init(label: "transforming", expression: transformExpr),
-                    ])
+                    ] + extraBodyAssignArgs)
                 let bodyExpr: Expression
-                if codingStrategy == .binary {
-                    bodyExpr = .try(converterExpr)
-                } else {
+                switch codingStrategy {
+                case .json, .uri, .urlEncodedForm:
+                    // Buffering.
                     bodyExpr = .try(.await(converterExpr))
+                case .binary, .multipart:
+                    // Streaming.
+                    bodyExpr = .try(converterExpr)
                 }
                 let bodyAssignExpr: Expression = .assignment(left: .identifierPattern("body"), right: bodyExpr)
                 return .init(
@@ -245,7 +256,7 @@ extension ClientFileTranslator {
                     body: [.expression(bodyAssignExpr)]
                 )
             }
-            let cases = typedContents.map(makeCase)
+            let cases = try typedContents.map(makeCase)
             let switchExpr: Expression = .switch(
                 switchedExpression: .identifierPattern("chosenContentType"),
                 cases: cases + [
@@ -363,7 +374,7 @@ extension ServerFileTranslator {
         )
         if !typedContents.isEmpty {
             codeBlocks.append(.declaration(.variable(kind: .let, left: "body", type: .init(TypeName.body))))
-            let switchContentCases: [SwitchCaseDescription] = typedContents.map { typedContent in
+            let switchContentCases: [SwitchCaseDescription] = try typedContents.map { typedContent in
 
                 var caseCodeBlocks: [CodeBlock] = []
 
@@ -378,6 +389,14 @@ extension ServerFileTranslator {
                 caseCodeBlocks.append(.expression(validateAcceptHeader))
 
                 let contentType = typedContent.content.contentType
+                
+                let extraBodyAssignArgs: [FunctionArgumentDescription]
+                if contentType.isMultipart {
+                    extraBodyAssignArgs = try translateMultipartSerializerExtraArgumentsInServer(typedContent)
+                } else {
+                    extraBodyAssignArgs = []
+                }
+                
                 let assignBodyExpr: Expression = .assignment(
                     left: .identifierPattern("body"),
                     right: .try(
@@ -389,7 +408,7 @@ extension ServerFileTranslator {
                                     label: "headerFields",
                                     expression: .inOut(.identifierPattern("response").dot("headerFields"))
                                 ), .init(label: "contentType", expression: .literal(contentType.headerValueForSending)),
-                            ])
+                            ] + extraBodyAssignArgs)
                     )
                 )
                 caseCodeBlocks.append(.expression(assignBodyExpr))

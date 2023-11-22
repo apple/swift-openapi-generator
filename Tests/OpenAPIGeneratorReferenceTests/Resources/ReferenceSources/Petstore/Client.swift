@@ -662,14 +662,13 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// - Remark: HTTP `POST /pets/multipart-typed`.
-    /// - Remark: Generated from `#/paths//pets/multipart-typed/post(multipartUploadTyped)`.
+    /// - Remark: HTTP `GET /pets/multipart-typed`.
+    /// - Remark: Generated from `#/paths//pets/multipart-typed/get(multipartDownloadTyped)`.
     public func multipartDownloadTyped(_ input: Operations.multipartDownloadTyped.Input) async throws -> Operations.multipartDownloadTyped.Output {
         try await client.send(
             input: input,
             forOperation: Operations.multipartDownloadTyped.id,
-            serializer: {
-                input in
+            serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/multipart-typed",
                     parameters: []
@@ -685,9 +684,7 @@ public struct Client: APIProtocol {
                 )
                 return (request, nil)
             },
-            deserializer: {
-                response,
-                responseBody in
+            deserializer: { response, responseBody in
                 switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
@@ -709,11 +706,11 @@ public struct Client: APIProtocol {
                             boundary: contentType.requiredBoundary(),
                             allowsUnknownParts: true,
                             requiredExactlyOncePartNames: [
-                                "log",
+                                "log"
                             ],
                             requiredAtLeastOncePartNames: [],
                             atMostOncePartNames: [
-                                "metadata",
+                                "metadata"
                             ],
                             zeroOrMoreTimesPartNames: [
                                 "keyword"
@@ -723,53 +720,61 @@ public struct Client: APIProtocol {
                                 let (name, filename) = try converter.extractContentDispositionNameAndFilename(in: headerFields)
                                 switch name {
                                 case "log":
-                                    let headers: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers = .init(
-                                        x_hyphen_log_hyphen_type: try converter.getRequiredHeaderFieldAsURI(
-                                            in: headerFields,
-                                            name: "x-log-type",
-                                            as: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload.self
-                                        )
+                                    let headers: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers = .init(x_hyphen_log_hyphen_type: try converter.getOptionalHeaderFieldAsURI(
+                                        in: headerFields,
+                                        name: "x-log-type",
+                                        as: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload.self
+                                    ))
+                                    try converter.verifyContentTypeIfPresent(
+                                        in: headerFields,
+                                        matches: "text/plain"
                                     )
-                                    try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
                                     let body = try converter.getResponseBodyAsBinary(
                                         OpenAPIRuntime.HTTPBody.self,
                                         from: part.body,
-                                        transforming: { $0 }
+                                        transforming: {
+                                            $0
+                                        }
                                     )
-                                    return .log(
-                                        .init(
-                                            payload: .init(
-                                                headers: headers,
-                                                body: body
-                                            ),
-                                            filename: filename
-                                        )
-                                    )
+                                    return .log(.init(
+                                        payload: .init(
+                                            headers: headers,
+                                            body: body
+                                        ),
+                                        filename: filename
+                                    ))
                                 case "metadata":
-                                    try converter.verifyContentTypeIfPresent(in: headerFields, matches: "application/json")
+                                    try converter.verifyContentTypeIfPresent(
+                                        in: headerFields,
+                                        matches: "application/json"
+                                    )
                                     let body = try await converter.getResponseBodyAsJSON(
                                         Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.metadataPayload.bodyPayload.self,
                                         from: part.body,
-                                        transforming: { $0 }
+                                        transforming: {
+                                            $0
+                                        }
                                     )
-                                    return .metadata(
-                                        .init(payload: .init(body: body), filename: filename)
-                                    )
+                                    return .metadata(.init(
+                                        payload: .init(body: body),
+                                        filename: filename
+                                    ))
                                 case "keyword":
-                                    try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
+                                    try converter.verifyContentTypeIfPresent(
+                                        in: headerFields,
+                                        matches: "text/plain"
+                                    )
                                     let body = try converter.getResponseBodyAsBinary(
                                         OpenAPIRuntime.HTTPBody.self,
                                         from: part.body,
-                                        transforming: { $0 }
+                                        transforming: {
+                                            $0
+                                        }
                                     )
-                                    return .keyword(
-                                        .init(
-                                            payload: .init(
-                                                body: body
-                                            ),
-                                            filename: filename
-                                        )
-                                    )
+                                    return .keyword(.init(
+                                        payload: .init(body: body),
+                                        filename: filename
+                                    ))
                                 default:
                                     return .undocumented(part)
                                 }
@@ -778,9 +783,7 @@ public struct Client: APIProtocol {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return .ok(.init(
-                        body: body
-                    ))
+                    return .ok(.init(body: body))
                 default:
                     return .undocumented(
                         statusCode: response.status.code,

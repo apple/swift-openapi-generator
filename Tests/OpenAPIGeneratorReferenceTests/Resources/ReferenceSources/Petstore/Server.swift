@@ -776,6 +776,8 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             }
         )
     }
+    /// - Remark: HTTP `GET /pets/multipart-typed`.
+    /// - Remark: Generated from `#/paths//pets/multipart-typed/get(multipartDownloadTyped)`.
     func multipartDownloadTyped(
         request: HTTPTypes.HTTPRequest,
         body: OpenAPIRuntime.HTTPBody?,
@@ -791,9 +793,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             },
             deserializer: { request, requestBody, metadata in
                 let headers: Operations.multipartDownloadTyped.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
-                return Operations.multipartDownloadTyped.Input(
-                    headers: headers
-                )
+                return Operations.multipartDownloadTyped.Input(headers: headers)
             },
             serializer: { output, request in
                 switch output {
@@ -814,26 +814,26 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             contentType: "multipart/form-data",
                             allowsUnknownParts: true,
                             requiredExactlyOncePartNames: [
-                                "log",
+                                "log"
                             ],
                             requiredAtLeastOncePartNames: [],
                             atMostOncePartNames: [
-                                "metadata",
+                                "metadata"
                             ],
                             zeroOrMoreTimesPartNames: [
                                 "keyword"
                             ],
                             encoding: { part in
                                 switch part {
-                                case .log(let wrapped):
-                                    var headerFields: HTTPFields = .init()
+                                case let .log(wrapped):
+                                    var headerFields: HTTPTypes.HTTPFields = .init()
                                     let value = wrapped.payload
                                     try converter.setHeaderFieldAsURI(
                                         in: &headerFields,
                                         name: "x-log-type",
                                         value: value.headers.x_hyphen_log_hyphen_type
                                     )
-                                    let body = try converter.setRequiredRequestBodyAsBinary(
+                                    let body = try converter.setResponseBodyAsBinary(
                                         value.body,
                                         headerFields: &headerFields,
                                         contentType: "text/plain"
@@ -844,10 +844,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                                         headerFields: headerFields,
                                         body: body
                                     )
-                                case .metadata(let wrapped):
-                                    var headerFields: HTTPFields = .init()
+                                case let .metadata(wrapped):
+                                    var headerFields: HTTPTypes.HTTPFields = .init()
                                     let value = wrapped.payload
-                                    let body = try converter.setRequiredRequestBodyAsJSON(
+                                    let body = try converter.setResponseBodyAsJSON(
                                         value.body,
                                         headerFields: &headerFields,
                                         contentType: "application/json; charset=utf-8"
@@ -858,10 +858,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                                         headerFields: headerFields,
                                         body: body
                                     )
-                                case .keyword(let wrapped):
-                                    var headerFields: HTTPFields = .init()
+                                case let .keyword(wrapped):
+                                    var headerFields: HTTPTypes.HTTPFields = .init()
                                     let value = wrapped.payload
-                                    let body = try converter.setRequiredRequestBodyAsBinary(
+                                    let body = try converter.setResponseBodyAsBinary(
                                         value.body,
                                         headerFields: &headerFields,
                                         contentType: "text/plain"
@@ -872,7 +872,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                                         headerFields: headerFields,
                                         body: body
                                     )
-                                case .undocumented(let value):
+                                case let .undocumented(value):
                                     return value
                                 }
                             }

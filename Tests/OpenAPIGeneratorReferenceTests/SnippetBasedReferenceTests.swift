@@ -1916,8 +1916,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                     case structured = "structured"
                                     case unstructured = "unstructured"
                                 }
-                                public var x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.x_hyphen_log_hyphen_typePayload?
-                                public init(x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.x_hyphen_log_hyphen_typePayload? = nil) {
+                                public var x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload?
+                                public init(x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload? = nil) {
                                     self.x_hyphen_log_hyphen_type = x_hyphen_log_hyphen_type
                                 }
                             }
@@ -1942,8 +1942,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                     case createdAt
                                 }
                             }
-                            public var body: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.Body.bodyPayload
-                            public init(body: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.Body.bodyPayload) {
+                            public var body: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.bodyPayload
+                            public init(body: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.bodyPayload) {
                                 self.body = body
                             }
                         }
