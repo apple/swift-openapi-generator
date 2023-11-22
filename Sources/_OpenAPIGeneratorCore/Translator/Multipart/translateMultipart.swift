@@ -317,15 +317,21 @@ extension ServerFileTranslator {
                 )
                 let headers = try typedResponseHeaders(from: part.headers, inParent: headersTypeName)
                 
-//                let headersDecl: Declaration = .variable(
-//                    kind: .var,
-//                    left: "headerFields",
-//                    type: .init(.httpFields),
-//                    right: .dot("init").call([])
-//                )
-//                let headerExprs: [Expression] = try headers.map { header in
-//                    try translateMultipartOutgoingHeader(header)
-//                }
+                let headersDecls: [Declaration]
+                if !headers.isEmpty {
+                    let headerExprs: [FunctionArgumentDescription] = try headers.map { header in
+                        try translateMultipartIncomingHeader(header)
+                    }
+                    let headersDecl: Declaration = .variable(
+                        kind: .let,
+                        left: "headers",
+                        type: .init(headersTypeName),
+                        right: .dot("init").call(headerExprs)
+                    )
+                    headersDecls = [headersDecl]
+                } else {
+                    headersDecls = []
+                }
 
                 let transformExpr: Expression = .closureInvocation(
                     body: [.expression(.identifierPattern("$0"))]
@@ -375,7 +381,7 @@ extension ServerFileTranslator {
                 )
                 return .init(
                     kind: .case(.literal(originalName)),
-                    body: [
+                    body: headersDecls.map { .declaration($0) } + [
                         .expression(verifyContentTypeExpr),
                         .declaration(bodyDecl),
                         .expression(returnExpr)

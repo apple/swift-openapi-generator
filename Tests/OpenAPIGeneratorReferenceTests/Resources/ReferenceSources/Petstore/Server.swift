@@ -814,13 +814,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             let (name, filename) = try converter.extractContentDispositionNameAndFilename(in: headerFields)
                             switch name {
                             case "log":
-                                let headers: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers = .init(
-                                    x_hyphen_log_hyphen_type: try converter.getRequiredHeaderFieldAsURI(
-                                        in: headerFields,
-                                        name: "x-log-type",
-                                        as: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload.self
-                                    )
-                                )
+                                let headers: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers = .init(x_hyphen_log_hyphen_type: try converter.getOptionalHeaderFieldAsURI(
+                                    in: headerFields,
+                                    name: "x-log-type",
+                                    as: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload.self
+                                ))
                                 try converter.verifyContentTypeIfPresent(
                                     in: headerFields,
                                     matches: "text/plain"

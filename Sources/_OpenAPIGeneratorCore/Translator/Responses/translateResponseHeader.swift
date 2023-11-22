@@ -29,6 +29,21 @@ extension FileTranslator {
                 ])
         )
     }
+    
+    func translateMultipartIncomingHeader(
+        _ header: TypedResponseHeader
+    ) throws -> FunctionArgumentDescription {
+        let methodName = "get\(header.isOptional ? "Optional" : "Required")HeaderFieldAs\(header.codingStrategy.runtimeName)"
+        let convertExpr: Expression = .try(
+            .identifierPattern("converter").dot(methodName)
+                .call([
+                    .init(label: "in", expression: .identifierPattern("headerFields")),
+                    .init(label: "name", expression: .literal(header.name)),
+                    .init(label: "as", expression: .identifierType(header.typeUsage.withOptional(false)).dot("self")),
+                ])
+        )
+        return .init(label: header.variableName, expression: convertExpr)
+    }
 }
 
 extension TypesFileTranslator {
