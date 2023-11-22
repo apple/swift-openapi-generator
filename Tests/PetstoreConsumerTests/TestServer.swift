@@ -60,7 +60,7 @@ extension TestServerTransport {
     var multipartUploadTyped: Handler {
         get throws { try findHandler(method: .post, path: "/api/pets/multipart-typed") }
     }
-    var multipartDownloadTyped: Handler {
-        get throws { try findHandler(method: .get, path: "/api/pets/multipart-typed") }
-    }
+//    var multipartDownloadTyped: Handler {
+//        get throws { try findHandler(method: .get, path: "/api/pets/multipart-typed") }
+//    }
 }

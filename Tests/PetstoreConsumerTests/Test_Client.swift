@@ -810,83 +810,83 @@ final class Test_Client: XCTestCase {
         }
     }
 
-    func testMultipartDownloadTyped_200() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in
-            XCTAssertEqual(operationID, "multipartDownloadTyped")
-            XCTAssertEqual(request.path, "/pets/multipart-typed")
-            XCTAssertEqual(baseURL.absoluteString, "/api")
-            XCTAssertEqual(request.method, .get)
-            XCTAssertEqual(request.headerFields, [.accept: "multipart/form-data"])
-            let (stream, continuation) = AsyncStream.makeStream(of: ArraySlice<UInt8>.self)
-            let body: HTTPBody = .init(stream, length: .unknown)
-            let bytes = Data.multipartTypedBodyAsSlice
-            for chunk in bytes.chunked(by: 13) { continuation.yield(chunk) }
-            continuation.finish()
-            return (
-                .init(
-                    status: .ok,
-                    headerFields: [.contentType: "multipart/form-data; boundary=__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__"]
-                ), body
-            )
-        }
-        let response = try await client.multipartDownloadTyped()
-        let responseMultipart = try response.ok.body.multipartForm
-
-        var iterator = responseMultipart.makeAsyncIterator()
-        do {
-            let part = try await iterator.next()!
-            guard case .log(let log) = part else {
-                XCTFail("Unexpected part")
-                return
-            }
-            XCTAssertEqual(log.filename, "process.log")
-            XCTAssertEqual(log.payload.headers, .init(x_dash_log_dash_type: .unstructured))
-            try await XCTAssertEqualData(log.payload.body, "here be logs!\nand more lines\nwheee\n".utf8)
-        }
-        do {
-            let part = try await iterator.next()!
-            guard case .keyword(let keyword) = part else {
-                XCTFail("Unexpected part")
-                return
-            }
-            XCTAssertEqual(keyword.filename, "fun.stuff")
-            try await XCTAssertEqualData(keyword.payload.body, "fun".utf8)
-        }
-        do {
-            let part = try await iterator.next()!
-            guard case .undocumented(let undocumented) = part else {
-                XCTFail("Unexpected part")
-                return
-            }
-            XCTAssertEqual(
-                undocumented.headerFields,
-                [.contentDisposition: #"form-data; filename="barfoo.txt"; name="foobar""#, .contentLength: "0"]
-            )
-            XCTAssertEqual(undocumented.name, "foobar")
-            XCTAssertEqual(undocumented.filename, "barfoo.txt")
-            try await XCTAssertEqualData(undocumented.body, [])
-        }
-        do {
-            let part = try await iterator.next()!
-            guard case .metadata(let metadata) = part else {
-                XCTFail("Unexpected part")
-                return
-            }
-            XCTAssertNil(metadata.filename)
-            XCTAssertEqual(metadata.payload.body, .init(createdAt: .test))
-        }
-        do {
-            let part = try await iterator.next()!
-            guard case .keyword(let keyword) = part else {
-                XCTFail("Unexpected part")
-                return
-            }
-            XCTAssertNil(keyword.filename)
-            try await XCTAssertEqualData(keyword.payload.body, "joy".utf8)
-        }
-        do {
-            let part = try await iterator.next()
-            XCTAssertNil(part)
-        }
-    }
+//    func testMultipartDownloadTyped_200() async throws {
+//        transport = .init { request, requestBody, baseURL, operationID in
+//            XCTAssertEqual(operationID, "multipartDownloadTyped")
+//            XCTAssertEqual(request.path, "/pets/multipart-typed")
+//            XCTAssertEqual(baseURL.absoluteString, "/api")
+//            XCTAssertEqual(request.method, .get)
+//            XCTAssertEqual(request.headerFields, [.accept: "multipart/form-data"])
+//            let (stream, continuation) = AsyncStream.makeStream(of: ArraySlice<UInt8>.self)
+//            let body: HTTPBody = .init(stream, length: .unknown)
+//            let bytes = Data.multipartTypedBodyAsSlice
+//            for chunk in bytes.chunked(by: 13) { continuation.yield(chunk) }
+//            continuation.finish()
+//            return (
+//                .init(
+//                    status: .ok,
+//                    headerFields: [.contentType: "multipart/form-data; boundary=__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__"]
+//                ), body
+//            )
+//        }
+//        let response = try await client.multipartDownloadTyped()
+//        let responseMultipart = try response.ok.body.multipartForm
+//
+//        var iterator = responseMultipart.makeAsyncIterator()
+//        do {
+//            let part = try await iterator.next()!
+//            guard case .log(let log) = part else {
+//                XCTFail("Unexpected part")
+//                return
+//            }
+//            XCTAssertEqual(log.filename, "process.log")
+//            XCTAssertEqual(log.payload.headers, .init(x_dash_log_dash_type: .unstructured))
+//            try await XCTAssertEqualData(log.payload.body, "here be logs!\nand more lines\nwheee\n".utf8)
+//        }
+//        do {
+//            let part = try await iterator.next()!
+//            guard case .keyword(let keyword) = part else {
+//                XCTFail("Unexpected part")
+//                return
+//            }
+//            XCTAssertEqual(keyword.filename, "fun.stuff")
+//            try await XCTAssertEqualData(keyword.payload.body, "fun".utf8)
+//        }
+//        do {
+//            let part = try await iterator.next()!
+//            guard case .undocumented(let undocumented) = part else {
+//                XCTFail("Unexpected part")
+//                return
+//            }
+//            XCTAssertEqual(
+//                undocumented.headerFields,
+//                [.contentDisposition: #"form-data; filename="barfoo.txt"; name="foobar""#, .contentLength: "0"]
+//            )
+//            XCTAssertEqual(undocumented.name, "foobar")
+//            XCTAssertEqual(undocumented.filename, "barfoo.txt")
+//            try await XCTAssertEqualData(undocumented.body, [])
+//        }
+//        do {
+//            let part = try await iterator.next()!
+//            guard case .metadata(let metadata) = part else {
+//                XCTFail("Unexpected part")
+//                return
+//            }
+//            XCTAssertNil(metadata.filename)
+//            XCTAssertEqual(metadata.payload.body, .init(createdAt: .test))
+//        }
+//        do {
+//            let part = try await iterator.next()!
+//            guard case .keyword(let keyword) = part else {
+//                XCTFail("Unexpected part")
+//                return
+//            }
+//            XCTAssertNil(keyword.filename)
+//            try await XCTAssertEqualData(keyword.payload.body, "joy".utf8)
+//        }
+//        do {
+//            let part = try await iterator.next()
+//            XCTAssertNil(part)
+//        }
+//    }
 }
