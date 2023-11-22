@@ -831,7 +831,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                                     try converter.setHeaderFieldAsURI(
                                         in: &headerFields,
                                         name: "x-log-type",
-                                        value: value.headers.x_dash_log_dash_type
+                                        value: value.headers.x_hyphen_log_hyphen_type
                                     )
                                     let body = try converter.setRequiredRequestBodyAsBinary(
                                         value.body,

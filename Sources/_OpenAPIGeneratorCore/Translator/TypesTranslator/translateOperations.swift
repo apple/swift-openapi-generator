@@ -234,11 +234,9 @@ extension TypesFileTranslator {
         let operationEnumDecl = Declaration.commentable(
             operation.comment,
             .enum(
-                .init(
-                    accessModifier: config.access,
-                    name: operationNamespace.shortSwiftName,
-                    members: [idPropertyDecl, inputDecl, outputDecl] + (acceptDecl.flatMap { [$0] } ?? [])
-                )
+                accessModifier: config.access,
+                name: operationNamespace.shortSwiftName,
+                members: [idPropertyDecl, inputDecl, outputDecl] + (acceptDecl.flatMap { [$0] } ?? [])
             )
         )
         return operationEnumDecl

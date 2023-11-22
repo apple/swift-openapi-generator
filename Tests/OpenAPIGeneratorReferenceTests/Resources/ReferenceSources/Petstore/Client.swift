@@ -724,10 +724,10 @@ public struct Client: APIProtocol {
                                 switch name {
                                 case "log":
                                     let headers: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers = .init(
-                                        x_dash_log_dash_type: try converter.getRequiredHeaderFieldAsURI(
+                                        x_hyphen_log_hyphen_type: try converter.getRequiredHeaderFieldAsURI(
                                             in: headerFields,
                                             name: "x-log-type",
-                                            as: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers.x_dash_log_dash_typePayload.self
+                                            as: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload.self
                                         )
                                     )
                                     try converter.verifyContentTypeIfPresent(in: headerFields, matches: "text/plain")
@@ -748,7 +748,7 @@ public struct Client: APIProtocol {
                                 case "metadata":
                                     try converter.verifyContentTypeIfPresent(in: headerFields, matches: "application/json")
                                     let body = try await converter.getResponseBodyAsJSON(
-                                        Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.metadataPayload.metadataPayloadBodyPayload.self,
+                                        Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.metadataPayload.bodyPayload.self,
                                         from: part.body,
                                         transforming: { $0 }
                                     )

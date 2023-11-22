@@ -1621,61 +1621,96 @@ public enum Components {
             }
         }
         public struct MultipartDownloadTypedResponse: Sendable, Hashable {
-            /// - Remark: Generated from `#/components/responses/MultipartResponseFragment/content`.
+            /// - Remark: Generated from `#/components/responses/MultipartDownloadTypedResponse/content`.
             @frozen public enum Body: Sendable, Hashable {
+                /// - Remark: Generated from `#/components/responses/MultipartDownloadTypedResponse/content/multipartForm`.
                 @frozen public enum multipartFormPayload: Sendable, Hashable {
+                    /// - Remark: Generated from `#/components/responses/MultipartDownloadTypedResponse/content/multipartForm/log`.
                     public struct logPayload: Sendable, Hashable {
+                        /// - Remark: Generated from `#/components/responses/MultipartDownloadTypedResponse/content/multipartForm/log/headers`.
                         public struct Headers: Sendable, Hashable {
-                            public enum x_dash_log_dash_typePayload: String, Codable, Hashable, Sendable {
-                                case structured
-                                case unstructured
+                            /// - Remark: Generated from `#/components/responses/MultipartDownloadTypedResponse/content/multipartForm/log/headers/x-log-type`.
+                            @frozen public enum x_hyphen_log_hyphen_typePayload: String, Codable, Hashable, Sendable {
+                                case structured = "structured"
+                                case unstructured = "unstructured"
                             }
-                            public var x_dash_log_dash_type: x_dash_log_dash_typePayload
-                            public init(x_dash_log_dash_type: x_dash_log_dash_typePayload) {
-                                self.x_dash_log_dash_type = x_dash_log_dash_type
+                            /// The type of the log.
+                            ///
+                            /// - Remark: Generated from `#/components/responses/MultipartDownloadTypedResponse/content/multipartForm/log/headers/x-log-type`.
+                            public var x_hyphen_log_hyphen_type: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload?
+                            /// Creates a new `Headers`.
+                            ///
+                            /// - Parameters:
+                            ///   - x_hyphen_log_hyphen_type: The type of the log.
+                            public init(x_hyphen_log_hyphen_type: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload? = nil) {
+                                self.x_hyphen_log_hyphen_type = x_hyphen_log_hyphen_type
                             }
                         }
-                        public var headers: Headers
+                        /// Received HTTP response headers
+                        public var headers: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers
                         public var body: OpenAPIRuntime.HTTPBody
-                        init(headers: Headers, body: OpenAPIRuntime.HTTPBody) {
+                        /// Creates a new `logPayload`.
+                        ///
+                        /// - Parameters:
+                        ///   - headers: Received HTTP response headers
+                        ///   - body:
+                        public init(
+                            headers: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers = .init(),
+                            body: OpenAPIRuntime.HTTPBody
+                        ) {
                             self.headers = headers
                             self.body = body
                         }
                     }
-                    case log(MultipartPart<logPayload>)
+                    case log(OpenAPIRuntime.MultipartPart<Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload>)
+                    /// - Remark: Generated from `#/components/responses/MultipartDownloadTypedResponse/content/multipartForm/metadata`.
                     public struct metadataPayload: Sendable, Hashable {
-                        public struct metadataPayloadBodyPayload: Codable, Hashable, Sendable {
+                        /// - Remark: Generated from `#/components/responses/MultipartDownloadTypedResponse/content/multipartForm/metadata/content/body`.
+                        public struct bodyPayload: Codable, Hashable, Sendable {
+                            /// - Remark: Generated from `#/components/responses/MultipartDownloadTypedResponse/content/multipartForm/metadata/content/body/createdAt`.
                             public var createdAt: Foundation.Date
-                            public init(
-                                createdAt: Foundation.Date
-                            ) {
+                            /// Creates a new `bodyPayload`.
+                            ///
+                            /// - Parameters:
+                            ///   - createdAt:
+                            public init(createdAt: Foundation.Date) {
                                 self.createdAt = createdAt
                             }
                             public enum CodingKeys: String, CodingKey {
                                 case createdAt
                             }
                         }
-                        public var body: metadataPayloadBodyPayload
-                        init(body: metadataPayloadBodyPayload) {
+                        public var body: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.metadataPayload.bodyPayload
+                        /// Creates a new `metadataPayload`.
+                        ///
+                        /// - Parameters:
+                        ///   - body:
+                        public init(body: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.metadataPayload.bodyPayload) {
                             self.body = body
                         }
                     }
-                    case metadata(MultipartPart<metadataPayload>)
+                    case metadata(OpenAPIRuntime.MultipartPart<Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.metadataPayload>)
+                    /// - Remark: Generated from `#/components/responses/MultipartDownloadTypedResponse/content/multipartForm/keyword`.
                     public struct keywordPayload: Sendable, Hashable {
                         public var body: OpenAPIRuntime.HTTPBody
-                        init(body: OpenAPIRuntime.HTTPBody) {
+                        /// Creates a new `keywordPayload`.
+                        ///
+                        /// - Parameters:
+                        ///   - body:
+                        public init(body: OpenAPIRuntime.HTTPBody) {
                             self.body = body
                         }
                     }
-                    case keyword(MultipartPart<keywordPayload>)
-                    case undocumented(MultipartRawPart)
+                    case keyword(OpenAPIRuntime.MultipartPart<Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.keywordPayload>)
+                    case undocumented(OpenAPIRuntime.MultipartRawPart)
                 }
-                case multipartForm(OpenAPIRuntime.MultipartBody<multipartFormPayload>)
+                /// - Remark: Generated from `#/components/responses/MultipartDownloadTypedResponse/content/multipart\/form-data`.
+                case multipartForm(OpenAPIRuntime.MultipartBody<Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload>)
                 /// The associated value of the enum case if `self` is `.multipartForm`.
                 ///
                 /// - Throws: An error if `self` is not `.multipartForm`.
                 /// - SeeAlso: `.multipartForm`.
-                public var multipartForm: OpenAPIRuntime.MultipartBody<multipartFormPayload> {
+                public var multipartForm: OpenAPIRuntime.MultipartBody<Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload> {
                     get throws {
                         switch self {
                         case let .multipartForm(body):
