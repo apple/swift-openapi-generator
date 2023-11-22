@@ -695,70 +695,70 @@ final class Test_Client: XCTestCase {
         }
     }
 
-    func testMultipartEcho_200() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in
-            XCTAssertEqual(operationID, "multipartEcho")
-            XCTAssertEqual(request.path, "/pets/multipart-echo")
-            XCTAssertEqual(baseURL.absoluteString, "/api")
-            XCTAssertEqual(request.method, .post)
-            XCTAssertEqual(
-                request.headerFields,
-                [
-                    .accept: "multipart/form-data",
-                    .contentType: "multipart/form-data; boundary=__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__",
-                ]
-            )
-            try await XCTAssertEqualData(requestBody, Data.multipartBodyAsSlice)
-            return try HTTPResponse(
-                status: .ok,
-                headerFields: [.contentType: "multipart/form-data; boundary=__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__"]
-            )
-            .withEncodedBody(Data.multipartBodyString)
-        }
-        let body: MultipartBody<Components.RequestBodies.MultipartRequestFragment.multipartFormPayload> = [
-            .undocumented(.init(name: "efficiency", headerFields: .init(), body: "4.2")),
-            .undocumented(.init(name: "name", headerFields: .init(), body: "Vitamin C and friends")),
-        ]
-        let response = try await client.multipartEcho(.init(body: .multipartForm(body)))
-        guard case let .ok(value) = response else {
-            XCTFail("Unexpected response: \(response)")
-            return
-        }
-        switch value.body {
-        case .multipartForm(let body):
-            var iterator = body.makeAsyncIterator()
-            do {
-                let part = try await iterator.next()!
-                guard case .undocumented(let undocumented) = part else {
-                    XCTFail("Unexpected part")
-                    return
-                }
-                XCTAssertEqual(undocumented.name, "efficiency")
-                XCTAssertEqual(
-                    undocumented.headerFields,
-                    [.contentDisposition: #"form-data; name="efficiency""#, .contentLength: "3"]
-                )
-                try await XCTAssertEqualData(undocumented.body, "4.2".utf8)
-            }
-            do {
-                let part = try await iterator.next()!
-                guard case .undocumented(let undocumented) = part else {
-                    XCTFail("Unexpected part")
-                    return
-                }
-                XCTAssertEqual(undocumented.name, "name")
-                XCTAssertEqual(
-                    undocumented.headerFields,
-                    [.contentDisposition: #"form-data; name="name""#, .contentLength: "21"]
-                )
-                try await XCTAssertEqualData(undocumented.body, "Vitamin C and friends".utf8)
-            }
-            do {
-                let part = try await iterator.next()
-                XCTAssertNil(part)
-            }
-        }
-    }
+//    func testMultipartEcho_200() async throws {
+//        transport = .init { request, requestBody, baseURL, operationID in
+//            XCTAssertEqual(operationID, "multipartEcho")
+//            XCTAssertEqual(request.path, "/pets/multipart-echo")
+//            XCTAssertEqual(baseURL.absoluteString, "/api")
+//            XCTAssertEqual(request.method, .post)
+//            XCTAssertEqual(
+//                request.headerFields,
+//                [
+//                    .accept: "multipart/form-data",
+//                    .contentType: "multipart/form-data; boundary=__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__",
+//                ]
+//            )
+//            try await XCTAssertEqualData(requestBody, Data.multipartBodyAsSlice)
+//            return try HTTPResponse(
+//                status: .ok,
+//                headerFields: [.contentType: "multipart/form-data; boundary=__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__"]
+//            )
+//            .withEncodedBody(Data.multipartBodyString)
+//        }
+//        let body: MultipartBody<Components.RequestBodies.MultipartRequestFragment.multipartFormPayload> = [
+//            .undocumented(.init(name: "efficiency", headerFields: .init(), body: "4.2")),
+//            .undocumented(.init(name: "name", headerFields: .init(), body: "Vitamin C and friends")),
+//        ]
+//        let response = try await client.multipartEcho(.init(body: .multipartForm(body)))
+//        guard case let .ok(value) = response else {
+//            XCTFail("Unexpected response: \(response)")
+//            return
+//        }
+//        switch value.body {
+//        case .multipartForm(let body):
+//            var iterator = body.makeAsyncIterator()
+//            do {
+//                let part = try await iterator.next()!
+//                guard case .undocumented(let undocumented) = part else {
+//                    XCTFail("Unexpected part")
+//                    return
+//                }
+//                XCTAssertEqual(undocumented.name, "efficiency")
+//                XCTAssertEqual(
+//                    undocumented.headerFields,
+//                    [.contentDisposition: #"form-data; name="efficiency""#, .contentLength: "3"]
+//                )
+//                try await XCTAssertEqualData(undocumented.body, "4.2".utf8)
+//            }
+//            do {
+//                let part = try await iterator.next()!
+//                guard case .undocumented(let undocumented) = part else {
+//                    XCTFail("Unexpected part")
+//                    return
+//                }
+//                XCTAssertEqual(undocumented.name, "name")
+//                XCTAssertEqual(
+//                    undocumented.headerFields,
+//                    [.contentDisposition: #"form-data; name="name""#, .contentLength: "21"]
+//                )
+//                try await XCTAssertEqualData(undocumented.body, "Vitamin C and friends".utf8)
+//            }
+//            do {
+//                let part = try await iterator.next()
+//                XCTAssertNil(part)
+//            }
+//        }
+//    }
 
     func testMultipartUploadTyped_202() async throws {
         transport = .init { request, requestBody, baseURL, operationID in

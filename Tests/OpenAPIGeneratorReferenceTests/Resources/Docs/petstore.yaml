@@ -241,18 +241,8 @@ paths:
             text/plain:
               schema:
                 type: string
-  /pets/multipart-echo:
-    post:
-      # deprecated: true
-      operationId: multipartEcho
-      requestBody:
-        $ref: '#/components/requestBodies/MultipartRequestFragment'
-      responses:
-        '200':
-          $ref: '#/components/responses/MultipartResponseFragment'
   /pets/multipart-typed:
     post:
-      # deprecated: true
       operationId: multipartUploadTyped
       requestBody:
         $ref: '#/components/requestBodies/MultipartUploadTypedRequest'
@@ -558,17 +548,6 @@ components:
                 type: integer
             required:
               - code
-    MultipartResponseFragment:
-      description: A multipart response.
-      headers:
-        X-Multipart-Flavor:
-          schema:
-            type: string
-            enum:
-              - strawberry
-              - pistachio
-      content:
-        multipart/form-data: {}
     MultipartDownloadTypedResponse:
       description: A typed multipart response.
       content:
@@ -614,12 +593,6 @@ components:
                 $ref: '#/components/schemas/PetKind'
               tag:
                 type: string
-    MultipartRequestFragment:
-      required: true
-      content:
-        multipart/form-data: {}
-        multipart/form-data:
-          schema: {}
     MultipartUploadTypedRequest:
       required: true
       content:

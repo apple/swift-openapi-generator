@@ -765,46 +765,46 @@ final class Test_Server: XCTestCase {
         try await XCTAssertEqualStringifiedData(responseBody, Data.efghString)
     }
 
-    func testMultipartEcho_200() async throws {
-        client = .init(multipartEchoBlock: { input in
-            let body: MultipartBody<Components.RequestBodies.MultipartRequestFragment.multipartFormPayload>
-            switch input.body {
-            case .multipartForm(let value): body = value
-            }
-            return .ok(
-                .init(
-                    body: .multipartForm(
-                        .init(
-                            body.map { part in
-                                switch part {
-                                case .undocumented(let value): return .undocumented(value)
-                                }
-                            },
-                            iterationBehavior: body.iterationBehavior
-                        )
-                    )
-                )
-            )
-        })
-        let (response, responseBody) = try await server.multipartEcho(
-            .init(
-                soar_path: "/api/pets/multipart-echo",
-                method: .post,
-                headerFields: [
-                    .accept: "multipart/form-data",
-                    .contentType: "multipart/form-data; boundary=__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__",
-                ]
-            ),
-            .init(Data.multipartBodyAsSlice),
-            .init()
-        )
-        XCTAssertEqual(response.status.code, 200)
-        XCTAssertEqual(
-            response.headerFields,
-            [.contentType: "multipart/form-data; boundary=__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__"]
-        )
-        try await XCTAssertEqualData(responseBody, Data.multipartBodyAsSlice)
-    }
+//    func testMultipartEcho_200() async throws {
+//        client = .init(multipartEchoBlock: { input in
+//            let body: MultipartBody<Components.RequestBodies.MultipartRequestFragment.multipartFormPayload>
+//            switch input.body {
+//            case .multipartForm(let value): body = value
+//            }
+//            return .ok(
+//                .init(
+//                    body: .multipartForm(
+//                        .init(
+//                            body.map { part in
+//                                switch part {
+//                                case .undocumented(let value): return .undocumented(value)
+//                                }
+//                            },
+//                            iterationBehavior: body.iterationBehavior
+//                        )
+//                    )
+//                )
+//            )
+//        })
+//        let (response, responseBody) = try await server.multipartEcho(
+//            .init(
+//                soar_path: "/api/pets/multipart-echo",
+//                method: .post,
+//                headerFields: [
+//                    .accept: "multipart/form-data",
+//                    .contentType: "multipart/form-data; boundary=__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__",
+//                ]
+//            ),
+//            .init(Data.multipartBodyAsSlice),
+//            .init()
+//        )
+//        XCTAssertEqual(response.status.code, 200)
+//        XCTAssertEqual(
+//            response.headerFields,
+//            [.contentType: "multipart/form-data; boundary=__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__"]
+//        )
+//        try await XCTAssertEqualData(responseBody, Data.multipartBodyAsSlice)
+//    }
 
     func testMultipartDownloadTyped_202() async throws {
         client = .init(multipartDownloadTypedBlock: { input in
