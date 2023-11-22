@@ -696,11 +696,10 @@ public struct Client: APIProtocol {
                         zeroOrMoreTimesPartNames: [
                             "keyword"
                         ],
-                        encoding: {
-                            part in
+                        encoding: { part in
                             switch part {
-                            case .log(let wrapped):
-                                var headerFields: HTTPFields = .init()
+                            case let .log(wrapped):
+                                var headerFields: HTTPTypes.HTTPFields = .init()
                                 let value = wrapped.payload
                                 try converter.setHeaderFieldAsURI(
                                     in: &headerFields,
@@ -718,13 +717,13 @@ public struct Client: APIProtocol {
                                     headerFields: headerFields,
                                     body: body
                                 )
-                            case .metadata(let wrapped):
-                                var headerFields: HTTPFields = .init()
+                            case let .metadata(wrapped):
+                                var headerFields: HTTPTypes.HTTPFields = .init()
                                 let value = wrapped.payload
                                 let body = try converter.setRequiredRequestBodyAsJSON(
                                     value.body,
                                     headerFields: &headerFields,
-                                    contentType: "application/json"
+                                    contentType: "application/json; charset=utf-8"
                                 )
                                 return .init(
                                     name: "metadata",
@@ -732,8 +731,8 @@ public struct Client: APIProtocol {
                                     headerFields: headerFields,
                                     body: body
                                 )
-                            case .keyword(let wrapped):
-                                var headerFields: HTTPFields = .init()
+                            case let .keyword(wrapped):
+                                var headerFields: HTTPTypes.HTTPFields = .init()
                                 let value = wrapped.payload
                                 let body = try converter.setRequiredRequestBodyAsBinary(
                                     value.body,
@@ -746,7 +745,7 @@ public struct Client: APIProtocol {
                                     headerFields: headerFields,
                                     body: body
                                 )
-                            case .undocumented(let value):
+                            case let .undocumented(value):
                                 return value
                             }
                         }

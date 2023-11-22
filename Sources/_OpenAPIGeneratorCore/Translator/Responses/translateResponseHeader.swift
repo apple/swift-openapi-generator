@@ -111,6 +111,22 @@ extension ClientFileTranslator {
             )
         )
     }
+    
+    func translateMultipartHeaderInClient(_ header: TypedResponseHeader) throws -> Expression {
+        .try(
+            .identifierPattern("converter").dot("setHeaderFieldAs\(header.codingStrategy.runtimeName)")
+                .call([
+                    .init(
+                        label: "in",
+                        expression: .inOut(.identifierPattern("headerFields"))
+                    ), .init(label: "name", expression: .literal(header.name)),
+                    .init(
+                        label: "value",
+                        expression: .identifierPattern("value").dot("headers").dot(header.variableName)
+                    ),
+                ])
+        )
+    }
 }
 
 extension ServerFileTranslator {

@@ -154,7 +154,7 @@ extension ClientFileTranslator {
 
             let extraBodyAssignArgs: [FunctionArgumentDescription]
             if contentType.isMultipart {
-                extraBodyAssignArgs = try translateSerializerExtraArguments(typedContent)
+                extraBodyAssignArgs = try translateMultipartSerializerExtraArguments(typedContent)
             } else {
                 extraBodyAssignArgs = []
             }

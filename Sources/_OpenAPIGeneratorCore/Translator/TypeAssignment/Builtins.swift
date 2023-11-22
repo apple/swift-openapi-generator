@@ -73,6 +73,9 @@ extension TypeName {
     /// Returns the type name for the response type.
     static var response: TypeName { .httpTypes("HTTPResponse") }
 
+    /// Returns the type name for the HTTP fields type.
+    static var httpFields: TypeName { .httpTypes("HTTPFields") }
+
     /// Returns the type name for the body type.
     static var body: TypeName { .runtime("HTTPBody") }
 

@@ -85,7 +85,7 @@ extension FileTranslator {
             return nil
         }
         let encoding = schemaContent.encoding
-        let parts = try topLevelObject.properties.compactMap { (key, value) in
+        var parts = try topLevelObject.properties.compactMap { (key, value) in
             let swiftSafeName = swiftSafeName(for: key)
             let typeName = typeName.appending(
                 swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
@@ -99,6 +99,16 @@ extension FileTranslator {
             )
         }
         let additionalPropertiesStrategy = parseMultipartAdditionalPropertiesStrategy(topLevelObject.additionalProperties)
+        switch additionalPropertiesStrategy {
+        case .disallowed:
+            break
+        case .allowed:
+            parts.append(.undocumented)
+        case .typed(_):
+            fatalError("not yet supported")
+        case .any:
+            parts.append(.otherRaw)
+        }
         let requirements = try parseMultipartRequirements(parts: parts, additionalPropertiesStrategy: additionalPropertiesStrategy)
         return .init(
             typeName: typeName,
