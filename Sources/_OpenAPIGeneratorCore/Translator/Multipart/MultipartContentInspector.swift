@@ -144,6 +144,7 @@ extension FileTranslator {
         )
     }
     
+    /// The returned schema is the schema of the part element, so the top arrays are stripped here.
     func parseMultipartPartInfo(
         schema: JSONSchema,
         encoding: OpenAPI.Content.Encoding?,
@@ -202,9 +203,20 @@ extension FileTranslator {
             diagnostics.emitUnsupported("Multipart part cannot nest another multipart content.", foundIn: foundIn)
             return nil
         }
-        let info = MultipartPartInfo(repetition: repetitionKind, contentTypeSource: finalContentTypeSource)
+        let info = MultipartPartInfo(
+            repetition: repetitionKind,
+            contentTypeSource: finalContentTypeSource
+        )
         if contentType.isBinary {
-            return (info, .string(contentEncoding: .binary))
+            let isArrayAndOptional = try repetitionKind == .array && typeMatcher.isOptional(schema, components: components)
+            let baseSchema: JSONSchema = .string(contentEncoding: .binary)
+            let resolvedSchema: JSONSchema
+            if isArrayAndOptional {
+                resolvedSchema = baseSchema.optionalSchemaObject()
+            } else {
+                resolvedSchema = baseSchema
+            }
+            return (info, resolvedSchema)
         }
         return (info, schema)
     }

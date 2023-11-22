@@ -687,11 +687,11 @@ public struct Client: APIProtocol {
                         contentType: "multipart/form-data",
                         allowsUnknownParts: true,
                         requiredExactlyOncePartNames: [
-                            "log",
+                            "log"
                         ],
                         requiredAtLeastOncePartNames: [],
                         atMostOncePartNames: [
-                            "metadata",
+                            "metadata"
                         ],
                         zeroOrMoreTimesPartNames: [
                             "keyword"

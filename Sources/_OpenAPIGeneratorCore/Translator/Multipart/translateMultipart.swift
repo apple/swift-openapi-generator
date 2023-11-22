@@ -149,10 +149,37 @@ extension FileTranslator {
             return []
         }
         
+        let requirements = multipart.requirements
+        func sortedStringSetLiteral(_ set: Set<String>) -> Expression {
+            .literal(.array(set.sorted().map { .literal($0) }))
+        }
+        let requirementsArgs: [FunctionArgumentDescription] = [
+            .init(
+                label: "allowsUnknownParts",
+                expression: .literal(.bool(requirements.allowsUnknownParts))
+            ),
+            .init(
+                label: "requiredExactlyOncePartNames",
+                expression: sortedStringSetLiteral(requirements.requiredExactlyOncePartNames)
+            ),
+            .init(
+                label: "requiredAtLeastOncePartNames",
+                expression: sortedStringSetLiteral(requirements.requiredAtLeastOncePartNames)
+            ),
+            .init(
+                label: "atMostOncePartNames",
+                expression: sortedStringSetLiteral(requirements.atMostOncePartNames)
+            ),
+            .init(
+                label: "zeroOrMoreTimesPartNames",
+                expression: sortedStringSetLiteral(requirements.zeroOrMoreTimesPartNames)
+            ),
+        ]
+        
         // TODO: Add multipart arguments to the `setRequiredRequestBodyAsMultipart` method here.
         // TODO: Do this in a separate method, at least, or even better, a separate file.
         // requirements args (5), encoding closure (1)
-        return []
+        return requirementsArgs + []
     }
 }
 
