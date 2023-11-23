@@ -233,7 +233,7 @@ extension FileTranslator {
         _ multipart: MultipartContent,
         getBodyMethodPrefix: String
     ) throws -> [CodeBlock] {
-        let cases: [SwitchCaseDescription] = try multipart.parts.compactMap { (part) -> SwitchCaseDescription? in
+        var cases: [SwitchCaseDescription] = try multipart.parts.compactMap { (part) -> SwitchCaseDescription? in
             switch part {
             case .documentedTyped(let part):
                 let originalName = part.originalName
@@ -364,6 +364,22 @@ extension FileTranslator {
             case .otherDynamicallyNamed:
                 return nil
             }
+        }
+        if multipart.additionalPropertiesStrategy == .disallowed {
+            cases.append(
+                .init(
+                    kind: .default,
+                    body: [
+                        .expression(
+                            .identifierPattern("preconditionFailure").call([
+                                .init(
+                                    expression: .literal("Unknown part should be rejected by multipart validation.")
+                                )
+                            ])
+                        )
+                    ]
+                )
+            )
         }
         let hasAtLeastOneTypedPart = multipart.parts.contains { part in
             switch part {

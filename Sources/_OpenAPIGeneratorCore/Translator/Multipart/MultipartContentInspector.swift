@@ -245,7 +245,6 @@ extension FileTranslator {
         ) else {
             return nil
         }
-        // TODO: Support additionalProperties + schema.
         return .documentedTyped(
             .init(
                 originalName: key,

@@ -3193,6 +3193,155 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """
         )
     }
+    
+    func testRequestMultipartBodyAdditionalPropertiesFalse() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              post:
+                requestBody:
+                  required: true
+                  content:
+                    multipart/form-data:
+                      schema:
+                        type: object
+                        properties:
+                          log:
+                            type: string
+                        required:
+                          - log
+                        additionalProperties: false
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
+                        @frozen public enum multipartFormPayload: Sendable, Hashable {
+                            public struct logPayload: Sendable, Hashable {
+                                public var body: OpenAPIRuntime.HTTPBody
+                                public init(body: OpenAPIRuntime.HTTPBody) {
+                                    self.body = body
+                                }
+                            }
+                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.multipartFormPayload.logPayload>)
+                        }
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>)
+                    }
+                    public var body: Operations.post_sol_foo.Input.Body
+                    public init(body: Operations.post_sol_foo.Input.Body) {
+                        self.body = body
+                    }
+                }
+                """,
+            client: """
+                { input in
+                    let path = try converter.renderedPath(
+                        template: "/foo",
+                        parameters: []
+                    )
+                    var request: HTTPTypes.HTTPRequest = .init(
+                        soar_path: path,
+                        method: .post
+                    )
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case let .multipartForm(value):
+                        body = try converter.setRequiredRequestBodyAsMultipart(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "multipart/form-data",
+                            allowsUnknownParts: false,
+                            requiredExactlyOncePartNames: [
+                                "log"
+                            ],
+                            requiredAtLeastOncePartNames: [],
+                            atMostOncePartNames: [],
+                            zeroOrMoreTimesPartNames: [],
+                            encoding: { part in
+                                switch part {
+                                case let .log(wrapped):
+                                    var headerFields: HTTPTypes.HTTPFields = .init()
+                                    let value = wrapped.payload
+                                    let body = try converter.setRequiredRequestBodyAsBinary(
+                                        value.body,
+                                        headerFields: &headerFields,
+                                        contentType: "text/plain"
+                                    )
+                                    return .init(
+                                        name: "log",
+                                        filename: wrapped.filename,
+                                        headerFields: headerFields,
+                                        body: body
+                                    )
+                                }
+                            }
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in
+                    let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Operations.post_sol_foo.Input.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "multipart/form-data"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "multipart/form-data":
+                        body = try converter.getRequiredRequestBodyAsMultipart(
+                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>.self,
+                            from: requestBody,
+                            transforming: { value in
+                                .multipartForm(value)
+                            },
+                            boundary: contentType.requiredBoundary(),
+                            allowsUnknownParts: false,
+                            requiredExactlyOncePartNames: [
+                                "log"
+                            ],
+                            requiredAtLeastOncePartNames: [],
+                            atMostOncePartNames: [],
+                            zeroOrMoreTimesPartNames: [],
+                            decoding: { part in
+                                let headerFields = part.headerFields
+                                let (name, filename) = try converter.extractContentDispositionNameAndFilename(in: headerFields)
+                                switch name {
+                                case "log":
+                                    try converter.verifyContentTypeIfPresent(
+                                        in: headerFields,
+                                        matches: "text/plain"
+                                    )
+                                    let body = try converter.getRequiredRequestBodyAsBinary(
+                                        OpenAPIRuntime.HTTPBody.self,
+                                        from: part.body,
+                                        transforming: {
+                                            $0
+                                        }
+                                    )
+                                    return .log(.init(
+                                        payload: .init(body: body),
+                                        filename: filename
+                                    ))
+                                default:
+                                    preconditionFailure("Unknown part should be rejected by multipart validation.")
+                                }
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return Operations.post_sol_foo.Input(body: body)
+                }
+                """
+        )
+    }
 
 
     func testResponseMultipartReferencedResponse() throws {
