@@ -78,7 +78,7 @@ extension FileTranslator {
         let schemaContent = content.content
         precondition(schemaContent.contentType.isMultipart, "Unexpected content type passed to translateMultipartBody")
         let topLevelSchema = schemaContent.schema ?? .b(.fragment)
-        let typeUsage = content.typeUsage! /* TODO: remove bang */
+        let typeUsage = content.typeUsage! /* safe - we never produce nil for multipart */
         let typeName = typeUsage.typeName
         var referenceStack: ReferenceStack = .empty
         guard let topLevelObject = try flattenedTopLevelMultipartObject(topLevelSchema, referenceStack: &referenceStack) else {

@@ -365,6 +365,14 @@ extension FileTranslator {
                 return nil
             }
         }
+        let hasAtLeastOneTypedPart = multipart.parts.contains { part in
+            switch part {
+            case .documentedTyped, .otherDynamicallyNamed:
+                return true
+            case .otherRaw, .undocumented:
+                return false
+            }
+        }
         return [
             .declaration(
                 .variable(
@@ -376,7 +384,7 @@ extension FileTranslator {
             .declaration(
                 .variable(
                     kind: .let,
-                    left: .tuple([.identifierPattern("name"), .identifierPattern("filename")]),
+                    left: .tuple([.identifierPattern("name"), .identifierPattern(hasAtLeastOneTypedPart ? "filename" : "_")]),
                     right: .try(
                         .identifierPattern("converter")
                         .dot("extractContentDispositionNameAndFilename")
