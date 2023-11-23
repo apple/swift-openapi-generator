@@ -130,7 +130,8 @@ extension FileTranslator {
             switch part {
             case .documentedTyped(let part):
                 let name = part.originalName
-                let isRequired = try !typeMatcher.isOptional(part.schema, components: components)
+                let schema = part.schema
+                let isRequired = try !typeMatcher.isOptional(schema, components: components)
                 switch (part.partInfo.repetition, isRequired) {
                 case (.single, true):
                     requiredExactlyOncePartNames.insert(name)
@@ -218,10 +219,10 @@ extension FileTranslator {
             contentTypeSource: finalContentTypeSource
         )
         if contentType.isBinary {
-            let isArrayAndOptional = try repetitionKind == .array && typeMatcher.isOptional(schema, components: components)
+            let isOptional = try typeMatcher.isOptional(schema, components: components)
             let baseSchema: JSONSchema = .string(contentEncoding: .binary)
             let resolvedSchema: JSONSchema
-            if isArrayAndOptional {
+            if isOptional {
                 resolvedSchema = baseSchema.optionalSchemaObject()
             } else {
                 resolvedSchema = baseSchema
