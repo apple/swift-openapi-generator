@@ -396,9 +396,11 @@ extension FileTranslator {
         }
     }
     
-    func flattenedTopLevelMultipartObject(_ schema: UnresolvedSchema, referenceStack: inout ReferenceStack) throws -> JSONSchema.ObjectContext? {
+    func flattenedTopLevelMultipartObject(_ schema: UnresolvedSchema?, referenceStack: inout ReferenceStack) throws -> JSONSchema.ObjectContext? {
         let resolvedSchema: JSONSchema
         switch schema {
+        case .none:
+            resolvedSchema = .fragment
         case .a(let ref):
             resolvedSchema = .reference(ref.jsonReference)
         case .b(let schema):

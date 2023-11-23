@@ -124,32 +124,20 @@ struct TypeAssigner {
         components: OpenAPI.Components,
         inParent parent: TypeName
     ) throws -> TypeUsage {
-        
-        // If schema is nil, treat is as a fragment.
-        let schema = schema ?? .schema(.fragment)
-
-        // By now we already validated that this is an object-ish schema.
-        // That leaves two options:
-        // 1. The schema is a reference and encoding is empty, meaning we can just use the reference.
-        // 2. Or it's not a reference (an inline object-ish schema), or we have encoding, in which case we inline.
-        
-        switch schema {
-        case .a(let ref):
-            // TODO: This logic needs to be pulled out, and have "isInline" somewhere.
-            guard let encoding, !encoding.isEmpty else {
-                return try typeName(for: ref).asUsage
-            }
-        case .b:
-            break
+        let multipartBodyElementTypeName: TypeName
+        if let ref = TypeMatcher.multipartElementTypeReferenceIfReferenceable(
+            schema: schema,
+            encoding: encoding
+        ) {
+            multipartBodyElementTypeName = try typeName(for: ref)
+        } else {
+            let swiftSafeName = asSwiftSafeName(hint)
+            multipartBodyElementTypeName = parent.appending(
+                swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
+                jsonComponent: hint
+            )
         }
-  
-        let swiftSafeName = asSwiftSafeName(hint)
-        let typeName = parent.appending(
-            swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
-            jsonComponent: hint
-        )
-        
-        let bodyUsage = typeName.asUsage.asWrapped(in: .multipartBody)
+        let bodyUsage = multipartBodyElementTypeName.asUsage.asWrapped(in: .multipartBody)
         return bodyUsage
     }
 

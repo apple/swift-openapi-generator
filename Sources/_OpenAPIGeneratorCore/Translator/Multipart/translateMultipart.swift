@@ -13,6 +13,12 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
+// TODO: Test when the schema is referenced, and when it's referenced and also has encoding.
+
+// TODO: Test when part schemas are referenced.
+
+// TODO: Handle additionalProperties: schema.
+
 extension TypesFileTranslator {
     
     // TODO: Document
@@ -25,7 +31,6 @@ extension TypesFileTranslator {
 
         let partDecls: [Declaration] = try parts.flatMap { part in
             let caseDecl: Declaration
-            let associatedDecls: [Declaration]
             switch part {
             case .documentedTyped(let documentedPart):
                 caseDecl = .enumCase(
@@ -40,8 +45,7 @@ extension TypesFileTranslator {
                     contentType: documentedPart.partInfo.contentType,
                     schema: documentedPart.schema
                 )
-                associatedDecls = [decl]
-                return associatedDecls + [caseDecl]
+                return [decl, caseDecl]
             default:
                 // Handled in translateMultipartAdditionalPropertiesCase.
                 return []
@@ -99,8 +103,6 @@ extension TypesFileTranslator {
         } else {
             headersProperty = nil
         }
-        
-        // TODO: Factor this out and reuse
         
         let bodyTypeUsage = try typeAssigner.typeUsage(
             forObjectPropertyNamed: Constants.Operation.Body.variableName,
@@ -534,27 +536,3 @@ extension FileTranslator {
         ]
     }
 }
-
-// TODO: Add isSchemaSupportedForMultipart, where we check object-ish top level.
-// But make that easily matrix testable, so not here
-
-// TODO: Then, add (to TypeMatcher?) something that returns the "requirements" for each
-// property, i.e. optionalArray, optionalSingle, requiredSingle, requiredArrayAtLeastOne
-// But make that easily matrix testable, so not here
-
-// TODO: For each property, also derive the contentType, first by inspecting the encoding
-// and contentEncoding in the schema (get the precedence correct!), then by falling back
-// to the rules described in OpenAPI.
-
-// TODO: Handle additionalProperties (nil, true, false, schema).
-
-// TODO: Create a "MultipartCasePayloadKind" enum of: staticallyNamed, dynamicallyNamed, raw
-// TODO: Create a "MultipartCaseKind" enum of: name+staticallyNamed, undocumented+raw, other+dynamicallyNamed, other+raw, disallowed
-
-// TODO: Generate the enum members (inline types and cases)
-
-// TODO: Create some typesafe MultipartContent struct, as we'll need to parse this out
-// in more places and use when generating client/server code as well.
-
-// TODO: Support both an inline top level schema and a reference top level schema.
-

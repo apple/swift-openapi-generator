@@ -140,8 +140,9 @@ extension TypesFileTranslator {
         let contentType = typedContent.content.contentType
         let identifier = typeAssigner.contentSwiftName(contentType)
         let associatedType = typedContent.resolvedTypeUsage
-        
-        if TypeMatcher.isInlinable(typedContent.content.schema) || contentType.isMultipart {
+        let content = typedContent.content
+        let schema = content.schema
+        if TypeMatcher.isInlinable(schema) || (contentType.isMultipart && TypeMatcher.multipartElementTypeReferenceIfReferenceable(schema: schema, encoding: content.encoding) == nil) {
             let decls: [Declaration]
             if contentType.isMultipart {
                 decls = try translateMultipartBody(typedContent)
