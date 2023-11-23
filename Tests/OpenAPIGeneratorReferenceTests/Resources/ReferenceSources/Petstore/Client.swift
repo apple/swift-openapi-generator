@@ -925,22 +925,13 @@ public struct Client: APIProtocol {
                             "log"
                         ],
                         requiredAtLeastOncePartNames: [],
-                        atMostOncePartNames: [
-                            "metadata"
-                        ],
-                        zeroOrMoreTimesPartNames: [
-                            "keyword"
-                        ],
+                        atMostOncePartNames: [],
+                        zeroOrMoreTimesPartNames: [],
                         encoding: { part in
                             switch part {
                             case let .log(wrapped):
                                 var headerFields: HTTPTypes.HTTPFields = .init()
                                 let value = wrapped.payload
-                                try converter.setHeaderFieldAsURI(
-                                    in: &headerFields,
-                                    name: "x-log-type",
-                                    value: value.headers.x_hyphen_log_hyphen_type
-                                )
                                 let body = try converter.setRequiredRequestBodyAsBinary(
                                     value.body,
                                     headerFields: &headerFields,
@@ -952,36 +943,8 @@ public struct Client: APIProtocol {
                                     headerFields: headerFields,
                                     body: body
                                 )
-                            case let .metadata(wrapped):
-                                var headerFields: HTTPTypes.HTTPFields = .init()
-                                let value = wrapped.payload
-                                let body = try converter.setRequiredRequestBodyAsJSON(
-                                    value.body,
-                                    headerFields: &headerFields,
-                                    contentType: "application/json; charset=utf-8"
-                                )
-                                return .init(
-                                    name: "metadata",
-                                    filename: wrapped.filename,
-                                    headerFields: headerFields,
-                                    body: body
-                                )
-                            case let .keyword(wrapped):
-                                var headerFields: HTTPTypes.HTTPFields = .init()
-                                let value = wrapped.payload
-                                let body = try converter.setRequiredRequestBodyAsBinary(
-                                    value.body,
-                                    headerFields: &headerFields,
-                                    contentType: "text/plain"
-                                )
-                                return .init(
-                                    name: "keyword",
-                                    filename: wrapped.filename,
-                                    headerFields: headerFields,
-                                    body: body
-                                )
-                            case let .undocumented(value):
-                                return value
+                            case let .additionalProperties(value):
+                                fatalError()
                             }
                         }
                     )

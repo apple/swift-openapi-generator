@@ -13,10 +13,6 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
-// TODO: Test when the schema is referenced, and when it's referenced and also has encoding.
-
-// TODO: Test when part schemas are referenced.
-
 // TODO: Handle additionalProperties: schema.
 
 extension TypesFileTranslator {
@@ -108,15 +104,33 @@ extension TypesFileTranslator {
         )
     }
     
+    func translateMultipartPartContentAdditionalPropertiesWithSchemaAssociatedDeclarations(
+        typeName: TypeName,
+        contentType: ContentType,
+        schema: JSONSchema
+    ) throws -> [Declaration] {
+        let associatedDeclarations: [Declaration]
+        if TypeMatcher.isInlinable(schema) {
+            associatedDeclarations = try translateSchema(
+                typeName: typeName,
+                schema: schema,
+                overrides: .none
+            )
+        } else {
+            associatedDeclarations = []
+        }
+        return associatedDeclarations
+    }
+
+    
     func translateMultipartBody(_ multipart: MultipartContent) throws -> [Declaration] {
         let parts = multipart.parts
         let multipartBodyTypeName = multipart.typeName
 
         let partDecls: [Declaration] = try parts.flatMap { part in
-            let caseDecl: Declaration
             switch part {
             case .documentedTyped(let documentedPart):
-                caseDecl = .enumCase(
+                let caseDecl: Declaration = .enumCase(
                     name: swiftSafeName(for: documentedPart.originalName),
                     kind: .nameWithAssociatedValues([
                         .init(type: .init(part.wrapperTypeUsage))
@@ -129,21 +143,38 @@ extension TypesFileTranslator {
                     schema: documentedPart.schema
                 )
                 return [decl, caseDecl]
-            default:
-                // Handled in translateMultipartAdditionalPropertiesCase.
-                return []
+            case .otherDynamicallyNamed(let dynamicallyNamedPart):
+                let typeName = dynamicallyNamedPart.typeName
+                let caseDecl: Declaration = .enumCase(name: "additionalProperties", kind: .nameWithAssociatedValues([
+                    .init(type: .init(typeName))
+                ]))
+                let associatedDecls = try translateMultipartPartContentAdditionalPropertiesWithSchemaAssociatedDeclarations(
+                    typeName: typeName,
+                    contentType: dynamicallyNamedPart.partInfo.contentType,
+                    schema: dynamicallyNamedPart.schema
+                )
+                return associatedDecls + [caseDecl]
+            case .otherRaw:
+                return [
+                    .enumCase(name: "other", kind: .nameWithAssociatedValues([
+                        .init(type: .init(.multipartRawPart))
+                    ]))
+                ]
+            case .undocumented:
+                return [
+                    .enumCase(name: "undocumented", kind: .nameWithAssociatedValues([
+                        .init(type: .init(.multipartRawPart))
+                    ]))
+                ]
             }
         }
-        
-        let additionalPropertiesStrategy = multipart.additionalPropertiesStrategy
-        let additionalPropertiesDecls: [Declaration] = translateMultipartAdditionalPropertiesCase(additionalPropertiesStrategy)
         
         let enumDescription = EnumDescription(
             isFrozen: true,
             accessModifier: config.access,
             name: multipartBodyTypeName.shortSwiftName,
             conformances: Constants.Operation.Body.conformances,
-            members: partDecls + additionalPropertiesDecls
+            members: partDecls
         )
         let comment: Comment? = multipartBodyTypeName.docCommentWithUserDescription(nil)
         return [.commentable(comment, .enum(enumDescription))]

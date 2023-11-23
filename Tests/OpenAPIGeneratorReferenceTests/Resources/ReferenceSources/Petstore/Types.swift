@@ -1567,73 +1567,8 @@ public enum Components {
             @frozen public enum multipartFormPayload: Sendable, Hashable {
                 /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/log`.
                 public struct logPayload: Sendable, Hashable {
-                    /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/log/headers`.
-                    public struct Headers: Sendable, Hashable {
-                        /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/log/headers/x-log-type`.
-                        @frozen public enum x_hyphen_log_hyphen_typePayload: String, Codable, Hashable, Sendable {
-                            case structured = "structured"
-                            case unstructured = "unstructured"
-                        }
-                        /// The type of the log.
-                        ///
-                        /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/log/headers/x-log-type`.
-                        public var x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload?
-                        /// Creates a new `Headers`.
-                        ///
-                        /// - Parameters:
-                        ///   - x_hyphen_log_hyphen_type: The type of the log.
-                        public init(x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload? = nil) {
-                            self.x_hyphen_log_hyphen_type = x_hyphen_log_hyphen_type
-                        }
-                    }
-                    /// Received HTTP response headers
-                    public var headers: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.logPayload.Headers
                     public var body: OpenAPIRuntime.HTTPBody
                     /// Creates a new `logPayload`.
-                    ///
-                    /// - Parameters:
-                    ///   - headers: Received HTTP response headers
-                    ///   - body:
-                    public init(
-                        headers: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.logPayload.Headers = .init(),
-                        body: OpenAPIRuntime.HTTPBody
-                    ) {
-                        self.headers = headers
-                        self.body = body
-                    }
-                }
-                case log(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartTestRequest.multipartFormPayload.logPayload>)
-                /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/metadata`.
-                public struct metadataPayload: Sendable, Hashable {
-                    /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/metadata/content/body`.
-                    public struct bodyPayload: Codable, Hashable, Sendable {
-                        /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/metadata/content/body/createdAt`.
-                        public var createdAt: Foundation.Date
-                        /// Creates a new `bodyPayload`.
-                        ///
-                        /// - Parameters:
-                        ///   - createdAt:
-                        public init(createdAt: Foundation.Date) {
-                            self.createdAt = createdAt
-                        }
-                        public enum CodingKeys: String, CodingKey {
-                            case createdAt
-                        }
-                    }
-                    public var body: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.metadataPayload.bodyPayload
-                    /// Creates a new `metadataPayload`.
-                    ///
-                    /// - Parameters:
-                    ///   - body:
-                    public init(body: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.metadataPayload.bodyPayload) {
-                        self.body = body
-                    }
-                }
-                case metadata(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartTestRequest.multipartFormPayload.metadataPayload>)
-                /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/keyword`.
-                public struct keywordPayload: Sendable, Hashable {
-                    public var body: OpenAPIRuntime.HTTPBody
-                    /// Creates a new `keywordPayload`.
                     ///
                     /// - Parameters:
                     ///   - body:
@@ -1641,8 +1576,23 @@ public enum Components {
                         self.body = body
                     }
                 }
-                case keyword(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartTestRequest.multipartFormPayload.keywordPayload>)
-                case undocumented(OpenAPIRuntime.MultipartRawPart)
+                case log(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartTestRequest.multipartFormPayload.logPayload>)
+                /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/additionalProperties`.
+                public struct additionalPropertiesPayload: Codable, Hashable, Sendable {
+                    /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/additionalProperties/foo`.
+                    public var foo: Swift.String?
+                    /// Creates a new `additionalPropertiesPayload`.
+                    ///
+                    /// - Parameters:
+                    ///   - foo:
+                    public init(foo: Swift.String? = nil) {
+                        self.foo = foo
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case foo
+                    }
+                }
+                case additionalProperties(Components.RequestBodies.MultipartTestRequest.multipartFormPayload.additionalPropertiesPayload)
             }
             /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/content/multipart\/form-data`.
             case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartTestRequest.multipartFormPayload>)

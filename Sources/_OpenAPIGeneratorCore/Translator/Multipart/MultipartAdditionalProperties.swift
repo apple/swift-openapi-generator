@@ -33,26 +33,4 @@ extension FileTranslator {
             return .typed(schema)
         }
     }
-    
-    func translateMultipartAdditionalPropertiesCase(_ strategy: MultipartAdditionalPropertiesStrategy) -> [Declaration] {
-        switch strategy {
-        case .disallowed:
-            return []
-        case .allowed:
-            return [
-                .enumCase(name: "undocumented", kind: .nameWithAssociatedValues([
-                    .init(type: .init(.multipartRawPart))
-                ]))
-            ]
-        case .typed(let schema):
-            // TODO:
-            fatalError("additionalProperties with a schema not yet supported in multipart")
-        case .any:
-            return [
-                .enumCase(name: "other", kind: .nameWithAssociatedValues([
-                    .init(type: .init(.multipartRawPart))
-                ]))
-            ]
-        }
-    }
 }

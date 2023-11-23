@@ -1061,22 +1061,13 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             "log"
                         ],
                         requiredAtLeastOncePartNames: [],
-                        atMostOncePartNames: [
-                            "metadata"
-                        ],
-                        zeroOrMoreTimesPartNames: [
-                            "keyword"
-                        ],
+                        atMostOncePartNames: [],
+                        zeroOrMoreTimesPartNames: [],
                         decoding: { part in
                             let headerFields = part.headerFields
                             let (name, filename) = try converter.extractContentDispositionNameAndFilename(in: headerFields)
                             switch name {
                             case "log":
-                                let headers: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.logPayload.Headers = .init(x_hyphen_log_hyphen_type: try converter.getOptionalHeaderFieldAsURI(
-                                    in: headerFields,
-                                    name: "x-log-type",
-                                    as: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload.self
-                                ))
                                 try converter.verifyContentTypeIfPresent(
                                     in: headerFields,
                                     matches: "text/plain"
@@ -1089,46 +1080,11 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                                     }
                                 )
                                 return .log(.init(
-                                    payload: .init(
-                                        headers: headers,
-                                        body: body
-                                    ),
-                                    filename: filename
-                                ))
-                            case "metadata":
-                                try converter.verifyContentTypeIfPresent(
-                                    in: headerFields,
-                                    matches: "application/json"
-                                )
-                                let body = try await converter.getRequiredRequestBodyAsJSON(
-                                    Components.RequestBodies.MultipartTestRequest.multipartFormPayload.metadataPayload.bodyPayload.self,
-                                    from: part.body,
-                                    transforming: {
-                                        $0
-                                    }
-                                )
-                                return .metadata(.init(
-                                    payload: .init(body: body),
-                                    filename: filename
-                                ))
-                            case "keyword":
-                                try converter.verifyContentTypeIfPresent(
-                                    in: headerFields,
-                                    matches: "text/plain"
-                                )
-                                let body = try converter.getRequiredRequestBodyAsBinary(
-                                    OpenAPIRuntime.HTTPBody.self,
-                                    from: part.body,
-                                    transforming: {
-                                        $0
-                                    }
-                                )
-                                return .keyword(.init(
                                     payload: .init(body: body),
                                     filename: filename
                                 ))
                             default:
-                                return .undocumented(part)
+                                fatalError()
                             }
                         }
                     )

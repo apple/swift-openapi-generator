@@ -645,28 +645,10 @@ components:
             properties:
               log:
                 type: string
-              metadata:
-                type: object
-                properties:
-                  createdAt:
-                    type: string
-                    format: date-time
-                required:
-                  - createdAt
-              keyword:
-                type: array
-                items:
-                  type: string
             required:
               - log
-          encoding:
-            log:
-              headers:
-                x-log-type:
-                  description: The type of the log.
-                  schema:
-                    type: string
-                    enum:
-                      - structured
-                      - unstructured
-
+            additionalProperties:
+              type: object
+              properties:
+                foo:
+                  type: string

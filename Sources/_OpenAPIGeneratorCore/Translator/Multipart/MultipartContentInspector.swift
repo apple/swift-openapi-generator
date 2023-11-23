@@ -86,17 +86,28 @@ extension FileTranslator {
         ) else {
             return nil
         }
-        var parts = try topLevelObject.properties.compactMap { (key, value) in
+        var parts: [MultipartSchemaTypedContent] = try topLevelObject.properties.compactMap { (key, value) -> MultipartSchemaTypedContent? in
             let swiftSafeName = swiftSafeName(for: key)
             let typeName = typeName.appending(
                 swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
                 jsonComponent: key
             )
-            return try parseMultipartContentIfSupported(
-                key: key,
-                typeName: typeName,
+            let partEncoding = encoding?[key]
+            guard let (info, resolvedSchema) = try parseMultipartPartInfo(
                 schema: value,
-                encoding: encoding?[key]
+                encoding: partEncoding,
+                foundIn: typeName.description
+            ) else {
+                return nil
+            }
+            return .documentedTyped(
+                .init(
+                    originalName: key,
+                    typeName: typeName,
+                    partInfo: info,
+                    schema: resolvedSchema,
+                    headers: partEncoding?.headers
+                )
             )
         }
         let additionalPropertiesStrategy = parseMultipartAdditionalPropertiesStrategy(topLevelObject.additionalProperties)
@@ -105,8 +116,29 @@ extension FileTranslator {
             break
         case .allowed:
             parts.append(.undocumented)
-        case .typed(_):
-            fatalError("not yet supported")
+        case .typed(let schema):
+            let typeUsage = try typeAssigner.typeUsage(
+                usingNamingHint: "additionalProperties",
+                withSchema: .b(schema),
+                components: components,
+                inParent: typeName
+            )!
+            // The unwrap is safe, the method only returns nil when the input schema is nil.
+            let typeName = typeUsage.typeName
+            guard let (info, resolvedSchema) = try parseMultipartPartInfo(
+                schema: schema,
+                encoding: nil,
+                foundIn: typeName.description
+            ) else {
+                throw GenericError(message: "Failed to parse multipart info for additionalProperties in \(typeName.description).")
+            }
+            parts.append(.otherDynamicallyNamed(
+                .init(
+                    typeName: typeName,
+                    partInfo: info,
+                    schema: resolvedSchema
+                )
+            ))
         case .any:
             parts.append(.otherRaw)
         }
@@ -246,31 +278,7 @@ extension FileTranslator {
         }
         return (info, schema)
     }
-    
-    func parseMultipartContentIfSupported(
-        key: String,
-        typeName: TypeName,
-        schema candidateSchema: JSONSchema,
-        encoding: OpenAPI.Content.Encoding?
-    ) throws -> MultipartSchemaTypedContent? {
-        guard let (info, resolvedSchema) = try parseMultipartPartInfo(
-            schema: candidateSchema,
-            encoding: encoding,
-            foundIn: typeName.description
-        ) else {
-            return nil
-        }
-        return .documentedTyped(
-            .init(
-                originalName: key,
-                typeName: typeName,
-                partInfo: info,
-                schema: resolvedSchema,
-                headers: encoding?.headers
-            )
-        )
-    }
-    
+        
     func parseSchemaNamesUsedInMultipart(
         paths: OpenAPI.PathItem.Map,
         components: OpenAPI.Components
