@@ -29,12 +29,21 @@ extension TypesFileTranslator {
     /// if the specified schema contains unnamed types that need to be declared
     /// inline.
     /// - Throws: An error if there is an issue during the matching process.
-    func translateSchema(componentKey: OpenAPI.ComponentKey, schema: JSONSchema) throws -> [Declaration] {
+    func translateSchema(
+        componentKey: OpenAPI.ComponentKey,
+        schema: JSONSchema,
+        isMultipartContent: Bool
+    ) throws -> [Declaration] {
         guard try validateSchemaIsSupported(schema, foundIn: "#/components/schemas/\(componentKey.rawValue)") else {
             return []
         }
         let typeName = typeAssigner.typeName(for: (componentKey, schema))
-        return try translateSchema(typeName: typeName, schema: schema, overrides: .none)
+        return try translateSchema(
+            typeName: typeName,
+            schema: schema,
+            overrides: .none,
+            isMultipartContent: isMultipartContent
+        )
     }
 
     /// Returns a declaration of the namespace that contains all the reusable
@@ -43,10 +52,17 @@ extension TypesFileTranslator {
     /// - Returns: A declaration of the schemas namespace in the parent
     /// components namespace.
     /// - Throws: An error if there is an issue during schema translation.
-    func translateSchemas(_ schemas: OpenAPI.ComponentDictionary<JSONSchema>) throws -> Declaration {
+    func translateSchemas(
+        _ schemas: OpenAPI.ComponentDictionary<JSONSchema>,
+        multipartSchemaNames: Set<OpenAPI.ComponentKey>
+    ) throws -> Declaration {
 
         let decls: [Declaration] = try schemas.flatMap { key, value in
-            try translateSchema(componentKey: key, schema: value)
+            try translateSchema(
+                componentKey: key,
+                schema: value,
+                isMultipartContent: multipartSchemaNames.contains(key)
+            )
         }
         let declsWithBoxingApplied = try boxRecursiveTypes(decls)
         let componentsSchemasEnum = Declaration.commentable(

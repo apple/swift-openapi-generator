@@ -74,19 +74,18 @@ struct MultipartRequirements {
 /// Utilities for asking questions about multipart content.
 extension FileTranslator {
     
-    func parseMultipartContent(_ content: TypedSchemaContent) throws -> MultipartContent? {
-        let schemaContent = content.content
-        precondition(schemaContent.contentType.isMultipart, "Unexpected content type passed to translateMultipartBody")
-        let typeUsage = content.typeUsage! /* safe - we never produce nil for multipart */
-        let typeName = typeUsage.typeName
+    func parseMultipartContent(
+        typeName: TypeName,
+        schema: UnresolvedSchema?,
+        encoding: OrderedDictionary<String, OpenAPI.Content.Encoding>?
+    ) throws -> MultipartContent? {
         var referenceStack: ReferenceStack = .empty
         guard let topLevelObject = try flattenedTopLevelMultipartObject(
-            schemaContent.schema,
+            schema,
             referenceStack: &referenceStack
         ) else {
             return nil
         }
-        let encoding = schemaContent.encoding
         var parts = try topLevelObject.properties.compactMap { (key, value) in
             let swiftSafeName = swiftSafeName(for: key)
             let typeName = typeName.appending(
@@ -117,6 +116,20 @@ extension FileTranslator {
             parts: parts,
             additionalPropertiesStrategy: additionalPropertiesStrategy,
             requirements: requirements
+        )
+    }
+    
+    func parseMultipartContent(_ content: TypedSchemaContent) throws -> MultipartContent? {
+        let schemaContent = content.content
+        precondition(schemaContent.contentType.isMultipart, "Unexpected content type passed to translateMultipartBody")
+        let typeUsage = content.typeUsage! /* safe - we never produce nil for multipart */
+        let typeName = typeUsage.typeName
+        let schema = schemaContent.schema
+        let encoding = schemaContent.encoding
+        return try parseMultipartContent(
+            typeName: typeName,
+            schema: schema,
+            encoding: encoding
         )
     }
     
@@ -256,5 +269,59 @@ extension FileTranslator {
                 headers: encoding?.headers
             )
         )
+    }
+    
+    func parseSchemaNamesUsedInMultipart(
+        paths: OpenAPI.PathItem.Map,
+        components: OpenAPI.Components
+    ) throws -> Set<OpenAPI.ComponentKey> {
+        var refs: Set<OpenAPI.ComponentKey> = []
+        func visitContentMap(_ contentMap: OpenAPI.Content.Map) throws {
+            for (key, value) in contentMap {
+                guard try key.asGeneratorContentType.isMultipart else {
+                    continue
+                }
+                guard let schema = value.schema, case let .a(ref) = schema, let name = ref.name, let componentKey = OpenAPI.ComponentKey(rawValue: name) else {
+                    continue
+                }
+                refs.insert(componentKey)
+            }
+        }
+        func visitPath(_ path: OpenAPI.PathItem) throws {
+            for endpoint in path.endpoints {
+                let operation = endpoint.operation
+                if let requestBodyEither = operation.requestBody {
+                    let requestBody: OpenAPI.Request
+                    switch requestBodyEither {
+                    case .a(let ref):
+                        requestBody = try components.lookup(ref)
+                    case .b(let value):
+                        requestBody = value
+                    }
+                    try visitContentMap(requestBody.content)
+                }
+                for responseOutcome in operation.responseOutcomes {
+                    let response: OpenAPI.Response
+                    switch responseOutcome.response {
+                    case .a(let ref):
+                        response = try components.lookup(ref)
+                    case .b(let value):
+                        response = value
+                    }
+                    try visitContentMap(response.content)
+                }
+            }
+        }
+        for (_, value) in paths {
+            let pathItem: OpenAPI.PathItem
+            switch value {
+            case .a(let ref):
+                pathItem = try components.lookup(ref)
+            case .b(let value):
+                pathItem = value
+            }
+            try visitPath(pathItem)
+        }
+        return refs
     }
 }

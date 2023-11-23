@@ -3856,6 +3856,10 @@ extension SnippetBasedReferenceTests {
             paths: paths,
             components: components
         )
+        let multipartSchemaNames = try types.parseSchemaNamesUsedInMultipart(
+            paths: paths,
+            components: components
+        )
         let operationDescriptions = try OperationDescription.all(
             from: document.paths,
             in: document.components,
@@ -3867,7 +3871,10 @@ extension SnippetBasedReferenceTests {
         try XCTAssertSwiftEquivalent(generatedTypesStructuredSwift, expectedTypesSwift, file: file, line: line)
         
         if let expectedSchemasSwift {
-            let generatedSchemasStructuredSwift = try types.translateSchemas(document.components.schemas)
+            let generatedSchemasStructuredSwift = try types.translateSchemas(
+                document.components.schemas,
+                multipartSchemaNames: multipartSchemaNames
+            )
             try XCTAssertSwiftEquivalent(generatedSchemasStructuredSwift, expectedSchemasSwift, file: file, line: line)
         }
         
@@ -3908,6 +3915,10 @@ extension SnippetBasedReferenceTests {
             paths: paths,
             components: components
         )
+        let multipartSchemaNames = try types.parseSchemaNamesUsedInMultipart(
+            paths: paths,
+            components: components
+        )
         let operationDescriptions = try OperationDescription.all(
             from: document.paths,
             in: document.components,
@@ -3919,7 +3930,10 @@ extension SnippetBasedReferenceTests {
         try XCTAssertSwiftEquivalent(generatedTypesStructuredSwift, expectedTypesSwift, file: file, line: line)
         
         if let expectedSchemasSwift {
-            let generatedSchemasStructuredSwift = try types.translateSchemas(document.components.schemas)
+            let generatedSchemasStructuredSwift = try types.translateSchemas(
+                document.components.schemas,
+                multipartSchemaNames: multipartSchemaNames
+            )
             try XCTAssertSwiftEquivalent(generatedSchemasStructuredSwift, expectedSchemasSwift, file: file, line: line)
         }
         
@@ -3948,7 +3962,15 @@ extension SnippetBasedReferenceTests {
             ignoredDiagnosticMessages: ignoredDiagnosticMessages,
             componentsYAML: componentsYAML
         )
-        let translation = try translator.translateSchemas(translator.components.schemas)
+        let components = translator.components
+        let multipartSchemaNames = try translator.parseSchemaNamesUsedInMultipart(
+            paths: [:],
+            components: components
+        )
+        let translation = try translator.translateSchemas(
+            components.schemas,
+            multipartSchemaNames: multipartSchemaNames
+        )
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 

@@ -26,48 +26,10 @@ extension TypesFileTranslator {
         guard let multipart = try parseMultipartContent(content) else {
             return []
         }
-        let parts = multipart.parts
-        let multipartBodyTypeName = multipart.typeName
-
-        let partDecls: [Declaration] = try parts.flatMap { part in
-            let caseDecl: Declaration
-            switch part {
-            case .documentedTyped(let documentedPart):
-                caseDecl = .enumCase(
-                    name: swiftSafeName(for: documentedPart.originalName),
-                    kind: .nameWithAssociatedValues([
-                        .init(type: .init(part.wrapperTypeUsage))
-                    ])
-                )
-                let decl = try translateMultipartPartContentInTypes(
-                    typeName: documentedPart.typeName,
-                    headers: documentedPart.headers,
-                    contentType: documentedPart.partInfo.contentType,
-                    schema: documentedPart.schema
-                )
-                return [decl, caseDecl]
-            default:
-                // Handled in translateMultipartAdditionalPropertiesCase.
-                return []
-            }
-        }
-        
-        let additionalPropertiesStrategy = multipart.additionalPropertiesStrategy
-        let additionalPropertiesDecls: [Declaration] = translateMultipartAdditionalPropertiesCase(additionalPropertiesStrategy)
-        
-        let enumDescription = EnumDescription(
-            isFrozen: true,
-            accessModifier: config.access,
-            name: multipartBodyTypeName.shortSwiftName,
-            conformances: Constants.Operation.Body.conformances,
-            members: partDecls + additionalPropertiesDecls
-        )
-        let comment: Comment? = multipartBodyTypeName.docCommentWithUserDescription(nil)
-        return [.commentable(comment, .enum(enumDescription))]
+        return try translateMultipartBody(multipart)
     }
-    
-    // TODO: Make this take the MultipartContent type
-    func translateMultipartPartContentInTypes(
+        
+    func translateMultipartPartContent(
         typeName: TypeName,
         headers headerMap: OpenAPI.Header.Map?,
         contentType: ContentType,
@@ -145,6 +107,58 @@ extension TypesFileTranslator {
             structDecl
         )
     }
+    
+    func translateMultipartBody(_ multipart: MultipartContent) throws -> [Declaration] {
+        let parts = multipart.parts
+        let multipartBodyTypeName = multipart.typeName
+
+        let partDecls: [Declaration] = try parts.flatMap { part in
+            let caseDecl: Declaration
+            switch part {
+            case .documentedTyped(let documentedPart):
+                caseDecl = .enumCase(
+                    name: swiftSafeName(for: documentedPart.originalName),
+                    kind: .nameWithAssociatedValues([
+                        .init(type: .init(part.wrapperTypeUsage))
+                    ])
+                )
+                let decl = try translateMultipartPartContent(
+                    typeName: documentedPart.typeName,
+                    headers: documentedPart.headers,
+                    contentType: documentedPart.partInfo.contentType,
+                    schema: documentedPart.schema
+                )
+                return [decl, caseDecl]
+            default:
+                // Handled in translateMultipartAdditionalPropertiesCase.
+                return []
+            }
+        }
+        
+        let additionalPropertiesStrategy = multipart.additionalPropertiesStrategy
+        let additionalPropertiesDecls: [Declaration] = translateMultipartAdditionalPropertiesCase(additionalPropertiesStrategy)
+        
+        let enumDescription = EnumDescription(
+            isFrozen: true,
+            accessModifier: config.access,
+            name: multipartBodyTypeName.shortSwiftName,
+            conformances: Constants.Operation.Body.conformances,
+            members: partDecls + additionalPropertiesDecls
+        )
+        let comment: Comment? = multipartBodyTypeName.docCommentWithUserDescription(nil)
+        return [.commentable(comment, .enum(enumDescription))]
+    }
+
+    func translateMultipartSchema(
+        typeName: TypeName,
+        schema: JSONSchema,
+        overrides: SchemaOverrides
+    ) throws -> [Declaration] {
+        guard let multipart = try parseMultipartContent(typeName: typeName, schema: .b(schema), encoding: nil) else {
+            return []
+        }
+        return try translateMultipartBody(multipart)
+    }
 }
 
 extension ClientFileTranslator {
@@ -180,6 +194,7 @@ extension ServerFileTranslator {
 }
 
 extension FileTranslator {
+    
     func translateMultipartRequirementsExtraArguments(_ requirements: MultipartRequirements) throws -> [FunctionArgumentDescription] {
         func sortedStringSetLiteral(_ set: Set<String>) -> Expression {
             .literal(.array(set.sorted().map { .literal($0) }))

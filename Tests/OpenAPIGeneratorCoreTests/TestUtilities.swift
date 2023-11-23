@@ -29,7 +29,7 @@ class Test_Core: XCTestCase {
         components: OpenAPI.Components = .noComponents,
         diagnostics: any DiagnosticCollector = PrintingDiagnosticCollector(),
         featureFlags: FeatureFlags = []
-    ) -> any FileTranslator {
+    ) -> TypesFileTranslator {
         makeTypesTranslator(components: components, diagnostics: diagnostics, featureFlags: featureFlags)
     }
 
