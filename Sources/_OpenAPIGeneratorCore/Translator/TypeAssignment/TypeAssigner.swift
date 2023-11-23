@@ -135,6 +135,7 @@ struct TypeAssigner {
         
         switch schema {
         case .a(let ref):
+            // TODO: This logic needs to be pulled out, and have "isInline" somewhere.
             guard let encoding, !encoding.isEmpty else {
                 return try typeName(for: ref).asUsage
             }
