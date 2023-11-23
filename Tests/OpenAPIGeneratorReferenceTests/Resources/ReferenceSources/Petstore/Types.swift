@@ -54,6 +54,9 @@ public protocol APIProtocol: Sendable {
     /// - Remark: HTTP `POST /pets/multipart-typed`.
     /// - Remark: Generated from `#/paths//pets/multipart-typed/post(multipartUploadTyped)`.
     func multipartUploadTyped(_ input: Operations.multipartUploadTyped.Input) async throws -> Operations.multipartUploadTyped.Output
+    /// - Remark: HTTP `PATCH /pets/multipart-typed`.
+    /// - Remark: Generated from `#/paths//pets/multipart-typed/patch(multipartTest)`.
+    func multipartTest(_ input: Operations.multipartTest.Input) async throws -> Operations.multipartTest.Output
 }
 
 /// Convenience overloads for operation inputs.
@@ -148,6 +151,11 @@ extension APIProtocol {
     /// - Remark: Generated from `#/paths//pets/multipart-typed/post(multipartUploadTyped)`.
     public func multipartUploadTyped(body: Components.RequestBodies.MultipartUploadTypedRequest) async throws -> Operations.multipartUploadTyped.Output {
         try await multipartUploadTyped(Operations.multipartUploadTyped.Input(body: body))
+    }
+    /// - Remark: HTTP `PATCH /pets/multipart-typed`.
+    /// - Remark: Generated from `#/paths//pets/multipart-typed/patch(multipartTest)`.
+    public func multipartTest(body: Components.RequestBodies.MultipartTestRequest) async throws -> Operations.multipartTest.Output {
+        try await multipartTest(Operations.multipartTest.Input(body: body))
     }
 }
 
@@ -1552,6 +1560,92 @@ public enum Components {
             }
             /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/content/multipart\/form-data`.
             case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload>)
+        }
+        /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest`.
+        @frozen public enum MultipartTestRequest: Sendable, Hashable {
+            /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm`.
+            @frozen public enum multipartFormPayload: Sendable, Hashable {
+                /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/log`.
+                public struct logPayload: Sendable, Hashable {
+                    /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/log/headers`.
+                    public struct Headers: Sendable, Hashable {
+                        /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/log/headers/x-log-type`.
+                        @frozen public enum x_hyphen_log_hyphen_typePayload: String, Codable, Hashable, Sendable {
+                            case structured = "structured"
+                            case unstructured = "unstructured"
+                        }
+                        /// The type of the log.
+                        ///
+                        /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/log/headers/x-log-type`.
+                        public var x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload?
+                        /// Creates a new `Headers`.
+                        ///
+                        /// - Parameters:
+                        ///   - x_hyphen_log_hyphen_type: The type of the log.
+                        public init(x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload? = nil) {
+                            self.x_hyphen_log_hyphen_type = x_hyphen_log_hyphen_type
+                        }
+                    }
+                    /// Received HTTP response headers
+                    public var headers: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.logPayload.Headers
+                    public var body: OpenAPIRuntime.HTTPBody
+                    /// Creates a new `logPayload`.
+                    ///
+                    /// - Parameters:
+                    ///   - headers: Received HTTP response headers
+                    ///   - body:
+                    public init(
+                        headers: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.logPayload.Headers = .init(),
+                        body: OpenAPIRuntime.HTTPBody
+                    ) {
+                        self.headers = headers
+                        self.body = body
+                    }
+                }
+                case log(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartTestRequest.multipartFormPayload.logPayload>)
+                /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/metadata`.
+                public struct metadataPayload: Sendable, Hashable {
+                    /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/metadata/content/body`.
+                    public struct bodyPayload: Codable, Hashable, Sendable {
+                        /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/metadata/content/body/createdAt`.
+                        public var createdAt: Foundation.Date
+                        /// Creates a new `bodyPayload`.
+                        ///
+                        /// - Parameters:
+                        ///   - createdAt:
+                        public init(createdAt: Foundation.Date) {
+                            self.createdAt = createdAt
+                        }
+                        public enum CodingKeys: String, CodingKey {
+                            case createdAt
+                        }
+                    }
+                    public var body: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.metadataPayload.bodyPayload
+                    /// Creates a new `metadataPayload`.
+                    ///
+                    /// - Parameters:
+                    ///   - body:
+                    public init(body: Components.RequestBodies.MultipartTestRequest.multipartFormPayload.metadataPayload.bodyPayload) {
+                        self.body = body
+                    }
+                }
+                case metadata(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartTestRequest.multipartFormPayload.metadataPayload>)
+                /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/multipartForm/keyword`.
+                public struct keywordPayload: Sendable, Hashable {
+                    public var body: OpenAPIRuntime.HTTPBody
+                    /// Creates a new `keywordPayload`.
+                    ///
+                    /// - Parameters:
+                    ///   - body:
+                    public init(body: OpenAPIRuntime.HTTPBody) {
+                        self.body = body
+                    }
+                }
+                case keyword(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartTestRequest.multipartFormPayload.keywordPayload>)
+                case undocumented(OpenAPIRuntime.MultipartRawPart)
+            }
+            /// - Remark: Generated from `#/components/requestBodies/MultipartTestRequest/content/multipart\/form-data`.
+            case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartTestRequest.multipartFormPayload>)
         }
     }
     /// Types generated from the `#/components/responses` section of the OpenAPI document.
@@ -3024,6 +3118,54 @@ public enum Operations {
             /// - Throws: An error if `self` is not `.accepted`.
             /// - SeeAlso: `.accepted`.
             public var accepted: Operations.multipartUploadTyped.Output.Accepted {
+                get throws {
+                    switch self {
+                    case let .accepted(response):
+                        return response
+                    default:
+                        try throwUnexpectedResponseStatus(
+                            expectedStatus: "accepted",
+                            response: self
+                        )
+                    }
+                }
+            }
+            /// Undocumented response.
+            ///
+            /// A response with a code that is not documented in the OpenAPI document.
+            case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
+        }
+    }
+    /// - Remark: HTTP `PATCH /pets/multipart-typed`.
+    /// - Remark: Generated from `#/paths//pets/multipart-typed/patch(multipartTest)`.
+    public enum multipartTest {
+        public static let id: Swift.String = "multipartTest"
+        public struct Input: Sendable, Hashable {
+            public var body: Components.RequestBodies.MultipartTestRequest
+            /// Creates a new `Input`.
+            ///
+            /// - Parameters:
+            ///   - body:
+            public init(body: Components.RequestBodies.MultipartTestRequest) {
+                self.body = body
+            }
+        }
+        @frozen public enum Output: Sendable, Hashable {
+            public struct Accepted: Sendable, Hashable {
+                /// Creates a new `Accepted`.
+                public init() {}
+            }
+            /// Successfully accepted the data.
+            ///
+            /// - Remark: Generated from `#/paths//pets/multipart-typed/patch(multipartTest)/responses/202`.
+            ///
+            /// HTTP response code: `202 accepted`.
+            case accepted(Operations.multipartTest.Output.Accepted)
+            /// The associated value of the enum case if `self` is `.accepted`.
+            ///
+            /// - Throws: An error if `self` is not `.accepted`.
+            /// - SeeAlso: `.accepted`.
+            public var accepted: Operations.multipartTest.Output.Accepted {
                 get throws {
                     switch self {
                     case let .accepted(response):

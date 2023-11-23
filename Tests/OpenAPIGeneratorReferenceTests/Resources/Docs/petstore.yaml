@@ -254,6 +254,13 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/MultipartDownloadTypedResponse'
+    patch:
+      operationId: multipartTest
+      requestBody:
+        $ref: '#/components/requestBodies/MultipartTestRequest'
+      responses:
+        '202':
+          description: Successfully accepted the data.
 components:
   headers:
     TracingHeader:
@@ -629,4 +636,37 @@ components:
                     enum:
                       - structured
                       - unstructured
-          
+    MultipartTestRequest:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              log:
+                type: string
+              metadata:
+                type: object
+                properties:
+                  createdAt:
+                    type: string
+                    format: date-time
+                required:
+                  - createdAt
+              keyword:
+                type: array
+                items:
+                  type: string
+            required:
+              - log
+          encoding:
+            log:
+              headers:
+                x-log-type:
+                  description: The type of the log.
+                  schema:
+                    type: string
+                    enum:
+                      - structured
+                      - unstructured
+

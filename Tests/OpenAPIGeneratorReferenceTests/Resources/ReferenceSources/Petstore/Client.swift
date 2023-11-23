@@ -897,4 +897,108 @@ public struct Client: APIProtocol {
             }
         )
     }
+    /// - Remark: HTTP `PATCH /pets/multipart-typed`.
+    /// - Remark: Generated from `#/paths//pets/multipart-typed/patch(multipartTest)`.
+    public func multipartTest(_ input: Operations.multipartTest.Input) async throws -> Operations.multipartTest.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.multipartTest.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/pets/multipart-typed",
+                    parameters: []
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .patch
+                )
+                suppressMutabilityWarning(&request)
+                let body: OpenAPIRuntime.HTTPBody?
+                switch input.body {
+                case let .multipartForm(value):
+                    body = try converter.setRequiredRequestBodyAsMultipart(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "multipart/form-data",
+                        allowsUnknownParts: true,
+                        requiredExactlyOncePartNames: [
+                            "log"
+                        ],
+                        requiredAtLeastOncePartNames: [],
+                        atMostOncePartNames: [
+                            "metadata"
+                        ],
+                        zeroOrMoreTimesPartNames: [
+                            "keyword"
+                        ],
+                        encoding: { part in
+                            switch part {
+                            case let .log(wrapped):
+                                var headerFields: HTTPTypes.HTTPFields = .init()
+                                let value = wrapped.payload
+                                try converter.setHeaderFieldAsURI(
+                                    in: &headerFields,
+                                    name: "x-log-type",
+                                    value: value.headers.x_hyphen_log_hyphen_type
+                                )
+                                let body = try converter.setRequiredRequestBodyAsBinary(
+                                    value.body,
+                                    headerFields: &headerFields,
+                                    contentType: "text/plain"
+                                )
+                                return .init(
+                                    name: "log",
+                                    filename: wrapped.filename,
+                                    headerFields: headerFields,
+                                    body: body
+                                )
+                            case let .metadata(wrapped):
+                                var headerFields: HTTPTypes.HTTPFields = .init()
+                                let value = wrapped.payload
+                                let body = try converter.setRequiredRequestBodyAsJSON(
+                                    value.body,
+                                    headerFields: &headerFields,
+                                    contentType: "application/json; charset=utf-8"
+                                )
+                                return .init(
+                                    name: "metadata",
+                                    filename: wrapped.filename,
+                                    headerFields: headerFields,
+                                    body: body
+                                )
+                            case let .keyword(wrapped):
+                                var headerFields: HTTPTypes.HTTPFields = .init()
+                                let value = wrapped.payload
+                                let body = try converter.setRequiredRequestBodyAsBinary(
+                                    value.body,
+                                    headerFields: &headerFields,
+                                    contentType: "text/plain"
+                                )
+                                return .init(
+                                    name: "keyword",
+                                    filename: wrapped.filename,
+                                    headerFields: headerFields,
+                                    body: body
+                                )
+                            case let .undocumented(value):
+                                return value
+                            }
+                        }
+                    )
+                }
+                return (request, body)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 202:
+                    return .accepted(.init())
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init()
+                    )
+                }
+            }
+        )
+    }
 }
