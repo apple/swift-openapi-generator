@@ -103,7 +103,7 @@ class Test_TypeAssigner: Test_Core {
             )
         }
     }
-    
+
     func testContentSwiftName() throws {
         let nameMaker = makeTranslator().typeAssigner.contentSwiftName
         let cases: [(String, String)] = [

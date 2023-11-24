@@ -739,7 +739,7 @@ final class Test_Client: XCTestCase {
             let (stream, continuation) = AsyncStream.makeStream(of: ArraySlice<UInt8>.self)
             let body: HTTPBody = .init(stream, length: .unknown)
             let bytes = Data.multipartTypedBodyAsSlice
-            for chunk in bytes.chunked(by: 13) { continuation.yield(chunk) }
+            continuation.yield(ArraySlice(bytes))
             continuation.finish()
             return (
                 .init(
