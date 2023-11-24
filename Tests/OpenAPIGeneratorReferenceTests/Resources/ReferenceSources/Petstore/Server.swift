@@ -140,17 +140,6 @@ extension APIProtocol {
             method: .post,
             path: server.apiPathComponentsWithServerPrefix("/pets/multipart-typed")
         )
-        try transport.register(
-            {
-                try await server.multipartTest(
-                    request: $0,
-                    body: $1,
-                    metadata: $2
-                )
-            },
-            method: .patch,
-            path: server.apiPathComponentsWithServerPrefix("/pets/multipart-typed")
-        )
     }
 }
 
@@ -1009,89 +998,6 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     preconditionFailure("bestContentType chose an invalid content type.")
                 }
                 return Operations.multipartUploadTyped.Input(body: body)
-            },
-            serializer: { output, request in
-                switch output {
-                case let .accepted(value):
-                    suppressUnusedWarning(value)
-                    var response = HTTPTypes.HTTPResponse(soar_statusCode: 202)
-                    suppressMutabilityWarning(&response)
-                    return (response, nil)
-                case let .undocumented(statusCode, _):
-                    return (.init(soar_statusCode: statusCode), nil)
-                }
-            }
-        )
-    }
-    /// - Remark: HTTP `PATCH /pets/multipart-typed`.
-    /// - Remark: Generated from `#/paths//pets/multipart-typed/patch(multipartTest)`.
-    func multipartTest(
-        request: HTTPTypes.HTTPRequest,
-        body: OpenAPIRuntime.HTTPBody?,
-        metadata: OpenAPIRuntime.ServerRequestMetadata
-    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
-        try await handle(
-            request: request,
-            requestBody: body,
-            metadata: metadata,
-            forOperation: Operations.multipartTest.id,
-            using: {
-                APIHandler.multipartTest($0)
-            },
-            deserializer: { request, requestBody, metadata in
-                let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                let body: Components.RequestBodies.MultipartTestRequest
-                let chosenContentType = try converter.bestContentType(
-                    received: contentType,
-                    options: [
-                        "multipart/form-data"
-                    ]
-                )
-                switch chosenContentType {
-                case "multipart/form-data":
-                    body = try converter.getRequiredRequestBodyAsMultipart(
-                        OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartTestRequest.multipartFormPayload>.self,
-                        from: requestBody,
-                        transforming: { value in
-                            .multipartForm(value)
-                        },
-                        boundary: contentType.requiredBoundary(),
-                        allowsUnknownParts: true,
-                        requiredExactlyOncePartNames: [
-                            "log"
-                        ],
-                        requiredAtLeastOncePartNames: [],
-                        atMostOncePartNames: [],
-                        zeroOrMoreTimesPartNames: [],
-                        decoding: { part in
-                            let headerFields = part.headerFields
-                            let (name, filename) = try converter.extractContentDispositionNameAndFilename(in: headerFields)
-                            switch name {
-                            case "log":
-                                try converter.verifyContentTypeIfPresent(
-                                    in: headerFields,
-                                    matches: "text/plain"
-                                )
-                                let body = try converter.getRequiredRequestBodyAsBinary(
-                                    OpenAPIRuntime.HTTPBody.self,
-                                    from: part.body,
-                                    transforming: {
-                                        $0
-                                    }
-                                )
-                                return .log(.init(
-                                    payload: .init(body: body),
-                                    filename: filename
-                                ))
-                            default:
-                                fatalError()
-                            }
-                        }
-                    )
-                default:
-                    preconditionFailure("bestContentType chose an invalid content type.")
-                }
-                return Operations.multipartTest.Input(body: body)
             },
             serializer: { output, request in
                 switch output {

@@ -118,7 +118,7 @@ extension FileTranslator {
             parts.append(.undocumented)
         case .typed(let schema):
             let typeUsage = try typeAssigner.typeUsage(
-                usingNamingHint: "additionalProperties",
+                usingNamingHint: Constants.AdditionalProperties.variableName,
                 withSchema: .b(schema),
                 components: components,
                 inParent: typeName

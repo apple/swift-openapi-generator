@@ -149,7 +149,7 @@ extension TypesFileTranslator {
             associatedDeclarations = []
         case .b(let schema):
             let valueTypeUsage = try typeAssigner.typeUsage(
-                forObjectPropertyNamed: "additionalProperties",
+                forObjectPropertyNamed: Constants.AdditionalProperties.variableName,
                 withSchema: schema,
                 components: components,
                 inParent: parent
@@ -171,7 +171,7 @@ extension TypesFileTranslator {
 
         let extraProperty = PropertyBlueprint(
             comment: .doc("A container of undocumented properties."),
-            originalName: "additionalProperties",
+            originalName: Constants.AdditionalProperties.variableName,
             typeUsage: typeUsage,
             default: .emptyInit,
             isSerializedInTopLevelDictionary: false,

@@ -94,15 +94,6 @@ struct TestClient: APIProtocol {
         guard let block = multipartUploadTypedBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
-    typealias MultipartTestSignature = @Sendable (Operations.multipartTest.Input) async throws ->
-        Operations.multipartTest.Output
-    var multipartTestBlock: MultipartTestSignature?
-    func multipartTest(_ input: Operations.multipartTest.Input) async throws
-        -> Operations.multipartTest.Output
-    {
-        guard let block = multipartTestBlock else { throw UnspecifiedBlockError() }
-        return try await block(input)
-    }
 }
 
 struct UnspecifiedBlockError: Swift.Error, LocalizedError, CustomStringConvertible {
