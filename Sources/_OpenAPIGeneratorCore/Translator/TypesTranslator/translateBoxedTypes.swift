@@ -219,17 +219,3 @@ extension TypesFileTranslator {
         return desc
     }
 }
-
-extension TextBasedRenderer {
-
-    /// Returns the provided expression rendered as a string.
-    ///
-    /// Private to this file, as it only works for simple cases when rendering variables.
-    /// - Parameter expression: The expression.
-    /// - Returns: The string representation of the expression.
-    fileprivate static func renderedExpressionAsString(_ expression: Expression) -> String {
-        let renderer = TextBasedRenderer.default
-        renderer.renderExpression(expression)
-        return renderer.renderedContents()
-    }
-}

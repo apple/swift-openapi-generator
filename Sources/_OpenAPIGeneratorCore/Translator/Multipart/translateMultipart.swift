@@ -14,15 +14,25 @@
 import OpenAPIKit
 
 extension TypesFileTranslator {
-    
-    // TODO: Document
+
+    /// Returns declarations representing the provided multipart content.
+    /// - Parameter content: The multipart content.
+    /// - Returns: A list of declarations, or empty if not valid multipart content.
     func translateMultipartBody(_ content: TypedSchemaContent) throws -> [Declaration] {
         guard let multipart = try parseMultipartContent(content) else {
             return []
         }
-        return try translateMultipartBody(multipart)
+        let decl = try translateMultipartBody(multipart)
+        return [decl]
     }
-        
+
+    /// Returns a declaration of a multipart part's associated type, containing headers (if defined) and body.
+    /// - Parameters:
+    ///   - typeName: The type name of the part's type.
+    ///   - headerMap: The headers for the part.
+    ///   - contentType: The content type of the part.
+    ///   - schema: The schema of the part's body.
+    /// - Returns: A declaration of the type containing headers and body.
     func translateMultipartPartContent(
         typeName: TypeName,
         headers headerMap: OpenAPI.Header.Map?,
@@ -101,7 +111,13 @@ extension TypesFileTranslator {
             structDecl
         )
     }
-    
+
+    /// Returns the associated declarations of a dynamically named part.
+    /// - Parameters:
+    ///   - typeName: The type name of the part.
+    ///   - contentType: The cotent type of the part.
+    ///   - schema: The schema of the part.
+    /// - Returns: The associated declarations, or empty if the type is referenced.
     func translateMultipartPartContentAdditionalPropertiesWithSchemaAssociatedDeclarations(
         typeName: TypeName,
         contentType: ContentType,
@@ -120,8 +136,10 @@ extension TypesFileTranslator {
         return associatedDeclarations
     }
 
-    
-    func translateMultipartBody(_ multipart: MultipartContent) throws -> [Declaration] {
+    /// Returns the declaration for the provided root multipart content.
+    /// - Parameter multipart: The multipart content.
+    /// - Returns: The declaration of the multipart container enum type.
+    func translateMultipartBody(_ multipart: MultipartContent) throws -> Declaration {
         let parts = multipart.parts
         let multipartBodyTypeName = multipart.typeName
 
@@ -174,29 +192,41 @@ extension TypesFileTranslator {
             members: partDecls
         )
         let comment: Comment? = multipartBodyTypeName.docCommentWithUserDescription(nil)
-        return [.commentable(comment, .enum(enumDescription))]
+        return .commentable(comment, .enum(enumDescription))
     }
 
-    func translateMultipartSchema(
+    /// Returns the declaration for the provided root multipart content.
+    /// - Parameters:
+    ///   - typeName: The type name of the body.
+    ///   - schema: The root schema of the body.
+    /// - Returns: The declaration of the multipart container enum type.
+    func translateMultipartBody(
         typeName: TypeName,
-        schema: JSONSchema,
-        overrides: SchemaOverrides
+        schema: JSONSchema
     ) throws -> [Declaration] {
         guard let multipart = try parseMultipartContent(typeName: typeName, schema: .b(schema), encoding: nil) else {
             return []
         }
-        return try translateMultipartBody(multipart)
+        let decl = try translateMultipartBody(multipart)
+        return [decl]
     }
 }
 
 extension ClientFileTranslator {
+    
+    /// Returns the extra function arguments used for multipart serializers (request) in the client code.
+    /// - Parameter content: The multipart content.
+    /// - Returns: The extra function arguments.
     func translateMultipartSerializerExtraArgumentsInClient(_ content: TypedSchemaContent) throws -> [FunctionArgumentDescription] {
         try translateMultipartSerializerExtraArguments(
             content,
             setBodyMethodPrefix: "setRequiredRequestBody"
         )
     }
-    
+
+    /// Returns the extra function arguments used for multipart deserializers (response) in the client code.
+    /// - Parameter content: The multipart content.
+    /// - Returns: The extra function arguments.
     func translateMultipartDeserializerExtraArgumentsInClient(_ content: TypedSchemaContent) throws -> [FunctionArgumentDescription] {
         try translateMultipartDeserializerExtraArguments(
             content,
@@ -206,13 +236,20 @@ extension ClientFileTranslator {
 }
 
 extension ServerFileTranslator {
+
+    /// Returns the extra function arguments used for multipart deserializers (request) in the server code.
+    /// - Parameter content: The multipart content.
+    /// - Returns: The extra function arguments.
     func translateMultipartDeserializerExtraArgumentsInServer(_ content: TypedSchemaContent) throws -> [FunctionArgumentDescription] {
         try translateMultipartDeserializerExtraArguments(
             content,
             getBodyMethodPrefix: "getRequiredRequestBody"
         )
     }
-    
+
+    /// Returns the extra function arguments used for multipart serializers (response) in the server code.
+    /// - Parameter content: The multipart content.
+    /// - Returns: The extra function arguments.
     func translateMultipartSerializerExtraArgumentsInServer(_ content: TypedSchemaContent) throws -> [FunctionArgumentDescription] {
         try translateMultipartSerializerExtraArguments(
             content,
@@ -223,6 +260,9 @@ extension ServerFileTranslator {
 
 extension FileTranslator {
     
+    /// Returns the requirements-related extra function arguments used for multipart serializers and deserializers.
+    /// - Parameter requirements: The requirements to generate arguments for.
+    /// - Returns: The list of arguments.
     func translateMultipartRequirementsExtraArguments(_ requirements: MultipartRequirements) throws -> [FunctionArgumentDescription] {
         func sortedStringSetLiteral(_ set: Set<String>) -> Expression {
             .literal(.array(set.sorted().map { .literal($0) }))
@@ -251,7 +291,12 @@ extension FileTranslator {
         ]
         return requirementsArgs
     }
-    
+
+    /// Returns the extra function arguments used for multipart deserializers.
+    /// - Parameters:
+    ///   - content: The multipart content.
+    ///   - getBodyMethodPrefix: The string prefix of the "get body" methods.
+    /// - Returns: The extra function arguments.
     func translateMultipartDeserializerExtraArguments(
         _ content: TypedSchemaContent,
         getBodyMethodPrefix: String
@@ -274,6 +319,22 @@ extension FileTranslator {
         return [boundaryArg] + requirementsArgs + [decoding]
     }
     
+    /// Returns the description of the switch case for the provided individual multipart part.
+    /// - Parameters:
+    ///   - caseName: The name of the case.
+    ///   - caseKind: The kind of the case.
+    ///   - isDynamicallyNamed: A Boolean value indicating whether the part is dynamically named (in other words, if
+    ///     this is using `additionalProperties: <SCHEMA>`.
+    ///   - isPayloadBodyTypeNested: A Boolean value indicating whether the payload body type is nested. If `false`,
+    ///     then the body type is assumed to be the part's type.
+    ///   - getBodyMethodPrefix: The string prefix of the "get body" methods.
+    ///   - contentType: The content type of the part.
+    ///   - partTypeName: The part's type name.
+    ///   - schema: The schema of the part.
+    ///   - payloadExpr: The expression of the payload in the corresponding wrapper type.
+    ///   - headerDecls: A list of declarations of the part headers, can be empty.
+    ///   - headersVarArgs: A list of arguments for headers on the part's type, can be empty.
+    /// - Returns: The switch case description, or nil if not valid or supported schema.
     func translateMultipartDecodingClosureTypedPart(
         caseName: String,
         caseKind: SwitchCaseKind,
@@ -371,6 +432,12 @@ extension FileTranslator {
         )
     }
     
+    /// Returns the code blocks representing the body of the multipart deserializer's decoding closure, parsing the
+    /// raw parts into typed parts.
+    /// - Parameters:
+    ///   - multipart: The multipart content.
+    ///   - getBodyMethodPrefix: The string prefix of the "get body" methods.
+    /// - Returns: The body code blocks of the decoding closure.
     func translateMultipartDecodingClosure(
         _ multipart: MultipartContent,
         getBodyMethodPrefix: String
@@ -515,7 +582,12 @@ extension FileTranslator {
             )
         ]
     }
-    
+
+    /// Returns the extra function arguments used for multipart serializers.
+    /// - Parameters:
+    ///   - content: The multipart content.
+    ///   - setBodyMethodPrefix: The string prefix of the "set body" methods.
+    /// - Returns: The extra function arguments.
     func translateMultipartSerializerExtraArguments(
         _ content: TypedSchemaContent,
         setBodyMethodPrefix: String
@@ -533,7 +605,16 @@ extension FileTranslator {
         )
         return requirementsArgs + [encoding]
     }
-    
+
+    /// Returns the description of the switch case for the provided individual multipart part.
+    /// - Parameters:
+    ///   - caseName: The name of the case.
+    ///   - nameExpr: The expression for the part's name.
+    ///   - bodyExpr: The expression for the part's body.
+    ///   - setBodyMethodPrefix: The string prefix of the "set body" methods.
+    ///   - contentType: The content type of the part.
+    ///   - headerExprs: A list of expressions of the part headers, can be empty.
+    /// - Returns: The switch case description.
     func translateMultipartEncodingClosureTypedPart(
         caseName: String,
         nameExpr: Expression,
@@ -594,7 +675,13 @@ extension FileTranslator {
             ]
         )
     }
-    
+
+    /// Returns the code blocks representing the body of the multipart serializer's encoding closure, serializing the
+    /// typed parts into raw parts.
+    /// - Parameters:
+    ///   - multipart: The multipart content.
+    ///   - setBodyMethodPrefix: The string prefix of the "set body" methods.
+    /// - Returns: The body code blocks of the encoding closure.
     func translateMultipartEncodingClosure(
         _ multipart: MultipartContent,
         setBodyMethodPrefix: String

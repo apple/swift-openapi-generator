@@ -25,12 +25,12 @@ extension TypesFileTranslator {
         if content.content.contentType.isMultipart {
             return try translateMultipartBody(content)
         }
-        let decl = try translateSchema(
+        let decls = try translateSchema(
             typeName: content.resolvedTypeUsage.typeName,
             schema: content.content.schema,
             overrides: .none
         )
-        return decl
+        return decls
     }
 
     /// Returns a list of declarations for the specified request body wrapped

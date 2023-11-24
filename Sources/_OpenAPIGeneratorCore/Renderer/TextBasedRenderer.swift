@@ -886,3 +886,15 @@ fileprivate extension String {
     /// - Returns: A new string where each line has been transformed using the given closure.
     func transformingLines(_ work: (String) -> String) -> [String] { asLines().map(work) }
 }
+
+extension TextBasedRenderer {
+
+    /// Returns the provided expression rendered as a string.
+    /// - Parameter expression: The expression.
+    /// - Returns: The string representation of the expression.
+    static func renderedExpressionAsString(_ expression: Expression) -> String {
+        let renderer = TextBasedRenderer.default
+        renderer.renderExpression(expression)
+        return renderer.renderedContents()
+    }
+}

@@ -72,10 +72,9 @@ extension TypesFileTranslator {
     ) throws -> [Declaration] {
 
         if isMultipartContent {
-            return try translateMultipartSchema(
+            return try translateMultipartBody(
                 typeName: typeName,
-                schema: schema,
-                overrides: overrides
+                schema: schema
             )
         }
         
