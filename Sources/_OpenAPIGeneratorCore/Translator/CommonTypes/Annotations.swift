@@ -15,8 +15,7 @@ extension VariableDescription {
 
     /// Returns an expression that suppresses mutability warnings.
     var suppressMutabilityWarningExpr: Expression {
-        .identifierPattern("suppressMutabilityWarning")
-            .call([.init(label: nil, expression: .inOut(left))])
+        .identifierPattern("suppressMutabilityWarning").call([.init(label: nil, expression: .inOut(left))])
     }
 }
 

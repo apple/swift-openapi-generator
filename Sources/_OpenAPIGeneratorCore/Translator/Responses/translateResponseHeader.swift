@@ -23,10 +23,8 @@ extension FileTranslator {
         .try(
             .identifierPattern("converter").dot("setHeaderFieldAs\(header.codingStrategy.runtimeName)")
                 .call([
-                    .init(
-                        label: "in",
-                        expression: .inOut(.identifierPattern("headerFields"))
-                    ), .init(label: "name", expression: .literal(header.name)),
+                    .init(label: "in", expression: .inOut(.identifierPattern("headerFields"))),
+                    .init(label: "name", expression: .literal(header.name)),
                     .init(
                         label: "value",
                         expression: .identifierPattern("value").dot("headers").dot(header.variableName)
@@ -39,10 +37,9 @@ extension FileTranslator {
     /// a header fields container.
     /// - Parameter header: The header to get.
     /// - Returns: A function argument description.
-    func translateMultipartIncomingHeader(
-        _ header: TypedResponseHeader
-    ) throws -> FunctionArgumentDescription {
-        let methodName = "get\(header.isOptional ? "Optional" : "Required")HeaderFieldAs\(header.codingStrategy.runtimeName)"
+    func translateMultipartIncomingHeader(_ header: TypedResponseHeader) throws -> FunctionArgumentDescription {
+        let methodName =
+            "get\(header.isOptional ? "Optional" : "Required")HeaderFieldAs\(header.codingStrategy.runtimeName)"
         let convertExpr: Expression = .try(
             .identifierPattern("converter").dot(methodName)
                 .call([

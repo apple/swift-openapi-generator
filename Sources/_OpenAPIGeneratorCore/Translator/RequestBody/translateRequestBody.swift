@@ -22,9 +22,7 @@ extension TypesFileTranslator {
     /// unsupported.
     /// - Throws: An error if there is an issue translating and declaring the schema content.
     func translateRequestBodyContentInTypes(_ content: TypedSchemaContent) throws -> [Declaration] {
-        if content.content.contentType.isMultipart {
-            return try translateMultipartBody(content)
-        }
+        if content.content.contentType.isMultipart { return try translateMultipartBody(content) }
         let decls = try translateSchema(
             typeName: content.resolvedTypeUsage.typeName,
             schema: content.content.schema,
@@ -48,7 +46,13 @@ extension TypesFileTranslator {
         let contentTypeName = typeName.appending(jsonComponent: "content")
         let contents = requestBody.contents
         for content in contents {
-            if TypeMatcher.isInlinable(content.content.schema) || (content.content.contentType.isMultipart && TypeMatcher.multipartElementTypeReferenceIfReferenceable(schema: content.content.schema, encoding: content.content.encoding) == nil) {
+            if TypeMatcher.isInlinable(content.content.schema)
+                || (content.content.contentType.isMultipart
+                    && TypeMatcher.multipartElementTypeReferenceIfReferenceable(
+                        schema: content.content.schema,
+                        encoding: content.content.encoding
+                    ) == nil)
+            {
                 let inlineTypeDecls = try translateRequestBodyContentInTypes(content)
                 bodyMembers.append(contentsOf: inlineTypeDecls)
             }
@@ -158,7 +162,6 @@ extension ClientFileTranslator {
             } else {
                 extraBodyAssignArgs = []
             }
-            
             let bodyAssignExpr: Expression = .assignment(
                 left: .identifierPattern(bodyVariableName),
                 right: .try(
@@ -166,13 +169,15 @@ extension ClientFileTranslator {
                         .dot(
                             "set\(requestBody.request.required ? "Required" : "Optional")RequestBodyAs\(contentType.codingStrategy.runtimeName)"
                         )
-                        .call([
-                            .init(label: nil, expression: .identifierPattern("value")),
-                            .init(
-                                label: "headerFields",
-                                expression: .inOut(.identifierPattern(requestVariableName).dot("headerFields"))
-                            ), .init(label: "contentType", expression: .literal(contentTypeHeaderValue)),
-                        ] + extraBodyAssignArgs)
+                        .call(
+                            [
+                                .init(label: nil, expression: .identifierPattern("value")),
+                                .init(
+                                    label: "headerFields",
+                                    expression: .inOut(.identifierPattern(requestVariableName).dot("headerFields"))
+                                ), .init(label: "contentType", expression: .literal(contentTypeHeaderValue)),
+                            ] + extraBodyAssignArgs
+                        )
                 )
             )
             let caseDesc = SwitchCaseDescription(
@@ -256,7 +261,6 @@ extension ServerFileTranslator {
                     )
                 ]
             )
-            
             let extraBodyAssignArgs: [FunctionArgumentDescription]
             if contentType.isMultipart {
                 extraBodyAssignArgs = try translateMultipartDeserializerExtraArgumentsInServer(typedContent)
@@ -265,11 +269,15 @@ extension ServerFileTranslator {
             }
             let converterExpr: Expression = .identifierPattern("converter")
                 .dot("get\(isOptional ? "Optional" : "Required")RequestBodyAs\(codingStrategyName)")
-                .call([
-                    .init(label: nil, expression: .identifierType(contentTypeUsage.withOptional(false)).dot("self")),
-                    .init(label: "from", expression: .identifierPattern("requestBody")),
-                    .init(label: "transforming", expression: transformExpr),
-                ] + extraBodyAssignArgs)
+                .call(
+                    [
+                        .init(
+                            label: nil,
+                            expression: .identifierType(contentTypeUsage.withOptional(false)).dot("self")
+                        ), .init(label: "from", expression: .identifierPattern("requestBody")),
+                        .init(label: "transforming", expression: transformExpr),
+                    ] + extraBodyAssignArgs
+                )
             let bodyExpr: Expression
             switch codingStrategy {
             case .json, .uri, .urlEncodedForm:

@@ -1120,7 +1120,7 @@ extension Declaration {
             modify: modify
         )
     }
-    
+
     /// A variable declaration.
     ///
     /// For example: `let foo = 42`.
@@ -1165,7 +1165,6 @@ extension Declaration {
             )
         )
     }
-
 
     /// A description of an enum case.
     ///
@@ -1580,24 +1579,14 @@ extension VariableDescription {
     /// For example `var foo = 42`.
     /// - Parameter name: The name of the variable.
     /// - Returns: A new mutable variable declaration.
-    static func `var`(_ name: String) -> Self {
-        Self.init(
-            kind: .var,
-            left: .identifierPattern(name)
-        )
-    }
+    static func `var`(_ name: String) -> Self { Self.init(kind: .var, left: .identifierPattern(name)) }
 
     /// Returns a new immutable variable declaration.
     ///
     /// For example `let foo = 42`.
     /// - Parameter name: The name of the variable.
     /// - Returns: A new immutable variable declaration.
-    static func `let`(_ name: String) -> Self {
-        Self.init(
-            kind: .let,
-            left: .identifierPattern(name)
-        )
-    }
+    static func `let`(_ name: String) -> Self { Self.init(kind: .let, left: .identifierPattern(name)) }
 }
 
 extension Expression {

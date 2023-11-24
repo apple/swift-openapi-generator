@@ -60,11 +60,7 @@ extension TypesFileTranslator {
             swiftComponent: Constants.Operation.Body.typeName,
             jsonComponent: "content"
         )
-        let typedContents = try supportedTypedContents(
-            response.content,
-            isRequired: true,
-            inParent: bodyTypeName
-        )
+        let typedContents = try supportedTypedContents(response.content, isRequired: true, inParent: bodyTypeName)
 
         let bodyProperty: PropertyBlueprint?
         if !typedContents.isEmpty {
@@ -149,7 +145,11 @@ extension TypesFileTranslator {
         let associatedType = typedContent.resolvedTypeUsage
         let content = typedContent.content
         let schema = content.schema
-        if TypeMatcher.isInlinable(schema) || (contentType.isMultipart && TypeMatcher.multipartElementTypeReferenceIfReferenceable(schema: schema, encoding: content.encoding) == nil) {
+        if TypeMatcher.isInlinable(schema)
+            || (contentType.isMultipart
+                && TypeMatcher.multipartElementTypeReferenceIfReferenceable(schema: schema, encoding: content.encoding)
+                    == nil)
+        {
             let decls: [Declaration]
             if contentType.isMultipart {
                 decls = try translateMultipartBody(typedContent)
@@ -204,9 +204,7 @@ extension TypesFileTranslator {
             left: .identifierPattern(identifier),
             type: .init(associatedType),
             getter: [
-                .expression(
-                    .switch(switchedExpression: .identifierPattern("self"), cases: throwingGetterSwitchCases)
-                )
+                .expression(.switch(switchedExpression: .identifierPattern("self"), cases: throwingGetterSwitchCases))
             ],
             getterEffects: [.throws]
         )

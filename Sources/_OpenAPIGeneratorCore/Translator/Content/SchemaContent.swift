@@ -45,9 +45,7 @@ struct TypedSchemaContent {
     ///
     /// The content might not have a schema, in which case we treat
     /// the schema as a JSON fragment (any payload).
-    var resolvedTypeUsage: TypeUsage {
-        typeUsage ?? TypeName.valueContainer.asUsage
-    }
+    var resolvedTypeUsage: TypeUsage { typeUsage ?? TypeName.valueContainer.asUsage }
 }
 
 /// An unresolved OpenAPI schema.

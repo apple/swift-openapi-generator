@@ -76,18 +76,16 @@ enum MultipartSchemaTypedContent {
 }
 
 extension MultipartSchemaTypedContent {
-    
+
     /// The type usage of the part type wrapper.
     ///
     /// For example, for a documented part, the generated type is wrapped in `OpenAPIRuntime.MultipartPart<...>`.
     var wrapperTypeUsage: TypeUsage {
         switch self {
-        case .documentedTyped(let info):
-            return info.typeName.asUsage.asWrapped(in: .multipartPart)
+        case .documentedTyped(let info): return info.typeName.asUsage.asWrapped(in: .multipartPart)
         case .otherDynamicallyNamed(let info):
             return info.typeName.asUsage.asWrapped(in: .multipartDynamicallyNamedPart)
-        case .otherRaw, .undocumented:
-            return TypeName.multipartRawPart.asUsage
+        case .otherRaw, .undocumented: return TypeName.multipartRawPart.asUsage
         }
     }
 }

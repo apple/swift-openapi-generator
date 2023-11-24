@@ -86,7 +86,7 @@ extension FileTranslator {
             return false
         }
     }
-    
+
     /// Validates that the multipart schema is supported by the generator.
     ///
     /// Also emits a diagnostic into the collector if the schema is unsupported.
@@ -238,7 +238,7 @@ extension FileTranslator {
         default: return .unsupported(reason: .notObjectish, schema: schema)
         }
     }
-    
+
     /// Returns a result indicating whether the provided schema
     /// is an reference, object, or allOf (object-ish) schema and is supported.
     /// - Parameters:
@@ -331,8 +331,8 @@ extension FileTranslator {
     /// - Returns: An `IsSchemaSupportedResult` indicating whether the schema is
     ///   supported or not.
     /// - Throws: An error if there's an issue during the validation process.
-    func isObjectOrRefToObjectSchemaAndSupported(_ schema: UnresolvedSchema?, referenceStack: inout ReferenceStack) throws
-        -> IsSchemaSupportedResult
+    func isObjectOrRefToObjectSchemaAndSupported(_ schema: UnresolvedSchema?, referenceStack: inout ReferenceStack)
+        throws -> IsSchemaSupportedResult
     {
         guard let schema else {
             // fragment type is supported
@@ -342,8 +342,7 @@ extension FileTranslator {
         case .a:
             // references are supported
             return .supported
-        case let .b(schema):
-            return try isObjectOrRefToObjectSchemaAndSupported(schema, referenceStack: &referenceStack)
+        case let .b(schema): return try isObjectOrRefToObjectSchemaAndSupported(schema, referenceStack: &referenceStack)
         }
     }
 
@@ -359,8 +358,7 @@ extension FileTranslator {
         -> IsSchemaSupportedResult
     {
         switch schema.value {
-        case .object, .fragment:
-            return .supported
+        case .object, .fragment: return .supported
         case let .reference(ref, _):
             if try referenceStack.contains(ref) {
                 // Encountered a cycle, but that's okay - return supported.
@@ -374,13 +372,12 @@ extension FileTranslator {
         default: return .unsupported(reason: .notRef, schema: schema)
         }
     }
-    
-    func flattenedTopLevelMultipartObject(_ schema: JSONSchema, referenceStack: inout ReferenceStack) throws -> JSONSchema.ObjectContext? {
+    func flattenedTopLevelMultipartObject(_ schema: JSONSchema, referenceStack: inout ReferenceStack) throws
+        -> JSONSchema.ObjectContext?
+    {
         switch schema.value {
-        case .null, .boolean, .number, .integer, .string, .not, .array, .one, .all, .any:
-            return nil
-        case .object(_, let context):
-            return context
+        case .null, .boolean, .number, .integer, .string, .not, .array, .one, .all, .any: return nil
+        case .object(_, let context): return context
         case .reference(let ref, _):
             if try referenceStack.contains(ref) {
                 // Encountered a cycle, that's not supported for top level multipart objects.
@@ -391,20 +388,17 @@ extension FileTranslator {
             try referenceStack.push(ref)
             defer { referenceStack.pop() }
             return try flattenedTopLevelMultipartObject(referencedSchema, referenceStack: &referenceStack)
-        case .fragment:
-            return .init(properties: [:], additionalProperties: nil)
+        case .fragment: return .init(properties: [:], additionalProperties: nil)
         }
     }
-    
-    func flattenedTopLevelMultipartObject(_ schema: UnresolvedSchema?, referenceStack: inout ReferenceStack) throws -> JSONSchema.ObjectContext? {
+    func flattenedTopLevelMultipartObject(_ schema: UnresolvedSchema?, referenceStack: inout ReferenceStack) throws
+        -> JSONSchema.ObjectContext?
+    {
         let resolvedSchema: JSONSchema
         switch schema {
-        case .none:
-            resolvedSchema = .fragment
-        case .a(let ref):
-            resolvedSchema = .reference(ref.jsonReference)
-        case .b(let schema):
-            resolvedSchema = schema
+        case .none: resolvedSchema = .fragment
+        case .a(let ref): resolvedSchema = .reference(ref.jsonReference)
+        case .b(let schema): resolvedSchema = schema
         }
         return try flattenedTopLevelMultipartObject(resolvedSchema, referenceStack: &referenceStack)
     }

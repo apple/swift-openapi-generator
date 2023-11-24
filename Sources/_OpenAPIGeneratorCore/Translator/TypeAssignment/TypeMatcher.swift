@@ -148,7 +148,7 @@ struct TypeMatcher {
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: `true` if the schema is inlinable; `false` otherwise.
     static func isInlinable(_ schema: UnresolvedSchema?) -> Bool { !isReferenceable(schema) }
-    
+
     /// Return a reference to a multipart element type if the provided schema is referenceable.
     /// - Parameters:
     ///   - schema: The schema to try to reference.
@@ -160,9 +160,7 @@ struct TypeMatcher {
     ) -> OpenAPI.Reference<JSONSchema>? {
         // If the schema is a ref AND no encoding is provided, we can reference the type.
         // Otherwise, we must inline.
-        guard case .a(let ref) = schema, (encoding == nil || encoding!.isEmpty) else {
-            return nil
-        }
+        guard case .a(let ref) = schema, encoding == nil || encoding!.isEmpty else { return nil }
         return ref
     }
 

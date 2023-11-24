@@ -30,18 +30,16 @@ enum MultipartAdditionalPropertiesStrategy: Equatable {
 }
 
 extension FileTranslator {
-    
     /// Computes the additional properties strategy given the schema's additional properties value.
     /// - Parameter additionalProperties: The schema's additional properties value.
     /// - Returns: The computed strategy.
-    func parseMultipartAdditionalPropertiesStrategy(_ additionalProperties: Either<Bool, JSONSchema>?) -> MultipartAdditionalPropertiesStrategy {
+    func parseMultipartAdditionalPropertiesStrategy(_ additionalProperties: Either<Bool, JSONSchema>?)
+        -> MultipartAdditionalPropertiesStrategy
+    {
         switch additionalProperties {
-        case .none:
-            return .allowed
-        case .a(let bool):
-            return bool ? .any : .disallowed
-        case .b(let schema):
-            return .typed(schema)
+        case .none: return .allowed
+        case .a(let bool): return bool ? .any : .disallowed
+        case .b(let schema): return .typed(schema)
         }
     }
 }

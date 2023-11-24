@@ -1867,7 +1867,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
-    
+
     func testComponentsRequestBodiesInline_multipart() throws {
         try self.assertRequestBodiesTranslation(
             """
@@ -2677,7 +2677,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """
         )
     }
-    
+
     func testRequestMultipartBodyReferencedRequestBody() throws {
         try self.assertRequestInTypesClientServerTranslation(
             """
@@ -2710,22 +2710,22 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 }
                 """,
             requestBodies: """
-            public enum RequestBodies {
-                @frozen public enum MultipartRequest: Sendable, Hashable {
-                    @frozen public enum multipartFormPayload: Sendable, Hashable {
-                        public struct logPayload: Sendable, Hashable {
-                            public var body: OpenAPIRuntime.HTTPBody
-                            public init(body: OpenAPIRuntime.HTTPBody) {
-                                self.body = body
+                public enum RequestBodies {
+                    @frozen public enum MultipartRequest: Sendable, Hashable {
+                        @frozen public enum multipartFormPayload: Sendable, Hashable {
+                            public struct logPayload: Sendable, Hashable {
+                                public var body: OpenAPIRuntime.HTTPBody
+                                public init(body: OpenAPIRuntime.HTTPBody) {
+                                    self.body = body
+                                }
                             }
+                            case log(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartRequest.multipartFormPayload.logPayload>)
+                            case undocumented(OpenAPIRuntime.MultipartRawPart)
                         }
-                        case log(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartRequest.multipartFormPayload.logPayload>)
-                        case undocumented(OpenAPIRuntime.MultipartRawPart)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartRequest.multipartFormPayload>)
                     }
-                    case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartRequest.multipartFormPayload>)
                 }
-            }
-            """,
+                """,
             client: """
                 { input in
                     let path = try converter.renderedPath(
@@ -2984,7 +2984,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """
         )
     }
-    
+
     func testRequestMultipartBodyInlineRequestBodyReferencedPartSchema() throws {
         try self.assertRequestInTypesClientServerTranslation(
             """
@@ -3139,7 +3139,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-    
     func testRequestMultipartBodyReferencedSchema() throws {
         try self.assertRequestInTypesClientServerTranslation(
             """
@@ -3299,7 +3298,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """
         )
     }
-    
+
     func testRequestMultipartBodyReferencedSchemaWithEncoding() throws {
         try self.assertRequestInTypesClientServerTranslation(
             """
@@ -3499,8 +3498,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """
         )
     }
-    
-    
+
     func testRequestMultipartBodyFragment() throws {
         try self.assertRequestInTypesClientServerTranslation(
             """
@@ -3709,7 +3707,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """
         )
     }
-    
+
     func testRequestMultipartBodyAdditionalPropertiesFalse() throws {
         try self.assertRequestInTypesClientServerTranslation(
             """
@@ -4239,7 +4237,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-
     func testResponseMultipartReferencedResponse() throws {
         try self.assertResponseInTypesClientServerTranslation(
             """
@@ -4752,20 +4749,15 @@ extension SnippetBasedReferenceTests {
             paths: paths,
             components: components
         )
-        let multipartSchemaNames = try types.parseSchemaNamesUsedInMultipart(
-            paths: paths,
-            components: components
-        )
+        let multipartSchemaNames = try types.parseSchemaNamesUsedInMultipart(paths: paths, components: components)
         let operationDescriptions = try OperationDescription.all(
             from: document.paths,
             in: document.components,
             asSwiftSafeName: types.swiftSafeName
         )
         let operation = try XCTUnwrap(operationDescriptions.first)
-        
         let generatedTypesStructuredSwift = try types.translateOperationInput(operation)
         try XCTAssertSwiftEquivalent(generatedTypesStructuredSwift, expectedTypesSwift, file: file, line: line)
-        
         if let expectedSchemasSwift {
             let generatedSchemasStructuredSwift = try types.translateSchemas(
                 document.components.schemas,
@@ -4773,19 +4765,24 @@ extension SnippetBasedReferenceTests {
             )
             try XCTAssertSwiftEquivalent(generatedSchemasStructuredSwift, expectedSchemasSwift, file: file, line: line)
         }
-        
         if let expectedRequestBodiesSwift {
-            let generatedRequestBodiesStructuredSwift = try types.translateComponentRequestBodies(document.components.requestBodies)
-            try XCTAssertSwiftEquivalent(generatedRequestBodiesStructuredSwift, expectedRequestBodiesSwift, file: file, line: line)
+            let generatedRequestBodiesStructuredSwift = try types.translateComponentRequestBodies(
+                document.components.requestBodies
+            )
+            try XCTAssertSwiftEquivalent(
+                generatedRequestBodiesStructuredSwift,
+                expectedRequestBodiesSwift,
+                file: file,
+                line: line
+            )
         }
-        
         let generatedClientStructuredSwift = try client.translateClientSerializer(operation)
         try XCTAssertSwiftEquivalent(generatedClientStructuredSwift, expectedClientSwift, file: file, line: line)
 
         let generatedServerStructuredSwift = try server.translateServerDeserializer(operation)
         try XCTAssertSwiftEquivalent(generatedServerStructuredSwift, expectedServerSwift, file: file, line: line)
     }
-    
+
     func assertResponseInTypesClientServerTranslation(
         _ pathsYAML: String,
         _ componentsYAML: String? = nil,
@@ -4811,20 +4808,15 @@ extension SnippetBasedReferenceTests {
             paths: paths,
             components: components
         )
-        let multipartSchemaNames = try types.parseSchemaNamesUsedInMultipart(
-            paths: paths,
-            components: components
-        )
+        let multipartSchemaNames = try types.parseSchemaNamesUsedInMultipart(paths: paths, components: components)
         let operationDescriptions = try OperationDescription.all(
             from: document.paths,
             in: document.components,
             asSwiftSafeName: types.swiftSafeName
         )
         let operation = try XCTUnwrap(operationDescriptions.first)
-        
         let generatedTypesStructuredSwift = try types.translateOperationOutput(operation)
         try XCTAssertSwiftEquivalent(generatedTypesStructuredSwift, expectedTypesSwift, file: file, line: line)
-        
         if let expectedSchemasSwift {
             let generatedSchemasStructuredSwift = try types.translateSchemas(
                 document.components.schemas,
@@ -4832,12 +4824,17 @@ extension SnippetBasedReferenceTests {
             )
             try XCTAssertSwiftEquivalent(generatedSchemasStructuredSwift, expectedSchemasSwift, file: file, line: line)
         }
-        
         if let expectedResponsesSwift {
-            let generatedRequestBodiesStructuredSwift = try types.translateComponentResponses(document.components.responses)
-            try XCTAssertSwiftEquivalent(generatedRequestBodiesStructuredSwift, expectedResponsesSwift, file: file, line: line)
+            let generatedRequestBodiesStructuredSwift = try types.translateComponentResponses(
+                document.components.responses
+            )
+            try XCTAssertSwiftEquivalent(
+                generatedRequestBodiesStructuredSwift,
+                expectedResponsesSwift,
+                file: file,
+                line: line
+            )
         }
-        
         let generatedServerStructuredSwift = try server.translateServerSerializer(operation)
         try XCTAssertSwiftEquivalent(generatedServerStructuredSwift, expectedServerSwift, file: file, line: line)
 
@@ -4859,10 +4856,7 @@ extension SnippetBasedReferenceTests {
             componentsYAML: componentsYAML
         )
         let components = translator.components
-        let multipartSchemaNames = try translator.parseSchemaNamesUsedInMultipart(
-            paths: [:],
-            components: components
-        )
+        let multipartSchemaNames = try translator.parseSchemaNamesUsedInMultipart(paths: [:], components: components)
         let translation = try translator.translateSchemas(
             components.schemas,
             multipartSchemaNames: multipartSchemaNames

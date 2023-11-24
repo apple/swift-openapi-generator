@@ -226,7 +226,6 @@ extension ClientFileTranslator {
                     ]
                 )
                 let codingStrategy = typedContent.content.contentType.codingStrategy
-                
                 let extraBodyAssignArgs: [FunctionArgumentDescription]
                 if typedContent.content.contentType.isMultipart {
                     extraBodyAssignArgs = try translateMultipartDeserializerExtraArgumentsInClient(typedContent)
@@ -236,11 +235,13 @@ extension ClientFileTranslator {
 
                 let converterExpr: Expression = .identifierPattern("converter")
                     .dot("getResponseBodyAs\(codingStrategy.runtimeName)")
-                    .call([
-                        .init(label: nil, expression: .identifierType(contentTypeUsage).dot("self")),
-                        .init(label: "from", expression: .identifierPattern("responseBody")),
-                        .init(label: "transforming", expression: transformExpr),
-                    ] + extraBodyAssignArgs)
+                    .call(
+                        [
+                            .init(label: nil, expression: .identifierType(contentTypeUsage).dot("self")),
+                            .init(label: "from", expression: .identifierPattern("responseBody")),
+                            .init(label: "transforming", expression: transformExpr),
+                        ] + extraBodyAssignArgs
+                    )
                 let bodyExpr: Expression
                 switch codingStrategy {
                 case .json, .uri, .urlEncodedForm:
@@ -389,31 +390,38 @@ extension ServerFileTranslator {
                 caseCodeBlocks.append(.expression(validateAcceptHeader))
 
                 let contentType = typedContent.content.contentType
-                
                 let extraBodyAssignArgs: [FunctionArgumentDescription]
                 if contentType.isMultipart {
                     extraBodyAssignArgs = try translateMultipartSerializerExtraArgumentsInServer(typedContent)
                 } else {
                     extraBodyAssignArgs = []
                 }
-                
                 let assignBodyExpr: Expression = .assignment(
                     left: .identifierPattern("body"),
                     right: .try(
                         .identifierPattern("converter")
                             .dot("setResponseBodyAs\(contentType.codingStrategy.runtimeName)")
-                            .call([
-                                .init(label: nil, expression: .identifierPattern("value")),
-                                .init(
-                                    label: "headerFields",
-                                    expression: .inOut(.identifierPattern("response").dot("headerFields"))
-                                ), .init(label: "contentType", expression: .literal(contentType.headerValueForSending)),
-                            ] + extraBodyAssignArgs)
+                            .call(
+                                [
+                                    .init(label: nil, expression: .identifierPattern("value")),
+                                    .init(
+                                        label: "headerFields",
+                                        expression: .inOut(.identifierPattern("response").dot("headerFields"))
+                                    ),
+                                    .init(
+                                        label: "contentType",
+                                        expression: .literal(contentType.headerValueForSending)
+                                    ),
+                                ] + extraBodyAssignArgs
+                            )
                     )
                 )
                 caseCodeBlocks.append(.expression(assignBodyExpr))
 
-                return .init(kind: .case(.dot(typeAssigner.contentSwiftName(contentType)), ["value"]), body: caseCodeBlocks)
+                return .init(
+                    kind: .case(.dot(typeAssigner.contentSwiftName(contentType)), ["value"]),
+                    body: caseCodeBlocks
+                )
             }
 
             codeBlocks.append(

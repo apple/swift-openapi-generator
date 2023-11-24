@@ -66,10 +66,8 @@ extension FileTranslator {
     ///           headers, such as unsupported header types or invalid definitions.
     func typedResponseHeaders(from response: OpenAPI.Response, inParent parent: TypeName) throws
         -> [TypedResponseHeader]
-    {
-        try typedResponseHeaders(from: response.headers, inParent: parent)
-    }
-    
+    { try typedResponseHeaders(from: response.headers, inParent: parent) }
+
     /// Returns the response headers declared by the specified response.
     ///
     /// Skips any unsupported response headers.
@@ -81,10 +79,7 @@ extension FileTranslator {
     /// unsupported.
     /// - Throws: An error if there's an issue processing or generating typed response
     ///           headers, such as unsupported header types or invalid definitions.
-    func typedResponseHeaders(
-        from headers: OpenAPI.Header.Map?,
-        inParent parent: TypeName
-    ) throws
+    func typedResponseHeaders(from headers: OpenAPI.Header.Map?, inParent parent: TypeName) throws
         -> [TypedResponseHeader]
     {
         guard let headers else { return [] }

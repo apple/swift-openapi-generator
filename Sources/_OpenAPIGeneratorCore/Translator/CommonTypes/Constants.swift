@@ -345,7 +345,7 @@ enum Constants {
 
         /// The substring used in method names for the url encoded form coding strategy.
         static let urlEncodedForm: String = "URLEncodedForm"
-        
+
         /// The substring used in method names for the multipart coding strategy.
         static let multipart: String = "Multipart"
     }

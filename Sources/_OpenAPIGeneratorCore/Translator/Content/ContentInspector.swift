@@ -39,11 +39,7 @@ extension FileTranslator {
             return nil
         }
         guard try validateSchemaIsSupported(content.schema, foundIn: parent.description) else { return nil }
-        let associatedType = try typeAssigner.typeUsage(
-            withContent: content,
-            components: components,
-            inParent: parent
-        )
+        let associatedType = try typeAssigner.typeUsage(withContent: content, components: components, inParent: parent)
         return .init(content: content, typeUsage: associatedType)
     }
 
@@ -101,7 +97,7 @@ extension FileTranslator {
             try parseContentIfSupported(
                 contentKey: key,
                 contentValue: value,
-                excludeBinary: excludeBinary, 
+                excludeBinary: excludeBinary,
                 isRequired: isRequired,
                 foundIn: foundIn + "/\(key.rawValue)"
             )
@@ -191,27 +187,20 @@ extension FileTranslator {
                 foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
             )
         }
-        if contentType.isJSON {
-            return .init(contentType: contentType, schema: contentValue.schema)
-        }
-        if contentType.isUrlEncodedForm {
-            return .init(contentType: contentType, schema: contentValue.schema)
-        }
+        if contentType.isJSON { return .init(contentType: contentType, schema: contentValue.schema) }
+        if contentType.isUrlEncodedForm { return .init(contentType: contentType, schema: contentValue.schema) }
         if contentType.isMultipart {
             guard isRequired else {
                 diagnostics.emit(
                     .warning(
-                        message: "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated.",
+                        message:
+                            "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated.",
                         context: ["foundIn": foundIn]
                     )
                 )
                 return nil
             }
-            return .init(
-                contentType: contentType,
-                schema: contentValue.schema,
-                encoding: contentValue.encoding
-            )
+            return .init(contentType: contentType, schema: contentValue.schema, encoding: contentValue.encoding)
         }
         if !excludeBinary, contentType.isBinary {
             return .init(contentType: contentType, schema: .b(.string(contentEncoding: .binary)))

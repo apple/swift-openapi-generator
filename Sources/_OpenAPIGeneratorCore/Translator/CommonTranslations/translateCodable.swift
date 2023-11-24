@@ -86,7 +86,12 @@ extension FileTranslator {
                     .expression(
                         .try(
                             .identifierPattern("encoder").dot("encodeAdditionalProperties")
-                                .call([.init(label: nil, expression: .identifierPattern(Constants.AdditionalProperties.variableName))])
+                                .call([
+                                    .init(
+                                        label: nil,
+                                        expression: .identifierPattern(Constants.AdditionalProperties.variableName)
+                                    )
+                                ])
                         )
                     )
                 ]

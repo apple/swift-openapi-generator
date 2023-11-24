@@ -238,9 +238,7 @@ final class Test_Server: XCTestCase {
                 createPet,
                 .init(
                     name: "Fluffz",
-                    genome: Base64EncodedData(
-                        #""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8
-                    )
+                    genome: Base64EncodedData(#""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8)
                 )
             )
             return .created(

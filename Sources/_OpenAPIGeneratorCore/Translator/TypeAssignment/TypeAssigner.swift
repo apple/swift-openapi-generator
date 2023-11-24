@@ -108,7 +108,7 @@ struct TypeAssigner {
         }
         return associatedType
     }
-    
+
     /// Returns a type usage for an unresolved multipart schema.
     /// - Parameters:
     ///   - hint: A hint string used when computing a name for an inline type.
@@ -125,10 +125,7 @@ struct TypeAssigner {
         inParent parent: TypeName
     ) throws -> TypeUsage {
         let multipartBodyElementTypeName: TypeName
-        if let ref = TypeMatcher.multipartElementTypeReferenceIfReferenceable(
-            schema: schema,
-            encoding: encoding
-        ) {
+        if let ref = TypeMatcher.multipartElementTypeReferenceIfReferenceable(schema: schema, encoding: encoding) {
             multipartBodyElementTypeName = try typeName(for: ref)
         } else {
             let swiftSafeName = asSwiftSafeName(hint)
@@ -148,11 +145,9 @@ struct TypeAssigner {
     ///   - parent: The parent type in which to name the type.
     /// - Returns: A type usage; or nil if the schema is nil or unsupported.
     /// - Throws: An error if there's an issue while computing the type usage, such as when resolving a type name or checking compatibility.
-    func typeUsage(
-        withContent content: SchemaContent,
-        components: OpenAPI.Components,
-        inParent parent: TypeName
-    ) throws -> TypeUsage? {
+    func typeUsage(withContent content: SchemaContent, components: OpenAPI.Components, inParent parent: TypeName) throws
+        -> TypeUsage?
+    {
         let identifier = contentSwiftName(content.contentType)
         if content.contentType.isMultipart {
             return try typeUsage(
@@ -513,7 +508,7 @@ struct TypeAssigner {
     func typeNameForComponents() -> TypeName {
         TypeName(components: [.root, .init(swift: Constants.Components.namespace, json: "components")])
     }
-    
+
     /// Returns a Swift-safe identifier used as the name of the content
     /// enum case.
     ///

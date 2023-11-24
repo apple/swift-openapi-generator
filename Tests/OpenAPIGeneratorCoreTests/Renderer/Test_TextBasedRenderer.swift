@@ -235,10 +235,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testDeclaration() throws {
         try _test(
-            .variable(
-                kind: .let,
-                left: "foo"
-            ),
+            .variable(kind: .let, left: "foo"),
             renderedBy: TextBasedRenderer.renderDeclaration,
             rendersAs: #"""
                 let foo
@@ -509,11 +506,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             .init(
                 accessModifier: .public,
                 onType: "Info",
-                declarations: [.variable(
-                    kind: .let,
-                    left: "foo",
-                    type: .member("Int")
-                )]
+                declarations: [.variable(kind: .let, left: "foo", type: .member("Int"))]
             ),
             renderedBy: TextBasedRenderer.renderExtension,
             rendersAs: #"""
@@ -666,12 +659,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testCodeBlockItem() throws {
         try _test(
-            .declaration(
-                .variable(
-                    kind: .let,
-                    left: "foo"
-                )
-            ),
+            .declaration(.variable(kind: .let, left: "foo")),
             renderedBy: TextBasedRenderer.renderCodeBlockItem,
             rendersAs: #"""
                 let foo
@@ -688,15 +676,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testCodeBlock() throws {
         try _test(
-            .init(
-                comment: .inline("- MARK: Section"),
-                item: .declaration(
-                    .variable(
-                        kind: .let,
-                        left: "foo"
-                    )
-                )
-            ),
+            .init(comment: .inline("- MARK: Section"), item: .declaration(.variable(kind: .let, left: "foo"))),
             renderedBy: TextBasedRenderer.renderCodeBlock,
             rendersAs: #"""
                 // - MARK: Section
@@ -704,15 +684,7 @@ final class Test_TextBasedRenderer: XCTestCase {
                 """#
         )
         try _test(
-            .init(
-                comment: nil,
-                item: .declaration(
-                    .variable(
-                        kind: .let,
-                        left: "foo"
-                    )
-                )
-            ),
+            .init(comment: nil, item: .declaration(.variable(kind: .let, left: "foo"))),
             renderedBy: TextBasedRenderer.renderCodeBlock,
             rendersAs: #"""
                 let foo

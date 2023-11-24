@@ -71,13 +71,7 @@ extension TypesFileTranslator {
         isMultipartContent: Bool = false
     ) throws -> [Declaration] {
 
-        if isMultipartContent {
-            return try translateMultipartBody(
-                typeName: typeName,
-                schema: schema
-            )
-        }
-        
+        if isMultipartContent { return try translateMultipartBody(typeName: typeName, schema: schema) }
         let value = schema.value
 
         // Attach any warnings from the parsed schema as a diagnostic.

@@ -26,7 +26,7 @@ enum CodingStrategy: String, Hashable, Sendable {
 
     /// A strategy using x-www-form-urlencoded.
     case urlEncodedForm
-    
+
     /// A strategy using multipart/form-data.
     case multipart
 

@@ -302,9 +302,7 @@ final class Test_Client: XCTestCase {
                 body: .json(
                     .init(
                         name: "Fluffz",
-                        genome: Base64EncodedData(
-                            #""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8
-                        )
+                        genome: Base64EncodedData(#""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8)
                     )
                 )
             )
@@ -321,9 +319,7 @@ final class Test_Client: XCTestCase {
                 .init(
                     id: 1,
                     name: "Fluffz",
-                    genome: Base64EncodedData(
-                        #""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8
-                    )
+                    genome: Base64EncodedData(#""GACTATTCATAGAGTTTCACCTCAGGAGAGAGAAGTAAGCATTAGCAGCTGC""#.utf8)
                 )
             )
         }

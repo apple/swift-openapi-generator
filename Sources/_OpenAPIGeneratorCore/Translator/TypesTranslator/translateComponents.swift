@@ -24,10 +24,9 @@ extension TypesFileTranslator {
     /// - Returns: A code block with the enum representing the components
     /// namespace.
     /// - Throws: An error if there's an issue during translation of components.
-    func translateComponents(
-        _ components: OpenAPI.Components,
-        multipartSchemaNames: Set<OpenAPI.ComponentKey>
-    ) throws -> CodeBlock {
+    func translateComponents(_ components: OpenAPI.Components, multipartSchemaNames: Set<OpenAPI.ComponentKey>) throws
+        -> CodeBlock
+    {
 
         let schemas = try translateSchemas(components.schemas, multipartSchemaNames: multipartSchemaNames)
         let parameters = try translateComponentParameters(components.parameters)

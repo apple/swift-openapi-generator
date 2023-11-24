@@ -80,11 +80,7 @@ extension FileTranslator {
             isInlined = true
         }
 
-        let contents = try supportedTypedContents(
-            request.content,
-            isRequired: request.required,
-            inParent: typeName
-        )
+        let contents = try supportedTypedContents(request.content, isRequired: request.required, inParent: typeName)
         if contents.isEmpty { return nil }
 
         let usage = typeName.asUsage.withOptional(!request.required)

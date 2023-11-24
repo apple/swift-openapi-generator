@@ -50,7 +50,7 @@ struct ContentType: Hashable {
         ///
         /// The type is encoded as a binary UTF-8 data packet.
         case urlEncodedForm
-        
+
         /// A content type for multipart/form-data.
         ///
         /// The type is encoded as an async sequence of parts.
@@ -216,19 +216,13 @@ struct ContentType: Hashable {
     var isMultipart: Bool { category == .multipart }
 
     /// The content type `text/plain`.
-    static var textPlain: Self {
-        try! .init(string: "text/plain")
-    }
+    static var textPlain: Self { try! .init(string: "text/plain") }
 
     /// The content type `application/json`.
-    static var applicationJSON: Self {
-        try! .init(string: "application/json")
-    }
+    static var applicationJSON: Self { try! .init(string: "application/json") }
 
     /// The content type `application/octet-stream`.
-    static var applicationOctetStream: Self {
-        try! .init(string: "application/octet-stream")
-    }
+    static var applicationOctetStream: Self { try! .init(string: "application/octet-stream") }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         // MIME type equality is case-insensitive.
