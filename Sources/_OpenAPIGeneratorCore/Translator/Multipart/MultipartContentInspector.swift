@@ -108,6 +108,7 @@ extension FileTranslator {
     ///   - schema: The top level schema of the multipart content.
     ///   - encoding: The encoding mapping refining the information from the schema.
     /// - Returns: A multipart content value, or nil if the provided schema is not valid multipart content.
+    /// - Throws: An error if the schema is malformed or a reference cannot be followed.
     func parseMultipartContent(
         typeName: TypeName,
         schema: UnresolvedSchema?,
@@ -184,23 +185,26 @@ extension FileTranslator {
     }
 
     /// Parses multipart content information from the provided schema.
-    /// - Parameters:
-    ///   - content: The schema content from which to parse multipart information.
+    /// - Parameter content: The schema content from which to parse multipart information.
     /// - Returns: A multipart content value, or nil if the provided schema is not valid multipart content.
+    /// - Throws: An error if the schema is malformed or a reference cannot be followed.
     func parseMultipartContent(_ content: TypedSchemaContent) throws -> MultipartContent? {
         let schemaContent = content.content
         precondition(schemaContent.contentType.isMultipart, "Unexpected content type passed to translateMultipartBody")
-        let typeUsage = content.typeUsage! /* safe - we never produce nil for multipart */
+        // Safe - we never produce nil for multipart.
+        let typeUsage = content.typeUsage!
         let typeName = typeUsage.typeName
         let schema = schemaContent.schema
         let encoding = schemaContent.encoding
         return try parseMultipartContent(typeName: typeName, schema: schema, encoding: encoding)
     }
+
     /// Computes the requirements for the provided parts and additional properties strategy.
     /// - Parameters:
     ///   - parts: The multipart parts.
     ///   - additionalPropertiesStrategy: The strategy used for handling additional properties.
     /// - Returns: The multipart requirements.
+    /// - Throws: An error if the schema is malformed or a reference cannot be followed.
     func parseMultipartRequirements(
         parts: [MultipartSchemaTypedContent],
         additionalPropertiesStrategy: MultipartAdditionalPropertiesStrategy

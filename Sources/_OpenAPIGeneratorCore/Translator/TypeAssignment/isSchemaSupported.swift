@@ -372,6 +372,13 @@ extension FileTranslator {
         default: return .unsupported(reason: .notRef, schema: schema)
         }
     }
+
+    /// Resolves references and returns the object context for the provided object schema.
+    /// - Parameters:
+    ///   - schema: The schema to resolve.
+    ///   - referenceStack: The reference stack.
+    /// - Returns: An object context, or nil if the first concrete type is not an object schema.
+    /// - Throws: An error if the schema is malformed or a reference cannot be followed.
     func flattenedTopLevelMultipartObject(_ schema: JSONSchema, referenceStack: inout ReferenceStack) throws
         -> JSONSchema.ObjectContext?
     {
@@ -391,6 +398,13 @@ extension FileTranslator {
         case .fragment: return .init(properties: [:], additionalProperties: nil)
         }
     }
+
+    /// Resolves references and returns the object context for the provided object schema.
+    /// - Parameters:
+    ///   - schema: The schema to resolve.
+    ///   - referenceStack: The reference stack.
+    /// - Returns: An object context, or nil if the first concrete type is not an object schema.
+    /// - Throws: An error if the schema is malformed or a reference cannot be followed.
     func flattenedTopLevelMultipartObject(_ schema: UnresolvedSchema?, referenceStack: inout ReferenceStack) throws
         -> JSONSchema.ObjectContext?
     {

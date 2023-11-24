@@ -232,7 +232,7 @@ extension FileTranslator {
     /// Returns the requirements-related extra function arguments used for multipart serializers and deserializers.
     /// - Parameter requirements: The requirements to generate arguments for.
     /// - Returns: The list of arguments.
-    func translateMultipartRequirementsExtraArguments(_ requirements: MultipartRequirements) throws
+    func translateMultipartRequirementsExtraArguments(_ requirements: MultipartRequirements)
         -> [FunctionArgumentDescription]
     {
         func sortedStringSetLiteral(_ set: Set<String>) -> Expression {
@@ -262,6 +262,7 @@ extension FileTranslator {
     ///   - content: The multipart content.
     ///   - getBodyMethodPrefix: The string prefix of the "get body" methods.
     /// - Returns: The extra function arguments.
+    /// - Throws: An error if the content is malformed or a reference cannot be followed.
     func translateMultipartDeserializerExtraArguments(_ content: TypedSchemaContent, getBodyMethodPrefix: String) throws
         -> [FunctionArgumentDescription]
     {
@@ -270,7 +271,7 @@ extension FileTranslator {
             label: "boundary",
             expression: .identifierPattern("contentType").dot("requiredBoundary").call([])
         )
-        let requirementsArgs = try translateMultipartRequirementsExtraArguments(multipart.requirements)
+        let requirementsArgs = translateMultipartRequirementsExtraArguments(multipart.requirements)
         let decoding: FunctionArgumentDescription = .init(
             label: "decoding",
             expression: .closureInvocation(
@@ -297,6 +298,7 @@ extension FileTranslator {
     ///   - headerDecls: A list of declarations of the part headers, can be empty.
     ///   - headersVarArgs: A list of arguments for headers on the part's type, can be empty.
     /// - Returns: The switch case description, or nil if not valid or supported schema.
+    /// - Throws: An error if the schema is malformed or a reference cannot be followed.
     func translateMultipartDecodingClosureTypedPart(
         caseName: String,
         caseKind: SwitchCaseKind,
@@ -385,6 +387,7 @@ extension FileTranslator {
     ///   - multipart: The multipart content.
     ///   - getBodyMethodPrefix: The string prefix of the "get body" methods.
     /// - Returns: The body code blocks of the decoding closure.
+    /// - Throws: An error if the content is malformed or a reference cannot be followed.
     func translateMultipartDecodingClosure(_ multipart: MultipartContent, getBodyMethodPrefix: String) throws
         -> [CodeBlock]
     {
@@ -513,11 +516,12 @@ extension FileTranslator {
     ///   - content: The multipart content.
     ///   - setBodyMethodPrefix: The string prefix of the "set body" methods.
     /// - Returns: The extra function arguments.
+    /// - Throws: An error if the content is malformed or a reference cannot be followed.
     func translateMultipartSerializerExtraArguments(_ content: TypedSchemaContent, setBodyMethodPrefix: String) throws
         -> [FunctionArgumentDescription]
     {
         guard let multipart = try parseMultipartContent(content) else { return [] }
-        let requirementsArgs = try translateMultipartRequirementsExtraArguments(multipart.requirements)
+        let requirementsArgs = translateMultipartRequirementsExtraArguments(multipart.requirements)
         let encoding: FunctionArgumentDescription = .init(
             label: "encoding",
             expression: .closureInvocation(
@@ -544,7 +548,7 @@ extension FileTranslator {
         setBodyMethodPrefix: String,
         contentType: ContentType,
         headerExprs: [Expression]
-    ) throws -> SwitchCaseDescription {
+    ) -> SwitchCaseDescription {
         let contentTypeHeaderValue = contentType.headerValueForSending
         let headersDecl: Declaration = .variable(
             kind: .var,
@@ -592,6 +596,7 @@ extension FileTranslator {
     ///   - multipart: The multipart content.
     ///   - setBodyMethodPrefix: The string prefix of the "set body" methods.
     /// - Returns: The body code blocks of the encoding closure.
+    /// - Throws: An error if the content is malformed or a reference cannot be followed.
     func translateMultipartEncodingClosure(_ multipart: MultipartContent, setBodyMethodPrefix: String) throws
         -> [CodeBlock]
     {
@@ -608,7 +613,7 @@ extension FileTranslator {
                 let headers = try typedResponseHeaders(from: part.headers, inParent: headersTypeName)
                 let headerExprs: [Expression] = try headers.map { header in try translateMultipartOutgoingHeader(header)
                 }
-                return try translateMultipartEncodingClosureTypedPart(
+                return translateMultipartEncodingClosureTypedPart(
                     caseName: identifier,
                     nameExpr: .literal(originalName),
                     bodyExpr: .identifierPattern("value").dot("body"),
@@ -618,7 +623,7 @@ extension FileTranslator {
                 )
             case .otherDynamicallyNamed(let part):
                 let contentType = part.partInfo.contentType
-                return try translateMultipartEncodingClosureTypedPart(
+                return translateMultipartEncodingClosureTypedPart(
                     caseName: Constants.AdditionalProperties.variableName,
                     nameExpr: .identifierPattern("wrapped").dot("name"),
                     bodyExpr: .identifierPattern("value"),

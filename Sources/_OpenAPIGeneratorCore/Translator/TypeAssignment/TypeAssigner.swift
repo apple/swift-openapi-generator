@@ -113,6 +113,7 @@ struct TypeAssigner {
     /// - Parameters:
     ///   - hint: A hint string used when computing a name for an inline type.
     ///   - schema: The OpenAPI schema.
+    ///   - encoding: The encoding mapping refining the schema.
     ///   - components: The components in which to look up references.
     ///   - parent: The parent type in which to name the type.
     /// - Returns: A type usage.
