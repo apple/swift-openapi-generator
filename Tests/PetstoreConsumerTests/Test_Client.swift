@@ -726,24 +726,25 @@ final class Test_Client: XCTestCase {
     }
 
     func testMultipartDownloadTyped_200() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in
+        transport = .init(callHandler: { request, requestBody, baseURL, operationID in
             XCTAssertEqual(operationID, "multipartDownloadTyped")
             XCTAssertEqual(request.path, "/pets/multipart-typed")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .get)
             XCTAssertEqual(request.headerFields, [.accept: "multipart/form-data"])
-            let (stream, continuation) = AsyncStream.makeStream(of: ArraySlice<UInt8>.self)
+            let stream = AsyncStream<ArraySlice<UInt8>> { continuation in
+                let bytes = Data.multipartTypedBodyAsSlice
+                continuation.yield(ArraySlice(bytes))
+                continuation.finish()
+            }
             let body: HTTPBody = .init(stream, length: .unknown)
-            let bytes = Data.multipartTypedBodyAsSlice
-            continuation.yield(ArraySlice(bytes))
-            continuation.finish()
             return (
                 .init(
                     status: .ok,
                     headerFields: [.contentType: "multipart/form-data; boundary=__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__"]
                 ), body
             )
-        }
+        })
         let response = try await client.multipartDownloadTyped()
         let responseMultipart = try response.ok.body.multipartForm
 
