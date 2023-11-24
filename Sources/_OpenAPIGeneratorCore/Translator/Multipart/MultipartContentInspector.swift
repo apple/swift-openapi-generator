@@ -13,13 +13,22 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
+/// Information about the kind of the part.
 struct MultipartPartInfo: Hashable {
     
+    /// The serialization strategy used by this part, derived from the schema and content type.
     enum SerializationStrategy: Hashable {
+
+        /// A primitive strategy, for example used for raw strings.
         case primitive
+
+        /// A complex strategy, for example used for JSON objects.
         case complex
+
+        /// A binary strategy, used for raw byte payloads.
         case binary
         
+        /// The content type most appropriate for the serialization strategy.
         var contentType: ContentType {
             // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#special-considerations-for-multipart-content
             // > If the property is a primitive, or an array of primitive values, the default Content-Type is text/plain
@@ -36,15 +45,26 @@ struct MultipartPartInfo: Hashable {
         }
     }
     
+    /// The repetition kind of the part, whether it only appears once or multiple times.
     enum RepetitionKind: Hashable {
+
+        /// A single kind, cannot be repeated.
         case single
+
+        /// An array kind, allows the part name to appear more than once.
         case array
     }
-    
+
+    /// The source of the content type information.
     enum ContentTypeSource: Hashable {
+
+        /// An explicit source, where the OpenAPI document contains a content type in the encoding map.
         case explicit(ContentType)
+
+        /// An implicit source, where the content type is inferred from the serialization strategy.
         case infer(SerializationStrategy)
         
+        /// The content type computed from the source.
         var contentType: ContentType {
             switch self {
             case .explicit(let contentType):
@@ -55,25 +75,46 @@ struct MultipartPartInfo: Hashable {
         }
     }
     
+    /// The repetition kind of the part.
     var repetition: RepetitionKind
+
+    /// The source of content type information.
     var contentTypeSource: ContentTypeSource
-    
+
+    /// The content type used by this part.
     var contentType: ContentType {
         contentTypeSource.contentType
     }
 }
 
+/// The requirements derived from the OpenAPI document.
 struct MultipartRequirements {
+
+    /// A Boolean value indicating whether unknown part names are allowed.
     var allowsUnknownParts: Bool
+
+    /// A set of known part names that must appear exactly once.
     var requiredExactlyOncePartNames: Set<String>
+
+    /// A set of known part names that must appear at least once.
     var requiredAtLeastOncePartNames: Set<String>
+
+    /// A set of known part names that can appear at most once.
     var atMostOncePartNames: Set<String>
+
+    /// A set of known part names that can appear any number of times.
     var zeroOrMoreTimesPartNames: Set<String>
 }
 
 /// Utilities for asking questions about multipart content.
 extension FileTranslator {
     
+    /// Parses multipart content information from the provided schema.
+    /// - Parameters:
+    ///   - typeName: The name of the multipart type.
+    ///   - schema: The top level schema of the multipart content.
+    ///   - encoding: The encoding mapping refining the information from the schema.
+    /// - Returns: A multipart content value, or nil if the provided schema is not valid multipart content.
     func parseMultipartContent(
         typeName: TypeName,
         schema: UnresolvedSchema?,
@@ -150,7 +191,11 @@ extension FileTranslator {
             requirements: requirements
         )
     }
-    
+
+    /// Parses multipart content information from the provided schema.
+    /// - Parameters:
+    ///   - content: The schema content from which to parse multipart information.
+    /// - Returns: A multipart content value, or nil if the provided schema is not valid multipart content.
     func parseMultipartContent(_ content: TypedSchemaContent) throws -> MultipartContent? {
         let schemaContent = content.content
         precondition(schemaContent.contentType.isMultipart, "Unexpected content type passed to translateMultipartBody")
@@ -165,6 +210,11 @@ extension FileTranslator {
         )
     }
     
+    /// Computes the requirements for the provided parts and additional properties strategy.
+    /// - Parameters:
+    ///   - parts: The multipart parts.
+    ///   - additionalPropertiesStrategy: The strategy used for handling additional properties.
+    /// - Returns: The multipart requirements.
     func parseMultipartRequirements(
         parts: [MultipartSchemaTypedContent],
         additionalPropertiesStrategy: MultipartAdditionalPropertiesStrategy
@@ -202,7 +252,15 @@ extension FileTranslator {
         )
     }
     
-    /// The returned schema is the schema of the part element, so the top arrays are stripped here.
+    /// Parses information about an individual part's schema.
+    ///
+    /// The returned schema is the schema of the part element, so the top arrays are stripped here, and
+    /// are allowed to be repeated.
+    /// - Parameters:
+    ///   - schema: The schema of the part.
+    ///   - encoding: The encoding information for the schema.
+    ///   - foundIn: The location where this part is parsed.
+    /// - Returns: A tuple of the part info and resolved schema, or nil if the schema is not a valid part schema.
     func parseMultipartPartInfo(
         schema: JSONSchema,
         encoding: OpenAPI.Content.Encoding?,
@@ -278,7 +336,14 @@ extension FileTranslator {
         }
         return (info, schema)
     }
-        
+    
+    /// Parses the names of component schemas used by multipart request and response bodies.
+    ///
+    /// The result is used to inform how a schema is generated.
+    /// - Parameters:
+    ///   - paths: The paths section of the OpenAPI document.
+    ///   - components: The components section of the OpenAPI document.
+    /// - Returns: A set of component keys of the schemas used by multipart content.
     func parseSchemaNamesUsedInMultipart(
         paths: OpenAPI.PathItem.Map,
         components: OpenAPI.Components

@@ -74,8 +74,11 @@ public extension Data {
     static var quotedEfghString: String { #""efgh""# }
 
     static var efgh: Data { Data(efghString.utf8) }
+
     static var crlf: ArraySlice<UInt8> = [0xd, 0xa]
+
     static var multipartBodyString: String { String(decoding: multipartBodyAsSlice, as: UTF8.self) }
+
     static var multipartBodyAsSlice: [UInt8] {
         var bytes: [UInt8] = []
         bytes.append(contentsOf: "--__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__".utf8)
@@ -103,6 +106,7 @@ public extension Data {
     }
 
     static var multipartBody: Data { Data(multipartBodyAsSlice) }
+
     static var multipartTypedBodyAsSlice: [UInt8] {
         var bytes: [UInt8] = []
         bytes.append(contentsOf: "--__X_SWIFT_OPENAPI_GENERATOR_BOUNDARY__".utf8)

@@ -13,17 +13,28 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
+/// The strategy for handling the additional properties key in a multipart schema.
 enum MultipartAdditionalPropertiesStrategy: Equatable {
+
+    /// A strategy where additional properties are explicitly disallowed.
     case disallowed
+
+    /// A strategy where additional properties are implicitly allowed.
     case allowed
+
+    /// A strategy where all additional properties must conform to the given schema.
     case typed(JSONSchema)
+
+    /// A strategy where additional properties are explicitly allowed, and are freeform.
     case any
 }
 
 extension FileTranslator {
     
+    /// Computes the additional properties strategy given the schema's additional properties value.
+    /// - Parameter additionalProperties: The schema's additional properties value.
+    /// - Returns: The computed strategy.
     func parseMultipartAdditionalPropertiesStrategy(_ additionalProperties: Either<Bool, JSONSchema>?) -> MultipartAdditionalPropertiesStrategy {
-        
         switch additionalProperties {
         case .none:
             return .allowed

@@ -14,6 +14,11 @@
 import OpenAPIKit
 
 extension FileTranslator {
+
+    /// Returns an expression representing the call to converter to set the provided header into
+    /// a header fields container.
+    /// - Parameter header: The header to set.
+    /// - Returns: An expression.
     func translateMultipartOutgoingHeader(_ header: TypedResponseHeader) throws -> Expression {
         .try(
             .identifierPattern("converter").dot("setHeaderFieldAs\(header.codingStrategy.runtimeName)")
@@ -29,7 +34,11 @@ extension FileTranslator {
                 ])
         )
     }
-    
+
+    /// Returns an expression representing the call to converter to get the provided header from
+    /// a header fields container.
+    /// - Parameter header: The header to get.
+    /// - Returns: A function argument description.
     func translateMultipartIncomingHeader(
         _ header: TypedResponseHeader
     ) throws -> FunctionArgumentDescription {

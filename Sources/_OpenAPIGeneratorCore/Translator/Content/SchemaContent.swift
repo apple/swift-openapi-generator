@@ -26,6 +26,9 @@ struct SchemaContent {
     /// content types such as binary data.
     var schema: UnresolvedSchema?
 
+    /// The optional encoding mapping for each of the properties in the object schema.
+    ///
+    /// Only used in multipart object schemas, ignored otherwise, as per the OpenAPI specification.
     var encoding: OrderedDictionary<String, OpenAPI.Content.Encoding>?
 }
 

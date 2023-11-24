@@ -82,10 +82,13 @@ extension TypeName {
     /// Returns the type name for the body type.
     static var multipartBody: TypeName { .runtime("MultipartBody") }
 
+    /// Returns the type name for the multipart typed part type.
     static var multipartPart: TypeName { .runtime("MultipartPart") }
 
+    /// Returns the type name for the multipart dynamically typed part type.
     static var multipartDynamicallyNamedPart: TypeName { .runtime("MultipartDynamicallyNamedPart") }
 
+    /// Returns the type name for the multipart raw part type.
     static var multipartRawPart: TypeName { .runtime("MultipartRawPart") }
 
     /// Returns the type name for the server request metadata type.

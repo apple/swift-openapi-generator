@@ -130,7 +130,14 @@ extension TypesFileTranslator {
         let typeName = typeAssigner.typeName(for: componentKey, of: OpenAPI.Response.self)
         return try translateResponseInTypes(typeName: typeName, response: response)
     }
-    
+
+    /// Returns a list of declarations for the specified content to be generated in the provided body namespace.
+    /// - Parameters:
+    ///   - typedContent: The content to generated.
+    ///   - bodyTypeName: The parent body type name.
+    ///   - hasMultipleContentTypes: A Boolean value indicating whether there are more than one content types.
+    /// - Returns: A list of declarations.
+    /// - Throws: If the translation of underlying schemas fails.
     func translateResponseBodyContentInTypes(
         _ typedContent: TypedSchemaContent,
         bodyTypeName: TypeName,

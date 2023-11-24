@@ -148,7 +148,12 @@ struct TypeMatcher {
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: `true` if the schema is inlinable; `false` otherwise.
     static func isInlinable(_ schema: UnresolvedSchema?) -> Bool { !isReferenceable(schema) }
-
+    
+    /// Return a reference to a multipart element type if the provided schema is referenceable.
+    /// - Parameters:
+    ///   - schema: The schema to try to reference.
+    ///   - encoding: The associated encoding.
+    /// - Returns: A reference if the schema is referenceable, nil otherwise.
     static func multipartElementTypeReferenceIfReferenceable(
         schema: UnresolvedSchema?,
         encoding: OrderedDictionary<String, OpenAPI.Content.Encoding>?

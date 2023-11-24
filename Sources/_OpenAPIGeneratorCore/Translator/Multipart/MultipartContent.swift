@@ -13,47 +13,73 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
+/// The top level container of multipart parts.
 struct MultipartContent {
+
+    /// The type name of the enclosing enum.
     var typeName: TypeName
+
+    /// The multipart parts.
     var parts: [MultipartSchemaTypedContent]
+
+    /// The strategy for handling additional properties.
     var additionalPropertiesStrategy: MultipartAdditionalPropertiesStrategy
+
+    /// The requirements enforced by the validation sequence.
     var requirements: MultipartRequirements
 }
 
+/// A container of information about an individual multipart part.
 enum MultipartSchemaTypedContent {
+
+    /// The associated data with the `documentedTyped` case.
     struct DocumentedTypeInfo {
+
+        /// The original name of the case from the OpenAPI document.
         var originalName: String
+
+        /// The type name of the part wrapper.
         var typeName: TypeName
+
+        /// Information about the kind of the part.
         var partInfo: MultipartPartInfo
+
+        /// The value schema of the part defined in the OpenAPI document.
         var schema: JSONSchema
+
+        /// The headers defined for the part in the OpenAPI document.
         var headers: OpenAPI.Header.Map?
     }
+    /// A documented part with a name specified in the OpenAPI document.
     case documentedTyped(DocumentedTypeInfo)
-    
+
+    /// The associated data with the `otherDynamicallyNamed` case.
     struct OtherDynamicallyNamedInfo {
+
+        /// The type name of the part wrapper.
         var typeName: TypeName
+
+        /// Information about the kind of the part.
         var partInfo: MultipartPartInfo
+
+        /// The value schema of the part defined in the OpenAPI document.
         var schema: JSONSchema
     }
+    /// A part representing additional properties with a schema constraint.
     case otherDynamicallyNamed(OtherDynamicallyNamedInfo)
-    
+
+    /// A part representing explicitly allowed, freeform additional properties.
     case otherRaw
+
+    /// A part representing an undocumented value.
     case undocumented
 }
 
 extension MultipartSchemaTypedContent {
     
-    var innerTypeName: TypeName? {
-        switch self {
-        case .documentedTyped(let info):
-            return info.typeName
-        case .otherDynamicallyNamed(let info):
-            return info.typeName
-        default:
-            return nil
-        }
-    }
-    
+    /// The type usage of the part type wrapper.
+    ///
+    /// For example, for a documented part, the generated type is wrapped in `OpenAPIRuntime.MultipartPart<...>`.
     var wrapperTypeUsage: TypeUsage {
         switch self {
         case .documentedTyped(let info):

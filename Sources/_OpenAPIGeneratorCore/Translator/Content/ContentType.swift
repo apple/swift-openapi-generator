@@ -215,14 +215,17 @@ struct ContentType: Hashable {
     /// is a multipart form.
     var isMultipart: Bool { category == .multipart }
 
+    /// The content type `text/plain`.
     static var textPlain: Self {
         try! .init(string: "text/plain")
     }
 
+    /// The content type `application/json`.
     static var applicationJSON: Self {
         try! .init(string: "application/json")
     }
 
+    /// The content type `application/octet-stream`.
     static var applicationOctetStream: Self {
         try! .init(string: "application/octet-stream")
     }
