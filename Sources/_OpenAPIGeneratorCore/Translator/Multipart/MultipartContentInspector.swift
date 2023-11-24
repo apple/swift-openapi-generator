@@ -143,9 +143,7 @@ extension FileTranslator {
                 )
             )
         }
-        let additionalPropertiesStrategy = parseMultipartAdditionalPropertiesStrategy(
-            topLevelObject.additionalProperties
-        )
+        let additionalPropertiesStrategy = MultipartAdditionalPropertiesStrategy(topLevelObject.additionalProperties)
         switch additionalPropertiesStrategy {
         case .disallowed: break
         case .allowed: parts.append(.undocumented)
