@@ -19,7 +19,11 @@ import PetstoreConsumerTestCore
 extension APIProtocol {
     func configuredServer(for serverURLString: String = "/api") throws -> TestServerTransport {
         let transport = TestServerTransport()
-        try registerHandlers(on: transport, serverURL: try URL(validatingOpenAPIServerURL: serverURLString))
+        try registerHandlers(
+            on: transport,
+            serverURL: try URL(validatingOpenAPIServerURL: serverURLString),
+            configuration: .init(multipartBoundaryGenerator: .constant)
+        )
         return transport
     }
 }
@@ -52,4 +56,12 @@ extension TestServerTransport {
     var probe: Handler { get throws { try findHandler(method: .post, path: "/api/probe/") } }
 
     var uploadAvatarForPet: Handler { get throws { try findHandler(method: .put, path: "/api/pets/{petId}/avatar") } }
+
+    var multipartUploadTyped: Handler {
+        get throws { try findHandler(method: .post, path: "/api/pets/multipart-typed") }
+    }
+
+    var multipartDownloadTyped: Handler {
+        get throws { try findHandler(method: .get, path: "/api/pets/multipart-typed") }
+    }
 }

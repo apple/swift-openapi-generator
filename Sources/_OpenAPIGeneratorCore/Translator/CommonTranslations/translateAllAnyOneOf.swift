@@ -23,7 +23,7 @@ enum AllOrAnyOf {
     case anyOf
 }
 
-extension FileTranslator {
+extension TypesFileTranslator {
 
     /// Returns a declaration for an allOf or anyOf schema.
     ///

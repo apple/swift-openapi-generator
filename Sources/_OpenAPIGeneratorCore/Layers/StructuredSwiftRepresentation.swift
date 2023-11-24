@@ -236,7 +236,7 @@ struct VariableDescription: Equatable, Codable {
     /// The name of the variable.
     ///
     /// For example, in `let foo = 42`, `left` is `foo`.
-    var left: String
+    var left: Expression
 
     /// The type of the variable.
     ///
@@ -1108,6 +1108,49 @@ extension Declaration {
 
     ) -> Self {
         .variable(
+            accessModifier: accessModifier,
+            isStatic: isStatic,
+            kind: kind,
+            left: .identifierPattern(left),
+            type: type,
+            right: right,
+            getter: getter,
+            getterEffects: getterEffects,
+            setter: setter,
+            modify: modify
+        )
+    }
+
+    /// A variable declaration.
+    ///
+    /// For example: `let foo = 42`.
+    /// - Parameters:
+    ///   - accessModifier: An access modifier.
+    ///   - isStatic: A Boolean value that indicates whether the variable
+    ///   is static.
+    ///   - kind: The variable binding kind.
+    ///   - left: The name of the variable.
+    ///   - type: The type of the variable.
+    ///   - right: The expression to be assigned to the variable.
+    ///   - getter: Body code for the getter of the variable.
+    ///   - getterEffects: Effects of the getter.
+    ///   - setter: Body code for the setter of the variable.
+    ///   - modify: Body code for the `_modify` accessor.
+    /// - Returns: Variable declaration.
+    static func variable(
+        accessModifier: AccessModifier? = nil,
+        isStatic: Bool = false,
+        kind: BindingKind,
+        left: Expression,
+        type: ExistingTypeDescription? = nil,
+        right: Expression? = nil,
+        getter: [CodeBlock]? = nil,
+        getterEffects: [FunctionKeyword] = [],
+        setter: [CodeBlock]? = nil,
+        modify: [CodeBlock]? = nil
+
+    ) -> Self {
+        .variable(
             .init(
                 accessModifier: accessModifier,
                 isStatic: isStatic,
@@ -1521,14 +1564,6 @@ extension MemberAccessDescription {
     static func dot(_ member: String) -> Self { .init(right: member) }
 }
 
-extension Expression: ExpressibleByStringLiteral, ExpressibleByNilLiteral, ExpressibleByArrayLiteral {
-    init(arrayLiteral elements: Expression...) { self = .literal(.array(elements)) }
-
-    init(stringLiteral value: String) { self = .literal(.string(value)) }
-
-    init(nilLiteral: ()) { self = .literal(.nil) }
-}
-
 extension LiteralDescription: ExpressibleByStringLiteral, ExpressibleByNilLiteral, ExpressibleByArrayLiteral {
     init(arrayLiteral elements: Expression...) { self = .array(elements) }
 
@@ -1544,14 +1579,14 @@ extension VariableDescription {
     /// For example `var foo = 42`.
     /// - Parameter name: The name of the variable.
     /// - Returns: A new mutable variable declaration.
-    static func `var`(_ name: String) -> Self { Self.init(kind: .var, left: name) }
+    static func `var`(_ name: String) -> Self { Self.init(kind: .var, left: .identifierPattern(name)) }
 
     /// Returns a new immutable variable declaration.
     ///
     /// For example `let foo = 42`.
     /// - Parameter name: The name of the variable.
     /// - Returns: A new immutable variable declaration.
-    static func `let`(_ name: String) -> Self { Self.init(kind: .let, left: name) }
+    static func `let`(_ name: String) -> Self { Self.init(kind: .let, left: .identifierPattern(name)) }
 }
 
 extension Expression {
@@ -1561,10 +1596,6 @@ extension Expression {
     /// - Parameter rhs: The right-hand side of the assignment expression.
     /// - Returns: An assignment description representing the assignment.
     func equals(_ rhs: Expression) -> AssignmentDescription { .init(left: self, right: rhs) }
-}
-
-extension FunctionArgumentDescription: ExpressibleByStringLiteral {
-    init(stringLiteral value: String) { self = .init(expression: .literal(.string(value))) }
 }
 
 extension FunctionSignatureDescription {

@@ -241,6 +241,19 @@ paths:
             text/plain:
               schema:
                 type: string
+  /pets/multipart-typed:
+    post:
+      operationId: multipartUploadTyped
+      requestBody:
+        $ref: '#/components/requestBodies/MultipartUploadTypedRequest'
+      responses:
+        '202':
+          description: Successfully accepted the data.
+    get:
+      operationId: multipartDownloadTyped
+      responses:
+        '200':
+          $ref: '#/components/responses/MultipartDownloadTypedResponse'
 components:
   headers:
     TracingHeader:
@@ -535,6 +548,39 @@ components:
                 type: integer
             required:
               - code
+    MultipartDownloadTypedResponse:
+      description: A typed multipart response.
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              log:
+                type: string
+              metadata:
+                type: object
+                properties:
+                  createdAt:
+                    type: string
+                    format: date-time
+                required:
+                  - createdAt
+              keyword:
+                type: array
+                items:
+                  type: string
+            required:
+              - log
+          encoding:
+            log:
+              headers:
+                x-log-type:
+                  description: The type of the log.
+                  schema:
+                    type: string
+                    enum:
+                      - structured
+                      - unstructured
   requestBodies:
     UpdatePetRequest:
       required: false
@@ -550,3 +596,36 @@ components:
                 $ref: '#/components/schemas/PetKind'
               tag:
                 type: string
+    MultipartUploadTypedRequest:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              log:
+                type: string
+              metadata:
+                type: object
+                properties:
+                  createdAt:
+                    type: string
+                    format: date-time
+                required:
+                  - createdAt
+              keyword:
+                type: array
+                items:
+                  type: string
+            required:
+              - log
+          encoding:
+            log:
+              headers:
+                x-log-type:
+                  description: The type of the log.
+                  schema:
+                    type: string
+                    enum:
+                      - structured
+                      - unstructured

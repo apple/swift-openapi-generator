@@ -191,7 +191,7 @@ extension TypesFileTranslator {
         let contentTypes = try acceptHeaderContentTypes(for: description)
         guard !contentTypes.isEmpty else { return nil }
         let cases: [(caseName: String, rawExpr: LiteralDescription)] = contentTypes.map { contentType in
-            (contentSwiftName(contentType), .string(contentType.lowercasedTypeAndSubtype))
+            (typeAssigner.contentSwiftName(contentType), .string(contentType.lowercasedTypeAndSubtype))
         }
         return try translateRawRepresentableEnum(
             typeName: acceptableContentTypeName,
@@ -218,14 +218,12 @@ extension TypesFileTranslator {
     func translateOperation(_ operation: OperationDescription) throws -> Declaration {
 
         let idPropertyDecl: Declaration = .variable(
-            .init(
-                accessModifier: config.access,
-                isStatic: true,
-                kind: .let,
-                left: "id",
-                type: .init(TypeName.string),
-                right: .literal(operation.operationID)
-            )
+            accessModifier: config.access,
+            isStatic: true,
+            kind: .let,
+            left: "id",
+            type: .init(TypeName.string),
+            right: .literal(operation.operationID)
         )
 
         let inputDecl: Declaration = try translateOperationInput(operation)
@@ -236,11 +234,9 @@ extension TypesFileTranslator {
         let operationEnumDecl = Declaration.commentable(
             operation.comment,
             .enum(
-                .init(
-                    accessModifier: config.access,
-                    name: operationNamespace.shortSwiftName,
-                    members: [idPropertyDecl, inputDecl, outputDecl] + (acceptDecl.flatMap { [$0] } ?? [])
-                )
+                accessModifier: config.access,
+                name: operationNamespace.shortSwiftName,
+                members: [idPropertyDecl, inputDecl, outputDecl] + (acceptDecl.flatMap { [$0] } ?? [])
             )
         )
         return operationEnumDecl

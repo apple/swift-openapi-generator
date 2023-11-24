@@ -106,7 +106,7 @@ extension TypesFileTranslator {
             guard case .commentable(let comment, let commented) = member,
                 case .variable(var variableDescription) = commented
             else { return member }
-            let name = variableDescription.left
+            let name = TextBasedRenderer.renderedExpressionAsString(variableDescription.left)
             variableDescription.getter = [.expression(.identifierPattern("storage").dot("value").dot(name))]
             variableDescription.modify = [
                 .expression(.yield(.inOut(.identifierPattern("storage").dot("value").dot(name))))
@@ -122,7 +122,7 @@ extension TypesFileTranslator {
             else { return member }
             let propertyNames: [String] = desc.members.compactMap { member in
                 guard case .variable(let variableDescription) = member.strippingTopComment else { return nil }
-                return variableDescription.left
+                return TextBasedRenderer.renderedExpressionAsString(variableDescription.left)
             }
             funcDesc.body = [
                 .expression(

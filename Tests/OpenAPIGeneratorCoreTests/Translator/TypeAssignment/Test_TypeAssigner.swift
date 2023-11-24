@@ -103,4 +103,29 @@ class Test_TypeAssigner: Test_Core {
             )
         }
     }
+
+    func testContentSwiftName() throws {
+        let nameMaker = makeTranslator().typeAssigner.contentSwiftName
+        let cases: [(String, String)] = [
+
+            // Short names.
+            ("application/json", "json"), ("application/x-www-form-urlencoded", "urlEncodedForm"),
+            ("multipart/form-data", "multipartForm"), ("text/plain", "plainText"), ("*/*", "any"),
+            ("application/xml", "xml"), ("application/octet-stream", "binary"), ("text/html", "html"),
+            ("application/yaml", "yaml"), ("text/csv", "csv"), ("image/png", "png"), ("application/pdf", "pdf"),
+            ("image/jpeg", "jpeg"),
+
+            // Generic names.
+            ("application/myformat+json", "application_myformat_plus_json"), ("foo/bar", "foo_bar"),
+
+            // Names with a parameter.
+            ("application/foo", "application_foo"),
+            ("application/foo; bar=baz; boo=foo", "application_foo_bar_baz_boo_foo"),
+            ("application/foo; bar = baz", "application_foo_bar_baz"),
+        ]
+        for (string, name) in cases {
+            let contentType = try XCTUnwrap(ContentType(string: string))
+            XCTAssertEqual(nameMaker(contentType), name, "Case \(string) failed")
+        }
+    }
 }

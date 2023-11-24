@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
-extension FileTranslator {
+extension TypesFileTranslator {
 
     /// Returns a declaration of an object schema.
     ///
@@ -149,7 +149,7 @@ extension FileTranslator {
             associatedDeclarations = []
         case .b(let schema):
             let valueTypeUsage = try typeAssigner.typeUsage(
-                forObjectPropertyNamed: "additionalProperties",
+                forObjectPropertyNamed: Constants.AdditionalProperties.variableName,
                 withSchema: schema,
                 components: components,
                 inParent: parent
@@ -171,7 +171,7 @@ extension FileTranslator {
 
         let extraProperty = PropertyBlueprint(
             comment: .doc("A container of undocumented properties."),
-            originalName: "additionalProperties",
+            originalName: Constants.AdditionalProperties.variableName,
             typeUsage: typeUsage,
             default: .emptyInit,
             isSerializedInTopLevelDictionary: false,

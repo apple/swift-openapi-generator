@@ -51,6 +51,11 @@ struct ContentType: Hashable {
         /// The type is encoded as a binary UTF-8 data packet.
         case urlEncodedForm
 
+        /// A content type for multipart/form-data.
+        ///
+        /// The type is encoded as an async sequence of parts.
+        case multipart
+
         /// Creates a category from the provided type and subtype.
         ///
         /// First checks if the provided content type is a JSON, then text,
@@ -65,6 +70,8 @@ struct ContentType: Hashable {
                 self = .json
             } else if lowercasedType == "application" && lowercasedSubtype == "x-www-form-urlencoded" {
                 self = .urlEncodedForm
+            } else if lowercasedType == "multipart" && lowercasedSubtype == "form-data" {
+                self = .multipart
             } else {
                 self = .binary
             }
@@ -76,6 +83,7 @@ struct ContentType: Hashable {
             case .json: return .json
             case .binary: return .binary
             case .urlEncodedForm: return .urlEncodedForm
+            case .multipart: return .multipart
             }
         }
     }
@@ -199,7 +207,22 @@ struct ContentType: Hashable {
     /// is just binary data.
     var isBinary: Bool { category == .binary }
 
+    /// A Boolean value that indicates whether the content type
+    /// is a URL-encoded form.
     var isUrlEncodedForm: Bool { category == .urlEncodedForm }
+
+    /// A Boolean value that indicates whether the content type
+    /// is a multipart form.
+    var isMultipart: Bool { category == .multipart }
+
+    /// The content type `text/plain`.
+    static var textPlain: Self { try! .init(string: "text/plain") }
+
+    /// The content type `application/json`.
+    static var applicationJSON: Self { try! .init(string: "application/json") }
+
+    /// The content type `application/octet-stream`.
+    static var applicationOctetStream: Self { try! .init(string: "application/octet-stream") }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         // MIME type equality is case-insensitive.

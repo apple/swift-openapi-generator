@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
-extension FileTranslator {
+extension TypesFileTranslator {
 
     /// Returns a list of declarations for the specified schema.
     ///
@@ -61,10 +61,17 @@ extension FileTranslator {
     ///   - schema: The JSON schema representing the type.
     ///   - overrides: A structure with the properties that should be overridden
     ///   instead of extracted from the schema.
+    ///   - isMultipartContent: A Boolean value indicating whether the schema defines multipart parts.
     /// - Throws: An error if there is an issue during translation.
     /// - Returns: A list of declarations representing the translated schema.
-    func translateSchema(typeName: TypeName, schema: JSONSchema, overrides: SchemaOverrides) throws -> [Declaration] {
+    func translateSchema(
+        typeName: TypeName,
+        schema: JSONSchema,
+        overrides: SchemaOverrides,
+        isMultipartContent: Bool = false
+    ) throws -> [Declaration] {
 
+        if isMultipartContent { return try translateMultipartBody(typeName: typeName, schema: schema) }
         let value = schema.value
 
         // Attach any warnings from the parsed schema as a diagnostic.

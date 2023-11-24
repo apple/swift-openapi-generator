@@ -109,6 +109,65 @@ struct TypeAssigner {
         return associatedType
     }
 
+    /// Returns a type usage for an unresolved multipart schema.
+    /// - Parameters:
+    ///   - hint: A hint string used when computing a name for an inline type.
+    ///   - schema: The OpenAPI schema.
+    ///   - encoding: The encoding mapping refining the schema.
+    ///   - components: The components in which to look up references.
+    ///   - parent: The parent type in which to name the type.
+    /// - Returns: A type usage.
+    /// - Throws: An error if there's an issue while computing the type usage, such as when resolving a type name or checking compatibility.
+    func typeUsage(
+        usingNamingHint hint: String,
+        withMultipartSchema schema: UnresolvedSchema?,
+        encoding: OrderedDictionary<String, OpenAPI.Content.Encoding>?,
+        components: OpenAPI.Components,
+        inParent parent: TypeName
+    ) throws -> TypeUsage {
+        let multipartBodyElementTypeName: TypeName
+        if let ref = TypeMatcher.multipartElementTypeReferenceIfReferenceable(schema: schema, encoding: encoding) {
+            multipartBodyElementTypeName = try typeName(for: ref)
+        } else {
+            let swiftSafeName = asSwiftSafeName(hint)
+            multipartBodyElementTypeName = parent.appending(
+                swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
+                jsonComponent: hint
+            )
+        }
+        let bodyUsage = multipartBodyElementTypeName.asUsage.asWrapped(in: .multipartBody)
+        return bodyUsage
+    }
+
+    /// Returns a type usage for an unresolved schema.
+    /// - Parameters:
+    ///   - content: The OpenAPI content.
+    ///   - components: The components in which to look up references.
+    ///   - parent: The parent type in which to name the type.
+    /// - Returns: A type usage; or nil if the schema is nil or unsupported.
+    /// - Throws: An error if there's an issue while computing the type usage, such as when resolving a type name or checking compatibility.
+    func typeUsage(withContent content: SchemaContent, components: OpenAPI.Components, inParent parent: TypeName) throws
+        -> TypeUsage?
+    {
+        let identifier = contentSwiftName(content.contentType)
+        if content.contentType.isMultipart {
+            return try typeUsage(
+                usingNamingHint: identifier,
+                withMultipartSchema: content.schema,
+                encoding: content.encoding,
+                components: components,
+                inParent: parent
+            )
+        } else {
+            return try typeUsage(
+                usingNamingHint: identifier,
+                withSchema: content.schema,
+                components: components,
+                inParent: parent
+            )
+        }
+    }
+
     /// Returns a type usage for a property.
     /// - Parameters:
     ///   - originalName: The name of the property in the OpenAPI document.
@@ -450,6 +509,43 @@ struct TypeAssigner {
     func typeNameForComponents() -> TypeName {
         TypeName(components: [.root, .init(swift: Constants.Components.namespace, json: "components")])
     }
+
+    /// Returns a Swift-safe identifier used as the name of the content
+    /// enum case.
+    ///
+    /// - Parameter contentType: The content type for which to compute the name.
+    /// - Returns: A Swift-safe identifier representing the name of the content enum case.
+    func contentSwiftName(_ contentType: ContentType) -> String {
+        let rawContentType = contentType.lowercasedTypeSubtypeAndParameters
+        switch rawContentType {
+        case "application/json": return "json"
+        case "application/x-www-form-urlencoded": return "urlEncodedForm"
+        case "multipart/form-data": return "multipartForm"
+        case "text/plain": return "plainText"
+        case "*/*": return "any"
+        case "application/xml": return "xml"
+        case "application/octet-stream": return "binary"
+        case "text/html": return "html"
+        case "application/yaml": return "yaml"
+        case "text/csv": return "csv"
+        case "image/png": return "png"
+        case "application/pdf": return "pdf"
+        case "image/jpeg": return "jpeg"
+        default:
+            let safedType = asSwiftSafeName(contentType.originallyCasedType)
+            let safedSubtype = asSwiftSafeName(contentType.originallyCasedSubtype)
+            let prefix = "\(safedType)_\(safedSubtype)"
+            let params = contentType.lowercasedParameterPairs
+            guard !params.isEmpty else { return prefix }
+            let safedParams =
+                params.map { pair in
+                    pair.split(separator: "=").map { asSwiftSafeName(String($0)) }.joined(separator: "_")
+                }
+                .joined(separator: "_")
+            return prefix + "_" + safedParams
+        }
+    }
+
 }
 
 extension FileTranslator {

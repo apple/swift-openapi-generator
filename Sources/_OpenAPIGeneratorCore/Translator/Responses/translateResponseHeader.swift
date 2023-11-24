@@ -13,6 +13,45 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
+extension FileTranslator {
+
+    /// Returns an expression representing the call to converter to set the provided header into
+    /// a header fields container.
+    /// - Parameter header: The header to set.
+    /// - Returns: An expression.
+    func translateMultipartOutgoingHeader(_ header: TypedResponseHeader) -> Expression {
+        .try(
+            .identifierPattern("converter").dot("setHeaderFieldAs\(header.codingStrategy.runtimeName)")
+                .call([
+                    .init(label: "in", expression: .inOut(.identifierPattern("headerFields"))),
+                    .init(label: "name", expression: .literal(header.name)),
+                    .init(
+                        label: "value",
+                        expression: .identifierPattern("value").dot("headers").dot(header.variableName)
+                    ),
+                ])
+        )
+    }
+
+    /// Returns an expression representing the call to converter to get the provided header from
+    /// a header fields container.
+    /// - Parameter header: The header to get.
+    /// - Returns: A function argument description.
+    func translateMultipartIncomingHeader(_ header: TypedResponseHeader) -> FunctionArgumentDescription {
+        let methodName =
+            "get\(header.isOptional ? "Optional" : "Required")HeaderFieldAs\(header.codingStrategy.runtimeName)"
+        let convertExpr: Expression = .try(
+            .identifierPattern("converter").dot(methodName)
+                .call([
+                    .init(label: "in", expression: .identifierPattern("headerFields")),
+                    .init(label: "name", expression: .literal(header.name)),
+                    .init(label: "as", expression: .identifierType(header.typeUsage.withOptional(false)).dot("self")),
+                ])
+        )
+        return .init(label: header.variableName, expression: convertExpr)
+    }
+}
+
 extension TypesFileTranslator {
 
     /// Returns the specified response header extracted into a property

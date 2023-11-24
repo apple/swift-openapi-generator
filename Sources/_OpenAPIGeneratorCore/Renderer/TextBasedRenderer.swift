@@ -543,18 +543,21 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified variable declaration.
     func renderVariable(_ variable: VariableDescription) {
         do {
-            var words: [String] = []
-            if let accessModifier = variable.accessModifier { words.append(renderedAccessModifier(accessModifier)) }
-            if variable.isStatic { words.append("static") }
-            words.append(renderedBindingKind(variable.kind))
-            let labelWithOptionalType: String
-            if let type = variable.type {
-                labelWithOptionalType = "\(variable.left): \(renderedExistingTypeDescription(type))"
-            } else {
-                labelWithOptionalType = variable.left
+            if let accessModifier = variable.accessModifier {
+                writer.writeLine(renderedAccessModifier(accessModifier) + " ")
+                writer.nextLineAppendsToLastLine()
             }
-            words.append(labelWithOptionalType)
-            writer.writeLine(words.joinedWords())
+            if variable.isStatic {
+                writer.writeLine("static ")
+                writer.nextLineAppendsToLastLine()
+            }
+            writer.writeLine(renderedBindingKind(variable.kind) + " ")
+            writer.nextLineAppendsToLastLine()
+            renderExpression(variable.left)
+            if let type = variable.type {
+                writer.nextLineAppendsToLastLine()
+                writer.writeLine(": \(renderedExistingTypeDescription(type))")
+            }
         }
 
         if let right = variable.right {
@@ -882,4 +885,16 @@ fileprivate extension String {
     /// - Parameter work: The closure that transforms each line.
     /// - Returns: A new string where each line has been transformed using the given closure.
     func transformingLines(_ work: (String) -> String) -> [String] { asLines().map(work) }
+}
+
+extension TextBasedRenderer {
+
+    /// Returns the provided expression rendered as a string.
+    /// - Parameter expression: The expression.
+    /// - Returns: The string representation of the expression.
+    static func renderedExpressionAsString(_ expression: Expression) -> String {
+        let renderer = TextBasedRenderer.default
+        renderer.renderExpression(expression)
+        return renderer.renderedContents()
+    }
 }

@@ -42,7 +42,8 @@ struct TypesFileTranslator: FileTranslator {
 
         let serversDecl = translateServers(doc.servers)
 
-        let components = try translateComponents(doc.components)
+        let multipartSchemaNames = try parseSchemaNamesUsedInMultipart(paths: doc.paths, components: doc.components)
+        let components = try translateComponents(doc.components, multipartSchemaNames: multipartSchemaNames)
 
         let operationDescriptions = try OperationDescription.all(
             from: doc.paths,

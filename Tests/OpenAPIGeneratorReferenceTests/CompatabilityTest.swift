@@ -57,7 +57,9 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/box/box-openapi/5955d651f0cd273c0968e3855c1d873c7ae3523e/openapi.json",
             license: .apache,
-            expectedDiagnostics: [],
+            expectedDiagnostics: [
+                "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated."
+            ],
             skipBuild: compatibilityTestSkipBuild
         )
     }
@@ -85,7 +87,8 @@ final class CompatibilityTest: XCTestCase {
             "https://raw.githubusercontent.com/discourse/discourse_api_docs/aa152ea188c7b07bbf809681154cc311ec178acf/openapi.yml",
             license: .apache,
             expectedDiagnostics: [
-                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found nothing but unsupported attributes.."
+                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found nothing but unsupported attributes..",
+                "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated.",
             ],
             skipBuild: compatibilityTestSkipBuild
         )
@@ -104,7 +107,9 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/github/rest-api-description/13c873cb3b15ffd5bcd88c6d6270a963ef4518f6/descriptions/ghes-3.5/ghes-3.5.yaml",
             license: .mit,
-            expectedDiagnostics: [],
+            expectedDiagnostics: [
+                "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated."
+            ],
             skipBuild: true
         )
     }
@@ -131,9 +136,7 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/openai/openai-openapi/ec0b3953bfa08a92782bdccf34c1931b13402f56/openapi.yaml",
             license: .mit,
-            expectedDiagnostics: [
-                "Schema \"string (binary)\" is not supported, reason: \"Binary properties in object schemas.\", skipping"
-            ],
+            expectedDiagnostics: [],
             skipBuild: compatibilityTestSkipBuild
         )
     }

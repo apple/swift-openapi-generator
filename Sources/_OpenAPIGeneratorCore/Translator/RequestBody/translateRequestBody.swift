@@ -22,12 +22,13 @@ extension TypesFileTranslator {
     /// unsupported.
     /// - Throws: An error if there is an issue translating and declaring the schema content.
     func translateRequestBodyContentInTypes(_ content: TypedSchemaContent) throws -> [Declaration] {
-        let decl = try translateSchema(
+        if content.content.contentType.isMultipart { return try translateMultipartBody(content) }
+        let decls = try translateSchema(
             typeName: content.resolvedTypeUsage.typeName,
             schema: content.content.schema,
             overrides: .none
         )
-        return decl
+        return decls
     }
 
     /// Returns a list of declarations for the specified request body wrapped
@@ -45,12 +46,12 @@ extension TypesFileTranslator {
         let contentTypeName = typeName.appending(jsonComponent: "content")
         let contents = requestBody.contents
         for content in contents {
-            if TypeMatcher.isInlinable(content.content.schema) {
+            if TypeMatcher.isInlinable(content.content.schema) || content.content.isReferenceableMultipart {
                 let inlineTypeDecls = try translateRequestBodyContentInTypes(content)
                 bodyMembers.append(contentsOf: inlineTypeDecls)
             }
             let contentType = content.content.contentType
-            let identifier = contentSwiftName(contentType)
+            let identifier = typeAssigner.contentSwiftName(contentType)
             let associatedType = content.resolvedTypeUsage.withOptional(false)
             let contentCase: Declaration = .commentable(
                 contentType.docComment(typeName: contentTypeName),
@@ -143,12 +144,18 @@ extension ClientFileTranslator {
         inputVariableName: String
     ) throws -> Expression {
         let contents = requestBody.contents
-        var cases: [SwitchCaseDescription] = contents.map { typedContent in
+        var cases: [SwitchCaseDescription] = try contents.map { typedContent in
             let content = typedContent.content
             let contentType = content.contentType
-            let contentTypeIdentifier = contentSwiftName(contentType)
+            let contentTypeIdentifier = typeAssigner.contentSwiftName(contentType)
             let contentTypeHeaderValue = contentType.headerValueForSending
 
+            let extraBodyAssignArgs: [FunctionArgumentDescription]
+            if contentType.isMultipart {
+                extraBodyAssignArgs = try translateMultipartSerializerExtraArgumentsInClient(typedContent)
+            } else {
+                extraBodyAssignArgs = []
+            }
             let bodyAssignExpr: Expression = .assignment(
                 left: .identifierPattern(bodyVariableName),
                 right: .try(
@@ -156,13 +163,15 @@ extension ClientFileTranslator {
                         .dot(
                             "set\(requestBody.request.required ? "Required" : "Optional")RequestBodyAs\(contentType.codingStrategy.runtimeName)"
                         )
-                        .call([
-                            .init(label: nil, expression: .identifierPattern("value")),
-                            .init(
-                                label: "headerFields",
-                                expression: .inOut(.identifierPattern(requestVariableName).dot("headerFields"))
-                            ), .init(label: "contentType", expression: .literal(contentTypeHeaderValue)),
-                        ])
+                        .call(
+                            [
+                                .init(label: nil, expression: .identifierPattern("value")),
+                                .init(
+                                    label: "headerFields",
+                                    expression: .inOut(.identifierPattern(requestVariableName).dot("headerFields"))
+                                ), .init(label: "contentType", expression: .literal(contentTypeHeaderValue)),
+                            ] + extraBodyAssignArgs
+                        )
                 )
             )
             let caseDesc = SwitchCaseDescription(
@@ -231,7 +240,7 @@ extension ServerFileTranslator {
         )
         codeBlocks.append(.declaration(chosenContentTypeDecl))
 
-        func makeCase(typedContent: TypedSchemaContent) -> SwitchCaseDescription {
+        func makeCase(typedContent: TypedSchemaContent) throws -> SwitchCaseDescription {
             let contentTypeUsage = typedContent.resolvedTypeUsage
             let content = typedContent.content
             let contentType = content.contentType
@@ -241,23 +250,36 @@ extension ServerFileTranslator {
                 argumentNames: ["value"],
                 body: [
                     .expression(
-                        .dot(contentSwiftName(typedContent.content.contentType))
+                        .dot(typeAssigner.contentSwiftName(typedContent.content.contentType))
                             .call([.init(label: nil, expression: .identifierPattern("value"))])
                     )
                 ]
             )
+            let extraBodyAssignArgs: [FunctionArgumentDescription]
+            if contentType.isMultipart {
+                extraBodyAssignArgs = try translateMultipartDeserializerExtraArgumentsInServer(typedContent)
+            } else {
+                extraBodyAssignArgs = []
+            }
             let converterExpr: Expression = .identifierPattern("converter")
                 .dot("get\(isOptional ? "Optional" : "Required")RequestBodyAs\(codingStrategyName)")
-                .call([
-                    .init(label: nil, expression: .identifierType(contentTypeUsage.withOptional(false)).dot("self")),
-                    .init(label: "from", expression: .identifierPattern("requestBody")),
-                    .init(label: "transforming", expression: transformExpr),
-                ])
+                .call(
+                    [
+                        .init(
+                            label: nil,
+                            expression: .identifierType(contentTypeUsage.withOptional(false)).dot("self")
+                        ), .init(label: "from", expression: .identifierPattern("requestBody")),
+                        .init(label: "transforming", expression: transformExpr),
+                    ] + extraBodyAssignArgs
+                )
             let bodyExpr: Expression
-            if codingStrategy == .binary {
-                bodyExpr = .try(converterExpr)
-            } else {
+            switch codingStrategy {
+            case .json, .uri, .urlEncodedForm:
+                // Buffering.
                 bodyExpr = .try(.await(converterExpr))
+            case .binary, .multipart:
+                // Streaming.
+                bodyExpr = .try(converterExpr)
             }
             let bodyAssignExpr: Expression = .assignment(left: .identifierPattern("body"), right: bodyExpr)
             return .init(
@@ -266,7 +288,7 @@ extension ServerFileTranslator {
             )
         }
 
-        let cases = typedContents.map(makeCase)
+        let cases = try typedContents.map(makeCase)
         let switchExpr: Expression = .switch(
             switchedExpression: .identifierPattern("chosenContentType"),
             cases: cases + [

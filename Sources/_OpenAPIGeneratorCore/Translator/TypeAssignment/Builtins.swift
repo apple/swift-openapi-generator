@@ -73,8 +73,23 @@ extension TypeName {
     /// Returns the type name for the response type.
     static var response: TypeName { .httpTypes("HTTPResponse") }
 
+    /// Returns the type name for the HTTP fields type.
+    static var httpFields: TypeName { .httpTypes("HTTPFields") }
+
     /// Returns the type name for the body type.
     static var body: TypeName { .runtime("HTTPBody") }
+
+    /// Returns the type name for the body type.
+    static var multipartBody: TypeName { .runtime("MultipartBody") }
+
+    /// Returns the type name for the multipart typed part type.
+    static var multipartPart: TypeName { .runtime("MultipartPart") }
+
+    /// Returns the type name for the multipart dynamically typed part type.
+    static var multipartDynamicallyNamedPart: TypeName { .runtime("MultipartDynamicallyNamedPart") }
+
+    /// Returns the type name for the multipart raw part type.
+    static var multipartRawPart: TypeName { .runtime("MultipartRawPart") }
 
     /// Returns the type name for the server request metadata type.
     static var serverRequestMetadata: TypeName { .runtime("ServerRequestMetadata") }

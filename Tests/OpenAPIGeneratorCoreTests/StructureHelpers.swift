@@ -101,7 +101,8 @@ extension Declaration {
     var info: DeclInfo {
         switch strippingTopComment {
         case .deprecated: return .init(kind: .deprecated)
-        case let .variable(description): return .init(name: description.left, kind: .variable)
+        case let .variable(description):
+            return .init(name: TextBasedRenderer.renderedExpressionAsString(description.left), kind: .variable)
         case let .`extension`(description): return .init(name: description.onType, kind: .`extension`)
         case let .`struct`(description): return .init(name: description.name, kind: .`struct`)
         case let .`enum`(description): return .init(name: description.name, kind: .`enum`)

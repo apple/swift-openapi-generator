@@ -41,7 +41,7 @@ final class Test_ContentType: Test_Core {
                     "application/x-www-form-urlencoded"
                 ),
                 (
-                    "multipart/form-data", .binary, "multipart", "form-data", "", "multipart/form-data",
+                    "multipart/form-data", .multipart, "multipart", "form-data", "", "multipart/form-data",
                     "multipart/form-data", "multipart/form-data"
                 ), ("text/plain", .binary, "text", "plain", "", "text/plain", "text/plain", "text/plain"),
                 ("*/*", .binary, "*", "*", "", "*/*", "*/*", "*/*"),

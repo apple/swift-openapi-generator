@@ -235,7 +235,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testDeclaration() throws {
         try _test(
-            .variable(.init(kind: .let, left: "foo")),
+            .variable(kind: .let, left: "foo"),
             renderedBy: TextBasedRenderer.renderDeclaration,
             rendersAs: #"""
                 let foo
@@ -506,7 +506,7 @@ final class Test_TextBasedRenderer: XCTestCase {
             .init(
                 accessModifier: .public,
                 onType: "Info",
-                declarations: [.variable(.init(kind: .let, left: "foo", type: .member("Int")))]
+                declarations: [.variable(kind: .let, left: "foo", type: .member("Int"))]
             ),
             renderedBy: TextBasedRenderer.renderExtension,
             rendersAs: #"""
@@ -571,7 +571,7 @@ final class Test_TextBasedRenderer: XCTestCase {
                 accessModifier: .public,
                 isStatic: true,
                 kind: .let,
-                left: "foo",
+                left: .identifierPattern("foo"),
                 type: .init(TypeName.string),
                 right: .literal(.string("bar"))
             ),
@@ -581,7 +581,14 @@ final class Test_TextBasedRenderer: XCTestCase {
                 """#
         )
         try _test(
-            .init(accessModifier: .internal, isStatic: false, kind: .var, left: "foo", type: nil, right: nil),
+            .init(
+                accessModifier: .internal,
+                isStatic: false,
+                kind: .var,
+                left: .identifierPattern("foo"),
+                type: nil,
+                right: nil
+            ),
             renderedBy: TextBasedRenderer.renderVariable,
             rendersAs: #"""
                 internal var foo
@@ -590,7 +597,7 @@ final class Test_TextBasedRenderer: XCTestCase {
         try _test(
             .init(
                 kind: .var,
-                left: "foo",
+                left: .identifierPattern("foo"),
                 type: .init(TypeName.int),
                 getter: [CodeBlock.expression(.literal(.int(42)))]
             ),
@@ -604,7 +611,7 @@ final class Test_TextBasedRenderer: XCTestCase {
         try _test(
             .init(
                 kind: .var,
-                left: "foo",
+                left: .identifierPattern("foo"),
                 type: .init(TypeName.int),
                 getter: [CodeBlock.expression(.literal(.int(42)))],
                 getterEffects: [.throws]
@@ -652,7 +659,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testCodeBlockItem() throws {
         try _test(
-            .declaration(.variable(.init(kind: .let, left: "foo"))),
+            .declaration(.variable(kind: .let, left: "foo")),
             renderedBy: TextBasedRenderer.renderCodeBlockItem,
             rendersAs: #"""
                 let foo
@@ -669,7 +676,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testCodeBlock() throws {
         try _test(
-            .init(comment: .inline("- MARK: Section"), item: .declaration(.variable(.init(kind: .let, left: "foo")))),
+            .init(comment: .inline("- MARK: Section"), item: .declaration(.variable(kind: .let, left: "foo"))),
             renderedBy: TextBasedRenderer.renderCodeBlock,
             rendersAs: #"""
                 // - MARK: Section
@@ -677,7 +684,7 @@ final class Test_TextBasedRenderer: XCTestCase {
                 """#
         )
         try _test(
-            .init(comment: nil, item: .declaration(.variable(.init(kind: .let, left: "foo")))),
+            .init(comment: nil, item: .declaration(.variable(kind: .let, left: "foo"))),
             renderedBy: TextBasedRenderer.renderCodeBlock,
             rendersAs: #"""
                 let foo

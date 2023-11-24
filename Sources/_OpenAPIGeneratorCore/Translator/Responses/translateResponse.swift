@@ -60,80 +60,18 @@ extension TypesFileTranslator {
             swiftComponent: Constants.Operation.Body.typeName,
             jsonComponent: "content"
         )
-        let typedContents = try supportedTypedContents(response.content, inParent: bodyTypeName)
+        let typedContents = try supportedTypedContents(response.content, isRequired: true, inParent: bodyTypeName)
 
         let bodyProperty: PropertyBlueprint?
         if !typedContents.isEmpty {
             var bodyCases: [Declaration] = []
             for typedContent in typedContents {
-                let contentType = typedContent.content.contentType
-                let identifier = contentSwiftName(contentType)
-                let associatedType = typedContent.resolvedTypeUsage
-                if TypeMatcher.isInlinable(typedContent.content.schema), let inlineType = typedContent.typeUsage {
-                    let inlineTypeDecls = try translateSchema(
-                        typeName: inlineType.typeName,
-                        schema: typedContent.content.schema,
-                        overrides: .none
-                    )
-                    bodyCases.append(contentsOf: inlineTypeDecls)
-                }
-
-                let bodyCase: Declaration = .commentable(
-                    contentType.docComment(typeName: bodyTypeName),
-                    .enumCase(name: identifier, kind: .nameWithAssociatedValues([.init(type: .init(associatedType))]))
+                let newBodyCases = try translateResponseBodyContentInTypes(
+                    typedContent,
+                    bodyTypeName: bodyTypeName,
+                    hasMultipleContentTypes: typedContents.count > 1
                 )
-                bodyCases.append(bodyCase)
-
-                var throwingGetterSwitchCases = [
-                    SwitchCaseDescription(
-                        kind: .case(.dot(identifier), ["body"]),
-                        body: [.expression(.return(.identifierPattern("body")))]
-                    )
-                ]
-                // We only generate the default branch if there is more than one case to prevent
-                // a warning when compiling the generated code.
-                if typedContents.count > 1 {
-                    throwingGetterSwitchCases.append(
-                        SwitchCaseDescription(
-                            kind: .default,
-                            body: [
-                                .expression(
-                                    .try(
-                                        .identifierPattern("throwUnexpectedResponseBody")
-                                            .call([
-                                                .init(
-                                                    label: "expectedContent",
-                                                    expression: .literal(.string(contentType.headerValueForValidation))
-                                                ), .init(label: "body", expression: .identifierPattern("self")),
-                                            ])
-                                    )
-                                )
-                            ]
-                        )
-                    )
-                }
-                let throwingGetter = VariableDescription(
-                    accessModifier: config.access,
-                    isStatic: false,
-                    kind: .var,
-                    left: identifier,
-                    type: .init(associatedType),
-                    getter: [
-                        .expression(
-                            .switch(switchedExpression: .identifierPattern("self"), cases: throwingGetterSwitchCases)
-                        )
-                    ],
-                    getterEffects: [.throws]
-                )
-                let throwingGetterComment = Comment.doc(
-                    """
-                    The associated value of the enum case if `self` is `.\(identifier)`.
-
-                    - Throws: An error if `self` is not `.\(identifier)`.
-                    - SeeAlso: `.\(identifier)`.
-                    """
-                )
-                bodyCases.append(.commentable(throwingGetterComment, .variable(throwingGetter)))
+                bodyCases.append(contentsOf: newBodyCases)
             }
             let hasNoContent: Bool = bodyCases.isEmpty
             let contentEnumDecl: Declaration = .commentable(
@@ -187,5 +125,94 @@ extension TypesFileTranslator {
     {
         let typeName = typeAssigner.typeName(for: componentKey, of: OpenAPI.Response.self)
         return try translateResponseInTypes(typeName: typeName, response: response)
+    }
+
+    /// Returns a list of declarations for the specified content to be generated in the provided body namespace.
+    /// - Parameters:
+    ///   - typedContent: The content to generated.
+    ///   - bodyTypeName: The parent body type name.
+    ///   - hasMultipleContentTypes: A Boolean value indicating whether there are more than one content types.
+    /// - Returns: A list of declarations.
+    /// - Throws: If the translation of underlying schemas fails.
+    func translateResponseBodyContentInTypes(
+        _ typedContent: TypedSchemaContent,
+        bodyTypeName: TypeName,
+        hasMultipleContentTypes: Bool
+    ) throws -> [Declaration] {
+        var bodyCases: [Declaration] = []
+        let contentType = typedContent.content.contentType
+        let identifier = typeAssigner.contentSwiftName(contentType)
+        let associatedType = typedContent.resolvedTypeUsage
+        let content = typedContent.content
+        let schema = content.schema
+        if TypeMatcher.isInlinable(schema) || content.isReferenceableMultipart {
+            let decls: [Declaration]
+            if contentType.isMultipart {
+                decls = try translateMultipartBody(typedContent)
+            } else {
+                decls = try translateSchema(
+                    typeName: typedContent.resolvedTypeUsage.typeName,
+                    schema: typedContent.content.schema,
+                    overrides: .none
+                )
+            }
+            bodyCases.append(contentsOf: decls)
+        }
+
+        let bodyCase: Declaration = .commentable(
+            contentType.docComment(typeName: bodyTypeName),
+            .enumCase(name: identifier, kind: .nameWithAssociatedValues([.init(type: .init(associatedType))]))
+        )
+        bodyCases.append(bodyCase)
+
+        var throwingGetterSwitchCases = [
+            SwitchCaseDescription(
+                kind: .case(.dot(identifier), ["body"]),
+                body: [.expression(.return(.identifierPattern("body")))]
+            )
+        ]
+        // We only generate the default branch if there is more than one case to prevent
+        // a warning when compiling the generated code.
+        if hasMultipleContentTypes {
+            throwingGetterSwitchCases.append(
+                SwitchCaseDescription(
+                    kind: .default,
+                    body: [
+                        .expression(
+                            .try(
+                                .identifierPattern("throwUnexpectedResponseBody")
+                                    .call([
+                                        .init(
+                                            label: "expectedContent",
+                                            expression: .literal(.string(contentType.headerValueForValidation))
+                                        ), .init(label: "body", expression: .identifierPattern("self")),
+                                    ])
+                            )
+                        )
+                    ]
+                )
+            )
+        }
+        let throwingGetter = VariableDescription(
+            accessModifier: config.access,
+            isStatic: false,
+            kind: .var,
+            left: .identifierPattern(identifier),
+            type: .init(associatedType),
+            getter: [
+                .expression(.switch(switchedExpression: .identifierPattern("self"), cases: throwingGetterSwitchCases))
+            ],
+            getterEffects: [.throws]
+        )
+        let throwingGetterComment = Comment.doc(
+            """
+            The associated value of the enum case if `self` is `.\(identifier)`.
+
+            - Throws: An error if `self` is not `.\(identifier)`.
+            - SeeAlso: `.\(identifier)`.
+            """
+        )
+        bodyCases.append(.commentable(throwingGetterComment, .variable(throwingGetter)))
+        return bodyCases
     }
 }

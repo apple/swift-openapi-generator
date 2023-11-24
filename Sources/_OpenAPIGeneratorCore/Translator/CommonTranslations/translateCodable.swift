@@ -52,7 +52,7 @@ extension FileTranslator {
                 trailingCodeBlocks: [
                     .expression(
                         .assignment(
-                            left: .identifierPattern("additionalProperties"),
+                            left: .identifierPattern(Constants.AdditionalProperties.variableName),
                             right: .try(
                                 .identifierPattern("decoder").dot("decodeAdditionalProperties")
                                     .call([knownKeysFunctionArg])
@@ -86,7 +86,12 @@ extension FileTranslator {
                     .expression(
                         .try(
                             .identifierPattern("encoder").dot("encodeAdditionalProperties")
-                                .call([.init(label: nil, expression: .identifierPattern("additionalProperties"))])
+                                .call([
+                                    .init(
+                                        label: nil,
+                                        expression: .identifierPattern(Constants.AdditionalProperties.variableName)
+                                    )
+                                ])
                         )
                     )
                 ]
