@@ -312,6 +312,7 @@ extension FileTranslator {
     ///   - paths: The paths section of the OpenAPI document.
     ///   - components: The components section of the OpenAPI document.
     /// - Returns: A set of component keys of the schemas used by multipart content.
+    /// - Throws: An error if a reference cannot be followed.
     func parseSchemaNamesUsedInMultipart(paths: OpenAPI.PathItem.Map, components: OpenAPI.Components) throws -> Set<
         OpenAPI.ComponentKey
     > {

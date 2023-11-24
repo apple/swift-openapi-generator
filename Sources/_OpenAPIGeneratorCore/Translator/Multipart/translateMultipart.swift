@@ -184,6 +184,7 @@ extension TypesFileTranslator {
     ///   - typeName: The type name of the body.
     ///   - schema: The root schema of the body.
     /// - Returns: The declaration of the multipart container enum type.
+    /// - Throws: An error if the schema is malformed or a reference cannot be followed.
     func translateMultipartBody(typeName: TypeName, schema: JSONSchema) throws -> [Declaration] {
         guard let multipart = try parseMultipartContent(typeName: typeName, schema: .b(schema), encoding: nil) else {
             return []
@@ -198,6 +199,7 @@ extension ClientFileTranslator {
     /// Returns the extra function arguments used for multipart serializers (request) in the client code.
     /// - Parameter content: The multipart content.
     /// - Returns: The extra function arguments.
+    /// - Throws: An error if the content is malformed or a reference cannot be followed.
     func translateMultipartSerializerExtraArgumentsInClient(_ content: TypedSchemaContent) throws
         -> [FunctionArgumentDescription]
     { try translateMultipartSerializerExtraArguments(content, setBodyMethodPrefix: "setRequiredRequestBody") }
@@ -205,6 +207,7 @@ extension ClientFileTranslator {
     /// Returns the extra function arguments used for multipart deserializers (response) in the client code.
     /// - Parameter content: The multipart content.
     /// - Returns: The extra function arguments.
+    /// - Throws: An error if the content is malformed or a reference cannot be followed.
     func translateMultipartDeserializerExtraArgumentsInClient(_ content: TypedSchemaContent) throws
         -> [FunctionArgumentDescription]
     { try translateMultipartDeserializerExtraArguments(content, getBodyMethodPrefix: "getResponseBody") }
@@ -215,6 +218,7 @@ extension ServerFileTranslator {
     /// Returns the extra function arguments used for multipart deserializers (request) in the server code.
     /// - Parameter content: The multipart content.
     /// - Returns: The extra function arguments.
+    /// - Throws: An error if the content is malformed or a reference cannot be followed.
     func translateMultipartDeserializerExtraArgumentsInServer(_ content: TypedSchemaContent) throws
         -> [FunctionArgumentDescription]
     { try translateMultipartDeserializerExtraArguments(content, getBodyMethodPrefix: "getRequiredRequestBody") }
@@ -222,6 +226,7 @@ extension ServerFileTranslator {
     /// Returns the extra function arguments used for multipart serializers (response) in the server code.
     /// - Parameter content: The multipart content.
     /// - Returns: The extra function arguments.
+    /// - Throws: An error if the content is malformed or a reference cannot be followed.
     func translateMultipartSerializerExtraArgumentsInServer(_ content: TypedSchemaContent) throws
         -> [FunctionArgumentDescription]
     { try translateMultipartSerializerExtraArguments(content, setBodyMethodPrefix: "setResponseBody") }
@@ -407,8 +412,8 @@ extension FileTranslator {
                 let headerDecls: [Declaration]
                 let headersVarArgs: [FunctionArgumentDescription]
                 if !headers.isEmpty {
-                    let headerExprs: [FunctionArgumentDescription] = try headers.map { header in
-                        try translateMultipartIncomingHeader(header)
+                    let headerExprs: [FunctionArgumentDescription] = headers.map { header in
+                        translateMultipartIncomingHeader(header)
                     }
                     let headersDecl: Declaration = .variable(
                         kind: .let,
@@ -611,8 +616,7 @@ extension FileTranslator {
                     jsonComponent: "headers"
                 )
                 let headers = try typedResponseHeaders(from: part.headers, inParent: headersTypeName)
-                let headerExprs: [Expression] = try headers.map { header in try translateMultipartOutgoingHeader(header)
-                }
+                let headerExprs: [Expression] = headers.map { header in translateMultipartOutgoingHeader(header) }
                 return translateMultipartEncodingClosureTypedPart(
                     caseName: identifier,
                     nameExpr: .literal(originalName),
