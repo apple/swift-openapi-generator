@@ -23,6 +23,7 @@ extension TypesFileTranslator {
     ///   - componentKey: The key for the schema, specified in the OpenAPI
     ///   document.
     ///   - schema: The schema to translate to a Swift type.
+    ///   - isMultipartContent: A Boolean value indicating whether the schema defines multipart parts.
     /// - Returns: A list of declarations. Returns a single element in the list
     /// if only the type for the schema needs to be declared. Returns an empty
     /// list if the specified schema is unsupported. Returns multiple elements
@@ -48,7 +49,9 @@ extension TypesFileTranslator {
 
     /// Returns a declaration of the namespace that contains all the reusable
     /// schema definitions.
-    /// - Parameter schemas: The schemas from the OpenAPI document.
+    /// - Parameters:
+    ///   - schemas: The schemas from the OpenAPI document.
+    ///   - multipartSchemaNames: The names of schemas used as root multipart content.
     /// - Returns: A declaration of the schemas namespace in the parent
     /// components namespace.
     /// - Throws: An error if there is an issue during schema translation.

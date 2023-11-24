@@ -42,14 +42,6 @@ struct TypesFileTranslator: FileTranslator {
 
         let serversDecl = translateServers(doc.servers)
 
-        // Get a list of all schemas that are used in multipart, and generate them differently.
-        // Have 2 lists: 1) used in multipart (generated as parts, not Codable structs) and 2)
-        
-        // TODO: Here, go through all schema + encoding pairs, and verify (using a deep comparison, not refs)
-        // that we only ever get one encoding for every schema. Otherwise emit a diagnostic warning
-        // and say we'll skip any request/response body schemas that have a mismatched encoding.
-        // Or use the first one, whichever is easier.
-        
         let multipartSchemaNames = try parseSchemaNamesUsedInMultipart(
             paths: doc.paths,
             components: doc.components

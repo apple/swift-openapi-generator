@@ -18,7 +18,9 @@ extension TypesFileTranslator {
     /// Returns a declaration of a code block containing the components
     /// namespace, which contains all the reusable component namespaces, such
     /// as for schemas, parameters, and response headers.
-    /// - Parameter components: The components defined in the OpenAPI document.
+    /// - Parameters:
+    ///   - components: The components defined in the OpenAPI document.
+    ///   - multipartSchemaNames: The names of schemas used as root multipart content.
     /// - Returns: A code block with the enum representing the components
     /// namespace.
     /// - Throws: An error if there's an issue during translation of components.
