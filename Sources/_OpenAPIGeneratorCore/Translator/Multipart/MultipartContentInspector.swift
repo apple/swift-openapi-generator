@@ -246,6 +246,7 @@ extension FileTranslator {
     ///   - encoding: The encoding information for the schema.
     ///   - foundIn: The location where this part is parsed.
     /// - Returns: A tuple of the part info and resolved schema, or nil if the schema is not a valid part schema.
+    /// - Throws: An error if the schema is malformed or a reference cannot be followed.
     func parseMultipartPartInfo(schema: JSONSchema, encoding: OpenAPI.Content.Encoding?, foundIn: String) throws -> (
         MultipartPartInfo, JSONSchema
     )? {

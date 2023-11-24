@@ -18,6 +18,7 @@ extension TypesFileTranslator {
     /// Returns declarations representing the provided multipart content.
     /// - Parameter content: The multipart content.
     /// - Returns: A list of declarations, or empty if not valid multipart content.
+    /// - Throws: An error if the content is malformed or a reference cannot be followed.
     func translateMultipartBody(_ content: TypedSchemaContent) throws -> [Declaration] {
         guard let multipart = try parseMultipartContent(content) else { return [] }
         let decl = try translateMultipartBody(multipart)
@@ -31,6 +32,7 @@ extension TypesFileTranslator {
     ///   - contentType: The content type of the part.
     ///   - schema: The schema of the part's body.
     /// - Returns: A declaration of the type containing headers and body.
+    /// - Throws: An error if the schema is malformed or a reference cannot be followed.
     func translateMultipartPartContent(
         typeName: TypeName,
         headers headerMap: OpenAPI.Header.Map?,
@@ -108,6 +110,7 @@ extension TypesFileTranslator {
     ///   - contentType: The cotent type of the part.
     ///   - schema: The schema of the part.
     /// - Returns: The associated declarations, or empty if the type is referenced.
+    /// - Throws: An error if the schema is malformed or a reference cannot be followed.
     func translateMultipartPartContentAdditionalPropertiesWithSchemaAssociatedDeclarations(
         typeName: TypeName,
         contentType: ContentType,
@@ -125,6 +128,7 @@ extension TypesFileTranslator {
     /// Returns the declaration for the provided root multipart content.
     /// - Parameter multipart: The multipart content.
     /// - Returns: The declaration of the multipart container enum type.
+    /// - Throws: An error if the content is malformed or a reference cannot be followed.
     func translateMultipartBody(_ multipart: MultipartContent) throws -> Declaration {
         let parts = multipart.parts
         let multipartBodyTypeName = multipart.typeName
