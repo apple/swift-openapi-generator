@@ -89,3 +89,12 @@ extension MultipartSchemaTypedContent {
         }
     }
 }
+
+extension SchemaContent {
+    /// Returns a Boolean value whether the schema is a multipart content type and is referenceable.
+    var isReferenceableMultipart: Bool {
+        guard contentType.isMultipart else { return false }
+        let ref = TypeMatcher.multipartElementTypeReferenceIfReferenceable(schema: schema, encoding: encoding)
+        return ref == nil
+    }
+}

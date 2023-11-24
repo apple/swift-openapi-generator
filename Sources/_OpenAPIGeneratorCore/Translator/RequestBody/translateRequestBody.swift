@@ -46,13 +46,7 @@ extension TypesFileTranslator {
         let contentTypeName = typeName.appending(jsonComponent: "content")
         let contents = requestBody.contents
         for content in contents {
-            if TypeMatcher.isInlinable(content.content.schema)
-                || (content.content.contentType.isMultipart
-                    && TypeMatcher.multipartElementTypeReferenceIfReferenceable(
-                        schema: content.content.schema,
-                        encoding: content.content.encoding
-                    ) == nil)
-            {
+            if TypeMatcher.isInlinable(content.content.schema) || content.content.isReferenceableMultipart {
                 let inlineTypeDecls = try translateRequestBodyContentInTypes(content)
                 bodyMembers.append(contentsOf: inlineTypeDecls)
             }
