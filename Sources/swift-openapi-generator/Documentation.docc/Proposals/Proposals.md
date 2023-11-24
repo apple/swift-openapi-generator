@@ -50,4 +50,3 @@ If you have any questions, tag [Honza Dvorsky](https://github.com/czechboy0) or 
 - <doc:SOAR-0005>
 - <doc:SOAR-0007>
 - <doc:SOAR-0008>
-- <doc:SOAR-0009>
