@@ -1,4 +1,4 @@
-// swift-tools-version:5.8
+// swift-tools-version:5.9
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
@@ -16,14 +16,11 @@ import Foundation
 import PackageDescription
 
 // General Swift-settings for all targets.
-var swiftSettings: [SwiftSetting] = []
-
-#if swift(>=5.9)
-swiftSettings.append(
+var swiftSettings: [SwiftSetting] = [
     // https://github.com/apple/swift-evolution/blob/main/proposals/0335-existential-any.md
     // Require `any` for existential types.
     .enableUpcomingFeature("ExistentialAny")
-)
+]
 
 // Strict concurrency is enabled in CI; use this environment variable to enable it locally.
 if ProcessInfo.processInfo.environment["SWIFT_OPENAPI_STRICT_CONCURRENCY"].flatMap(Bool.init) ?? false {
@@ -31,7 +28,6 @@ if ProcessInfo.processInfo.environment["SWIFT_OPENAPI_STRICT_CONCURRENCY"].flatM
         .define("SWIFT_OPENAPI_STRICT_CONCURRENCY"), .enableExperimentalFeature("StrictConcurrency"),
     ])
 }
-#endif
 
 let package = Package(
     name: "swift-openapi-generator",
