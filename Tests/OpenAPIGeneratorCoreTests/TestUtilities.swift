@@ -45,7 +45,9 @@ class Test_Core: XCTestCase {
         )
     }
 
-    func makeConfig(featureFlags: FeatureFlags = []) -> Config { .init(mode: .types, featureFlags: featureFlags) }
+    func makeConfig(featureFlags: FeatureFlags = []) -> Config {
+        .init(mode: .types, access: Config.defaultAccessModifier, featureFlags: featureFlags)
+    }
 
     func loadSchemaFromYAML(_ yamlString: String) throws -> JSONSchema {
         try YAMLDecoder().decode(JSONSchema.self, from: yamlString)

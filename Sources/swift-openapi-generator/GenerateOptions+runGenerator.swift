@@ -30,11 +30,13 @@ extension _GenerateOptions {
     func runGenerator(outputDirectory: URL, pluginSource: PluginSource?, isDryRun: Bool) async throws {
         let config = try loadedConfig()
         let sortedModes = try resolvedModes(config)
+        let resolvedAccessModifier = resolvedAccessModifier(config)
         let resolvedAdditionalImports = resolvedAdditionalImports(config)
         let resolvedFeatureFlags = resolvedFeatureFlags(config)
         let configs: [Config] = sortedModes.map {
             .init(
                 mode: $0,
+                access: resolvedAccessModifier ?? Config.defaultAccessModifier,
                 additionalImports: resolvedAdditionalImports,
                 filter: config?.filter,
                 featureFlags: resolvedFeatureFlags

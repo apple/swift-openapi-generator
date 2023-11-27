@@ -229,7 +229,7 @@ fileprivate extension CompatibilityTest {
                 for mode in GeneratorMode.allCases {
                     group.addTask {
                         let generator = makeGeneratorPipeline(
-                            config: Config(mode: mode),
+                            config: Config(mode: mode, access: .public),
                             diagnostics: diagnosticsCollector
                         )
                         return try assertNoThrowWithValue(generator.run(input))
@@ -239,7 +239,10 @@ fileprivate extension CompatibilityTest {
             }
         } else {
             outputs = try GeneratorMode.allCases.map { mode in
-                let generator = makeGeneratorPipeline(config: Config(mode: mode), diagnostics: diagnosticsCollector)
+                let generator = makeGeneratorPipeline(
+                    config: Config(mode: mode, access: .public),
+                    diagnostics: diagnosticsCollector
+                )
                 return try assertNoThrowWithValue(generator.run(input))
             }
         }

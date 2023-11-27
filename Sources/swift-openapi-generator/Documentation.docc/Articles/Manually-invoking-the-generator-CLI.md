@@ -40,6 +40,8 @@ To see the usage documentation for the generator CLI, use the following command:
 % swift run swift-openapi-generator --help
 ```
 
+> Note: By default, the code is generated with the `package` access modifier, to make the generated code visible from other packages, add `--access-modifier public` to the invocation.
+
 ### Use the Swift package command
 
 As an alternative to invoking the CLI manually, you can also use the package command, which works similarly to the build plugin.

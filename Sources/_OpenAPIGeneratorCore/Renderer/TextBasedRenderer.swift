@@ -175,6 +175,7 @@ struct TextBasedRenderer: RendererProtocol {
     func renderedAccessModifier(_ accessModifier: AccessModifier) -> String {
         switch accessModifier {
         case .public: return "public"
+        case .package: return "package"
         case .internal: return "internal"
         case .fileprivate: return "fileprivate"
         case .private: return "private"

@@ -28,6 +28,11 @@ struct _GenerateOptions: ParsableArguments {
             "The Swift files to generate. Options: \(GeneratorMode.prettyListing). Note that '\(GeneratorMode.client.rawValue)' and '\(GeneratorMode.server.rawValue)' depend on declarations in '\(GeneratorMode.types.rawValue)'."
     ) var mode: [GeneratorMode] = []
 
+    @Option(
+        help:
+            "The access modifier to use for the API of generated code. Default: \(Config.defaultAccessModifier.rawValue)"
+    ) var accessModifier: AccessModifier?
+
     @Option(help: "Additional import to add to all generated files.") var additionalImport: [String] = []
 
     @Option(help: "Pre-release feature to enable. Options: \(FeatureFlag.prettyListing).") var featureFlag:
@@ -37,6 +42,8 @@ struct _GenerateOptions: ParsableArguments {
         help: "When specified, writes out the diagnostics into a YAML file instead of emitting them to standard error."
     ) var diagnosticsOutputPath: URL?
 }
+
+extension AccessModifier: ExpressibleByArgument {}
 
 extension _GenerateOptions {
 
@@ -56,6 +63,15 @@ extension _GenerateOptions {
         if !mode.isEmpty { return mode }
         guard let config else { throw ValidationError("Must either provide a config file or specify --mode.") }
         return Set(config.generate).sorted()
+    }
+
+    /// Returns the access modifier requested by the user.
+    /// - Parameter config: The configuration specified by the user.
+    /// - Returns: The access modifier requested by the user, or nil if the default should be used.
+    func resolvedAccessModifier(_ config: _UserConfig?) -> AccessModifier? {
+        if let accessModifier { return accessModifier }
+        if let accessModifier = config?.accessModifier { return accessModifier }
+        return nil
     }
 
     /// Returns a list of additional imports requested by the user.

@@ -23,6 +23,12 @@ public struct Config: Sendable {
     /// The generator mode to use.
     public var mode: GeneratorMode
 
+    /// The access modifier to use for generated declarations.
+    public var access: AccessModifier
+
+    /// The default access modifier.
+    public static let defaultAccessModifier: AccessModifier = .package
+
     /// Additional imports to add to each generated file.
     public var additionalImports: [String]
 
@@ -35,23 +41,21 @@ public struct Config: Sendable {
     /// Creates a configuration with the specified generator mode and imports.
     /// - Parameters:
     ///   - mode: The mode to use for generation.
+    ///   - access: The access modifier to use for generated declarations.
     ///   - additionalImports: Additional imports to add to each generated file.
     ///   - filter: Filter to apply to the OpenAPI document before generation.
     ///   - featureFlags: Additional pre-release features to enable.
     public init(
         mode: GeneratorMode,
+        access: AccessModifier,
         additionalImports: [String] = [],
         filter: DocumentFilter? = nil,
         featureFlags: FeatureFlags = []
     ) {
         self.mode = mode
+        self.access = access
         self.additionalImports = additionalImports
         self.filter = filter
         self.featureFlags = featureFlags
     }
-}
-
-extension Config {
-    /// Returns the access modifier to use for generated declarations.
-    var access: AccessModifier? { .public }
 }
