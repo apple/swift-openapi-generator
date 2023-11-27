@@ -28,8 +28,7 @@ enum Constants {
             ImportDescription(moduleName: "OpenAPIRuntime", spi: "Generated"),
             ImportDescription(
                 moduleName: "Foundation",
-                moduleTypes: ["struct Foundation.URL", "struct Foundation.Data", "struct Foundation.Date"],
-                preconcurrency: .onOS(["Linux"])
+                moduleTypes: ["struct Foundation.URL", "struct Foundation.Data", "struct Foundation.Date"]
             ),
         ]
 
