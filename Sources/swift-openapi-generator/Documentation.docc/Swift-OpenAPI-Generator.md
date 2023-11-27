@@ -44,7 +44,8 @@ Choose one of the transports listed below, or create your own by adopting the `C
 | Generator versions | Supported OpenAPI versions | Minimum Swift version |
 | -------- | ------- | ----- |
 | `0.1.0` ... `0.1.11` | 3.0 | 5.8 |
-| `0.1.12` ... `main` | 3.0, 3.1 | 5.8 |
+| `0.1.12` ... `0.3.5` | 3.0, 3.1 | 5.8 |
+| `1.0.0-alpha.1` ... `main` | 3.0, 3.1 | 5.9 |
 
 See also <doc:Supported-OpenAPI-features>.
 
