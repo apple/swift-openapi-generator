@@ -30,6 +30,10 @@ The configuration file has the following keys:
     - `types`: Common types and abstractions used by generated client and server code.
     - `client`: Client code that can be used with any client transport (depends on code from `types`).
     - `server`: Server code that can be used with any server transport (depends on code from `types`).
+- `accessModifier` (optional): a string. Customizes the visibility of the API of the generated code.
+    - `public`: Generated API is accessible from other modules and other packages (if included in a product).
+    - `package` (default): Generated API is accessible from other modules within the same package or project.
+    - `internal`: Generated API is accessible from the containing module only.
 - `additionalImports` (optional): array of strings. Each string value is a Swift module name. An import statement will be added to the generated source files for each module.
 - `filter`: (optional): Filters to apply to the OpenAPI document before generation.
     - `operations`: Operations with these operation IDs will be included in the filter.
@@ -37,7 +41,6 @@ The configuration file has the following keys:
     - `paths`: Operations for these paths will be included in the filter.
     - `schemas`: These (additional) schemas will be included in the filter.
 - `featureFlags` (optional): array of strings. Each string must be a valid feature flag to enable. For a list of currently supported feature flags, check out [FeatureFlags.swift](https://github.com/apple/swift-openapi-generator/blob/main/Sources/_OpenAPIGeneratorCore/FeatureFlags.swift).
-
 
 ### Example config files
 
@@ -71,6 +74,16 @@ generate:
   - client
 additionalImports:
   - APITypes
+```
+
+To use the generated code from other packages, also customize the access modifier:
+
+```yaml
+generate:
+  - client
+additionalImports:
+  - APITypes
+accessModifier: public
 ```
 
 ### Document filtering

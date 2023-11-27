@@ -26,7 +26,7 @@ struct TestConfig: Encodable {
 
 extension TestConfig {
     var asConfig: Config {
-        .init(mode: mode, additionalImports: additionalImports ?? [], featureFlags: featureFlags ?? [])
+        .init(mode: mode, access: .public, additionalImports: additionalImports ?? [], featureFlags: featureFlags ?? [])
     }
 }
 

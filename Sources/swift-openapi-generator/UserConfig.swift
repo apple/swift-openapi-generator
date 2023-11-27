@@ -23,6 +23,9 @@ struct _UserConfig: Codable {
     /// A list of modes to use, in other words, which Swift files to generate.
     var generate: [GeneratorMode]
 
+    /// The access modifier used for the API of generated code.
+    var accessModifier: AccessModifier?
+
     /// A list of names of additional imports that are added to every
     /// generated Swift file.
     var additionalImports: [String]?
@@ -38,6 +41,7 @@ struct _UserConfig: Codable {
 
     enum CodingKeys: String, CaseIterable, CodingKey {
         case generate
+        case accessModifier
         case additionalImports
         case filter
         case featureFlags

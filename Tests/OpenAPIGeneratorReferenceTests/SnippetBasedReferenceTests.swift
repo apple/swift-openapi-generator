@@ -4658,7 +4658,7 @@ extension SnippetBasedReferenceTests {
     func makeTypesTranslator(openAPIDocumentYAML: String) throws -> TypesFileTranslator {
         let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: openAPIDocumentYAML)
         return TypesFileTranslator(
-            config: Config(mode: .types),
+            config: Config(mode: .types, access: .public),
             diagnostics: XCTestDiagnosticCollector(test: self),
             components: document.components
         )
@@ -4671,7 +4671,7 @@ extension SnippetBasedReferenceTests {
     ) throws -> TypesFileTranslator {
         let components = try YAMLDecoder().decode(OpenAPI.Components.self, from: componentsYAML)
         return TypesFileTranslator(
-            config: Config(mode: .types, featureFlags: featureFlags),
+            config: Config(mode: .types, access: .public, featureFlags: featureFlags),
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
             components: components
         )
@@ -4685,17 +4685,17 @@ extension SnippetBasedReferenceTests {
         let collector = XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages)
         return (
             TypesFileTranslator(
-                config: Config(mode: .types, featureFlags: featureFlags),
+                config: Config(mode: .types, access: .public, featureFlags: featureFlags),
                 diagnostics: collector,
                 components: components
             ),
             ClientFileTranslator(
-                config: Config(mode: .client, featureFlags: featureFlags),
+                config: Config(mode: .client, access: .public, featureFlags: featureFlags),
                 diagnostics: collector,
                 components: components
             ),
             ServerFileTranslator(
-                config: Config(mode: .server, featureFlags: featureFlags),
+                config: Config(mode: .server, access: .public, featureFlags: featureFlags),
                 diagnostics: collector,
                 components: components
             )

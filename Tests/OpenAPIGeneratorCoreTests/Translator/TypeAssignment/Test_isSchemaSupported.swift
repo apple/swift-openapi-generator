@@ -19,7 +19,7 @@ class Test_isSchemaSupported: XCTestCase {
 
     var translator: any FileTranslator {
         TypesFileTranslator(
-            config: .init(mode: .types),
+            config: .init(mode: .types, access: Config.defaultAccessModifier),
             diagnostics: PrintingDiagnosticCollector(),
             components: .init(schemas: [
                 "Foo": .string, "MyObj": .object, "MyObj2": .object,
