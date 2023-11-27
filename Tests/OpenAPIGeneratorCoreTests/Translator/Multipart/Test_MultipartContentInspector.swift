@@ -43,6 +43,24 @@ class Test_MultipartContentInspector: Test_Core {
             schemaOut: .string(contentEncoding: .binary)
         )
         try _test(
+            schemaIn: .integer,
+            source: .infer(.primitive),
+            repetition: .single,
+            schemaOut: .string(contentEncoding: .binary)
+        )
+        try _test(
+            schemaIn: .boolean,
+            source: .infer(.primitive),
+            repetition: .single,
+            schemaOut: .string(contentEncoding: .binary)
+        )
+        try _test(
+            schemaIn: .string(allowedValues: ["foo"]),
+            source: .infer(.primitive),
+            repetition: .single,
+            schemaOut: .string(contentEncoding: .binary)
+        )
+        try _test(
             schemaIn: .array(items: .string),
             source: .infer(.primitive),
             repetition: .array,
