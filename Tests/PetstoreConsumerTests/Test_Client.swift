@@ -595,7 +595,7 @@ final class Test_Client: XCTestCase {
         }
     }
 
-    @available(*, deprecated) func testProbe_204() async throws {
+    func testProbe_204() async throws {
         transport = .init { request, requestBody, baseURL, operationID in
             XCTAssertEqual(operationID, "probe")
             XCTAssertEqual(request.path, "/probe/")
@@ -612,7 +612,7 @@ final class Test_Client: XCTestCase {
         }
     }
 
-    @available(*, deprecated) func testProbe_undocumented() async throws {
+    func testProbe_undocumented() async throws {
         transport = .init { request, requestBody, baseURL, operationID in (.init(status: .serviceUnavailable), nil) }
         let response = try await client.probe(.init())
         guard case let .undocumented(statusCode, _) = response else {
