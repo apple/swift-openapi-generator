@@ -4,7 +4,7 @@
 #
 # % docker-compose \
 #   -f docker/docker-compose.yaml \
-#   -f docker/docker-compose.2204.58.yaml \
+#   -f docker/docker-compose.2204.59.yaml \
 #   run test
 #
 version: "3"
