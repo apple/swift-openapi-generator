@@ -257,31 +257,52 @@ extension FileTranslator {
             default: return .infer(.primitive)
             }
         }
-        let repetitionKind: MultipartPartInfo.RepetitionKind
-        let candidateSource: MultipartPartInfo.ContentTypeSource
-        switch try schema.dereferenced(in: components) {
-        case .null, .not: return nil
-        case .boolean, .number, .integer:
-            repetitionKind = .single
-            candidateSource = .infer(.primitive)
-        case .string(_, let context):
-            repetitionKind = .single
-            candidateSource = try inferStringContent(context)
-        case .object, .all, .one, .any, .fragment:
-            repetitionKind = .single
-            candidateSource = .infer(.complex)
-        case .array(_, let context):
-            repetitionKind = .array
-            if let items = context.items {
-                switch items {
-                case .null, .not: return nil
-                case .boolean, .number, .integer: candidateSource = .infer(.primitive)
-                case .string(_, let context): candidateSource = try inferStringContent(context)
-                case .object, .all, .one, .any, .fragment, .array: candidateSource = .infer(.complex)
-                }
-            } else {
-                candidateSource = .infer(.complex)
+        func inferAllOfAnyOfOneOf(_ schemas: [DereferencedJSONSchema]) throws -> MultipartPartInfo.ContentTypeSource? {
+            // If all schemas are primitive, the allOf/anyOf/oneOf is also primitive.
+            // These cannot be binary, so only primitive vs complex.
+            for schema in schemas {
+                guard let (_, kind) = try inferSchema(schema) else { return nil }
+                guard case .infer(.primitive) = kind else { return kind }
             }
+            return .infer(.primitive)
+        }
+        func inferSchema(_ schema: DereferencedJSONSchema) throws -> (
+            MultipartPartInfo.RepetitionKind, MultipartPartInfo.ContentTypeSource
+        )? {
+            let repetitionKind: MultipartPartInfo.RepetitionKind
+            let candidateSource: MultipartPartInfo.ContentTypeSource
+            switch schema {
+            case .null, .not: return nil
+            case .boolean, .number, .integer:
+                repetitionKind = .single
+                candidateSource = .infer(.primitive)
+            case .string(_, let context):
+                repetitionKind = .single
+                candidateSource = try inferStringContent(context)
+            case .object, .fragment:
+                repetitionKind = .single
+                candidateSource = .infer(.complex)
+            case .all(of: let schemas, _), .one(of: let schemas, _), .any(of: let schemas, _):
+                repetitionKind = .single
+                guard let value = try inferAllOfAnyOfOneOf(schemas) else { return nil }
+                candidateSource = value
+            case .array(_, let context):
+                repetitionKind = .array
+                if let items = context.items {
+                    switch items {
+                    case .null, .not: return nil
+                    case .boolean, .number, .integer: candidateSource = .infer(.primitive)
+                    case .string(_, let context): candidateSource = try inferStringContent(context)
+                    case .object, .all, .one, .any, .fragment, .array: candidateSource = .infer(.complex)
+                    }
+                } else {
+                    candidateSource = .infer(.complex)
+                }
+            }
+            return (repetitionKind, candidateSource)
+        }
+        guard let (repetitionKind, candidateSource) = try inferSchema(schema.dereferenced(in: components)) else {
+            return nil
         }
         let finalContentTypeSource: MultipartPartInfo.ContentTypeSource
         if let encoding, let contentType = encoding.contentType {
@@ -301,9 +322,23 @@ extension FileTranslator {
             let resolvedSchema: JSONSchema
             if isOptional { resolvedSchema = baseSchema.optionalSchemaObject() } else { resolvedSchema = baseSchema }
             return (info, resolvedSchema)
+        } else if repetitionKind == .array {
+            let isOptional = try typeMatcher.isOptional(schema, components: components)
+            guard case .array(_, let context) = schema.value else {
+                preconditionFailure("Array repetition should always use an array schema.")
+            }
+            let elementSchema: JSONSchema = context.items ?? .fragment
+            let resolvedSchema: JSONSchema
+            if isOptional {
+                resolvedSchema = elementSchema.optionalSchemaObject()
+            } else {
+                resolvedSchema = elementSchema
+            }
+            return (info, resolvedSchema)
         }
         return (info, schema)
     }
+
     /// Parses the names of component schemas used by multipart request and response bodies.
     ///
     /// The result is used to inform how a schema is generated.
