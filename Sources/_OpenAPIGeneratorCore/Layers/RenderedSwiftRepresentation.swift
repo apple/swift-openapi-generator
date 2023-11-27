@@ -11,13 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-#if os(Linux)
-@preconcurrency import struct Foundation.URL
-@preconcurrency import struct Foundation.Data
-#else
 import struct Foundation.URL
 import struct Foundation.Data
-#endif
 
 /// An in-memory file that contains the generated Swift code.
 typealias RenderedSwiftRepresentation = InMemoryOutputFile
