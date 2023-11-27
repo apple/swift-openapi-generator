@@ -71,6 +71,63 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func test_accessModifier_public() throws {
+        try self.assertParametersTranslation(
+            """
+            parameters:
+              MyParam:
+                in: query
+                name: my_param
+                schema:
+                  type: string
+            """,
+            """
+            public enum Parameters {
+                public typealias MyParam = Swift.String
+            }
+            """,
+            accessModifier: .`public`
+        )
+    }
+
+    func test_accessModifier_package() throws {
+        try self.assertParametersTranslation(
+            """
+            parameters:
+              MyParam:
+                in: query
+                name: my_param
+                schema:
+                  type: string
+            """,
+            """
+            package enum Parameters {
+                package typealias MyParam = Swift.String
+            }
+            """,
+            accessModifier: .`package`
+        )
+    }
+
+    func test_accessModifier_internal() throws {
+        try self.assertParametersTranslation(
+            """
+            parameters:
+              MyParam:
+                in: query
+                name: my_param
+                schema:
+                  type: string
+            """,
+            """
+            internal enum Parameters {
+                internal typealias MyParam = Swift.String
+            }
+            """,
+            accessModifier: .`internal`
+        )
+    }
+
     func testComponentsParametersReference() throws {
         try self.assertParametersTranslation(
             """
@@ -4665,13 +4722,14 @@ extension SnippetBasedReferenceTests {
     }
 
     func makeTypesTranslator(
+        accessModifier: AccessModifier = .public,
         featureFlags: FeatureFlags = [],
         ignoredDiagnosticMessages: Set<String> = [],
         componentsYAML: String
     ) throws -> TypesFileTranslator {
         let components = try YAMLDecoder().decode(OpenAPI.Components.self, from: componentsYAML)
         return TypesFileTranslator(
-            config: Config(mode: .types, access: .public, featureFlags: featureFlags),
+            config: Config(mode: .types, access: accessModifier, featureFlags: featureFlags),
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
             components: components
         )
@@ -4716,10 +4774,11 @@ extension SnippetBasedReferenceTests {
     func assertParametersTranslation(
         _ componentsYAML: String,
         _ expectedSwift: String,
+        accessModifier: AccessModifier = .public,
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
-        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
+        let translator = try makeTypesTranslator(accessModifier: accessModifier, componentsYAML: componentsYAML)
         let translation = try translator.translateComponentParameters(translator.components.parameters)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
