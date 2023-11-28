@@ -27,7 +27,7 @@ public struct Config: Sendable {
     public var access: AccessModifier
 
     /// The default access modifier.
-    public static let defaultAccessModifier: AccessModifier = .package
+    public static let defaultAccessModifier: AccessModifier = .public
 
     /// Additional imports to add to each generated file.
     public var additionalImports: [String]

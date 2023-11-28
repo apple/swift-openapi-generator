@@ -16,5 +16,5 @@ import OpenAPIKit
 @testable import _OpenAPIGeneratorCore
 
 final class Test_Config: Test_Core {
-    func testDefaultAccessModifier() { XCTAssertEqual(Config.defaultAccessModifier, .package) }
+    func testDefaultAccessModifier() { XCTAssertEqual(Config.defaultAccessModifier, .public) }
 }
