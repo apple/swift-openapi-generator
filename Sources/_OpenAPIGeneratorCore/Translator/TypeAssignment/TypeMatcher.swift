@@ -20,9 +20,6 @@ struct TypeMatcher {
     /// safe to be used as a Swift identifier.
     var asSwiftSafeName: (String) -> String
 
-    ///Enable decoding and encoding of as base64-encoded data strings.
-    var enableBase64EncodingDecoding: Bool
-
     /// Returns the type name of a built-in type that matches the specified
     /// schema.
     ///
@@ -72,11 +69,7 @@ struct TypeMatcher {
             test: { (schema) -> TypeUsage? in
                 if let builtinType = Self._tryMatchBuiltinNonRecursive(for: schema) { return builtinType }
                 guard case let .reference(ref, _) = schema else { return nil }
-                return try TypeAssigner(
-                    asSwiftSafeName: asSwiftSafeName,
-                    enableBase64EncodingDecoding: enableBase64EncodingDecoding
-                )
-                .typeName(for: ref).asUsage
+                return try TypeAssigner(asSwiftSafeName: asSwiftSafeName).typeName(for: ref).asUsage
             },
             matchedArrayHandler: { elementType in elementType.asArray },
             genericArrayHandler: { TypeName.arrayContainer.asUsage }
