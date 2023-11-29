@@ -18,7 +18,7 @@ let package = Package(
     name: "GreetingServiceClient",
     platforms: [.macOS(.v13)],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-openapi-generator", branch: "main"),
+        .package(url: "https://github.com/apple/swift-openapi-generator", exact: "1.0.0-alpha.1"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", exact: "1.0.0-alpha.1"),
         .package(url: "https://github.com/apple/swift-openapi-urlsession", exact: "1.0.0-alpha.1"),
     ],
