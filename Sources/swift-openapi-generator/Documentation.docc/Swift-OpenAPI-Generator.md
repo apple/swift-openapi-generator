@@ -55,10 +55,10 @@ The generator is used during development and is supported on macOS and Linux.
 
 The generated code, runtime library, and transports are supported on more platforms, listed below.
 
-| Component | macOS | Linux | iOS | tvOS | watchOS |
-| -: | :-: | :-: | :-: | :-: | :-: |
-| Generator plugin and CLI            | ✅ 10.15+  | ✅     | ❌     | ❌     | ❌    |
-| Generated code, runtime, transports | ✅ 10.15+  | ✅     | ✅ 13+ | ✅ 13+ | ✅ 6+ |
+| Component | macOS | Linux | iOS | tvOS | watchOS | visionOS |
+| -: | :-: | :-: | :-: | :-: | :-: | :-: |
+| Generator plugin and CLI            | ✅ 10.15+  | ✅     | ❌     | ❌     | ❌    | ❌    |
+| Generated code, runtime, transports | ✅ 10.15+  | ✅     | ✅ 13+ | ✅ 13+ | ✅ 6+ | ✅ 1+ |
 
 ## Topics
 
