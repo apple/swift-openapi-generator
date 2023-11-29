@@ -18,9 +18,9 @@ let package = Package(
     name: "GreetingService",
     platforms: [.macOS(.v13)],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-openapi-generator", .upToNextMinor(from: "0.3.0")),
-        .package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.3.0")),
-        .package(url: "https://github.com/swift-server/swift-openapi-vapor", .upToNextMinor(from: "0.3.0")),
+        .package(url: "https://github.com/apple/swift-openapi-generator", branch: "main"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", exact: "1.0.0-alpha.1"),
+        .package(url: "https://github.com/swift-server/swift-openapi-vapor", exact: "1.0.0-alpha.1"),
         .package(url: "https://github.com/vapor/vapor", from: "4.76.0"),
     ],
     targets: [
