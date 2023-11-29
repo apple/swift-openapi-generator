@@ -267,7 +267,7 @@ fileprivate extension CompatibilityTest {
                 let package = Package(
                     name: "\(packageName)",
                     platforms: [.macOS(.v13)],
-                    dependencies: [.package(url: "https://github.com/apple/swift-openapi-runtime", .upToNextMinor(from: "0.3.0"))],
+                    dependencies: [.package(url: "https://github.com/apple/swift-openapi-runtime", exact: "1.0.0-alpha.1")],
                     targets: [.target(name: "Harness", dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")])]
                 )
                 """

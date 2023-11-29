@@ -1,4 +1,4 @@
-# Simple Integration Test
+# Integration Test
 
 A Swift package used as an integration test in the Swift OpenAPI Generator ecosystem.
 
@@ -11,7 +11,7 @@ For example, from the pull request pipeline for that project, you can do the fol
 ```sh
 # Clone the generator repo and go into the integration test directory
 git clone https://github.com/apple/swift-openapi-generator
-cd swift-openapi-generator/IntegrationTests/Simple
+cd swift-openapi-generator/IntegrationTests
 
 # Use Swift PM to override the dependency for the package you want to test
 swift package edit swift-openapi-runtime path/to/checkout/of/swift-openapi-runtime
