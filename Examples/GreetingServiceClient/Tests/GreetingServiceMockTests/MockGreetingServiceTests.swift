@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import XCTest
-@testable import GreetingService
+@testable import GreetingServiceClient
 
 final class GreetingServiceMockTests: XCTestCase {
     func testWithMock() async throws {

@@ -45,9 +45,6 @@ struct TypeAssigner {
     /// safe to be used as a Swift identifier.
     var asSwiftSafeName: (String) -> String
 
-    ///Enable decoding and encoding of as base64-encoded data strings.
-    var enableBase64EncodingDecoding: Bool
-
     /// Returns a type name for an OpenAPI-named component type.
     ///
     /// A component type is any type in `#/components` in the OpenAPI document.
@@ -331,10 +328,7 @@ struct TypeAssigner {
         inParent parent: TypeName,
         subtype: SubtypeNamingMethod
     ) throws -> TypeUsage {
-        let typeMatcher = TypeMatcher(
-            asSwiftSafeName: asSwiftSafeName,
-            enableBase64EncodingDecoding: enableBase64EncodingDecoding
-        )
+        let typeMatcher = TypeMatcher(asSwiftSafeName: asSwiftSafeName)
         // Check if this type can be simply referenced without
         // creating a new inline type.
         if let referenceableType = try typeMatcher.tryMatchReferenceableType(for: schema, components: components) {
@@ -551,20 +545,10 @@ struct TypeAssigner {
 extension FileTranslator {
 
     /// A configured type assigner.
-    var typeAssigner: TypeAssigner {
-        TypeAssigner(
-            asSwiftSafeName: swiftSafeName,
-            enableBase64EncodingDecoding: config.featureFlags.contains(.base64DataEncodingDecoding)
-        )
-    }
+    var typeAssigner: TypeAssigner { TypeAssigner(asSwiftSafeName: swiftSafeName) }
 
     /// A configured type matcher.
-    var typeMatcher: TypeMatcher {
-        TypeMatcher(
-            asSwiftSafeName: swiftSafeName,
-            enableBase64EncodingDecoding: config.featureFlags.contains(.base64DataEncodingDecoding)
-        )
-    }
+    var typeMatcher: TypeMatcher { TypeMatcher(asSwiftSafeName: swiftSafeName) }
 }
 
 /// An error used during the parsing of JSON references specified in an

@@ -28,11 +28,6 @@
 public enum FeatureFlag: String, Hashable, Codable, CaseIterable, Sendable {
     // needs to be here for the enum to compile
     case empty
-
-    /// Base64 encoding and decoding.
-    ///
-    /// Enable interpretation of `type: string, format: byte` as base64-encoded data.
-    case base64DataEncodingDecoding
 }
 
 /// A set of enabled feature flags.

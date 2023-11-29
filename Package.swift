@@ -37,7 +37,7 @@ let package = Package(
         // The platforms below are not currently supported for running
         // the generator itself. We include them here to allow the generator
         // to emit a more descriptive compiler error.
-        .iOS(.v13), .tvOS(.v13), .watchOS(.v6),
+        .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .visionOS(.v1),
     ],
     products: [
         .executable(name: "swift-openapi-generator", targets: ["swift-openapi-generator"]),
@@ -60,7 +60,7 @@ let package = Package(
         // Tests-only: Runtime library linked by generated code, and also
         // helps keep the runtime library new enough to work with the generated
         // code.
-        .package(url: "https://github.com/apple/swift-openapi-runtime", branch: "main"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", exact: "1.0.0-alpha.1"),
 
         // Build and preview docs
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
