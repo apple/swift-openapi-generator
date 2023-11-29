@@ -33,7 +33,10 @@ let package = Package(
         ),
         .testTarget(
             name: "GreetingServiceMockTests",
-            dependencies: ["GreetingServiceClient", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")]
+            dependencies: [
+                "GreetingServiceClient", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession"),
+            ]
         ),
     ]
 )
