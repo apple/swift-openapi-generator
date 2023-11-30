@@ -16,8 +16,8 @@ import XCTest
 
 final class GreetingServiceMockTests: XCTestCase {
     func testWithMock() async throws {
-        let client: APIProtocol = MockGreetingService()
-        let response = try await client.getGreeting(.init(query: .init(name: "Jane")))
-        XCTAssertEqual(response, .ok(.init(body: .json(.init(message: "(mock) Hello, Jane")))))
+        let handler: APIProtocol = Handler()
+        let response = try await handler.getGreeting(query: .init(name: "Jane"))
+        XCTAssertEqual(response, .ok(.init(body: .json(.init(message: "Hello, Jane!")))))
     }
 }

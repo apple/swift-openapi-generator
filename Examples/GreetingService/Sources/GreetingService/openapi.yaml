@@ -29,8 +29,10 @@ components:
   schemas:
     Greeting:
       type: object
+      description: A value with the greeting contents.
       properties:
         message:
           type: string
+          description: The string representation of the greeting.
       required:
         - message

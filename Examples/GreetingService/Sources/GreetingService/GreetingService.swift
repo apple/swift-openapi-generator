@@ -29,19 +29,7 @@ struct Handler: APIProtocol {
 }
 
 @main struct Main {
-    /// The entry point of the program.
-    ///
-    /// This is where the execution of the program begins. Any code you want to run
-    /// when the program starts should be placed within this method.
-    ///
-    /// Example:
-    /// ```
-    /// public static func main() {
-    ///     print("Hello, World!")
-    /// }
-    /// ```
-    /// - Throws: An error of type `Error` if there's an issue creating or running the Vapor application.
-    public static func main() throws {
+    static func main() throws {
         // Create a Vapor application.
         let app = Vapor.Application()
 
