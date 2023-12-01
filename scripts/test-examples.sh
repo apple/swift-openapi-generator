@@ -44,7 +44,8 @@ for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name 
     log "✅ Successfully built the example package ${EXAMPLE_PACKAGE_NAME}."
 
     if [ -d "${EXAMPLE_COPY_DIR}/Tests" ]; then
-        swift test --package-path "${EXAMPLE_COPY_DIR}"
+        log "Running tests for example package: ${EXAMPLE_PACKAGE_NAME}"
+        "${SWIFT_BIN}" test --package-path "${EXAMPLE_COPY_DIR}"
         log "✅ Passed the tests for the example package ${EXAMPLE_PACKAGE_NAME}."
     fi
 done
