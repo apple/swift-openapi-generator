@@ -36,8 +36,7 @@ let package = Package(
         .testTarget(
             name: "HelloWorldServerTests",
             dependencies: [
-                "HelloWorldServer",
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                "HelloWorldServer", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
                 .product(name: "Vapor", package: "vapor"),
             ]

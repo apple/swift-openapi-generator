@@ -27,10 +27,7 @@ struct Handler: APIProtocol {
         let app = Vapor.Application()
         let transport = VaporTransport(routesBuilder: app)
         let handler = Handler()
-        try handler.registerHandlers(
-            on: transport,
-            serverURL: URL(string: "/api")!
-        )
+        try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!)
         try app.run()
     }
 }

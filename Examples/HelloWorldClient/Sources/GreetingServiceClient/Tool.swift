@@ -17,10 +17,7 @@ import Foundation
 
 @main struct Tool {
     static func main() async throws {
-        let client = Client(
-            serverURL: URL(string: "http://localhost:8080/api")!,
-            transport: URLSessionTransport()
-        )
+        let client = Client(serverURL: URL(string: "http://localhost:8080/api")!, transport: URLSessionTransport())
         let response = try await client.getGreeting()
         print(try response.ok.body.json.message)
     }
