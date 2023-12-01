@@ -12,9 +12,10 @@
 //
 //===----------------------------------------------------------------------===//
 import XCTest
-@testable import HelloWorldServer
+@testable import HelloWorldVaporServer
 
-final class Tests: XCTestCase {
+final class HelloWorldVaporServerTests: XCTestCase {
+
     func testCustomName() async throws {
         let handler: APIProtocol = Handler()
         let response = try await handler.getGreeting(query: .init(name: "Jane"))

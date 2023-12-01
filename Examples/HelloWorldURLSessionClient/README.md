@@ -1,4 +1,4 @@
-# Hello World Client
+# Hello World URLSession Client
 
 An example project using [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator).
 

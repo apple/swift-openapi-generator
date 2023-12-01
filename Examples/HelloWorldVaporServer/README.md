@@ -1,4 +1,4 @@
-# Hello World Server
+# Hello World Vapor Server
 
 An example project using [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator).
 

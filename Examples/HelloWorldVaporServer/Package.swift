@@ -15,7 +15,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "HelloWorldServer",
+    name: "HelloWorldVaporServer",
     platforms: [.macOS(.v10_15)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", exact: "1.0.0-alpha.1"),
@@ -25,7 +25,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "HelloWorldServer",
+            name: "HelloWorldVaporServer",
             dependencies: [
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
@@ -34,9 +34,9 @@ let package = Package(
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         ),
         .testTarget(
-            name: "HelloWorldServerTests",
+            name: "HelloWorldVaporServerTests",
             dependencies: [
-                "HelloWorldServer", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                "HelloWorldVaporServer", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
                 .product(name: "Vapor", package: "vapor"),
             ]

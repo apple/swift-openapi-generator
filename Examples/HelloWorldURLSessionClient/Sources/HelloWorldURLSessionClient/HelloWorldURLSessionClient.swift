@@ -15,7 +15,7 @@ import OpenAPIRuntime
 import OpenAPIURLSession
 import Foundation
 
-@main struct HelloWorldClient {
+@main struct HelloWorldURLSessionClient {
     static func main() async throws {
         let client = Client(serverURL: URL(string: "http://localhost:8080/api")!, transport: URLSessionTransport())
         let response = try await client.getGreeting()
