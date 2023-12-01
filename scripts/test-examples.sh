@@ -30,7 +30,7 @@ EXAMPLES_PACKAGE_PATH="${PACKAGE_PATH}/Examples"
 
 for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name Package.swift -type f -print0 | xargs -0 dirname); do
 
-    EXAMPLE_PACKAGE_NAME=$(basename "${EXAMPLE_PACKAGE_PATH}")
+    EXAMPLE_PACKAGE_NAME="$(basename "${EXAMPLE_PACKAGE_PATH}")"
     EXAMPLE_COPY_DIR="${TMP_DIR}/${EXAMPLE_PACKAGE_NAME}"
     log "Copying example ${EXAMPLE_PACKAGE_NAME} to ${EXAMPLE_COPY_DIR}"
     cp -R "${EXAMPLE_PACKAGE_PATH}" "${EXAMPLE_COPY_DIR}"
