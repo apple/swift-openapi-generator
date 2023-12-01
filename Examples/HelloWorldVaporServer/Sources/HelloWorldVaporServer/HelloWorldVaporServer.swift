@@ -22,7 +22,7 @@ struct Handler: APIProtocol {
     }
 }
 
-@main struct Tool {
+@main struct HelloWorldVaporServer {
     static func main() throws {
         let app = Vapor.Application()
         let transport = VaporTransport(routesBuilder: app)
