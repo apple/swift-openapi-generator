@@ -36,7 +36,7 @@ for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name 
     cp -R "${EXAMPLE_PACKAGE_PATH}" "${EXAMPLE_COPY_DIR}"
 
     log "Overriding dependency in ${EXAMPLE_PACKAGE_NAME} to use ${PACKAGE_PATH}"
-    swift package --package-path "${EXAMPLE_COPY_DIR}" \
+    "${SWIFT_BIN}" package --package-path "${EXAMPLE_COPY_DIR}" \
         edit swift-openapi-generator --path "${PACKAGE_PATH}"
 
     log "Building example package: ${EXAMPLE_PACKAGE_NAME}"
