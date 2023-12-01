@@ -38,3 +38,5 @@ swift test
 The testing strategy is to call the `Handler` directly from tests, as it conforms the `APIProtocol` and implements the business logic.
 
 This allows you to provide any input to the handler methods and verify that the correct outputs are returned, such as error responses when the input data is invalid, and so on.
+
+Unit testing of the `Handler` happens without involving any `ServerTransport`, which means that you can change the concrete transport later without changing your tests.
