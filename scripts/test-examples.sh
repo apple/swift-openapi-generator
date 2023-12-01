@@ -29,20 +29,23 @@ TMP_DIR=$(/usr/bin/mktemp -d -p "${TMPDIR-/tmp}" "$(basename "$0").XXXXXXXXXX")
 PACKAGE_PATH=${PACKAGE_PATH:-${REPO_ROOT}}
 EXAMPLES_PACKAGE_PATH="${PACKAGE_PATH}/Examples"
 
-# TODO: do this in tmpdir
-
 for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -name Package.swift -type f -maxdepth 2 | xargs dirname); do
 
-    log "Overriding dependency in ${EXAMPLE_PACKAGE_PATH} to use ${PACKAGE_PATH}"
-    swift package --package-path "${EXAMPLE_PACKAGE_PATH}" \
+    EXAMPLE_PACKAGE_NAME=$(basename "${EXAMPLE_PACKAGE_PATH}")
+    EXAMPLE_COPY_DIR="${TMP_DIR}/${EXAMPLE_PACKAGE_NAME}"
+    log "Copying example ${EXAMPLE_PACKAGE_NAME} to ${EXAMPLE_COPY_DIR}"
+    cp -R "${EXAMPLE_PACKAGE_PATH}" "${EXAMPLE_COPY_DIR}"
+
+    log "Overriding dependency in ${EXAMPLE_PACKAGE_NAME} to use ${PACKAGE_PATH}"
+    swift package --package-path "${EXAMPLE_COPY_DIR}" \
         edit swift-openapi-generator --path "${PACKAGE_PATH}"
 
-    log "Building example package: ${EXAMPLE_PACKAGE_PATH}"
-    swift build --package-path "${EXAMPLE_PACKAGE_PATH}"
-    log "✅ Successfully built the example package ${EXAMPLE_PACKAGE_PATH}."
+    log "Building example package: ${EXAMPLE_PACKAGE_NAME}"
+    swift build --package-path "${EXAMPLE_COPY_DIR}"
+    log "✅ Successfully built the example package ${EXAMPLE_PACKAGE_NAME}."
 
-    if [ -d "${EXAMPLE_PACKAGE_PATH}/Tests" ]; then
-        swift test --package-path "${EXAMPLE_PACKAGE_PATH}"
-        log "✅ Passed the tests for the example package ${EXAMPLE_PACKAGE_PATH}."
+    if [ -d "${EXAMPLE_COPY_DIR}/Tests" ]; then
+        swift test --package-path "${EXAMPLE_COPY_DIR}"
+        log "✅ Passed the tests for the example package ${EXAMPLE_PACKAGE_NAME}."
     fi
 done
