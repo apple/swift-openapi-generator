@@ -20,7 +20,6 @@ fatal() { error "$@"; exit 1; }
 
 log "Checking required executables..."
 SWIFT_BIN=${SWIFT_BIN:-$(command -v swift || xcrun -f swift)} || fatal "SWIFT_BIN unset and no swift on PATH"
-JQ_BIN=${JQ_BIN:-$(command -v jq)} || fatal "JQ_BIN unset and no jq on PATH"
 
 CURRENT_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$(git -C "${CURRENT_SCRIPT_DIR}" rev-parse --show-toplevel)"
