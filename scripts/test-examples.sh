@@ -40,7 +40,7 @@ for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name 
         edit swift-openapi-generator --path "${PACKAGE_PATH}"
 
     log "Building example package: ${EXAMPLE_PACKAGE_NAME}"
-    swift build --package-path "${EXAMPLE_COPY_DIR}"
+    "${SWIFT_BIN}" build --package-path "${EXAMPLE_COPY_DIR}"
     log "✅ Successfully built the example package ${EXAMPLE_PACKAGE_NAME}."
 
     if [ -d "${EXAMPLE_COPY_DIR}/Tests" ]; then
