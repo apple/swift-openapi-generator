@@ -2,10 +2,10 @@
 @_spi(Generated) import OpenAPIRuntime
 import struct Foundation.Data
 import struct Foundation.Date
-#if os(Linux)
-@preconcurrency import struct Foundation.URL
-#else
+#if canImport(Darwin)
 import struct Foundation.URL
+#else
+@preconcurrency import struct Foundation.URL
 #endif
 import HTTPTypes
 extension APIProtocol {

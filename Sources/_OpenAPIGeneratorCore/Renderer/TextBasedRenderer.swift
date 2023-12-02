@@ -162,11 +162,12 @@ struct TextBasedRenderer: RendererProtocol {
         switch description.preconcurrency {
         case .always: render(preconcurrency: true)
         case .never: render(preconcurrency: false)
-        case .onOS(let operatingSystems):
-            writer.writeLine("#if \(operatingSystems.map { "os(\($0))" }.joined(separator: " || "))")
-            render(preconcurrency: true)
-            writer.writeLine("#else")
+        case .ifNot(let requirements):
+            precondition(!requirements.isEmpty)
+            writer.writeLine("#if \(requirements.map { $0.render() }.joined(separator: " || "))")
             render(preconcurrency: false)
+            writer.writeLine("#else")
+            render(preconcurrency: true)
             writer.writeLine("#endif")
         }
     }
@@ -897,5 +898,16 @@ extension TextBasedRenderer {
         let renderer = TextBasedRenderer.default
         renderer.renderExpression(expression)
         return renderer.renderedContents()
+    }
+}
+
+private extension ImportDescription.PreconcurrencyRequirement.Requirement {
+    func render() -> String {
+        switch self {
+        case let .canImport(name):
+            return "canImport(\(name))"
+        case let .minimumSwift(version):
+            return "swift(>=\(version))"
+        }
     }
 }

@@ -11,10 +11,10 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-#if os(Linux)
-@preconcurrency import struct Foundation.URL
-#else
+#if canImport(Darwin)
 import struct Foundation.URL
+#else
+@preconcurrency import struct Foundation.URL
 #endif
 import struct Foundation.Data
 import class Foundation.FileManager

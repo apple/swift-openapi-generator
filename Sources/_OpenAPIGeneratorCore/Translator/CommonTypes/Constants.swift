@@ -33,7 +33,7 @@ enum Constants {
             ImportDescription(
                 moduleName: "Foundation",
                 moduleTypes: ["struct Foundation.URL"],
-                preconcurrency: .onOS(["Linux"])
+                preconcurrency: .ifNot([.canImport("Darwin")])
             ),
         ]
 

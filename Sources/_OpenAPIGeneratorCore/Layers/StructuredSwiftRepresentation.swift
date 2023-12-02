@@ -38,12 +38,21 @@ struct ImportDescription: Equatable, Codable {
 
     /// Describes any requirement for the `@preconcurrency` attribute.
     enum PreconcurrencyRequirement: Equatable, Codable {
+
+        /// Platform requirement.
+        enum Requirement: Equatable, Codable {
+            /// Can import a certain library.
+            case canImport(String)
+            /// Swift version greater than or equal to.
+            case minimumSwift(String)
+        }
+
         /// The attribute is always required.
         case always
         /// The attribute is not required.
         case never
-        /// The attribute is required only on the named operating systems.
-        case onOS([String])
+        /// The attribute is required only if not this requirements are met.
+        case ifNot([Requirement])
     }
 }
 
