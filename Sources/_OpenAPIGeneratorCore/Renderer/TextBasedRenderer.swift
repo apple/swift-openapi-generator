@@ -904,10 +904,8 @@ extension TextBasedRenderer {
 private extension ImportDescription.PreconcurrencyRequirement.Requirement {
     func render() -> String {
         switch self {
-        case let .canImport(name):
-            return "canImport(\(name))"
-        case let .minimumSwift(version):
-            return "swift(>=\(version))"
+        case let .canImport(name): return "canImport(\(name))"
+        case let .minimumSwift(version): return "swift(>=\(version))"
         }
     }
 }

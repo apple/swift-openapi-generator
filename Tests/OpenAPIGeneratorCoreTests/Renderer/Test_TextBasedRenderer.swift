@@ -93,7 +93,12 @@ final class Test_TextBasedRenderer: XCTestCase {
                 """#
         )
         try _test(
-            [ImportDescription(moduleName: "Foo", preconcurrency: .ifNot([.canImport("Darwin"), .minimumSwift("5.9.1")]))],
+            [
+                ImportDescription(
+                    moduleName: "Foo",
+                    preconcurrency: .ifNot([.canImport("Darwin"), .minimumSwift("5.9.1")])
+                )
+            ],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 #if canImport(Darwin) || swift(>=5.9.1)
