@@ -28,7 +28,12 @@ enum Constants {
             ImportDescription(moduleName: "OpenAPIRuntime", spi: "Generated"),
             ImportDescription(
                 moduleName: "Foundation",
-                moduleTypes: ["struct Foundation.Data", "struct Foundation.Date"]
+                moduleTypes: ["struct Foundation.Data"]
+            ),
+            ImportDescription(
+                moduleName: "Foundation",
+                moduleTypes: ["struct Foundation.Date"],
+                preconcurrency: .ifNot([.canImport("Darwin"), .minimumSwift("5.9.1")])
             ),
             ImportDescription(
                 moduleName: "Foundation",
