@@ -61,6 +61,7 @@ let package = Package(
         // helps keep the runtime library new enough to work with the generated
         // code.
         .package(url: "https://github.com/apple/swift-openapi-runtime", exact: "1.0.0-alpha.1"),
+        .package(url: "https://github.com/apple/swift-http-types", from: "1.0.0"),
 
         // Build and preview docs
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
@@ -97,7 +98,10 @@ let package = Package(
         // Common types for concrete PetstoreConsumer*Tests test targets.
         .target(
             name: "PetstoreConsumerTestCore",
-            dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
+            dependencies: [
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                .product(name: "HTTPTypes", package: "swift-http-types"),
+            ],
             swiftSettings: swiftSettings
         ),
 
