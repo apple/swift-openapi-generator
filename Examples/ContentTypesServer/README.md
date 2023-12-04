@@ -1,4 +1,4 @@
-# Content Types Examples Server
+# Content Types Server
 
 An example project using [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator).
 

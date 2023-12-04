@@ -16,16 +16,16 @@ import XCTest
 
 final class ContentTypesServerTests: XCTestCase {
 
-// TODO: Update
-//    func testCustomName() async throws {
-//        let handler: APIProtocol = Handler()
-//        let response = try await handler.getGreeting(query: .init(name: "Jane"))
-//        XCTAssertEqual(response, .ok(.init(body: .json(.init(message: "Hello, Jane!")))))
-//    }
-//
-//    func testDefaultName() async throws {
-//        let handler: APIProtocol = Handler()
-//        let response = try await handler.getGreeting()
-//        XCTAssertEqual(response, .ok(.init(body: .json(.init(message: "Hello, Stranger!")))))
-//    }
+    // TODO: Update
+    //    func testCustomName() async throws {
+    //        let handler: APIProtocol = Handler()
+    //        let response = try await handler.getGreeting(query: .init(name: "Jane"))
+    //        XCTAssertEqual(response, .ok(.init(body: .json(.init(message: "Hello, Jane!")))))
+    //    }
+    //
+    //    func testDefaultName() async throws {
+    //        let handler: APIProtocol = Handler()
+    //        let response = try await handler.getGreeting()
+    //        XCTAssertEqual(response, .ok(.init(body: .json(.init(message: "Hello, Stranger!")))))
+    //    }
 }

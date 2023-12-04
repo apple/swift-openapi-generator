@@ -26,24 +26,26 @@ struct Handler: APIProtocol {
     func postExampleJSON(_ input: Operations.postExampleJSON.Input) async throws -> Operations.postExampleJSON.Output {
         let requestBody: Components.Schemas.Greeting
         switch input.body {
-        case .json(let json):
-            requestBody = json
+        case .json(let json): requestBody = json
         }
         print("Received a greeting with the message: '\(requestBody.message)'")
         return .accepted(.init())
     }
 
-    func postExampleURLEncoded(_ input: Operations.postExampleURLEncoded.Input) async throws -> Operations.postExampleURLEncoded.Output {
+    func postExampleURLEncoded(_ input: Operations.postExampleURLEncoded.Input) async throws
+        -> Operations.postExampleURLEncoded.Output
+    {
         let requestBody: Operations.postExampleURLEncoded.Input.Body.urlEncodedFormPayload
         switch input.body {
-        case .urlEncodedForm(let form):
-            requestBody = form
+        case .urlEncodedForm(let form): requestBody = form
         }
         print("Received a greeting with the message: '\(requestBody.message)'")
         return .accepted(.init())
     }
 
-    func getExampleMultipart(_ input: Operations.getExampleMultipart.Input) async throws -> Operations.getExampleMultipart.Output {
+    func getExampleMultipart(_ input: Operations.getExampleMultipart.Input) async throws
+        -> Operations.getExampleMultipart.Output
+    {
         let multipartBody: MultipartBody<Operations.getExampleMultipart.Output.Ok.Body.multipartFormPayload> = [
             .greetingTemplate(.init(payload: .init(body: .init(message: "Hello, {name}!")))),
             .names(.init(payload: .init(headers: .init(x_hyphen_name_hyphen_locale: "en_US"), body: "Frank"))),
@@ -52,11 +54,12 @@ struct Handler: APIProtocol {
         return .ok(.init(body: .multipartForm(multipartBody)))
     }
 
-    func postExampleMultipart(_ input: Operations.postExampleMultipart.Input) async throws -> Operations.postExampleMultipart.Output {
+    func postExampleMultipart(_ input: Operations.postExampleMultipart.Input) async throws
+        -> Operations.postExampleMultipart.Output
+    {
         let multipartBody: MultipartBody<Operations.postExampleMultipart.Input.Body.multipartFormPayload>
         switch input.body {
-        case .multipartForm(let form):
-            multipartBody = form
+        case .multipartForm(let form): multipartBody = form
         }
         for try await part in multipartBody {
             switch part {
@@ -77,65 +80,68 @@ struct Handler: APIProtocol {
         return .accepted(.init())
     }
 
-    func getExamplePlainText(_ input: Operations.getExamplePlainText.Input) async throws -> Operations.getExamplePlainText.Output {
-        return .ok(.init(body: .plainText(
-            """
-            A snow log.
-            ---
-            [2023-12-24] It snowed.
-            [2023-12-25] It snowed even more.
-            """
-        )))
+    func getExamplePlainText(_ input: Operations.getExamplePlainText.Input) async throws
+        -> Operations.getExamplePlainText.Output
+    {
+        .ok(
+            .init(
+                body: .plainText(
+                    """
+                    A snow log.
+                    ---
+                    [2023-12-24] It snowed.
+                    [2023-12-25] It snowed even more.
+                    """
+                )
+            )
+        )
     }
 
-    func postExamplePlainText(_ input: Operations.postExamplePlainText.Input) async throws -> Operations.postExamplePlainText.Output {
+    func postExamplePlainText(_ input: Operations.postExamplePlainText.Input) async throws
+        -> Operations.postExamplePlainText.Output
+    {
         let plainText: HTTPBody
         switch input.body {
-        case .plainText(let body):
-            plainText = body
+        case .plainText(let body): plainText = body
         }
         let bufferedText = try await String(collecting: plainText, upTo: 1024)
         print("Received text: \(bufferedText)")
         return .accepted(.init())
     }
 
-    func getExampleRawBytes(_ input: Operations.getExampleRawBytes.Input) async throws -> Operations.getExampleRawBytes.Output {
-        return .ok(.init(body: .binary([0x73, 0x6e, 0x6f, 0x77, 0x0a])))
-    }
+    func getExampleRawBytes(_ input: Operations.getExampleRawBytes.Input) async throws
+        -> Operations.getExampleRawBytes.Output
+    { .ok(.init(body: .binary([0x73, 0x6e, 0x6f, 0x77, 0x0a]))) }
 
-    func postExampleRawBytes(_ input: Operations.postExampleRawBytes.Input) async throws -> Operations.postExampleRawBytes.Output {
+    func postExampleRawBytes(_ input: Operations.postExampleRawBytes.Input) async throws
+        -> Operations.postExampleRawBytes.Output
+    {
         let binary: HTTPBody
         switch input.body {
-        case .binary(let body):
-            binary = body
+        case .binary(let body): binary = body
         }
         // Processes each chunk as it comes in, avoids buffering the whole body into memory.
-        for try await chunk in binary {
-            print("Received chunk: \(chunk)")
-        }
+        for try await chunk in binary { print("Received chunk: \(chunk)") }
         return .accepted(.init())
     }
 
-    func getExampleMultipleContentTypes(
-        _ input: Operations.getExampleMultipleContentTypes.Input
-    ) async throws -> Operations.getExampleMultipleContentTypes.Output {
+    func getExampleMultipleContentTypes(_ input: Operations.getExampleMultipleContentTypes.Input) async throws
+        -> Operations.getExampleMultipleContentTypes.Output
+    {
         let chosenContentType = input.headers.accept.sortedByQuality().first?.contentType ?? .json
         let responseBody: Operations.getExampleMultipleContentTypes.Output.Ok.Body
         switch chosenContentType {
-        case .json, .other:
-            responseBody = .json(.init(message: "Hello, Stranger!"))
-        case .plainText:
-            responseBody = .plainText("Hello, Stranger!")
+        case .json, .other: responseBody = .json(.init(message: "Hello, Stranger!"))
+        case .plainText: responseBody = .plainText("Hello, Stranger!")
         }
         return .ok(.init(body: responseBody))
     }
 
-    func postExampleMultipleContentTypes(
-        _ input: Operations.postExampleMultipleContentTypes.Input
-    ) async throws -> Operations.postExampleMultipleContentTypes.Output {
+    func postExampleMultipleContentTypes(_ input: Operations.postExampleMultipleContentTypes.Input) async throws
+        -> Operations.postExampleMultipleContentTypes.Output
+    {
         switch input.body {
-        case .json(let json):
-            print("Received a JSON greeting with the message: \(json.message)")
+        case .json(let json): print("Received a JSON greeting with the message: \(json.message)")
         case .plainText(let body):
             let text = try await String(collecting: body, upTo: 1024)
             print("Received a text greeting with the message: \(text)")
