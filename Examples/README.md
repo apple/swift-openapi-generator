@@ -24,6 +24,7 @@ The following examples show various ways that Swift OpenAPI Generator can be ado
 
 - [`CommandLineClient`](./CommandLineClient) - A client showing a Swift Argument Parser-based command line tool Swift package.
 - [`iOSAppClient`](./iOSAppClient) - An iOS app client that shows how to make calls to the generated code from SwiftUI and how to perform unit and UI testing with a mock client.
+- [`CuratedLibraryClient`](./CuratedLibraryClient) - A client library that completely wraps the generated code and vends a hand-written Swift API, allowing semantic versioning independent of the REST API.
 
 ## Generator adoption types
 
@@ -31,10 +32,8 @@ The following examples show alternative ways of integrating Swift OpenAPI Genera
 
 Note that unless specified otherwise, all the examples above use the _build plugin_ to integrate Swift OpenAPI Generator.
 
-- [`CommandPluginClient`](./TODO) TODO
-- [`CommandPluginServer`](./TODO) TODO
-- [`ManualGeneratorInvocationClient`](./TODO) TODO
-- [`ManualGeneratorInvocationServer`](./TODO) TODO
+- [`CommandPluginInvocationClient`](./CommandPluginInvocationClient) - A client using the command plugin to regenerate files manually.
+- [`ManualGeneratorInvocationClient`](./ManualGeneratorInvocationClient) - A client using the command-line tool to regenerate files manually.
 
 ## Deprecated
 
