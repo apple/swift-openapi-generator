@@ -6,24 +6,24 @@ All the examples are self-contained, so you can copy the package directory of yo
 
 Each of the following packages shows an end-to-end working example with the given transport.
 
-- [`HelloWorldURLSessionClient`](./HelloWorldURLSessionClient) - a URLSession-based CLI client
-- [`HelloWorldAsyncHTTPClientClient`](./HelloWorldAsyncHTTPClientClient) - an AsyncHTTPClient-based CLI client
-- [`HelloWorldVaporServer`](./HelloWorldVaporServer) - a Vapor-based CLI server
-- [`HelloWorldHummingbirdServer`](./HelloWorldHummingbirdServer) - a Hummingbird-based CLI server
+- [`HelloWorldURLSessionClient`](./HelloWorldURLSessionClient) - An URLSession-based CLI client.
+- [`HelloWorldAsyncHTTPClientClient`](./HelloWorldAsyncHTTPClientClient) - An AsyncHTTPClient-based CLI client.
+- [`HelloWorldVaporServer`](./HelloWorldVaporServer) - A Vapor-based CLI server
+- [`HelloWorldHummingbirdServer`](./HelloWorldHummingbirdServer) - A Hummingbird-based CLI server.
 
 ## Content types
 
 The following packages show working with various content types, such as JSON, URL-encoded request bodies, plain text, raw bytes, and multipart bodies.
 
-- [`ContentTypesClient`](./ContentTypesClient) - a client showing how to produce and consume the various content types
-- [`ContentTypesServer`](./ContentTypesServer) - a server showing how to produce and consume the various content types
+- [`ContentTypesClient`](./ContentTypesClient) - A client showing how to produce and consume the various content types.
+- [`ContentTypesServer`](./ContentTypesServer) - A server showing how to produce and consume the various content types.
 
 ## Project and target types
 
 The following examples show various ways that Swift OpenAPI Generator can be adopted from a consumer Swift package or an Xcode project.
 
-- [`CommandLineClient`](./CommandLineClient) - a client showing a Swift Argument Parser-based command line tool Swift package
-- [`iOSAppClient`](./TODO) TODO
+- [`CommandLineClient`](./CommandLineClient) - A client showing a Swift Argument Parser-based command line tool Swift package.
+- [`iOSAppClient`](./iOSAppClient) - An iOS app client that shows how to make calls to the generated code from SwiftUI and how to perform unit and UI testing with a mock client.
 
 ## Generator adoption types
 
