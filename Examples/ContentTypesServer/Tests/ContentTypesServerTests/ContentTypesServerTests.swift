@@ -39,17 +39,15 @@ final class ContentTypesServerTests: XCTestCase {
         let response = try await handler.getExampleMultipart()
         let multipartBody = try response.ok.body.multipartForm
         var parts: [Operations.getExampleMultipart.Output.Ok.Body.multipartFormPayload] = []
-        for try await part in multipartBody {
-            parts.append(part)
-        }
+        for try await part in multipartBody { parts.append(part) }
         XCTAssertEqual(parts.count, 3)
     }
 
     func testPostMultipart() async throws {
         let handler: APIProtocol = Handler()
-        let response = try await handler.postExampleMultipart(body: .multipartForm([
-            .greetingTemplate(.init(payload: .init(body: .init(message: "Hello, {name}!"))))
-        ]))
+        let response = try await handler.postExampleMultipart(
+            body: .multipartForm([.greetingTemplate(.init(payload: .init(body: .init(message: "Hello, {name}!"))))])
+        )
         XCTAssertEqual(response, .accepted(.init()))
     }
 
@@ -57,12 +55,15 @@ final class ContentTypesServerTests: XCTestCase {
         let handler: APIProtocol = Handler()
         let response = try await handler.getExamplePlainText()
         let value = try await String(collecting: response.ok.body.plainText, upTo: 1024)
-        XCTAssertEqual(value, """
-        A snow log.
-        ---
-        [2023-12-24] It snowed.
-        [2023-12-25] It snowed even more.
-        """)
+        XCTAssertEqual(
+            value,
+            """
+            A snow log.
+            ---
+            [2023-12-24] It snowed.
+            [2023-12-25] It snowed even more.
+            """
+        )
     }
 
     func testPostPlainText() async throws {
@@ -80,9 +81,7 @@ final class ContentTypesServerTests: XCTestCase {
 
     func testPostRawBytes() async throws {
         let handler: APIProtocol = Handler()
-        let response = try await handler.postExampleRawBytes(body: .binary([
-            0x73, 0x6e, 0x6f, 0x77, 0x0a
-        ]))
+        let response = try await handler.postExampleRawBytes(body: .binary([0x73, 0x6e, 0x6f, 0x77, 0x0a]))
         XCTAssertEqual(response, .accepted(.init()))
     }
 
@@ -95,16 +94,16 @@ final class ContentTypesServerTests: XCTestCase {
         }
         do {
             // Explicitly ask for JSON.
-            let response = try await handler.getExampleMultipleContentTypes(headers: .init(accept: [
-                .init(contentType: .json)
-            ]))
+            let response = try await handler.getExampleMultipleContentTypes(
+                headers: .init(accept: [.init(contentType: .json)])
+            )
             XCTAssertEqual(try response.ok.body.json.message, "Hello, Stranger!")
         }
         do {
             // Explicitly ask for plain text.
-            let response = try await handler.getExampleMultipleContentTypes(headers: .init(accept: [
-                .init(contentType: .plainText)
-            ]))
+            let response = try await handler.getExampleMultipleContentTypes(
+                headers: .init(accept: [.init(contentType: .plainText)])
+            )
             let value = try await String(collecting: response.ok.body.plainText, upTo: 1024)
             XCTAssertEqual(value, "Hello, Stranger!")
         }
@@ -113,15 +112,13 @@ final class ContentTypesServerTests: XCTestCase {
     func testPostMultipleContentTypes() async throws {
         let handler: APIProtocol = Handler()
         do {
-            let response = try await handler.postExampleMultipleContentTypes(body: .json(.init(
-                message: "Hello, Stranger!"
-            )))
+            let response = try await handler.postExampleMultipleContentTypes(
+                body: .json(.init(message: "Hello, Stranger!"))
+            )
             XCTAssertEqual(response, .accepted(.init()))
         }
         do {
-            let response = try await handler.postExampleMultipleContentTypes(body: .plainText(
-                "Hello, Stranger!"
-            ))
+            let response = try await handler.postExampleMultipleContentTypes(body: .plainText("Hello, Stranger!"))
             XCTAssertEqual(response, .accepted(.init()))
         }
     }

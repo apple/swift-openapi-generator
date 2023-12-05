@@ -19,20 +19,15 @@ import ArgumentParser
 @main struct CommandLineClient: AsyncParsableCommand {
     static var configuration: CommandConfiguration = .init(
         commandName: "CommandLineClient",
-        subcommands: [
-            GreetCommand.self,
-        ]
+        subcommands: [GreetCommand.self]
     )
 }
 
 struct GreetCommand: AsyncParsableCommand {
 
-    static var configuration: CommandConfiguration = .init(
-        commandName: "greet"
-    )
+    static var configuration: CommandConfiguration = .init(commandName: "greet")
 
-    @Option
-    var name: String
+    @Option var name: String
 
     func run() async throws {
         let client = Client(serverURL: URL(string: "http://localhost:8080/api")!, transport: URLSessionTransport())

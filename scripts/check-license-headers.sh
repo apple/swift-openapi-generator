@@ -68,6 +68,7 @@ read -ra PATHS_TO_CHECK_FOR_LICENSE <<< "$( \
   ":(exclude)**/openapi-generator-config.yml" \
   ":(exclude)Plugins/OpenAPIGenerator/PluginsShared" \
   ":(exclude)Plugins/OpenAPIGeneratorCommand/PluginsShared" \
+  ":(exclude)Examples/iOSAppClient/*" \
   | xargs -0 \
 )"
 
