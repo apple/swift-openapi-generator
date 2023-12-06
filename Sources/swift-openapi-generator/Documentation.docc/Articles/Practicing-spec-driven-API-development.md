@@ -15,17 +15,15 @@ There are two high-level workflows of creating and using the OpenAPI document:
     - Server code is hand-written.
     - OpenAPI document and client code are generated.
 
-This guide explains why spec-driven development is the recommended practice for use with Swift OpenAPI Generator.
+This guide walks through these two practices and describes how to migrate from a code-driven to a spec-driven development process to improve collaboration and consistency.
 
 ### (Recommended) Spec-driven development
 
-Starting with an API contract, before any server or client code is written, allows both the server and client teams to be involved in the API design process from the start.
+Starting with an API contract and iterating on it allows developers working on both sides of the API to be involved in the API design process from the start.
 
-The goal is to draft the initial OpenAPI document, then let both server and client teams work in parallel as they write the code necessary to implement their side, gather feedback, and propose the next version. This cycle never ends, however after a stable version is released, more care needs to be taken to avoid breaking changes until the next major version (learn more about API stability in <doc:API-stability-of-generated-code>.)
+Creating an OpenAPI document is no different, describing both the methods to call and the data structures of parameters and responses.
 
-Having the OpenAPI document written before the server team writes any code allows the client team to spin up a mock server that follows the proposed API, and start work on the client.
-
-Unblocking client teams allows for quicker iteration than a code-driven workflow, as there is less waiting of teams for one another.
+By starting with a draft of an OpenAPI document, both server and client teams can work in parallel as they write the code necessary to implement their portion of the API, gather feedback, and propose any suggestions for future versions.
 
 ```
                                    ┌────────────────────────────┐
@@ -42,15 +40,25 @@ Unblocking client teams allows for quicker iteration than a code-driven workflow
                                    └────────────────────────────┘
 ```
 
-Swift OpenAPI Generator generates both the client and server stub code, helping ensure that the implementation of both sides follow the agreed-upon OpenAPI document. 
+After a stable version is released, take more care during iteration to avoid breaking changes until the next major version.
 
-Collaborating on the API definition, as opposed to code, allows inexpensive iteration on the OpenAPI document. It is "just" a YAML or JSON file, after all, made easy to browse and edit using tools available in the broader OpenAPI community, offering syntax highlighting, autocompletion, and validation in many popular text editors.
+For more information about the different levels of API stability, check out <doc:API-stability-of-generated-code>.
+
+An OpenAPI document supports client-side developers creating a mock server and starting work on the client to provide feedback in parallel to server-side development.
+
+> Important: Spec-driven development allows server-side and client-side developers to collaborate on the API contract as equal peers and to work in parallel from the start.
+
+Without starting with an OpenAPI document, client-side developers are frequently forced to wait to provide input about the interface. As a result, working from an API specification first allows for quicker iteration than a code-driven workflow, as there is less waiting of teams for one another.
+
+Swift OpenAPI Generator generates both the client and server stub code, helping ensure that the implementation of both sides follow the agreed-upon OpenAPI document.
+
+Collaborate on the API definition, as opposed to code, to less expensively iterate on the OpenAPI document.
+
+Browse and edit OpenAPI documents using tools available in the broader OpenAPI community, with many that support syntax highlighting, autocompletion, and validation.
 
 ### (Discouraged) Code-driven development
 
-Code-driven development, or in other words, writing server code first, and generating the OpenAPI document from it, is discouraged for use with Swift OpenAPI Generator. 
-
-While initially it can appear convenient, as server developers start writing code without having an agreed API contract first, it quickly slows down the iteration cycle as soon as clients get involed and start proposing changes.
+Code-driven development, or in other words, writing server code first, and generating the OpenAPI document from it, is discouraged.
 
 ```
                                                                   ┌────────────────────────────┐
@@ -64,20 +72,36 @@ While initially it can appear convenient, as server developers start writing cod
                                                                   └────────────────────────────┘
 ```
 
-In code-driven development, there isn't a convenient way for clients to propose API changes in an unambiguous, machine-readable way. They would have to get access to the source code of the server, understand how it's implemented, and make changes to it in a way that produces the desired change to the OpenAPI document.
+While initially it can appear convenient, communications with client teams can quickly become confused and ambiguous without a formal description of the API.
 
-A code-driven workflow prioritizes server developers at the cost of their clients, in contrast to spec-driven development, where the server and client developers work as equal peers throughout the API lifecycle.
+Additionally, as multiple teams provide feedback for an API service, there is no single point of truth for all the teams to reference, which slows down iteration.
 
-Code-driven development also doesn't allow client teams to prototype their components until the server developers wrote at least enough code to generate the OpenAPI document, further limiting parallelization and delaying important learnings, making feedback more difficult to integrate as more code has already been written by then.
+In code-driven development, there isn't a convenient way for clients to propose API changes in an unambiguous, machine-readable way. They would have to get access to the source code of the server, understand how it's implemented, and make changes to it in a way that produces the desired change to the OpenAPI document. A code-driven workflow prioritizes server-side development over client-side development, in contrast to spec-driven development, where they work as equal peers throughout the API lifecycle.
 
-For this reason, code-driven development is discouraged for use with Swift OpenAPI Generator, and should be replaced by spec-driven development, which allows all API stakeholders to work as peers from the beginning. To learn about migrating to spec-driven incrementally, check out [this later section](#Migrate-from-code-driven-to-spec-driven-development).
+Code-driven development also doesn't allow client teams to prototype their components until the server developers wrote at least enough code to generate the OpenAPI document, further limiting parallelization and delaying important learnings, making feedback more difficult to integrate.
 
-> Tip: When developing a service without having known clients yet, use integration tests and sample apps as your first "clients". The integration tests should not use any code from the server implementation, and can thus simulate a separate team trying to use the provided service API. Writing the integration tests can inform the server team of usability issues early and feed back into the API design process. In addition to integration tests, prototyping a sample client app can also help simulate the experience of client teams in the absence of real-world API clients.
+> Warning: Code-driven development prioritizes server-side development over client-side development and introduces delays, especially during initial API development.
+
+For these reasons, use or migrate to a spec-driven development workflow.
+
+It allows all API stakeholders to work and iterate as peers.
+
+To learn about migrating from your existing workflow to a spec-driven workflow incrementally, check out [this later section](#Migrate-from-code-driven-to-spec-driven-development).
+
+### Use tests and sample apps as initial clients
+
+When developing a service without having known clients, use integration tests and sample apps as your first "clients".
+
+Integration tests written against stubs generated by Swift OpenAPI Generator can simulate a separate team using the API, and can illustrate and feed back issues during the API design process.
+
+In addition to integration tests, prototyping a sample client app helps drive the end-to-end validation and usefulness in the absence of client teams.
 
 ### Publish the source of truth
 
-Compare the workflows based on the following two properties:
+In comparing the two possible workflows, as yourself the following questions
+
 1. What is the source of truth for the API? In other words, what is the representation that developers edit by hand?
+
 2. What is the representation that the server provider publishes for the client, who consume it either through tooling or by directly reading it?
 
 | Workflow | Source of truth | Published | Transcoding |
@@ -87,19 +111,30 @@ Compare the workflows based on the following two properties:
 
 Notice from the table above that the recommended spec-driven workflow publishes the same document that the developers of the server use to define the server's API (source of truth).
 
-Publishing the source of truth is preferable to relying on transcoding from code (or other representations) to an OpenAPI document, which is often lossy and difficult to predict how a given language-specific annotation affects the OpenAPI output. It also means that any feature unsupported by the transcoder cannot be represented in the generated OpenAPI document.
+Publishing the source of truth is preferable to relying on transcoding from code (or other representations) to an OpenAPI document.
 
-> Tip: Publish the source of truth, not a representation transcoded from the source of truth. That way, your clients can open pull requests to your OpenAPI document without having to learn how your server is implemented, nor do they need access to the source code of your server.
+By inferring the specification from existing code, the resulting OpenAPI spec is often lossy and incomplete.
+
+Even with annotated code, it can be difficult to predict the OpenAPI output.
+
+Additionally, any feature unsupported by the transcoder cannot be represented in the generated OpenAPI document.
+
+> Tip: Publish the source of truth, not a representation transcoded from the source of truth.
+
+That way, your clients can open pull requests to your OpenAPI document without having to learn how your server is implemented, nor do they even need access to your source code.
 
 ### Migrate from code-driven to spec-driven development
 
 > SeeAlso: Check out the [server development](https://developer.apple.com/wwdc23/10171?time=972) section of the WWDC session or the server tutorial (<doc:ServerSwiftPM>) before reading this section.
 
-This section is a step-by-step guide of migrating an example service from code-driven to spec-driven development incrementally, one operation at a time. Migrating incrementally helps reduce risk of large code changes and allows you to evaluate and improve the workflow before migrating your whole codebase.
+This section is a step-by-step guide that shows how to migrate an example service from code-driven to spec-driven development incrementally, one operation at a time.
+
+Migrating incrementally helps reduce risk of large code changes and allows you to evaluate and improve the workflow before migrating your whole codebase.
 
 #### Initial state
 
-Let's assume you're starting with a hand-written [Vapor](https://github.com/vapor/vapor) server that has 3 endpoints:
+This example starts with a [Vapor](https://github.com/vapor/vapor) server that has 3 endpoints:
+
 - `GET /foo`
 - `POST /foo`
 - `GET /bar`
@@ -114,16 +149,16 @@ app.get("bar") { ... a, b, c ... }
 try app.run()
 ```
 
-In each request handler, you have to do 3 things: 
+Each request handler is responsible for three things:
 - a. Parse and validate inputs from a raw `Vapor.Request`.
-- b. Perform your handler-specific logic.
+- b. Perform any logic specific to that handler.
 - c. Serialize outputs into a raw `Vapor.Response`.
 
-The application-specific logic is (b), while (a) and (c) can be repetitive code, which Swift OpenAPI Generator can generate for you.
+The application-specific logic (b) is the core of the handler, while input (a) and output (c) transformation is often repetitive code that the Swift OpenAPI Generator can generate for you.
 
 #### Configure the generator plugin
 
-To take advantage of the generator, first create a new OpenAPI document with no paths in it, looking like this:
+To take advantage of the generator, create a new OpenAPI document with no paths in it, looking like this:
 
 ```yaml
 openapi: 3.1.0
@@ -133,11 +168,11 @@ info:
 paths: {}
 ```
 
-This is a valid OpenAPI document, one that describes a server with no endpoints.
+The example above is a valid OpenAPI document that describes a service with no endpoints.
 
-Save it to `Sources/MyServer/openapi.yaml` and then follow the tutorial of configuring the Swift OpenAPI Generator for a server project: <doc:ServerSwiftPM>.
+Save the initial OpenAPI document to `Sources/MyServer/openapi.yaml` and then follow the tutorial of configuring the Swift OpenAPI Generator for a server project: <doc:ServerSwiftPM>.
 
-As you go through the tutorial, the important part is that you only _add_ the generated handlers _to your existing Vapor app_ instead of creating a new Vapor app. 
+As you go through the tutorial, the important part is that you only _add_ the generated handlers _to your existing Vapor app_ instead of creating a new Vapor app.
 
 After this step, your code looks something like this:
 
@@ -158,13 +193,17 @@ try handler.registerHandlers(on: transport, serverURL: ...)
 try app.run()
 ```
 
-At this point, you have two sets of endpoints, your existing 3 ones, and 0 generated once (because your OpenAPI document is still empty). Now you can commit and push the changes, and none of your existing code should be affected. But you've already taken the first spec towards spec-driven development.
+At this point, you have two sets of endpoints, your existing 3 ones, and 0 generated ones (because your OpenAPI document is still empty).
+
+Now you can commit and push the changes, and none of your existing code should be affected.
+
+You've taken the first step towards spec-driven development.
 
 #### Move over the first operation
 
-Let's migrate the first route, `GET /foo`, and leave the other two alone for now.
+Migrate the first route, `GET /foo`, and leave the other two alone for now.
 
-First, you add the definition for the route to the OpenAPI document, so it looks something like:
+First, add the definition for the route to the OpenAPI document, so it looks something like:
 
 ```yaml
 openapi: 3.1.0
@@ -177,7 +216,7 @@ paths:
       ... (the definition of the operation, its inputs and outputs)
 ```
 
-and comment out the first of the existing route implementations in your Vapor app:
+Comment out the first of the existing route implementations in your Vapor app:
 
 ```swift
 let app = Vapor.Application()
@@ -195,7 +234,9 @@ try handler.registerHandlers(on: transport, serverURL: ...)
 try app.run()
 ```
 
-If you try to compile the above, you'll get a build error. Because now, the `APIProtocol` contains the requirement to implement the `getFoo` operation, but you're not implementing it, yet. Xcode will offer a Fix-it, and drop in a function stub that you just fill in:
+When you compile the example above, you'll get a build error because `APIProtocol` contains the requirement to implement the `getFoo` operation, but it isn't yet implemented.
+
+Xcode will offer a Fix-it, and if you accept it, it will drop in a function stub that you can fill in:
 
 ```swift
 let app = Vapor.Application()
@@ -218,17 +259,19 @@ try app.run()
 
 Now, build run, and test!
 
-Only one operation was moved over, but you can get confidence that it works and even deploy the service.
+Only one operation was moved over, but you can already test that it works and even deploy the service at this point.
 
 #### Repeat for the remaining operations
 
-At this point, `POST /foo` and `GET /bar` are still manually implemented, but `GET /foo` is coming from your OpenAPI document and you only had to move the business logic over.
+At this point, `POST /foo` and `GET /bar` are still manually implemented, but `GET /foo` is coming from the OpenAPI document and you only had to move the business logic over.
 
-At your convenience, repeat this for the remaining two operations, until you have no manual operations (or feel free to keep some manual operations there, for example for serving static css/js files, those endpoints usually don't go into the OpenAPI document, which is meant mainly for the REST API).
+Repeat this for the remaining two operations, until there are no manual operations with business logic.
+
+Endpoints that provide static content, such as CSS or JavaScript files, are not usually considered part of the API, so they don't need to be included in the OpenAPI document.
 
 #### Final state
 
-You should end up with something like this:
+The end result should be something like this:
 
 ```swift
 let app = Vapor.Application()
