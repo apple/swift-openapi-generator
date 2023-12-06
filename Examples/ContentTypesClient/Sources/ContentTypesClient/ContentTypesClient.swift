@@ -50,6 +50,13 @@ import Foundation
             print("Sent plain text")
         }
         do {
+            // The Accept header field lets the client communicate which response content type it prefers, by giving
+            // each content type a "quality" (in other words, a preference), from 0.0 to 1.0, from least to most preferred.
+            // However, the server is still in charge of choosing the response content type and uses the Accept header
+            // as a hint only.
+            //
+            // As a client, here we declare that we prefer to receive JSON, with preference 1.0, and our second choice
+            // is plain text, with preference 0.8.
             let response = try await client.getExampleMultipleContentTypes(
                 headers: .init(accept: [
                     .init(contentType: .json, quality: 1.0), .init(contentType: .plainText, quality: 0.8),

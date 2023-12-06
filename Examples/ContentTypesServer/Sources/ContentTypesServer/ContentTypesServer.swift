@@ -64,6 +64,13 @@ struct Handler: APIProtocol {
     func getExampleMultipleContentTypes(_ input: Operations.getExampleMultipleContentTypes.Input) async throws
         -> Operations.getExampleMultipleContentTypes.Output
     {
+        // The Accept header field lets the client communicate which response content type it prefers, by giving
+        // each content type a "quality" (in other words, a preference), from 0.0 to 1.0, from least to most preferred.
+        // However, the server is still in charge of choosing the response content type and uses the Accept header
+        // as a hint only.
+        //
+        // As a server, here we sort the received content types in the Accept header by quality, from most to least
+        // preferred. If none are provided, default to JSON.
         let chosenContentType = input.headers.accept.sortedByQuality().first?.contentType ?? .json
         let responseBody: Operations.getExampleMultipleContentTypes.Output.Ok.Body
         switch chosenContentType {
