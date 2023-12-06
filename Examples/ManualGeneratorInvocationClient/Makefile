@@ -5,7 +5,7 @@ REPO_DIR = $(TMP_DIR)/swift-openapi-generator
 CLI_EXECUTABLE = $(REPO_DIR)/.build/release/swift-openapi-generator
 
 $(REPO_DIR):
-	git clone --branch $(VERSION) $(REPO_URL) $(REPO_DIR)
+	git clone --branch $(VERSION) --depth 1 $(REPO_URL) $(REPO_DIR)
 
 $(CLI_EXECUTABLE): $(REPO_DIR)
 	cd $(REPO_DIR) && swift build -c release --package-path $(REPO_DIR)
