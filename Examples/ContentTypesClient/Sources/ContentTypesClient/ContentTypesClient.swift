@@ -30,10 +30,62 @@ import Foundation
             print("Sent JSON greeting: \(message)")
         }
         do {
+            let response = try await client.getExamplePlainText()
+            let plainText = try response.ok.body.plainText
+            let bufferedText = try await String(collecting: plainText, upTo: 1024)
+            print("Received text: \(bufferedText)")
+        }
+        do {
+            let response = try await client.postExamplePlainText(
+                body: .plainText(
+                    """
+                    A snow log.
+                    ---
+                    [2023-12-24] It snowed.
+                    [2023-12-25] It snowed even more.
+                    """
+                )
+            )
+            _ = try response.accepted
+            print("Sent plain text")
+        }
+        do {
+            let response = try await client.getExampleMultipleContentTypes(
+                headers: .init(accept: [
+                    .init(contentType: .json, quality: 1.0), .init(contentType: .plainText, quality: 0.8),
+                ])
+            )
+            let body = try response.ok.body
+            switch body {
+            case .json(let json): print("Received a JSON greeting with the message: \(json.message)")
+            case .plainText(let body):
+                let text = try await String(collecting: body, upTo: 1024)
+                print("Received a text greeting with the message: \(text)")
+            }
+        }
+        do {
+            let response = try await client.postExampleMultipleContentTypes(
+                body: .json(.init(message: "Hello, Stranger!"))
+            )
+            _ = try response.accepted
+            print("Sent multiple content types: JSON")
+        }
+        do {
             let message = "Hello, Stranger!"
             let response = try await client.postExampleURLEncoded(body: .urlEncodedForm(.init(message: message)))
             _ = try response.accepted
             print("Sent URLEncoded greeting: \(message)")
+        }
+        do {
+            let response = try await client.getExampleRawBytes()
+            let binary = try response.ok.body.binary
+            // Processes each chunk as it comes in, avoids buffering the whole body into memory.
+            for try await chunk in binary { print("Received chunk: \(chunk)") }
+        }
+        do {
+            let response = try await client.postExampleRawBytes(body: .binary([0x73, 0x6e, 0x6f, 0x77, 0x0a]))
+            _ = try response.accepted
+            print("Sent binary")
         }
         do {
             let response = try await client.getExampleMultipart()
@@ -66,58 +118,6 @@ import Foundation
             let response = try await client.postExampleMultipart(body: .multipartForm(multipartBody))
             _ = try response.accepted
             print("Sent multipart")
-        }
-        do {
-            let response = try await client.getExamplePlainText()
-            let plainText = try response.ok.body.plainText
-            let bufferedText = try await String(collecting: plainText, upTo: 1024)
-            print("Received text: \(bufferedText)")
-        }
-        do {
-            let response = try await client.postExamplePlainText(
-                body: .plainText(
-                    """
-                    A snow log.
-                    ---
-                    [2023-12-24] It snowed.
-                    [2023-12-25] It snowed even more.
-                    """
-                )
-            )
-            _ = try response.accepted
-            print("Sent plain text")
-        }
-        do {
-            let response = try await client.getExampleRawBytes()
-            let binary = try response.ok.body.binary
-            // Processes each chunk as it comes in, avoids buffering the whole body into memory.
-            for try await chunk in binary { print("Received chunk: \(chunk)") }
-        }
-        do {
-            let response = try await client.postExampleRawBytes(body: .binary([0x73, 0x6e, 0x6f, 0x77, 0x0a]))
-            _ = try response.accepted
-            print("Sent binary")
-        }
-        do {
-            let response = try await client.getExampleMultipleContentTypes(
-                headers: .init(accept: [
-                    .init(contentType: .json, quality: 1.0), .init(contentType: .plainText, quality: 0.8),
-                ])
-            )
-            let body = try response.ok.body
-            switch body {
-            case .json(let json): print("Received a JSON greeting with the message: \(json.message)")
-            case .plainText(let body):
-                let text = try await String(collecting: body, upTo: 1024)
-                print("Received a text greeting with the message: \(text)")
-            }
-        }
-        do {
-            let response = try await client.postExampleMultipleContentTypes(
-                body: .json(.init(message: "Hello, Stranger!"))
-            )
-            _ = try response.accepted
-            print("Sent multiple content types: JSON")
         }
     }
 }

@@ -28,29 +28,6 @@ final class ContentTypesServerTests: XCTestCase {
         XCTAssertEqual(response, .accepted(.init()))
     }
 
-    func testPostURLEncoded() async throws {
-        let handler: APIProtocol = Handler()
-        let response = try await handler.postExampleURLEncoded(body: .urlEncodedForm(.init(message: "Hello, Test!")))
-        XCTAssertEqual(response, .accepted(.init()))
-    }
-
-    func testGetMultipart() async throws {
-        let handler: APIProtocol = Handler()
-        let response = try await handler.getExampleMultipart()
-        let multipartBody = try response.ok.body.multipartForm
-        var parts: [Operations.getExampleMultipart.Output.Ok.Body.multipartFormPayload] = []
-        for try await part in multipartBody { parts.append(part) }
-        XCTAssertEqual(parts.count, 3)
-    }
-
-    func testPostMultipart() async throws {
-        let handler: APIProtocol = Handler()
-        let response = try await handler.postExampleMultipart(
-            body: .multipartForm([.greetingTemplate(.init(payload: .init(body: .init(message: "Hello, {name}!"))))])
-        )
-        XCTAssertEqual(response, .accepted(.init()))
-    }
-
     func testGetPlainText() async throws {
         let handler: APIProtocol = Handler()
         let response = try await handler.getExamplePlainText()
@@ -69,19 +46,6 @@ final class ContentTypesServerTests: XCTestCase {
     func testPostPlainText() async throws {
         let handler: APIProtocol = Handler()
         let response = try await handler.postExamplePlainText(body: .plainText("Hello, world!"))
-        XCTAssertEqual(response, .accepted(.init()))
-    }
-
-    func testGetRawBytes() async throws {
-        let handler: APIProtocol = Handler()
-        let response = try await handler.getExampleRawBytes()
-        let value = try await [UInt8](collecting: response.ok.body.binary, upTo: 1024)
-        XCTAssertEqual(value, [0x73, 0x6e, 0x6f, 0x77, 0x0a])
-    }
-
-    func testPostRawBytes() async throws {
-        let handler: APIProtocol = Handler()
-        let response = try await handler.postExampleRawBytes(body: .binary([0x73, 0x6e, 0x6f, 0x77, 0x0a]))
         XCTAssertEqual(response, .accepted(.init()))
     }
 
@@ -121,5 +85,41 @@ final class ContentTypesServerTests: XCTestCase {
             let response = try await handler.postExampleMultipleContentTypes(body: .plainText("Hello, Stranger!"))
             XCTAssertEqual(response, .accepted(.init()))
         }
+    }
+
+    func testPostURLEncoded() async throws {
+        let handler: APIProtocol = Handler()
+        let response = try await handler.postExampleURLEncoded(body: .urlEncodedForm(.init(message: "Hello, Test!")))
+        XCTAssertEqual(response, .accepted(.init()))
+    }
+
+    func testGetRawBytes() async throws {
+        let handler: APIProtocol = Handler()
+        let response = try await handler.getExampleRawBytes()
+        let value = try await [UInt8](collecting: response.ok.body.binary, upTo: 1024)
+        XCTAssertEqual(value, [0x73, 0x6e, 0x6f, 0x77, 0x0a])
+    }
+
+    func testPostRawBytes() async throws {
+        let handler: APIProtocol = Handler()
+        let response = try await handler.postExampleRawBytes(body: .binary([0x73, 0x6e, 0x6f, 0x77, 0x0a]))
+        XCTAssertEqual(response, .accepted(.init()))
+    }
+
+    func testGetMultipart() async throws {
+        let handler: APIProtocol = Handler()
+        let response = try await handler.getExampleMultipart()
+        let multipartBody = try response.ok.body.multipartForm
+        var parts: [Operations.getExampleMultipart.Output.Ok.Body.multipartFormPayload] = []
+        for try await part in multipartBody { parts.append(part) }
+        XCTAssertEqual(parts.count, 3)
+    }
+
+    func testPostMultipart() async throws {
+        let handler: APIProtocol = Handler()
+        let response = try await handler.postExampleMultipart(
+            body: .multipartForm([.greetingTemplate(.init(payload: .init(body: .init(message: "Hello, {name}!"))))])
+        )
+        XCTAssertEqual(response, .accepted(.init()))
     }
 }

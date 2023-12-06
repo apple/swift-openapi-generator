@@ -34,6 +34,54 @@ paths:
       responses:
         '202':
           description: A success response for the accepted greeting.
+  /examplePlainText:
+    get:
+      operationId: getExamplePlainText
+      responses:
+        '200':
+          description: A success response with raw text content.
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      operationId: postExamplePlainText
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '202':
+          description: A success response for the accepted text.
+  /exampleMultipleContentTypes:
+    get:
+      operationId: getExampleMultipleContentTypes
+      responses:
+        '200':
+          description: A success response with raw bytes content.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Greeting'
+            text/plain:
+              schema:
+                type: string
+    post:
+      operationId: postExampleMultipleContentTypes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Greeting'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '202':
+          description: A success response for the accepted value.
   /exampleURLEncoded:
     post:
       operationId: postExampleURLEncoded
@@ -51,6 +99,29 @@ paths:
       responses:
         '202':
           description: A success response for the accepted greeting.
+  /exampleRawBytes:
+    get:
+      operationId: getExampleRawBytes
+      responses:
+        '200':
+          description: A success response with raw bytes content.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                contentEncoding: binary
+    post:
+      operationId: postExampleRawBytes
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              contentEncoding: binary
+      responses:
+        '202':
+          description: A success response for the accepted bytes.
   /exampleMultipart:
     get:
       operationId: getExampleMultipart
@@ -118,77 +189,6 @@ paths:
       responses:
         '202':
           description: A success response for the accepted greeting.
-  /examplePlainText:
-    get:
-      operationId: getExamplePlainText
-      responses:
-        '200':
-          description: A success response with raw text content.
-          content:
-            text/plain:
-              schema:
-                type: string
-    post:
-      operationId: postExamplePlainText
-      requestBody:
-        required: true
-        content:
-          text/plain:
-            schema:
-              type: string
-      responses:
-        '202':
-          description: A success response for the accepted text.
-  /exampleRawBytes:
-    get:
-      operationId: getExampleRawBytes
-      responses:
-        '200':
-          description: A success response with raw bytes content.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                contentEncoding: binary
-    post:
-      operationId: postExampleRawBytes
-      requestBody:
-        required: true
-        content:
-          application/octet-stream:
-            schema:
-              type: string
-              contentEncoding: binary
-      responses:
-        '202':
-          description: A success response for the accepted bytes.
-  /exampleMultipleContentTypes:
-    get:
-      operationId: getExampleMultipleContentTypes
-      responses:
-        '200':
-          description: A success response with raw bytes content.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Greeting'
-            text/plain:
-              schema:
-                type: string
-    post:
-      operationId: postExampleMultipleContentTypes
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Greeting'
-          text/plain:
-            schema:
-              type: string
-      responses:
-        '202':
-          description: A success response for the accepted value.
 components:
   schemas:
     Greeting:
