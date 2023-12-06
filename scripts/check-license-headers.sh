@@ -71,6 +71,7 @@ read -ra PATHS_TO_CHECK_FOR_LICENSE <<< "$( \
   ":(exclude)Examples/iOSAppClient/*" \
   ":(exclude)Examples/**/Generated*" \
   ":(exclude)**/Makefile" \
+  ":(exclude)**/*.html" \
   | xargs -0 \
 )"
 
