@@ -7,7 +7,7 @@ All the examples are self-contained, so you can copy the package directory of yo
 Each of the following packages shows an end-to-end working example with the given transport.
 
 - [`HelloWorldURLSessionClient`](./HelloWorldURLSessionClient) - An URLSession-based CLI client.
-- [`HelloWorldAsyncHTTPClientClient`](./HelloWorldAsyncHTTPClientClient) - An AsyncHTTPClient-based CLI client.
+- [`HelloWorldAsyncHTTPClient`](./HelloWorldAsyncHTTPClient) - An AsyncHTTPClient-based CLI client.
 - [`HelloWorldVaporServer`](./HelloWorldVaporServer) - A Vapor-based CLI server
 - [`HelloWorldHummingbirdServer`](./HelloWorldHummingbirdServer) - A Hummingbird-based CLI server.
 

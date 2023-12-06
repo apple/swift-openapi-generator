@@ -15,7 +15,7 @@ import OpenAPIRuntime
 import OpenAPIAsyncHTTPClient
 import Foundation
 
-@main struct HelloWorldAsyncHTTPClientClient {
+@main struct HelloWorldAsyncHTTPClient {
     static func main() async throws {
         let client = Client(serverURL: URL(string: "http://localhost:8080/api")!, transport: AsyncHTTPClientTransport())
         let response = try await client.getGreeting()

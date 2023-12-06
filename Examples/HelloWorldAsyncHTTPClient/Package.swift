@@ -15,7 +15,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "HelloWorldAsyncHTTPClientClient",
+    name: "HelloWorldAsyncHTTPClient",
     platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .visionOS(.v1)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", exact: "1.0.0-alpha.1"),
@@ -24,7 +24,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "HelloWorldAsyncHTTPClientClient",
+            name: "HelloWorldAsyncHTTPClient",
             dependencies: [
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIAsyncHTTPClient", package: "swift-openapi-async-http-client"),
