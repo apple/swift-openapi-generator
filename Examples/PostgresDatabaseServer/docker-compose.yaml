@@ -1,0 +1,13 @@
+---
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "${POSTGRES_HOST_AUTH_METHOD:-scram-sha-256}"
+      POSTGRES_USER: test_username
+      POSTGRES_DB: test_database
+      POSTGRES_PASSWORD: test_password
+    ports:
+      - 5432:5432
