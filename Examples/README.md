@@ -20,7 +20,8 @@ The following packages show working with various content types, such as JSON, UR
 
 ## Integrations
 
-- [`PostgresDatabaseServer`](./PostgresDatabaseServer) - a server using Postgres for persistent state
+- [`SwaggerUIEndpointsServer`](./SwaggerUIEndpointsServer) - a server that vends its OpenAPI document as a raw file and also provides a rendered documentation viewer using swagger-ui.
+- [`PostgresDatabaseServer`](./PostgresDatabaseServer) - a server using Postgres for persistent state.
 
 ## Project and target types
 

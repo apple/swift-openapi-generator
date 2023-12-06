@@ -15,7 +15,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "OpenAPIEndpointsServer",
+    name: "SwaggerUIEndpointsServer",
     platforms: [.macOS(.v10_15)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", exact: "1.0.0-alpha.1"),
@@ -25,7 +25,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "OpenAPIEndpointsServer",
+            name: "SwaggerUIEndpointsServer",
             dependencies: [
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),

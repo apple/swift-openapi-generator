@@ -22,7 +22,7 @@ struct Handler: APIProtocol {
     }
 }
 
-@main struct OpenAPIEndpointsServer {
+@main struct SwaggerUIEndpointsServer {
     static func main() throws {
         let app = Vapor.Application()
         let transport = VaporTransport(routesBuilder: app)
