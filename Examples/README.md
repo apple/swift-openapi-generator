@@ -18,6 +18,10 @@ The following packages show working with various content types, such as JSON, UR
 - [`ContentTypesClient`](./ContentTypesClient) - A client showing how to produce and consume the various content types.
 - [`ContentTypesServer`](./ContentTypesServer) - A server showing how to produce and consume the various content types.
 
+## Integrations
+
+- [`PostgresDatabaseServer`](./PostgresDatabaseServer) - a server using Postgres for persistent state
+
 ## Project and target types
 
 The following examples show various ways that Swift OpenAPI Generator can be adopted from a consumer Swift package or an Xcode project.
@@ -28,14 +32,15 @@ The following examples show various ways that Swift OpenAPI Generator can be ado
 
 ## Generator adoption types
 
-The following examples show alternative ways of integrating Swift OpenAPI Generator into your project.
+The recommended way to use Swift OpenAPI generator is by integrating the _build plugin_, which all of the examples above use. The build plugin generates Swift code from your OpenAPI document at build time, and you don't check in the generated code into git. 
 
-Note that unless specified otherwise, all the examples above use the _build plugin_ to integrate Swift OpenAPI Generator.
+However, if you cannot use the build plugin, for example because you must check in your generated code, use the _command plugin_, which you trigger manually either in Xcode or on the command line. See the following example for this workflow:
 
 - [`CommandPluginInvocationClient`](./CommandPluginInvocationClient) - A client using the command plugin to regenerate files manually.
-- [`ManualGeneratorInvocationClient`](./ManualGeneratorInvocationClient) - A client using the command-line tool to regenerate files manually.
 
-- [`PostgresDatabaseServer`](./PostgresDatabaseServer) - a server using Postgres for persistent state
+If you can't even use the command plugin, for example because your package is not allowed to depend on swift-openapi-generator directly, you can invoke the generator CLI manually from a Makefile. See the following example for this workflow:
+
+- [`ManualGeneratorInvocationClient`](./ManualGeneratorInvocationClient) - A client using the command-line tool to regenerate files manually.
 
 ## Deprecated
 
