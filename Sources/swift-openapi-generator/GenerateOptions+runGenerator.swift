@@ -30,13 +30,13 @@ extension _GenerateOptions {
     func runGenerator(outputDirectory: URL, pluginSource: PluginSource?, isDryRun: Bool) async throws {
         let config = try loadedConfig()
         let sortedModes = try resolvedModes(config)
-        let resolvedAccessModifier = resolvedAccessModifier(config)
+        let resolvedAccessModifier = resolvedAccessModifier(config) ?? Config.defaultAccessModifier
         let resolvedAdditionalImports = resolvedAdditionalImports(config)
         let resolvedFeatureFlags = resolvedFeatureFlags(config)
         let configs: [Config] = sortedModes.map {
             .init(
                 mode: $0,
-                access: resolvedAccessModifier ?? Config.defaultAccessModifier,
+                access: resolvedAccessModifier,
                 additionalImports: resolvedAdditionalImports,
                 filter: config?.filter,
                 featureFlags: resolvedFeatureFlags
@@ -60,6 +60,7 @@ extension _GenerateOptions {
             - OpenAPI document path: \(doc.path)
             - Configuration path: \(self.config?.path ?? "<none>")
             - Generator modes: \(sortedModes.map(\.rawValue).joined(separator: ", "))
+            - Access modifier: \(resolvedAccessModifier.rawValue)
             - Feature flags: \(resolvedFeatureFlags.isEmpty ? "<none>" : resolvedFeatureFlags.map(\.rawValue).joined(separator: ", "))
             - Output file names: \(sortedModes.map(\.outputFileName).joined(separator: ", "))
             - Output directory: \(outputDirectory.path)
