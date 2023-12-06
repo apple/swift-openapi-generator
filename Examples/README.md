@@ -35,6 +35,8 @@ Note that unless specified otherwise, all the examples above use the _build plug
 - [`CommandPluginInvocationClient`](./CommandPluginInvocationClient) - A client using the command plugin to regenerate files manually.
 - [`ManualGeneratorInvocationClient`](./ManualGeneratorInvocationClient) - A client using the command-line tool to regenerate files manually.
 
+- [`PostgresDatabaseServer`](./PostgresDatabaseServer) - a server using Postgres for persistent state
+
 ## Deprecated
 
 The following examples will be removed before 1.0.0 is released and is preserved for backwards compatibility with currently published tutorials that point to it.
