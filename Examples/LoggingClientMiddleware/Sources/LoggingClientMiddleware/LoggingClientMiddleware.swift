@@ -11,6 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+#if canImport(Darwin)
 import OpenAPIRuntime
 import Foundation
 import HTTPTypes
@@ -28,10 +29,7 @@ package actor LoggingMiddleware: ClientMiddleware {
     private let logger: Logger
     package let bodyLoggingPolicy: BodyLoggingPolicy
 
-    package init(
-        logger: Logger = defaultLogger,
-        bodyLoggingConfiguration: BodyLoggingPolicy = .never
-    ) {
+    package init(logger: Logger = defaultLogger, bodyLoggingConfiguration: BodyLoggingPolicy = .never) {
         self.logger = logger
         self.bodyLoggingPolicy = bodyLoggingConfiguration
     }
@@ -45,13 +43,17 @@ package actor LoggingMiddleware: ClientMiddleware {
     ) async throws -> (HTTPResponse, HTTPBody?) {
 
         let (requestBodyToLog, requestBodyForNext) = try await processBodyForLogging(body)
-        logger.debug("Request: \(request.method, privacy: .public) \(request.path ?? "<nil>", privacy: .public) body: \(requestBodyToLog, privacy: .auto)")
+        logger.debug(
+            "Request: \(request.method, privacy: .public) \(request.path ?? "<nil>", privacy: .public) body: \(requestBodyToLog, privacy: .auto)"
+        )
 
         do {
             let (response, responseBody) = try await next(request, requestBodyForNext, baseURL)
             let (responseBodyToLog, responseBodyForNext) = try await processBodyForLogging(responseBody)
 
-            logger.debug("Response: \(request.method, privacy: .public) \(request.path ?? "<nil>", privacy: .public) \(response.status, privacy: .public) body: \(responseBodyToLog, privacy: .auto)")
+            logger.debug(
+                "Response: \(request.method, privacy: .public) \(request.path ?? "<nil>", privacy: .public) \(response.status, privacy: .public) body: \(responseBodyToLog, privacy: .auto)"
+            )
 
             return (response, responseBodyForNext)
         } catch {
@@ -78,12 +80,9 @@ extension LoggingMiddleware {
 
     func processBodyForLogging(_ body: HTTPBody?) async throws -> (bodyToLog: BodyLog, bodyForNext: HTTPBody?) {
         switch (body?.length, bodyLoggingPolicy) {
-        case (.none, _):
-            return (.none, body)
-        case (_, .never):
-            return (.redacted, body)
-        case (.unknown, _):
-            return (.unknownLength, body)
+        case (.none, _): return (.none, body)
+        case (_, .never): return (.redacted, body)
+        case (.unknown, _): return (.unknownLength, body)
         case (.known(let length), .upTo(let maxBytesToLog)) where length > maxBytesToLog:
             return (.tooManyBytesToLog(length), body)
         case (.known, .upTo(let maxBytesToLog)):
@@ -100,19 +99,14 @@ extension LoggingMiddleware {
 extension LoggingMiddleware.BodyLog: CustomStringConvertible {
     var description: String {
         switch self {
-        case .none:
-            return "<none>"
-        case .redacted:
-            return "<redacted>"
-        case .unknownLength:
-            return "<unknown length>"
-        case .tooManyBytesToLog(let byteCount):
-            return "<\(byteCount) bytes>"
+        case .none: return "<none>"
+        case .redacted: return "<redacted>"
+        case .unknownLength: return "<unknown length>"
+        case .tooManyBytesToLog(let byteCount): return "<\(byteCount) bytes>"
         case .complete(let data):
-            if let string = String(data: data, encoding: .utf8) {
-                return string
-            }
+            if let string = String(data: data, encoding: .utf8) { return string }
             return String(describing: data)
         }
     }
 }
+#endif  // canImport(Darwin)
