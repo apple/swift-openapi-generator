@@ -55,7 +55,7 @@ package actor LoggingMiddleware: ClientMiddleware {
 
             return (response, responseBodyForNext)
         } catch {
-            Logger().warning("Request failed. Error: \(error.localizedDescription)")
+            logger.warning("Request failed. Error: \(error.localizedDescription)")
             throw error
         }
     }

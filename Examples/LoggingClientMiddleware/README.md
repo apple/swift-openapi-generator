@@ -14,7 +14,7 @@ large, the middleware is configured with a logging policy; one of:
 
 - `never`: Never log request or response bodies.
 - `upTo(maxBytes)`: Logs request and response bodies only if they have a known
-    length that is less than `maxBytes`.
+    length that is less than or equal to `maxBytes`.
 
 For request and response bodies that are unknown length or greater than
 `maxBytes`, they are not logged.
