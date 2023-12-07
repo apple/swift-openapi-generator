@@ -34,6 +34,12 @@ for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name 
 
     EXAMPLE_PACKAGE_NAME="$(basename "${EXAMPLE_PACKAGE_PATH}")"
     EXAMPLE_COPY_DIR="${TMP_DIR}/${EXAMPLE_PACKAGE_NAME}"
+
+    if [[ "${SINGLE_EXAMPLE_PACKAGE:-${EXAMPLE_PACKAGE_NAME}}" != "${EXAMPLE_PACKAGE_NAME}" ]]; then
+        log "Skipping example: ${EXAMPLE_PACKAGE_NAME}"
+        continue
+    fi
+
     log "Copying example ${EXAMPLE_PACKAGE_NAME} to ${EXAMPLE_COPY_DIR}"
     mkdir "${EXAMPLE_COPY_DIR}"
     git archive HEAD "${EXAMPLE_PACKAGE_PATH}" --format tar | tar -C "${EXAMPLE_COPY_DIR}" -xvf- --strip-components 2
