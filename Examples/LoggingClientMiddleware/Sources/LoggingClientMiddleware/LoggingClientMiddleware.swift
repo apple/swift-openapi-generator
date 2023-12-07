@@ -26,7 +26,7 @@ package actor LoggingMiddleware: ClientMiddleware {
     }
 
     private let logger: Logger
-    var bodyLoggingPolicy: BodyLoggingPolicy
+    package let bodyLoggingPolicy: BodyLoggingPolicy
 
     package init(
         logger: Logger = defaultLogger,
