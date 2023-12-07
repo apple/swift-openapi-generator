@@ -1,0 +1,35 @@
+{
+  "configurations" : [
+    {
+      "id" : "89964AC6-C28B-4C2A-9CF4-824B569065D0",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:iOSAppClient.xcodeproj",
+      "identifier" : "3A133CDE2B1F28870008DD5E",
+      "name" : "iOSAppClient"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:iOSAppClient.xcodeproj",
+        "identifier" : "3A133CEE2B1F28890008DD5E",
+        "name" : "iOSAppClientTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:iOSAppClient.xcodeproj",
+        "identifier" : "3A133CF82B1F28890008DD5E",
+        "name" : "iOSAppClientUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
