@@ -1,4 +1,4 @@
-# Hello World Vapor Server
+# Hello World Hummingbird Server
 
 An example project using [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator).
 
@@ -6,7 +6,7 @@ An example project using [Swift OpenAPI Generator](https://github.com/apple/swif
 
 A "hello world" server that uses generated server stubs to handle requests as the Greeting Service. 
 
-The tool uses the [Vapor](https://github.com/vapor/vapor) server framework to handle HTTP requests, wrapped in the [Swift OpenAPI Vapor Transport](https://github.com/swift-server/swift-openapi-vapor).
+The tool uses the [Hummingbird](https://github.com/hummingbird-project/hummingbird) server framework to handle HTTP requests, wrapped in the [Swift OpenAPI Hummingbird Transport](https://github.com/swift-server/swift-openapi-hummingbird).
 
 The CLI starts the server on `http://localhost:8080` and can be invoked by running any of the `HelloWorld*Client` example clients or on the command line using:
 
@@ -23,7 +23,7 @@ Build and run the server CLI using:
 
 ```
 $ swift run
-2023-12-01T14:14:35+0100 notice codes.vapor.application : [Vapor] Server starting on http://127.0.0.1:8080
+2023-12-01T14:14:35+0100 info HummingBird : [HummingbirdCore] Server started and listening on 127.0.0.1:8080
 ...
 ```
 
