@@ -20,11 +20,13 @@ import RetryingClientMiddleware
         let client = Client(
             serverURL: URL(string: "http://localhost:8080/api")!,
             transport: URLSessionTransport(),
-            middlewares: [RetryingMiddleware(
-                signals: [.code(429), .range(500..<600), .errorThrown],
-                policy: .upToAttempts(count: 3),
-                delay: .constant(seconds: 1)
-            )]
+            middlewares: [
+                RetryingMiddleware(
+                    signals: [.code(429), .range(500..<600), .errorThrown],
+                    policy: .upToAttempts(count: 3),
+                    delay: .constant(seconds: 1)
+                )
+            ]
         )
         let response = try await client.getGreeting()
         print(try response.ok.body.json.message)

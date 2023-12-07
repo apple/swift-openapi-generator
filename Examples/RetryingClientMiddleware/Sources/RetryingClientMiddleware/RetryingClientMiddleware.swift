@@ -67,12 +67,9 @@ package struct RetryingMiddleware {
     /// - Parameters:
     ///   - signals: The signals that lead to the retry policy being evaluated.
     ///   - policy: The policy used to evaluate whether to perform a retry.
+    ///   - delay: The delay policy for retries.
     package init(
-        signals: Set<RetryableSignal> = [
-            .code(429),
-            .range(500..<600),
-            .errorThrown
-        ],
+        signals: Set<RetryableSignal> = [.code(429), .range(500..<600), .errorThrown],
         policy: RetryingPolicy = .upToAttempts(count: 3),
         delay: DelayPolicy = .constant(seconds: 1)
     ) {
@@ -93,26 +90,18 @@ extension RetryingMiddleware: ClientMiddleware {
         guard case .upToAttempts(count: let maxAttemptCount) = policy else {
             return try await next(request, body, baseURL)
         }
-        if let body {
-            guard body.iterationBehavior == .multiple else {
-                return try await next(request, body, baseURL)
-            }
-        }
+        if let body { guard body.iterationBehavior == .multiple else { return try await next(request, body, baseURL) } }
         func willRetry() async throws {
             switch delay {
-            case .none:
-                return
-            case .constant(seconds: let seconds):
-                try await Task.sleep(nanoseconds:  UInt64(seconds * 1_000_000_000))
+            case .none: return
+            case .constant(seconds: let seconds): try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
             }
         }
         for attempt in 1...maxAttemptCount {
             print("Attempt \(attempt)")
             let (response, responseBody): (HTTPResponse, HTTPBody?)
             if signals.contains(.errorThrown) {
-                do {
-                    (response, responseBody) = try await next(request, body, baseURL)
-                } catch {
+                do { (response, responseBody) = try await next(request, body, baseURL) } catch {
                     if attempt == maxAttemptCount {
                         throw error
                     } else {
@@ -144,16 +133,9 @@ extension Set where Element == RetryingMiddleware.RetryableSignal {
     func contains(_ code: Int) -> Bool {
         for signal in self {
             switch signal {
-            case .code(let int):
-                if code == int {
-                    return true
-                }
-            case .range(let range):
-                if range.contains(code) {
-                    return true
-                }
-            case .errorThrown:
-                break
+            case .code(let int): if code == int { return true }
+            case .range(let range): if range.contains(code) { return true }
+            case .errorThrown: break
             }
         }
         return false
