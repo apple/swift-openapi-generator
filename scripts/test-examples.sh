@@ -33,7 +33,8 @@ for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name 
     EXAMPLE_PACKAGE_NAME="$(basename "${EXAMPLE_PACKAGE_PATH}")"
     EXAMPLE_COPY_DIR="${TMP_DIR}/${EXAMPLE_PACKAGE_NAME}"
     log "Copying example ${EXAMPLE_PACKAGE_NAME} to ${EXAMPLE_COPY_DIR}"
-    cp -R "${EXAMPLE_PACKAGE_PATH}" "${EXAMPLE_COPY_DIR}"
+    mkdir "${EXAMPLE_COPY_DIR}"
+    git archive HEAD "${EXAMPLE_PACKAGE_PATH}" --format tar | tar -C "${EXAMPLE_COPY_DIR}" -xvf- --strip-components 2
 
     log "Overriding dependency in ${EXAMPLE_PACKAGE_NAME} to use ${PACKAGE_PATH}"
     "${SWIFT_BIN}" package --package-path "${EXAMPLE_COPY_DIR}" \
