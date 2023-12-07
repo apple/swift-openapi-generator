@@ -1,5 +1,5 @@
 @Tutorial(time: 5) {
-    @Intro(title: "Adding OpenAPI endpoints") {
+    @Intro(title: "Adding OpenAPI and Swagger UI endpoints") {
         One of the most popular ways to share your OpenAPI document with your users is to host it alongside your API server itself.
         
         Typically this is at `/openapi.yaml` or similar, which serves a plain-text OpenAPI document for consumpion by clients.
