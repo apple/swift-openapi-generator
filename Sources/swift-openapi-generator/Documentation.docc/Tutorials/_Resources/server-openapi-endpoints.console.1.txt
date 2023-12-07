@@ -1,0 +1,5 @@
+% mkdir Public
+
+% mv Sources/openapi.yaml Public/
+
+% ln -s ../Public/openapi.yaml Sources/openapi.yaml

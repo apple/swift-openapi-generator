@@ -17,6 +17,7 @@ import LoggingClientMiddleware
 
 @main struct HelloWorldURLSessionClient {
     static func main() async throws {
+        #if canImport(Darwin)
         let client = Client(
             serverURL: URL(string: "http://localhost:8080/api")!,
             transport: URLSessionTransport(),
@@ -24,5 +25,9 @@ import LoggingClientMiddleware
         )
         let response = try await client.getGreeting()
         print(try response.ok.body.json.message)
+        #else  //canImport(Darwin)
+        print("This example uses OSLog, so is only supported on Darwin platforms")
+        exit(EXIT_FAILURE)
+        #endif  //canImport(Darwin)
     }
 }

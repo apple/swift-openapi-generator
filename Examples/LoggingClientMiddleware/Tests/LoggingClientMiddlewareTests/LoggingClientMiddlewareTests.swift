@@ -11,6 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+#if canImport(Darwin)
 import OpenAPIRuntime
 import XCTest
 
@@ -19,18 +20,20 @@ import XCTest
 final class LoggingMiddlewareTests: XCTestCase {
 
     func testProcessBodyForLogging() async throws {
-        for (body, config, expectedMessage): (HTTPBody?, LoggingMiddleware.BodyLoggingPolicy, LoggingMiddleware.BodyLog) in [
-            (.none, .never, .none),
-            (.none, .upTo(maxBytes: 5), .none),
-            (HTTPBody("Hello", length: .unknown), .never, .redacted),
-            (HTTPBody("Hello", length: .unknown), .upTo(maxBytes: 3), .unknownLength),
-            (HTTPBody("Hello", length: .unknown), .upTo(maxBytes: 5), .unknownLength),
-            (HTTPBody("Hello"), .never, .redacted),
-            (HTTPBody("Hello"), .upTo(maxBytes: 3), .tooManyBytesToLog(5)),
-            (HTTPBody("Hello"), .upTo(maxBytes: 5), .complete(Data("Hello".utf8))),
-        ] {
-            let (bodyToLog, _) = try await LoggingMiddleware(bodyLoggingConfiguration: config).processBodyForLogging(body)
+        for (body, config, expectedMessage): (HTTPBody?, LoggingMiddleware.BodyLoggingPolicy, LoggingMiddleware.BodyLog)
+            in [
+                (.none, .never, .none), (.none, .upTo(maxBytes: 5), .none),
+                (HTTPBody("Hello", length: .unknown), .never, .redacted),
+                (HTTPBody("Hello", length: .unknown), .upTo(maxBytes: 3), .unknownLength),
+                (HTTPBody("Hello", length: .unknown), .upTo(maxBytes: 5), .unknownLength),
+                (HTTPBody("Hello"), .never, .redacted), (HTTPBody("Hello"), .upTo(maxBytes: 3), .tooManyBytesToLog(5)),
+                (HTTPBody("Hello"), .upTo(maxBytes: 5), .complete(Data("Hello".utf8))),
+            ]
+        {
+            let (bodyToLog, _) = try await LoggingMiddleware(bodyLoggingConfiguration: config)
+                .processBodyForLogging(body)
             XCTAssertEqual(bodyToLog, expectedMessage)
         }
     }
 }
+#endif  // canImport(Darwin)

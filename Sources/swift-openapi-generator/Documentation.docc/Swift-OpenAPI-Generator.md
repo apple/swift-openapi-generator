@@ -14,7 +14,14 @@ Swift OpenAPI Generator is a Swift package plugin that can generate the ceremony
 
 The code is generated at build-time, so it's always in sync with the OpenAPI document and doesn't need to be committed to your source repository.
 
-> Tip: In a rush? Take a look at one of our _getting started_ guides: <doc:ClientXcode>, <doc:ClientSwiftPM>, or <doc:ServerSwiftPM>!
+### Getting started
+
+> Tip: In a rush? Duplicate a working example to start your project: <doc:Starting-with-an-example-project>.
+
+Alternatively, to integrate Swift OpenAPI Generator into your existing project, or to create a new one, follow one of our _getting started_ guides:
+- <doc:ClientXcode>
+- <doc:ClientSwiftPM>
+- <doc:ServerSwiftPM>
 
 ### Repository organization
 
@@ -63,12 +70,15 @@ The generated code, runtime library, and transports are supported on more platfo
 ## Topics
 
 ### Essentials
+- <doc:Starting-with-an-example-project>
 - <doc:ClientSwiftPM>
 - <doc:ClientXcode>
 - <doc:ServerSwiftPM>
 
 ### OpenAPI
 - <doc:ExploreOpenAPI>
+- <doc:Adding-openapi-and-swagger-ui-endpoints>
+- <doc:Practicing-spec-driven-API-development>
 - <doc:Useful-OpenAPI-patterns>
 - <doc:Supported-OpenAPI-features>
 

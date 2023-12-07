@@ -8,7 +8,7 @@ A "hello world" command-line tool that uses a generated client to make a request
 
 The tool uses the [URLSession](https://developer.apple.com/documentation/foundation/urlsession) API to perform the HTTP call, wrapped in the [Swift OpenAPI URLSession Transport](https://github.com/apple/swift-openapi-urlsession).
 
-The server can be started by running the `HelloWorldServer` example locally.
+The server can be started by running the any of the `HelloWorld*Server` examples locally.
 
 ## Usage
 

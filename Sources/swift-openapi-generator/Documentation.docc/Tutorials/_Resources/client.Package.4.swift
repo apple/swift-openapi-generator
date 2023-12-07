@@ -27,7 +27,6 @@ let package = Package(
                     package: "swift-openapi-urlsession"
                 ),
             ],
-            path: "Sources",
             plugins: [
                 .plugin(
                     name: "OpenAPIGenerator",

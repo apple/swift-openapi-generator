@@ -60,7 +60,7 @@
                 @Code(name: "Package.swift", file: server.Package.2.swift)
             }
             @Step {
-                Now we can update our target to make use of the Swift OpenAPI Generator plugin and add the runtime dependencies for our target.
+                Now we can update our target to make use of the Swift OpenAPI Generator plugin.
                 @Code(name: "Package.swift", file: server.Package.3.swift)
             }
             @Step {

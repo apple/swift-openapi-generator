@@ -17,7 +17,6 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "GreetingServiceClient",
-            path: "Sources",
             plugins: [
                 .plugin(
                     name: "OpenAPIGenerator",
