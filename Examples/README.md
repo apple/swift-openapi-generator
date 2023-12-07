@@ -8,6 +8,7 @@ All the examples are self-contained, so you can copy the package directory of yo
 - [`HelloWorldVaporServer`](./HelloWorldVaporServer) - a Vapor-based CLI server
 
 - [`PostgresDatabaseServer`](./PostgresDatabaseServer) - a server using Postgres for persistent state
+- [`RetryingClientMiddleware`](./RetryingClientMiddleware) - a client with a middleware that retries failed requests.
 
 ## Deprecated
 
