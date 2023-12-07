@@ -30,5 +30,6 @@
         @TutorialReference(tutorial: "doc:ServerSwiftPM")
         @TutorialReference(tutorial: "doc:ClientSwiftPM")
         @TutorialReference(tutorial: "doc:ClientXcode")
+        @TutorialReference(tutorial: "doc:Adding-openapi-and-swagger-ui-endpoints")
     }
 }

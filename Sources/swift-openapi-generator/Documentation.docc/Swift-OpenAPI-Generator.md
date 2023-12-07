@@ -77,6 +77,7 @@ The generated code, runtime library, and transports are supported on more platfo
 
 ### OpenAPI
 - <doc:ExploreOpenAPI>
+- <doc:Adding-openapi-and-swagger-ui-endpoints>
 - <doc:Practicing-spec-driven-API-development>
 - <doc:Useful-OpenAPI-patterns>
 - <doc:Supported-OpenAPI-features>

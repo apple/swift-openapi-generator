@@ -16,8 +16,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "GreetingServiceClient",
-            path: "Sources"
+            name: "GreetingServiceClient"
         )
     ]
 )
