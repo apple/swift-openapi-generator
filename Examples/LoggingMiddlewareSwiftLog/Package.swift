@@ -15,29 +15,31 @@
 import PackageDescription
 
 let package = Package(
-    name: "LoggingClientMiddleware",
+    name: "LoggingMiddlewareSwiftLog",
     platforms: [.macOS(.v11), .iOS(.v14), .tvOS(.v14), .watchOS(.v7), .visionOS(.v1)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", exact: "1.0.0-alpha.1"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", exact: "1.0.0-alpha.1"),
         .package(url: "https://github.com/apple/swift-openapi-urlsession", exact: "1.0.0-alpha.1"),
         .package(url: "https://github.com/apple/swift-http-types", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-log", from: "1.5.3"),
     ],
     targets: [
         .target(
-            name: "LoggingClientMiddleware",
+            name: "LoggingMiddleware",
             dependencies: [
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "HTTPTypes", package: "swift-http-types"),
+                .product(name: "Logging", package: "swift-log"),
             ]
         ),
         .executableTarget(
             name: "HelloWorldURLSessionClient",
             dependencies: [
-                "LoggingClientMiddleware", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                "LoggingMiddleware", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession"),
             ],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
-        ), .testTarget(name: "LoggingClientMiddlewareTests", dependencies: ["LoggingClientMiddleware"]),
+        ), .testTarget(name: "LoggingMiddlewareTests", dependencies: ["LoggingMiddleware"]),
     ]
 )

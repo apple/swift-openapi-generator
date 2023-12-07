@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIURLSession
 import Foundation
-import LoggingClientMiddleware
+import LoggingMiddleware
 
 @main struct HelloWorldURLSessionClient {
     static func main() async throws {
