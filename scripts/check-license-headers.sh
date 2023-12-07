@@ -69,6 +69,12 @@ read -ra PATHS_TO_CHECK_FOR_LICENSE <<< "$( \
   ":(exclude)**/docker-compose.yaml" \
   ":(exclude)Plugins/OpenAPIGenerator/PluginsShared" \
   ":(exclude)Plugins/OpenAPIGeneratorCommand/PluginsShared" \
+  ":(exclude)Examples/iOSAppClient/iOSAppClient.*" \
+  ":(exclude)Examples/iOSAppClient/iOSAppClient/Assets.xcassets/*" \
+  ":(exclude)Examples/iOSAppClient/iOSAppClient/Preview*" \
+  ":(exclude)Examples/**/Generated*" \
+  ":(exclude)**/Makefile" \
+  ":(exclude)**/*.html" \
   | xargs -0 \
 )"
 
