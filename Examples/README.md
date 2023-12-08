@@ -1,6 +1,10 @@
 # Examples of using Swift OpenAPI Generator
 
-All the examples are self-contained, so you can copy the package directory of your chosen example and use it as a starter template for your project.
+This directory contains examples of how to use Swift OpenAPI Generator and
+integrate with other packages in the ecosystem.
+
+> **Disclaimer:** Many of these examples have been deliberately simplified and are
+> intended for illustrative purposes only.
 
 ## Getting started
 
