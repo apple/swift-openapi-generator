@@ -1,4 +1,4 @@
-# Client Authentication Middleware
+# Auth client middleware
 
 In this example we'll implement a `ClientMiddleware` that injects an authentication header into the request.
 
@@ -6,7 +6,7 @@ In this example we'll implement a `ClientMiddleware` that injects an authenticat
 
 ## Overview
 
-This example extends the [HelloWorldURLSessionClient](../HelloWorldURLSessionClient)
+This example extends the [hello-world-urlsession-client-example](../hello-world-urlsession-client-example)
 with a new target, `AuthenticationClientMiddleware`, which is then used when creating
 the `Client`.
 

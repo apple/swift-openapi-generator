@@ -1,4 +1,4 @@
-# iOS App Client
+# Hello World iOS client app
 
 An example project using [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator).
 
@@ -20,7 +20,7 @@ If you use `package`, also add the `SWIFT_PACKAGE_NAME` build setting to your pr
 
 ## Usage
 
-The server can be started by running the any of the `HelloWorld*Server` examples locally.
+The server can be started by running any of the Hello World server examples locally.
 
 Open the project in Xcode and run the iOS app on a Simulator, to allow it to connect to your local server.
 

@@ -1,4 +1,4 @@
-# Content Types Client
+# Client handling various content types
 
 An example project using [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator).
 

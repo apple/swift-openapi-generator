@@ -1,4 +1,4 @@
-# Client Retrying Middleware
+# Retrying client middleware
 
 In this example we'll implement a `ClientMiddleware` that retries certain failed responses again.
 
@@ -6,7 +6,7 @@ In this example we'll implement a `ClientMiddleware` that retries certain failed
 
 ## Overview
 
-This example extends the [HelloWorldURLSessionClient](../HelloWorldURLSessionClient)
+This example extends the [hello-world-urlsession-client-example](../hello-world-urlsession-client-example)
 with a new target, `RetryingClientMiddleware`, which is then used when creating
 the `Client`.
 
@@ -18,7 +18,7 @@ and is purely for illustrative purposes.
 
 The tool uses the [URLSession](https://developer.apple.com/documentation/foundation/urlsession) API to perform the HTTP call, wrapped in the [Swift OpenAPI URLSession Transport](https://github.com/apple/swift-openapi-urlsession).
 
-The server can be started by running the any of the `HelloWorld*Server` examples locally.
+The server can be started by running any of the Hello World server examples locally.
 
 ## Usage
 

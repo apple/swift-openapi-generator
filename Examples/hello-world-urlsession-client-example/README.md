@@ -1,4 +1,4 @@
-# Hello World URLSession Client
+# Hello World client using URLSession
 
 An example project using [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator).
 
@@ -10,7 +10,7 @@ A "hello world" command-line tool that uses a generated client to make a request
 
 The tool uses the [URLSession](https://developer.apple.com/documentation/foundation/urlsession) API to perform the HTTP call, wrapped in the [Swift OpenAPI URLSession Transport](https://github.com/apple/swift-openapi-urlsession).
 
-The server can be started by running the any of the `HelloWorld*Server` examples locally.
+The server can be started by running any of the Hello World server examples locally.
 
 ## Usage
 

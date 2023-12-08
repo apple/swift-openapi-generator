@@ -1,4 +1,4 @@
-# Use a database for persistent storage
+# Server with Postgres database for persistent storage
 
 In this example we'll integrate persistent state into the server by adding an
 integration to a database.
@@ -7,7 +7,7 @@ integration to a database.
 
 ## Overview
 
-This example extends the [HelloWorldVaporServer](../HelloWorldVaporServer/)
+This example extends the [hello-world-vapor-server-example](../hello-world-vapor-server-example/)
 with a trivial API to return the number of messages it has received.
 
 For persistent state, it makes use of a local Postgres database to store the

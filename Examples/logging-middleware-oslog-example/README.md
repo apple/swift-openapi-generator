@@ -1,4 +1,4 @@
-# Client Logging Middleware using OSLog
+# Client logging middleware using OSLog
 
 In this example we'll implement a `ClientMiddleware` that uses `OSLog` to log
 requests and responses.
@@ -7,7 +7,8 @@ requests and responses.
 
 ## Overview
 
-This example extends the [HelloWorldURLSessionClient](../HelloWorldURLSessionClient)
+This example extends the
+[hello-world-urlsession-client-example](../hello-world-urlsession-client-example)
 with a new target, `LoggingMiddleware`, which is then used when creating
 the `Client`.
 

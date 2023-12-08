@@ -1,13 +1,14 @@
-# Tracing middleware using Swift OTel
+# Tracing middleware using Swift Distributed Tracing
 
 In this example we'll implement a `ClientMiddleware` and `ServerMiddleware`
-that use `swift-otel` to emit traces for requests and responses.
+that use `swift-distributed-tracing` and `swift-otel` to collect and emit
+traces for requests and responses.
 
 > **Disclaimer:** This example is deliberately simplified and is intended for illustrative purposes only.
 
 ## Overview
 
-This example extends the [HelloWorldVaporServer](../HelloWorldVaporServer)
+This example extends the [hello-world-vapor-server-example](../hello-world-vapor-server-example)
 with a new target, `TracingMiddleware`, which is then used when creating
 the `Server`.
 

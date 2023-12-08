@@ -1,4 +1,4 @@
-# Logging Middleware using Swift Log
+# Logging middleware using Swift Log
 
 In this example we'll implement a `ClientMiddleware` and `ServerMiddleware`
 that use `swift-log` to log requests and responses.
@@ -7,7 +7,7 @@ that use `swift-log` to log requests and responses.
 
 ## Overview
 
-This example extends the [HelloWorldURLSessionClient](../HelloWorldURLSessionClient)
+This example extends the [hello-world-urlsession-client-example](../hello-world-urlsession-client-example)
 with a new target, `LoggingMiddleware`, which is then used when creating
 the `Client`.
 

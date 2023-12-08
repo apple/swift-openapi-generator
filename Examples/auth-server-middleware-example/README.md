@@ -1,4 +1,4 @@
-# Server Authentication Server
+# Auth server middleware
 
 In this example we'll implement a `ServerMiddleware` that verifies an authentication header in the request.
 
@@ -6,7 +6,8 @@ In this example we'll implement a `ServerMiddleware` that verifies an authentica
 
 ## Overview
 
-This example extends the [HelloWorldVaporServer](../HelloWorldVaporServer) with a new target, `AuthenticationServerMiddleware`, which is then used when registering the server handler with the transport.
+This example extends the [hello-world-vapor-server-example](../hello-world-vapor-server-example)
+with a new target, `AuthenticationServerMiddleware`, which is then used when registering the server handler with the transport.
 
 NOTE: This example shows just one way of varifying authentication information in a middleware and is purely for illustrative purposes.
 

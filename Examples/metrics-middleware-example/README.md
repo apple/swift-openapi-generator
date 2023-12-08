@@ -8,7 +8,7 @@ respectively.
 
 ## Overview
 
-This example extends the [HelloWorldVaporServer](../HelloWorldVaporServer)
+This example extends the [hello-world-vapor-server-example](../hello-world-vapor-server-example)
 with a new target, `MetricsMiddleware`, which is then used when creating
 the `Server`.
 
