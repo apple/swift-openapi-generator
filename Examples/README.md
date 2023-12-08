@@ -25,8 +25,9 @@ The following packages show working with various content types, such as JSON, UR
 
 ## Middleware
 
-- [`LoggingClientMiddleware`](./LoggingClientMiddleware) - a client with a middleware that logs requests and responses.
-- [`RetryingClientMiddleware`](./RetryingClientMiddleware) - a client with a middleware that retries failed requests.
+- [`LoggingMiddlewareOSLog`](./LoggingMiddlewareOSLog) - a client middleware that logs requests and responses using OSLog.
+- [`LoggingMiddlewareSwiftLog`](./LoggingMiddlewareSwiftLog) - a client and server middleware that logs requests and responses using SwiftLog.
+- [`RetryingClientMiddleware`](./RetryingClientMiddleware) - a client middleware that retries failed requests.
 
 ## Project and target types
 
