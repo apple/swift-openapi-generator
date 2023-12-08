@@ -12,15 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-import XCTest
-@testable import iOSAppClient
+import SwiftUI
 
-final class iOSAppClientTests: XCTestCase {
-
-    func testMockClient() async throws {
-        let mockClient = MockClient()
-        let response = try await mockClient.getGreeting(query: .init(name: "Test"))
-        let message = try response.ok.body.json.message
-        XCTAssertEqual(message, "(Mock) Hello, Test!")
-    }
-}
+@main struct HelloWorldiOSClientApp: App { var body: some Scene { WindowGroup { ContentView() } } }

@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "3A133CDE2B1F28870008DD5E"
-               BuildableName = "iOSAppClient.app"
-               BlueprintName = "iOSAppClient"
-               ReferencedContainer = "container:iOSAppClient.xcodeproj">
+               BuildableName = "HelloWorldiOSClientApp.app"
+               BlueprintName = "HelloWorldiOSClientApp"
+               ReferencedContainer = "container:HelloWorldiOSClientApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -29,7 +29,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:iOSAppClient.xctestplan"
+            reference = "container:HelloWorldiOSClientApp.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>
@@ -39,9 +39,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "3A133CEE2B1F28890008DD5E"
-               BuildableName = "iOSAppClientTests.xctest"
-               BlueprintName = "iOSAppClientTests"
-               ReferencedContainer = "container:iOSAppClient.xcodeproj">
+               BuildableName = "HelloWorldiOSClientAppTests.xctest"
+               BlueprintName = "HelloWorldiOSClientAppTests"
+               ReferencedContainer = "container:HelloWorldiOSClientApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -49,9 +49,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "3A133CF82B1F28890008DD5E"
-               BuildableName = "iOSAppClientUITests.xctest"
-               BlueprintName = "iOSAppClientUITests"
-               ReferencedContainer = "container:iOSAppClient.xcodeproj">
+               BuildableName = "HelloWorldiOSClientAppUITests.xctest"
+               BlueprintName = "HelloWorldiOSClientAppUITests"
+               ReferencedContainer = "container:HelloWorldiOSClientApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -71,9 +71,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3A133CDE2B1F28870008DD5E"
-            BuildableName = "iOSAppClient.app"
-            BlueprintName = "iOSAppClient"
-            ReferencedContainer = "container:iOSAppClient.xcodeproj">
+            BuildableName = "HelloWorldiOSClientApp.app"
+            BlueprintName = "HelloWorldiOSClientApp"
+            ReferencedContainer = "container:HelloWorldiOSClientApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -88,9 +88,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3A133CDE2B1F28870008DD5E"
-            BuildableName = "iOSAppClient.app"
-            BlueprintName = "iOSAppClient"
-            ReferencedContainer = "container:iOSAppClient.xcodeproj">
+            BuildableName = "HelloWorldiOSClientApp.app"
+            BlueprintName = "HelloWorldiOSClientApp"
+            ReferencedContainer = "container:HelloWorldiOSClientApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

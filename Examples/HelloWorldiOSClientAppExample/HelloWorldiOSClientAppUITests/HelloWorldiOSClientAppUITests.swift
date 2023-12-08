@@ -14,7 +14,7 @@
 
 import XCTest
 
-final class iOSAppClientUITests: XCTestCase {
+final class HelloWorldiOSClientAppUITests: XCTestCase {
 
     func testGreeting() throws {
         let app = XCUIApplication()
