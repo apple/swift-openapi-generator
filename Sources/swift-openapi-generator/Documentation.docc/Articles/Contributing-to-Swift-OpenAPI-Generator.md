@@ -72,4 +72,4 @@ Let's walk through the steps to implement a missing OpenAPI feature that require
 
 11. All done! Thank you for your contribution! 🙏
 
-[0]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#fixed-fields-10
+[0]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#fixed-fields-10
