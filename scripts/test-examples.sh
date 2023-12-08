@@ -79,6 +79,5 @@ for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name 
     rm -rf "${EXAMPLE_COPY_DIR}"
 done
 
-log "Deleting cache directories"
-rm -rf "${SHARED_SCRATCH_PATH}"
-rm -rf "${SHARED_CACHE_PATH}"
+log "Deleting temporary directory"
+rm -rf "${TMP_DIR}"
