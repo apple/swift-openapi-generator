@@ -2,6 +2,8 @@
 
 An example project using [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator).
 
+> **Disclaimer:** This example is deliberately simplified and is intended for illustrative purposes only.
+
 ## Overview
 
 A "hello world" server that uses generated server stubs to handle requests as the Greeting Service. 

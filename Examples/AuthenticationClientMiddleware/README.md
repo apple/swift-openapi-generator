@@ -2,6 +2,8 @@
 
 In this example we'll implement a `ClientMiddleware` that injects an authentication header into the request.
 
+> **Disclaimer:** This example is deliberately simplified and is intended for illustrative purposes only.
+
 ## Overview
 
 This example extends the [HelloWorldURLSessionClient](../HelloWorldURLSessionClient)

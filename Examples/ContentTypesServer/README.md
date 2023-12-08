@@ -2,6 +2,8 @@
 
 An example project using [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator).
 
+> **Disclaimer:** This example is deliberately simplified and is intended for illustrative purposes only.
+
 ## Overview
 
 A server that uses generated server stubs to show how to work with various HTTP content types. 

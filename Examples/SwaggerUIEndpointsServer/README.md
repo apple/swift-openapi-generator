@@ -2,6 +2,8 @@
 
 An example project using [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator).
 
+> **Disclaimer:** This example is deliberately simplified and is intended for illustrative purposes only.
+
 ## Overview
 
 A server that shows setting up endpoints that serve the OpenAPI document and also a web page with the rendered documentation, respectively. It also uses generated server stubs to handle requests as the Greeting Service.
