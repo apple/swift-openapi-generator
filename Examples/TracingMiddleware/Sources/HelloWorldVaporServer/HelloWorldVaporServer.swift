@@ -28,7 +28,7 @@ struct Handler: APIProtocol {
 }
 
 @main struct HelloWorldVaporServer {
-    static func main() throws {
+    static func main() async throws {
         let eventLoopGroup = MultiThreadedEventLoopGroup.singleton
         let otel = OTel(
             serviceName: "HelloWorldServer",
@@ -38,7 +38,7 @@ struct Handler: APIProtocol {
                 eventLoopGroup: eventLoopGroup
             )
         )
-        try otel.start().wait()
+        try await otel.start().get()
         defer { try? otel.shutdown().wait() }
         InstrumentationSystem.bootstrap(otel.tracer())
 
@@ -46,6 +46,6 @@ struct Handler: APIProtocol {
         let transport = VaporTransport(routesBuilder: app)
         let handler = Handler()
         try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!, middlewares: [TracingMiddleware()])
-        try app.run()
+        try await app.execute()
     }
 }

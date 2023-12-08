@@ -26,7 +26,7 @@ struct Handler: APIProtocol {
 }
 
 @main struct HelloWorldVaporServer {
-    static func main() throws {
+    static func main() async throws {
         let registry = PrometheusCollectorRegistry()
         MetricsSystem.bootstrap(PrometheusMetricsFactory(registry: registry))
 
@@ -50,6 +50,6 @@ struct Handler: APIProtocol {
         let host = ProcessInfo.processInfo.environment["HOST"] ?? "localhost"
         let port = ProcessInfo.processInfo.environment["PORT"].flatMap(Int.init) ?? 8080
         app.http.server.configuration.address = .hostname(host, port: port)
-        try app.run()
+        try await app.execute()
     }
 }

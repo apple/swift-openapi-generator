@@ -23,7 +23,7 @@ struct Handler: APIProtocol {
 }
 
 @main struct SwaggerUIEndpointsServer {
-    static func main() throws {
+    static func main() async throws {
         let app = Vapor.Application()
         let transport = VaporTransport(routesBuilder: app)
 
@@ -38,6 +38,6 @@ struct Handler: APIProtocol {
         // Redirect `GET /openapi` to `GET /openapi.html`, for convenience.
         app.get("openapi") { request in request.redirect(to: "openapi.html", redirectType: .permanent) }
 
-        try app.run()
+        try await app.execute()
     }
 }

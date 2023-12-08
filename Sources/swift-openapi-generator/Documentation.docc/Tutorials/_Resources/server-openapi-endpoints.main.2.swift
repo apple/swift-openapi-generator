@@ -35,4 +35,4 @@ app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory
 app.get("openapi") { $0.redirect(to: "/openapi.html", redirectType: .permanent) }
 
 // Start the app as you would normally.
-try app.run()
+try await app.execute()

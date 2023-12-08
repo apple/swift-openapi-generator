@@ -74,6 +74,6 @@ actor Handler: APIProtocol {
         let transport = VaporTransport(routesBuilder: app)
         let handler = try await Handler()
         try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!)
-        try app.run()
+        try await app.execute()
     }
 }
