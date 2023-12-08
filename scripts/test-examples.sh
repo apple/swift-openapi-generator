@@ -25,6 +25,14 @@ CURRENT_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$(git -C "${CURRENT_SCRIPT_DIR}" rev-parse --show-toplevel)"
 TMP_DIR=$(/usr/bin/mktemp -d -p "${TMPDIR-/tmp}" "$(basename "$0").XXXXXXXXXX")
 
+log "Performing some space checks..."
+du -cksh "${TMPDIR-/tmp}"/*
+
+exit 0
+
+
+
+
 PACKAGE_PATH=${PACKAGE_PATH:-${REPO_ROOT}}
 EXAMPLES_PACKAGE_PATH="${PACKAGE_PATH}/Examples"
 SHARED_SCRATCH_PATH="${TMP_DIR}/scratch"
