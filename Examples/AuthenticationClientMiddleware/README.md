@@ -20,5 +20,8 @@ The server can be started by running the `AuthenticationServerMiddleware` exampl
 Build and run the client CLI using:
 
 ```
-$ swift run
+$ swift run HelloWorldURLSessionClient token_for_Fr
+Hello, Stranger! (Requested by: Frank)
+$ swift run HelloWorldURLSessionClient invalid_token
+Unauthorized
 ```

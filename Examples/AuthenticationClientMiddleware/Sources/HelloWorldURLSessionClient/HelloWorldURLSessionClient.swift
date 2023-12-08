@@ -17,11 +17,16 @@ import AuthenticationClientMiddleware
 
 @main struct HelloWorldURLSessionClient {
     static func main() async throws {
+        let args = CommandLine.arguments
+        guard args.count == 2 else {
+            print("Requires a token")
+            exit(1)
+        }
         let client = Client(
             serverURL: URL(string: "http://localhost:8080/api")!,
             transport: URLSessionTransport(),
             middlewares: [
-                AuthenticationMiddleware(authorizationHeaderFieldValue: "token_for_Frank")
+                AuthenticationMiddleware(authorizationHeaderFieldValue: args[1])
             ]
         )
         let response = try await client.getGreeting()
