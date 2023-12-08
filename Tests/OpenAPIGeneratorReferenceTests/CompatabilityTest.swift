@@ -58,7 +58,8 @@ final class CompatibilityTest: XCTestCase {
             "https://raw.githubusercontent.com/box/box-openapi/5955d651f0cd273c0968e3855c1d873c7ae3523e/openapi.json",
             license: .apache,
             expectedDiagnostics: [
-                "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated."
+                "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated.",
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property.",
             ],
             skipBuild: compatibilityTestSkipBuild
         )
@@ -98,7 +99,9 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/github/rest-api-description/13c873cb3b15ffd5bcd88c6d6270a963ef4518f6/descriptions/api.github.com/api.github.com.yaml",
             license: .mit,
-            expectedDiagnostics: [],
+            expectedDiagnostics: [
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property."
+            ],
             skipBuild: true
         )
     }
@@ -108,7 +111,8 @@ final class CompatibilityTest: XCTestCase {
             "https://raw.githubusercontent.com/github/rest-api-description/13c873cb3b15ffd5bcd88c6d6270a963ef4518f6/descriptions/ghes-3.5/ghes-3.5.yaml",
             license: .mit,
             expectedDiagnostics: [
-                "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated."
+                "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated.",
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property.",
             ],
             skipBuild: true
         )
@@ -127,7 +131,9 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/Netflix/consoleme/774420462b0190b1bfa78aa73d39e20044f52db9/swagger.yaml",
             license: .apache,
-            expectedDiagnostics: [],
+            expectedDiagnostics: [
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property."
+            ],
             skipBuild: compatibilityTestSkipBuild
         )
     }
