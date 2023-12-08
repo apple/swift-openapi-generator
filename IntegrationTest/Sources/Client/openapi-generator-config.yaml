@@ -1,4 +1,5 @@
 generate:
-- client
+  - client
 additionalImports:
-- Types
+  - Types
+accessModifier: package

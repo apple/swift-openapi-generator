@@ -32,8 +32,8 @@ The configuration file has the following keys:
     - `server`: Server code that can be used with any server transport (depends on code from `types`).
 - `accessModifier` (optional): a string. Customizes the visibility of the API of the generated code.
     - `public`: Generated API is accessible from other modules and other packages (if included in a product).
-    - `package` (default): Generated API is accessible from other modules within the same package or project.
-    - `internal`: Generated API is accessible from the containing module only.
+    - `package`: Generated API is accessible from other modules within the same package or project.
+    - `internal` (default): Generated API is accessible from the containing module only.
 - `additionalImports` (optional): array of strings. Each string value is a Swift module name. An import statement will be added to the generated source files for each module.
 - `filter`: (optional): Filters to apply to the OpenAPI document before generation.
     - `operations`: Operations with these operation IDs will be included in the filter.
