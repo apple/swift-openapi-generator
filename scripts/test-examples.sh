@@ -74,4 +74,11 @@ for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name 
         --scratch-path "${SHARED_SCRATCH_PATH}" \
         --cache-path "${SHARED_CACHE_PATH}" \
         unedit swift-openapi-generator
+
+    log "Deleting example ${EXAMPLE_PACKAGE_NAME} at ${EXAMPLE_COPY_DIR}"
+    rm -rf "${EXAMPLE_COPY_DIR}"
 done
+
+log "Deleting cache directories"
+rm -rf "${SHARED_SCRATCH_PATH}"
+rm -rf "${SHARED_CACHE_PATH}"
