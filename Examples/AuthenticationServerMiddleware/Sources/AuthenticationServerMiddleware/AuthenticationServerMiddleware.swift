@@ -27,9 +27,7 @@ package struct AuthenticationServerMiddleware: Sendable {
 
         /// Creates a new user.
         /// - Parameter name: The name of the authenticated user.
-        package init(name: String) {
-            self.name = name
-        }
+        package init(name: String) { self.name = name }
 
         /// The task local value of the currently authenticated user.
         @TaskLocal package static var current: User?
@@ -40,11 +38,9 @@ package struct AuthenticationServerMiddleware: Sendable {
     private let authenticate: @Sendable (String) -> User?
 
     /// Creates a new middleware.
-    /// - Parameter authenticate: The closure that authenticates the user based on the value 
+    /// - Parameter authenticate: The closure that authenticates the user based on the value
     ///   of the `Authorization` header field.
-    package init(authenticate: @Sendable @escaping (String) -> User?) {
-        self.authenticate = authenticate
-    }
+    package init(authenticate: @Sendable @escaping (String) -> User?) { self.authenticate = authenticate }
 }
 
 extension AuthenticationServerMiddleware: ServerMiddleware {
@@ -64,8 +60,6 @@ extension AuthenticationServerMiddleware: ServerMiddleware {
         // Delegate the authentication logic to the closure.
         let user = authenticate(authorizationHeaderFieldValue)
         // Inject the authenticated user into the task local and call the next middleware.
-        return try await User.$current.withValue(user) {
-            try await next(request, body, metadata)
-        }
+        return try await User.$current.withValue(user) { try await next(request, body, metadata) }
     }
 }

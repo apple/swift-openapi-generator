@@ -23,9 +23,7 @@ package struct AuthenticationMiddleware {
 
     /// Creates a new middleware.
     /// - Parameter value: The value for the `Authorization` header field.
-    package init(authorizationHeaderFieldValue value: String) {
-        self.value = value
-    }
+    package init(authorizationHeaderFieldValue value: String) { self.value = value }
 }
 
 extension AuthenticationMiddleware: ClientMiddleware {

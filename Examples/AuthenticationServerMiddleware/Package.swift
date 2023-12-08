@@ -26,15 +26,12 @@ let package = Package(
     targets: [
         .target(
             name: "AuthenticationServerMiddleware",
-            dependencies: [
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
-            ]
+            dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")]
         ),
         .executableTarget(
             name: "HelloWorldVaporServer",
             dependencies: [
-                "AuthenticationServerMiddleware",
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                "AuthenticationServerMiddleware", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
                 .product(name: "Vapor", package: "vapor"),
             ],

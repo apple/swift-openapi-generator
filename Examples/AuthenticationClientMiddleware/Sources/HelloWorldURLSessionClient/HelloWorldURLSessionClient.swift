@@ -25,18 +25,13 @@ import AuthenticationClientMiddleware
         let client = Client(
             serverURL: URL(string: "http://localhost:8080/api")!,
             transport: URLSessionTransport(),
-            middlewares: [
-                AuthenticationMiddleware(authorizationHeaderFieldValue: args[1])
-            ]
+            middlewares: [AuthenticationMiddleware(authorizationHeaderFieldValue: args[1])]
         )
         let response = try await client.getGreeting()
         switch response {
-        case .ok(let okResponse):
-            print(try okResponse.body.json.message)
-        case .unauthorized:
-            print("Unauthorized")
-        case .undocumented(statusCode: let statusCode, _):
-            print("Undocumented status code: \(statusCode)")
+        case .ok(let okResponse): print(try okResponse.body.json.message)
+        case .unauthorized: print("Unauthorized")
+        case .undocumented(statusCode: let statusCode, _): print("Undocumented status code: \(statusCode)")
         }
     }
 }

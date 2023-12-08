@@ -17,17 +17,13 @@ import Vapor
 import AuthenticationServerMiddleware
 
 struct Handler: APIProtocol {
-    func getGreeting(
-        _ input: Operations.getGreeting.Input
-    ) async throws -> Operations.getGreeting.Output {
+    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
         // Extract the authenticated user, if present.
         // If unauthenticated, return the 401 HTTP status code.
         // Note that the 401 is defined in the OpenAPI document, allowing the client
         // to easily detect this condition and provide the correct authentication credentails
         // on the next request.
-        guard let user = AuthenticationServerMiddleware.User.current else {
-            return .unauthorized(.init())
-        }
+        guard let user = AuthenticationServerMiddleware.User.current else { return .unauthorized(.init()) }
         let name = input.query.name ?? "Stranger"
         // Include the name of the authenticated user in the greeting.
         return .ok(.init(body: .json(.init(message: "Hello, \(name)! (Requested by: \(user.name))"))))
