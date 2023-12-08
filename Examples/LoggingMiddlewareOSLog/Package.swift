@@ -21,7 +21,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-openapi-generator", exact: "1.0.0-alpha.1"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", exact: "1.0.0-alpha.1"),
         .package(url: "https://github.com/apple/swift-openapi-urlsession", exact: "1.0.0-alpha.1"),
-        .package(url: "https://github.com/apple/swift-http-types", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-http-types", from: "1.0.2"),
     ],
     targets: [
         .target(
