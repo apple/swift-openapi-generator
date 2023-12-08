@@ -23,11 +23,11 @@ struct Handler: APIProtocol {
 }
 
 @main struct HelloWorldVaporServer {
-    static func main() throws {
+    static func main() async throws {
         let app = Vapor.Application()
         let transport = VaporTransport(routesBuilder: app)
         let handler = Handler()
         try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!)
-        try app.run()
+        try await app.execute()
     }
 }

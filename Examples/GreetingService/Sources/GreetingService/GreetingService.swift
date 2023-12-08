@@ -41,7 +41,7 @@ struct Handler: APIProtocol {
     /// }
     /// ```
     /// - Throws: An error of type `Error` if there's an issue creating or running the Vapor application.
-    public static func main() throws {
+    public static func main() async throws {
         // Create a Vapor application.
         let app = Vapor.Application()
 
@@ -55,6 +55,6 @@ struct Handler: APIProtocol {
         try handler.registerHandlers(on: transport, serverURL: Servers.server2())
 
         // Start the Vapor application, in the same way as if it was manually configured.
-        try app.run()
+        try await app.execute()
     }
 }

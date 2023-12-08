@@ -32,4 +32,4 @@ try handler.registerHandlers(on: transport, serverURL: Servers.server1())
 app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
 // Start the app as you would normally.
-try app.run()
+try await app.execute()

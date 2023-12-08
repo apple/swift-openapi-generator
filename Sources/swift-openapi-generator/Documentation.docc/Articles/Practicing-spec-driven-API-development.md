@@ -142,7 +142,7 @@ let app = Vapor.Application()
 app.get("foo") { ... a, b, c ... }
 app.post("foo") { ... a, b, c ... }
 app.get("bar") { ... a, b, c ... }
-try app.run()
+try await app.execute()
 ```
 
 Each request handler is responsible for three things:
@@ -187,7 +187,7 @@ let transport = VaporTransport(routesBuilder: app)
 // Registers your generated routes from the OpenAPI document. Right now, there are 0.
 try handler.registerHandlers(on: transport, serverURL: ...)
 
-try app.run()
+try await app.execute()
 ```
 
 At this point, you have two sets of endpoints, your existing 3 ones, and 0 generated ones (because your OpenAPI document is still empty).
@@ -228,7 +228,7 @@ struct Handler: APIProtocol {} // <<< this is where you now get a build error
 let transport = VaporTransport(routesBuilder: app)
 try handler.registerHandlers(on: transport, serverURL: ...)
 
-try app.run()
+try await app.execute()
 ```
 
 When you compile the example above, you'll get a build error because `APIProtocol` contains the requirement to implement the `getFoo` operation, but it isn't yet implemented.
@@ -251,7 +251,7 @@ struct Handler: APIProtocol {
 let transport = VaporTransport(routesBuilder: app)
 try handler.registerHandlers(on: transport, serverURL: ...)
 
-try app.run()
+try await app.execute()
 ```
 
 Now, build and run!
@@ -293,7 +293,7 @@ struct Handler: APIProtocol {
 let transport = VaporTransport(routesBuilder: app)
 try handler.registerHandlers(on: transport, serverURL: ...)
 
-try app.run()
+try await app.execute()
 ```
 
 By migrating your service step-by-step, you can minimize risk and get increasing value from spec-driven development as you move operations into the hand-written OpenAPI document.

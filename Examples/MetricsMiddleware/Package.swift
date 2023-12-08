@@ -21,7 +21,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-openapi-generator", exact: "1.0.0-alpha.1"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", exact: "1.0.0-alpha.1"),
         .package(url: "https://github.com/swift-server/swift-openapi-vapor", exact: "1.0.0-alpha.1"),
-        .package(url: "https://github.com/vapor/vapor", from: "4.87.1"),
+        .package(url: "https://github.com/vapor/vapor", from: "4.89.0"),
         .package(url: "https://github.com/apple/swift-metrics", from: "2.4.1"),
         .package(url: "https://github.com/swift-server/swift-prometheus", exact: "2.0.0-alpha.1"),
     ],
