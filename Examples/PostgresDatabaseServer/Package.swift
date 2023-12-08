@@ -22,7 +22,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-openapi-runtime", exact: "1.0.0-alpha.1"),
         .package(url: "https://github.com/swift-server/swift-openapi-vapor", exact: "1.0.0-alpha.1"),
         .package(url: "https://github.com/vapor/vapor", from: "4.89.0"),
-        .package(url: "https://github.com/vapor/postgres-nio.git", from: "1.16.0"),
+        .package(url: "https://github.com/vapor/postgres-nio", from: "1.19.1"),
     ],
     targets: [
         .executableTarget(
