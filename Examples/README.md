@@ -23,6 +23,12 @@ The following packages show working with various content types, such as JSON, UR
 - [`SwaggerUIEndpointsServer`](./SwaggerUIEndpointsServer) - a server that vends its OpenAPI document as a raw file and also provides a rendered documentation viewer using swagger-ui.
 - [`PostgresDatabaseServer`](./PostgresDatabaseServer) - a server using Postgres for persistent state.
 
+## Middleware
+
+- [`LoggingMiddlewareOSLog`](./LoggingMiddlewareOSLog) - a client middleware that logs requests and responses using OSLog.
+- [`LoggingMiddlewareSwiftLog`](./LoggingMiddlewareSwiftLog) - a client and server middleware that logs requests and responses using SwiftLog.
+- [`RetryingClientMiddleware`](./RetryingClientMiddleware) - a client middleware that retries failed requests.
+
 ## Project and target types
 
 The following examples show various ways that Swift OpenAPI Generator can be adopted from a consumer Swift package or an Xcode project.
