@@ -24,11 +24,11 @@ struct Handler: APIProtocol {
 }
 
 @main struct HelloWorldHummingbirdServer {
-    static func main() throws {
+    static func main() async throws {
         let app = Hummingbird.HBApplication()
         let transport = HBOpenAPITransport(app)
         let handler = Handler()
         try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!)
-        try app.run()
+        try await app.asyncRun()
     }
 }
