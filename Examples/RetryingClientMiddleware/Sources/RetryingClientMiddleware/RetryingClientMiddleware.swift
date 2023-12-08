@@ -14,7 +14,6 @@
 import OpenAPIRuntime
 import Foundation
 import HTTPTypes
-import OSLog
 
 /// A middleware that retries the request under certain conditions.
 ///
