@@ -1,0 +1,14 @@
+version: "3.5"
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - 127.0.0.1:8080:8080
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 127.0.0.1:9090:9090

@@ -67,6 +67,8 @@ read -ra PATHS_TO_CHECK_FOR_LICENSE <<< "$( \
   ":(exclude)**/openapi-generator-config.yaml" \
   ":(exclude)**/openapi-generator-config.yml" \
   ":(exclude)**/docker-compose.yaml" \
+  ":(exclude)**/docker/*" \
+  ":(exclude)**/.dockerignore" \
   ":(exclude)Plugins/OpenAPIGenerator/PluginsShared" \
   ":(exclude)Plugins/OpenAPIGeneratorCommand/PluginsShared" \
   ":(exclude)Examples/iOSAppClient/iOSAppClient.*" \
