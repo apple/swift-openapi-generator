@@ -63,3 +63,6 @@ for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name 
     log "Deleting example ${EXAMPLE_PACKAGE_NAME} at ${EXAMPLE_COPY_DIR}"
     rm -rf "${EXAMPLE_COPY_DIR}"
 done
+
+log "Deleting temporary directory"
+rm -rf "${TMP_DIR}"
