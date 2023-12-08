@@ -2,6 +2,8 @@
 
 In this example we'll implement a `ServerMiddleware` that verifies an authentication header in the request.
 
+> **Disclaimer:** This example is deliberately simplified and is intended for illustrative purposes only.
+
 ## Overview
 
 This example extends the [HelloWorldVaporServer](../HelloWorldVaporServer) with a new target, `AuthenticationServerMiddleware`, which is then used when registering the server handler with the transport.

@@ -2,6 +2,8 @@
 
 An example project using [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator).
 
+> **Disclaimer:** This example is deliberately simplified and is intended for illustrative purposes only.
+
 ## Overview
 
 A command-line tool that uses a generated client to make a request to the Greeting Service running on `http://localhost:8080`.

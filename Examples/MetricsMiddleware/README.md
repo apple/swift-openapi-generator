@@ -4,6 +4,8 @@ In this example we'll implement a `ClientMiddleware` and `ServerMiddleware`
 that use `swift-metrics` and `swift-prometheus` to collect and emit metrics
 respectively.
 
+> **Disclaimer:** This example is deliberately simplified and is intended for illustrative purposes only.
+
 ## Overview
 
 This example extends the [HelloWorldVaporServer](../HelloWorldVaporServer)

@@ -3,6 +3,8 @@
 In this example we'll integrate persistent state into the server by adding an
 integration to a database.
 
+> **Disclaimer:** This example is deliberately simplified and is intended for illustrative purposes only.
+
 ## Overview
 
 This example extends the [HelloWorldVaporServer](../HelloWorldVaporServer/)
