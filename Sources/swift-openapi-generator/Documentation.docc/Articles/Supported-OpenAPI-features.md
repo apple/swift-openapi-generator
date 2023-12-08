@@ -16,7 +16,7 @@ Supported features are always provided on _both_ client and server.
 
 For the checked serialization formats below, the generator emits types conforming to `Codable`, structured based on the provided JSON Schema.
 
-For any other formats, the payload is provided as raw bytes, leaving it up to the adopter to decode as needed.
+For any other formats, the payload is provided as raw bytes (using the `HTTPBody` streaming body type), leaving it up to the adopter to decode as needed.
 
 - [x] JSON
     - when content type is `application/json` or ends with `+json`

@@ -1,10 +1,10 @@
-# Starting with an example project
+# Checking out an example project
 
-Duplicate a working example to start your project.
+Check out a working example to learn how packages using Swift OpenAPI Generator can be structured and integrated with the ecosystem.
 
 ## Overview
 
-All the examples are self-contained, so you can copy the package directory of your chosen example and use it as a starter template for your project.
+All the examples are self-contained, so you can copy the package directory of your chosen example and run it independently.
 
 ### Getting started
 
