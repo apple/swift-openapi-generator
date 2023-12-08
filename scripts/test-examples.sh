@@ -27,8 +27,6 @@ TMP_DIR=$(/usr/bin/mktemp -d -p "${TMPDIR-/tmp}" "$(basename "$0").XXXXXXXXXX")
 
 PACKAGE_PATH=${PACKAGE_PATH:-${REPO_ROOT}}
 EXAMPLES_PACKAGE_PATH="${PACKAGE_PATH}/Examples"
-SHARED_SCRATCH_PATH="${TMP_DIR}/scratch"
-SHARED_CACHE_PATH="${TMP_DIR}/cache"
 
 for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name Package.swift -type f -print0 | xargs -0 dirname); do
 
@@ -47,31 +45,24 @@ for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name 
     log "Overriding dependency in ${EXAMPLE_PACKAGE_NAME} to use ${PACKAGE_PATH}"
     "${SWIFT_BIN}" package \
         --package-path "${EXAMPLE_COPY_DIR}" \
-        --scratch-path "${SHARED_SCRATCH_PATH}" \
-        --cache-path "${SHARED_CACHE_PATH}" \
         edit swift-openapi-generator \
         --path "${PACKAGE_PATH}"
 
     log "Building example package: ${EXAMPLE_PACKAGE_NAME}"
     "${SWIFT_BIN}" build \
-        --package-path "${EXAMPLE_COPY_DIR}" \
-        --scratch-path "${SHARED_SCRATCH_PATH}" \
-        --cache-path "${SHARED_CACHE_PATH}"
+        --package-path "${EXAMPLE_COPY_DIR}"
     log "✅ Successfully built the example package ${EXAMPLE_PACKAGE_NAME}."
 
     if [ -d "${EXAMPLE_COPY_DIR}/Tests" ]; then
         log "Running tests for example package: ${EXAMPLE_PACKAGE_NAME}"
         "${SWIFT_BIN}" test \
-            --package-path "${EXAMPLE_COPY_DIR}" \
-            --scratch-path "${SHARED_SCRATCH_PATH}" \
-            --cache-path "${SHARED_CACHE_PATH}"
+            --package-path "${EXAMPLE_COPY_DIR}"
         log "✅ Passed the tests for the example package ${EXAMPLE_PACKAGE_NAME}."
     fi
 
-    log "Unediting dependency in ${EXAMPLE_PACKAGE_NAME}"
-    "${SWIFT_BIN}" package \
-        --package-path "${EXAMPLE_COPY_DIR}" \
-        --scratch-path "${SHARED_SCRATCH_PATH}" \
-        --cache-path "${SHARED_CACHE_PATH}" \
-        unedit swift-openapi-generator
+    log "Deleting example ${EXAMPLE_PACKAGE_NAME} at ${EXAMPLE_COPY_DIR}"
+    rm -rf "${EXAMPLE_COPY_DIR}"
 done
+
+log "Deleting temporary directory"
+rm -rf "${TMP_DIR}"
