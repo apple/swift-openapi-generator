@@ -16,7 +16,7 @@ import PackageDescription
 
 let package = Package(
     name: "RetryingClientMiddleware",
-    platforms: [.macOS(.v11), .iOS(.v14), .tvOS(.v14), .watchOS(.v7), .visionOS(.v1)],
+    platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .visionOS(.v1)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", exact: "1.0.0-alpha.1"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", exact: "1.0.0-alpha.1"),
