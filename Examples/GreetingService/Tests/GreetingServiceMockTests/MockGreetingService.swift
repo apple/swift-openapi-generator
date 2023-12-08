@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import GreetingService
+@testable import GreetingService
 
 // Mock operates on value types, and requires no concrete client or server transport.
 struct MockGreetingService: APIProtocol {
