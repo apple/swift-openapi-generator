@@ -10,48 +10,49 @@ integrate with other packages in the ecosystem.
 
 Each of the following packages shows an end-to-end working example with the given transport.
 
-- [`HelloWorldURLSessionClient`](./HelloWorldURLSessionClient) - An URLSession-based CLI client.
-- [`HelloWorldAsyncHTTPClient`](./HelloWorldAsyncHTTPClient) - An AsyncHTTPClient-based CLI client.
-- [`HelloWorldVaporServer`](./HelloWorldVaporServer) - A Vapor-based CLI server
-- [`HelloWorldHummingbirdServer`](./HelloWorldHummingbirdServer) - A Hummingbird-based CLI server.
 
-## Content types
+
+- [hello-world-async-http-client-example](./hello-world-async-http-client-example) - A CLI client using the AsyncHTTPClient library.
+- [hello-world-hummingbird-server-example](./hello-world-hummingbird-server-example) - A CLI server using the Hummingbird web framework.
+- [hello-world-urlsession-client-example](./hello-world-urlsession-client-example) - A CLI client using the URLSession HTTP client library.
+- [hello-world-vapor-server-example](./hello-world-vapor-server-example) - A CLI client using the Vapor web framework.
+- [curated-client-library-example](./curated-client-library-example) - A library that hides the generated API and exports a hand-written interface, allowing decoupled versioning.
+- [HelloWorldiOSClientAppExample](./HelloWorldiOSClientAppExample) - An iOS client SwiftUI app with mock server for unit and UI tests.
+
+## Various content types
 
 The following packages show working with various content types, such as JSON, URL-encoded request bodies, plain text, raw bytes, and multipart bodies.
 
-- [`ContentTypesClient`](./ContentTypesClient) - A client showing how to produce and consume the various content types.
-- [`ContentTypesServer`](./ContentTypesServer) - A server showing how to produce and consume the various content types.
+- [various-content-types-client-example](./various-content-types-client-example) - A client showing how to request and handle the various content types.
+- [various-content-types-server-example](./various-content-types-server-example) - A server showing how to handle and provide the various content types.
 
 ## Integrations
 
-- [`SwaggerUIEndpointsServer`](./SwaggerUIEndpointsServer) - a server that vends its OpenAPI document as a raw file and also provides a rendered documentation viewer using swagger-ui.
-- [`PostgresDatabaseServer`](./PostgresDatabaseServer) - a server using Postgres for persistent state.
+- [swagger-ui-endpoint-example](./swagger-ui-endpoint-example) - A server with endpoints its raw OpenAPI document and Swagger UI.
+- [postgres-database-example](./postgres-database-example) - A server using a Postgres database for persistent state.
+- [command-line-client-example](./command-line-client-example) - A client with a rich CLI using Swift Argument Parser.
 
 ## Middleware
 
-- [`LoggingMiddlewareOSLog`](./LoggingMiddlewareOSLog) - a client middleware that logs requests and responses using OSLog.
-- [`LoggingMiddlewareSwiftLog`](./LoggingMiddlewareSwiftLog) - a client and server middleware that logs requests and responses using SwiftLog.
-- [`RetryingClientMiddleware`](./RetryingClientMiddleware) - a client middleware that retries failed requests.
+- [logging-middleware-oslog-example](./logging-middleware-oslog-example) - A middleware that logs requests and responses using OSLog.
+- [logging-middleware-swift-log-example](./logging-middleware-swift-log-example) - A middleware that logs requests and responses using Swift Log.
+- [metrics-middleware-example](./metrics-middleware-example) - A middleware that collects metrics using Swift Metrics.
+- [tracing-middleware-example](./tracing-middleware-example) - A middleware that collects traces using Swift Distributed Tracing.
+- [retrying-middleware-example](./retrying-middleware-example) - A middleware that retries failed requests.
+- [auth-client-middleware-example](./auth-client-middleware-example) - An middleware that injects a token header.
+- [auth-server-middleware-example](./auth-server-middleware-example) - An middleware that inspects a token header.
 
-## Project and target types
-
-The following examples show various ways that Swift OpenAPI Generator can be adopted from a consumer Swift package or an Xcode project.
-
-- [`CommandLineClient`](./CommandLineClient) - A client showing a Swift Argument Parser-based command line tool Swift package.
-- [`iOSAppClient`](./iOSAppClient) - An iOS app client that shows how to make calls to the generated code from SwiftUI and how to perform unit and UI testing with a mock client.
-- [`CuratedLibraryClient`](./CuratedLibraryClient) - A client library that completely wraps the generated code and vends a hand-written Swift API, allowing semantic versioning independent of the REST API.
-
-## Generator adoption types
+## Ahead-of-time (manual) code generation
 
 The recommended way to use Swift OpenAPI generator is by integrating the _build plugin_, which all of the examples above use. The build plugin generates Swift code from your OpenAPI document at build time, and you don't check in the generated code into git. 
 
 However, if you cannot use the build plugin, for example because you must check in your generated code, use the _command plugin_, which you trigger manually either in Xcode or on the command line. See the following example for this workflow:
 
-- [`CommandPluginInvocationClient`](./CommandPluginInvocationClient) - A client using the command plugin to regenerate files manually.
+- [manual-generation-package-plugin-example](./manual-generation-package-plugin-example) - A client using the Swift package plugin for manual code generation.
 
 If you can't even use the command plugin, for example because your package is not allowed to depend on swift-openapi-generator directly, you can invoke the generator CLI manually from a Makefile. See the following example for this workflow:
 
-- [`ManualGeneratorInvocationClient`](./ManualGeneratorInvocationClient) - A client using the command-line tool to regenerate files manually.
+- [manual-generation-generator-cli-example](./manual-generation-generator-cli-example) - A client using the `swift-openapi-generator` CLI for manual code generation.
 
 ## Deprecated
 
