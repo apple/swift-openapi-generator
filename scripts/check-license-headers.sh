@@ -71,9 +71,9 @@ read -ra PATHS_TO_CHECK_FOR_LICENSE <<< "$( \
   ":(exclude)**/.dockerignore" \
   ":(exclude)Plugins/OpenAPIGenerator/PluginsShared" \
   ":(exclude)Plugins/OpenAPIGeneratorCommand/PluginsShared" \
-  ":(exclude)Examples/iOSAppClient/iOSAppClient.*" \
-  ":(exclude)Examples/iOSAppClient/iOSAppClient/Assets.xcassets/*" \
-  ":(exclude)Examples/iOSAppClient/iOSAppClient/Preview*" \
+  ":(exclude)Examples/HelloWorldiOSClientAppExample/HelloWorldiOSClientApp.*" \
+  ":(exclude)Examples/HelloWorldiOSClientAppExample/HelloWorldiOSClientApp/Assets.xcassets/*" \
+  ":(exclude)Examples/HelloWorldiOSClientAppExample/HelloWorldiOSClientApp/Preview*" \
   ":(exclude)Examples/**/Generated*" \
   ":(exclude)**/Makefile" \
   ":(exclude)**/*.html" \
