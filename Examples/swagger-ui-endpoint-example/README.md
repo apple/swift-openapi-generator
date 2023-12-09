@@ -1,4 +1,4 @@
-# Server with Swagger UI Endpoint
+# Server with OpenAPI document and Swagger UI endpoints
 
 An example project using [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator).
 
