@@ -26,7 +26,7 @@ import LoggingMiddleware
         let response = try await client.getGreeting()
         print(try response.ok.body.json.message)
         #else  //canImport(Darwin)
-        print("This example uses OSLog, so is only supported on Darwin platforms")
+        print("This example uses OSLog, so is only supported on Apple platforms")
         exit(EXIT_FAILURE)
         #endif  //canImport(Darwin)
     }
