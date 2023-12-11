@@ -18,8 +18,8 @@ The server can be started by running any of the Hello World server examples loca
 
 Whenever the `openapi.yaml` document changes, rerun the code generation:
 
-```
-make generate
+```console
+% make generate
 ```
 
 And then check in the changed files in `./Sources/ManualGeneratorInvocationClient/Generated/*`.
@@ -28,7 +28,7 @@ And then check in the changed files in `./Sources/ManualGeneratorInvocationClien
 
 Build and run the client CLI using:
 
-```
-$ swift run
+```console
+% swift run
 Hello, Stranger!
 ```

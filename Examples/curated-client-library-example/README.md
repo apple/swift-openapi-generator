@@ -20,7 +20,7 @@ In another package, add this one as a package dependency.
 
 Then, use the provided client API:
 
-```
+```swift
 import CuratedLibraryClient
 
 let client = GreetingClient()
@@ -32,8 +32,8 @@ print("Received the greeting message: \(message)")
 
 Run tests using:
 
-```
-swift test
+```console
+% swift test
 ```
 
 The testing strategy is to use a test implementation of the generated `APIProtocol` that allows simulating various conditions, including errors.

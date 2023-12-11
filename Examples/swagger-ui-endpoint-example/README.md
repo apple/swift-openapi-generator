@@ -29,8 +29,8 @@ The CLI starts the server on `http://localhost:8080` and you can go to `http://l
 
 Build and run the server CLI using:
 
-```
-$ swift run
+```console
+% swift run
 2023-12-01T14:14:35+0100 notice codes.vapor.application : [Vapor] Server starting on http://127.0.0.1:8080
 ...
 ```
