@@ -8,7 +8,7 @@ that use `swift-log` to log requests and responses.
 ## Overview
 
 This example extends the [hello-world-urlsession-client-example](../hello-world-urlsession-client-example)
-with a new target, `LoggingMiddleware`, which can eb used when creating
+with a new target, `LoggingMiddleware`, which can be used when creating
 a `Client` or a `Server` because it conforms to both the `ClientMiddleware` and
 `ServerMiddleware` protocols from the `OpenAPIRuntime` library.
 
