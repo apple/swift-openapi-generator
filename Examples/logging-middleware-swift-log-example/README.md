@@ -8,12 +8,9 @@ that use `swift-log` to log requests and responses.
 ## Overview
 
 This example extends the [hello-world-urlsession-client-example](../hello-world-urlsession-client-example)
-with a new target, `LoggingMiddleware`, which is then used when creating
-the `Client`.
-
-The `LoggingMiddleware` provides two types:
-- `LoggingClientMiddleware`, which implements the `OpenAPIRuntime.ClientMiddleware` protocol.
-- `LoggingServerMiddleware`, which implements the `OpenAPIRuntime.ServerMiddleware` protocol.
+with a new target, `LoggingMiddleware`, which can eb used when creating
+a `Client` or a `Server` because it conforms to both the `ClientMiddleware` and
+`ServerMiddleware` protocols from the `OpenAPIRuntime` library.
 
 Because request and response bodies support streaming and can be arbitrarily
 large, the middleware is configured with a logging policy; one of:
