@@ -10,7 +10,7 @@ The following examples show how to use and integrate Swift OpenAPI Generator wit
 
 All the examples can be found in the [Examples](https://github.com/apple/swift-openapi-generator/tree/main/Examples) directory of the [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator) repository.
 
-To run an example locally, for example [hello-world-urlsession-client-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/hello-world-urlsession-client-example), clone the Swift OpenAPI Generator repository, and run the example.
+To run an example locally, for example [hello-world-urlsession-client-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/hello-world-urlsession-client-example), clone the Swift OpenAPI Generator repository, and run the example, as shown below:
 
 ```console
 % git clone https://github.com/apple/swift-openapi-generator
