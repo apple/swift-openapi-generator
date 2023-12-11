@@ -16,7 +16,7 @@ The code is generated at build-time, so it's always in sync with the OpenAPI doc
 
 ### Getting started
 
-> Tip: In a rush? Check out a working example: <doc:Starting-with-an-example-project>.
+> Tip: In a rush? Get started quickly by <doc:Checking-out-an-example-project>.
 
 Alternatively, to integrate Swift OpenAPI Generator into your existing project, or to create a new one, follow one of our _getting started_ guides:
 - <doc:ClientXcode>
@@ -68,7 +68,7 @@ The generated code, runtime library, and transports are supported on more platfo
 ## Topics
 
 ### Essentials
-- <doc:Starting-with-an-example-project>
+- <doc:Checking-out-an-example-project>
 - <doc:ClientSwiftPM>
 - <doc:ClientXcode>
 - <doc:ServerSwiftPM>
