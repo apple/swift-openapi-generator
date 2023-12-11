@@ -17,5 +17,5 @@ The server can be started by running the `ContentTypesServer` example locally.
 Build and run the client CLI using:
 
 ```
-$ swift run
+% swift run
 ```

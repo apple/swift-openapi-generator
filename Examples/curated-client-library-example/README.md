@@ -33,7 +33,7 @@ print("Received the greeting message: \(message)")
 Run tests using:
 
 ```
-swift test
+% swift test
 ```
 
 The testing strategy is to use a test implementation of the generated `APIProtocol` that allows simulating various conditions, including errors.

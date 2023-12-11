@@ -48,8 +48,8 @@ As an alternative to invoking the CLI manually, you can also use the package com
 
 Set up the `openapi.yaml` and `openapi-generator-config.yaml` files the same way as you would for the build plugin, and then run:
 
-```
-swift package plugin generate-code-from-openapi --target GreetingServiceClient
+```zsh
+% swift package plugin generate-code-from-openapi --target GreetingServiceClient
 ```
 
 This will generate files into the `GreetingServiceClient` target's Sources directory, in a directory called GeneratedSources, which you can then check into your repository.

@@ -13,7 +13,7 @@ The tool uses the [Vapor](https://github.com/vapor/vapor) server framework to ha
 The CLI starts the server on `http://localhost:8080` and can be invoked by running any of the Hello World example clients or on the command line using:
 
 ```
-$ curl http://localhost:8080/api/greet
+% curl http://localhost:8080/api/greet
 {
   "message" : "Hello, Stranger!"
 }
@@ -24,7 +24,7 @@ $ curl http://localhost:8080/api/greet
 Build and run the server CLI using:
 
 ```
-$ swift run
+% swift run
 2023-12-01T14:14:35+0100 notice codes.vapor.application : [Vapor] Server starting on http://127.0.0.1:8080
 ...
 ```
@@ -34,7 +34,7 @@ $ swift run
 Run tests using:
 
 ```
-swift test
+% swift test
 ```
 
 The testing strategy is to call the `Handler` directly from tests, as it conforms the `APIProtocol` and implements the business logic.

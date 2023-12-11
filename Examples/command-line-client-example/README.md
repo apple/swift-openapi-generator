@@ -17,6 +17,6 @@ The server can be started by running any of the Hello World server examples loca
 Build and run the client CLI using:
 
 ```
-$ swift run CommandLineClient greet --name CLI
+% swift run CommandLineClient greet --name CLI
 Hello, CLI!
 ```

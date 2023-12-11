@@ -25,7 +25,7 @@ The server can be started by running any of the Hello World server examples loca
 Build and run the client CLI using:
 
 ```
-$ swift run
+% swift run
 Attempt 1
 Retrying with code 500
 Attempt 2

@@ -19,7 +19,7 @@ The server can be started by running any of the Hello World server examples loca
 Whenever the `openapi.yaml` document changes, rerun the code generation:
 
 ```
-$ swift package generate-code-from-openapi
+% swift package generate-code-from-openapi
 Plugin ‘OpenAPIGeneratorCommand’ wants permission to write to the package directory.
 Stated reason: “To write the generated Swift files back into the source directory of the package.”.
 Allow this plugin to write to the package directory? (yes/no) yes
@@ -34,6 +34,6 @@ And then check in the changed files in `./Sources/CommandPluginInvocationClient/
 Build and run the client CLI using:
 
 ```
-$ swift run
+% swift run
 Hello, Stranger!
 ```

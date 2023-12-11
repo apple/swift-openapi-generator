@@ -63,7 +63,7 @@ The above is the most flexible, any JSON payload that doesn't match any of the c
 
 If you know the payload is, for example, always a JSON object, you can constrain the second schema further, like this:
 
-```
+```yaml
 MyOpenOneOf:
   anyOf:
     - oneOf:
