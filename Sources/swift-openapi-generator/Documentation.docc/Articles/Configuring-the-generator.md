@@ -110,7 +110,7 @@ In all cases, the transitive closure of dependencies from the components object 
 The CLI also provides a `filter` command that takes the same configuration file as the `generate`
 command, which can be used to inspect the filtered document:
 
-```
+```console
 % swift-openapi-generator filter --config path/to/openapi-generator-config.yaml path/to/openapi.yaml
 ```
 

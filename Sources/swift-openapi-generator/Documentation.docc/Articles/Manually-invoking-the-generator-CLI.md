@@ -36,7 +36,7 @@ This will create the following files in the specified output directory:
 
 To see the usage documentation for the generator CLI, use the following command:
 
-```zsh
+```console
 % swift run swift-openapi-generator --help
 ```
 
@@ -48,7 +48,7 @@ As an alternative to invoking the CLI manually, you can also use the package com
 
 Set up the `openapi.yaml` and `openapi-generator-config.yaml` files the same way as you would for the build plugin, and then run:
 
-```zsh
+```console
 % swift package plugin generate-code-from-openapi --target GreetingServiceClient
 ```
 

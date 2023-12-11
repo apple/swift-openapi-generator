@@ -12,7 +12,7 @@ The tool uses the [Hummingbird](https://github.com/hummingbird-project/hummingbi
 
 The CLI starts the server on `http://localhost:8080` and can be invoked by running any of the Hello World example clients or on the command line using:
 
-```
+```console
 % curl http://localhost:8080/api/greet
 {
   "message" : "Hello, Stranger!"
@@ -23,7 +23,7 @@ The CLI starts the server on `http://localhost:8080` and can be invoked by runni
 
 Build and run the server CLI using:
 
-```
+```console
 % swift run
 2023-12-01T14:14:35+0100 info HummingBird : [HummingbirdCore] Server started and listening on 127.0.0.1:8080
 ...
@@ -33,7 +33,7 @@ Build and run the server CLI using:
 
 Run tests using:
 
-```
+```console
 % swift test
 ```
 
