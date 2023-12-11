@@ -41,7 +41,7 @@ The following packages show working with various content types, such as JSON, UR
 
 ## Middleware
 
-- [logging-middleware-oslog-example](./logging-middleware-oslog-example) - A middleware that logs requests and responses using [OSLog](https://developer.apple.com/documentation/os/oslog) (only available on [Darwin](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Architecture/Architecture.html) platforms, such as macOS, iOS, and more).
+- [logging-middleware-oslog-example](./logging-middleware-oslog-example) - A middleware that logs requests and responses using [OSLog](https://developer.apple.com/documentation/os/oslog) (only available on Apple platforms, such as macOS, iOS, and more).
 - [logging-middleware-swift-log-example](./logging-middleware-swift-log-example) - A middleware that logs requests and responses using [SwiftLog](https://github.com/apple/swift-log).
 - [metrics-middleware-example](./metrics-middleware-example) - A middleware that collects metrics using [SwiftMetrics](https://github.com/apple/swift-metrics).
 - [tracing-middleware-example](./tracing-middleware-example) - A middleware that emits traces using [Swift Distributed Tracing](https://github.com/apple/swift-distributed-tracing).
