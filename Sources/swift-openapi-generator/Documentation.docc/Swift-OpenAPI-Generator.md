@@ -44,7 +44,7 @@ Choose one of the transports listed below, or create your own by adopting the `C
 | [swift-server/swift-openapi-vapor][repo-vapor] | Server | Uses [Vapor][vapor]. |
 | [swift-server/swift-openapi-hummingbird][repo-hummingbird] | Server | Uses [Hummingbird][hummingbird]. |
 
-> Tip: Factor out common logic, for example, for authentication, logging, and retrying, into a _middleware_, by providing a type that adopts `ClientMiddleware` or `ServerMiddleware`. Like transports, middlewares can be used with other projects that use Swift OpenAPI Generator.
+> Tip: Factor out common logic, for example, for authentication, logging, and retrying, into a _middleware_, by providing a type that adopts [`ClientMiddleware`](https://swiftpackageindex.com/apple/swift-openapi-runtime/documentation/openapiruntime/clientmiddleware) or [`ServerMiddleware`](https://swiftpackageindex.com/apple/swift-openapi-runtime/documentation/openapiruntime/servermiddleware). Like transports, middlewares can be used with other projects that use Swift OpenAPI Generator.
 
 ### Requirements and supported features
 
@@ -83,6 +83,7 @@ The generated code, runtime library, and transports are supported on more platfo
 ### Generator plugin and CLI
 - <doc:Configuring-the-generator>
 - <doc:Manually-invoking-the-generator-CLI>
+- <doc:Frequently-asked-questions>
 
 ### API stability
 - <doc:API-stability-of-the-generator>
