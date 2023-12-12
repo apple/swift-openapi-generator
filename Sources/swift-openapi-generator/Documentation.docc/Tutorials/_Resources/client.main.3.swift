@@ -6,9 +6,5 @@ let client = Client(
     transport: URLSessionTransport()
 )
 
-let response = try await client.getGreeting(
-    .init(
-        query: .init(name: "CLI")
-    )
-)
+let response = try await client.getGreeting(query: .init(name: "CLI"))
 print(response)

@@ -18,7 +18,7 @@
     
     @Section(title: "(Optional) Downloading and running the server locally for testing") {
 
-        In the next section of the guide we will create a client for this service. In order to execute requests, you can download the example server implementation and run it locally.
+        In the next section of the guide we will create a client for this service. In order to execute requests, you can download an example server implementation and run it locally.
 
         @Steps {
             @Step {
@@ -157,6 +157,23 @@
                 
                 The `switch` statement over the body allows you to handle the different content types that are specified for the API operation.
                 @Code(name: "main.swift", file: client.main.6.swift)
+            }
+            @Step {
+                You can now compile and run the executable again and see the response in the console.
+                @Code(name: "console", file: client.console.4.0.txt)
+            }
+        }
+    }
+
+    @Section(title: "Unwrapping the response using the shorthand API") {
+        If you don't need to handle all the response codes and content types, you can also use the shorthand API on the response and body enums, providing you with throwing getters for unwrapping each value.
+
+        These conveniences will throw an error if the received response or content type doesn't match the one you're requesting.
+
+        @Steps {
+            @Step {
+                Remove the switch statement and replace it with chained access to the `ok` response, to its `body`, to the `json` content type of the body, and finally to the `message` property of the received greeting.
+                @Code(name: "main.swift", file: client.main.7.swift, previousFile: client.main.6.swift)
             }
             @Step {
                 You can now compile and run the executable again and see the response in the console.
