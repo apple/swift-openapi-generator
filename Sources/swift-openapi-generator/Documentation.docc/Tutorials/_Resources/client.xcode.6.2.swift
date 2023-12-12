@@ -10,9 +10,6 @@ public struct GreetingClient {
             transport: URLSessionTransport()
         )
         let response = try await client.getGreeting(query: .init(name: name))
-        switch response {
-        case .ok(let okResponse):
-            print(okResponse)
-        }
+        return try response.ok.body.json.message
     }
 }

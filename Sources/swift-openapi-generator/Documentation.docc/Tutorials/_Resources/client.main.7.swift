@@ -7,9 +7,4 @@ let client = Client(
 )
 
 let response = try await client.getGreeting(query: .init(name: "CLI"))
-switch response {
-case .ok(let okResponse):
-    print(okResponse)
-case .undocumented(statusCode: let statusCode, _):
-    print("🥺 undocumented response: \(statusCode)")
-}
+print(try response.ok.body.json.message)

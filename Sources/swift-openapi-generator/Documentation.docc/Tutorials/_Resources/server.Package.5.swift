@@ -16,24 +16,12 @@ let package = Package(
         .executableTarget(
             name: "GreetingService",
             dependencies: [
-                .product(
-                    name: "OpenAPIRuntime",
-                    package: "swift-openapi-runtime"
-                ),
-                .product(
-                    name: "OpenAPIVapor",
-                    package: "swift-openapi-vapor"
-                ),
-                .product(
-                    name: "Vapor",
-                    package: "vapor"
-                ),
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
+                .product(name: "Vapor", package: "vapor"),
             ],
             plugins: [
-                .plugin(
-                    name: "OpenAPIGenerator",
-                    package: "swift-openapi-generator"
-                )
+                .plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator"),
             ]
         )
     ]

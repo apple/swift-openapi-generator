@@ -12,12 +12,12 @@ paths:
     get:
       operationId: getGreeting
       parameters:
-      - name: name
-        required: false
-        in: query
-        description: The name used in the returned greeting.
-        schema:
-          type: string
+        - name: name
+          required: false
+          in: query
+          description: The name used in the returned greeting.
+          schema:
+            type: string
       responses:
         '200':
           description: A success response with a greeting.
