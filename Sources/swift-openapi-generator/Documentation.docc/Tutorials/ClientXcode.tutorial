@@ -16,6 +16,8 @@
         Your Xcode project will make use of the Swift OpenAPI Generator plugin to generate the code you'll use to call this API from your existing app.
 
         Note: If you don't already have an existing app project, first create a new SwiftUI-based iOS app Xcode project before continuing.
+
+        > Tip: The [HelloWorldiOSClientAppExample package](https://github.com/apple/swift-openapi-generator/tree/main/Examples/HelloWorldiOSClientAppExample) contains the result of this tutorial, in case you're looking for a working example.
     }
     
     @Section(title: "(Optional) Downloading and running the server locally for testing") {

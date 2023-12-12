@@ -14,6 +14,8 @@
         The API for the service is defined using OpenAPI and you'll create a Swift client for this service, from scratch!
 
         Your Swift package will make use of the Swift OpenAPI Generator plugin to generate the code you'll use to call this API.
+
+        > Tip: The [hello-world-urlsession-client-example package](https://github.com/apple/swift-openapi-generator/tree/main/Examples/hello-world-urlsession-client-example) contains the result of this tutorial, in case you're looking for a working example.
     }
     
     @Section(title: "(Optional) Downloading and running the server locally for testing") {
