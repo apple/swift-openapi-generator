@@ -12,7 +12,7 @@ Swift OpenAPI Generator is not tied to any particular HTTP library. Instead, the
 
 The user of the generated code provides one of the concrete transport implementations, based on what's appropriate for their use case.
 
-Swift OpenAPI Generator links to some commonly used transport implementations from the [README](https://github.com/apple/swift-openapi-generator#repository-organization), but anyone is welcome to create their own custom transport implementation and share it as a package with the community.
+Swift OpenAPI Generator lists some transport implementations in its [README](https://github.com/apple/swift-openapi-generator#repository-organization), but anyone is welcome to create their own custom transport implementation and share it as a package with the community.
 
 To learn more, check out <doc:Checking-out-an-example-project#Getting-started>, which shows how to use some of the transport implementations.
 
