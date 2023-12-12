@@ -6,6 +6,20 @@ Review some frequently asked questions below.
 
 This article includes some commonly asked questions and answers.
 
+### How do I __ in OpenAPI?
+
+- Review the official [OpenAPI specification](https://spec.openapis.org/oas/v3.1.0).
+- Check out the [OpenAPI Guide](https://swagger.io/docs/specification/about/).
+- Learn how to achieve common patterns with OpenAPI and Swift OpenAPI Generator at <doc:Useful-OpenAPI-patterns>.
+
+### Why doesn't the generator have feature __?
+
+Check out <doc:Project-scope-and-goals>.
+
+### What OpenAPI featues does the generator support?
+
+Check out <doc:Supported-OpenAPI-features>.
+
 ### Which underlying HTTP library does the generated code use?
 
 Swift OpenAPI Generator is not tied to any particular HTTP library. Instead, the generated code utilizies a general protocol called [`ClientTransport`](https://swiftpackageindex.com/apple/swift-openapi-runtime/documentation/openapiruntime/clienttransport) for client code, and [`ServerTransport`](https://swiftpackageindex.com/apple/swift-openapi-runtime/documentation/openapiruntime/servertransport) for server code.
