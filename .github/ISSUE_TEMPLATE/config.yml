@@ -23,7 +23,7 @@ contact_links:
     about: >
       Formally propose an addition, removal, or change to the features of the
       Swift OpenAPI Generator using the proposal process.
-  - name: 💬 Join the \#openapi Slack channel
+  - name: "💬 Join the #openapi Slack channel"
     url: https://swift-open-source.slack.com/archives/C05AZ55J75K
     about: >
       Chat with other adopters and contributors on the Swift Open Source Slack

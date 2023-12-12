@@ -93,8 +93,6 @@ body:
       placeholder: |
         ```console
         % swift -version
-
-        % sw_vers ||
         ```
     validations:
       required: true
