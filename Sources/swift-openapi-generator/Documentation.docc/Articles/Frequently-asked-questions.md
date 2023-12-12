@@ -24,7 +24,7 @@ Just like with transports, there are two types, [`ClientMiddleware`](https://swi
 
 To learn more, check out <doc:Checking-out-an-example-project#Middleware> examples.
 
-### Is the generated code committed to my git repository?
+### Do I commit the generated code to my source repository?
 
 It depends on the way you're integrating Swift OpenAPI Generator.
 
