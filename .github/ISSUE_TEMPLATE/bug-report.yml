@@ -1,0 +1,108 @@
+name: 🐞 Report a bug
+description: >
+  Report a deviation from expected or documented behavior, but not a crash.
+labels: [kind/bug, status/triage]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        This repository hosts issues for the Swift OpenAPI generator, the Swift
+        OpenAPI runtime library, the Swift OpenAPI URLSession transport library,
+        and the AsyncHTTPClient transport library.
+        It does *not* track feedback on Xcode and other closed source Apple
+        developer software such as URLSession itself; please direct it to
+        [Feedback Assistant](https://developer.apple.com/bug-reporting) instead.
+
+        ___
+  - type: textarea
+    attributes:
+      label: Description
+      description: >
+        A concise description of what causes the problem, in human language.
+        Though not required, it may help us to more accurately triage the issue
+        as well as understand a non-trivial test case.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Reproduction
+      description: >
+        Please provide inputs to help us reproduce the issue.
+
+        If the issue relates to code generation, provide an example OpenAPI
+        document, a generator configuration file, and extract of the Swift
+        code you believe to contain the issue. If generation fails, please
+        provide the generator output.
+
+        If the issue is with using the generated code, or the runtime or
+        transport libraries, provide a test case, provide sample Swift code, and
+        explain how to build or run it to reproduce the problem.
+
+        If the problem is a poor or unexpected error, warning, or output, please
+        show them.
+
+        Consider reducing the test case to the smallest amount of code possible
+        — a smaller test case is easier to reason about and more appealing to
+        contributors.
+      placeholder: |
+        ```yaml
+        # openapi.yaml
+        openapi: '3.1.0'
+        ...
+        ```
+
+        ```yaml
+        # openapi-generator-config.yaml
+        mode:
+          - types
+          - client
+        ...
+        ```
+
+        ```swift
+        let message = try await client.getGreeting()
+        ```
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Package version(s)
+      description: >
+        Provide the versions of the relevant Swift OpenAPI packages used when
+        encountering the issue.
+      placeholder: |
+        ```console
+        % swift package show-dependencies
+        ```
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected behavior
+      description: >
+        Describe the behavior you expected.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Environment
+      description: >
+        Provide the Swift version, tag, or revision. If you suspect that the
+        problem might be specific to a particular development platform or
+        deployment target, please specify them as well.
+      placeholder: |
+        ```console
+        % swift -version
+        ```
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional information
+      description: >
+        Any complementary information that could help others to work around
+        the problem, and us to better understand the problem and its impact.
+        For example, a link to a discussion or post that motivated this
+        report.
+    validations:
+      required: false

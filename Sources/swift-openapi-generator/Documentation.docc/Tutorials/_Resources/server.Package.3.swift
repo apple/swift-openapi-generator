@@ -16,10 +16,7 @@ let package = Package(
         .executableTarget(
             name: "GreetingService",
             plugins: [
-                .plugin(
-                    name: "OpenAPIGenerator",
-                    package: "swift-openapi-generator"
-                )
+                .plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator"),
             ]
         )
     ]

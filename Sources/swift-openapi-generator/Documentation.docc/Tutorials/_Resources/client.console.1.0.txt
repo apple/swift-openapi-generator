@@ -1,2 +1,2 @@
 % git clone https://github.com/apple/swift-openapi-generator
-% cd swift-openapi-generator/Examples/GreetingService
+% cd swift-openapi-generator/Examples/hello-world-vapor-server-example
