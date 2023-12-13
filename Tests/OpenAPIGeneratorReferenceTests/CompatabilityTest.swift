@@ -58,7 +58,8 @@ final class CompatibilityTest: XCTestCase {
             "https://raw.githubusercontent.com/box/box-openapi/98f51911398fb3f997b2ce0666f11f37065fc4c9/openapi.json",
             license: .apache,
             expectedDiagnostics: [
-                "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated."
+                "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated.",
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property.",
             ],
             skipBuild: compatibilityTestSkipBuild
         )
@@ -142,7 +143,9 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/Netflix/consoleme/774420462b0190b1bfa78aa73d39e20044f52db9/swagger.yaml",
             license: .apache,
-            expectedDiagnostics: [],
+            expectedDiagnostics: [
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property."
+            ],
             skipBuild: compatibilityTestSkipBuild
         )
     }
@@ -151,7 +154,9 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/openai/openai-openapi/75eebb4477355ddb3abe18615108e02cf6fdca42/openapi.yaml",
             license: .mit,
-            expectedDiagnostics: [],
+            expectedDiagnostics: [
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property."
+            ],
             skipBuild: compatibilityTestSkipBuild
         )
     }
