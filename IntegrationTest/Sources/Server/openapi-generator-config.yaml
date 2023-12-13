@@ -1,4 +1,5 @@
 generate:
-- server
+  - server
 additionalImports:
-- Types
+  - Types
+accessModifier: package

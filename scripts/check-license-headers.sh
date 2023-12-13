@@ -66,8 +66,17 @@ read -ra PATHS_TO_CHECK_FOR_LICENSE <<< "$( \
   ":(exclude)**/petstore.yaml" \
   ":(exclude)**/openapi-generator-config.yaml" \
   ":(exclude)**/openapi-generator-config.yml" \
+  ":(exclude)**/docker-compose.yaml" \
+  ":(exclude)**/docker/*" \
+  ":(exclude)**/.dockerignore" \
   ":(exclude)Plugins/OpenAPIGenerator/PluginsShared" \
   ":(exclude)Plugins/OpenAPIGeneratorCommand/PluginsShared" \
+  ":(exclude)Examples/HelloWorldiOSClientAppExample/HelloWorldiOSClientApp.*" \
+  ":(exclude)Examples/HelloWorldiOSClientAppExample/HelloWorldiOSClientApp/Assets.xcassets/*" \
+  ":(exclude)Examples/HelloWorldiOSClientAppExample/HelloWorldiOSClientApp/Preview*" \
+  ":(exclude)Examples/**/Generated*" \
+  ":(exclude)**/Makefile" \
+  ":(exclude)**/*.html" \
   | xargs -0 \
 )"
 

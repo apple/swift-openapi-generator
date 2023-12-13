@@ -1,0 +1,59 @@
+openapi: '3.1.0'
+info:
+  title: GreetingService
+  version: 1.0.0
+servers:
+  - url: https://example.com/api
+    description: Example service deployment.
+paths:
+  /greet:
+    get:
+      operationId: getGreeting
+      parameters:
+        - name: name
+          required: false
+          in: query
+          description: The name used in the returned greeting.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A success response with a greeting.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Greeting'
+  /count:
+    get:
+      operationId: getCount
+      responses:
+        '200':
+          description: The previous greetings issued.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                required:
+                  - count
+  /reset:
+    post:
+      operationId: reset
+      responses:
+        '204':
+          description: Reset the database.
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  schemas:
+    Greeting:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message

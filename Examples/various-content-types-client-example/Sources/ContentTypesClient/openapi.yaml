@@ -1,0 +1,202 @@
+openapi: '3.1.0'
+info:
+  title: ContentTypesService
+  version: 1.0.0
+servers:
+  - url: https://example.com/api
+    description: Example service deployment.
+paths:
+  /exampleJSON:
+    get:
+      operationId: getExampleJSON
+      parameters:
+        - name: name
+          required: false
+          in: query
+          description: The name used in the returned greeting.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A success response with a greeting.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Greeting'
+    post:
+      operationId: postExampleJSON
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Greeting'
+      responses:
+        '202':
+          description: A success response for the accepted greeting.
+  /examplePlainText:
+    get:
+      operationId: getExamplePlainText
+      responses:
+        '200':
+          description: A success response with raw text content.
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      operationId: postExamplePlainText
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '202':
+          description: A success response for the accepted text.
+  /exampleMultipleContentTypes:
+    get:
+      operationId: getExampleMultipleContentTypes
+      responses:
+        '200':
+          description: A success response with raw bytes content.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Greeting'
+            text/plain:
+              schema:
+                type: string
+    post:
+      operationId: postExampleMultipleContentTypes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Greeting'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '202':
+          description: A success response for the accepted value.
+  /exampleURLEncoded:
+    post:
+      operationId: postExampleURLEncoded
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+              required:
+                - message
+      responses:
+        '202':
+          description: A success response for the accepted greeting.
+  /exampleRawBytes:
+    get:
+      operationId: getExampleRawBytes
+      responses:
+        '200':
+          description: A success response with raw bytes content.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                contentEncoding: binary
+    post:
+      operationId: postExampleRawBytes
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              contentEncoding: binary
+      responses:
+        '202':
+          description: A success response for the accepted bytes.
+  /exampleMultipart:
+    get:
+      operationId: getExampleMultipart
+      responses:
+        '200':
+          description: A success response with multipart content.
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  greetingTemplate:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                    required:
+                      - message
+                  names:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - greetingTemplate
+              encoding:
+                greetingTemplate:
+                  contentType: application/json
+                names:
+                  contentType: text/plain
+                  headers:
+                    x-name-locale:
+                      schema:
+                        type: string
+    post:
+      operationId: postExampleMultipart
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                greetingTemplate:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                  required:
+                    - message
+                names:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - greetingTemplate
+            encoding:
+              greetingTemplate:
+                contentType: application/json
+              names:
+                contentType: text/plain
+                headers:
+                  x-name-locale:
+                    schema:
+                      type: string
+      responses:
+        '202':
+          description: A success response for the accepted greeting.
+components:
+  schemas:
+    Greeting:
+      type: object
+      description: A value with the greeting contents.
+      properties:
+        message:
+          type: string
+          description: The string representation of the greeting.
+      required:
+        - message

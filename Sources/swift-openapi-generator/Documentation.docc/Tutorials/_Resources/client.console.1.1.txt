@@ -1,7 +1,7 @@
 % git clone https://github.com/apple/swift-openapi-generator
-% cd swift-openapi-generator/Examples/GreetingService
+% cd swift-openapi-generator/Examples/hello-world-vapor-server-example
 
-% swift run GreetingService
+% swift run HelloWorldVaporServer
 ..
 Build complete! (37.91s)
-2023-06-01T10:36:58+0200 notice codes.vapor.application : [Vapor] Server starting on http://127.0.0.1:8080
+2023-12-12T09:06:32+0100 notice codes.vapor.application : [Vapor] Server starting on http://127.0.0.1:8080

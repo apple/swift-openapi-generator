@@ -1,0 +1,74 @@
+@Tutorial(time: 5) {
+    @Intro(title: "Adding OpenAPI and Swagger UI endpoints") {
+        One of the most popular ways to share your OpenAPI document with your users is to host it alongside your API server itself.
+        
+        Typically this is at `/openapi.yaml` or similar, which serves a plain-text OpenAPI document for consumpion by clients.
+        
+        Additionally, you can host an HTML page that renders the OpenAPI document as interactive documentation that you can use from the browser, for example using [swagger-ui](https://github.com/swagger-api/swagger-ui).
+        
+        In this tutorial we'll add both endpoints to our Vapor server.
+
+        > Tip: The [swagger-ui-endpoint-example package](https://github.com/apple/swift-openapi-generator/tree/main/Examples/swagger-ui-endpoint-example) contains the result of this tutorial, in case you're looking for a working example.
+    }
+
+    @Section(title: "Add an /openapi.yaml endpoint") {
+        
+        We'll start with the server in its state following <doc:ServerSwiftPM> (before the `/emoji` endpoint is added) and we'll add an `/openapi.yaml` endpoint that serves the OpenAPI document as a static resource.
+
+        @Steps {
+            @Step {
+                In the server package, create a `Public/` directory for serving static content.
+                
+                @Code(name: "console", file: server-openapi-endpoints.console.0.txt, reset: true)
+            }
+            @Step {
+                Move `openapi.yaml` from `Sources/` and create a symlink to it back in the `Sources/` directory.
+                
+                @Code(name: "console", file: server-openapi-endpoints.console.1.txt, previousFile: server-openapi-endpoints.console.0.txt)
+            }
+            @Step {
+                In `main.swift`, Add a Vapor middleware that serves the contents of the `Public/` directory.
+                
+                @Code(name: "main.swift", file: server-openapi-endpoints.main.1.swift, previousFile: server-openapi-endpoints.main.0.swift)
+            }
+            @Step {
+                From the `Product` menu, select `Scheme > Edit Scheme...`. With `Run` selected in the sidebar, select the `Options` tab and check the box labeled `Use custom working directory` and use the path containing Package.swift for this package.
+                
+                This step is necessary because the Vapor middleware serves files relative to the current working directory for the running server process.
+            }
+            @Step {
+                Test this enpoint in your browser, or using curl.
+                
+                @Code(name: "console", file: server-openapi-endpoints.console.2.txt, previousFile: server-openapi-endpoints.console.1.txt)
+            }
+        }
+    }
+    @Section(title: "Add a Swagger UI endpoint") {
+        Now we'll add a static `openapi.html` page that serves Swagger UI and add a redirect to this page from `/openapi` for discoverability.
+        
+        @Steps {
+            @Step {
+                Create the file `Public/openapi.html` with the HTML contents as shown on the right.
+                
+                By placing it in the public directory, it is already reachable at `/openapi.html`.
+                
+                @Code(name: "openapi.html", file: server-openapi-endpoints.openapi.html, reset: true)
+            }
+            @Step {
+                Add a redirect for `/openapi` to `openapi.html`, which serves the rendered documentation.
+                
+                @Code(name: "main.swift", file: server-openapi-endpoints.main.2.swift, previousFile: server-openapi-endpoints.main.1.swift)
+            }
+            @Step {
+                Add a relative server URL to the OpenAPI document.
+                
+                This allows you to use the rendered documentation to make requests to the instance serving the OpenAPI document itself.
+                
+                @Code(name: "main.swift", file: server-openapi-endpoints.openapi.1.yaml, previousFile: server-openapi-endpoints.openapi.0.yaml)
+            }
+            @Step {
+                Visit `http://localhost:8080/openapi` in your browser which should show the rendered documentation for the OpenAPI document.
+            }
+        }
+    }
+}

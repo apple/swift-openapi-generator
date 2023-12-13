@@ -1,0 +1,31 @@
+name: ⚙️ Track a task
+description: >
+  Tasks can be used to track internal work, extract individual subtasks from a
+  larger issue, and can serve as umbrella issues themselves.
+labels: [kind/enhancement, status/triage]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        This repository hosts issues for the Swift OpenAPI generator, the Swift
+        OpenAPI runtime library, the Swift OpenAPI URLSession transport library,
+        and the AsyncHTTPClient transport library.
+        It does *not* track feedback on Xcode and other closed source Apple
+        developer software such as URLSession itself; please direct it to
+        [Feedback Assistant](https://developer.apple.com/bug-reporting) instead.
+
+        ___
+  - type: textarea
+    attributes:
+      label: Description
+      description: >
+        A comprehensive description of the task, in human language.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional information
+      description: >
+        Any complementary information that could be valuable to an implementor.
+    validations:
+      required: false

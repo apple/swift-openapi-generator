@@ -1,0 +1,35 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📖 Learn about Swift OpenAPI Generator
+    url: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/
+    about: >
+      Read the rendered Swift OpenAPI Generator documentation on Swift Package Index.
+  - name: 🧑‍🏫 Example projects
+    url: https://github.com/apple/swift-openapi-generator/blob/main/Examples/README.md
+    about: >
+      Build, run, and experiment with sample projects that use Swift OpenAPI
+      Generator and integrate with other packages in the ecosystem.
+  - name: ✅ Take a look at the FAQ
+    url: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/frequently-asked-questions
+    about: >
+      See solutions to commonly-asked questions and common workflows.
+  - name: 🧩 Check the list of supported OpenAPI features
+    url: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/supported-openapi-features
+    about: >
+      See which features of the OpenAPI Specification are currently supported by
+      the Swift OpenAPI Generator.
+  - name: 📄 Formally propose a change
+    url: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/proposals
+    about: >
+      Formally propose an addition, removal, or change to the features of the
+      Swift OpenAPI Generator using the proposal process.
+  - name: "💬 Join the #openapi Slack channel"
+    url: https://swift-open-source.slack.com/archives/C05AZ55J75K
+    about: >
+      Chat with other adopters and contributors on the Swift Open Source Slack
+      workspace.
+  - name: 🪲 Report an issue using Feedback Assistant
+    url: https://developer.apple.com/bug-reporting
+    about: >
+      Report an issue with Xcode or other closed source Apple developer
+      software such as URLSession.
