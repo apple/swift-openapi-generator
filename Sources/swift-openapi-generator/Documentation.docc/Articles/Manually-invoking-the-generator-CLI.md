@@ -12,9 +12,9 @@ The recommended workflow is to use the Swift package plugin, as described in our
 
 When using the package plugin, the code is generated at build time and is not committed to your source repository.
 
-If you need to commit the generated code to your source repository (for example, for auditing reasons) you can manually invoke the generator CLI to generate the Swift code.
+If you need to commit the generated code to your source repository (for example, for auditing reasons) you can manually invoke the generator CLI to generate the Swift code. Note that even with this workflow, the generated code still depends on the runtime library.
 
-> Note: The generated code still depends on the runtime library.
+> Tip: Check out <doc:Checking-out-an-example-project#Ahead-of-time-manual-code-generation> for example projects.
 
 ### Invoke the CLI manually
 
