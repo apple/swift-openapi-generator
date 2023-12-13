@@ -63,10 +63,3 @@ However, if you cannot use the build plugin, for example because you must check 
 If you can't even use the command plugin, for example because your package is not allowed to depend on Swift OpenAPI Generator, you can invoke the generator CLI manually from a Makefile. See the following example for this workflow:
 
 - [manual-generation-generator-cli-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/manual-generation-generator-cli-example) - A client using the `swift-openapi-generator` CLI for manual code generation.
-
-## Deprecated
-
-The following examples will be removed before 1.0.0 is released and is preserved for backwards compatibility with currently published tutorials that point to it.
-
-- [`GreetingService`](https://github.com/apple/swift-openapi-generator/tree/main/Examples/GreetingService) - A Vapor-based CLI server, use [`hello-world-vapor-server-example`](https://github.com/apple/swift-openapi-generator/tree/main/Examples/hello-world-vapor-server-example) instead.
-- [`GreetingServiceClient`](https://github.com/apple/swift-openapi-generator/tree/main/Examples/GreetingServiceClient) - A URLSession-based CLI client, use [`hello-world-urlsession-client-example`](https://github.com/apple/swift-openapi-generator/tree/main/Examples/hello-world-urlsession-client-example) instead.

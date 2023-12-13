@@ -1,4 +1,0 @@
-generate:
-  - types
-  - server
-accessModifier: internal
