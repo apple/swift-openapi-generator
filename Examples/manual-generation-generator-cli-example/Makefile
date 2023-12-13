@@ -1,5 +1,5 @@
 REPO_URL = https://github.com/apple/swift-openapi-generator
-VERSION = 1.0.0-alpha.1
+VERSION = 1.0.0
 TMP_DIR = /tmp
 REPO_DIR = $(TMP_DIR)/swift-openapi-generator
 CLI_EXECUTABLE = $(REPO_DIR)/.build/release/swift-openapi-generator
