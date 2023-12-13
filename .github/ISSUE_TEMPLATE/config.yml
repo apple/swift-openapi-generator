@@ -10,7 +10,7 @@ contact_links:
       Build, run, and experiment with sample projects that use Swift OpenAPI
       Generator and integrate with other packages in the ecosystem.
   - name: ✅ Take a look at the FAQ
-    url: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/useful-openapi-patterns
+    url: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/frequently-asked-questions
     about: >
       See solutions to commonly-asked questions and common workflows.
   - name: 🧩 Check the list of supported OpenAPI features

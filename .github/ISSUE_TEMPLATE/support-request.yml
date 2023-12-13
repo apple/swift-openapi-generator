@@ -19,7 +19,7 @@ body:
         Please use this issue template to ask a question.
 
         You may also like to check out our
-        [FAQ](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/useful-openapi-patterns)
+        [FAQ](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/frequently-asked-questions)
         for solutions to frequently asked questions and common workflows.
   - type: textarea
     attributes:
