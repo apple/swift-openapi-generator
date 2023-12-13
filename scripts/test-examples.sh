@@ -31,7 +31,7 @@ SHARED_EXAMPLE_HARNESS_PACKAGE_PATH="${TMP_DIR}/swift-openapi-example-harness"
 SHARED_PACKAGE_SCRATCH_PATH="${TMP_DIR}/swift-openapi-example-cache"
 SHARED_PACKAGE_CACHE_PATH="${TMP_DIR}/swift-openapi-example-scratch"
 
-for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name Package.swift -type f -print0 | xargs -0 dirname); do
+for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name Package.swift -type f -print0 | xargs -0 dirname | sort); do
 
     EXAMPLE_PACKAGE_NAME="$(basename "${EXAMPLE_PACKAGE_PATH}")"
 
