@@ -22,6 +22,3 @@ import Foundation
         print(try response.ok.body.json.message)
     }
 }
-
-// TODO: Remove this once 1.0.0 is released with https://github.com/swift-server/swift-openapi-async-http-client/pull/32.
-extension AsyncHTTPClientTransport { init() { self.init(configuration: .init()) } }

@@ -12,9 +12,9 @@ The recommended workflow is to use the Swift package plugin, as described in our
 
 When using the package plugin, the code is generated at build time and is not committed to your source repository.
 
-If you need to commit the generated code to your source repository (for example, for auditing reasons) you can manually invoke the generator CLI to generate the Swift code.
+If you need to commit the generated code to your source repository (for example, for auditing reasons) you can manually invoke the generator CLI to generate the Swift code. Note that even with this workflow, the generated code still depends on the runtime library.
 
-> Note: The generated code still depends on the runtime library.
+> Tip: Check out <doc:Checking-out-an-example-project#Ahead-of-time-manual-code-generation> for example projects.
 
 ### Invoke the CLI manually
 
@@ -49,9 +49,9 @@ As an alternative to invoking the CLI manually, you can also use the package com
 Set up the `openapi.yaml` and `openapi-generator-config.yaml` files the same way as you would for the build plugin, and then run:
 
 ```console
-% swift package plugin generate-code-from-openapi --target GreetingServiceClient
+% swift package plugin generate-code-from-openapi --target HelloWorldURLSessionClient
 ```
 
-This will generate files into the `GreetingServiceClient` target's Sources directory, in a directory called GeneratedSources, which you can then check into your repository.
+This will generate files into the `HelloWorldURLSessionClient` target's Sources directory, in a directory called `GeneratedSources`, which you can then check into your repository.
 
 You can also invoke the command from the Xcode UI by control-clicking on a target in the Project Navigator, and selecting the command.

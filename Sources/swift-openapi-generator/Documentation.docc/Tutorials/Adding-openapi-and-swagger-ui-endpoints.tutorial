@@ -7,8 +7,8 @@
         Additionally, you can host an HTML page that renders the OpenAPI document as interactive documentation that you can use from the browser, for example using [swagger-ui](https://github.com/swagger-api/swagger-ui).
         
         In this tutorial we'll add both endpoints to our Vapor server.
-        
-        > Tip: The [OpenAPIEndpointsServer example package](https://github.com/apple/swift-openapi-generator/tree/main/Examples/OpenAPIEndpointsServer) contains the configured Vapor server, in case you want to see the result of this tutorial.
+
+        > Tip: The [swagger-ui-endpoint-example package](https://github.com/apple/swift-openapi-generator/tree/main/Examples/swagger-ui-endpoint-example) contains the result of this tutorial, in case you're looking for a working example.
     }
 
     @Section(title: "Add an /openapi.yaml endpoint") {
@@ -17,7 +17,7 @@
 
         @Steps {
             @Step {
-                Create a `Public/` directory for serving static content.
+                In the server package, create a `Public/` directory for serving static content.
                 
                 @Code(name: "console", file: server-openapi-endpoints.console.0.txt, reset: true)
             }
@@ -44,11 +44,11 @@
         }
     }
     @Section(title: "Add a Swagger UI endpoint") {
-        Now we'll add a static `openapi.html` page that serves Swagger UI and add a redirect to this page from `/` for discoverability.
+        Now we'll add a static `openapi.html` page that serves Swagger UI and add a redirect to this page from `/openapi` for discoverability.
         
         @Steps {
             @Step {
-                Create the file `Public/openapi.html` with the swagger-ui JavaScript.
+                Create the file `Public/openapi.html` with the HTML contents as shown on the right.
                 
                 By placing it in the public directory, it is already reachable at `/openapi.html`.
                 
