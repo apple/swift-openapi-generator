@@ -2349,7 +2349,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testRequestWithPathParams() throws {
         try self.assertRequestInTypesClientServerTranslation(
             """
-            /foo/a/{a}/b/{b}:
+            /foo/a/{a}/b/{b}/c{num}:
               get:
                 parameters:
                   - name: b
@@ -2362,6 +2362,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     required: true
                     schema:
                       type: string
+                  - name: num
+                    in: path
+                    required: true
+                    schema:
+                      type: integer
                 operationId: getFoo
                 responses:
                   default:
@@ -2372,12 +2377,15 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public struct Path: Sendable, Hashable {
                         public var b: Swift.String
                         public var a: Swift.String
+                        public var num: Swift.Int
                         public init(
                             b: Swift.String,
-                            a: Swift.String
+                            a: Swift.String,
+                            num: Swift.Int
                         ) {
                             self.b = b
                             self.a = a
+                            self.num = num
                         }
                     }
                     public var path: Operations.getFoo.Input.Path
@@ -2389,10 +2397,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
             client: """
                 { input in
                     let path = try converter.renderedPath(
-                        template: "/foo/a/{}/b/{}",
+                        template: "/foo/a/{}/b/{}/c{}",
                         parameters: [
                             input.path.a,
-                            input.path.b
+                            input.path.b,
+                            input.path.num
                         ]
                     )
                     var request: HTTPTypes.HTTPRequest = .init(
@@ -2415,6 +2424,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             in: metadata.pathParameters,
                             name: "a",
                             as: Swift.String.self
+                        ),
+                        num: try converter.getPathParameterAsURI(
+                            in: metadata.pathParameters,
+                            name: "num",
+                            as: Swift.Int.self
                         )
                     )
                     return Operations.getFoo.Input(path: path)
