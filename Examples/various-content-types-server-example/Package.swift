@@ -1,4 +1,4 @@
-// swift-tools-version:5.9
+// swift-tools-version:5.9.2
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
@@ -36,9 +36,7 @@ let package = Package(
         .testTarget(
             name: "ContentTypesServerTests",
             dependencies: [
-                "ContentTypesServer", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
-                .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
-                .product(name: "Vapor", package: "vapor"),
+                "ContentTypesServer",
             ]
         ),
     ]
