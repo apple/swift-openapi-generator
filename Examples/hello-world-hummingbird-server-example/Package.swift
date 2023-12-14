@@ -32,12 +32,6 @@ let package = Package(
                 .product(name: "Hummingbird", package: "hummingbird"),
             ],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
-        ),
-        .testTarget(
-            name: "HelloWorldHummingbirdServerTests",
-            dependencies: [
-                "HelloWorldHummingbirdServer",
-            ]
-        ),
+        ), .testTarget(name: "HelloWorldHummingbirdServerTests", dependencies: ["HelloWorldHummingbirdServer"]),
     ]
 )

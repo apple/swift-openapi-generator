@@ -32,12 +32,6 @@ let package = Package(
                 .product(name: "Vapor", package: "vapor"),
             ],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
-        ),
-        .testTarget(
-            name: "HelloWorldVaporServerTests",
-            dependencies: [
-                "HelloWorldVaporServer",
-            ]
-        ),
+        ), .testTarget(name: "HelloWorldVaporServerTests", dependencies: ["HelloWorldVaporServer"]),
     ]
 )
