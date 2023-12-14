@@ -613,13 +613,16 @@ final class Test_Client: XCTestCase {
     }
 
     func testProbe_undocumented() async throws {
-        transport = .init { request, requestBody, baseURL, operationID in (.init(status: .serviceUnavailable), nil) }
+        transport = .init { request, requestBody, baseURL, operationID in (.init(status: .serviceUnavailable), "oh no")
+        }
         let response = try await client.probe(.init())
-        guard case let .undocumented(statusCode, _) = response else {
+        guard case let .undocumented(statusCode, payload) = response else {
             XCTFail("Unexpected response: \(response)")
             return
         }
         XCTAssertEqual(statusCode, 503)
+        XCTAssertEqual(payload.headerFields, [:])
+        try await XCTAssertEqualStringifiedData(payload.body, "oh no")
     }
 
     func testUploadAvatarForPet_200() async throws {

@@ -112,7 +112,17 @@ extension ClientFileTranslator {
                         .init(
                             label: "statusCode",
                             expression: .identifierPattern("response").dot("status").dot("code")
-                        ), .init(label: nil, expression: .dot("init").call([])),
+                        ),
+                        .init(
+                            label: nil,
+                            expression: .dot("init")
+                                .call([
+                                    .init(
+                                        label: "headerFields",
+                                        expression: .identifierPattern("response").dot("headerFields")
+                                    ), .init(label: "body", expression: .identifierPattern("responseBody")),
+                                ])
+                        ),
                     ])
             )
             cases.append(.init(kind: .default, body: [.expression(undocumentedExpr)]))

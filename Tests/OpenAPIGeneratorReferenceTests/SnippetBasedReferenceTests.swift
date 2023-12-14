@@ -4478,7 +4478,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         return .undocumented(
                             statusCode: response.status.code,
-                            .init()
+                            .init(
+                                headerFields: response.headerFields,
+                                body: responseBody
+                            )
                         )
                     }
                 }
@@ -4661,7 +4664,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         return .undocumented(
                             statusCode: response.status.code,
-                            .init()
+                            .init(
+                                headerFields: response.headerFields,
+                                body: responseBody
+                            )
                         )
                     }
                 }
