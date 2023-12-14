@@ -55,10 +55,11 @@ final class CompatibilityTest: XCTestCase {
 
     func testBox() async throws {
         try await _test(
-            "https://raw.githubusercontent.com/box/box-openapi/5955d651f0cd273c0968e3855c1d873c7ae3523e/openapi.json",
+            "https://raw.githubusercontent.com/box/box-openapi/98f51911398fb3f997b2ce0666f11f37065fc4c9/openapi.json",
             license: .apache,
             expectedDiagnostics: [
-                "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated."
+                "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated.",
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property.",
             ],
             skipBuild: compatibilityTestSkipBuild
         )
@@ -75,7 +76,7 @@ final class CompatibilityTest: XCTestCase {
 
     func testCloudHypervisor() async throws {
         try await _test(
-            "https://raw.githubusercontent.com/cloud-hypervisor/cloud-hypervisor/889d06277acae45c2b55bd5f6298ca2b21a55cbb/vmm/src/api/openapi/cloud-hypervisor.yaml",
+            "https://raw.githubusercontent.com/cloud-hypervisor/cloud-hypervisor/2b457584e06fb72c0256433141731750c58eb6b5/vmm/src/api/openapi/cloud-hypervisor.yaml",
             license: .apache,
             expectedDiagnostics: [],
             skipBuild: compatibilityTestSkipBuild
@@ -84,7 +85,7 @@ final class CompatibilityTest: XCTestCase {
 
     func testDiscourse() async throws {
         try await _test(
-            "https://raw.githubusercontent.com/discourse/discourse_api_docs/aa152ea188c7b07bbf809681154cc311ec178acf/openapi.yml",
+            "https://raw.githubusercontent.com/discourse/discourse_api_docs/fa2391353e9c3eb016ccae30daa34467d2ac2616/openapi.yml",
             license: .apache,
             expectedDiagnostics: [
                 "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found nothing but unsupported attributes..",
@@ -96,19 +97,34 @@ final class CompatibilityTest: XCTestCase {
 
     func testGithub() async throws {
         try await _test(
-            "https://raw.githubusercontent.com/github/rest-api-description/13c873cb3b15ffd5bcd88c6d6270a963ef4518f6/descriptions/api.github.com/api.github.com.yaml",
+            "https://raw.githubusercontent.com/github/rest-api-description/322663c9c909974af16363b4dc0873c428bdbe34/descriptions-next/api.github.com/api.github.com.yaml",
             license: .mit,
-            expectedDiagnostics: [],
+            expectedDiagnostics: [
+                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: array. Specifically, attributes for these other types: [\"object\"].",
+                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"object\"].",
+                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found nothing but unsupported attributes..",
+                "Schema warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"].",
+                "Validation warning: Inconsistency encountered when parsing `Schema`: A schema contains properties for multiple types of schemas, namely: [\"array\", \"object\"]..",
+                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"].",
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property.",
+                "Schema warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: array. Specifically, attributes for these other types: [\"object\"].",
+                "Schema warning: Inconsistency encountered when parsing `Schema`: A schema contains properties for multiple types of schemas, namely: [\"array\", \"object\"]..",
+            ],
             skipBuild: true
         )
     }
 
     func testGithubEnterprise() async throws {
         try await _test(
-            "https://raw.githubusercontent.com/github/rest-api-description/13c873cb3b15ffd5bcd88c6d6270a963ef4518f6/descriptions/ghes-3.5/ghes-3.5.yaml",
+            "https://raw.githubusercontent.com/github/rest-api-description/322663c9c909974af16363b4dc0873c428bdbe34/descriptions-next/ghes-3.7/ghes-3.7.yaml",
             license: .mit,
             expectedDiagnostics: [
-                "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated."
+                "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated.",
+                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found nothing but unsupported attributes..",
+                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"].",
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property.",
+                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"object\"].",
+                "Schema warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"].",
             ],
             skipBuild: true
         )
@@ -116,7 +132,7 @@ final class CompatibilityTest: XCTestCase {
 
     func testKubernetes() async throws {
         try await _test(
-            "https://raw.githubusercontent.com/kubernetes/kubernetes/fa3d7990104d7c1f16943a67f11b154b71f6a132/api/openapi-spec/v3/api__v1_openapi.json",
+            "https://raw.githubusercontent.com/kubernetes/kubernetes/599fdb7adde5658dadb6a149c40624b4342fc909/api/openapi-spec/v3/api__v1_openapi.json",
             license: .apache,
             expectedDiagnostics: [],
             skipBuild: compatibilityTestSkipBuild
@@ -127,16 +143,20 @@ final class CompatibilityTest: XCTestCase {
         try await _test(
             "https://raw.githubusercontent.com/Netflix/consoleme/774420462b0190b1bfa78aa73d39e20044f52db9/swagger.yaml",
             license: .apache,
-            expectedDiagnostics: [],
+            expectedDiagnostics: [
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property."
+            ],
             skipBuild: compatibilityTestSkipBuild
         )
     }
 
     func testOpenAI() async throws {
         try await _test(
-            "https://raw.githubusercontent.com/openai/openai-openapi/ec0b3953bfa08a92782bdccf34c1931b13402f56/openapi.yaml",
+            "https://raw.githubusercontent.com/openai/openai-openapi/75eebb4477355ddb3abe18615108e02cf6fdca42/openapi.yaml",
             license: .mit,
-            expectedDiagnostics: [],
+            expectedDiagnostics: [
+                "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property."
+            ],
             skipBuild: compatibilityTestSkipBuild
         )
     }
@@ -158,6 +178,7 @@ final class CompatibilityTest: XCTestCase {
             skipBuild: compatibilityTestSkipBuild
         )
     }
+
     func testOpenAPIExamplesAPIWithExamples() async throws {
         try await _test(
             "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/9dff244e5708fbe16e768738f4f17cf3fddf4066/examples/v3.0/api-with-examples.yaml",
@@ -166,6 +187,7 @@ final class CompatibilityTest: XCTestCase {
             skipBuild: compatibilityTestSkipBuild
         )
     }
+
     func testOpenAPIExamplesCallbackExample() async throws {
         try await _test(
             "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/9dff244e5708fbe16e768738f4f17cf3fddf4066/examples/v3.0/callback-example.yaml",
@@ -174,6 +196,7 @@ final class CompatibilityTest: XCTestCase {
             skipBuild: compatibilityTestSkipBuild
         )
     }
+
     func testOpenAPIExamplesLinkExample() async throws {
         try await _test(
             "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/9dff244e5708fbe16e768738f4f17cf3fddf4066/examples/v3.0/link-example.yaml",
@@ -267,7 +290,7 @@ fileprivate extension CompatibilityTest {
                 let package = Package(
                     name: "\(packageName)",
                     platforms: [.macOS(.v13)],
-                    dependencies: [.package(url: "https://github.com/apple/swift-openapi-runtime", exact: "1.0.0-alpha.1")],
+                    dependencies: [.package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.0.0")],
                     targets: [.target(name: "Harness", dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")])]
                 )
                 """

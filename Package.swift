@@ -48,23 +48,23 @@ let package = Package(
     dependencies: [
 
         // General algorithms
-        .package(url: "https://github.com/apple/swift-algorithms", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
 
         // Read OpenAPI documents
-        .package(url: "https://github.com/mattpolzin/OpenAPIKit.git", from: "3.1.0"),
-        .package(url: "https://github.com/jpsim/Yams.git", "4.0.0"..<"6.0.0"),
+        .package(url: "https://github.com/mattpolzin/OpenAPIKit", from: "3.1.2"),
+        .package(url: "https://github.com/jpsim/Yams", "4.0.0"..<"6.0.0"),
 
         // CLI Tool
-        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.0.1"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
 
         // Tests-only: Runtime library linked by generated code, and also
         // helps keep the runtime library new enough to work with the generated
         // code.
-        .package(url: "https://github.com/apple/swift-openapi-runtime", exact: "1.0.0-alpha.1"),
-        .package(url: "https://github.com/apple/swift-http-types", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-http-types", from: "1.0.2"),
 
         // Build and preview docs
-        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.3.0"),
     ],
     targets: [
 

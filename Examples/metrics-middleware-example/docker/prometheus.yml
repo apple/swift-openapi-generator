@@ -1,0 +1,5 @@
+scrape_configs:
+  - job_name: "greeting.server"
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["api:8080"]

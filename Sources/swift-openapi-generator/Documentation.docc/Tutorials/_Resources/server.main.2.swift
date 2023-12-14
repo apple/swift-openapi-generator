@@ -37,4 +37,4 @@ let handler = GreetingServiceAPIImpl()
 try handler.registerHandlers(on: transport, serverURL: Servers.server1())
 
 // Start the app as you would normally.
-try app.run()
+try await app.execute()

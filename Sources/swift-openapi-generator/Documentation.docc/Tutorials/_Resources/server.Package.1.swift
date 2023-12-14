@@ -8,8 +8,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "GreetingService",
-            path: "Sources"
+            name: "GreetingService"
         )
     ]
 )

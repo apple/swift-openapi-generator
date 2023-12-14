@@ -1,0 +1,30 @@
+name: 🙋 Ask a question
+description: >
+  Ask a question about or get help with Swift OpenAPI Generator. Beginner
+  questions welcome!
+labels: [kind/support, status/triage]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        This repository hosts issues for the Swift OpenAPI generator, the Swift
+        OpenAPI runtime library, the Swift OpenAPI URLSession transport library,
+        and the AsyncHTTPClient transport library.
+        It does *not* track feedback on Xcode and other closed source Apple
+        developer software such as URLSession itself; please direct it to
+        [Feedback Assistant](https://developer.apple.com/bug-reporting) instead.
+
+        ___
+
+        Please use this issue template to ask a question.
+
+        You may also like to check out our
+        [FAQ](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/frequently-asked-questions)
+        for solutions to frequently asked questions and common workflows.
+  - type: textarea
+    attributes:
+      label: Question
+      description: >
+        What are you trying to achieve? What have you tried? What didn't work as expected?
+    validations:
+      required: true

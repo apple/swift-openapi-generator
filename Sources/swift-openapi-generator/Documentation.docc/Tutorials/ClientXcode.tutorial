@@ -14,11 +14,15 @@
         The API for the service is defined using OpenAPI and you'll create a Swift client for this service, from scratch!
 
         Your Xcode project will make use of the Swift OpenAPI Generator plugin to generate the code you'll use to call this API from your existing app.
+
+        Note: If you don't already have an existing app project, first create a new SwiftUI-based iOS app Xcode project before continuing.
+
+        > Tip: The [HelloWorldiOSClientAppExample package](https://github.com/apple/swift-openapi-generator/tree/main/Examples/HelloWorldiOSClientAppExample) contains the result of this tutorial, in case you're looking for a working example.
     }
     
     @Section(title: "(Optional) Downloading and running the server locally for testing") {
 
-        In the next section of the guide we will create a client for this service. In order to execute requests, you can download the example server implementation and run it locally.
+        In the next section of the guide we will create a client for this service. In order to execute requests, you can download an example server implementation and run it locally.
 
         @Steps {
             @Step {
@@ -35,38 +39,18 @@
             }
         }
     }
-    
-    @Section(title: "(Optional) Creating a new Xcode target") {
-        In an existing Xcode project that already contains an app target, create a new Xcode target for the generated client.
-        
-        While this isn't required and you can generate the client Swift code into your app target, it is recommended to keep the generated code in a separate framework to avoid potential file and type name conflicts.
-        @Steps {
-            @Step {
-                In the Project Navigator, click on the project.
-            }
-            @Step {
-                In the Project Editor, click the plus button at the bottom of the list titled Targets.
-            }
-            @Step {
-                Select the Framework template, click Next.
-            }
-            @Step {
-                Give the framework a name, for example "GeneratedClient", make sure the framework gets embedded in your app, and click Finish.
-            }
-        }
-    }
-    
+
     @Section(title: "Configuring your target to use the Swift OpenAPI Generator plugin") {
         
-        Let's extend this sample package to call our `GreetingService` API.
+        Let's extend this app to call our `GreetingService` API.
         
-        We will generate the client code into an Xcode target created in the previous step, called "GeneratedClient". You can generate the code into any target in your project.
+        We will generate the client code into your existing Xcode app target, for example called "GreetingServiceClient". Note that you can generate the code into any target in your project, and in larger projects, it can be helpful to generate the code into a dedicated framework or library.
         
         @Steps {
             @Step {
                 Add the two configuration files required by the Swift OpenAPI Generator build plugin.
                 
-                The first is the OpenAPI document. Add it to to the "GeneratedClient" target by right-clicking on the "GeneratedClient" folder in the project navigator, and choosing Add Files to "GeneratedClient"…
+                The first is the OpenAPI document. Add it to to the "GreetingServiceClient" target by right-clicking on the "GreetingServiceClient" folder in the project navigator, and choosing Add Files to "GreetingServiceClient"…
                 @Code(name: "Sources/openapi.yaml", file: client.openapi.yaml)
             }
             @Step {
@@ -83,35 +67,33 @@
             @Step {
                 With the configuration files in place, we will add the following three package dependencies: the build plugin, the Runtime library, and a concrete client transport that uses URLSession to send HTTP requests. 
                 
-                Select the project in the Project Navigator again, select the project in the Project Editor, and go to Package Dependencies.
+                Select the project in the Project Navigator, select the project in the Project Editor, and go to Package Dependencies.
             }
             @Step {
                 Under Packages, click the plus button to add a new package dependency.
             }
             @Step {
                 Find the `swift-openapi-generator` package in an existing collection, or type in the full URL to the search field at the top: `https://github.com/apple/swift-openapi-generator`.
-                
-                Change the dependency rule to `Up to Next Minor Version`.
             }
             @Step {
-                Since the package provides a build plugin that we will integrate later, do not check any products on the next Choose Package Products screen. 
+                Since the package provides a build plugin that we will integrate later, make sure that on the Choose Package Products screen, the "Add to Target" value is "None" for all products listed.
                 
                 Click Add Package.
             }
             @Step {
                 Repeat the same steps two more times, with the packages `https://github.com/apple/swift-openapi-runtime` and `https://github.com/apple/swift-openapi-urlsession`.
                 
-                This time, do check the library products to be added to the **GeneratedClient target**. Note, this might not be the default target Xcode offers to add the libraries to.
+                This time, ensure the library products are added to the **GreetingServiceClient target**. Note, this might not be the default target Xcode offers to add the libraries to.
             }
             @Step {
-                To finish configuring the build plugin in your target, navigate to the Build Phases tab of the GeneratedClient in the Project Editor, and expand the Run Build Tool Plug-ins section.
+                To finish configuring the build plugin in your target, navigate to the Build Phases tab of the GreetingServiceClient in the Project Editor, and expand the Run Build Tool Plug-ins section.
                 
                 Click the plus button and add the OpenAPIGenerator plugin.
             }
             @Step {
                 To verify everything is configured correctly, choose Product -> Build. If this is the first time using the plugin, you will be asked for confirmation that you trust the plugin. To continue, click Trust & Enable All.
                 
-                Xcode now builds the Swift OpenAPI Generator plugin itself, and then runs it on the configuration files `openapi.yaml` and `openapi-generator-config.yaml` to generate a Swift client for GreetingService. Once it finishes, the `Client` type will become available in the GeneratedClient target.
+                Xcode now builds the Swift OpenAPI Generator plugin itself, and then runs it on the configuration files `openapi.yaml` and `openapi-generator-config.yaml` to generate a Swift client for GreetingService. Once it finishes, the `Client` type will become available in the GreetingServiceClient target.
             }
         }
     }
@@ -123,14 +105,14 @@
         
         @Steps {
             @Step {
-                Create a new Swift file in the GeneratedClient framework called `GreetingClient.swift`.
+                Create a new Swift file in the GreetingServiceClient app target called `GreetingClient.swift`.
                 
                 Import the OpenAPIURLSession library, which provides a transport implementation that uses Foundation's URLSession to perform network calls.
                 
                 @Code(name: "GreetingClient.swift", file: client.xcode.0.swift, reset: true)
             }
             @Step {
-                Define a new struct called `GreetingClient` with an initializer and an empty method that will fetch cats using the generated client.
+                Define a new struct called `GreetingClient` with an initializer and an empty method that will fetch the greeting using the generated client.
                 
                 @Code(name: "GreetingClient.swift", file: client.xcode.1.swift)
             }
@@ -166,7 +148,14 @@
                 @Code(name: "GreetingClient.swift", file: client.xcode.6.swift)
             }
             @Step {
-                Finally, in your app target, import the framework with the generated client and fetch the personalized greeting, for example to show it in the UI.
+                Alternatively, if you don't need to handle all the responses and content types exhaustively, you can use the shorthand API to unwrap the received body value.
+
+                Note that if the actual received response or content type is different to your requested one, the unwrapping getters will thrown an error.
+
+                @Code(name: "GreetingClient.swift", file: client.xcode.6.2.swift)
+            }
+            @Step {
+                Finally, in your app target, integrate the client to fetch the personalized greeting, for example to show it in the UI.
                 
                 @Code(name: "App.swift", file: client.xcode.7.swift, reset: true)
             }

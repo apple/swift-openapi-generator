@@ -1,0 +1,21 @@
+% mkdir Public
+
+% mv Sources/openapi.yaml Public/
+
+% ln -s ../Public/openapi.yaml Sources/openapi.yaml
+
+% curl "localhost:8080/openapi.yaml"
+openapi: '3.1.0'
+info:
+  title: GreetingService
+  version: 1.0.0
+servers:
+  - url: https://example.com/api
+    description: Example service deployment.
+paths:
+  /greet:
+    get:
+      operationId: getGreeting
+      parameters:
+        - name: name
+---[SNIP]---

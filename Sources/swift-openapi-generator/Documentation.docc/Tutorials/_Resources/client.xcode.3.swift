@@ -9,10 +9,6 @@ public struct GreetingClient {
             serverURL: try Servers.server2(),
             transport: URLSessionTransport()
         )
-        let response = try await client.getGreeting(
-            .init(
-                query: .init(name: name)
-            )
-        )
+        let response = try await client.getGreeting(query: .init(name: name))
     }
 }
