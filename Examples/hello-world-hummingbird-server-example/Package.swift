@@ -1,4 +1,4 @@
-// swift-tools-version:5.9
+// swift-tools-version:5.9.2
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
@@ -32,14 +32,6 @@ let package = Package(
                 .product(name: "Hummingbird", package: "hummingbird"),
             ],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
-        ),
-        .testTarget(
-            name: "HelloWorldHummingbirdServerTests",
-            dependencies: [
-                "HelloWorldHummingbirdServer", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
-                .product(name: "OpenAPIHummingbird", package: "swift-openapi-hummingbird"),
-                .product(name: "Hummingbird", package: "hummingbird"),
-            ]
-        ),
+        ), .testTarget(name: "HelloWorldHummingbirdServerTests", dependencies: ["HelloWorldHummingbirdServer"]),
     ]
 )
