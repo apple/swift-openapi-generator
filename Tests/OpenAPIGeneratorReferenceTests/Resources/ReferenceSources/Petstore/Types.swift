@@ -619,6 +619,21 @@ public enum Components {
                 try encoder.encodeAdditionalProperties(additionalProperties)
             }
         }
+        /// - Remark: Generated from `#/components/schemas/ObjectWithOptionalNullableArrayOfNullableItems`.
+        public struct ObjectWithOptionalNullableArrayOfNullableItems: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/ObjectWithOptionalNullableArrayOfNullableItems/foo`.
+            public var foo: [Swift.String?]?
+            /// Creates a new `ObjectWithOptionalNullableArrayOfNullableItems`.
+            ///
+            /// - Parameters:
+            ///   - foo:
+            public init(foo: [Swift.String?]? = nil) {
+                self.foo = foo
+            }
+            public enum CodingKeys: String, CodingKey {
+                case foo
+            }
+        }
         /// - Remark: Generated from `#/components/schemas/CodeError`.
         public struct CodeError: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/CodeError/code`.

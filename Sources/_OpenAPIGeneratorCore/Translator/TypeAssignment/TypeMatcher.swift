@@ -44,7 +44,9 @@ struct TypeMatcher {
         Self._tryMatchRecursive(
             for: schema,
             test: { schema in Self._tryMatchBuiltinNonRecursive(for: schema) },
-            matchedArrayHandler: { elementType in elementType.asArray },
+            matchedArrayHandler: { elementType, nullableItems in
+                nullableItems ? elementType.asOptional.asArray : elementType.asArray
+            },
             genericArrayHandler: { TypeName.arrayContainer.asUsage }
         )
     }
@@ -71,7 +73,9 @@ struct TypeMatcher {
                 guard case let .reference(ref, _) = schema else { return nil }
                 return try TypeAssigner(asSwiftSafeName: asSwiftSafeName).typeName(for: ref).asUsage
             },
-            matchedArrayHandler: { elementType in elementType.asArray },
+            matchedArrayHandler: { elementType, nullableItems in
+                nullableItems ? elementType.asOptional.asArray : elementType.asArray
+            },
             genericArrayHandler: { TypeName.arrayContainer.asUsage }
         )?
         .withOptional(isOptional(schema, components: components))
@@ -94,7 +98,7 @@ struct TypeMatcher {
                 guard case .reference = schema else { return false }
                 return true
             },
-            matchedArrayHandler: { elementIsReferenceable in elementIsReferenceable },
+            matchedArrayHandler: { elementIsReferenceable, _ in elementIsReferenceable },
             genericArrayHandler: { true }
         ) ?? false
     }
@@ -351,7 +355,7 @@ struct TypeMatcher {
     private static func _tryMatchRecursive<R>(
         for schema: JSONSchema.Schema,
         test: (JSONSchema.Schema) throws -> R?,
-        matchedArrayHandler: (R) -> R,
+        matchedArrayHandler: (R, _ nullableItems: Bool) -> R,
         genericArrayHandler: () -> R
     ) rethrows -> R? {
         switch schema {
@@ -365,7 +369,7 @@ struct TypeMatcher {
                     genericArrayHandler: genericArrayHandler
                 )
             else { return nil }
-            return matchedArrayHandler(itemsResult)
+            return matchedArrayHandler(itemsResult, items.nullable)
         default: return try test(schema)
         }
     }

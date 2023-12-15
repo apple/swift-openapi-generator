@@ -399,6 +399,13 @@ components:
           type: string
       additionalProperties:
         type: integer
+    ObjectWithOptionalNullableArrayOfNullableItems:
+      type: object
+      properties:
+        foo:
+          type: [array, null]
+          items:
+            type: [string, null]
     CodeError:
       type: object
       properties:
