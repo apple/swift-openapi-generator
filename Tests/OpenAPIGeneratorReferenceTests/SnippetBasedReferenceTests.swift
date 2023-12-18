@@ -164,6 +164,66 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasNullableString() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyString:
+                type: string
+            """,
+            // NOTE: We don't generate a typealias to an optional; instead nullable is considered at point of use.
+            """
+            public enum Schemas {
+                public typealias MyString = Swift.String
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasArrayWithNullableItems() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              StringArray:
+                type: array
+                items:
+                  type: string
+
+              StringArrayNullableItems:
+                type: array
+                items:
+                  type: [string, null]
+            """,
+            """
+            public enum Schemas {
+                public typealias StringArray = [Swift.String]
+                public typealias StringArrayNullableItems = [Swift.String?]
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasArrayOfRefsOfNullableItems() throws {
+        try XCTSkipIf(true, "TODO: Still need to propagate nullability through reference at time of use")
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              ArrayOfRefsToNullableItems:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NullableString'
+              NullableString:
+                type: [string, null]
+            """,
+            """
+            public enum Schemas {
+                public typealias ArrayOfRefsToNullableItems = [Components.Schemas.NullableString?]
+                public typealias NullableString = Swift.String
+            }
+            """
+        )
+    }
+
     func testComponentsSchemasNullableStringProperty() throws {
         try self.assertSchemasTranslation(
             """
@@ -179,9 +239,47 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     type: [string, null]
                   fooRequiredNullable:
                     type: [string, null]
+
+                  fooOptionalArray:
+                    type: array
+                    items:
+                      type: string
+                  fooRequiredArray:
+                    type: array
+                    items:
+                      type: string
+                  fooOptionalNullableArray:
+                    type: [array, null]
+                    items:
+                      type: string
+                  fooRequiredNullableArray:
+                    type: [array, null]
+                    items:
+                      type: string
+
+                  fooOptionalArrayOfNullableItems:
+                    type: array
+                    items:
+                      type: [string, null]
+                  fooRequiredArrayOfNullableItems:
+                    type: array
+                    items:
+                      type: [string, null]
+                  fooOptionalNullableArrayOfNullableItems:
+                    type: [array, null]
+                    items:
+                      type: [string, null]
+                  fooRequiredNullableArrayOfNullableItems:
+                    type: [array, null]
+                    items:
+                      type: [string, null]
                 required:
                   - fooRequired
                   - fooRequiredNullable
+                  - fooRequiredArray
+                  - fooRequiredNullableArray
+                  - fooRequiredArrayOfNullableItems
+                  - fooRequiredNullableArrayOfNullableItems
             """,
             """
             public enum Schemas {
@@ -190,27 +288,78 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public var fooRequired: Swift.String
                     public var fooOptionalNullable: Swift.String?
                     public var fooRequiredNullable: Swift.String?
+                    public var fooOptionalArray: [Swift.String]?
+                    public var fooRequiredArray: [Swift.String]
+                    public var fooOptionalNullableArray: [Swift.String]?
+                    public var fooRequiredNullableArray: [Swift.String]?
+                    public var fooOptionalArrayOfNullableItems: [Swift.String?]?
+                    public var fooRequiredArrayOfNullableItems: [Swift.String?]
+                    public var fooOptionalNullableArrayOfNullableItems: [Swift.String?]?
+                    public var fooRequiredNullableArrayOfNullableItems: [Swift.String?]?
                     public init(
                         fooOptional: Swift.String? = nil,
                         fooRequired: Swift.String,
                         fooOptionalNullable: Swift.String? = nil,
-                        fooRequiredNullable: Swift.String? = nil
+                        fooRequiredNullable: Swift.String? = nil,
+                        fooOptionalArray: [Swift.String]? = nil,
+                        fooRequiredArray: [Swift.String],
+                        fooOptionalNullableArray: [Swift.String]? = nil,
+                        fooRequiredNullableArray: [Swift.String]? = nil,
+                        fooOptionalArrayOfNullableItems: [Swift.String?]? = nil,
+                        fooRequiredArrayOfNullableItems: [Swift.String?],
+                        fooOptionalNullableArrayOfNullableItems: [Swift.String?]? = nil,
+                        fooRequiredNullableArrayOfNullableItems: [Swift.String?]? = nil
                     ) {
                         self.fooOptional = fooOptional
                         self.fooRequired = fooRequired
                         self.fooOptionalNullable = fooOptionalNullable
                         self.fooRequiredNullable = fooRequiredNullable
+                        self.fooOptionalArray = fooOptionalArray
+                        self.fooRequiredArray = fooRequiredArray
+                        self.fooOptionalNullableArray = fooOptionalNullableArray
+                        self.fooRequiredNullableArray = fooRequiredNullableArray
+                        self.fooOptionalArrayOfNullableItems = fooOptionalArrayOfNullableItems
+                        self.fooRequiredArrayOfNullableItems = fooRequiredArrayOfNullableItems
+                        self.fooOptionalNullableArrayOfNullableItems = fooOptionalNullableArrayOfNullableItems
+                        self.fooRequiredNullableArrayOfNullableItems = fooRequiredNullableArrayOfNullableItems
                     }
                     public enum CodingKeys: String, CodingKey {
                         case fooOptional
                         case fooRequired
                         case fooOptionalNullable
                         case fooRequiredNullable
+                        case fooOptionalArray
+                        case fooRequiredArray
+                        case fooOptionalNullableArray
+                        case fooRequiredNullableArray
+                        case fooOptionalArrayOfNullableItems
+                        case fooRequiredArrayOfNullableItems
+                        case fooOptionalNullableArrayOfNullableItems
+                        case fooRequiredNullableArrayOfNullableItems
                     }
                 }
             }
             """
         )
+    }
+
+    func testEncodingDecodingArrayWithNullableItems() throws {
+        struct MyObject: Codable, Equatable {
+            let myArray: [String?]?
+
+            var json: String { get throws { try String(data: JSONEncoder().encode(self), encoding: .utf8)! } }
+
+            static func from(json: String) throws -> Self { try JSONDecoder().decode(Self.self, from: Data(json.utf8)) }
+        }
+
+        for (value, encoding) in [
+            (MyObject(myArray: nil), #"{}"#), (MyObject(myArray: []), #"{"myArray":[]}"#),
+            (MyObject(myArray: ["a"]), #"{"myArray":["a"]}"#), (MyObject(myArray: [nil]), #"{"myArray":[null]}"#),
+            (MyObject(myArray: ["a", nil]), #"{"myArray":["a",null]}"#),
+        ] {
+            XCTAssertEqual(try value.json, encoding)
+            XCTAssertEqual(try MyObject.from(json: value.json), value)
+        }
     }
 
     func testComponentsSchemasObjectWithInferredProperty() throws {
@@ -2349,7 +2498,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testRequestWithPathParams() throws {
         try self.assertRequestInTypesClientServerTranslation(
             """
-            /foo/a/{a}/b/{b}:
+            /foo/a/{a}/b/{b}/c{num}:
               get:
                 parameters:
                   - name: b
@@ -2362,6 +2511,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     required: true
                     schema:
                       type: string
+                  - name: num
+                    in: path
+                    required: true
+                    schema:
+                      type: integer
                 operationId: getFoo
                 responses:
                   default:
@@ -2372,12 +2526,15 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public struct Path: Sendable, Hashable {
                         public var b: Swift.String
                         public var a: Swift.String
+                        public var num: Swift.Int
                         public init(
                             b: Swift.String,
-                            a: Swift.String
+                            a: Swift.String,
+                            num: Swift.Int
                         ) {
                             self.b = b
                             self.a = a
+                            self.num = num
                         }
                     }
                     public var path: Operations.getFoo.Input.Path
@@ -2389,10 +2546,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
             client: """
                 { input in
                     let path = try converter.renderedPath(
-                        template: "/foo/a/{}/b/{}",
+                        template: "/foo/a/{}/b/{}/c{}",
                         parameters: [
                             input.path.a,
-                            input.path.b
+                            input.path.b,
+                            input.path.num
                         ]
                     )
                     var request: HTTPTypes.HTTPRequest = .init(
@@ -2415,6 +2573,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             in: metadata.pathParameters,
                             name: "a",
                             as: Swift.String.self
+                        ),
+                        num: try converter.getPathParameterAsURI(
+                            in: metadata.pathParameters,
+                            name: "num",
+                            as: Swift.Int.self
                         )
                     )
                     return Operations.getFoo.Input(path: path)
@@ -4478,7 +4641,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         return .undocumented(
                             statusCode: response.status.code,
-                            .init()
+                            .init(
+                                headerFields: response.headerFields,
+                                body: responseBody
+                            )
                         )
                     }
                 }
@@ -4661,7 +4827,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         return .undocumented(
                             statusCode: response.status.code,
-                            .init()
+                            .init(
+                                headerFields: response.headerFields,
+                                body: responseBody
+                            )
                         )
                     }
                 }

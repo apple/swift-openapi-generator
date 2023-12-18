@@ -12,6 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
+import Foundation
 
 /// A wrapper of an OpenAPI operation that includes the information
 /// about the parent containers of the operation, such as its path
@@ -244,6 +245,11 @@ extension OperationDescription {
         )
     }
 
+    /// The regular expression for parsing subcomponents of path components.
+    ///
+    /// Either a parameter `{foo}` or a constant value `foo`.
+    private static let pathParameterRegex = try! NSRegularExpression(pattern: #"(\{[a-zA-Z0-9_]+\})|([^{}]+)"#)
+
     /// Returns a string that contains the template to be generated for
     /// the client that fills in path parameters, and an array expression
     /// with the parameter values.
@@ -257,19 +263,35 @@ extension OperationDescription {
             // in which the parameters are used.
             var newComponents: [String] = []
             for component in path.components {
-                guard component.hasPrefix("{") && component.hasSuffix("}") else {
-                    newComponents.append(component)
-                    continue
+                let matches = Self.pathParameterRegex.matches(
+                    in: component,
+                    options: [],
+                    range: NSRange(location: 0, length: component.utf16.count)
+                )
+                var subcomponents: [String] = []
+                for match in matches {
+                    for i in 1..<match.numberOfRanges {
+                        let range = match.range(at: i)
+                        guard range.location != NSNotFound, let swiftRange = Range(range, in: component) else {
+                            continue
+                        }
+                        let value = component[swiftRange]
+                        if value.hasPrefix("{") && value.hasSuffix("}") {
+                            let componentName = String(value.dropFirst().dropLast())
+                            guard pathParameterNames.contains(componentName) else {
+                                throw GenericError(
+                                    message:
+                                        "Parameter '\(componentName)' used in the path '\(self.path.rawValue)', but not found in the defined list of path parameters."
+                                )
+                            }
+                            orderedPathParameters.append(componentName)
+                            subcomponents.append("{}")
+                        } else {
+                            subcomponents.append(String(value))
+                        }
+                    }
                 }
-                let componentName = String(component.dropFirst().dropLast())
-                guard pathParameterNames.contains(componentName) else {
-                    throw GenericError(
-                        message:
-                            "Parameter '\(componentName)' used in the path '\(self.path.rawValue)', but not found in the defined list of path parameters."
-                    )
-                }
-                orderedPathParameters.append(componentName)
-                newComponents.append("{}")
+                newComponents.append(subcomponents.joined())
             }
             let newPath = OpenAPI.Path(newComponents, trailingSlash: path.trailingSlash)
             let names: [Expression] = orderedPathParameters.map { param in
