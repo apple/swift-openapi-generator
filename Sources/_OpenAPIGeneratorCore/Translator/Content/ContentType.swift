@@ -143,7 +143,14 @@ struct ContentType: Hashable {
     ///   not be empty.
     /// - Throws: If a malformed content type string is encountered.
     init(string: String) throws {
-        guard !string.isEmpty else { throw ContentTypeError.emptyString(string) }
+        struct InvalidContentTypeString: Error, LocalizedError, CustomStringConvertible {
+            var string: String
+            var description: String {
+                "Invalid content type string: '\(string)', must have 2 components separated by a slash."
+            }
+            var errorDescription: String? { description }
+        }
+        guard !string.isEmpty else { throw InvalidContentTypeString(string: "") }
         var semiComponents = string.split(separator: ";")
         let typeAndSubtypeComponent = semiComponents.removeFirst()
         self.originallyCasedParameterPairs = semiComponents.map { component in
@@ -151,12 +158,8 @@ struct ContentType: Hashable {
                 .joined(separator: "=")
         }
         let rawTypeAndSubtype = typeAndSubtypeComponent.trimmingCharacters(in: .whitespaces)
-        if rawTypeAndSubtype.isEmpty { throw ContentTypeError.whitespacesString(string) }
         let typeAndSubtype = rawTypeAndSubtype.split(separator: "/").map(String.init)
-        guard typeAndSubtype.count == 2 else {
-            if typeAndSubtype.count > 2 { throw ContentTypeError.excessiveComponents(rawTypeAndSubtype) }
-            throw ContentTypeError.genericError(rawTypeAndSubtype)
-        }
+        guard typeAndSubtype.count == 2 else { throw InvalidContentTypeString(string: rawTypeAndSubtype) }
         self.originallyCasedType = typeAndSubtype[0]
         self.originallyCasedSubtype = typeAndSubtype[1]
     }
@@ -224,32 +227,6 @@ struct ContentType: Hashable {
     static func == (lhs: Self, rhs: Self) -> Bool {
         // MIME type equality is case-insensitive.
         lhs.lowercasedTypeAndSubtype == rhs.lowercasedTypeAndSubtype
-    }
-
-    private enum ContentTypeError: Error, LocalizedError, CustomStringConvertible {
-        case emptyString(_ contentType: String)
-        case whitespacesString(_ contentType: String)
-        case excessiveComponents(_ contentType: String)
-        case genericError(_ contentType: String)
-
-        var description: String {
-            switch self {
-            case .emptyString(let contentTypeString):
-                return
-                    "Invalid content type string: '\(contentTypeString)' is empty, must have 2 components separated by a slash '<type>/<subtype>'."
-            case .whitespacesString(let contentTypeString):
-                return
-                    "Invalid content type string: '\(contentTypeString)' is formed of whitespaces, must have 2 components separated by a slash '<type>/<subtype>'."
-            case .excessiveComponents(let contentTypeString):
-                return
-                    "Invalid content type string: '\(contentTypeString)' has an excessive number of components, must have 2 components separated by a slash '<type>/<subtype>'."
-            case .genericError(let contentTypeString):
-                return
-                    "Invalid content type string: '\(contentTypeString)' must have 2 components separated by a slash '<type>/<subtype>'."
-            }
-        }
-
-        var errorDescription: String? { description }
     }
 
     func hash(into hasher: inout Hasher) { hasher.combine(lowercasedTypeAndSubtype) }
