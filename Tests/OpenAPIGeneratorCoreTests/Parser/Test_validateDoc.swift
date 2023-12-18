@@ -56,4 +56,86 @@ final class Test_validateDoc: Test_Core {
         XCTAssertThrowsError(try validateDoc(doc, config: .init(mode: .types, access: Config.defaultAccessModifier)))
     }
 
+    func testExtractContentTypes() throws {
+        let doc = OpenAPI.Document(
+            info: .init(title: "Test", version: "1.0.0"),
+            servers: [],
+            paths: [
+                "/path1": .b(
+                    OpenAPI.PathItem(
+                        get: .init(
+                            requestBody: .b(OpenAPI.Request(content: [.init(rawValue: "")!: .init(schema: .string)])),
+                            responses: [
+                                .init(integerLiteral: 200): .b(
+                                    OpenAPI.Response(
+                                        description: "Test description 1",
+                                        content: [
+                                            OpenAPI.ContentType(rawValue: "application/json")!: .init(schema: .string)
+                                        ]
+                                    )
+                                )
+                            ]
+                        )
+                    )
+                ),
+                "/path2": .b(
+                    OpenAPI.PathItem(
+                        get: .init(
+                            requestBody: .b(OpenAPI.Request(content: [.init(rawValue: " ")!: .init(schema: .string)])),
+                            responses: [
+                                .init(integerLiteral: 200): .b(
+                                    OpenAPI.Response(
+                                        description: "Test description 2",
+                                        content: [OpenAPI.ContentType(rawValue: "text/plain")!: .init(schema: .string)]
+                                    )
+                                )
+                            ]
+                        )
+                    )
+                ),
+            ],
+            components: .noComponents
+        )
+        XCTAssertEqual(extractContentTypes(from: doc), ["", "application/json", " ", "text/plain"])
+    }
+
+    func testValidContentTypes() throws {
+        let validContentTypes = ["application/json", "text/html"]
+        XCTAssertNoThrow(try validateContentTypes(validContentTypes))
+    }
+
+    func testContentTypes_emptyArray() { XCTAssertNoThrow(try validateContentTypes([])) }
+
+    func testInvalidContentTypes_spaceBetweenComponents() {
+        let invalidContentTypes = ["application/json", "text / html"]
+        XCTAssertThrowsError(try validateContentTypes(invalidContentTypes)) { error in
+            XCTAssertTrue(error is Diagnostic)
+            XCTAssertEqual(
+                error.localizedDescription,
+                "error: Invalid content type string: 'text / html' must have 2 components separated by a slash '<type>/<subtype>'.\n"
+            )
+        }
+    }
+
+    func testInvalidContentTypes_missingComponent() {
+        let invalidContentTypes = ["/json", "text/html"]
+        XCTAssertThrowsError(try validateContentTypes(invalidContentTypes)) { error in
+            XCTAssertTrue(error is Diagnostic)
+            XCTAssertEqual(
+                error.localizedDescription,
+                "error: Invalid content type string: '/json' must have 2 components separated by a slash '<type>/<subtype>'.\n"
+            )
+        }
+    }
+    func testInvalidContentTypes_emptyComponent() {
+        let invalidContentTypes = ["application/json", ""]
+        XCTAssertThrowsError(try validateContentTypes(invalidContentTypes)) { error in
+            XCTAssertTrue(error is Diagnostic)
+            XCTAssertEqual(
+                error.localizedDescription,
+                "error: Invalid content type string: '' must have 2 components separated by a slash '<type>/<subtype>'.\n"
+            )
+        }
+    }
+
 }
