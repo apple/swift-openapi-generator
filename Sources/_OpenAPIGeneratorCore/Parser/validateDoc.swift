@@ -48,7 +48,7 @@ func extractContentTypes(from doc: ParsedOpenAPIRepresentation) -> [String] {
 /// - Parameter contentTypes: An array of strings representing content types.
 /// - Throws: A Diagnostic error if any content type is invalid.
 func validateContentTypes(_ contentTypes: [String]) throws {
-    let mediaTypePattern = "^[a-zA-Z]+/[a-zA-Z]+$"
+    let mediaTypePattern = "^[a-zA-Z]+/[a-zA-Z][a-zA-Z-]*$"
     let regex = try! NSRegularExpression(pattern: mediaTypePattern)
 
     func isValidContentType(_ contentType: String) -> Bool {

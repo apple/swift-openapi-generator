@@ -100,7 +100,7 @@ final class Test_validateDoc: Test_Core {
     }
 
     func testValidContentTypes() throws {
-        let validContentTypes = ["application/json", "text/html"]
+        let validContentTypes = ["application/json", "text/html", "application/x-www-form-urlencoded"]
         XCTAssertNoThrow(try validateContentTypes(validContentTypes))
     }
 
