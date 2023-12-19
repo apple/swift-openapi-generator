@@ -28,10 +28,12 @@ Each of the following packages shows an end-to-end working example with the give
 
 ## Various content types
 
-The following packages show working with various content types, such as JSON, URL-encoded request bodies, plain text, raw bytes, and multipart bodies.
+The following packages show working with various content types, such as JSON, URL-encoded request bodies, plain text, raw bytes, multipart bodies, as well as event streams, such as JSON Lines, JSON Sequence, and Server-sent Events.
 
 - [various-content-types-client-example](./various-content-types-client-example) - A client showing how to provide and handle the various content types.
 - [various-content-types-server-example](./various-content-types-server-example) - A server showing how to handle and provide the various content types.
+- [event-streams-client-example](./event-streams-client-example) - A client showing how to provide and handle event streams.
+- [event-streams-server-example](./event-streams-server-example) - A server showing how to handle and provide event streams.
 
 ## Integrations
 

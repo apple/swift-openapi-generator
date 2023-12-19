@@ -10,7 +10,7 @@ A command-line tool that uses a generated client to show how to work with variou
 
 The tool uses the [URLSession](https://developer.apple.com/documentation/foundation/urlsession) API to perform the HTTP call, wrapped in the [Swift OpenAPI URLSession Transport](https://github.com/apple/swift-openapi-urlsession).
 
-The server can be started by running the `ContentTypesServer` example locally.
+The server can be started by running the `various-content-types-server-example` example locally.
 
 ## Usage
 

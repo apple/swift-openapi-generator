@@ -10,7 +10,7 @@ A server that uses generated server stubs to show how to work with various HTTP 
 
 The tool uses the [Vapor](https://github.com/vapor/vapor) server framework to handle HTTP requests, wrapped in the [Swift OpenAPI Vapor Transport](https://github.com/swift-server/swift-openapi-vapor).
 
-The CLI starts the server on `http://localhost:8080` and can be invoked by running the `ContentTypesClient` example client or on the command line using:
+The CLI starts the server on `http://localhost:8080` and can be invoked by running `various-content-types-client-example` or on the command line using:
 
 ```console
 % curl http://localhost:8080/api/exampleJSON
