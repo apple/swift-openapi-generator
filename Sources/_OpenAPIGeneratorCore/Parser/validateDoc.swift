@@ -13,55 +13,68 @@
 //===----------------------------------------------------------------------===//
 
 import OpenAPIKit
-import Foundation
 
-/// Extracts content types from a ParsedOpenAPIRepresentation.
+/// Validates all content types from an OpenAPI document represented by a ParsedOpenAPIRepresentation.
 ///
-/// - Parameter doc: The OpenAPI document representation.
-/// - Returns: An array of strings representing content types extracted from requests and responses.
-func extractContentTypes(from doc: ParsedOpenAPIRepresentation) -> [String] {
-    let contentTypes: [String] = doc.paths.values.flatMap { pathValue -> [OpenAPI.ContentType.RawValue] in
-        guard case .b(let pathItem) = pathValue else { return [] }
+/// This function iterates through the paths, endpoints, and components of the OpenAPI document,
+/// checking and reporting any invalid content types using the provided validation closure.
+///
+/// - Parameters:
+///   - doc: The OpenAPI document representation.
+///   - validate: A closure to validate each content type.
+/// - Throws: An error with diagnostic information if any invalid content types are found.
+func validateContentTypes(in doc: ParsedOpenAPIRepresentation, validate: (String) -> Bool) throws {
+    for (path, pathValue) in doc.paths {
+        guard case .b(let pathItem) = pathValue else { continue }
+        for endpoint in pathItem.endpoints {
 
-        let requestBodyContentTypes: [String] = pathItem.endpoints.map { $0.operation.requestBody }
-            .compactMap { (eitherRequest: Either<OpenAPI.Reference<OpenAPI.Request>, OpenAPI.Request>?) in
-                guard case .b(let actualRequest) = eitherRequest else { return nil }
-                return actualRequest.content.keys.first?.rawValue
-            }
-
-        let responseContentTypes: [String] = pathItem.endpoints.map { $0.operation.responses.values }
-            .flatMap { (response: [Either<OpenAPI.Reference<OpenAPI.Response>, OpenAPI.Response>]) in
-                response.compactMap { (eitherResponse: Either<OpenAPI.Reference<OpenAPI.Response>, OpenAPI.Response>) in
-                    guard case .b(let actualResponse) = eitherResponse else { return nil }
-                    return actualResponse.content.keys.first?.rawValue
+            if let eitherRequest = endpoint.operation.requestBody {
+                if case .b(let actualRequest) = eitherRequest {
+                    for contentType in actualRequest.content.keys {
+                        if !validate(contentType.rawValue) {
+                            throw Diagnostic.error(
+                                message:
+                                    "Invalid content type string: '\(contentType.rawValue)' found in requestBody at path '\(path.rawValue)'. Must have 2 components separated by a slash '<type>/<subtype>'.\n"
+                            )
+                        }
+                    }
                 }
             }
 
-        return requestBodyContentTypes + responseContentTypes
+            for eitherResponse in endpoint.operation.responses.values {
+                if case .b(let actualResponse) = eitherResponse {
+                    for contentType in actualResponse.content.keys {
+                        if !validate(contentType.rawValue) {
+                            throw Diagnostic.error(
+                                message:
+                                    "Invalid content type string: '\(contentType.rawValue)' found in responses at path '\(path.rawValue)'. Must have 2 components separated by a slash '<type>/<subtype>'.\n"
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    return contentTypes
-}
-
-/// Validates an array of content types.
-///
-/// - Parameter contentTypes: An array of strings representing content types.
-/// - Throws: A Diagnostic error if any content type is invalid.
-func validateContentTypes(_ contentTypes: [String]) throws {
-    let mediaTypePattern = "^[a-zA-Z]+/[a-zA-Z][a-zA-Z-]*$"
-    let regex = try! NSRegularExpression(pattern: mediaTypePattern)
-
-    func isValidContentType(_ contentType: String) -> Bool {
-        let range = NSRange(location: 0, length: contentType.utf16.count)
-        return regex.firstMatch(in: contentType, range: range) != nil
+    for component in doc.components.requestBodies.values {
+        for contentType in component.content.keys {
+            if !validate(contentType.rawValue) {
+                throw Diagnostic.error(
+                    message:
+                        "Invalid content type string: '\(contentType.rawValue)' found in #/components/requestBodies. Must have 2 components separated by a slash '<type>/<subtype>'.\n"
+                )
+            }
+        }
     }
 
-    for contentType in contentTypes {
-        guard isValidContentType(contentType) else {
-            throw Diagnostic.error(
-                message:
-                    "Invalid content type string: '\(contentType)' must have 2 components separated by a slash '<type>/<subtype>'.\n"
-            )
+    for component in doc.components.responses.values {
+        for contentType in component.content.keys {
+            if !validate(contentType.rawValue) {
+                throw Diagnostic.error(
+                    message:
+                        "Invalid content type string: '\(contentType.rawValue)' found in #/components/responses. Must have 2 components separated by a slash '<type>/<subtype>'.\n"
+                )
+            }
         }
     }
 }
@@ -82,8 +95,9 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [
     // block the generator from running.
     // Validation errors continue to be fatal, such as
     // structural issues, like non-unique operationIds, etc.
-    let contentTypes = extractContentTypes(from: doc)
-    try validateContentTypes(contentTypes)
+    try validateContentTypes(in: doc) { contentType in
+        (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
+    }
 
     let warnings = try doc.validate(using: Validator().validating(.operationsContainResponses), strict: false)
     let diagnostics: [Diagnostic] = warnings.map { warning in
