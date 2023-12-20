@@ -75,7 +75,7 @@ MyOpenOneOf:
 
 ### Event streams: JSON Lines, JSON Sequence, and Server-sent Events
 
-While [JSON Lines](https://jsonlines.org), [JSON Sequence](https://datatracker.ietf.org/doc/html/rfc7464), and [Server-sent Events](https://en.wikipedia.org/wiki/Server-sent_events) are not explicitly part of the OpenAPI 3.0 or 3.1 specification, you can document an operation that returns events and also the event payloads themselves.
+While [JSON Lines](https://jsonlines.org), [JSON Sequence](https://datatracker.ietf.org/doc/html/rfc7464), and [Server-sent Events](https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events) are not explicitly part of the OpenAPI 3.0 or 3.1 specification, you can document an operation that returns events and also the event payloads themselves.
 
 > Tip: Check out the `event-streams-*` client and server example packages in <doc:Checking-out-an-example-project>.
 
