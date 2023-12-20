@@ -33,8 +33,13 @@ func validateContentTypes(in doc: ParsedOpenAPIRepresentation, validate: (String
                     for contentType in actualRequest.content.keys {
                         if !validate(contentType.rawValue) {
                             throw Diagnostic.error(
-                                message:
-                                    "Invalid content type string: '\(contentType.rawValue)' found in requestBody at path '\(path.rawValue)'. Must have 2 components separated by a slash '<type>/<subtype>'.\n"
+                                message: "Invalid content type string.",
+                                context: [
+                                    "contentType": contentType.rawValue,
+                                    "location": "\(path.rawValue)/\(endpoint.method.rawValue)/requestBody",
+                                    "recoverySuggestion":
+                                        "Must have 2 components separated by a slash '<type>/<subtype>'.",
+                                ]
                             )
                         }
                     }
@@ -46,8 +51,13 @@ func validateContentTypes(in doc: ParsedOpenAPIRepresentation, validate: (String
                     for contentType in actualResponse.content.keys {
                         if !validate(contentType.rawValue) {
                             throw Diagnostic.error(
-                                message:
-                                    "Invalid content type string: '\(contentType.rawValue)' found in responses at path '\(path.rawValue)'. Must have 2 components separated by a slash '<type>/<subtype>'.\n"
+                                message: "Invalid content type string.",
+                                context: [
+                                    "contentType": contentType.rawValue,
+                                    "location": "\(path.rawValue)/\(endpoint.method.rawValue)/responses",
+                                    "recoverySuggestion":
+                                        "Must have 2 components separated by a slash '<type>/<subtype>'.",
+                                ]
                             )
                         }
                     }
@@ -56,23 +66,29 @@ func validateContentTypes(in doc: ParsedOpenAPIRepresentation, validate: (String
         }
     }
 
-    for component in doc.components.requestBodies.values {
+    for (key, component) in doc.components.requestBodies {
         for contentType in component.content.keys {
             if !validate(contentType.rawValue) {
                 throw Diagnostic.error(
-                    message:
-                        "Invalid content type string: '\(contentType.rawValue)' found in #/components/requestBodies. Must have 2 components separated by a slash '<type>/<subtype>'.\n"
+                    message: "Invalid content type string.",
+                    context: [
+                        "contentType": contentType.rawValue, "location": "#/components/requestBodies/\(key.rawValue)",
+                        "recoverySuggestion": "Must have 2 components separated by a slash '<type>/<subtype>'.",
+                    ]
                 )
             }
         }
     }
 
-    for component in doc.components.responses.values {
+    for (key, component) in doc.components.responses {
         for contentType in component.content.keys {
             if !validate(contentType.rawValue) {
                 throw Diagnostic.error(
-                    message:
-                        "Invalid content type string: '\(contentType.rawValue)' found in #/components/responses. Must have 2 components separated by a slash '<type>/<subtype>'.\n"
+                    message: "Invalid content type string.",
+                    context: [
+                        "contentType": contentType.rawValue, "location": "#/components/responses/\(key.rawValue)",
+                        "recoverySuggestion": "Must have 2 components separated by a slash '<type>/<subtype>'.",
+                    ]
                 )
             }
         }

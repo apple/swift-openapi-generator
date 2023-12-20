@@ -149,7 +149,7 @@ final class Test_validateDoc: Test_Core {
             XCTAssertTrue(error is Diagnostic)
             XCTAssertEqual(
                 error.localizedDescription,
-                "error: Invalid content type string: 'application/' found in requestBody at path '/path1'. Must have 2 components separated by a slash '<type>/<subtype>'.\n"
+                "error: Invalid content type string. [context: contentType=application/, location=/path1/GET/requestBody, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
             )
         }
     }
@@ -202,7 +202,7 @@ final class Test_validateDoc: Test_Core {
             XCTAssertTrue(error is Diagnostic)
             XCTAssertEqual(
                 error.localizedDescription,
-                "error: Invalid content type string: '/plain' found in responses at path '/path2'. Must have 2 components separated by a slash '<type>/<subtype>'.\n"
+                "error: Invalid content type string. [context: contentType=/plain, location=/path2/GET/responses, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
             )
         }
     }
@@ -243,7 +243,7 @@ final class Test_validateDoc: Test_Core {
             XCTAssertTrue(error is Diagnostic)
             XCTAssertEqual(
                 error.localizedDescription,
-                "error: Invalid content type string: 'image/' found in #/components/requestBodies. Must have 2 components separated by a slash '<type>/<subtype>'.\n"
+                "error: Invalid content type string. [context: contentType=image/, location=#/components/requestBodies/exampleRequestBody2, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
             )
         }
     }
@@ -290,7 +290,7 @@ final class Test_validateDoc: Test_Core {
             XCTAssertTrue(error is Diagnostic)
             XCTAssertEqual(
                 error.localizedDescription,
-                "error: Invalid content type string: '' found in #/components/responses. Must have 2 components separated by a slash '<type>/<subtype>'.\n"
+                "error: Invalid content type string. [context: contentType=, location=#/components/responses/exampleRequestBody2, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
             )
         }
     }
