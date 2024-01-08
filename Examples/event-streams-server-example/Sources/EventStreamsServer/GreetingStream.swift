@@ -23,20 +23,20 @@ final class StreamStorage: @unchecked Sendable {
         lock = .init()
     }
     private func finishedStream(id: String) {
-        lock.withLock {
-            guard let task = locked_streams[id] else { return }
-            locked_streams.removeValue(forKey: id)
-            print("Finished stream \(id)")
-        }
+        lock.lock()
+        defer { lock.unlock() }
+        guard let task = locked_streams[id] else { return }
+        locked_streams.removeValue(forKey: id)
+        print("Finished stream \(id)")
     }
 
     private func cancelStream(id: String) {
-        lock.withLock {
-            guard let task = locked_streams[id] else { return }
-            locked_streams.removeValue(forKey: id)
-            task.cancel()
-            print("Canceled stream \(id)")
-        }
+        lock.lock()
+        defer { lock.unlock() }
+        guard let task = locked_streams[id] else { return }
+        locked_streams.removeValue(forKey: id)
+        task.cancel()
+        print("Canceled stream \(id)")
     }
     func makeStream(name: String, count: Int32) -> AsyncStream<Components.Schemas.Greeting> {
         let id = UUID().uuidString
@@ -59,7 +59,9 @@ final class StreamStorage: @unchecked Sendable {
             }
             continuation.finish()
         }
-        lock.withLock { locked_streams[id] = task }
+        lock.lock()
+        defer { lock.unlock() }
+        locked_streams[id] = task
         return stream
     }
     private static let templates: [String] = [
