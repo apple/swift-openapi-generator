@@ -73,13 +73,18 @@ MyOpenOneOf:
     - type: object
 ```
 
-### Server-sent Events/EventSource
+### Event streams: JSON Lines, JSON Sequence, and Server-sent Events
 
-While [Server-sent Events](https://en.wikipedia.org/wiki/Server-sent_events) are not explicitly part of the OpenAPI 3.0 or 3.1 specification, you can document an operation that returns SSE and also the event payloads themselves.
+While [JSON Lines](https://jsonlines.org), [JSON Sequence](https://datatracker.ietf.org/doc/html/rfc7464), and [Server-sent Events](https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events) are not explicitly part of the OpenAPI 3.0 or 3.1 specification, you can document an operation that returns events and also the event payloads themselves.
 
-> Important: Until [async bodies](https://github.com/apple/swift-openapi-generator/issues/9) are supported in Swift OpenAPI Generator, SSE are of limited value, as bodies are fully buffered before being returned to the caller.
+> Tip: Check out the `event-streams-*` client and server example packages in <doc:Checking-out-an-example-project>.
 
-In the OpenAPI document, an example of an operation that returns SSE could look like:
+Each event stream format has one or more commonly associated content types with it:
+- JSON Lines: `application/jsonl`, `application/x-ndjson`, others.
+- JSON Sequence: `application/json-seq`.
+- Server-sent Events: `text/event-stream`.
+
+In the OpenAPI document, an example of an operation that returns JSON Lines could look like (analogous for the other formats):
 
 ```yaml
 paths:
@@ -89,10 +94,7 @@ paths:
       responses:
         '200':
           content:
-            text/event-stream:
-              schema:
-                type: string
-                format: binary
+            application/jsonl: {}
 components:
   schemas:
     MyEvent:
@@ -101,27 +103,18 @@ components:
         ...
 ```
 
-The returned binary body contains the raw events, and the stream can be split up into events by using one of the existing Swift implementations of Server-sent Events (sometimes libraries also use the term EventSource for the client of server-sent events).
+The returned binary body contains the raw events, and the stream can be split up into events by using extensions on `AsyncSequence` of `ArraySlice<UInt8>` elements provided in the runtime library:
 
-If the event themselves are documented using one of the JSON schemas from the OpenAPI document (such as `MyEvent` in the example above), you can use the generated Codable type to easily parse the payload.
+- JSON Lines
+    - decode: `AsyncSequence<ArraySlice<UInt8>>.asDecodedJSONLines(of:decoder:)`
+    - encode: `AsyncSequence<some Encodable>.asEncodedJSONLines(encoder:)`
+- JSON Sequence
+    - decode: `AsyncSequence<ArraySlice<UInt8>>.asDecodedJSONSequence(of:decoder:)`
+    - encode: `AsyncSequence<some Encodable>.asEncodedJSONSequence(encoder:)`
+- Server-sent Events
+    - decode (if data is JSON): `AsyncSequence<ArraySlice<UInt8>>.asDecodedServerSentEventsWithJSONData(of:decoder:)`
+    - encode (if data is JSON): `AsyncSequence<some Encodable>.asEncodedServerSentEventsWithJSONData(encoder:)`
+    - decode (for other data): `AsyncSequence<ArraySlice<UInt8>>.asDecodedServerSentEvents()`
+    - encode (for other data): `AsyncSequence<some Encodable>.asEncodedServerSentEvents()`
 
-```swift
-guard case .ok(let okPayload) = try await client.getEvents(.init()) else {
-    // handle an unexpected HTTP response code
-}
-guard case .text_event_hyphen_stream(let rawBody) = okPayload.body else {
-    // handle an unexpected content type
-}
-// ... pass rawBody to an SSE library
-let streamOfRawEvents: AsyncSequence<Data> = ... // returned by an SSE library
-for try await rawEventData in streamOfRawEvents {
-    let event = try JSONDecoder().decode(
-        Components.Schemas.MyEvent.self
-        from: rawEventData
-    )
-    // Print the type-safe event here
-    print(event)
-}
-```
-
-This way, with a little bit of manual work, you can still get type safety from an SSE operation being documented in an OpenAPI document.
+See the `event-streams-*` client and server examples in <doc:Checking-out-an-example-project> to learn how to produce and consume these sequences.

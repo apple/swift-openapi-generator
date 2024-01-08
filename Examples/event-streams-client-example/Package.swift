@@ -1,4 +1,4 @@
-// swift-tools-version:5.9.2
+// swift-tools-version:5.9
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
@@ -15,23 +15,21 @@
 import PackageDescription
 
 let package = Package(
-    name: "various-content-types-server-example",
-    platforms: [.macOS(.v10_15)],
+    name: "event-streams-client-example",
+    platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .visionOS(.v1)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.0.0"),
-        .package(url: "https://github.com/swift-server/swift-openapi-vapor", from: "1.0.0"),
-        .package(url: "https://github.com/vapor/vapor", from: "4.89.0"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.2.0"),
+        .package(url: "https://github.com/apple/swift-openapi-urlsession", from: "1.0.0"),
     ],
     targets: [
         .executableTarget(
-            name: "ContentTypesServer",
+            name: "EventStreamsClient",
             dependencies: [
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
-                .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
-                .product(name: "Vapor", package: "vapor"),
+                .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession"),
             ],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
-        ), .testTarget(name: "ContentTypesServerTests", dependencies: ["ContentTypesServer"]),
+        )
     ]
 )
