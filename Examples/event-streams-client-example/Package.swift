@@ -19,9 +19,7 @@ let package = Package(
     platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .visionOS(.v1)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.0.0"),
-    //        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.0.0"),
-        // TODO: Replace once released.
-        .package(url: "https://github.com/czechboy0/swift-openapi-runtime", branch: "hd-event-streams"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.2.0"),
         .package(url: "https://github.com/apple/swift-openapi-urlsession", from: "1.0.0"),
     ],
     targets: [

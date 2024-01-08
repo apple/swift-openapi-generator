@@ -19,9 +19,7 @@ let package = Package(
     platforms: [.macOS(.v10_15)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.0.0"),
-//        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.0.0"),
-        // TODO: Replace once released.
-        .package(url: "https://github.com/czechboy0/swift-openapi-runtime", branch: "hd-event-streams"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.2.0"),
         .package(url: "https://github.com/swift-server/swift-openapi-vapor", from: "1.0.0"),
         .package(url: "https://github.com/vapor/vapor", from: "4.89.0"),
     ],
