@@ -56,4 +56,243 @@ final class Test_validateDoc: Test_Core {
         XCTAssertThrowsError(try validateDoc(doc, config: .init(mode: .types, access: Config.defaultAccessModifier)))
     }
 
+    func testValidateContentTypes_validContentTypes() throws {
+        let doc = OpenAPI.Document(
+            info: .init(title: "Test", version: "1.0.0"),
+            servers: [],
+            paths: [
+                "/path1": .b(
+                    .init(
+                        get: .init(
+                            requestBody: .b(
+                                .init(content: [.init(rawValue: "application/xml")!: .init(schema: .string)])
+                            ),
+                            responses: [
+                                .init(integerLiteral: 200): .b(
+                                    .init(
+                                        description: "Test description 1",
+                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                    )
+                                )
+                            ]
+                        )
+                    )
+                ),
+                "/path2": .b(
+                    .init(
+                        get: .init(
+                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .init(schema: .string)])),
+                            responses: [
+                                .init(integerLiteral: 200): .b(
+                                    .init(
+                                        description: "Test description 2",
+                                        content: [.init(rawValue: "text/plain")!: .init(schema: .string)]
+                                    )
+                                )
+                            ]
+                        )
+                    )
+                ),
+            ],
+            components: .noComponents
+        )
+        XCTAssertNoThrow(
+            try validateContentTypes(in: doc) { contentType in
+                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
+            }
+        )
+    }
+
+    func testValidateContentTypes_invalidContentTypesInRequestBody() throws {
+        let doc = OpenAPI.Document(
+            info: .init(title: "Test", version: "1.0.0"),
+            servers: [],
+            paths: [
+                "/path1": .b(
+                    .init(
+                        get: .init(
+                            requestBody: .b(.init(content: [.init(rawValue: "application/")!: .init(schema: .string)])),
+                            responses: [
+                                .init(integerLiteral: 200): .b(
+                                    .init(
+                                        description: "Test description 1",
+                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                    )
+                                )
+                            ]
+                        )
+                    )
+                ),
+                "/path2": .b(
+                    .init(
+                        get: .init(
+                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .init(schema: .string)])),
+                            responses: [
+                                .init(integerLiteral: 200): .b(
+                                    .init(
+                                        description: "Test description 2",
+                                        content: [.init(rawValue: "text/plain")!: .init(schema: .string)]
+                                    )
+                                )
+                            ]
+                        )
+                    )
+                ),
+            ],
+            components: .noComponents
+        )
+        XCTAssertThrowsError(
+            try validateContentTypes(in: doc) { contentType in
+                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
+            }
+        ) { error in
+            XCTAssertTrue(error is Diagnostic)
+            XCTAssertEqual(
+                error.localizedDescription,
+                "error: Invalid content type string. [context: contentType=application/, location=/path1/GET/requestBody, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
+            )
+        }
+    }
+
+    func testValidateContentTypes_invalidContentTypesInResponses() throws {
+        let doc = OpenAPI.Document(
+            info: .init(title: "Test", version: "1.0.0"),
+            servers: [],
+            paths: [
+                "/path1": .b(
+                    .init(
+                        get: .init(
+                            requestBody: .b(
+                                .init(content: [.init(rawValue: "application/xml")!: .init(schema: .string)])
+                            ),
+                            responses: [
+                                .init(integerLiteral: 200): .b(
+                                    .init(
+                                        description: "Test description 1",
+                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                    )
+                                )
+                            ]
+                        )
+                    )
+                ),
+                "/path2": .b(
+                    .init(
+                        get: .init(
+                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .init(schema: .string)])),
+                            responses: [
+                                .init(integerLiteral: 200): .b(
+                                    .init(
+                                        description: "Test description 2",
+                                        content: [.init(rawValue: "/plain")!: .init(schema: .string)]
+                                    )
+                                )
+                            ]
+                        )
+                    )
+                ),
+            ],
+            components: .noComponents
+        )
+        XCTAssertThrowsError(
+            try validateContentTypes(in: doc) { contentType in
+                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
+            }
+        ) { error in
+            XCTAssertTrue(error is Diagnostic)
+            XCTAssertEqual(
+                error.localizedDescription,
+                "error: Invalid content type string. [context: contentType=/plain, location=/path2/GET/responses, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
+            )
+        }
+    }
+
+    func testValidateContentTypes_invalidContentTypesInComponentsRequestBodies() throws {
+        let doc = OpenAPI.Document(
+            info: .init(title: "Test", version: "1.0.0"),
+            servers: [],
+            paths: [
+                "/path1": .b(
+                    .init(
+                        get: .init(
+                            requestBody: .b(
+                                .init(content: [.init(rawValue: "application/xml")!: .init(schema: .string)])
+                            ),
+                            responses: [
+                                .init(integerLiteral: 200): .b(
+                                    .init(
+                                        description: "Test description 1",
+                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                    )
+                                )
+                            ]
+                        )
+                    )
+                )
+            ],
+            components: .init(requestBodies: [
+                "exampleRequestBody1": .init(content: [.init(rawValue: "application/pdf")!: .init(schema: .string)]),
+                "exampleRequestBody2": .init(content: [.init(rawValue: "image/")!: .init(schema: .string)]),
+            ])
+        )
+        XCTAssertThrowsError(
+            try validateContentTypes(in: doc) { contentType in
+                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
+            }
+        ) { error in
+            XCTAssertTrue(error is Diagnostic)
+            XCTAssertEqual(
+                error.localizedDescription,
+                "error: Invalid content type string. [context: contentType=image/, location=#/components/requestBodies/exampleRequestBody2, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
+            )
+        }
+    }
+
+    func testValidateContentTypes_invalidContentTypesInComponentsResponses() throws {
+        let doc = OpenAPI.Document(
+            info: .init(title: "Test", version: "1.0.0"),
+            servers: [],
+            paths: [
+                "/path1": .b(
+                    .init(
+                        get: .init(
+                            requestBody: .b(
+                                .init(content: [.init(rawValue: "application/xml")!: .init(schema: .string)])
+                            ),
+                            responses: [
+                                .init(integerLiteral: 200): .b(
+                                    .init(
+                                        description: "Test description 1",
+                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                    )
+                                )
+                            ]
+                        )
+                    )
+                )
+            ],
+            components: .init(responses: [
+                "exampleRequestBody1": .init(
+                    description: "Test description 1",
+                    content: [.init(rawValue: "application/pdf")!: .init(schema: .string)]
+                ),
+                "exampleRequestBody2": .init(
+                    description: "Test description 2",
+                    content: [.init(rawValue: "")!: .init(schema: .string)]
+                ),
+            ])
+        )
+        XCTAssertThrowsError(
+            try validateContentTypes(in: doc) { contentType in
+                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
+            }
+        ) { error in
+            XCTAssertTrue(error is Diagnostic)
+            XCTAssertEqual(
+                error.localizedDescription,
+                "error: Invalid content type string. [context: contentType=, location=#/components/responses/exampleRequestBody2, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
+            )
+        }
+    }
+
 }
