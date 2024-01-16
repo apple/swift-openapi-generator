@@ -68,6 +68,7 @@ for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name 
 
     log "Building example package: ${EXAMPLE_PACKAGE_NAME}"
     "${SWIFT_BIN}" build --build-tests \
+        -Xswiftc -warnings-as-errors \
         --package-path "${SHARED_EXAMPLE_HARNESS_PACKAGE_PATH}" \
         --cache-path "${SHARED_PACKAGE_CACHE_PATH}" \
         --skip-update \
