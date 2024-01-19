@@ -38,9 +38,7 @@ Another example is the generation of empty structs within the input or output ty
 
 Some generators offer lots of options that affect the code generation process. In order to keep the project streamlined and maintainable, Swift OpenAPI Generator offers very few options.
 
-One concrete example of this is that users cannot configure the access modifier for generated code, nor does the generated code make any provision for namespace collisions in the target into which it is generated.
-
-Instead, users are advised to generate code into its own target, and use Swift's module system to separate the generated code from code that uses it.
+One concrete example of this is the lack of ability to configure the names of generated types, such as `APIProtocol`, or to customize how Swift names are computed from strings provided in the OpenAPI document.
 
 You can read more about this in <doc:API-stability-of-generated-code>.
 
