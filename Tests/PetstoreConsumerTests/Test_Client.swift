@@ -124,7 +124,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(
                 request.headerFields,
                 [
-                    .accept: "application/json", .contentType: "application/json; charset=utf-8",
+                    .accept: "application/json", .contentType: "application/json; charset=utf-8", .contentLength: "23",
                     .init("X-Extra-Arguments")!: #"{"code":1}"#,
                 ]
             )
@@ -198,7 +198,10 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(request.path, "/pets/create")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
-            XCTAssertEqual(request.headerFields, [.contentType: "application/x-www-form-urlencoded"])
+            XCTAssertEqual(
+                request.headerFields,
+                [.contentType: "application/x-www-form-urlencoded", .contentLength: "11"]
+            )
             let bodyString: String
             if let body { bodyString = try await String(collecting: body, upTo: .max) } else { bodyString = "" }
             XCTAssertEqual(bodyString, "name=Fluffz")
@@ -220,7 +223,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(request.method, .patch)
             XCTAssertEqual(
                 request.headerFields,
-                [.accept: "application/json", .contentType: "application/json; charset=utf-8"]
+                [.accept: "application/json", .contentType: "application/json; charset=utf-8", .contentLength: "23"]
             )
             try await XCTAssertEqualStringifiedData(
                 requestBody,
@@ -265,7 +268,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(
                 request.headerFields,
                 [
-                    .accept: "application/json", .contentType: "application/json; charset=utf-8",
+                    .accept: "application/json", .contentType: "application/json; charset=utf-8", .contentLength: "112",
                     .init("X-Extra-Arguments")!: #"{"code":1}"#,
                 ]
             )
@@ -533,7 +536,10 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
-            XCTAssertEqual(request.headerFields, [.contentType: "application/json; charset=utf-8"])
+            XCTAssertEqual(
+                request.headerFields,
+                [.contentType: "application/json; charset=utf-8", .contentLength: "17"]
+            )
             try await XCTAssertEqualStringifiedData(
                 requestBody,
                 #"""
@@ -557,7 +563,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
-            XCTAssertEqual(request.headerFields, [.contentType: "text/plain"])
+            XCTAssertEqual(request.headerFields, [.contentType: "text/plain", .contentLength: "10"])
             try await XCTAssertEqualStringifiedData(
                 requestBody,
                 #"""
@@ -579,7 +585,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(request.path, "/pets/stats")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .post)
-            XCTAssertEqual(request.headerFields, [.contentType: "application/octet-stream"])
+            XCTAssertEqual(request.headerFields, [.contentType: "application/octet-stream", .contentLength: "10"])
             try await XCTAssertEqualStringifiedData(
                 requestBody,
                 #"""
@@ -635,7 +641,7 @@ final class Test_Client: XCTestCase {
                 request.headerFields,
                 [
                     .accept: "application/octet-stream, application/json, text/plain",
-                    .contentType: "application/octet-stream",
+                    .contentType: "application/octet-stream", .contentLength: "4",
                 ]
             )
             try await XCTAssertEqualStringifiedData(requestBody, Data.abcdString)
@@ -662,7 +668,7 @@ final class Test_Client: XCTestCase {
                 request.headerFields,
                 [
                     .accept: "application/octet-stream, application/json, text/plain",
-                    .contentType: "application/octet-stream",
+                    .contentType: "application/octet-stream", .contentLength: "4",
                 ]
             )
             try await XCTAssertEqualStringifiedData(requestBody, Data.abcdString)
