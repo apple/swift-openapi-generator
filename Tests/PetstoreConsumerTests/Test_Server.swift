@@ -55,7 +55,7 @@ final class Test_Server: XCTestCase {
             response.headerFields,
             [
                 .init("My-Response-UUID")!: "abcd", .init("My-Tracing-Header")!: "1234",
-                .contentType: "application/json; charset=utf-8",
+                .contentType: "application/json; charset=utf-8", .contentLength: "47",
             ]
         )
         let bodyString: String
@@ -87,7 +87,7 @@ final class Test_Server: XCTestCase {
             .init()
         )
         XCTAssertEqual(response.status.code, 400)
-        XCTAssertEqual(response.headerFields, [.contentType: "application/json; charset=utf-8"])
+        XCTAssertEqual(response.headerFields, [.contentType: "application/json; charset=utf-8", .contentLength: "40"])
         try await XCTAssertEqualStringifiedData(
             responseBody,
             #"""
@@ -131,7 +131,10 @@ final class Test_Server: XCTestCase {
         XCTAssertEqual(response.status.code, 201)
         XCTAssertEqual(
             response.headerFields,
-            [.init("X-Extra-Arguments")!: #"{"code":1}"#, .contentType: "application/json; charset=utf-8"]
+            [
+                .init("X-Extra-Arguments")!: #"{"code":1}"#, .contentType: "application/json; charset=utf-8",
+                .contentLength: "35",
+            ]
         )
         try await XCTAssertEqualStringifiedData(
             responseBody,
@@ -169,7 +172,7 @@ final class Test_Server: XCTestCase {
         XCTAssertEqual(response.status.code, 400)
         XCTAssertEqual(
             response.headerFields,
-            [.init("X-Reason")!: "bad%20luck", .contentType: "application/json; charset=utf-8"]
+            [.init("X-Reason")!: "bad%20luck", .contentType: "application/json; charset=utf-8", .contentLength: "16"]
         )
         try await XCTAssertEqualStringifiedData(
             responseBody,
@@ -270,7 +273,10 @@ final class Test_Server: XCTestCase {
         XCTAssertEqual(response.status.code, 201)
         XCTAssertEqual(
             response.headerFields,
-            [.init("X-Extra-Arguments")!: #"{"code":1}"#, .contentType: "application/json; charset=utf-8"]
+            [
+                .init("X-Extra-Arguments")!: #"{"code":1}"#, .contentType: "application/json; charset=utf-8",
+                .contentLength: "35",
+            ]
         )
         try await XCTAssertEqualStringifiedData(
             responseBody,
@@ -363,7 +369,7 @@ final class Test_Server: XCTestCase {
             .init(pathParameters: ["petId": "1"])
         )
         XCTAssertEqual(response.status.code, 400)
-        XCTAssertEqual(response.headerFields, [.contentType: "application/json; charset=utf-8"])
+        XCTAssertEqual(response.headerFields, [.contentType: "application/json; charset=utf-8", .contentLength: "26"])
         try await XCTAssertEqualStringifiedData(
             responseBody,
             #"""
@@ -386,7 +392,7 @@ final class Test_Server: XCTestCase {
             .init()
         )
         XCTAssertEqual(response.status.code, 200)
-        XCTAssertEqual(response.headerFields, [.contentType: "application/json; charset=utf-8"])
+        XCTAssertEqual(response.headerFields, [.contentType: "application/json; charset=utf-8", .contentLength: "17"])
         try await XCTAssertEqualStringifiedData(
             responseBody,
             #"""
@@ -421,7 +427,7 @@ final class Test_Server: XCTestCase {
             .init()
         )
         XCTAssertEqual(response.status.code, 200)
-        XCTAssertEqual(response.headerFields, [.contentType: "text/plain"])
+        XCTAssertEqual(response.headerFields, [.contentType: "text/plain", .contentLength: "10"])
         try await XCTAssertEqualStringifiedData(
             responseBody,
             #"""
@@ -482,7 +488,7 @@ final class Test_Server: XCTestCase {
             .init()
         )
         XCTAssertEqual(response.status.code, 200)
-        XCTAssertEqual(response.headerFields, [.contentType: "text/plain"])
+        XCTAssertEqual(response.headerFields, [.contentType: "text/plain", .contentLength: "10"])
         try await XCTAssertEqualStringifiedData(
             responseBody,
             #"""
@@ -509,7 +515,7 @@ final class Test_Server: XCTestCase {
             .init()
         )
         XCTAssertEqual(response.status.code, 200)
-        XCTAssertEqual(response.headerFields, [.contentType: "text/plain"])
+        XCTAssertEqual(response.headerFields, [.contentType: "text/plain", .contentLength: "10"])
         try await XCTAssertEqualStringifiedData(
             responseBody,
             #"""
@@ -530,7 +536,7 @@ final class Test_Server: XCTestCase {
             .init()
         )
         XCTAssertEqual(response.status.code, 200)
-        XCTAssertEqual(response.headerFields, [.contentType: "application/octet-stream"])
+        XCTAssertEqual(response.headerFields, [.contentType: "application/octet-stream", .contentLength: "10"])
         try await XCTAssertEqualStringifiedData(
             responseBody,
             #"""
@@ -674,7 +680,7 @@ final class Test_Server: XCTestCase {
             .init(pathParameters: ["petId": "1"])
         )
         XCTAssertEqual(response.status.code, 200)
-        XCTAssertEqual(response.headerFields, [.contentType: "application/octet-stream"])
+        XCTAssertEqual(response.headerFields, [.contentType: "application/octet-stream", .contentLength: "4"])
         try await XCTAssertEqualStringifiedData(responseBody, Data.efghString)
     }
 
@@ -711,7 +717,7 @@ final class Test_Server: XCTestCase {
             .init(pathParameters: ["petId": "1"])
         )
         XCTAssertEqual(response.status.code, 200)
-        XCTAssertEqual(response.headerFields, [.contentType: "application/octet-stream"])
+        XCTAssertEqual(response.headerFields, [.contentType: "application/octet-stream", .contentLength: "4"])
         try await XCTAssertEqualStringifiedData(responseBody, Data.abcdString)
         let sizes = await chunkSizeCollector.sizes
         XCTAssertEqual(sizes, [4])
@@ -736,7 +742,7 @@ final class Test_Server: XCTestCase {
             .init(pathParameters: ["petId": "1"])
         )
         XCTAssertEqual(response.status.code, 412)
-        XCTAssertEqual(response.headerFields, [.contentType: "application/json; charset=utf-8"])
+        XCTAssertEqual(response.headerFields, [.contentType: "application/json; charset=utf-8", .contentLength: "6"])
         try await XCTAssertEqualStringifiedData(responseBody, Data.quotedEfghString)
     }
 
@@ -759,7 +765,7 @@ final class Test_Server: XCTestCase {
             .init(pathParameters: ["petId": "1"])
         )
         XCTAssertEqual(response.status.code, 500)
-        XCTAssertEqual(response.headerFields, [.contentType: "text/plain"])
+        XCTAssertEqual(response.headerFields, [.contentType: "text/plain", .contentLength: "4"])
         try await XCTAssertEqualStringifiedData(responseBody, Data.efghString)
     }
 
