@@ -25,7 +25,7 @@ final class StreamStorage: @unchecked Sendable {
     private func finishedStream(id: String) {
         lock.lock()
         defer { lock.unlock() }
-        guard let task = locked_streams[id] else { return }
+        guard locked_streams[id] != nil else { return }
         locked_streams.removeValue(forKey: id)
         print("Finished stream \(id)")
     }
