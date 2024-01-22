@@ -51,6 +51,6 @@ final class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecked Senda
         let encoder = YAMLEncoder()
         encoder.options.sortKeys = true
         let container = _DiagnosticsYamlFileContent(uniqueMessages: uniqueMessages, diagnostics: sortedDiagnostics)
-        try encoder.encode(container).write(to: url, atomically: true, encoding: .utf8)
+        try encoder.encode(container).write(to: url, atomically: false, encoding: .utf8)
     }
 }
