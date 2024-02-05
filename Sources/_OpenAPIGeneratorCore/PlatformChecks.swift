@@ -14,7 +14,7 @@
 
 // Emit a compiler error if this library is linked with a target in an adopter
 // project.
-#if !(os(macOS) || os(Linux))
+#if !(os(macOS) || targetEnvironment(macCatalyst) || os(Linux))
 #error(
     "_OpenAPIGeneratorCore is only to be used by swift-openapi-generator itself—your target should not link this library or the command line tool directly."
 )
