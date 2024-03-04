@@ -75,7 +75,8 @@ let package = Package(
                 .product(name: "OpenAPIKit", package: "OpenAPIKit"),
                 .product(name: "OpenAPIKit30", package: "OpenAPIKit"),
                 .product(name: "OpenAPIKitCompat", package: "OpenAPIKit"),
-                .product(name: "Algorithms", package: "swift-algorithms"), .product(name: "Yams", package: "Yams"),
+                .product(name: "Algorithms", package: "swift-algorithms"),
+                .product(name: "Yams", package: "Yams"),
             ],
             swiftSettings: swiftSettings
         ),
