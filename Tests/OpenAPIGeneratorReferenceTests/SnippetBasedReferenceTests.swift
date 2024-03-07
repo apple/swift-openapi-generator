@@ -2600,6 +2600,18 @@ final class SnippetBasedReferenceTests: XCTestCase {
                       type: array
                       items:
                         type: string
+                  - name: sort
+                    in: query
+                    required: true
+                    style: deepObject
+                    explode: true
+                    schema:
+                      type: object
+                      properties:
+                        option1:
+                          type: string
+                        option2:
+                          type: string
                 responses:
                   default:
                     description: Response
@@ -2610,18 +2622,36 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         public var single: Swift.String?
                         public var manyExploded: [Swift.String]?
                         public var manyUnexploded: [Swift.String]?
+                        public struct sortPayload: Codable, Hashable, Sendable {
+                            public var option1: Swift.String?
+                            public var option2: Swift.String?
+                            public init(
+                                option1: Swift.String? = nil,
+                                option2: Swift.String? = nil
+                            ) {
+                                self.option1 = option1
+                                self.option2 = option2
+                            }
+                            public enum CodingKeys: String, CodingKey {
+                                case option1
+                                case option2
+                            }
+                        }
+                        public var sort: Operations.get_sol_foo.Input.Query.sortPayload
                         public init(
                             single: Swift.String? = nil,
                             manyExploded: [Swift.String]? = nil,
-                            manyUnexploded: [Swift.String]? = nil
+                            manyUnexploded: [Swift.String]? = nil,
+                            sort: Operations.get_sol_foo.Input.Query.sortPayload
                         ) {
                             self.single = single
                             self.manyExploded = manyExploded
                             self.manyUnexploded = manyUnexploded
+                            self.sort = sort
                         }
                     }
                     public var query: Operations.get_sol_foo.Input.Query
-                    public init(query: Operations.get_sol_foo.Input.Query = .init()) {
+                    public init(query: Operations.get_sol_foo.Input.Query) {
                         self.query = query
                     }
                 }
@@ -2658,6 +2688,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         name: "manyUnexploded",
                         value: input.query.manyUnexploded
                     )
+                    try converter.setQueryItemAsURI(
+                        in: &request,
+                        style: .deepObject,
+                        explode: true,
+                        name: "sort",
+                        value: input.query.sort
+                    )
                     return (request, nil)
                 }
                 """,
@@ -2684,6 +2721,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             explode: false,
                             name: "manyUnexploded",
                             as: [Swift.String].self
+                        ),
+                        sort: try converter.getRequiredQueryItemAsURI(
+                            in: request.soar_query,
+                            style: .deepObject,
+                            explode: true,
+                            name: "sort",
+                            as: Operations.get_sol_foo.Input.Query.sortPayload.self
                         )
                     )
                     return Operations.get_sol_foo.Input(query: query)
