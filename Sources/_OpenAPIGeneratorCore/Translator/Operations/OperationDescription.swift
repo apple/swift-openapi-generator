@@ -312,7 +312,7 @@ extension OperationDescription {
         var outcomes = operation.responseOutcomes
         // if .default is present and not already last
         if let index = outcomes.firstIndex(where: { $0.status == .default }), index != (outcomes.count - 1) {
-            //then we move it to be last
+            // then we move it to be last
             let defaultResp = outcomes.remove(at: index)
             outcomes.append(defaultResp)
         }
