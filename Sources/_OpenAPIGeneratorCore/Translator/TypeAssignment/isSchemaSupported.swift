@@ -132,7 +132,7 @@ extension FileTranslator {
     func isSchemaSupported(_ schema: JSONSchema, referenceStack: inout ReferenceStack) throws -> IsSchemaSupportedResult
     {
         switch schema.value {
-        case .string, .integer, .number, .boolean,
+        case .null, .string, .integer, .number, .boolean,
             // We mark any object as supported, even if it
             // has unsupported properties.
             // The code responsible for emitting an object is
@@ -173,7 +173,7 @@ extension FileTranslator {
                 schemas.filter(\.isReference),
                 referenceStack: &referenceStack
             )
-        case .not, .null: return .unsupported(reason: .schemaType, schema: schema)
+        case .not: return .unsupported(reason: .schemaType, schema: schema)
         }
     }
 
