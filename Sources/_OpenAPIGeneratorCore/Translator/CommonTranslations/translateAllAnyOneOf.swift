@@ -38,7 +38,7 @@ extension TypesFileTranslator {
     /// - Throws: An error if there is an issue during translation.
     /// - Returns: A declaration representing the translated allOf/anyOf structure.
     func translateAllOrAnyOf(typeName: TypeName, openAPIDescription: String?, type: AllOrAnyOf, schemas: [JSONSchema])
-        throws -> Declaration
+        throws -> [Declaration]
     {
         let properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)] = try schemas.enumerated()
             .map { index, schema in
@@ -107,7 +107,7 @@ extension TypesFileTranslator {
                 properties: propertyValues
             )
         )
-        return structDecl
+        return [structDecl]
     }
 
     /// Returns a declaration for a oneOf schema.
@@ -128,7 +128,7 @@ extension TypesFileTranslator {
         openAPIDescription: String?,
         discriminator: OpenAPI.Discriminator?,
         schemas: [JSONSchema]
-    ) throws -> Declaration {
+    ) throws -> [Declaration] {
         let cases: [(String, [String]?, Bool, Comment?, TypeUsage, [Declaration])]
         if let discriminator {
             // > When using the discriminator, inline schemas will not be considered.
@@ -148,7 +148,15 @@ extension TypesFileTranslator {
                 return (caseName, mappedType.rawNames, true, comment, mappedType.typeName.asUsage, [])
             }
         } else {
-            cases = try schemas.enumerated()
+            let (schemas, nullSchemas) = schemas.partitioned(by: { typeMatcher.isNull($0) })
+            if schemas.count == 1, nullSchemas.count > 0, let schema = schemas.first {
+                return try translateSchema(
+                    typeName: typeName,
+                    schema: schema,
+                    overrides: .init(isOptional: true))
+            }
+            cases = try schemas
+                .enumerated()
                 .map { index, schema in
                     let key = "case\(index+1)"
                     let childType = try typeAssigner.typeUsage(
@@ -242,6 +250,6 @@ extension TypesFileTranslator {
             conformances: Constants.ObjectStruct.conformances,
             members: caseDecls + codingKeysDecls + [decoder, encoder]
         )
-        return .commentable(comment, enumDecl)
+        return [.commentable(comment, enumDecl)]
     }
 }

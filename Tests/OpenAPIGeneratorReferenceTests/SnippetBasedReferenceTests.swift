@@ -1761,6 +1761,31 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testOneOfRefOrNull() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              SomeString:
+                type: string
+              NullableRef:
+                oneOf:
+                  - $ref: '#/components/schemas/SomeString'
+                  - type: 'null'
+              ArrayOfNullableRefs:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NullableRef'
+            """,
+            """
+            public enum Schemas {
+                public typealias SomeString = Swift.String
+                public typealias NullableRef = Components.Schemas.SomeString?
+                public typealias ArrayOfNullableRefs = [Components.Schemas.NullableRef]
+            }
+            """
+        )
+    }
+
     func testComponentsResponsesResponseNoBody() throws {
         try self.assertResponsesTranslation(
             """

@@ -350,6 +350,21 @@ struct TypeMatcher {
         }
     }
 
+    /// Returns a Boolean value indicating whether the schema admits only explicit null values.
+    /// - Parameters:
+    ///   - schema: The schema to check.
+    /// - Returns: `true` if the schema admits only explicit null values, `false` otherwise.
+    func isNull(_ schema: JSONSchema) -> Bool {
+        switch schema.value {
+        case .null(_):
+            return true
+        case let .fragment(core):
+            return core.format.jsonType == .null
+        default:
+            return false
+        }
+    }
+
     // MARK: - Private
 
     /// Returns the type name of a built-in type that matches the specified
