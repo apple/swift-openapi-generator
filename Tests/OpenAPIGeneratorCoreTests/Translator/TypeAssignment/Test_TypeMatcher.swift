@@ -216,6 +216,8 @@ final class Test_TypeMatcher: Test_Core {
     }
 
     static let optionalTestCases: [(JSONSchema, Bool)] = [
+        // Explicit null.
+        (.null(), true),
 
         // A required string.
         (.string, false), (.string(required: true, nullable: false), false),
@@ -227,10 +229,26 @@ final class Test_TypeMatcher: Test_Core {
         // A reference pointing to a required schema.
         (.reference(.component(named: "RequiredString")), false),
         (.reference(.component(named: "NullableString")), true),
+
+        // Unknown type.
+        (.fragment(), false),
+        (.fragment(nullable: true), true),
+
+        // References.
+        (.reference(.component(named: "List")), true),
+        (.reference(.component(named: "Loop")), false),
     ]
     func testOptionalSchemas() throws {
         let components = OpenAPI.Components(schemas: [
             "RequiredString": .string, "NullableString": .string(nullable: true),
+            // Singlely linked list where null is an empty list.
+            "List": .one(of: [
+                .null(),
+                .object(properties: ["next": .reference(.component(named: "List"),
+                                                        required: true)])]),
+            // A non-empty circular linked list.
+            "Loop": .object(properties: ["next": .reference(.component(named: "Loop"),
+                                                            required: true)]),
         ])
         for (schema, expectedIsOptional) in Self.optionalTestCases {
             let actualIsOptional = try typeMatcher.isOptional(schema, components: components)

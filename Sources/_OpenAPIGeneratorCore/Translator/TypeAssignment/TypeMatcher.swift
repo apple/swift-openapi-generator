@@ -247,10 +247,29 @@ struct TypeMatcher {
     /// - Throws: An error if there's an issue while checking the schema.
     /// - Returns: `true` if the schema is optional, `false` otherwise.
     func isOptional(_ schema: JSONSchema, components: OpenAPI.Components) throws -> Bool {
+        var cache = [JSONReference<JSONSchema>: Bool]()
+        return try isOptional(schema, components: components, cache: &cache)
+    }
+
+    /// Returns a Boolean value indicating whether the schema is optional.
+    /// - Parameters:
+    ///   - schema: The schema to check.
+    ///   - components: The OpenAPI components for looking up references.
+    ///   - cache: Memoised optionality by reference.
+    /// - Throws: An error if there's an issue while checking the schema.
+    /// - Returns: `true` if the schema is optional, `false` otherwise.
+    func isOptional(_ schema: JSONSchema, components: OpenAPI.Components, cache: inout [JSONReference<JSONSchema>: Bool]) throws -> Bool {
         if schema.nullable || !schema.required { return true }
-        guard case .reference(let ref, _) = schema.value else { return false }
-        let targetSchema = try components.lookup(ref)
-        return try isOptional(targetSchema, components: components)
+        switch schema.value {
+        case .null(_):
+            return true
+        case .reference(let ref, _):
+            return try isOptional(ref, components: components, cache: &cache)
+        case .one(of: let schemas, core: _):
+            return try schemas.contains(where: { try isOptional($0, components: components, cache: &cache) })
+        default:
+            return schema.nullable
+        }
     }
 
     /// Returns a Boolean value indicating whether the schema is optional.
@@ -260,16 +279,56 @@ struct TypeMatcher {
     /// - Throws: An error if there's an issue while checking the schema.
     /// - Returns: `true` if the schema is optional, `false` otherwise.
     func isOptional(_ schema: UnresolvedSchema?, components: OpenAPI.Components) throws -> Bool {
+        var cache = [JSONReference<JSONSchema>: Bool]()
+        return try isOptional(schema, components: components, cache: &cache)
+    }
+
+    /// Returns a Boolean value indicating whether the schema is optional.
+    /// - Parameters:
+    ///   - schema: The schema to check.
+    ///   - components: The OpenAPI components for looking up references.
+    ///   - cache: Memoised optionality by reference.
+    /// - Throws: An error if there's an issue while checking the schema.
+    /// - Returns: `true` if the schema is optional, `false` otherwise.
+    func isOptional(_ schema: UnresolvedSchema?, components: OpenAPI.Components, cache: inout [JSONReference<JSONSchema>: Bool]) throws -> Bool {
         guard let schema else {
             // A nil unresolved schema represents a non-optional fragment.
             return false
         }
         switch schema {
         case .a(let ref):
-            let targetSchema = try components.lookup(ref)
-            return try isOptional(targetSchema, components: components)
-        case .b(let schema): return try isOptional(schema, components: components)
+            return try isOptional(ref.jsonReference, components: components, cache: &cache)
+        case .b(let schema): return try isOptional(schema, components: components, cache: &cache)
         }
+    }
+
+    /// Returns a Boolean value indicating whether the referenced schema is optional.
+    /// - Parameters:
+    ///   - schema: The reference to check.
+    ///   - components: The OpenAPI components for looking up references.
+    /// - Throws: An error if there's an issue while checking the schema.
+    /// - Returns: `true` if the schema is optional, `false` otherwise.
+    func isOptional(_ ref: JSONReference<JSONSchema>, components: OpenAPI.Components) throws -> Bool {
+        var cache = [JSONReference<JSONSchema>: Bool]()
+        return try isOptional(ref, components: components, cache: &cache)
+    }
+
+    /// Returns a Boolean value indicating whether the referenced schema is optional.
+    /// - Parameters:
+    ///   - schema: The reference to check.
+    ///   - components: The OpenAPI components for looking up references.
+    ///   - cache: Memoised optionality by reference.
+    /// - Throws: An error if there's an issue while checking the schema.
+    /// - Returns: `true` if the schema is optional, `false` otherwise.
+    func isOptional(_ ref: JSONReference<JSONSchema>, components: OpenAPI.Components, cache: inout [JSONReference<JSONSchema>: Bool]) throws -> Bool {
+        if let result = cache[ref] {
+            return result
+        }
+        let targetSchema = try components.lookup(ref)
+        cache[ref] = false // Pre-cache to treat directly recursive types as non-nullable.
+        let result = try isOptional(targetSchema, components: components, cache: &cache)
+        cache[ref] = result
+        return result
     }
 
     // MARK: - Private
