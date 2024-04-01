@@ -28,7 +28,7 @@ extension FileTranslator {
         let typealiasDescription = TypealiasDescription(
             accessModifier: config.access,
             name: typeName.shortSwiftName,
-            existingType: .init(existingTypeUsage.withOptional(false))
+            existingType: .init(existingTypeUsage)
         )
         let typealiasComment: Comment? = typeName.docCommentWithUserDescription(userDescription)
         return .commentable(typealiasComment, .typealias(typealiasDescription))

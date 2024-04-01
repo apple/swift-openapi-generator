@@ -78,7 +78,7 @@ struct TypeMatcher {
             },
             genericArrayHandler: { TypeName.arrayContainer.asUsage }
         )?
-        .withOptional(isOptional(schema, components: components))
+        .withOptional(isOptionalRoot(schema, components: components))
     }
 
     /// Returns a Boolean value that indicates whether the schema
@@ -329,6 +329,25 @@ struct TypeMatcher {
         let result = try isOptional(targetSchema, components: components, cache: &cache)
         cache[ref] = result
         return result
+    }
+
+    /// Returns a Boolean value indicating whether the schema is optional at the root of any references.
+    /// - Parameters:
+    ///   - schema: The reference to check.
+    ///   - components: The OpenAPI components for looking up references.
+    /// - Throws: An error if there's an issue while checking the schema.
+    /// - Returns: `true` if the schema is an optional root, `false` otherwise.
+    func isOptionalRoot(_ schema: JSONSchema, components: OpenAPI.Components) throws -> Bool {
+        let directlyOptional = schema.nullable || !schema.required
+        switch schema.value {
+        case .null(_):
+            return true
+        case .reference(let ref, _):
+            let indirectlyOptional = try isOptional(ref, components: components)
+            return directlyOptional && !indirectlyOptional
+        default:
+            return directlyOptional
+        }
     }
 
     // MARK: - Private

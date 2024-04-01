@@ -237,7 +237,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public typealias Null = OpenAPIRuntime.OpenAPIValueContainer
+                public typealias Null = OpenAPIRuntime.OpenAPIValueContainer?
                 public typealias NullArray = [Components.Schemas.Null]
             }
             """)
@@ -520,17 +520,17 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Schemas {
                 public typealias MyRequiredString = Swift.String
-                public typealias MyNullableString = Swift.String
+                public typealias MyNullableString = Swift.String?
                 public struct MyObject: Codable, Hashable, Sendable {
                     public var id: Swift.Int64
                     public var alias: Swift.String?
                     public var requiredString: Components.Schemas.MyRequiredString
-                    public var nullableString: Components.Schemas.MyNullableString?
+                    public var nullableString: Components.Schemas.MyNullableString
                     public init(
                         id: Swift.Int64,
                         alias: Swift.String? = nil,
                         requiredString: Components.Schemas.MyRequiredString,
-                        nullableString: Components.Schemas.MyNullableString? = nil
+                        nullableString: Components.Schemas.MyNullableString
                     ) {
                         self.id = id
                         self.alias = alias
