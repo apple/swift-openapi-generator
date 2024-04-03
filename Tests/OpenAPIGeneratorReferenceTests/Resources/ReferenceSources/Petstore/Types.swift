@@ -405,7 +405,7 @@ public enum Components {
         /// Kind of pet
         ///
         /// - Remark: Generated from `#/components/schemas/PetKind`.
-        @frozen public enum PetKind: String, Codable, Hashable, Sendable {
+        @frozen public enum PetKind: String, Codable, Hashable, Sendable, CaseIterable {
             case cat = "cat"
             case dog = "dog"
             case ELEPHANT = "ELEPHANT"
@@ -492,7 +492,7 @@ public enum Components {
         /// - Remark: Generated from `#/components/schemas/PetFeeding`.
         public struct PetFeeding: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/PetFeeding/schedule`.
-            @frozen public enum schedulePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum schedulePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case hourly = "hourly"
                 case daily = "daily"
                 case weekly = "weekly"
@@ -1491,7 +1491,7 @@ public enum Components {
                     /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/log/headers`.
                     public struct Headers: Sendable, Hashable {
                         /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/log/headers/x-log-type`.
-                        @frozen public enum x_hyphen_log_hyphen_typePayload: String, Codable, Hashable, Sendable {
+                        @frozen public enum x_hyphen_log_hyphen_typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                             case structured = "structured"
                             case unstructured = "unstructured"
                         }
@@ -1645,7 +1645,7 @@ public enum Components {
                         /// - Remark: Generated from `#/components/responses/MultipartDownloadTypedResponse/content/multipartForm/log/headers`.
                         public struct Headers: Sendable, Hashable {
                             /// - Remark: Generated from `#/components/responses/MultipartDownloadTypedResponse/content/multipartForm/log/headers/x-log-type`.
-                            @frozen public enum x_hyphen_log_hyphen_typePayload: String, Codable, Hashable, Sendable {
+                            @frozen public enum x_hyphen_log_hyphen_typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                                 case structured = "structured"
                                 case unstructured = "unstructured"
                             }
@@ -1773,7 +1773,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/pets/GET/query/limit`.
                 public var limit: Swift.Int32?
                 /// - Remark: Generated from `#/paths/pets/GET/query/habitat`.
-                @frozen public enum habitatPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum habitatPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case water = "water"
                     case land = "land"
                     case air = "air"
@@ -1782,7 +1782,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/pets/GET/query/habitat`.
                 public var habitat: Operations.listPets.Input.Query.habitatPayload?
                 /// - Remark: Generated from `#/paths/pets/GET/query/feedsPayload`.
-                @frozen public enum feedsPayloadPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum feedsPayloadPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case omnivore = "omnivore"
                     case carnivore = "carnivore"
                     case herbivore = "herbivore"
