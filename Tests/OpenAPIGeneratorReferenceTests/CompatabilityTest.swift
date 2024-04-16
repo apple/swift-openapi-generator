@@ -85,7 +85,7 @@ final class CompatibilityTest: XCTestCase {
 
     func testDiscourse() async throws {
         try await _test(
-            "https://raw.githubusercontent.com/discourse/discourse_api_docs/fa2391353e9c3eb016ccae30daa34467d2ac2616/openapi.yml",
+            "https://raw.githubusercontent.com/discourse/discourse_api_docs/8182f1b21ca62cc9ac85fd3a82cae8304033a672/openapi.yml",
             license: .apache,
             expectedDiagnostics: [
                 "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found nothing but unsupported attributes..",
@@ -109,6 +109,7 @@ final class CompatibilityTest: XCTestCase {
                 "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property.",
                 "Schema warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: array. Specifically, attributes for these other types: [\"object\"].",
                 "Schema warning: Inconsistency encountered when parsing `Schema`: A schema contains properties for multiple types of schemas, namely: [\"array\", \"object\"]..",
+                "Schema \"null\" is not supported, reason: \"schema type\", skipping",
             ],
             skipBuild: true
         )
@@ -125,6 +126,7 @@ final class CompatibilityTest: XCTestCase {
                 "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property.",
                 "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"object\"].",
                 "Schema warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"].",
+                "Schema \"null\" is not supported, reason: \"schema type\", skipping",
             ],
             skipBuild: true
         )

@@ -146,7 +146,7 @@ enum Constants {
         static let baseConformanceInteger: String = "Int"
 
         /// The types that every enum conforms to.
-        static let conformances: [String] = ["Codable", "Hashable", "Sendable"]
+        static let conformances: [String] = ["Codable", "Hashable", "Sendable", "CaseIterable"]
     }
 
     /// Constants related to generated oneOf enums.

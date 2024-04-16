@@ -86,6 +86,7 @@ The Swift OpenAPI Generator project is split across multiple repositories to ena
 | [swift-server/swift-openapi-async-http-client][repo-ahc]   | `ClientTransport` using [AsyncHTTPClient][ahc]     |
 | [swift-server/swift-openapi-vapor][repo-vapor]             | `ServerTransport` using [Vapor][vapor]             |
 | [swift-server/swift-openapi-hummingbird][repo-hummingbird] | `ServerTransport` using [Hummingbird][hummingbird] |
+| [swift-server/swift-openapi-lambda][repo-lambda]           | `ServerTransport` using [AWS Lambda][lambda]       |
 
 ### Requirements and supported features
 
@@ -198,3 +199,5 @@ components:
 [vapor]: https://github.com/vapor/vapor
 [repo-hummingbird]: https://github.com/swift-server/swift-openapi-hummingbird
 [hummingbird]: https://github.com/hummingbird-project/hummingbird
+[repo-lambda]: https://github.com/swift-server/swift-openapi-lambda
+[lambda]: https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
