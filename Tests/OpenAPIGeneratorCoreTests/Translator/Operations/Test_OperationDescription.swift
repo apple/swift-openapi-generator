@@ -30,7 +30,7 @@ final class Test_OperationDescription: Test_Core {
             get: .init(parameters: [operationLevelParameter], requestBody: .b(.init(content: [:])), responses: [:]),
             vendorExtensions: [:]
         )
-        let allParameters = try _test(pathItem)
+        let allParameters = try makeOperationDescription(pathItem)?.allParameters
 
         XCTAssertEqual(allParameters, [operationLevelParameter])
     }
@@ -48,7 +48,7 @@ final class Test_OperationDescription: Test_Core {
             get: .init(parameters: [operationLevelParameter], requestBody: .b(.init(content: [:])), responses: [:]),
             vendorExtensions: [:]
         )
-        let allParameters = try _test(pathItem)
+        let allParameters = try makeOperationDescription(pathItem)?.allParameters
 
         XCTAssertEqual(allParameters, [pathLevelParameter, operationLevelParameter])
     }
@@ -73,25 +73,78 @@ final class Test_OperationDescription: Test_Core {
             ),
             vendorExtensions: [:]
         )
-        let allParameters = try _test(pathItem)
+        let allParameters = try makeOperationDescription(pathItem)?.allParameters
 
         XCTAssertEqual(allParameters, [pathLevelParameter, duplicatedParameter, operationLevelParameter])
     }
 
-    private func _test(_ pathItem: OpenAPI.PathItem) throws -> [UnresolvedParameter] {
+    func testResponseOutcomes_without_default_response() {
+        let responses: OpenAPI.Response.Map = [
+            .status(code: 200): .b(.init(description: "200")), .status(code: 404): .b(.init(description: "404")),
+        ]
+
+        let pathItem = OpenAPI.PathItem(get: .init(requestBody: .b(.init(content: [:])), responses: responses))
+        let responseOutcomes = makeOperationDescription(pathItem)?.responseOutcomes
+
+        XCTAssertEqual(
+            responseOutcomes,
+            [
+                OpenAPI.Operation.ResponseOutcome(status: responses[0].key, response: responses[0].value),
+                OpenAPI.Operation.ResponseOutcome(status: responses[1].key, response: responses[1].value),
+            ]
+        )
+    }
+
+    func testResponseOutcomes_with_default_response_on_last() {
+        let responses: OpenAPI.Response.Map = [
+            .status(code: 200): .b(.init(description: "200")), .status(code: 404): .b(.init(description: "404")),
+            .default: .b(.init(description: "default")),
+        ]
+
+        let pathItem = OpenAPI.PathItem(get: .init(requestBody: .b(.init(content: [:])), responses: responses))
+        let responseOutcomes = makeOperationDescription(pathItem)?.responseOutcomes
+
+        XCTAssertEqual(
+            responseOutcomes,
+            [
+                OpenAPI.Operation.ResponseOutcome(status: responses[0].key, response: responses[0].value),
+                OpenAPI.Operation.ResponseOutcome(status: responses[1].key, response: responses[1].value),
+                OpenAPI.Operation.ResponseOutcome(status: responses[2].key, response: responses[2].value),
+            ]
+        )
+    }
+
+    func testResponseOutcomes_with_default_response_on_first() {
+        let responses: OpenAPI.Response.Map = [
+            .default: .b(.init(description: "default")), .status(code: 200): .b(.init(description: "200")),
+            .status(code: 404): .b(.init(description: "404")),
+        ]
+
+        let pathItem = OpenAPI.PathItem(get: .init(requestBody: .b(.init(content: [:])), responses: responses))
+        let responseOutcomes = makeOperationDescription(pathItem)?.responseOutcomes
+
+        XCTAssertEqual(
+            responseOutcomes,
+            [
+                OpenAPI.Operation.ResponseOutcome(status: responses[1].key, response: responses[1].value),
+                OpenAPI.Operation.ResponseOutcome(status: responses[2].key, response: responses[2].value),
+                OpenAPI.Operation.ResponseOutcome(status: responses[0].key, response: responses[0].value),
+            ]
+        )
+    }
+
+    private func makeOperationDescription(_ pathItem: OpenAPI.PathItem) -> OperationDescription? {
         guard let endpoint = pathItem.endpoints.first else {
             XCTFail("Unable to retrieve the path item first endpoint.")
-            return []
+            return nil
         }
 
-        let operationDescription = OperationDescription(
+        return OperationDescription(
             path: .init(["/test"]),
             endpoint: endpoint,
             pathParameters: pathItem.parameters,
             components: .init(),
             asSwiftSafeName: { $0 }
         )
-
-        return try operationDescription.allParameters
     }
 }
