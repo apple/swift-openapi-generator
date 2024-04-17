@@ -187,6 +187,13 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         name: "feeds",
                         as: Operations.ListPets.Input.Query.FeedsPayload.self
                     ),
+                    sort: try converter.getOptionalQueryItemAsURI(
+                        in: request.soar_query,
+                        style: .deepObject,
+                        explode: true,
+                        name: "sort",
+                        as: Operations.listPets.Input.Query.sortPayload.self
+                    ),
                     since: try converter.getOptionalQueryItemAsURI(
                         in: request.soar_query,
                         style: .form,
