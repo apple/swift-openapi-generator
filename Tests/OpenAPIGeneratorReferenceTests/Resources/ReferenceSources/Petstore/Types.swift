@@ -1895,6 +1895,31 @@ public enum Operations {
                 public typealias FeedsPayload = [Operations.ListPets.Input.Query.FeedsPayloadPayload]
                 /// - Remark: Generated from `#/paths/pets/GET/query/feeds`.
                 public var feeds: Operations.ListPets.Input.Query.FeedsPayload?
+                /// - Remark: Generated from `#/paths/pets/GET/query/sort`.
+                public struct SortPayload: Codable, Hashable, Sendable {
+                    /// - Remark: Generated from `#/paths/pets/GET/query/sort/id`.
+                    public var id: Swift.String?
+                    /// - Remark: Generated from `#/paths/pets/GET/query/sort/name`.
+                    public var name: Swift.String?
+                    /// Creates a new `sortPayload`.
+                    ///
+                    /// - Parameters:
+                    ///   - id:
+                    ///   - name:
+                    public init(
+                        id: Swift.String? = nil,
+                        name: Swift.String? = nil
+                    ) {
+                        self.id = id
+                        self.name = name
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case id
+                        case name
+                    }
+                }
+                /// - Remark: Generated from `#/paths/pets/GET/query/sort`.
+                public var sort: Operations.listPets.Input.Query.SortPayload?
                 /// Supply this parameter to filter pets born since the provided date.
                 ///
                 /// - Remark: Generated from `#/paths/pets/GET/query/since`.
@@ -1905,16 +1930,19 @@ public enum Operations {
                 ///   - limit: How many items to return at one time (max 100)
                 ///   - habitat:
                 ///   - feeds:
+                ///   - sort:
                 ///   - since: Supply this parameter to filter pets born since the provided date.
                 public init(
                     limit: Swift.Int32? = nil,
                     habitat: Operations.ListPets.Input.Query.HabitatPayload? = nil,
                     feeds: Operations.ListPets.Input.Query.FeedsPayload? = nil,
+                    sort: Operations.listPets.Input.Query.SortPayload? = nil,
                     since: Components.Parameters.Query_bornSince? = nil
                 ) {
                     self.limit = limit
                     self.habitat = habitat
                     self.feeds = feeds
+                    self.sort = sort
                     self.since = since
                 }
             }

@@ -89,6 +89,13 @@ public struct Client: APIProtocol {
                 )
                 try converter.setQueryItemAsURI(
                     in: &request,
+                    style: .deepObject,
+                    explode: true,
+                    name: "sort",
+                    value: input.query.sort
+                )
+                try converter.setQueryItemAsURI(
+                    in: &request,
                     style: .form,
                     explode: true,
                     name: "since",
