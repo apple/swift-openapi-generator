@@ -147,6 +147,7 @@ extension FileTranslator {
                         "Query params of style \(style.rawValue), explode: \(explode)",
                         foundIn: foundIn
                     )
+                    return nil
                 }
             case .header, .path:
                 guard case .simple = style else {
