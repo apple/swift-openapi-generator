@@ -36,6 +36,8 @@ struct BidirectionalEventStreamsClient {
         do {
             print("Sending and fetching back greetings using JSON Lines")
             let (stream, continuation) = AsyncStream<Components.Schemas.Greeting>.makeStream()
+            /// To keep it simple, using JSON Lines, as it most straightforward and easy way to have streams.
+            /// For SSE and JSON Sequences cases please check `event-streams-client-example`.
             let requestBody: Operations.getGreetingsStream.Input.Body = .application_jsonl(
               .init(
                 stream.asEncodedJSONLines(),
