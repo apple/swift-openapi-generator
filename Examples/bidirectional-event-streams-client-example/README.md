@@ -8,7 +8,7 @@ An example project using [Swift OpenAPI Generator](https://github.com/apple/swif
 
 A command-line tool that uses a generated client to show how to work with bidirectional event streams.
 
-The tool uses the [URLSession](https://developer.apple.com/documentation/foundation/urlsession) API to perform the HTTP call, wrapped in the [Swift OpenAPI URLSession Transport](https://github.com/apple/swift-openapi-urlsession).
+Instead of [URLSession](https://developer.apple.com/documentation/foundation/urlsession), which will return stream only until at least “some” bytes of the body have also been received, tool uses the [AsyncHTTPClient](https://github.com/swift-server/async-http-client) API to perform the HTTP call, wrapped in the [AsyncHTTPClient Transport for Swift OpenAPI Generator](https://github.com/swift-server/swift-openapi-async-http-client). A workaround for URLSession could be sending an `empty` or hearbeat message from server first when initialising a stream.
 
 The server can be started by running `bidirectional-event-streams-server-example` locally.
 
@@ -18,4 +18,6 @@ Build and run the client CLI using:
 
 ```console
 % swift run
+Sending and fetching back greetings using JSON Lines
+...
 ```

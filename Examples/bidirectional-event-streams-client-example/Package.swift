@@ -20,16 +20,14 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.2.0"),
-        .package(url: "https://github.com/apple/swift-openapi-urlsession", from: "1.0.0"),
-//        .package(url: "https://github.com/swift-server/swift-openapi-async-http-client", from: "1.0.0"),
+        .package(url: "https://github.com/swift-server/swift-openapi-async-http-client", from: "1.0.0"),
     ],
     targets: [
         .executableTarget(
             name: "BidirectionalEventStreamsClient",
             dependencies: [
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
-                .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession"),
-//                .product(name: "OpenAPIAsyncHTTPClient", package: "swift-openapi-async-http-client"),
+                .product(name: "OpenAPIAsyncHTTPClient", package: "swift-openapi-async-http-client"),
             ],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         )

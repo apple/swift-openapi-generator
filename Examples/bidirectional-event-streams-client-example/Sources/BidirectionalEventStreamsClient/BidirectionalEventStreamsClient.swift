@@ -12,8 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIRuntime
-import OpenAPIURLSession
-//import OpenAPIAsyncHTTPClient
+import OpenAPIAsyncHTTPClient
 import Foundation
 
 @main
@@ -32,7 +31,7 @@ struct BidirectionalEventStreamsClient {
     static func main() async throws {
         let client = Client(
             serverURL: URL(string: "http://localhost:8080/api")!,
-            transport: URLSessionTransport()
+            transport: AsyncHTTPClientTransport()
         )
         do {
             print("Sending and fetching back greetings using JSON Lines")

@@ -18,6 +18,6 @@ Build and run the server CLI using:
 
 ```console
 % swift run
-2023-12-01T14:14:35+0100 notice codes.vapor.application : [Vapor] Server starting on http://127.0.0.1:8080
+2024-07-04T08:56:23+0200 info Hummingbird : [HummingbirdCore] Server started and listening on 127.0.0.1:8080
 ...
 ```
