@@ -16,7 +16,7 @@ import PackageDescription
 
 let package = Package(
     name: "bidirectional-event-streams-server-example",
-    platforms: [.macOS(.v14)],
+    platforms: [.macOS(.v10_15)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.2.0"),
