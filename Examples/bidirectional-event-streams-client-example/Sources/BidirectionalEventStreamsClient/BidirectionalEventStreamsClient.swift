@@ -15,40 +15,22 @@ import OpenAPIRuntime
 import OpenAPIAsyncHTTPClient
 import Foundation
 
-@main
-struct BidirectionalEventStreamsClient {
-    
+@main struct BidirectionalEventStreamsClient {
     private static let templates: [String] = [
-        "Hello, %@!",
-        "Good morning, %@!",
-        "Hi, %@!",
-        "Greetings, %@!",
-        "Hey, %@!",
-        "Hi there, %@!",
+        "Hello, %@!", "Good morning, %@!", "Hi, %@!", "Greetings, %@!", "Hey, %@!", "Hi there, %@!",
         "Good evening, %@!",
     ]
-    
     static func main() async throws {
-        let client = Client(
-            serverURL: URL(string: "http://localhost:8080/api")!,
-            transport: AsyncHTTPClientTransport()
-        )
+        let client = Client(serverURL: URL(string: "http://localhost:8080/api")!, transport: AsyncHTTPClientTransport())
         do {
             print("Sending and fetching back greetings using JSON Lines")
             let (stream, continuation) = AsyncStream<Components.Schemas.Greeting>.makeStream()
             /// To keep it simple, using JSON Lines, as it most straightforward and easy way to have streams.
             /// For SSE and JSON Sequences cases please check `event-streams-client-example`.
             let requestBody: Operations.getGreetingsStream.Input.Body = .application_jsonl(
-              .init(
-                stream.asEncodedJSONLines(),
-                length: .unknown,
-                iterationBehavior: .single
-              )
+                .init(stream.asEncodedJSONLines(), length: .unknown, iterationBehavior: .single)
             )
-            let response = try await client.getGreetingsStream(
-                query: .init(name: "Example"),
-                body: requestBody
-            )
+            let response = try await client.getGreetingsStream(query: .init(name: "Example"), body: requestBody)
             let greetingStream = try response.ok.body.application_jsonl.asDecodedJSONLines(
                 of: Components.Schemas.Greeting.self
             )

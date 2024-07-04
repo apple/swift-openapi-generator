@@ -17,10 +17,10 @@ import Hummingbird
 import Foundation
 
 struct Handler: APIProtocol {
-    
     private let storage: StreamStorage = .init()
-    
-    func getGreetingsStream(_ input: Operations.getGreetingsStream.Input) async throws -> Operations.getGreetingsStream.Output {
+    func getGreetingsStream(_ input: Operations.getGreetingsStream.Input) async throws
+        -> Operations.getGreetingsStream.Output
+    {
         let eventStream = await self.storage.makeStream(input: input)
         /// To keep it simple, using JSON Lines, as it most straightforward and easy way to have streams.
         /// For SSE and JSON Sequences cases please check `event-streams-server-example`.
@@ -31,8 +31,7 @@ struct Handler: APIProtocol {
     }
 }
 
-@main
-struct BidirectionalEventStreamsServer {
+@main struct BidirectionalEventStreamsServer {
     static func main() async throws {
         let router = Router()
         let handler = Handler()
