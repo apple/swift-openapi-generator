@@ -29,7 +29,6 @@ struct Handler: APIProtocol {
         )
         return .ok(.init(body: responseBody))
     }
-    
 }
 
 @main
