@@ -15,7 +15,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "event-streams-client-example",
+    name: "bidirectional-event-streams-client-example",
     platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .visionOS(.v1)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.0.0"),
