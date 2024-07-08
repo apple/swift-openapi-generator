@@ -37,6 +37,8 @@ The following packages show working with various content types, such as JSON, UR
 - [various-content-types-server-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/various-content-types-server-example) - A server showing how to handle and provide the various content types.
 - [event-streams-client-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/event-streams-client-example) - A client showing how to provide and handle event streams.
 - [event-streams-server-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/event-streams-server-example) - A server showing how to handle and provide event streams.
+- [bidirectional-event-streams-client-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/bidirectional-event-streams-client-example) - A client showing how to handle and provide bidirectional event streams.
+- [bidirectional-event-streams-server-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/bidirectional-event-streams-server-example) - A server showing how to handle and provide bidirectional event streams.
 
 ## Integrations
 
