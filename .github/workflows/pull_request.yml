@@ -10,4 +10,5 @@ jobs:
     uses: apple/swift-nio/.github/workflows/reusable_pull_request.yml@main
     with:
       benchmarks_linux_enabled: false
+      unacceptable_language_check_enabled: false
       license_header_check_project_name: "SwiftOpenAPIGenerator"
