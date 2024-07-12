@@ -7,7 +7,6 @@ on:
 jobs:
   call-reusable-pull-request-workflow:
     name: Checks
-    uses: apple/swift-nio/.github/workflows/reusable_pull_request.yml
+    uses: apple/swift-nio/.github/workflows/reusable_pull_request.yml@main
     with:
       benchmarks_linux_enabled: false
-      license_header_check_project_name: "SwiftOpenAPIGenerator"
