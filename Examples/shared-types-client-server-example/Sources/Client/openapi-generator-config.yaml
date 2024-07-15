@@ -1,0 +1,5 @@
+generate:
+  - client
+accessModifier: internal
+additionalImports:
+  - Types

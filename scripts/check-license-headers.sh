@@ -95,7 +95,7 @@ for FILE_PATH in "${PATHS_TO_CHECK_FOR_LICENSE[@]}"; do
   FILE_HEADER=$(head -n "${EXPECTED_FILE_HEADER_LINECOUNT}" "${FILE_PATH}")
   NORMALIZED_FILE_HEADER=$(
     echo "${FILE_HEADER}" \
-    | sed -e 's/202[3]-202[3]/YEARS/' -e 's/202[3]/YEARS/' \
+    | sed -e 's/202[3]-202[3,4]/YEARS/' -e 's/202[3,4]/YEARS/' \
   )
 
   if ! diff -u \
