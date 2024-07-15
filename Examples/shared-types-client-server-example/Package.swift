@@ -36,8 +36,7 @@ let package = Package(
         .executableTarget(
             name: "Client",
             dependencies: [
-                "Types",
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                "Types", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession"),
             ],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
@@ -45,8 +44,7 @@ let package = Package(
         .executableTarget(
             name: "Server",
             dependencies: [
-                "Types",
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                "Types", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIHummingbird", package: "swift-openapi-hummingbird"),
             ],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]

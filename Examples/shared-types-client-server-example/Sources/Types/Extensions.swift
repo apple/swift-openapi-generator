@@ -16,7 +16,7 @@ extension Components.Schemas.Greeting {
     package func boxed(maxBoxWidth: Int = 80) -> Self {
         // Reflow the text.
         let maxTextLength = maxBoxWidth - 4
-        var reflowedLines = [Substring]()
+        var reflowedLines: [Substring] = []
         for var line in message.split(whereSeparator: \.isNewline) {
             while !line.isEmpty {
                 let prefix = line.prefix(maxTextLength)
@@ -29,7 +29,7 @@ extension Components.Schemas.Greeting {
         let longestLineCount = reflowedLines.map(\.count).max()!
         let horizontalEdge = "+\(String(repeating: "–", count: longestLineCount))+"
 
-        var boxedMessageLines = [String]()
+        var boxedMessageLines: [String] = []
         boxedMessageLines.reserveCapacity(reflowedLines.count + 2)
         boxedMessageLines.append(horizontalEdge)
         for line in reflowedLines {
