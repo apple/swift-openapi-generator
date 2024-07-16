@@ -51,12 +51,12 @@ actor StreamStorage: Sendable {
                 try Task.checkCancellation()
                 print("Recieved a message \(message)")
                 print("Sending greeting back for \(id)")
-                switch message.message {
-                case "connecting": continuation.yield(.init(message: "\(name) connected"))
-                default:
-                    let greetingText = String(format: message.message, name)
-                    continuation.yield(.init(message: greetingText))
-                }
+                let responseText: String =
+                    switch message.message {
+                    case "connecting": "\(name) connected"
+                    default: String(format: message.message, name)
+                    }
+                continuation.yield(.init(message: responseText))
             }
             continuation.finish()
         }
