@@ -899,6 +899,9 @@ extension TextBasedRenderer {
         return renderer.renderedContents()
     }
     
+    /// Checks if the given enum description requires a @frozen annotation.
+    /// - Parameter enumDesc: The enum description to check.
+    /// - Returns: A boolean value indicating whether the enum description requires a @frozen annotation.
     func requiresFrozenAnnotation(_ enumDesc: EnumDescription) -> Bool {
         guard enumDesc.isFrozen else { return false }
         guard let accessModifier = enumDesc.accessModifier else { return false }
