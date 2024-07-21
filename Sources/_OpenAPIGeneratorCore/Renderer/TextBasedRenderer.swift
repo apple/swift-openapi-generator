@@ -645,7 +645,12 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders the specified enum declaration.
     func renderEnum(_ enumDesc: EnumDescription) {
-        if enumDesc.isFrozen {
+        func shouldAnnotateAsFrozen(_ enumDesc: EnumDescription) -> Bool {
+            guard enumDesc.isFrozen else { return false }
+            guard let accessModifier = enumDesc.accessModifier else { return false }
+            return accessModifier == .public || accessModifier == .package
+        }
+        if shouldAnnotateAsFrozen(enumDesc) {
             writer.writeLine("@frozen ")
             writer.nextLineAppendsToLastLine()
         }
