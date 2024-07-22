@@ -728,6 +728,28 @@ final class Test_TextBasedRenderer: XCTestCase {
 }
 
 extension Test_TextBasedRenderer {
+    func testRequiresFrozenAnnotation() {
+        let renderer = TextBasedRenderer.default
+        let testCases: [(EnumDescription, Bool)] = [
+            (EnumDescription(isFrozen: true, accessModifier: .`public`, name: ""), true),
+            (EnumDescription(isFrozen: true, accessModifier: .`package`, name: ""), true),
+            (EnumDescription(isFrozen: true, accessModifier: .`internal`, name: ""), false),
+            (EnumDescription(isFrozen: true, accessModifier: .`fileprivate`, name: ""), false),
+            (EnumDescription(isFrozen: true, accessModifier: .`private`, name: ""), false),
+            (EnumDescription(isFrozen: false, accessModifier: .`public`, name: ""), false),
+            (EnumDescription(isFrozen: false, accessModifier: .`package`, name: ""), false),
+            (EnumDescription(isFrozen: false, accessModifier: .`internal`, name: ""), false),
+            (EnumDescription(isFrozen: false, accessModifier: .`fileprivate`, name: ""), false),
+            (EnumDescription(isFrozen: false, accessModifier: .`private`, name: ""), false),
+        ]
+
+        for (enumDesc, expectedResult) in testCases {
+            XCTAssertEqual(renderer.requiresFrozenAnnotation(enumDesc), expectedResult)
+        }
+    }
+}
+
+extension Test_TextBasedRenderer {
 
     func _test<Input>(
         _ input: Input,

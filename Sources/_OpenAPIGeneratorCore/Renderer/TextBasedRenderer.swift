@@ -645,7 +645,7 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders the specified enum declaration.
     func renderEnum(_ enumDesc: EnumDescription) {
-        if enumDesc.isFrozen {
+        if requiresFrozenAnnotation(enumDesc) {
             writer.writeLine("@frozen ")
             writer.nextLineAppendsToLastLine()
         }
@@ -897,5 +897,14 @@ extension TextBasedRenderer {
         let renderer = TextBasedRenderer.default
         renderer.renderExpression(expression)
         return renderer.renderedContents()
+    }
+
+    /// Checks if the given enum description requires a @frozen annotation.
+    /// - Parameter enumDesc: The enum description to check.
+    /// - Returns: A boolean value indicating whether the enum description requires a @frozen annotation.
+    func requiresFrozenAnnotation(_ enumDesc: EnumDescription) -> Bool {
+        guard enumDesc.isFrozen else { return false }
+        guard let accessModifier = enumDesc.accessModifier else { return false }
+        return accessModifier == .public || accessModifier == .package
     }
 }
