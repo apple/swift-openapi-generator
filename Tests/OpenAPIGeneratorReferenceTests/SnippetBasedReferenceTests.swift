@@ -149,6 +149,116 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasFrozenEnum_accessModifier_public() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyEnum:
+                type: string
+                enum:
+                  - one
+                  - two
+            """,
+            """
+            public enum Schemas {
+                @frozen public enum MyEnum: String, Codable, Hashable, Sendable, CaseIterable {
+                    case one = "one"
+                    case two = "two"
+                }
+            }
+            """,
+            accessModifier: .public
+        )
+    }
+
+    func testComponentsSchemasFrozenEnum_accessModifier_package() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyEnum:
+                type: string
+                enum:
+                  - one
+                  - two
+            """,
+            """
+            package enum Schemas {
+                @frozen package enum MyEnum: String, Codable, Hashable, Sendable, CaseIterable {
+                    case one = "one"
+                    case two = "two"
+                }
+            }
+            """,
+            accessModifier: .package
+        )
+    }
+
+    func testComponentsSchemasFrozenEnum_accessModifier_internal() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyEnum:
+                type: string
+                enum:
+                  - one
+                  - two
+            """,
+            """
+            internal enum Schemas {
+                internal enum MyEnum: String, Codable, Hashable, Sendable, CaseIterable {
+                    case one = "one"
+                    case two = "two"
+                }
+            }
+            """,
+            accessModifier: .internal
+        )
+    }
+
+    func testComponentsSchemasFrozenEnum_accessModifier_fileprivate() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyEnum:
+                type: string
+                enum:
+                  - one
+                  - two
+            """,
+            """
+            fileprivate enum Schemas {
+                fileprivate enum MyEnum: String, Codable, Hashable, Sendable, CaseIterable {
+                    case one = "one"
+                    case two = "two"
+                }
+            }
+            """,
+            accessModifier: .fileprivate
+        )
+    }
+
+    func testComponentsSchemasFrozenEnum_accessModifier_private() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyEnum:
+                type: string
+                enum:
+                  - one
+                  - two
+            """,
+            """
+            private enum Schemas {
+                private enum MyEnum: String, Codable, Hashable, Sendable, CaseIterable {
+                    case one = "one"
+                    case two = "two"
+                }
+            }
+            """,
+            accessModifier: .private
+        )
+    }
+
     func testComponentsSchemasString() throws {
         try self.assertSchemasTranslation(
             """
@@ -5074,10 +5184,12 @@ extension SnippetBasedReferenceTests {
         ignoredDiagnosticMessages: Set<String> = [],
         _ componentsYAML: String,
         _ expectedSwift: String,
+        accessModifier: AccessModifier = .public,
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
         let translator = try makeTypesTranslator(
+            accessModifier: accessModifier,
             featureFlags: featureFlags,
             ignoredDiagnosticMessages: ignoredDiagnosticMessages,
             componentsYAML: componentsYAML
