@@ -148,7 +148,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
-    
+
     func testComponentsSchemasFrozenEnum_accessModifier_public() throws {
         try self.assertSchemasTranslation(
             """
@@ -170,7 +170,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             accessModifier: .public
         )
     }
-    
+
     func testComponentsSchemasFrozenEnum_accessModifier_package() throws {
         try self.assertSchemasTranslation(
             """
@@ -192,7 +192,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             accessModifier: .package
         )
     }
-    
+
     func testComponentsSchemasFrozenEnum_accessModifier_internal() throws {
         try self.assertSchemasTranslation(
             """
@@ -214,7 +214,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             accessModifier: .internal
         )
     }
-    
+
     func testComponentsSchemasFrozenEnum_accessModifier_fileprivate() throws {
         try self.assertSchemasTranslation(
             """
@@ -236,7 +236,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             accessModifier: .fileprivate
         )
     }
-    
+
     func testComponentsSchemasFrozenEnum_accessModifier_private() throws {
         try self.assertSchemasTranslation(
             """

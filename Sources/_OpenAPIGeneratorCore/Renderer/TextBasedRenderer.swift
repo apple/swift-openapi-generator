@@ -898,7 +898,7 @@ extension TextBasedRenderer {
         renderer.renderExpression(expression)
         return renderer.renderedContents()
     }
-    
+
     /// Checks if the given enum description requires a @frozen annotation.
     /// - Parameter enumDesc: The enum description to check.
     /// - Returns: A boolean value indicating whether the enum description requires a @frozen annotation.

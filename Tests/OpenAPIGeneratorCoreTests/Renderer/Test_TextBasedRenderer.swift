@@ -740,9 +740,9 @@ extension Test_TextBasedRenderer {
             (EnumDescription(isFrozen: false, accessModifier: .`package`, name: ""), false),
             (EnumDescription(isFrozen: false, accessModifier: .`internal`, name: ""), false),
             (EnumDescription(isFrozen: false, accessModifier: .`fileprivate`, name: ""), false),
-            (EnumDescription(isFrozen: false, accessModifier: .`private`, name: ""), false)
+            (EnumDescription(isFrozen: false, accessModifier: .`private`, name: ""), false),
         ]
-        
+
         for (enumDesc, expectedResult) in testCases {
             XCTAssertEqual(renderer.requiresFrozenAnnotation(enumDesc), expectedResult)
         }
