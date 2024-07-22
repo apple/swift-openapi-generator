@@ -16,7 +16,7 @@ body:
         ___
 
         For non-trivial changes that affect the public API, the Swift OpenAPI
-        Generator project adopts a ligthweight version of the [Swift
+        Generator project adopts a lightweight version of the [Swift
         Evolution](https://github.com/apple/swift-evolution/blob/main/process.md)
         process.
 
