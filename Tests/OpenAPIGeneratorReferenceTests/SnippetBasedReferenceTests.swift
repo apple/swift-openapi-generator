@@ -2697,13 +2697,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-    func testRequestWithPathParamWithHyphen() throws {
+    func testRequestWithPathParamWithHyphenAndPeriod() throws {
         try self.assertRequestInTypesClientServerTranslation(
             """
-            /foo/{a-b}:
+            /foo/{p.a-b}:
               get:
                 parameters:
-                  - name: a-b
+                  - name: p.a-b
                     in: path
                     required: true
                     schema:
@@ -2716,9 +2716,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
             types: """
                 public struct Input: Sendable, Hashable {
                     public struct Path: Sendable, Hashable {
-                        public var a_hyphen_b: Swift.String
-                        public init(a_hyphen_b: Swift.String) {
-                            self.a_hyphen_b = a_hyphen_b
+                        public var p_period_a_hyphen_b: Swift.String
+                        public init(p_period_a_hyphen_b: Swift.String) {
+                            self.p_period_a_hyphen_b = p_period_a_hyphen_b
                         }
                     }
                     public var path: Operations.getFoo.Input.Path
@@ -2732,7 +2732,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     let path = try converter.renderedPath(
                         template: "/foo/{}",
                         parameters: [
-                            input.path.a_hyphen_b
+                            input.path.p_period_a_hyphen_b
                         ]
                     )
                     var request: HTTPTypes.HTTPRequest = .init(
@@ -2745,9 +2745,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """,
             server: """
                 { request, requestBody, metadata in
-                    let path: Operations.getFoo.Input.Path = .init(a_hyphen_b: try converter.getPathParameterAsURI(
+                    let path: Operations.getFoo.Input.Path = .init(p_period_a_hyphen_b: try converter.getPathParameterAsURI(
                         in: metadata.pathParameters,
-                        name: "a-b",
+                        name: "p.a-b",
                         as: Swift.String.self
                     ))
                     return Operations.getFoo.Input(path: path)

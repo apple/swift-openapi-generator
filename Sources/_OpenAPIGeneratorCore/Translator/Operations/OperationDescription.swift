@@ -248,7 +248,7 @@ extension OperationDescription {
     /// The regular expression for parsing subcomponents of path components.
     ///
     /// Either a parameter `{foo}` or a constant value `foo`.
-    private static let pathParameterRegex = try! NSRegularExpression(pattern: #"(\{[a-zA-Z0-9_-]+\})|([^{}]+)"#)
+    private static let pathParameterRegex = try! NSRegularExpression(pattern: #"(\{[a-zA-Z0-9_\-\.]+\})|([^{}]+)"#)
 
     /// Returns a string that contains the template to be generated for
     /// the client that fills in path parameters, and an array expression
