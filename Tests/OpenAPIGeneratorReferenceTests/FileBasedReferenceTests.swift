@@ -151,14 +151,17 @@ extension FileBasedReferenceTests {
         )
     }
 
-    private func temporaryDirectory(fileManager: FileManager = .default) throws -> URL {
-        let directoryURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
-        try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+    private func temporaryDirectory() throws -> URL {
+        let directoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(
+            UUID().uuidString,
+            isDirectory: true
+        )
+        try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
         addTeardownBlock {
             do {
-                if fileManager.fileExists(atPath: directoryURL.path) {
-                    try fileManager.removeItem(at: directoryURL)
-                    XCTAssertFalse(fileManager.fileExists(atPath: directoryURL.path))
+                if FileManager.default.fileExists(atPath: directoryURL.path) {
+                    try FileManager.default.removeItem(at: directoryURL)
+                    XCTAssertFalse(FileManager.default.fileExists(atPath: directoryURL.path))
                 }
             } catch {
                 // Treat any errors during file deletion as a test failure.

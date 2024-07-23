@@ -154,7 +154,7 @@ extension BindingKind {
     }
 }
 
-extension Expression {
+extension _OpenAPIGeneratorCore.Expression {
     var info: ExprInfo {
         switch self {
         case .literal(let value): return .init(name: value.name, kind: .literal)

@@ -9,3 +9,4 @@ DerivedData/
 /Package.resolved
 .ci/
 .docc-build/
+.swiftpm
