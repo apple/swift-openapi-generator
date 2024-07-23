@@ -2605,6 +2605,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """
         )
     }
+
     func testRequestWithPathParams() throws {
         try self.assertRequestInTypesClientServerTranslation(
             """
@@ -2690,6 +2691,65 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             as: Swift.Int.self
                         )
                     )
+                    return Operations.getFoo.Input(path: path)
+                }
+                """
+        )
+    }
+
+    func testRequestWithPathParamWithHyphenAndPeriod() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo/{p.a-b}:
+              get:
+                parameters:
+                  - name: p.a-b
+                    in: path
+                    required: true
+                    schema:
+                      type: string
+                operationId: getFoo
+                responses:
+                  default:
+                    description: Response
+            """,
+            types: """
+                public struct Input: Sendable, Hashable {
+                    public struct Path: Sendable, Hashable {
+                        public var p_period_a_hyphen_b: Swift.String
+                        public init(p_period_a_hyphen_b: Swift.String) {
+                            self.p_period_a_hyphen_b = p_period_a_hyphen_b
+                        }
+                    }
+                    public var path: Operations.getFoo.Input.Path
+                    public init(path: Operations.getFoo.Input.Path) {
+                        self.path = path
+                    }
+                }
+                """,
+            client: """
+                { input in
+                    let path = try converter.renderedPath(
+                        template: "/foo/{}",
+                        parameters: [
+                            input.path.p_period_a_hyphen_b
+                        ]
+                    )
+                    var request: HTTPTypes.HTTPRequest = .init(
+                        soar_path: path,
+                        method: .get
+                    )
+                    suppressMutabilityWarning(&request)
+                    return (request, nil)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in
+                    let path: Operations.getFoo.Input.Path = .init(p_period_a_hyphen_b: try converter.getPathParameterAsURI(
+                        in: metadata.pathParameters,
+                        name: "p.a-b",
+                        as: Swift.String.self
+                    ))
                     return Operations.getFoo.Input(path: path)
                 }
                 """
