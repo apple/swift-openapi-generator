@@ -345,7 +345,7 @@ struct TypeAssigner {
                 swiftComponent: asSwiftSafeName(originalName) + suffix,
                 jsonComponent: jsonReferenceComponentOverride ?? originalName
             )
-            .asUsage.withOptional(try typeMatcher.isOptional(schema, components: components))
+            .asUsage.withOptional(try typeMatcher.isOptionalRoot(schema, components: components))
     }
 
     /// Returns a type name for a reusable component.
