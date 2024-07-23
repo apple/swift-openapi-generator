@@ -5,6 +5,6 @@ on:
     types: [opened, reopened, synchronize, ready_for_review]
  
 jobs:
-  call-pull-request-soundness-workflow:
+  soundness:
     name: Soundness
     uses: apple/swift-nio/.github/workflows/pull_request_soundness.yml@main
