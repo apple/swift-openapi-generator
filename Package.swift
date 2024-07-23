@@ -52,7 +52,7 @@ let package = Package(
 
         // Read OpenAPI documents
         .package(url: "https://github.com/mattpolzin/OpenAPIKit", from: "3.1.2"),
-        .package(url: "https://github.com/jpsim/Yams", "4.0.0"..<"6.0.0"),
+        .package(url: "https://github.com/jpsim/Yams", "5.1.0"..<"6.0.0"),
 
         // CLI Tool
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
