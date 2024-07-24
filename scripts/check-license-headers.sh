@@ -43,6 +43,7 @@ read -ra PATHS_TO_CHECK_FOR_LICENSE <<< "$( \
   ":(exclude).spi.yml" \
   ":(exclude).swift-format" \
   ":(exclude).licenseignore" \
+  ":(exclude).swiftformatignore" \
   ":(exclude).github/*" \
   ":(exclude)CODE_OF_CONDUCT.md" \
   ":(exclude)CONTRIBUTING.md" \
