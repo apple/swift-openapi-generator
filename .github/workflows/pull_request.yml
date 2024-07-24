@@ -2,7 +2,7 @@ name: Pull Request
 
 on:
     pull_request:
-      types: [opened, reopened, synchronize]
+        types: [opened, reopened, synchronize]
 
 jobs:
     soundness:
@@ -27,3 +27,19 @@ jobs:
         uses: apple/swift-nio/.github/workflows/cxx_interop.yml@main
         with:
             linux_5_8_enabled: false
+
+    integration-tests:
+        name: Checks / Integration Tests
+        uses: apple/swift-nio/.github/workflows/swift_matrix.yml@main
+        with:
+          name: "Integration tests"
+          matrix_linux_5_8_enabled: false
+          matrix_linux_command: "apt-get update -y -q && apt-get install -y -q jq && ./scripts/run-integration-test.sh"
+
+    example-tests:
+        name: Checks / Example Tests
+        uses: apple/swift-nio/.github/workflows/swift_matrix.yml@main
+        with:
+          name: "Example tests"
+          matrix_linux_5_8_enabled: false
+          matrix_linux_command: "./scripts/test-examples.sh"
