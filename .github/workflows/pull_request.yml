@@ -1,4 +1,4 @@
-name: Pull Request
+name: PR
 
 on:
     pull_request:
@@ -11,9 +11,10 @@ jobs:
         with:
             license_header_check_project_name: "SwiftOpenAPIGenerator"
             unacceptable_language_check_enabled: false
+            shell_check_enabled: false
 
     unit-tests:
-        name: Checks
+        name: Unit tests
         uses: apple/swift-nio/.github/workflows/unit_tests.yml@main
         with:
             linux_5_8_enabled: false
@@ -23,7 +24,27 @@ jobs:
             linux_nightly_main_arguments_override: "--explicit-target-dependency-import-check error"
 
     cxx-interop:
-        name: Checks
+        name: Cxx interop
         uses: apple/swift-nio/.github/workflows/cxx_interop.yml@main
         with:
             linux_5_8_enabled: false
+
+    integration-tests:
+        name: Integration Tests
+        uses: apple/swift-nio/.github/workflows/swift_matrix.yml@main
+        with:
+            name: "Integration tests"
+            matrix_linux_5_8_enabled: false
+            matrix_linux_command: "apt-get update -y -q && apt-get install -y -q jq && ./scripts/run-integration-test.sh"
+
+    example-tests:
+        name: Example Tests
+        uses: apple/swift-nio/.github/workflows/swift_matrix.yml@main
+        with:
+            name: "Example tests"
+            matrix_linux_5_8_enabled: false
+            matrix_linux_command: "./scripts/test-examples.sh"
+
+    swift-6-language-mode:
+        name: Swift 6 Language Mode
+        uses: apple/swift-nio/.github/workflows/swift_6_language_mode.yml@main
