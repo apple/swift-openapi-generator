@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 ##===----------------------------------------------------------------------===##
 ##
 ## This source file is part of the SwiftOpenAPIGenerator open source project
@@ -42,6 +42,8 @@ read -ra PATHS_TO_CHECK_FOR_LICENSE <<< "$( \
   ":(exclude).gitignore" \
   ":(exclude).spi.yml" \
   ":(exclude).swift-format" \
+  ":(exclude).licenseignore" \
+  ":(exclude).swiftformatignore" \
   ":(exclude).github/*" \
   ":(exclude)CODE_OF_CONDUCT.md" \
   ":(exclude)CONTRIBUTING.md" \
@@ -87,7 +89,7 @@ for FILE_PATH in "${PATHS_TO_CHECK_FOR_LICENSE[@]}"; do
   case "${FILE_EXTENSION}" in
     swift) EXPECTED_FILE_HEADER=$(sed -e 's|@@|//|g' <<<"${EXPECTED_FILE_HEADER_TEMPLATE}") ;;
     yml) EXPECTED_FILE_HEADER=$(sed -e 's|@@|##|g' <<<"${EXPECTED_FILE_HEADER_TEMPLATE}") ;;
-    sh) EXPECTED_FILE_HEADER=$(cat <(echo '#!/usr/bin/env bash') <(sed -e 's|@@|##|g' <<<"${EXPECTED_FILE_HEADER_TEMPLATE}")) ;;
+    sh) EXPECTED_FILE_HEADER=$(cat <(echo '#!/bin/bash') <(sed -e 's|@@|##|g' <<<"${EXPECTED_FILE_HEADER_TEMPLATE}")) ;;
     *) fatal "Unsupported file extension for file (exclude or update this script): ${FILE_PATH}" ;;
   esac
   EXPECTED_FILE_HEADER_LINECOUNT=$(wc -l <<<"${EXPECTED_FILE_HEADER}")
