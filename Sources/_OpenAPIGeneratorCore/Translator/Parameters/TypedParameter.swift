@@ -139,7 +139,10 @@ extension FileTranslator {
             let location = parameter.location
             switch location {
             case .query:
-                guard case .form = style else {
+                switch style {
+                case .form, .deepObject:
+                    break
+                default:
                     diagnostics.emitUnsupported(
                         "Query params of style \(style.rawValue), explode: \(explode)",
                         foundIn: foundIn
@@ -252,6 +255,7 @@ extension OpenAPI.Parameter.SchemaContext.Style {
     var runtimeName: String {
         switch self {
         case .form: return Constants.Components.Parameters.Style.form
+        case .deepObject: return Constants.Components.Parameters.Style.deepObject
         default: preconditionFailure("Unsupported style")
         }
     }
