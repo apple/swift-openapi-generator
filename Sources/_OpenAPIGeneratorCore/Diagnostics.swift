@@ -165,127 +165,32 @@ public protocol DiagnosticCollector {
 
     /// Submits a diagnostic to the collector.
     /// - Parameter diagnostic: The diagnostic to submit.
-    func emit(_ diagnostic: Diagnostic)
+    /// - Throws: An error if the implementing type determines that one should be thrown.
+    func emit(_ diagnostic: Diagnostic) throws
 }
 
-final class DiagnosticSubmitter {
-    private let collector: any DiagnosticCollector
+/// A type that conforms to the `DiagnosticCollector` protocol.
+///
+/// It receives diagnostics and forwards them to an upstream `DiagnosticCollector`.
+///
+/// If a diagnostic with a severity of `.error` is emitted, this collector will throw the diagnostic as an error.
+public struct ErrorThrowingDiagnosticCollector: DiagnosticCollector {
+    private let upstream: any DiagnosticCollector
 
-    init(collector: any DiagnosticCollector) { self.collector = collector }
+    /// Initializes a new `ErrorThrowingDiagnosticCollector` with an upstream `DiagnosticCollector`.
+    ///
+    /// The upstream collector is where this collector will forward all received diagnostics.
+    ///
+    /// - Parameter upstream: The `DiagnosticCollector` to which this collector will forward diagnostics.
+    public init(upstream: any DiagnosticCollector) { self.upstream = upstream }
 
-    /// Submits a diagnostic to the collector.
+    /// Emits a diagnostic to the collector.
     ///
     /// - Parameter diagnostic: The diagnostic to be submitted.
     /// - Throws: The diagnostic itself if its severity is `.error`.
-    func submit(_ diagnostic: Diagnostic) throws {
-        collector.emit(diagnostic)
+    public func emit(_ diagnostic: Diagnostic) throws {
+        try upstream.emit(diagnostic)
         if diagnostic.severity == .error { throw diagnostic }
-    }
-
-    /// Submits a diagnostic for an unsupported feature found in the specified
-    /// string location.
-    ///
-    /// Recoverable, the generator skips the unsupported feature.
-    /// - Parameters:
-    ///   - feature: A human-readable name of the feature.
-    ///   - foundIn: A description of the location in which the unsupported
-    ///   feature was detected.
-    ///   - context: A set of key-value pairs that help the user understand
-    ///   where the warning occurred.
-    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
-    func submitUnsupported(_ feature: String, foundIn: String, context: [String: String] = [:]) throws {
-        try submit(Diagnostic.unsupported(feature, foundIn: foundIn, context: context))
-    }
-
-    /// Submits a diagnostic for an unsupported schema found in the specified
-    /// string location.
-    /// - Parameters:
-    ///   - reason: A human-readable reason.
-    ///   - schema: The unsupported JSON schema.
-    ///   - foundIn: A description of the location in which the unsupported
-    ///   schema was detected.
-    ///   - context: A set of key-value pairs that help the user understand
-    ///   where the warning occurred.
-    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
-    func submitUnsupportedSchema(reason: String, schema: JSONSchema, foundIn: String, context: [String: String] = [:])
-        throws
-    { try submit(Diagnostic.unsupportedSchema(reason: reason, schema: schema, foundIn: foundIn, context: context)) }
-
-    /// Submits a diagnostic for an unsupported feature found in the specified
-    /// type name.
-    ///
-    /// Recoverable, the generator skips the unsupported feature.
-    /// - Parameters:
-    ///   - feature: A human-readable name of the feature.
-    ///   - foundIn: The type name related to where the issue was detected.
-    ///   - context: A set of key-value pairs that help the user understand
-    ///   where the warning occurred.
-    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
-    func submitUnsupported(_ feature: String, foundIn: TypeName, context: [String: String] = [:]) throws {
-        try submit(Diagnostic.unsupported(feature, foundIn: foundIn.description, context: context))
-    }
-
-    /// Submints a diagnostic for an unsupported feature found in the specified
-    /// string location when the test closure returns a non-nil value.
-    ///
-    /// Recoverable, the generator skips the unsupported feature.
-    /// - Parameters:
-    ///   - test: A closure that returns a non-nil value when an unsupported
-    ///   feature is specified in the OpenAPI document.
-    ///   - feature: A human-readable name of the feature.
-    ///   - foundIn: A description of the location in which the unsupported
-    ///   feature was detected.
-    ///   - context: A set of key-value pairs that help the user understand
-    ///   where the warning occurred.
-    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
-    func submitUnsupportedIfNotNil(_ test: Any?, _ feature: String, foundIn: String, context: [String: String] = [:])
-        throws
-    {
-        if test == nil { return }
-        try submitUnsupported(feature, foundIn: foundIn, context: context)
-    }
-
-    /// Submits a diagnostic for an unsupported feature found in the specified
-    /// string location when the test collection is not empty.
-    ///
-    /// Recoverable, the generator skips the unsupported feature.
-    /// - Parameters:
-    ///   - test: A collection that is not empty if the unsupported feature
-    ///   is specified in the OpenAPI document.
-    ///   - feature: A human-readable name of the feature.
-    ///   - foundIn: A description of the location in which the unsupported
-    ///   feature was detected.
-    ///   - context: A set of key-value pairs that help the user understand
-    ///   where the warning occurred.
-    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
-    func submitUnsupportedIfNotEmpty<C: Collection>(
-        _ test: C?,
-        _ feature: String,
-        foundIn: String,
-        context: [String: String] = [:]
-    ) throws {
-        guard let test = test, !test.isEmpty else { return }
-        try submitUnsupported(feature, foundIn: foundIn, context: context)
-    }
-
-    /// Submits a diagnostic for an unsupported feature found in the specified
-    /// string location when the test Boolean value is true.
-    ///
-    /// Recoverable, the generator skips the unsupported feature.
-    /// - Parameters:
-    ///   - test: A Boolean value that indicates whether the unsupported
-    ///   feature is specified in the OpenAPI document.
-    ///   - feature: A human-readable name of the feature.
-    ///   - foundIn: A description of the location in which the unsupported
-    ///   feature was detected.
-    ///   - context: A set of key-value pairs that help the user understand
-    ///   where the warning occurred.
-    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
-    func submitUnsupportedIfTrue(_ test: Bool, _ feature: String, foundIn: String, context: [String: String] = [:])
-        throws
-    {
-        if !test { return }
-        try submitUnsupported(feature, foundIn: foundIn, context: context)
     }
 }
 
@@ -301,8 +206,9 @@ extension DiagnosticCollector {
     ///   feature was detected.
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
-    func emitUnsupported(_ feature: String, foundIn: String, context: [String: String] = [:]) {
-        emit(Diagnostic.unsupported(feature, foundIn: foundIn, context: context))
+    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
+    func emitUnsupported(_ feature: String, foundIn: String, context: [String: String] = [:]) throws {
+        try emit(Diagnostic.unsupported(feature, foundIn: foundIn, context: context))
     }
 
     /// Emits a diagnostic for an unsupported schema found in the specified
@@ -314,9 +220,10 @@ extension DiagnosticCollector {
     ///   schema was detected.
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
-    func emitUnsupportedSchema(reason: String, schema: JSONSchema, foundIn: String, context: [String: String] = [:]) {
-        emit(Diagnostic.unsupportedSchema(reason: reason, schema: schema, foundIn: foundIn, context: context))
-    }
+    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
+    func emitUnsupportedSchema(reason: String, schema: JSONSchema, foundIn: String, context: [String: String] = [:])
+        throws
+    { try emit(Diagnostic.unsupportedSchema(reason: reason, schema: schema, foundIn: foundIn, context: context)) }
 
     /// Emits a diagnostic for an unsupported feature found in the specified
     /// type name.
@@ -327,8 +234,9 @@ extension DiagnosticCollector {
     ///   - foundIn: The type name related to where the issue was detected.
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
-    func emitUnsupported(_ feature: String, foundIn: TypeName, context: [String: String] = [:]) {
-        emit(Diagnostic.unsupported(feature, foundIn: foundIn.description, context: context))
+    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
+    func emitUnsupported(_ feature: String, foundIn: TypeName, context: [String: String] = [:]) throws {
+        try emit(Diagnostic.unsupported(feature, foundIn: foundIn.description, context: context))
     }
 
     /// Emits a diagnostic for an unsupported feature found in the specified
@@ -343,9 +251,12 @@ extension DiagnosticCollector {
     ///   feature was detected.
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
-    func emitUnsupportedIfNotNil(_ test: Any?, _ feature: String, foundIn: String, context: [String: String] = [:]) {
+    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
+    func emitUnsupportedIfNotNil(_ test: Any?, _ feature: String, foundIn: String, context: [String: String] = [:])
+        throws
+    {
         if test == nil { return }
-        emitUnsupported(feature, foundIn: foundIn, context: context)
+        try emitUnsupported(feature, foundIn: foundIn, context: context)
     }
 
     /// Emits a diagnostic for an unsupported feature found in the specified
@@ -360,14 +271,15 @@ extension DiagnosticCollector {
     ///   feature was detected.
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
+    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
     func emitUnsupportedIfNotEmpty<C: Collection>(
         _ test: C?,
         _ feature: String,
         foundIn: String,
         context: [String: String] = [:]
-    ) {
+    ) throws {
         guard let test = test, !test.isEmpty else { return }
-        emitUnsupported(feature, foundIn: foundIn, context: context)
+        try emitUnsupported(feature, foundIn: foundIn, context: context)
     }
 
     /// Emits a diagnostic for an unsupported feature found in the specified
@@ -382,9 +294,11 @@ extension DiagnosticCollector {
     ///   feature was detected.
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
-    func emitUnsupportedIfTrue(_ test: Bool, _ feature: String, foundIn: String, context: [String: String] = [:]) {
+    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
+    func emitUnsupportedIfTrue(_ test: Bool, _ feature: String, foundIn: String, context: [String: String] = [:]) throws
+    {
         if !test { return }
-        emitUnsupported(feature, foundIn: foundIn, context: context)
+        try emitUnsupported(feature, foundIn: foundIn, context: context)
     }
 }
 

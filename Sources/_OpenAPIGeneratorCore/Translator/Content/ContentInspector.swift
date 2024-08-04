@@ -123,7 +123,8 @@ extension FileTranslator {
         -> SchemaContent?
     {
         guard !map.isEmpty else { return nil }
-        if map.count > 1 { diagnostics.emitUnsupported("Multiple content types", foundIn: foundIn) }
+        let collector = ErrorThrowingDiagnosticCollector(upstream: diagnostics)
+        if map.count > 1 { try collector.emitUnsupported("Multiple content types", foundIn: foundIn) }
         let mapWithContentTypes = try map.map { key, content in try (type: key.asGeneratorContentType, value: content) }
 
         let chosenContent: (type: ContentType, schema: SchemaContent, content: OpenAPI.Content)?
@@ -137,7 +138,7 @@ extension FileTranslator {
                 contentValue
             )
         } else {
-            diagnostics.emitUnsupported("Unsupported content", foundIn: foundIn)
+            try collector.emitUnsupported("Unsupported content", foundIn: foundIn)
             chosenContent = nil
         }
         if let chosenContent {
@@ -145,7 +146,7 @@ extension FileTranslator {
             if contentType.lowercasedType == "multipart"
                 || contentType.lowercasedTypeAndSubtype.contains("application/x-www-form-urlencoded")
             {
-                diagnostics.emitUnsupportedIfNotNil(
+                try collector.emitUnsupportedIfNotNil(
                     chosenContent.content.encoding,
                     "Custom encoding for multipart/formEncoded content",
                     foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
@@ -180,8 +181,9 @@ extension FileTranslator {
         foundIn: String
     ) throws -> SchemaContent? {
         let contentType = try contentKey.asGeneratorContentType
+        let collector = ErrorThrowingDiagnosticCollector(upstream: diagnostics)
         if contentType.lowercasedTypeAndSubtype.contains("application/x-www-form-urlencoded") {
-            diagnostics.emitUnsupportedIfNotNil(
+            try collector.emitUnsupportedIfNotNil(
                 contentValue.encoding,
                 "Custom encoding for formEncoded content",
                 foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
@@ -191,7 +193,7 @@ extension FileTranslator {
         if contentType.isUrlEncodedForm { return .init(contentType: contentType, schema: contentValue.schema) }
         if contentType.isMultipart {
             guard isRequired else {
-                diagnostics.emit(
+                try collector.emit(
                     .warning(
                         message:
                             "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated.",
@@ -205,7 +207,7 @@ extension FileTranslator {
         if !excludeBinary, contentType.isBinary {
             return .init(contentType: contentType, schema: .b(.string(contentEncoding: .binary)))
         }
-        diagnostics.emitUnsupported("Unsupported content", foundIn: foundIn)
+        try collector.emitUnsupported("Unsupported content", foundIn: foundIn)
         return nil
     }
 }

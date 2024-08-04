@@ -110,7 +110,9 @@ func makeGeneratorPipeline(
     }
     let validateDoc = { (doc: OpenAPI.Document) -> OpenAPI.Document in
         let validationDiagnostics = try validator(doc, config)
-        for diagnostic in validationDiagnostics { diagnostics.emit(diagnostic) }
+        for diagnostic in validationDiagnostics {
+            try ErrorThrowingDiagnosticCollector(upstream: diagnostics).emit(diagnostic)
+        }
         return doc
     }
     return .init(

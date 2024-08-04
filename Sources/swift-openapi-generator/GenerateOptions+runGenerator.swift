@@ -83,7 +83,7 @@ extension _GenerateOptions {
             try finalizeDiagnostics()
         } catch let error as Diagnostic {
             // Emit our nice Diagnostics message instead of relying on ArgumentParser output.
-            diagnostics.emit(error)
+            try ErrorThrowingDiagnosticCollector(upstream: diagnostics).emit(error)
             try finalizeDiagnostics()
             throw ExitCode.failure
         } catch {
