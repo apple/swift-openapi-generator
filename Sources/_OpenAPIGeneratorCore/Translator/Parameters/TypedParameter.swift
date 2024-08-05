@@ -121,7 +121,6 @@ extension FileTranslator {
             }
         }
 
-        let collector = ErrorThrowingDiagnosticCollector(upstream: diagnostics)
         let locationTypeName = parameter.location.typeName(in: parent)
         let foundIn = "\(locationTypeName.description)/\(parameter.name)"
 
@@ -141,7 +140,7 @@ extension FileTranslator {
             switch location {
             case .query:
                 guard case .form = style else {
-                    try collector.emitUnsupported(
+                    try diagnostics.emitUnsupported(
                         "Query params of style \(style.rawValue), explode: \(explode)",
                         foundIn: foundIn
                     )
@@ -149,14 +148,14 @@ extension FileTranslator {
                 }
             case .header, .path:
                 guard case .simple = style else {
-                    try collector.emitUnsupported(
+                    try diagnostics.emitUnsupported(
                         "\(location.rawValue) params of style \(style.rawValue), explode: \(explode)",
                         foundIn: foundIn
                     )
                     return nil
                 }
             case .cookie:
-                try collector.emitUnsupported("Cookie params", foundIn: foundIn)
+                try diagnostics.emitUnsupported("Cookie params", foundIn: foundIn)
                 return nil
             }
 

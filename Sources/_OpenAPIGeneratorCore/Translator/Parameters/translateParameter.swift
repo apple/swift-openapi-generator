@@ -114,8 +114,10 @@ extension ClientFileTranslator {
             containerExpr = .identifierPattern(requestVariableName)
             supportsStyleAndExplode = true
         default:
-            try ErrorThrowingDiagnosticCollector(upstream: diagnostics)
-                .emitUnsupported("Parameter of type \(parameter.location.rawValue)", foundIn: parameter.description)
+            try diagnostics.emitUnsupported(
+                "Parameter of type \(parameter.location.rawValue)",
+                foundIn: parameter.description
+            )
             return nil
         }
         let styleAndExplodeArgs: [FunctionArgumentDescription]
@@ -196,8 +198,10 @@ extension ServerFileTranslator {
                     ])
             )
         default:
-            try ErrorThrowingDiagnosticCollector(upstream: diagnostics)
-                .emitUnsupported("Parameter of type \(parameter.location)", foundIn: "\(typedParameter.description)")
+            try diagnostics.emitUnsupported(
+                "Parameter of type \(parameter.location)",
+                foundIn: "\(typedParameter.description)"
+            )
             return nil
         }
 

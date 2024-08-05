@@ -312,8 +312,7 @@ extension FileTranslator {
         }
         let contentType = finalContentTypeSource.contentType
         if finalContentTypeSource.contentType.isMultipart {
-            try ErrorThrowingDiagnosticCollector(upstream: diagnostics)
-                .emitUnsupported("Multipart part cannot nest another multipart content.", foundIn: foundIn)
+            try diagnostics.emitUnsupported("Multipart part cannot nest another multipart content.", foundIn: foundIn)
             return nil
         }
         let info = MultipartPartInfo(repetition: repetitionKind, contentTypeSource: finalContentTypeSource)
