@@ -64,7 +64,7 @@ extension FileTranslator {
         switch try isSchemaSupported(schema, referenceStack: &referenceStack) {
         case .supported: return true
         case .unsupported(reason: let reason, schema: let schema):
-            diagnostics.emitUnsupportedSchema(reason: reason.description, schema: schema, foundIn: foundIn)
+            try diagnostics.emitUnsupportedSchema(reason: reason.description, schema: schema, foundIn: foundIn)
             return false
         }
     }
@@ -82,7 +82,7 @@ extension FileTranslator {
         switch try isSchemaSupported(schema, referenceStack: &referenceStack) {
         case .supported: return true
         case .unsupported(reason: let reason, schema: let schema):
-            diagnostics.emitUnsupportedSchema(reason: reason.description, schema: schema, foundIn: foundIn)
+            try diagnostics.emitUnsupportedSchema(reason: reason.description, schema: schema, foundIn: foundIn)
             return false
         }
     }
@@ -100,7 +100,7 @@ extension FileTranslator {
         switch try isObjectOrRefToObjectSchemaAndSupported(schema, referenceStack: &referenceStack) {
         case .supported: return true
         case .unsupported(reason: let reason, schema: let schema):
-            diagnostics.emitUnsupportedSchema(reason: reason.description, schema: schema, foundIn: foundIn)
+            try diagnostics.emitUnsupportedSchema(reason: reason.description, schema: schema, foundIn: foundIn)
             return false
         }
     }

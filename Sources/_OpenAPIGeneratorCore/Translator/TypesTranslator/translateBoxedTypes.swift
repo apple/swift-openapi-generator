@@ -33,7 +33,7 @@ extension TypesFileTranslator {
         var decls = decls
         for (index, decl) in decls.enumerated() {
             guard let name = decl.name, boxedNames.contains(name) else { continue }
-            diagnostics.emit(
+            try diagnostics.emit(
                 .note(
                     message: "Detected a recursive type; it will be boxed to break the reference cycle.",
                     context: ["name": name]

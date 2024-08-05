@@ -76,7 +76,7 @@ extension TypesFileTranslator {
 
         // Attach any warnings from the parsed schema as a diagnostic.
         for warning in schema.warnings {
-            diagnostics.emit(
+            try diagnostics.emit(
                 .warning(
                     message: "Schema warning: \(warning.description)",
                     context: [
