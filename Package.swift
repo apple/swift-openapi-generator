@@ -114,6 +114,14 @@ let package = Package(
             swiftSettings: swiftSettings
         ),
 
+        // New Test Target for swift-openapi-generator
+        .testTarget(
+            name: "OpenAPIGeneratorTests",
+            dependencies: ["swift-openapi-generator"],
+            resources: [.copy("Resources")],
+            swiftSettings: swiftSettings
+        ),
+
         // Generator CLI
         .executableTarget(
             name: "swift-openapi-generator",
