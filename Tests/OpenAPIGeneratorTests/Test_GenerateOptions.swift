@@ -36,11 +36,6 @@ final class Test_GenerateOptions: XCTestCase {
         let configPath = docsDirectory.appendingPathComponent("openapi-generator-config.yaml")
 
         let arguments = [docPath.path(), "--config", configPath.path]
-
-        let originalArguments = CommandLine.arguments
-        defer { CommandLine.arguments = originalArguments }
-        CommandLine.arguments = arguments
-
         let generator = try _GenerateOptions.parse(arguments)
 
         do {
