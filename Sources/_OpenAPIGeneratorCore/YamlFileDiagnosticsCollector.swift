@@ -13,7 +13,6 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 import Yams
-import _OpenAPIGeneratorCore
 
 struct _DiagnosticsYamlFileContent: Encodable {
     var uniqueMessages: [String]
@@ -21,7 +20,7 @@ struct _DiagnosticsYamlFileContent: Encodable {
 }
 
 /// A collector that writes diagnostics to a YAML file.
-final class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecked Sendable {
+final public class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecked Sendable {
     /// Protects `diagnostics`.
     private let lock = NSLock()
 
@@ -33,9 +32,11 @@ final class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecked Senda
 
     /// Creates a new collector.
     /// - Parameter url: A file path where to persist the YAML file.
-    init(url: URL) { self.url = url }
+    public init(url: URL) { self.url = url }
 
-    func emit(_ diagnostic: Diagnostic) {
+    /// Emits a diagnostic message to the collector.
+    /// - Parameter diagnostic: The diagnostic message to be collected.
+    public func emit(_ diagnostic: Diagnostic) {
         lock.lock()
         defer { lock.unlock() }
         diagnostics.append(diagnostic)
@@ -43,7 +44,7 @@ final class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecked Senda
 
     /// Finishes writing to the collector by persisting the accumulated
     /// diagnostics to a YAML file.
-    func finalize() throws {
+    public func finalize() throws {
         lock.lock()
         defer { lock.unlock() }
         let sortedDiagnostics = diagnostics.sorted(by: { a, b in a.description < b.description })
@@ -53,4 +54,11 @@ final class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecked Senda
         let container = _DiagnosticsYamlFileContent(uniqueMessages: uniqueMessages, diagnostics: sortedDiagnostics)
         try encoder.encode(container).write(to: url, atomically: true, encoding: .utf8)
     }
+}
+
+/// Prepares a diagnostics collector.
+/// - Parameter url: A file path where to persist the YAML file.
+/// - Returns: An instance of `DiagnosticCollector` conforming to `Sendable`.
+public func preparedDiagnosticsCollector(url: URL) -> any DiagnosticCollector & Sendable {
+    _YamlFileDiagnosticsCollector(url: url)
 }

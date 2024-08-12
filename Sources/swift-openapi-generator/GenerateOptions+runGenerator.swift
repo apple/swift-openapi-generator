@@ -45,8 +45,12 @@ extension _GenerateOptions {
         let innerDiagnostics: any DiagnosticCollector & Sendable
         let finalizeDiagnostics: () throws -> Void
         if let diagnosticsOutputPath {
-            let _diagnostics = _YamlFileDiagnosticsCollector(url: diagnosticsOutputPath)
-            finalizeDiagnostics = _diagnostics.finalize
+            let _diagnostics = preparedDiagnosticsCollector(url: diagnosticsOutputPath)
+            if let yamlCollector = _diagnostics as? _YamlFileDiagnosticsCollector {
+                finalizeDiagnostics = { try yamlCollector.finalize() }
+            } else {
+                finalizeDiagnostics = {}
+            }
             innerDiagnostics = _diagnostics
         } else {
             innerDiagnostics = StdErrPrintingDiagnosticCollector()
