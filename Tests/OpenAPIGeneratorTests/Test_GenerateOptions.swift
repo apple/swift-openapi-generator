@@ -35,11 +35,11 @@ final class Test_GenerateOptions: XCTestCase {
         let docPath = docsDirectory.appendingPathComponent("malformed-openapi.yaml")
         let configPath = docsDirectory.appendingPathComponent("openapi-generator-config.yaml")
 
-        let arguments = [docPath.path(), "--config", configPath.path]
+        let arguments = [docPath.path, "--config", configPath.path]
         let generator = try _GenerateOptions.parse(arguments)
 
         do {
-            try await generator.runGenerator(outputDirectory: outputDirectory, pluginSource: nil, isDryRun: false)
+            try await generator.runGenerator(outputDirectory: outputDirectory, pluginSource: .build, isDryRun: false)
             XCTFail("Expected to throw an error, but it did not throw")
         } catch let diagnostic as Diagnostic {
             XCTAssertEqual(diagnostic.severity, .error, "Expected diagnostic severity to be `.error`")
