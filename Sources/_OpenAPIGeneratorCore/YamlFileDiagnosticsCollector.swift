@@ -20,7 +20,7 @@ struct _DiagnosticsYamlFileContent: Encodable {
 }
 
 /// A collector that writes diagnostics to a YAML file.
-final public class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecked Sendable {
+final class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecked Sendable {
     /// Protects `diagnostics`.
     private let lock = NSLock()
 
@@ -32,11 +32,9 @@ final public class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecke
 
     /// Creates a new collector.
     /// - Parameter url: A file path where to persist the YAML file.
-    public init(url: URL) { self.url = url }
+    init(url: URL) { self.url = url }
 
-    /// Emits a diagnostic message to the collector.
-    /// - Parameter diagnostic: The diagnostic message to be collected.
-    public func emit(_ diagnostic: Diagnostic) {
+    func emit(_ diagnostic: Diagnostic) {
         lock.lock()
         defer { lock.unlock() }
         diagnostics.append(diagnostic)
@@ -44,7 +42,7 @@ final public class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecke
 
     /// Finishes writing to the collector by persisting the accumulated
     /// diagnostics to a YAML file.
-    public func finalize() throws {
+    func finalize() throws {
         lock.lock()
         defer { lock.unlock() }
         let sortedDiagnostics = diagnostics.sorted(by: { a, b in a.description < b.description })
@@ -54,11 +52,4 @@ final public class _YamlFileDiagnosticsCollector: DiagnosticCollector, @unchecke
         let container = _DiagnosticsYamlFileContent(uniqueMessages: uniqueMessages, diagnostics: sortedDiagnostics)
         try encoder.encode(container).write(to: url, atomically: true, encoding: .utf8)
     }
-}
-
-/// Prepares a diagnostics collector.
-/// - Parameter url: A file path where to persist the YAML file.
-/// - Returns: An instance of `DiagnosticCollector` conforming to `Sendable`.
-public func preparedDiagnosticsCollector(url: URL) -> any DiagnosticCollector & Sendable {
-    _YamlFileDiagnosticsCollector(url: url)
 }

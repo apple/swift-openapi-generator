@@ -175,7 +175,7 @@ public protocol DiagnosticCollector {
 ///
 /// If a diagnostic with a severity of `.error` is emitted, this collector will throw the diagnostic as an error.
 public struct ErrorThrowingDiagnosticCollector: DiagnosticCollector {
-    private let upstream: any DiagnosticCollector
+    let upstream: any DiagnosticCollector
 
     /// Initializes a new `ErrorThrowingDiagnosticCollector` with an upstream `DiagnosticCollector`.
     ///

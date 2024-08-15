@@ -42,21 +42,7 @@ extension _GenerateOptions {
                 featureFlags: resolvedFeatureFlags
             )
         }
-        let innerDiagnostics: any DiagnosticCollector & Sendable
-        let finalizeDiagnostics: () throws -> Void
-        if let diagnosticsOutputPath {
-            let _diagnostics = preparedDiagnosticsCollector(url: diagnosticsOutputPath)
-            if let yamlCollector = _diagnostics as? _YamlFileDiagnosticsCollector {
-                finalizeDiagnostics = { try yamlCollector.finalize() }
-            } else {
-                finalizeDiagnostics = {}
-            }
-            innerDiagnostics = _diagnostics
-        } else {
-            innerDiagnostics = StdErrPrintingDiagnosticCollector()
-            finalizeDiagnostics = {}
-        }
-        let diagnostics = ErrorThrowingDiagnosticCollector(upstream: innerDiagnostics)
+        let (diagnostics, finalizeDiagnostics) = preparedDiagnosticsCollector(outputPath: diagnosticsOutputPath)
         let doc = self.docPath
         print(
             """
