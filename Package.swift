@@ -117,7 +117,9 @@ let package = Package(
         // Test Target for swift-openapi-generator
         .testTarget(
             name: "OpenAPIGeneratorTests",
-            dependencies: ["swift-openapi-generator"],
+            dependencies: [
+                "swift-openapi-generator", .product(name: "ArgumentParser", package: "swift-argument-parser"),
+            ],
             resources: [.copy("Resources")],
             swiftSettings: swiftSettings
         ),
