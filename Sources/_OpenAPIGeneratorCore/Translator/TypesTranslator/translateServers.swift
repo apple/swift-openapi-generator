@@ -29,24 +29,30 @@ extension TypesFileTranslator {
             (originalKey: key, swiftSafeKey: swiftSafeName(for: key), value: value)
         }
         let parameters: [ParameterDescription] = safeVariables.map { (originalKey, swiftSafeKey, value) in
-            .init(label: swiftSafeKey, type: .init(TypeName.string), defaultValue: .literal(value.default))
+            let memberPath: [String] = [
+                Constants.ServerURL.variablesNamespace,
+                translateServerVariablesEnumName(for: index),
+                translateVariableToEnumName((originalKey, value))
+            ]
+                return .init(
+                    label: swiftSafeName(for: originalKey),
+                    type: .member(memberPath),
+                    defaultValue: .identifierType(.member(memberPath + CollectionOfOne(Constants.ServerURL.defaultPropertyName)))
+                )
         }
         let variableInitializers: [Expression] = safeVariables.map { (originalKey, swiftSafeKey, value) in
-            let allowedValuesArg: FunctionArgumentDescription?
-            if let allowedValues = value.enum {
-                allowedValuesArg = .init(
-                    label: "allowedValues",
-                    expression: .literal(.array(allowedValues.map { .literal($0) }))
-                )
-            } else {
-                allowedValuesArg = nil
-            }
             return .dot("init")
                 .call(
                     [
                         .init(label: "name", expression: .literal(originalKey)),
-                        .init(label: "value", expression: .identifierPattern(swiftSafeKey)),
-                    ] + (allowedValuesArg.flatMap { [$0] } ?? [])
+                        .init(
+                            label: "value",
+                            expression: .memberAccess(.init(
+                                left: .identifierPattern(swiftSafeKey),
+                                right: "rawValue"
+                            ))
+                        ),
+                    ]
                 )
         }
         let methodDecl = Declaration.commentable(
@@ -81,7 +87,12 @@ extension TypesFileTranslator {
     /// - Parameter servers: The servers to include in the extension.
     /// - Returns: A declaration of an enum namespace of the server URLs type.
     func translateServers(_ servers: [OpenAPI.Server]) -> Declaration {
-        let serverDecls = servers.enumerated().map(translateServer)
+        var serverDecls = servers.enumerated().map(translateServer)
+
+        if let variablesDecl = translateServersVariables(servers) {
+            serverDecls.insert(variablesDecl, at: 0)
+        }
+
         return .commentable(
             .doc("Server URLs defined in the OpenAPI document."),
             .enum(accessModifier: config.access, name: Constants.ServerURL.namespace, members: serverDecls)

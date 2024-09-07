@@ -56,6 +56,15 @@ enum Constants {
 
         /// The prefix of each generated method name.
         static let propertyPrefix: String = "server"
+
+        /// The name of the server variables namespace.
+        static let variablesNamespace: String = "Variables"
+
+        /// The prefix of the namespace that contains server specific variables.
+        static let serverVariablesNamespacePrefix: String = "Server"
+
+        /// The name of the generated default computed property.
+        static let defaultPropertyName: String = "default"
     }
 
     /// Constants related to the configuration type, which is used by both

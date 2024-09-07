@@ -153,6 +153,53 @@ extension APIProtocol {
 
 /// Server URLs defined in the OpenAPI document.
 public enum Servers {
+    /// Server URL variables defined in the OpenAPI document.
+    public enum Variables {
+        /// The variables for Server3 defined in the OpenAPI document.
+        public enum Server3 {
+            /// The "protocol" variable defined in the OpenAPI document.
+            ///
+            /// The default value is "https".
+            @frozen public enum _Protocol: Swift.String {
+                case https
+                /// The default variable.
+                public static var `default`: _Protocol {
+                    return _Protocol.https
+                }
+            }
+            /// The "subdomain" variable defined in the OpenAPI document.
+            ///
+            /// The default value is "test".
+            @frozen public enum Subdomain: Swift.String {
+                case test
+                /// The default variable.
+                public static var `default`: Subdomain {
+                    return Subdomain.test
+                }
+            }
+            /// The "port" variable defined in the OpenAPI document.
+            ///
+            /// The default value is "443".
+            @frozen public enum Port: Swift.String {
+                case _443 = "443"
+                case _8443 = "8443"
+                /// The default variable.
+                public static var `default`: Port {
+                    return Port._443
+                }
+            }
+            /// The "basePath" variable defined in the OpenAPI document.
+            ///
+            /// The default value is "v1".
+            @frozen public enum Basepath: Swift.String {
+                case v1
+                /// The default variable.
+                public static var `default`: Basepath {
+                    return Basepath.v1
+                }
+            }
+        }
+    }
     /// Example Petstore implementation service
     public static func server1() throws -> Foundation.URL {
         try Foundation.URL(
@@ -174,33 +221,29 @@ public enum Servers {
     ///   - port:
     ///   - basePath: The base API path.
     public static func server3(
-        _protocol: Swift.String = "https",
-        subdomain: Swift.String = "test",
-        port: Swift.String = "443",
-        basePath: Swift.String = "v1"
+        _protocol: Variables.Server3._Protocol = Variables.Server3._Protocol.default,
+        subdomain: Variables.Server3.Subdomain = Variables.Server3.Subdomain.default,
+        port: Variables.Server3.Port = Variables.Server3.Port.default,
+        basePath: Variables.Server3.Basepath = Variables.Server3.Basepath.default
     ) throws -> Foundation.URL {
         try Foundation.URL(
             validatingOpenAPIServerURL: "{protocol}://{subdomain}.example.com:{port}/{basePath}",
             variables: [
                 .init(
                     name: "protocol",
-                    value: _protocol
+                    value: _protocol.rawValue
                 ),
                 .init(
                     name: "subdomain",
-                    value: subdomain
+                    value: subdomain.rawValue
                 ),
                 .init(
                     name: "port",
-                    value: port,
-                    allowedValues: [
-                        "443",
-                        "8443"
-                    ]
+                    value: port.rawValue
                 ),
                 .init(
                     name: "basePath",
-                    value: basePath
+                    value: basePath.rawValue
                 )
             ]
         )
