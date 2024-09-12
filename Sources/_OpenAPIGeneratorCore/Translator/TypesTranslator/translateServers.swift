@@ -14,49 +14,33 @@
 import OpenAPIKit
 
 extension TypesFileTranslator {
-
     /// Returns a declaration of a server URL static method defined in
-    /// the OpenAPI document.
+    /// the OpenAPI document. Also appends server variables enums
+    /// into the variables namespace parameter, if any enums were
+    /// generated.
     /// - Parameters:
     ///   - index: The index of the server in the list of servers defined
     ///   in the OpenAPI document.
     ///   - server: The server URL information.
+    ///   - variablesNamespace: The enum namespace which is to contain
+    ///   any variable enum definitions that may be required.
     /// - Returns: A static method declaration, and a name for the variable to
     /// declare the method under.
-    func translateServer(index: Int, server: OpenAPI.Server) -> Declaration {
-        let methodName = "\(Constants.ServerURL.propertyPrefix)\(index+1)"
-        let safeVariables = server.variables.map { (key, value) in
-            (originalKey: key, swiftSafeKey: swiftSafeName(for: key), value: value)
+    func translateServer(index: Int, server: OpenAPI.Server, variablesNamespace: inout EnumDescription) -> Declaration {
+        let serverVariables = translateServerVariableNamespace(index: index, server: server, variablesNamespaceName: variablesNamespace.name)
+
+        if let serverVariablesNamespace = serverVariables.decl {
+            variablesNamespace.members.append(serverVariablesNamespace)
         }
-        let parameters: [ParameterDescription] = safeVariables.map { (originalKey, swiftSafeKey, value) in
-            let memberPath: [String] = [
-                Constants.ServerURL.variablesNamespace,
-                translateServerVariablesEnumName(for: index),
-                translateVariableToEnumName((originalKey, value))
-            ]
-                return .init(
-                    label: swiftSafeName(for: originalKey),
-                    type: .member(memberPath),
-                    defaultValue: .identifierType(.member(memberPath + CollectionOfOne(Constants.ServerURL.defaultPropertyName)))
-                )
-        }
-        let variableInitializers: [Expression] = safeVariables.map { (originalKey, swiftSafeKey, value) in
-            return .dot("init")
-                .call(
-                    [
-                        .init(label: "name", expression: .literal(originalKey)),
-                        .init(
-                            label: "value",
-                            expression: .memberAccess(.init(
-                                left: .identifierPattern(swiftSafeKey),
-                                right: "rawValue"
-                            ))
-                        ),
-                    ]
-                )
-        }
+
+        let parameters = serverVariables.variables.map(\.parameter)
+        let variableInitializers = serverVariables.variables.map(\.initializer)
+        let functionComments = serverVariables.variables.map(\.functionComment)
+
+        let methodName = "\(Constants.ServerURL.propertyPrefix)\(index + 1)"
+
         let methodDecl = Declaration.commentable(
-            .functionComment(abstract: server.description, parameters: safeVariables.map { ($1, $2.description) }),
+            .functionComment(abstract: server.description, parameters: functionComments),
             .function(
                 accessModifier: config.access,
                 kind: .function(name: methodName, isStatic: true),
@@ -87,10 +71,24 @@ extension TypesFileTranslator {
     /// - Parameter servers: The servers to include in the extension.
     /// - Returns: A declaration of an enum namespace of the server URLs type.
     func translateServers(_ servers: [OpenAPI.Server]) -> Declaration {
-        var serverDecls = servers.enumerated().map(translateServer)
+        var variablesNamespace = EnumDescription(
+            accessModifier: config.access,
+            name: Constants.ServerURL.variablesNamespace
+        )
 
-        if let variablesDecl = translateServersVariables(servers) {
-            serverDecls.insert(variablesDecl, at: 0)
+        var serverDecls: [Declaration] = []
+
+
+        for (index, decl) in servers.enumerated() {
+            let serverDecl = translateServer(index: index, server: decl, variablesNamespace: &variablesNamespace)
+            serverDecls.append(serverDecl)
+        }
+
+        if !variablesNamespace.members.isEmpty {
+            serverDecls.insert(.commentable(
+                .doc("Server URL variables defined in the OpenAPI document."),
+                .enum(variablesNamespace)
+            ), at: 0)
         }
 
         return .commentable(

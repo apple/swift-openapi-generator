@@ -43,6 +43,11 @@ final class FileBasedReferenceTests: XCTestCase {
     }
 
     func testPetstore() throws { try _test(referenceProject: .init(name: .petstore)) }
+    
+    func testPetstoreWithServerVariablesEnumsFeatureFlag() throws {
+        let featureFlags: FeatureFlags = [.serverVariablesAsEnums]
+        try _test(referenceProject: .init(name: .petstore(featureFlags)), featureFlags: featureFlags)
+    }
 
     // MARK: - Private
 
@@ -97,12 +102,27 @@ final class FileBasedReferenceTests: XCTestCase {
         )
     }
 
-    enum ReferenceProjectName: String, Hashable, CaseIterable {
-        case petstore
+    enum ReferenceProjectName: Hashable {
+        case petstore(FeatureFlags)
+        
+        static var petstore: Self { .petstore([]) }
 
-        var openAPIDocFileName: String { "\(rawValue).yaml" }
+        var openAPIDocFileName: String {
+            switch self {
+            case .petstore:
+                return "petstore.yaml"
+            }
+        }
 
-        var fixtureCodeDirectoryName: String { rawValue.capitalized }
+        var fixtureCodeDirectoryName: String {
+            switch self {
+            case let .petstore(featureFlags):
+                if featureFlags.isEmpty {
+                    return "Petstore"
+                }
+                return "Petstore_" + featureFlags.map(\.rawValue).joined(separator: "_")
+            }
+        }
     }
 
     struct ReferenceProject: Hashable {

@@ -153,6 +153,21 @@ extension APIProtocol {
 
 /// Server URLs defined in the OpenAPI document.
 public enum Servers {
+    /// Server URL variables defined in the OpenAPI document.
+    public enum Variables {
+        /// The variables for Server3 defined in the OpenAPI document.
+        public enum Server3 {
+            /// The "port" variable defined in the OpenAPI document. The default value is "443".
+            @frozen public enum Port: Swift.String {
+                case _443 = "443"
+                case _8443 = "8443"
+                /// The default variable.
+                public static var `default`: Port {
+                    return Port._443
+                }
+            }
+        }
+    }
     /// Example Petstore implementation service
     public static func server1() throws -> Foundation.URL {
         try Foundation.URL(
@@ -176,7 +191,7 @@ public enum Servers {
     public static func server3(
         _protocol: Swift.String = "https",
         subdomain: Swift.String = "test",
-        port: Swift.String = "443",
+        port: Variables.Server3.Port = Variables.Server3.Port.default,
         basePath: Swift.String = "v1"
     ) throws -> Foundation.URL {
         try Foundation.URL(
@@ -192,11 +207,7 @@ public enum Servers {
                 ),
                 .init(
                     name: "port",
-                    value: port,
-                    allowedValues: [
-                        "443",
-                        "8443"
-                    ]
+                    value: port.rawValue
                 ),
                 .init(
                     name: "basePath",
