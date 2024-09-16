@@ -36,6 +36,25 @@ jobs:
             matrix_linux_5_8_enabled: false
             matrix_linux_command: "apt-get update -yq && apt-get install -yq jq && ./scripts/run-integration-test.sh"
 
+    compatibility-test:
+      name: Compatibility test
+      runs-on: ubuntu-latest
+      container:
+          image: swift:latest
+      steps:
+          - name: Checkout repository
+            uses: actions/checkout@v4
+            with:
+                persist-credentials: false
+          - name: Run OpenAPI document compatibilty test
+            env:
+              SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE: "true"
+              SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD: "true"
+              SWIFT_OPENAPI_COMPATIBILITY_TEST_FILTER: OpenAPIGeneratorReferenceTests.CompatibilityTest
+              SWIFT_OPENAPI_COMPATIBILITY_TEST_PARALLEL_CODEGEN: "true"
+              SWIFT_OPENAPI_COMPATIBILITY_TEST_NUM_BUILD_JOBS: 1
+            run: swift test --filter ${SWIFT_OPENAPI_COMPATIBILITY_TEST_FILTER}
+
     example-packages:
         name: Example packages
         uses: apple/swift-nio/.github/workflows/swift_matrix.yml@main
