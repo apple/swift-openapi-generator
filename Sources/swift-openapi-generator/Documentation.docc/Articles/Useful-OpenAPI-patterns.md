@@ -113,6 +113,7 @@ The returned binary body contains the raw events, and the stream can be split up
     - encode: `AsyncSequence<some Encodable>.asEncodedJSONSequence(encoder:)`
 - Server-sent Events
     - decode (if data is JSON): `AsyncSequence<ArraySlice<UInt8>>.asDecodedServerSentEventsWithJSONData(of:decoder:)`
+    - decode (if data is JSON with a non-JSON terminating byte sequence): `AsyncSequence<ArraySlice<UInt8>>.asDecodedServerSentEventsWithJSONData(of:decoder:terminate:)`
     - encode (if data is JSON): `AsyncSequence<some Encodable>.asEncodedServerSentEventsWithJSONData(encoder:)`
     - decode (for other data): `AsyncSequence<ArraySlice<UInt8>>.asDecodedServerSentEvents()`
     - encode (for other data): `AsyncSequence<some Encodable>.asEncodedServerSentEvents()`
