@@ -36,6 +36,8 @@ final class Test_Client: XCTestCase {
     }
 
     func testListPets_200() async throws {
+        let requestUUID = UUID()
+        let responseUUID = UUID()
         transport = .init { (request: HTTPRequest, body: HTTPBody?, baseURL: URL, operationID: String) in
             XCTAssertEqual(operationID, "listPets")
             XCTAssertEqual(
@@ -44,12 +46,12 @@ final class Test_Client: XCTestCase {
             )
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .get)
-            XCTAssertEqual(request.headerFields, [.accept: "application/json", .init("My-Request-UUID")!: "abcd-1234"])
+            XCTAssertEqual(request.headerFields, [.accept: "application/json", .init("My-Request-UUID")!: requestUUID.uuidString])
             XCTAssertNil(body)
             return try HTTPResponse(
                 status: .ok,
                 headerFields: [
-                    .contentType: "application/json", .init("my-response-uuid")!: "abcd",
+                    .contentType: "application/json", .init("my-response-uuid")!: responseUUID.uuidString,
                     .init("my-tracing-header")!: "1234",
                 ]
             )
@@ -67,14 +69,14 @@ final class Test_Client: XCTestCase {
         let response = try await client.listPets(
             .init(
                 query: .init(limit: 24, habitat: .water, feeds: [.herbivore, .carnivore], since: .test),
-                headers: .init(My_hyphen_Request_hyphen_UUID: "abcd-1234")
+                headers: .init(My_hyphen_Request_hyphen_UUID: requestUUID)
             )
         )
         guard case let .ok(value) = response else {
             XCTFail("Unexpected response: \(response)")
             return
         }
-        XCTAssertEqual(value.headers.My_hyphen_Response_hyphen_UUID, "abcd")
+        XCTAssertEqual(value.headers.My_hyphen_Response_hyphen_UUID, responseUUID)
         XCTAssertEqual(value.headers.My_hyphen_Tracing_hyphen_Header, "1234")
         switch value.body {
         case .json(let pets): XCTAssertEqual(pets, [.init(id: 1, name: "Fluffz")])
