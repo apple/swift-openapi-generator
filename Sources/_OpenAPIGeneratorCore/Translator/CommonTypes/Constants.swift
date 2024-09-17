@@ -38,7 +38,7 @@ enum Constants {
             ImportDescription(moduleName: Constants.Import.runtime, spi: "Generated"),
             ImportDescription(
                 moduleName: "Foundation",
-                moduleTypes: ["struct Foundation.URL", "struct Foundation.Data", "struct Foundation.Date"],
+                moduleTypes: ["struct Foundation.URL", "struct Foundation.Data", "struct Foundation.Date", "struct Foundation.UUID"],
                 preconcurrency: .onOS(["Linux"])
             ),
         ]
