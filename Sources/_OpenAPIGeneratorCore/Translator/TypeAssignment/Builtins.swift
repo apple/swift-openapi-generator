@@ -36,13 +36,13 @@ extension TypeName {
     /// OpenAPIRuntime module.
     /// - Parameter name: The name of the type.
     /// - Returns: A TypeName representing the specified type within the OpenAPIRuntime module.
-    static func runtime(_ name: String) -> TypeName { TypeName(swiftKeyPath: ["OpenAPIRuntime", name]) }
+    static func runtime(_ name: String) -> TypeName { TypeName(swiftKeyPath: [Constants.Import.runtime, name]) }
 
     /// Returns a type name for a type with the specified name in the
     /// HTTPTypes module.
     /// - Parameter name: The name of the type.
     /// - Returns: A TypeName representing the type with the given name in the HTTPTypes module.
-    static func httpTypes(_ name: String) -> TypeName { TypeName(swiftKeyPath: ["HTTPTypes", name]) }
+    static func httpTypes(_ name: String) -> TypeName { TypeName(swiftKeyPath: [Constants.Import.httpTypes, name]) }
 
     /// Returns the type name for the Date type.
     static var date: Self { .foundation("Date") }
