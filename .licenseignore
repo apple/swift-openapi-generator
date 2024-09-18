@@ -23,6 +23,7 @@ docker/*
 **/Package.resolved
 **/README.md
 **/openapi.yaml
+**/malformed-openapi.yaml
 **/openapi.yml
 **/petstore.yaml
 **/openapi-generator-config.yaml
