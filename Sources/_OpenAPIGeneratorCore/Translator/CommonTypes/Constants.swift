@@ -18,7 +18,7 @@ import OpenAPIKit
 enum Constants {
 
     /// Constants related to the library dependencies.
-    enum Dependency {
+    enum Import {
 
         /// The module name of the OpenAPI runtime library.
         static let runtime: String = "OpenAPIRuntime"
@@ -35,7 +35,7 @@ enum Constants {
 
         /// The descriptions of modules imported by every generated file.
         static let imports: [ImportDescription] = [
-            ImportDescription(moduleName: Constants.Dependency.runtime, spi: "Generated"),
+            ImportDescription(moduleName: Constants.Import.runtime, spi: "Generated"),
             ImportDescription(
                 moduleName: "Foundation",
                 moduleTypes: ["struct Foundation.URL", "struct Foundation.Data", "struct Foundation.Date"],
@@ -45,7 +45,7 @@ enum Constants {
 
         /// The descriptions of modules imported by client and server files.
         static let clientServerImports: [ImportDescription] =
-            imports + [ImportDescription(moduleName: Constants.Dependency.httpTypes)]
+            imports + [ImportDescription(moduleName: Constants.Import.httpTypes)]
     }
 
     /// Constants related to the OpenAPI server object.
