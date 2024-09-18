@@ -42,17 +42,7 @@ extension _GenerateOptions {
                 featureFlags: resolvedFeatureFlags
             )
         }
-        let diagnostics: any DiagnosticCollector & Sendable
-        let finalizeDiagnostics: () throws -> Void
-        if let diagnosticsOutputPath {
-            let _diagnostics = _YamlFileDiagnosticsCollector(url: diagnosticsOutputPath)
-            finalizeDiagnostics = _diagnostics.finalize
-            diagnostics = _diagnostics
-        } else {
-            diagnostics = StdErrPrintingDiagnosticCollector()
-            finalizeDiagnostics = {}
-        }
-
+        let (diagnostics, finalizeDiagnostics) = preparedDiagnosticsCollector(outputPath: diagnosticsOutputPath)
         let doc = self.docPath
         print(
             """
@@ -83,7 +73,7 @@ extension _GenerateOptions {
             try finalizeDiagnostics()
         } catch let error as Diagnostic {
             // Emit our nice Diagnostics message instead of relying on ArgumentParser output.
-            diagnostics.emit(error)
+            try diagnostics.emit(error)
             try finalizeDiagnostics()
             throw ExitCode.failure
         } catch {
