@@ -31,7 +31,7 @@ public enum FeatureFlag: String, Hashable, Codable, CaseIterable, Sendable {
 
     /// When enabled any server URL templating variables that have a defined
     /// enum field will be generated as an enum instead of raw Strings.
-    case serverVariablesAsEnums = "ServerVariablesEnums"
+    case serverVariablesAsEnums
 }
 
 /// A set of enabled feature flags.
