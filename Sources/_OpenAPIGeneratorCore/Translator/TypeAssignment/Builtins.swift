@@ -42,9 +42,7 @@ extension TypeName {
     /// HTTPTypes module.
     /// - Parameter name: The name of the type.
     /// - Returns: A TypeName representing the type with the given name in the HTTPTypes module.
-    static func httpTypes(_ name: String) -> TypeName {
-        TypeName(swiftKeyPath: [Constants.Import.httpTypes, name])
-    }
+    static func httpTypes(_ name: String) -> TypeName { TypeName(swiftKeyPath: [Constants.Import.httpTypes, name]) }
 
     /// Returns the type name for the Date type.
     static var date: Self { .foundation("Date") }
