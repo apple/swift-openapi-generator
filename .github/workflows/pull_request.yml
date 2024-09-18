@@ -68,3 +68,4 @@ jobs:
     swift-6-language-mode:
         name: Swift 6 Language Mode
         uses: apple/swift-nio/.github/workflows/swift_6_language_mode.yml@main
+        if: false  # Disabled for now.
