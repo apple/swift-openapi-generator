@@ -61,6 +61,7 @@ read -ra PATHS_TO_CHECK_FOR_LICENSE <<< "$( \
   ":(exclude)**/Package.swift" \
   ":(exclude)**/Package.resolved" \
   ":(exclude)**/README.md" \
+  ":(exclude)**/malformed-openapi.yaml" \
   ":(exclude)**/openapi.yaml" \
   ":(exclude)**/openapi.yml" \
   ":(exclude)**/petstore.yaml" \
