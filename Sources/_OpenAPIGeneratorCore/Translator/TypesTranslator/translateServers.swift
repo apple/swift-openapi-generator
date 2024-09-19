@@ -78,7 +78,6 @@ extension TypesFileTranslator {
 
         var serverDecls: [Declaration] = []
 
-
         for (index, decl) in servers.enumerated() {
             let serverDecl = translateServer(index: index, server: decl, variablesNamespace: &variablesNamespace)
             serverDecls.append(serverDecl)

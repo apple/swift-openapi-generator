@@ -5181,6 +5181,384 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testServerWithNoVariables() throws {
+        try self.assertServersTranslation(
+            """
+              - url: https://example.com/api
+            """,
+            """
+            public enum Servers {
+                public static func server1() throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "https://example.com/api",
+                        variables: []
+                    )
+                }
+            }
+            """
+        )
+    }
+
+    func testServerWithNoVariablesAndFeatureFlagEnabled() throws {
+        try self.assertServersTranslation(
+            """
+              - url: https://example.com/api
+            """,
+            """
+            public enum Servers {
+                public static func server1() throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "https://example.com/api",
+                        variables: []
+                    )
+                }
+            }
+            """,
+            featureFlags: [.serverVariablesAsEnums]
+        )
+    }
+
+    func testServerWithDefaultVariable() throws {
+        try self.assertServersTranslation(
+            """
+              - url: '{protocol}://example.com/api'
+                description: A custom domain.
+                variables:
+                    protocol:
+                        default: https
+                        description: A network protocol.
+            """,
+            """
+            public enum Servers {
+                public static func server1(_protocol: Swift.String = "https") throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "{protocol}://example.com/api",
+                        variables: [
+                            .init(
+                                name: "protocol",
+                                value: _protocol
+                            )
+                        ]
+                    )
+                }
+            }
+            """
+        )
+    }
+
+    func testServerWithDefaultVariableAndFeatureFlagEnabled() throws {
+        try self.assertServersTranslation(
+            """
+              - url: '{protocol}://example.com/api'
+                description: A custom domain.
+                variables:
+                    protocol:
+                        default: https
+                        description: A network protocol.
+            """,
+            """
+            public enum Servers {
+                public static func server1(_protocol: Swift.String = "https") throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "{protocol}://example.com/api",
+                        variables: [
+                            .init(
+                                name: "protocol",
+                                value: _protocol
+                            )
+                        ]
+                    )
+                }
+            }
+            """,
+            featureFlags: [.serverVariablesAsEnums]
+        )
+    }
+
+    func testServerWithDefaultAndEnumVariables() throws {
+        try self.assertServersTranslation(
+            """
+              - url: 'https://{environment}.example.com/api/{version}'
+                description: A custom domain.
+                variables:
+                    environment:
+                        enum:
+                            - production
+                            - sandbox
+                        default: production
+                    version:
+                        default: v1
+            """,
+            """
+            public enum Servers {
+                public static func server1(
+                    environment: Swift.String = "production",
+                    version: Swift.String = "v1"
+                ) throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "https://{environment}.example.com/api/{version}",
+                        variables: [
+                            .init(
+                                name: "environment",
+                                value: environment,
+                                allowedValues: [
+                                    "production",
+                                    "sandbox"
+                                ]
+                            ),
+                            .init(
+                                name: "version",
+                                value: version
+                            )
+                        ]
+                    )
+                }
+            }
+            """
+        )
+    }
+
+    func testServerWithDefaultAndEnumVariablesAndFeatureFlagEnabled() throws {
+        try self.assertServersTranslation(
+            """
+              - url: 'https://{environment}.example.com/api/{version}'
+                description: A custom domain.
+                variables:
+                    environment:
+                        enum:
+                            - production
+                            - sandbox
+                        default: production
+                    version:
+                        default: v1
+            """,
+            """
+            public enum Servers {
+                public enum Variables {
+                    public enum Server1 {
+                        @frozen public enum Environment: Swift.String {
+                            case production
+                            case sandbox
+                            public static var `default`: Environment {
+                                return Environment.production
+                            }
+                        }
+                    }
+                }
+                public static func server1(
+                    environment: Variables.Server1.Environment = Variables.Server1.Environment.default,
+                    version: Swift.String = "v1"
+                ) throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "https://{environment}.example.com/api/{version}",
+                        variables: [
+                            .init(
+                                name: "environment",
+                                value: environment.rawValue
+                            ),
+                            .init(
+                                name: "version",
+                                value: version
+                            )
+                        ]
+                    )
+                }
+            }
+            """,
+            featureFlags: [.serverVariablesAsEnums]
+        )
+    }
+    
+    func testServersMultipleServers() throws {
+        try self.assertServersTranslation(
+            """
+              - url: 'https://{environment}.example.com/api/{version}'
+                description: A custom domain.
+                variables:
+                    environment:
+                        enum:
+                            - production
+                            - sandbox
+                        default: production
+                    version:
+                        default: v1
+              - url: 'https://{environment}.api.example.com/'
+                variables:
+                    environment:
+                        enum:
+                            - sandbox
+                            - develop
+                        default: develop
+              - url: 'https://example.com/api/{version}'
+                description: Vanity URL for production.example.com/api/{version}
+                variables:
+                    version:
+                        default: v1
+              - url: 'https://api.example.com/'
+                description: Vanity URL for production.api.example.com
+            """,
+            """
+            public enum Servers {
+                public static func server1(
+                    environment: Swift.String = "production",
+                    version: Swift.String = "v1"
+                ) throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "https://{environment}.example.com/api/{version}",
+                        variables: [
+                            .init(
+                                name: "environment",
+                                value: environment,
+                                allowedValues: [
+                                    "production",
+                                    "sandbox"
+                                ]
+                            ),
+                            .init(
+                                name: "version",
+                                value: version
+                            )
+                        ]
+                    )
+                }
+                public static func server2(environment: Swift.String = "develop") throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "https://{environment}.api.example.com/",
+                        variables: [
+                            .init(
+                                name: "environment",
+                                value: environment,
+                                allowedValues: [
+                                    "sandbox",
+                                    "develop"
+                                ]
+                            )
+                        ]
+                    )
+                }
+                public static func server3(version: Swift.String = "v1") throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "https://example.com/api/{version}",
+                        variables: [
+                            .init(
+                                name: "version",
+                                value: version
+                            )
+                        ]
+                    )
+                }
+                public static func server4() throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "https://api.example.com/",
+                        variables: []
+                    )
+                }
+            }
+            """
+        )
+    }
+    
+    func testServersMultipleServersWithFeatureFlagEnabled() throws {
+        try self.assertServersTranslation(
+            """
+              - url: 'https://{environment}.example.com/api/{version}'
+                description: A custom domain.
+                variables:
+                    environment:
+                        enum:
+                            - production
+                            - sandbox
+                        default: production
+                    version:
+                        default: v1
+              - url: 'https://{environment}.api.example.com/'
+                variables:
+                    environment:
+                        enum:
+                            - sandbox
+                            - develop
+                        default: develop
+              - url: 'https://example.com/api/{version}'
+                description: Vanity URL for production.example.com/api/{version}
+                variables:
+                    version:
+                        default: v1
+              - url: 'https://api.example.com/'
+                description: Vanity URL for production.api.example.com
+            """,
+            """
+            public enum Servers {
+                public enum Variables {
+                    public enum Server1 {
+                        @frozen public enum Environment: Swift.String {
+                            case production
+                            case sandbox
+                            public static var `default`: Environment {
+                                return Environment.production
+                            }
+                        }
+                    }
+                    public enum Server2 {
+                        @frozen public enum Environment: Swift.String {
+                            case sandbox
+                            case develop
+                            public static var `default`: Environment {
+                                return Environment.develop
+                            }
+                        }
+                    }
+                }
+                public static func server1(
+                    environment: Variables.Server1.Environment = Variables.Server1.Environment.default,
+                    version: Swift.String = "v1"
+                ) throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "https://{environment}.example.com/api/{version}",
+                        variables: [
+                            .init(
+                                name: "environment",
+                                value: environment.rawValue
+                            ),
+                            .init(
+                                name: "version",
+                                value: version
+                            )
+                        ]
+                    )
+                }
+                public static func server2(environment: Variables.Server2.Environment = Variables.Server2.Environment.default) throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "https://{environment}.api.example.com/",
+                        variables: [
+                            .init(
+                                name: "environment",
+                                value: environment.rawValue
+                            )
+                        ]
+                    )
+                }
+                public static func server3(version: Swift.String = "v1") throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "https://example.com/api/{version}",
+                        variables: [
+                            .init(
+                                name: "version",
+                                value: version
+                            )
+                        ]
+                    )
+                }
+                public static func server4() throws -> Foundation.URL {
+                    try Foundation.URL(
+                        validatingOpenAPIServerURL: "https://api.example.com/",
+                        variables: []
+                    )
+                }
+            }
+            """,
+            featureFlags: [.serverVariablesAsEnums]
+        )
+    }
 }
 
 extension SnippetBasedReferenceTests {
@@ -5200,6 +5578,19 @@ extension SnippetBasedReferenceTests {
         componentsYAML: String
     ) throws -> TypesFileTranslator {
         let components = try YAMLDecoder().decode(OpenAPI.Components.self, from: componentsYAML)
+        return TypesFileTranslator(
+            config: Config(mode: .types, access: accessModifier, featureFlags: featureFlags),
+            diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
+            components: components
+        )
+    }
+    
+    func makeTypesTranslator(
+        accessModifier: AccessModifier = .public,
+        featureFlags: FeatureFlags = [],
+        ignoredDiagnosticMessages: Set<String> = [],
+        components: OpenAPI.Components = .noComponents
+    ) throws -> TypesFileTranslator {
         return TypesFileTranslator(
             config: Config(mode: .types, access: accessModifier, featureFlags: featureFlags),
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
@@ -5472,6 +5863,21 @@ extension SnippetBasedReferenceTests {
         )
         let (registerHandlersDecl, _) = try translator.translateRegisterHandlers(operations)
         try XCTAssertSwiftEquivalent(registerHandlersDecl, expectedSwift, file: file, line: line)
+    }
+
+    func assertServersTranslation(
+        _ serversYAML: String,
+        _ expectedSwift: String,
+        accessModifier: AccessModifier = .public,
+        featureFlags: FeatureFlags = [],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        continueAfterFailure = false
+        let servers = try YAMLDecoder().decode([OpenAPI.Server].self, from: serversYAML)
+        let translator = try makeTypesTranslator(accessModifier: accessModifier, featureFlags: featureFlags)
+        let translation = translator.translateServers(servers)
+        try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 }
 
