@@ -62,9 +62,6 @@ let package = Package(
         // code.
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.3.2"),
         .package(url: "https://github.com/apple/swift-http-types", from: "1.0.2"),
-
-        // Build and preview docs
-        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.3.0"),
     ],
     targets: [
 

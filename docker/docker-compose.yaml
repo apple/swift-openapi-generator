@@ -26,11 +26,11 @@ services:
 
   soundness:
     <<: *common
-    command: /bin/bash -xcl "swift -version && uname -a && ./scripts/soundness.sh"
+    command: echo "skipping; moved to Github Actions"
 
   test:
     <<: *common
-    command: /bin/bash -xcl "swift $${SWIFT_TEST_VERB-test} $${WARN_AS_ERROR_ARG-} $${SANITIZER_ARG-} $${IMPORT_CHECK_ARG-} $${STRICT_CONCURRENCY_ARG-}"
+    command: echo "skipping; moved to Github Actions"
 
   shell:
     <<: *common
@@ -38,13 +38,13 @@ services:
 
   integration-test:
     <<: *common
-    command: /bin/bash -xcl "swift -version && uname -a && bash ./scripts/run-integration-test.sh"
+    command: echo "skipping; moved to Github Actions"
     environment:
       SWIFT_OPENAPI_GENERATOR_REPO_URL: file:///code
 
   compatibility-test:
     <<: *common
-    command: /bin/bash -xcl "cat /proc/cpuinfo && cat /proc/meminfo && swift test --filter $${SWIFT_OPENAPI_COMPATIBILITY_TEST_FILTER}"
+    command: echo "skipping; moved to Github Actions"
     environment:  # These can be overridden when running locally.
       SWIFT_OPENAPI_COMPATIBILITY_TEST_ENABLE: "true"
       SWIFT_OPENAPI_COMPATIBILITY_TEST_SKIP_BUILD: "true"
@@ -54,10 +54,10 @@ services:
 
   docc-test:
     <<: *common
-    command: /bin/bash -xcl "swift -version && uname -a && bash ./scripts/check-for-docc-warnings.sh"
+    command: echo "skipping; moved to Github Actions"
     environment:
       DOCC_TARGET: swift-openapi-generator
 
   examples:
     <<: *common
-    command: /bin/bash -xcl "swift -version && uname -a && bash ./scripts/test-examples.sh"
+    command: echo "skipping; moved to Github Actions"
