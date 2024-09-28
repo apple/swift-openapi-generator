@@ -14,37 +14,19 @@
 import OpenAPIKit
 
 extension TypesFileTranslator {
-    /// Returns a declaration of a server URL static method defined in
-    /// the OpenAPI document. Also appends server variables enums
-    /// into the variables namespace parameter, if any enums were
-    /// generated.
-    /// - Parameters:
-    ///   - index: The index of the server in the list of servers defined
-    ///   in the OpenAPI document.
-    ///   - server: The server URL information.
-    ///   - variablesNamespace: The enum namespace which is to contain
-    ///   any variable enum definitions that may be required.
-    /// - Returns: A static method declaration, and a name for the variable to
-    /// declare the method under.
-    func translateServer(index: Int, server: OpenAPI.Server, variablesNamespace: inout EnumDescription) -> Declaration {
-        let serverVariables = translateServerVariableNamespace(index: index, server: server, variablesNamespaceName: variablesNamespace.name)
-
-        if let serverVariablesNamespace = serverVariables.decl {
-            variablesNamespace.members.append(serverVariablesNamespace)
-        }
-
-        let parameters = serverVariables.variables.map(\.parameter)
-        let variableInitializers = serverVariables.variables.map(\.initializer)
-        let functionComments = serverVariables.variables.map(\.functionComment)
-
-        let methodName = "\(Constants.ServerURL.propertyPrefix)\(index + 1)"
-
-        let methodDecl = Declaration.commentable(
-            .functionComment(abstract: server.description, parameters: functionComments),
+    func translateServerStaticFunction(
+        isDeprecated: Bool,
+        abstract: String?,
+        name: String,
+        url: String,
+        variableGenerators variables: [any ServerVariableGenerator]
+    ) -> Declaration {
+        return .commentable(
+            .functionComment(abstract: abstract, parameters: variables.map(\.functionComment)),
             .function(
                 accessModifier: config.access,
-                kind: .function(name: methodName, isStatic: true),
-                parameters: parameters,
+                kind: .function(name: name, isStatic: true),
+                parameters: variables.map(\.parameter),
                 keywords: [.throws],
                 returnType: .identifierType(TypeName.url),
                 body: [
@@ -54,15 +36,70 @@ extension TypesFileTranslator {
                                 .call([
                                     .init(
                                         label: "validatingOpenAPIServerURL",
-                                        expression: .literal(.string(server.urlTemplate.absoluteString))
-                                    ), .init(label: "variables", expression: .literal(.array(variableInitializers))),
+                                        expression: .literal(.string(url))
+                                    ),
+                                    .init(
+                                        label: "variables",
+                                        expression: .literal(.array(variables.map(\.initializer)))
+                                    )
                                 ])
                         )
                     )
                 ]
+            ).deprecate(
+                if: isDeprecated,
+                description: .init(message: "Migrate to the new type-safe API for server URLs.")
             )
         )
-        return methodDecl
+    }
+
+    /// Returns a declaration of a server URL static function defined in
+    /// the OpenAPI document. The function is marked as deprecated
+    /// with a message informing the adopter to use the new type-safe
+    /// API.
+    /// - Parameters:
+    ///   - index: The index of the server in the list of servers defined
+    ///   in the OpenAPI document.
+    ///   - server: The server URL information.
+    /// - Returns: A static function declaration.
+    func translateServerAsDeprecated(index: Int, server: OpenAPI.Server) -> Declaration {
+        let serverVariables = translateServerVariables(index: index, server: server, generateAsEnum: false)
+        return translateServerStaticFunction(isDeprecated: true,
+                                             abstract: server.description,
+                                             name: "\(Constants.ServerURL.propertyPrefix)\(index + 1)",
+                                             url: server.urlTemplate.absoluteString,
+                                             variableGenerators: serverVariables)
+    }
+
+    /// Returns a namespace (enum) declaration for a server defined in
+    /// the OpenAPI document. Within the namespace are enums to
+    /// represent any variables that also have enum values defined in the
+    /// OpenAPI document, and a single static function named 'url' which
+    /// at runtime returns the resolved server URL.
+    ///
+    /// The server's namespace is named to identify the human-friendly
+    /// index of the enum (e.g. Server1) and is present to ensure each
+    /// server definition's variables do not conflict with one another.
+    /// - Parameters:
+    ///   - index: The index of the server in the list of servers defined
+    ///   in the OpenAPI document.
+    ///   - server: The server URL information.
+    /// - Returns: A static function declaration.
+    func translateServer(index: Int, server: OpenAPI.Server) -> Declaration {
+        let serverVariables = translateServerVariables(index: index, server: server, generateAsEnum: true)
+        let methodDecl = translateServerStaticFunction(isDeprecated: false,
+                                                       abstract: nil, // server.description is on the namespace now
+                                                       name: Constants.ServerURL.urlStaticFunc,
+                                                       url: server.urlTemplate.absoluteString,
+                                                       variableGenerators: serverVariables)
+        return .commentable(
+            server.description.map(Comment.doc(_:)),
+            .enum(
+                accessModifier: config.access,
+                name: "\(Constants.ServerURL.serverNamespacePrefix)\(index + 1)",
+                members: serverVariables.compactMap(\.declaration) + CollectionOfOne(methodDecl)
+            )
+        )
     }
 
     /// Returns a declaration of a namespace (enum) called "Servers" that
@@ -71,23 +108,13 @@ extension TypesFileTranslator {
     /// - Parameter servers: The servers to include in the extension.
     /// - Returns: A declaration of an enum namespace of the server URLs type.
     func translateServers(_ servers: [OpenAPI.Server]) -> Declaration {
-        var variablesNamespace = EnumDescription(
-            accessModifier: config.access,
-            name: Constants.ServerURL.variablesNamespace
-        )
-
         var serverDecls: [Declaration] = []
 
-        for (index, decl) in servers.enumerated() {
-            let serverDecl = translateServer(index: index, server: decl, variablesNamespace: &variablesNamespace)
-            serverDecls.append(serverDecl)
-        }
-
-        if !variablesNamespace.members.isEmpty {
-            serverDecls.insert(.commentable(
-                .doc("Server URL variables defined in the OpenAPI document."),
-                .enum(variablesNamespace)
-            ), at: 0)
+        for (index, server) in servers.enumerated() {
+            serverDecls.append(contentsOf: [
+                translateServer(index: index, server: server),
+                translateServerAsDeprecated(index: index, server: server)
+            ])
         }
 
         return .commentable(
