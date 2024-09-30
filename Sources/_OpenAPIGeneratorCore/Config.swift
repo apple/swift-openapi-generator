@@ -32,6 +32,9 @@ public struct Config: Sendable {
     /// Additional imports to add to each generated file.
     public var additionalImports: [String]
 
+    /// Additional protocol conformances to add to the APIProtocol type
+    public var additionalAPIProtocols: [String]
+
     /// Filter to apply to the OpenAPI document before generation.
     public var filter: DocumentFilter?
 
@@ -49,12 +52,14 @@ public struct Config: Sendable {
         mode: GeneratorMode,
         access: AccessModifier,
         additionalImports: [String] = [],
+        additionalAPIProtocols: [String] = [],
         filter: DocumentFilter? = nil,
         featureFlags: FeatureFlags = []
     ) {
         self.mode = mode
         self.access = access
         self.additionalImports = additionalImports
+        self.additionalAPIProtocols = additionalAPIProtocols
         self.filter = filter
         self.featureFlags = featureFlags
     }

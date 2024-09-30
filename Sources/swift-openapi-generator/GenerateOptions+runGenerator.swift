@@ -32,12 +32,14 @@ extension _GenerateOptions {
         let sortedModes = try resolvedModes(config)
         let resolvedAccessModifier = resolvedAccessModifier(config) ?? Config.defaultAccessModifier
         let resolvedAdditionalImports = resolvedAdditionalImports(config)
+        let resolvedAdditionalAPIProtocols = resolvedAdditionalAPIProtocols(config)
         let resolvedFeatureFlags = resolvedFeatureFlags(config)
         let configs: [Config] = sortedModes.map {
             .init(
                 mode: $0,
                 access: resolvedAccessModifier,
                 additionalImports: resolvedAdditionalImports,
+                additionalAPIProtocols: resolvedAdditionalAPIProtocols,
                 filter: config?.filter,
                 featureFlags: resolvedFeatureFlags
             )
