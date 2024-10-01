@@ -76,7 +76,7 @@ extension TypesFileTranslator {
             inParent: typeName.appending(swiftComponent: nil, jsonComponent: "content")
         )
         let associatedDeclarations: [Declaration]
-        if TypeMatcher.isInlinable(schema) {
+        if typeMatcher.isInlinable(schema) {
             associatedDeclarations = try translateSchema(
                 typeName: bodyTypeUsage.typeName,
                 schema: schema,
@@ -117,7 +117,7 @@ extension TypesFileTranslator {
         schema: JSONSchema
     ) throws -> [Declaration] {
         let associatedDeclarations: [Declaration]
-        if TypeMatcher.isInlinable(schema) {
+        if typeMatcher.isInlinable(schema) {
             associatedDeclarations = try translateSchema(typeName: typeName, schema: schema, overrides: .none)
         } else {
             associatedDeclarations = []

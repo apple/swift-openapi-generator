@@ -60,19 +60,11 @@ extension TypedParameter {
     /// A schema to be inlined.
     ///
     /// - Returns: Nil when schema is referenceable.
-    var inlineableSchema: JSONSchema? { schema.inlineableSchema }
-}
-
-extension UnresolvedSchema {
-
-    /// A schema to be inlined.
-    ///
-    /// - Returns: Nil when schema is referenceable.
     var inlineableSchema: JSONSchema? {
-        switch self {
+        switch schema {
         case .a: return nil
         case let .b(schema):
-            if TypeMatcher.isInlinable(schema) { return schema }
+            if TypeMatcher(context: context).isInlinable(schema) { return schema }
             return nil
         }
     }

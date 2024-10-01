@@ -145,7 +145,7 @@ extension TypesFileTranslator {
         let associatedType = typedContent.resolvedTypeUsage
         let content = typedContent.content
         let schema = content.schema
-        if TypeMatcher.isInlinable(schema) || content.isReferenceableMultipart {
+        if typeMatcher.isInlinable(schema) || typeMatcher.isReferenceableMultipart(content) {
             let decls: [Declaration]
             if contentType.isMultipart {
                 decls = try translateMultipartBody(typedContent)

@@ -122,7 +122,9 @@ struct TypeAssigner {
         inParent parent: TypeName
     ) throws -> TypeUsage {
         let multipartBodyElementTypeName: TypeName
-        if let ref = TypeMatcher.multipartElementTypeReferenceIfReferenceable(schema: schema, encoding: encoding) {
+        if let ref = TypeMatcher(context: context)
+            .multipartElementTypeReferenceIfReferenceable(schema: schema, encoding: encoding)
+        {
             multipartBodyElementTypeName = try typeName(for: ref)
         } else {
             let swiftSafeName = context.asSwiftSafeName(hint)
