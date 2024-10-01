@@ -50,7 +50,7 @@ extension TypesFileTranslator {
                 typeUsage: headersTypeName.asUsage,
                 default: headersStructBlueprint.hasEmptyInit ? .emptyInit : nil,
                 associatedDeclarations: [headersStructDecl],
-                asSwiftSafeName: swiftSafeName
+                context: context
             )
         } else {
             headersProperty = nil
@@ -92,7 +92,7 @@ extension TypesFileTranslator {
                 typeUsage: contentTypeUsage,
                 default: hasNoContent ? .nil : nil,
                 associatedDeclarations: [contentEnumDecl],
-                asSwiftSafeName: swiftSafeName
+                context: context
             )
         } else {
             bodyProperty = nil

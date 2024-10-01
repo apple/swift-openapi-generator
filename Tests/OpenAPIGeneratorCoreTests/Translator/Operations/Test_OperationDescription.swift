@@ -144,7 +144,7 @@ final class Test_OperationDescription: Test_Core {
             endpoint: endpoint,
             pathParameters: pathItem.parameters,
             components: .init(),
-            asSwiftSafeName: { $0 }
+            context: .init(asSwiftSafeName: { $0 })
         )
     }
 }

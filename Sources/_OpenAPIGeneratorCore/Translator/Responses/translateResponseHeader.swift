@@ -78,7 +78,7 @@ extension TypesFileTranslator {
             typeUsage: typeUsage,
             default: header.header.required ? nil : .nil,
             associatedDeclarations: associatedDeclarations,
-            asSwiftSafeName: swiftSafeName
+            context: context
         )
     }
 

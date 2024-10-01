@@ -5284,7 +5284,7 @@ extension SnippetBasedReferenceTests {
         let operationDescriptions = try OperationDescription.all(
             from: document.paths,
             in: document.components,
-            asSwiftSafeName: types.swiftSafeName
+            context: types.context
         )
         let operation = try XCTUnwrap(operationDescriptions.first)
         let generatedTypesStructuredSwift = try types.translateOperationInput(operation)
@@ -5343,7 +5343,7 @@ extension SnippetBasedReferenceTests {
         let operationDescriptions = try OperationDescription.all(
             from: document.paths,
             in: document.components,
-            asSwiftSafeName: types.swiftSafeName
+            context: types.context
         )
         let operation = try XCTUnwrap(operationDescriptions.first)
         let generatedTypesStructuredSwift = try types.translateOperationOutput(operation)
@@ -5465,11 +5465,7 @@ extension SnippetBasedReferenceTests {
     ) throws {
         let (_, _, translator) = try makeTranslators()
         let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
-        let operations = try OperationDescription.all(
-            from: paths,
-            in: .noComponents,
-            asSwiftSafeName: translator.swiftSafeName
-        )
+        let operations = try OperationDescription.all(from: paths, in: .noComponents, context: translator.context)
         let (registerHandlersDecl, _) = try translator.translateRegisterHandlers(operations)
         try XCTAssertSwiftEquivalent(registerHandlersDecl, expectedSwift, file: file, line: line)
     }

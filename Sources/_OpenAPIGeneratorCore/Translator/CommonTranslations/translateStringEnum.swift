@@ -49,11 +49,11 @@ extension FileTranslator {
                     // In nullable enum schemas, empty strings are parsed as Void.
                     // This is unlikely to be fixed, so handling that case here.
                     // https://github.com/apple/swift-openapi-generator/issues/118
-                    if isNullable && anyValue is Void { return (swiftSafeName(for: ""), .string("")) }
+                    if isNullable && anyValue is Void { return (context.asSwiftSafeName(""), .string("")) }
                     guard let rawValue = anyValue as? String else {
                         throw GenericError(message: "Disallowed value for a string enum '\(typeName)': \(anyValue)")
                     }
-                    let caseName = swiftSafeName(for: rawValue)
+                    let caseName = context.asSwiftSafeName(rawValue)
                     return (caseName, .string(rawValue))
                 case .integer:
                     let rawValue: Int

@@ -43,3 +43,19 @@ protocol FileTranslator {
     /// - Throws: An error if translation encounters issues or errors during the process.
     func translateFile(parsedOpenAPI: ParsedOpenAPIRepresentation) throws -> StructuredSwiftRepresentation
 }
+
+extension FileTranslator {
+
+    /// A new context from the file translator.
+    var context: TranslatorContext { TranslatorContext(asSwiftSafeName: { $0.safeForSwiftCode }) }
+}
+
+/// A set of configuration values for concrete file translators.
+struct TranslatorContext {
+
+    /// A closure that returns a copy of the string modified to be a valid Swift identifier.
+    ///
+    /// - Parameter string: The string to convert to be safe for Swift.
+    /// - Returns: A Swift-safe version of the input string.
+    var asSwiftSafeName: (String) -> String
+}
