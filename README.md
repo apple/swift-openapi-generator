@@ -1,5 +1,6 @@
 # Swift OpenAPI Generator
 
+[![Scheduled](https://github.com/apple/swift-openapi-generator/actions/workflows/scheduled.yml/badge.svg?branch=main)](https://github.com/apple/swift-openapi-generator/actions/workflows/scheduled.yml)
 [![](https://img.shields.io/badge/sswg-sandbox-lightgrey.svg)](https://www.swift.org/sswg/)
 [![](https://img.shields.io/badge/docc-read_documentation-blue)](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation)
 [![](https://img.shields.io/github/v/release/apple/swift-openapi-generator)](https://github.com/apple/swift-openapi-generator/releases)
