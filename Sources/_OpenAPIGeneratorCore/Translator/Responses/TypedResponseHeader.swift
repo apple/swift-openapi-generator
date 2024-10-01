@@ -16,19 +16,19 @@ import OpenAPIKit
 /// A container for an OpenAPI response header and its computed
 /// Swift type usage.
 struct TypedResponseHeader {
-    
+
     /// The OpenAPI response header.
     var header: OpenAPI.Header
-    
+
     /// The name of the header.
     var name: String
-    
+
     /// The underlying schema.
     var schema: UnresolvedSchema
-    
+
     /// The Swift type representing the response header.
     var typeUsage: TypeUsage
-    
+
     /// The coding strategy appropriate for this parameter.
     var codingStrategy: CodingStrategy
 

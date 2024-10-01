@@ -15,22 +15,22 @@ import OpenAPIKit
 
 /// A container for an OpenAPI parameter and its computed Swift type usage.
 struct TypedParameter {
-    
+
     /// The OpenAPI parameter.
     var parameter: OpenAPI.Parameter
-    
+
     /// The underlying schema.
     var schema: UnresolvedSchema
-    
+
     /// The parameter serialization style.
     var style: OpenAPI.Parameter.SchemaContext.Style
-    
+
     /// The parameter explode value.
     var explode: Bool
-    
+
     /// The computed type usage.
     var typeUsage: TypeUsage
-    
+
     /// The coding strategy appropriate for this parameter.
     var codingStrategy: CodingStrategy
 
