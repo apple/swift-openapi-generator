@@ -13,7 +13,6 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 import Yams
-import _OpenAPIGeneratorCore
 
 struct _DiagnosticsYamlFileContent: Encodable {
     var uniqueMessages: [String]

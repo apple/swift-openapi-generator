@@ -165,7 +165,33 @@ public protocol DiagnosticCollector {
 
     /// Submits a diagnostic to the collector.
     /// - Parameter diagnostic: The diagnostic to submit.
-    func emit(_ diagnostic: Diagnostic)
+    /// - Throws: An error if the implementing type determines that one should be thrown.
+    func emit(_ diagnostic: Diagnostic) throws
+}
+
+/// A type that conforms to the `DiagnosticCollector` protocol.
+///
+/// It receives diagnostics and forwards them to an upstream `DiagnosticCollector`.
+///
+/// If a diagnostic with a severity of `.error` is emitted, this collector will throw the diagnostic as an error.
+public struct ErrorThrowingDiagnosticCollector: DiagnosticCollector {
+    let upstream: any DiagnosticCollector
+
+    /// Initializes a new `ErrorThrowingDiagnosticCollector` with an upstream `DiagnosticCollector`.
+    ///
+    /// The upstream collector is where this collector will forward all received diagnostics.
+    ///
+    /// - Parameter upstream: The `DiagnosticCollector` to which this collector will forward diagnostics.
+    public init(upstream: any DiagnosticCollector) { self.upstream = upstream }
+
+    /// Emits a diagnostic to the collector.
+    ///
+    /// - Parameter diagnostic: The diagnostic to be submitted.
+    /// - Throws: The diagnostic itself if its severity is `.error`.
+    public func emit(_ diagnostic: Diagnostic) throws {
+        try upstream.emit(diagnostic)
+        if diagnostic.severity == .error { throw diagnostic }
+    }
 }
 
 extension DiagnosticCollector {
@@ -180,8 +206,9 @@ extension DiagnosticCollector {
     ///   feature was detected.
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
-    func emitUnsupported(_ feature: String, foundIn: String, context: [String: String] = [:]) {
-        emit(Diagnostic.unsupported(feature, foundIn: foundIn, context: context))
+    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
+    func emitUnsupported(_ feature: String, foundIn: String, context: [String: String] = [:]) throws {
+        try emit(Diagnostic.unsupported(feature, foundIn: foundIn, context: context))
     }
 
     /// Emits a diagnostic for an unsupported schema found in the specified
@@ -193,9 +220,10 @@ extension DiagnosticCollector {
     ///   schema was detected.
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
-    func emitUnsupportedSchema(reason: String, schema: JSONSchema, foundIn: String, context: [String: String] = [:]) {
-        emit(Diagnostic.unsupportedSchema(reason: reason, schema: schema, foundIn: foundIn, context: context))
-    }
+    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
+    func emitUnsupportedSchema(reason: String, schema: JSONSchema, foundIn: String, context: [String: String] = [:])
+        throws
+    { try emit(Diagnostic.unsupportedSchema(reason: reason, schema: schema, foundIn: foundIn, context: context)) }
 
     /// Emits a diagnostic for an unsupported feature found in the specified
     /// type name.
@@ -206,8 +234,9 @@ extension DiagnosticCollector {
     ///   - foundIn: The type name related to where the issue was detected.
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
-    func emitUnsupported(_ feature: String, foundIn: TypeName, context: [String: String] = [:]) {
-        emit(Diagnostic.unsupported(feature, foundIn: foundIn.description, context: context))
+    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
+    func emitUnsupported(_ feature: String, foundIn: TypeName, context: [String: String] = [:]) throws {
+        try emit(Diagnostic.unsupported(feature, foundIn: foundIn.description, context: context))
     }
 
     /// Emits a diagnostic for an unsupported feature found in the specified
@@ -222,9 +251,12 @@ extension DiagnosticCollector {
     ///   feature was detected.
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
-    func emitUnsupportedIfNotNil(_ test: Any?, _ feature: String, foundIn: String, context: [String: String] = [:]) {
+    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
+    func emitUnsupportedIfNotNil(_ test: Any?, _ feature: String, foundIn: String, context: [String: String] = [:])
+        throws
+    {
         if test == nil { return }
-        emitUnsupported(feature, foundIn: foundIn, context: context)
+        try emitUnsupported(feature, foundIn: foundIn, context: context)
     }
 
     /// Emits a diagnostic for an unsupported feature found in the specified
@@ -239,14 +271,15 @@ extension DiagnosticCollector {
     ///   feature was detected.
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
+    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
     func emitUnsupportedIfNotEmpty<C: Collection>(
         _ test: C?,
         _ feature: String,
         foundIn: String,
         context: [String: String] = [:]
-    ) {
+    ) throws {
         guard let test = test, !test.isEmpty else { return }
-        emitUnsupported(feature, foundIn: foundIn, context: context)
+        try emitUnsupported(feature, foundIn: foundIn, context: context)
     }
 
     /// Emits a diagnostic for an unsupported feature found in the specified
@@ -261,9 +294,11 @@ extension DiagnosticCollector {
     ///   feature was detected.
     ///   - context: A set of key-value pairs that help the user understand
     ///   where the warning occurred.
-    func emitUnsupportedIfTrue(_ test: Bool, _ feature: String, foundIn: String, context: [String: String] = [:]) {
+    /// - Throws: This method will throw the diagnostic if the severity of the diagnostic is `.error`.
+    func emitUnsupportedIfTrue(_ test: Bool, _ feature: String, foundIn: String, context: [String: String] = [:]) throws
+    {
         if !test { return }
-        emitUnsupported(feature, foundIn: foundIn, context: context)
+        try emitUnsupported(feature, foundIn: foundIn, context: context)
     }
 }
 

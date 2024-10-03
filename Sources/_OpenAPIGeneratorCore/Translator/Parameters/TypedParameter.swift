@@ -140,7 +140,7 @@ extension FileTranslator {
             switch location {
             case .query:
                 guard case .form = style else {
-                    diagnostics.emitUnsupported(
+                    try diagnostics.emitUnsupported(
                         "Query params of style \(style.rawValue), explode: \(explode)",
                         foundIn: foundIn
                     )
@@ -148,14 +148,14 @@ extension FileTranslator {
                 }
             case .header, .path:
                 guard case .simple = style else {
-                    diagnostics.emitUnsupported(
+                    try diagnostics.emitUnsupported(
                         "\(location.rawValue) params of style \(style.rawValue), explode: \(explode)",
                         foundIn: foundIn
                     )
                     return nil
                 }
             case .cookie:
-                diagnostics.emitUnsupported("Cookie params", foundIn: foundIn)
+                try diagnostics.emitUnsupported("Cookie params", foundIn: foundIn)
                 return nil
             }
 
