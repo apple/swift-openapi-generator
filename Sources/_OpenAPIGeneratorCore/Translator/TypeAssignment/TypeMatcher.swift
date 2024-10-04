@@ -16,9 +16,8 @@ import OpenAPIKit
 /// A set of functions that match Swift types onto OpenAPI types.
 struct TypeMatcher {
 
-    /// A converted function from user-provided strings to strings
-    /// safe to be used as a Swift identifier.
-    var asSwiftSafeName: (String) -> String
+    /// A set of configuration values that inform translation.
+    var context: TranslatorContext
 
     /// Returns the type name of a built-in type that matches the specified
     /// schema.
@@ -71,7 +70,7 @@ struct TypeMatcher {
             test: { (schema) -> TypeUsage? in
                 if let builtinType = Self._tryMatchBuiltinNonRecursive(for: schema) { return builtinType }
                 guard case let .reference(ref, _) = schema else { return nil }
-                return try TypeAssigner(asSwiftSafeName: asSwiftSafeName).typeName(for: ref).asUsage
+                return try TypeAssigner(context: context).typeName(for: ref).asUsage
             },
             matchedArrayHandler: { elementType, nullableItems in
                 nullableItems ? elementType.asOptional.asArray : elementType.asArray

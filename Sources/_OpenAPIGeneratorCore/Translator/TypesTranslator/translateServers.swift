@@ -26,7 +26,7 @@ extension TypesFileTranslator {
     func translateServer(index: Int, server: OpenAPI.Server) -> Declaration {
         let methodName = "\(Constants.ServerURL.propertyPrefix)\(index+1)"
         let safeVariables = server.variables.map { (key, value) in
-            (originalKey: key, swiftSafeKey: swiftSafeName(for: key), value: value)
+            (originalKey: key, swiftSafeKey: context.asSwiftSafeName(key), value: value)
         }
         let parameters: [ParameterDescription] = safeVariables.map { (originalKey, swiftSafeKey, value) in
             .init(label: swiftSafeKey, type: .init(TypeName.string), defaultValue: .literal(value.default))

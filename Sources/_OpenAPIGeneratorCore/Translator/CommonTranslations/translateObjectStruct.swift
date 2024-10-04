@@ -100,7 +100,7 @@ extension TypesFileTranslator {
                     originalName: key,
                     typeUsage: propertyType,
                     associatedDeclarations: associatedDeclarations,
-                    asSwiftSafeName: swiftSafeName
+                    context: context
                 )
             }
 
@@ -175,7 +175,7 @@ extension TypesFileTranslator {
             default: .emptyInit,
             isSerializedInTopLevelDictionary: false,
             associatedDeclarations: associatedDeclarations,
-            asSwiftSafeName: swiftSafeName
+            context: context
         )
         return (.allowingAdditionalProperties, extraProperty)
     }

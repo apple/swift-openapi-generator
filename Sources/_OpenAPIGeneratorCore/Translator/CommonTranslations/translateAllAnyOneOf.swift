@@ -78,7 +78,7 @@ extension TypesFileTranslator {
                     originalName: key,
                     typeUsage: propertyType,
                     associatedDeclarations: associatedDeclarations,
-                    asSwiftSafeName: swiftSafeName
+                    context: context
                 )
                 var referenceStack = ReferenceStack.empty
                 let isKeyValuePairSchema = try TypeMatcher.isKeyValuePair(
@@ -209,7 +209,7 @@ extension TypesFileTranslator {
         let decoder: Declaration
         if let discriminator {
             let originalName = discriminator.propertyName
-            let swiftName = swiftSafeName(for: originalName)
+            let swiftName = context.asSwiftSafeName(originalName)
             codingKeysDecls = [
                 .enum(
                     accessModifier: config.access,

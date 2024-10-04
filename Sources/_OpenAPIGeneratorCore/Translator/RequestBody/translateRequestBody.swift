@@ -92,7 +92,7 @@ extension TypesFileTranslator {
             typeUsage: bodyEnumTypeUsage,
             default: nil,
             associatedDeclarations: extraDecls,
-            asSwiftSafeName: swiftSafeName
+            context: context
         )
         return bodyProperty
     }

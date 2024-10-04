@@ -42,7 +42,7 @@ extension TypesFileTranslator {
             originalName: parameter.name,
             typeUsage: parameter.typeUsage,
             associatedDeclarations: associatedDeclarations,
-            asSwiftSafeName: swiftSafeName
+            context: context
         )
     }
 

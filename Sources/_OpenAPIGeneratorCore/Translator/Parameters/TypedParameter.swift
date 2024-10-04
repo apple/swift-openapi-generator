@@ -34,9 +34,8 @@ struct TypedParameter {
     /// The coding strategy appropriate for this parameter.
     var codingStrategy: CodingStrategy
 
-    /// A converted function from user-provided strings to strings
-    /// safe to be used as a Swift identifier.
-    var asSwiftSafeName: (String) -> String
+    /// A set of configuration values that inform translation.
+    var context: TranslatorContext
 }
 
 extension TypedParameter: CustomStringConvertible {
@@ -49,7 +48,7 @@ extension TypedParameter {
     var name: String { parameter.name }
 
     /// The name of the parameter sanitized to be a valid Swift identifier.
-    var variableName: String { asSwiftSafeName(name) }
+    var variableName: String { context.asSwiftSafeName(name) }
 
     /// A Boolean value that indicates whether the parameter must be specified
     /// when performing the OpenAPI operation.
@@ -208,7 +207,7 @@ extension FileTranslator {
             explode: explode,
             typeUsage: usage,
             codingStrategy: codingStrategy,
-            asSwiftSafeName: swiftSafeName
+            context: context
         )
     }
 }

@@ -45,11 +45,7 @@ struct TypesFileTranslator: FileTranslator {
         let multipartSchemaNames = try parseSchemaNamesUsedInMultipart(paths: doc.paths, components: doc.components)
         let components = try translateComponents(doc.components, multipartSchemaNames: multipartSchemaNames)
 
-        let operationDescriptions = try OperationDescription.all(
-            from: doc.paths,
-            in: doc.components,
-            asSwiftSafeName: swiftSafeName
-        )
+        let operationDescriptions = try OperationDescription.all(from: doc.paths, in: doc.components, context: context)
         let operations = try translateOperations(operationDescriptions)
 
         let typesFile = FileDescription(
