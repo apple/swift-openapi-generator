@@ -113,8 +113,9 @@ The returned binary body contains the raw events, and the stream can be split up
     - encode: `AsyncSequence<some Encodable>.asEncodedJSONSequence(encoder:)`
 - Server-sent Events
     - decode (if data is JSON): `AsyncSequence<ArraySlice<UInt8>>.asDecodedServerSentEventsWithJSONData(of:decoder:)`
+    - decode (if data is JSON with a non-JSON terminating byte sequence): `AsyncSequence<ArraySlice<UInt8>>.asDecodedServerSentEventsWithJSONData(of:decoder:while:)`
     - encode (if data is JSON): `AsyncSequence<some Encodable>.asEncodedServerSentEventsWithJSONData(encoder:)`
-    - decode (for other data): `AsyncSequence<ArraySlice<UInt8>>.asDecodedServerSentEvents()`
+    - decode (for other data): `AsyncSequence<ArraySlice<UInt8>>.asDecodedServerSentEvents(while:)`
     - encode (for other data): `AsyncSequence<some Encodable>.asEncodedServerSentEvents()`
 
 See the `event-streams-*` client and server examples in <doc:Checking-out-an-example-project> to learn how to produce and consume these sequences.
