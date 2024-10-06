@@ -33,7 +33,7 @@ jobs:
         uses: apple/swift-nio/.github/workflows/swift_matrix.yml@main
         with:
             name: "Integration test"
-            matrix_linux_command: "apt-get update -yq && apt-get install -yq jq && ./scripts/run-integration-test.sh"
+            matrix_linux_command: "apt-get update -yq && apt-get install -yq jq && SWIFT_OPENAPI_GENERATOR_REPO_URL=file://${GITHUB_WORKSPACE} ./scripts/run-integration-test.sh"
             matrix_linux_5_8_enabled: false
             matrix_linux_nightly_main_enabled: false
 

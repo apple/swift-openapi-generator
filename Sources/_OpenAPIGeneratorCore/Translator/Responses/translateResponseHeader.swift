@@ -66,7 +66,7 @@ extension TypesFileTranslator {
         let schema = header.schema
         let typeUsage = header.typeUsage
         let associatedDeclarations: [Declaration]
-        if TypeMatcher.isInlinable(schema) {
+        if typeMatcher.isInlinable(schema) {
             associatedDeclarations = try translateSchema(typeName: typeUsage.typeName, schema: schema, overrides: .none)
         } else {
             associatedDeclarations = []
@@ -78,7 +78,7 @@ extension TypesFileTranslator {
             typeUsage: typeUsage,
             default: header.header.required ? nil : .nil,
             associatedDeclarations: associatedDeclarations,
-            asSwiftSafeName: swiftSafeName
+            context: context
         )
     }
 

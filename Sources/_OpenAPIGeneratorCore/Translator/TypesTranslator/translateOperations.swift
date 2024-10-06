@@ -71,7 +71,7 @@ extension TypesFileTranslator {
                 typeUsage: structTypeName.asUsage,
                 default: defaultValue,
                 associatedDeclarations: [structDecl],
-                asSwiftSafeName: swiftSafeName
+                context: context
             )
         }
         let bodyProperty = try parseRequestBodyAsProperty(
@@ -89,7 +89,7 @@ extension TypesFileTranslator {
                 originalName: Constants.Operation.AcceptableContentType.variableName,
                 typeUsage: description.acceptableArrayName,
                 default: .expression(.dot("defaultValues").call([])),
-                asSwiftSafeName: swiftSafeName
+                context: context
             )
             extraHeaderProperties = [acceptPropertyBlueprint]
         }

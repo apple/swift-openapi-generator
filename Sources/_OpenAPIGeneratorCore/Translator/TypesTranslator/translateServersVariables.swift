@@ -29,7 +29,7 @@ extension TypesFileTranslator {
                 return RawStringTranslatedServerVariable(
                     key: key,
                     variable: variable,
-                    asSwiftSafeName: swiftSafeName(for:)
+                    context: context
                 )
             }
 
@@ -38,7 +38,7 @@ extension TypesFileTranslator {
                 variable: variable,
                 enumValues: enumValues,
                 accessModifier: config.access,
-                asSwiftSafeName: swiftSafeName(for:)
+                context: context
             )
         }
     }
@@ -71,9 +71,9 @@ extension TypesFileTranslator {
         let swiftSafeKey: String
         let variable: OpenAPI.Server.Variable
 
-        init(key: String, variable: OpenAPI.Server.Variable, asSwiftSafeName: @escaping (String) -> String) {
+        init(key: String, variable: OpenAPI.Server.Variable, context: TranslatorContext) {
             self.key = key
-            swiftSafeKey = asSwiftSafeName(key)
+            swiftSafeKey = context.asSwiftSafeName(key)
             self.variable = variable
         }
 
@@ -125,16 +125,16 @@ extension TypesFileTranslator {
         let enumValues: [String]
 
         let accessModifier: AccessModifier
-        let asSwiftSafeName: (String) -> String
+        let context: TranslatorContext
 
-        init(key: String, variable: OpenAPI.Server.Variable, enumValues: [String], accessModifier: AccessModifier, asSwiftSafeName: @escaping (String) -> String) {
+        init(key: String, variable: OpenAPI.Server.Variable, enumValues: [String], accessModifier: AccessModifier, context: TranslatorContext) {
             self.key = key
-            swiftSafeKey = asSwiftSafeName(key)
-            enumName = asSwiftSafeName(key.localizedCapitalized)
+            swiftSafeKey = context.asSwiftSafeName(key)
+            enumName = context.asSwiftSafeName(key.localizedCapitalized)
             self.variable = variable
             self.enumValues = enumValues
 
-            self.asSwiftSafeName = asSwiftSafeName
+            self.context = context
             self.accessModifier = accessModifier
         }
 
@@ -166,7 +166,7 @@ extension TypesFileTranslator {
         /// Returns the description of the parameter that will be used to define the variable
         /// in the static method for a given server.
         var parameter: ParameterDescription {
-            let safeDefault = asSwiftSafeName(variable.default)
+            let safeDefault = context.asSwiftSafeName(variable.default)
             let memberPath: [String] = [
                 enumName
             ]
@@ -207,7 +207,7 @@ extension TypesFileTranslator {
         /// - Parameter name: The original name.
         /// - Returns: A declaration of an enum case.
         private func translateVariableCase(_ name: String) -> Declaration {
-            let caseName = asSwiftSafeName(name)
+            let caseName = context.asSwiftSafeName(name)
             if caseName == name {
                 return .enumCase(name: caseName, kind: .nameOnly)
             } else {

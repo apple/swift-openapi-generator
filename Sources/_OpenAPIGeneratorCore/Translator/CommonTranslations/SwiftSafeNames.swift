@@ -13,16 +13,7 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 
-extension FileTranslator {
-
-    /// Returns a copy of the string modified to be a valid Swift identifier.
-    ///
-    /// - Parameter string: The string to convert to be safe for Swift.
-    /// - Returns: A Swift-safe version of the input string.
-    func swiftSafeName(for string: String) -> String { string.safeForSwiftCode }
-}
-
-fileprivate extension String {
+extension String {
 
     /// Returns a string sanitized to be usable as a Swift identifier.
     ///
