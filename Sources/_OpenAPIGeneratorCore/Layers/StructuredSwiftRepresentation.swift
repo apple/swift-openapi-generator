@@ -1629,6 +1629,12 @@ extension KeywordKind {
 
 extension Declaration {
     /// Returns a new deprecated variant of the declaration if `shouldDeprecate` is true.
+    func deprecate(if description: DeprecationDescription?) -> Self {
+        if let description { return .deprecated(description, self) }
+        return self
+    }
+
+    /// Returns a new deprecated variant of the declaration if `shouldDeprecate` is true.
     func deprecate(if shouldDeprecate: Bool, description: @autoclosure () -> DeprecationDescription = .init()) -> Self {
         if shouldDeprecate { return .deprecated(description(), self) }
         return self

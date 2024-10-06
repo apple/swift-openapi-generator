@@ -14,8 +14,8 @@
 import OpenAPIKit
 
 extension TypesFileTranslator {
-    func translateServerStaticFunction(
-        isDeprecated: Bool,
+    private func translateServerStaticFunction(
+        deprecated: DeprecationDescription?,
         abstract: String?,
         name: String,
         url: String,
@@ -46,10 +46,7 @@ extension TypesFileTranslator {
                         )
                     )
                 ]
-            ).deprecate(
-                if: isDeprecated,
-                description: .init(message: "Migrate to the new type-safe API for server URLs.")
-            )
+            ).deprecate(if: deprecated)
         )
     }
 
@@ -62,13 +59,15 @@ extension TypesFileTranslator {
     ///   in the OpenAPI document.
     ///   - server: The server URL information.
     /// - Returns: A static function declaration.
-    func translateServerAsDeprecated(index: Int, server: OpenAPI.Server) -> Declaration {
+    func translateServerAsDeprecated(index: Int, server: OpenAPI.Server, renamedTo pathToReplacementSymbol: String) -> Declaration {
         let serverVariables = translateServerVariables(index: index, server: server, generateAsEnum: false)
-        return translateServerStaticFunction(isDeprecated: true,
-                                             abstract: server.description,
-                                             name: "\(Constants.ServerURL.propertyPrefix)\(index + 1)",
-                                             url: server.urlTemplate.absoluteString,
-                                             variableGenerators: serverVariables)
+        return translateServerStaticFunction(
+            deprecated: DeprecationDescription(renamed: pathToReplacementSymbol),
+            abstract: server.description,
+            name: "\(Constants.ServerURL.propertyPrefix)\(index + 1)",
+            url: server.urlTemplate.absoluteString,
+            variableGenerators: serverVariables
+        )
     }
 
     /// Returns a namespace (enum) declaration for a server defined in
@@ -85,21 +84,25 @@ extension TypesFileTranslator {
     ///   in the OpenAPI document.
     ///   - server: The server URL information.
     /// - Returns: A static function declaration.
-    func translateServer(index: Int, server: OpenAPI.Server) -> Declaration {
+    func translateServer(index: Int, server: OpenAPI.Server) -> (pathToStaticFunction: String, decl: Declaration) {
         let serverVariables = translateServerVariables(index: index, server: server, generateAsEnum: true)
-        let methodDecl = translateServerStaticFunction(isDeprecated: false,
-                                                       abstract: nil, // server.description is on the namespace now
+        let methodDecl = translateServerStaticFunction(deprecated: nil,
+                                                       abstract: server.description,
                                                        name: Constants.ServerURL.urlStaticFunc,
                                                        url: server.urlTemplate.absoluteString,
                                                        variableGenerators: serverVariables)
-        return .commentable(
+
+        let namespaceName = "\(Constants.ServerURL.serverNamespacePrefix)\(index + 1)"
+        let typeName = TypeName(swiftKeyPath: [Constants.ServerURL.namespace, namespaceName, Constants.ServerURL.urlStaticFunc])
+        let decl = Declaration.commentable(
             server.description.map(Comment.doc(_:)),
             .enum(
                 accessModifier: config.access,
-                name: "\(Constants.ServerURL.serverNamespacePrefix)\(index + 1)",
+                name: namespaceName,
                 members: serverVariables.compactMap(\.declaration) + CollectionOfOne(methodDecl)
             )
         )
+        return (pathToStaticFunction: typeName.fullyQualifiedSwiftName, decl: decl)
     }
 
     /// Returns a declaration of a namespace (enum) called "Servers" that
@@ -111,9 +114,10 @@ extension TypesFileTranslator {
         var serverDecls: [Declaration] = []
 
         for (index, server) in servers.enumerated() {
+            let translatedServer = translateServer(index: index, server: server)
             serverDecls.append(contentsOf: [
-                translateServer(index: index, server: server),
-                translateServerAsDeprecated(index: index, server: server)
+                translatedServer.decl,
+                translateServerAsDeprecated(index: index, server: server, renamedTo: translatedServer.pathToStaticFunction)
             ])
         }
 

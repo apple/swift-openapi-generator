@@ -166,14 +166,10 @@ extension TypesFileTranslator {
         /// Returns the description of the parameter that will be used to define the variable
         /// in the static method for a given server.
         var parameter: ParameterDescription {
-            let safeDefault = context.asSwiftSafeName(variable.default)
-            let memberPath: [String] = [
-                enumName
-            ]
             return .init(
                 label: swiftSafeKey,
-                type: .member(memberPath),
-                defaultValue: .identifierType(.member(memberPath + CollectionOfOne(safeDefault)))
+                type: .member([enumName]),
+                defaultValue: .memberAccess(.dot(context.asSwiftSafeName(variable.default)))
             )
         }
 

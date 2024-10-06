@@ -155,6 +155,7 @@ extension APIProtocol {
 public enum Servers {
     /// Example Petstore implementation service
     public enum Server1 {
+        /// Example Petstore implementation service
         public static func url() throws -> Foundation.URL {
             try Foundation.URL(
                 validatingOpenAPIServerURL: "https://example.com/api",
@@ -163,7 +164,7 @@ public enum Servers {
         }
     }
     /// Example Petstore implementation service
-    @available(*, deprecated, message: "Migrate to the new type-safe API for server URLs.")
+    @available(*, deprecated, renamed: "Servers.Server1.url")
     public static func server1() throws -> Foundation.URL {
         try Foundation.URL(
             validatingOpenAPIServerURL: "https://example.com/api",
@@ -178,7 +179,7 @@ public enum Servers {
             )
         }
     }
-    @available(*, deprecated, message: "Migrate to the new type-safe API for server URLs.")
+    @available(*, deprecated, renamed: "Servers.Server2.url")
     public static func server2() throws -> Foundation.URL {
         try Foundation.URL(
             validatingOpenAPIServerURL: "/api",
@@ -192,6 +193,7 @@ public enum Servers {
             case _443 = "443"
             case _8443 = "8443"
         }
+        /// A custom domain.
         ///
         /// - Parameters:
         ///   - _protocol:
@@ -201,7 +203,7 @@ public enum Servers {
         public static func url(
             _protocol: Swift.String = "https",
             subdomain: Swift.String = "test",
-            port: Port = Port._443,
+            port: Port = ._443,
             basePath: Swift.String = "v1"
         ) throws -> Foundation.URL {
             try Foundation.URL(
@@ -234,7 +236,7 @@ public enum Servers {
     ///   - subdomain: A subdomain name.
     ///   - port:
     ///   - basePath: The base API path.
-    @available(*, deprecated, message: "Migrate to the new type-safe API for server URLs.")
+    @available(*, deprecated, renamed: "Servers.Server3.url")
     public static func server3(
         _protocol: Swift.String = "https",
         subdomain: Swift.String = "test",
