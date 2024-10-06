@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIRuntime
-import OpenAPIAsyncHTTPClient
+import OpenAPIURLSession
 import Foundation
 
 @main struct BidirectionalEventStreamsClient {
@@ -21,10 +21,13 @@ import Foundation
         "Good evening, %@!",
     ]
     static func main() async throws {
-        let client = Client(serverURL: URL(string: "http://localhost:8080/api")!, transport: AsyncHTTPClientTransport())
+        let client = Client(serverURL: URL(string: "http://localhost:8080/api")!, transport: URLSessionTransport())
         do {
             print("Sending and fetching back greetings using JSON Lines")
             let (stream, continuation) = AsyncStream<Components.Schemas.Greeting>.makeStream()
+            /// It is important to note that URLSession will return the stream only after at least some bytes of the body have been received (see [comment](https://github.com/apple/swift-openapi-urlsession/blob/main/Tests/OpenAPIURLSessionTests/URLSessionBidirectionalStreamingTests/URLSessionBidirectionalStreamingTests.swift#L193-L206)).
+            /// Workaround for now is to send a `connecting` or some other kind of heartbeat message first.
+            continuation.yield(.init(message: "connecting"))
             /// To keep it simple, using JSON Lines, as it most straightforward and easy way to have streams.
             /// For SSE and JSON Sequences cases please check `event-streams-client-example`.
             let requestBody: Operations.getGreetingsStream.Input.Body = .application_jsonl(

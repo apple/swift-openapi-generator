@@ -12,8 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIRuntime
-import OpenAPIHummingbird
-import Hummingbird
+import OpenAPIVapor
+import Vapor
 import Foundation
 
 struct Handler: APIProtocol {
@@ -33,10 +33,10 @@ struct Handler: APIProtocol {
 
 @main struct BidirectionalEventStreamsServer {
     static func main() async throws {
-        let router = Router()
+        let app = try await Vapor.Application.make()
+        let transport = VaporTransport(routesBuilder: app)
         let handler = Handler()
-        try handler.registerHandlers(on: router, serverURL: URL(string: "/api")!)
-        let app = Application(router: router, configuration: .init())
-        try await app.run()
+        try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!)
+        try await app.execute()
     }
 }
