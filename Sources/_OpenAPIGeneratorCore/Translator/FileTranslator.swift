@@ -47,7 +47,12 @@ protocol FileTranslator {
 extension FileTranslator {
 
     /// A new context from the file translator.
-    var context: TranslatorContext { TranslatorContext(asSwiftSafeName: { $0.safeForSwiftCode }) }
+    var context: TranslatorContext {
+        TranslatorContext(
+            asSwiftSafeName: { $0.safeForSwiftCode },
+            enableUUIDSupport: supportUUIDFormat
+        )
+    }
 }
 
 /// A set of configuration values for concrete file translators.
@@ -58,4 +63,7 @@ struct TranslatorContext {
     /// - Parameter string: The string to convert to be safe for Swift.
     /// - Returns: A Swift-safe version of the input string.
     var asSwiftSafeName: (String) -> String
+    
+    /// A variable that indicates the presence of the `uuidSupport` feature flag.
+    var enableUUIDSupport: Bool
 }

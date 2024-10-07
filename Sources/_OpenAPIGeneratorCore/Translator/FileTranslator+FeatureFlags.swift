@@ -15,4 +15,9 @@ import OpenAPIKit
 
 extension FileTranslator {
     // Add helpers for reading feature flags below.
+    
+    /// A boolean value indicating whether the `uuid` format on schemas should be followed.
+    var supportUUIDFormat: Bool {
+        config.featureFlags.contains(.uuidSupport)
+    }
 }

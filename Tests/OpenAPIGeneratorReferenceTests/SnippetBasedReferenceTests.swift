@@ -1462,6 +1462,37 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
+    
+    func testComponentsSchemasUUID() throws {
+        try self.assertSchemasTranslation(
+            featureFlags: [.uuidSupport],
+            """
+            schemas:
+              MyUUID:
+                type: string
+                format: uuid
+            """,
+            """
+            public enum Schemas {
+                public typealias MyUUID = Foundation.UUID
+            }
+            """
+        )
+        // Without UUID support, the schema will be translated as a string
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              MyUUID:
+                type: string
+                format: uuid
+            """,
+            """
+            public enum Schemas {
+                public typealias MyUUID = Swift.String
+            }
+            """
+        )
+    }
 
     func testComponentsSchemasBase64() throws {
         try self.assertSchemasTranslation(
