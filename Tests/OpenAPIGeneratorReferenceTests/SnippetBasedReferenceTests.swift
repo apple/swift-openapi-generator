@@ -1462,7 +1462,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
-    
     func testComponentsSchemasUUID() throws {
         try self.assertSchemasTranslation(
             featureFlags: [.uuidSupport],

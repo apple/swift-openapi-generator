@@ -38,7 +38,10 @@ final class Test_Server: XCTestCase {
             XCTAssertEqual(input.headers.My_hyphen_Request_hyphen_UUID, requestUUID)
             return .ok(
                 .init(
-                    headers: .init(My_hyphen_Response_hyphen_UUID: responseUUID, My_hyphen_Tracing_hyphen_Header: "1234"),
+                    headers: .init(
+                        My_hyphen_Response_hyphen_UUID: responseUUID,
+                        My_hyphen_Tracing_hyphen_Header: "1234"
+                    ),
                     body: .json([.init(id: 1, name: "Fluffz")])
                 )
             )

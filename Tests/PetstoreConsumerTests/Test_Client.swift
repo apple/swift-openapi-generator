@@ -46,7 +46,10 @@ final class Test_Client: XCTestCase {
             )
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .get)
-            XCTAssertEqual(request.headerFields, [.accept: "application/json", .init("My-Request-UUID")!: requestUUID.uuidString])
+            XCTAssertEqual(
+                request.headerFields,
+                [.accept: "application/json", .init("My-Request-UUID")!: requestUUID.uuidString]
+            )
             XCTAssertNil(body)
             return try HTTPResponse(
                 status: .ok,
