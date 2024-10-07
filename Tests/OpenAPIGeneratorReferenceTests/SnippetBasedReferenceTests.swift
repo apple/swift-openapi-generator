@@ -1904,93 +1904,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-    func testComponentsResponsesResponseMultipleContentTypes() throws {
-        try self.assertResponsesTranslation(
-            """
-            responses:
-              MultipleContentTypes:
-                description: Multiple content types
-                content:
-                  application/json:
-                    schema:
-                      type: integer
-                  application/json; foo=bar:
-                    schema:
-                      type: integer
-                  text/plain: {}
-                  application/octet-stream: {}
-            """,
-            """
-            public enum Responses {
-                public struct MultipleContentTypes: Sendable, Hashable {
-                    @frozen public enum Body: Sendable, Hashable {
-                        case json(Swift.Int)
-                        public var json: Swift.Int {
-                            get throws {
-                                switch self {
-                                case let .json(body):
-                                    return body
-                                default:
-                                    try throwUnexpectedResponseBody(
-                                        expectedContent: "application/json",
-                                        body: self
-                                    )
-                                }
-                            }
-                        }
-                        case application_json_foo_bar(Swift.Int)
-                        public var application_json_foo_bar: Swift.Int {
-                            get throws {
-                                switch self {
-                                case let .application_json_foo_bar(body):
-                                    return body
-                                default:
-                                    try throwUnexpectedResponseBody(
-                                        expectedContent: "application/json",
-                                        body: self
-                                    )
-                                }
-                            }
-                        }
-                        case plainText(OpenAPIRuntime.HTTPBody)
-                        public var plainText: OpenAPIRuntime.HTTPBody {
-                            get throws {
-                                switch self {
-                                case let .plainText(body):
-                                    return body
-                                default:
-                                    try throwUnexpectedResponseBody(
-                                        expectedContent: "text/plain",
-                                        body: self
-                                    )
-                                }
-                            }
-                        }
-                        case binary(OpenAPIRuntime.HTTPBody)
-                        public var binary: OpenAPIRuntime.HTTPBody {
-                            get throws {
-                                switch self {
-                                case let .binary(body):
-                                    return body
-                                default:
-                                    try throwUnexpectedResponseBody(
-                                        expectedContent: "application/octet-stream",
-                                        body: self
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    public var body: Components.Responses.MultipleContentTypes.Body
-                    public init(body: Components.Responses.MultipleContentTypes.Body) {
-                        self.body = body
-                    }
-                }
-            }
-            """
-        )
-    }
-
     func testComponentsResponsesResponseWithHeader() throws {
         try self.assertResponsesTranslation(
             """
@@ -2518,7 +2431,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   default:
                     description: Response
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     public struct Query: Sendable, Hashable {
                         public var single: Swift.String?
@@ -2632,7 +2545,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   default:
                     description: Response
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     public struct Path: Sendable, Hashable {
                         public var b: Swift.String
@@ -2713,7 +2626,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   default:
                     description: Response
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     public struct Path: Sendable, Hashable {
                         public var p_period_a_hyphen_b: Swift.String
@@ -2771,7 +2684,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   default:
                     description: Response
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
@@ -2848,7 +2761,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   default:
                     description: Response
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
@@ -2925,7 +2838,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   default:
                     description: Response
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
@@ -3004,7 +2917,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   default:
                     description: Response
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
@@ -3068,6 +2981,371 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testRequestMultipleContentTypes() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              post:
+                operationId: getFoo
+                requestBody:
+                  $ref: '#/components/requestBodies/MultipleContentTypes'
+                responses:
+                  default:
+                    description: Response
+            """,
+            """
+            requestBodies:
+              MultipleContentTypes:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      type: integer
+                  application/json; foo=bar:
+                    schema:
+                      type: integer
+                  text/plain: {}
+                  application/octet-stream: {}
+            """,
+            input: """
+                public struct Input: Sendable, Hashable {
+                    public var body: Components.RequestBodies.MultipleContentTypes
+                    public init(body: Components.RequestBodies.MultipleContentTypes) {
+                        self.body = body
+                    }
+                }
+                """,
+            requestBodies: """
+                public enum RequestBodies {
+                    @frozen public enum MultipleContentTypes: Sendable, Hashable {
+                        case json(Swift.Int)
+                        case application_json_foo_bar(Swift.Int)
+                        case plainText(OpenAPIRuntime.HTTPBody)
+                        case binary(OpenAPIRuntime.HTTPBody)
+                    }
+                }
+                """,
+            client: """
+                { input in
+                    let path = try converter.renderedPath(
+                        template: "/foo",
+                        parameters: []
+                    )
+                    var request: HTTPTypes.HTTPRequest = .init(
+                        soar_path: path,
+                        method: .post
+                    )
+                    suppressMutabilityWarning(&request)
+                    let body: OpenAPIRuntime.HTTPBody?
+                    switch input.body {
+                    case let .json(value):
+                        body = try converter.setRequiredRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; charset=utf-8"
+                        )
+                    case let .application_json_foo_bar(value):
+                        body = try converter.setRequiredRequestBodyAsJSON(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/json; foo=bar; charset=utf-8"
+                        )
+                    case let .plainText(value):
+                        body = try converter.setRequiredRequestBodyAsBinary(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "text/plain"
+                        )
+                    case let .binary(value):
+                        body = try converter.setRequiredRequestBodyAsBinary(
+                            value,
+                            headerFields: &request.headerFields,
+                            contentType: "application/octet-stream"
+                        )
+                    }
+                    return (request, body)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in
+                    let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
+                    let body: Components.RequestBodies.MultipleContentTypes
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json",
+                            "application/json; foo=bar",
+                            "text/plain",
+                            "application/octet-stream"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getRequiredRequestBodyAsJSON(
+                            Swift.Int.self,
+                            from: requestBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    case "application/json; foo=bar":
+                        body = try await converter.getRequiredRequestBodyAsJSON(
+                            Swift.Int.self,
+                            from: requestBody,
+                            transforming: { value in
+                                .application_json_foo_bar(value)
+                            }
+                        )
+                    case "text/plain":
+                        body = try converter.getRequiredRequestBodyAsBinary(
+                            OpenAPIRuntime.HTTPBody.self,
+                            from: requestBody,
+                            transforming: { value in
+                                .plainText(value)
+                            }
+                        )
+                    case "application/octet-stream":
+                        body = try converter.getRequiredRequestBodyAsBinary(
+                            OpenAPIRuntime.HTTPBody.self,
+                            from: requestBody,
+                            transforming: { value in
+                                .binary(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return Operations.getFoo.Input(body: body)
+                }
+                """
+        )
+    }
+
+    func testResponseMultipleContentTypes() throws {
+        try self.assertResponseInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                operationId: getFoo
+                responses:
+                  default:
+                    $ref: '#/components/responses/MultipleContentTypes'
+            """,
+            """
+            responses:
+              MultipleContentTypes:
+                description: Multiple content types
+                content:
+                  application/json:
+                    schema:
+                      type: integer
+                  application/json; foo=bar:
+                    schema:
+                      type: integer
+                  text/plain: {}
+                  application/octet-stream: {}
+            """,
+            output: """
+                @frozen public enum Output: Sendable, Hashable {
+                    case `default`(statusCode: Swift.Int, Components.Responses.MultipleContentTypes)
+                    public var `default`: Components.Responses.MultipleContentTypes {
+                        get throws {
+                            switch self {
+                            case let .`default`(_, response):
+                                return response
+                            default:
+                                try throwUnexpectedResponseStatus(
+                                    expectedStatus: "default",
+                                    response: self
+                                )
+                            }
+                        }
+                    }
+                }
+                """,
+            responses: """
+                public enum Responses {
+                    public struct MultipleContentTypes: Sendable, Hashable {
+                        @frozen public enum Body: Sendable, Hashable {
+                            case json(Swift.Int)
+                            public var json: Swift.Int {
+                                get throws {
+                                    switch self {
+                                    case let .json(body):
+                                        return body
+                                    default:
+                                        try throwUnexpectedResponseBody(
+                                            expectedContent: "application/json",
+                                            body: self
+                                        )
+                                    }
+                                }
+                            }
+                            case application_json_foo_bar(Swift.Int)
+                            public var application_json_foo_bar: Swift.Int {
+                                get throws {
+                                    switch self {
+                                    case let .application_json_foo_bar(body):
+                                        return body
+                                    default:
+                                        try throwUnexpectedResponseBody(
+                                            expectedContent: "application/json; foo=bar",
+                                            body: self
+                                        )
+                                    }
+                                }
+                            }
+                            case plainText(OpenAPIRuntime.HTTPBody)
+                            public var plainText: OpenAPIRuntime.HTTPBody {
+                                get throws {
+                                    switch self {
+                                    case let .plainText(body):
+                                        return body
+                                    default:
+                                        try throwUnexpectedResponseBody(
+                                            expectedContent: "text/plain",
+                                            body: self
+                                        )
+                                    }
+                                }
+                            }
+                            case binary(OpenAPIRuntime.HTTPBody)
+                            public var binary: OpenAPIRuntime.HTTPBody {
+                                get throws {
+                                    switch self {
+                                    case let .binary(body):
+                                        return body
+                                    default:
+                                        try throwUnexpectedResponseBody(
+                                            expectedContent: "application/octet-stream",
+                                            body: self
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        public var body: Components.Responses.MultipleContentTypes.Body
+                        public init(body: Components.Responses.MultipleContentTypes.Body) {
+                            self.body = body
+                        }
+                    }
+                }
+                """,
+            server: """
+                { output, request in
+                    switch output {
+                    case let .`default`(statusCode, value):
+                        suppressUnusedWarning(value)
+                        var response = HTTPTypes.HTTPResponse(soar_statusCode: statusCode)
+                        suppressMutabilityWarning(&response)
+                        let body: OpenAPIRuntime.HTTPBody
+                        switch value.body {
+                        case let .json(value):
+                            try converter.validateAcceptIfPresent(
+                                "application/json",
+                                in: request.headerFields
+                            )
+                            body = try converter.setResponseBodyAsJSON(
+                                value,
+                                headerFields: &response.headerFields,
+                                contentType: "application/json; charset=utf-8"
+                            )
+                        case let .application_json_foo_bar(value):
+                            try converter.validateAcceptIfPresent(
+                                "application/json; foo=bar",
+                                in: request.headerFields
+                            )
+                            body = try converter.setResponseBodyAsJSON(
+                                value,
+                                headerFields: &response.headerFields,
+                                contentType: "application/json; foo=bar; charset=utf-8"
+                            )
+                        case let .plainText(value):
+                            try converter.validateAcceptIfPresent(
+                                "text/plain",
+                                in: request.headerFields
+                            )
+                            body = try converter.setResponseBodyAsBinary(
+                                value,
+                                headerFields: &response.headerFields,
+                                contentType: "text/plain"
+                            )
+                        case let .binary(value):
+                            try converter.validateAcceptIfPresent(
+                                "application/octet-stream",
+                                in: request.headerFields
+                            )
+                            body = try converter.setResponseBodyAsBinary(
+                                value,
+                                headerFields: &response.headerFields,
+                                contentType: "application/octet-stream"
+                            )
+                        }
+                        return (response, body)
+                    }
+                }
+                """,
+            client: """
+                { response, responseBody in
+                    switch response.status.code {
+                    default:
+                        let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                        let body: Components.Responses.MultipleContentTypes.Body
+                        let chosenContentType = try converter.bestContentType(
+                            received: contentType,
+                            options: [
+                                "application/json",
+                                "application/json; foo=bar",
+                                "text/plain",
+                                "application/octet-stream"
+                            ]
+                        )
+                        switch chosenContentType {
+                        case "application/json":
+                            body = try await converter.getResponseBodyAsJSON(
+                                Swift.Int.self,
+                                from: responseBody,
+                                transforming: { value in
+                                    .json(value)
+                                }
+                            )
+                        case "application/json; foo=bar":
+                            body = try await converter.getResponseBodyAsJSON(
+                                Swift.Int.self,
+                                from: responseBody,
+                                transforming: { value in
+                                    .application_json_foo_bar(value)
+                                }
+                            )
+                        case "text/plain":
+                            body = try converter.getResponseBodyAsBinary(
+                                OpenAPIRuntime.HTTPBody.self,
+                                from: responseBody,
+                                transforming: { value in
+                                    .plainText(value)
+                                }
+                            )
+                        case "application/octet-stream":
+                            body = try converter.getResponseBodyAsBinary(
+                                OpenAPIRuntime.HTTPBody.self,
+                                from: responseBody,
+                                transforming: { value in
+                                    .binary(value)
+                                }
+                            )
+                        default:
+                            preconditionFailure("bestContentType chose an invalid content type.")
+                        }
+                        return .`default`(
+                            statusCode: response.status.code,
+                            .init(body: body)
+                        )
+                    }
+                }
+                """
+        )
+    }
+
     func testRequestMultipartBodyReferencedRequestBody() throws {
         try self.assertRequestInTypesClientServerTranslation(
             """
@@ -3091,7 +3369,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         log:
                           type: string
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     public var body: Components.RequestBodies.MultipartRequest
                     public init(body: Components.RequestBodies.MultipartRequest) {
@@ -3244,7 +3522,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   default:
                     description: Response
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         @frozen public enum multipartFormPayload: Sendable, Hashable {
@@ -3398,7 +3676,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
               Info:
                 type: object
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         @frozen public enum multipartFormPayload: Sendable, Hashable {
@@ -3554,7 +3832,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 required:
                   - log
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         case multipartForm(OpenAPIRuntime.MultipartBody<Components.Schemas.Multipet>)
@@ -3720,7 +3998,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 required:
                   - log
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         @frozen public enum multipartFormPayload: Sendable, Hashable {
@@ -3902,7 +4180,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   default:
                     description: Response
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         @frozen public enum multipartFormPayload: Sendable, Hashable {
@@ -4008,7 +4286,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   default:
                     description: Response
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         @frozen public enum multipartFormPayload: Sendable, Hashable {
@@ -4119,7 +4397,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   default:
                     description: Response
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         @frozen public enum multipartFormPayload: Sendable, Hashable {
@@ -4272,7 +4550,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   default:
                     description: Response
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         @frozen public enum multipartFormPayload: Sendable, Hashable {
@@ -4469,7 +4747,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   foo:
                     type: string
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         @frozen public enum multipartFormPayload: Sendable, Hashable {
@@ -4644,7 +4922,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   default:
                     description: Response
             """,
-            types: """
+            input: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         @frozen public enum multipartFormPayload: Sendable, Hashable {
@@ -4782,7 +5060,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         log:
                           type: string
             """,
-            types: """
+            output: """
                 @frozen public enum Output: Sendable, Hashable {
                     case ok(Components.Responses.MultipartResponse)
                     public var ok: Components.Responses.MultipartResponse {
@@ -4972,7 +5250,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             log:
                               type: string
             """,
-            types: """
+            output: """
                 @frozen public enum Output: Sendable, Hashable {
                     public struct Ok: Sendable, Hashable {
                         @frozen public enum Body: Sendable, Hashable {
@@ -5180,7 +5458,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
-
 }
 
 extension SnippetBasedReferenceTests {
@@ -5258,7 +5535,7 @@ extension SnippetBasedReferenceTests {
     func assertRequestInTypesClientServerTranslation(
         _ pathsYAML: String,
         _ componentsYAML: String? = nil,
-        types expectedTypesSwift: String,
+        input expectedInputSwift: String,
         schemas expectedSchemasSwift: String? = nil,
         requestBodies expectedRequestBodiesSwift: String? = nil,
         client expectedClientSwift: String,
@@ -5287,8 +5564,8 @@ extension SnippetBasedReferenceTests {
             context: types.context
         )
         let operation = try XCTUnwrap(operationDescriptions.first)
-        let generatedTypesStructuredSwift = try types.translateOperationInput(operation)
-        try XCTAssertSwiftEquivalent(generatedTypesStructuredSwift, expectedTypesSwift, file: file, line: line)
+        let generatedInputStructuredSwift = try types.translateOperationInput(operation)
+        try XCTAssertSwiftEquivalent(generatedInputStructuredSwift, expectedInputSwift, file: file, line: line)
         if let expectedSchemasSwift {
             let generatedSchemasStructuredSwift = try types.translateSchemas(
                 document.components.schemas,
@@ -5317,7 +5594,7 @@ extension SnippetBasedReferenceTests {
     func assertResponseInTypesClientServerTranslation(
         _ pathsYAML: String,
         _ componentsYAML: String? = nil,
-        types expectedTypesSwift: String,
+        output expectedOutputSwift: String,
         schemas expectedSchemasSwift: String? = nil,
         responses expectedResponsesSwift: String? = nil,
         server expectedServerSwift: String,
@@ -5346,8 +5623,8 @@ extension SnippetBasedReferenceTests {
             context: types.context
         )
         let operation = try XCTUnwrap(operationDescriptions.first)
-        let generatedTypesStructuredSwift = try types.translateOperationOutput(operation)
-        try XCTAssertSwiftEquivalent(generatedTypesStructuredSwift, expectedTypesSwift, file: file, line: line)
+        let generatedOutputStructuredSwift = try types.translateOperationOutput(operation)
+        try XCTAssertSwiftEquivalent(generatedOutputStructuredSwift, expectedOutputSwift, file: file, line: line)
         if let expectedSchemasSwift {
             let generatedSchemasStructuredSwift = try types.translateSchemas(
                 document.components.schemas,
