@@ -28,8 +28,8 @@ final class Test_Server: XCTestCase {
     }
 
     func testListPets_200() async throws {
-        let requestUUID = UUID()
-        let responseUUID = UUID()
+        let requestUUID = UUID(uuidString: "da6811e6-112f-494e-8bdd-7f8b2367cb66")!
+        let responseUUID = UUID(uuidString: "b1c601c1-8963-460b-9fe4-fda2f73da64f")!
         client = .init(listPetsBlock: { input in
             XCTAssertEqual(input.query.limit, 24)
             XCTAssertEqual(input.query.habitat, .water)
