@@ -16,9 +16,8 @@ import OpenAPIKit
 /// A set of functions that match Swift types onto OpenAPI types.
 struct TypeMatcher {
 
-    /// A converted function from user-provided strings to strings
-    /// safe to be used as a Swift identifier.
-    var asSwiftSafeName: (String) -> String
+    /// A set of configuration values that inform translation.
+    var context: TranslatorContext
 
     /// Returns the type name of a built-in type that matches the specified
     /// schema.
@@ -43,7 +42,7 @@ struct TypeMatcher {
     func tryMatchBuiltinType(for schema: JSONSchema.Schema) -> TypeUsage? {
         Self._tryMatchRecursive(
             for: schema,
-            test: { schema in Self._tryMatchBuiltinNonRecursive(for: schema) },
+            test: { schema in _tryMatchBuiltinNonRecursive(for: schema) },
             matchedArrayHandler: { elementType, nullableItems in
                 nullableItems ? elementType.asOptional.asArray : elementType.asArray
             },
@@ -69,9 +68,9 @@ struct TypeMatcher {
         try Self._tryMatchRecursive(
             for: schema.value,
             test: { (schema) -> TypeUsage? in
-                if let builtinType = Self._tryMatchBuiltinNonRecursive(for: schema) { return builtinType }
+                if let builtinType = _tryMatchBuiltinNonRecursive(for: schema) { return builtinType }
                 guard case let .reference(ref, _) = schema else { return nil }
-                return try TypeAssigner(asSwiftSafeName: asSwiftSafeName).typeName(for: ref).asUsage
+                return try TypeAssigner(context: context).typeName(for: ref).asUsage
             },
             matchedArrayHandler: { elementType, nullableItems in
                 nullableItems ? elementType.asOptional.asArray : elementType.asArray
@@ -89,9 +88,9 @@ struct TypeMatcher {
     /// - A reference
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: `true` if the schema is referenceable; `false` otherwise.
-    static func isReferenceable(_ schema: JSONSchema) -> Bool {
+    func isReferenceable(_ schema: JSONSchema) -> Bool {
         // This logic should be kept in sync with `tryMatchReferenceableType`.
-        _tryMatchRecursive(
+        Self._tryMatchRecursive(
             for: schema.value,
             test: { schema in
                 if _tryMatchBuiltinNonRecursive(for: schema) != nil { return true }
@@ -111,7 +110,7 @@ struct TypeMatcher {
     /// - A reference
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: `true` if the schema is referenceable; `false` otherwise.
-    static func isReferenceable(_ schema: UnresolvedSchema?) -> Bool {
+    func isReferenceable(_ schema: UnresolvedSchema?) -> Bool {
         guard let schema else {
             // fragment type is referenceable
             return true
@@ -133,7 +132,7 @@ struct TypeMatcher {
     /// referenceable.
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: `true` if the schema is inlinable; `false` otherwise.
-    static func isInlinable(_ schema: JSONSchema) -> Bool { !isReferenceable(schema) }
+    func isInlinable(_ schema: JSONSchema) -> Bool { !isReferenceable(schema) }
 
     /// Returns a Boolean value that indicates whether the schema
     /// needs to be defined inline.
@@ -144,14 +143,14 @@ struct TypeMatcher {
     /// referenceable.
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: `true` if the schema is inlinable; `false` otherwise.
-    static func isInlinable(_ schema: UnresolvedSchema?) -> Bool { !isReferenceable(schema) }
+    func isInlinable(_ schema: UnresolvedSchema?) -> Bool { !isReferenceable(schema) }
 
     /// Return a reference to a multipart element type if the provided schema is referenceable.
     /// - Parameters:
     ///   - schema: The schema to try to reference.
     ///   - encoding: The associated encoding.
     /// - Returns: A reference if the schema is referenceable, nil otherwise.
-    static func multipartElementTypeReferenceIfReferenceable(
+    func multipartElementTypeReferenceIfReferenceable(
         schema: UnresolvedSchema?,
         encoding: OrderedDictionary<String, OpenAPI.Content.Encoding>?
     ) -> OpenAPI.Reference<JSONSchema>? {
@@ -175,11 +174,9 @@ struct TypeMatcher {
     ///   - components: The reusable components from the OpenAPI document.
     /// - Throws: An error if there's an issue while checking the schema.
     /// - Returns: `true` if the schema is a key-value pair; `false` otherwise.
-    static func isKeyValuePair(
-        _ schema: JSONSchema,
-        referenceStack: inout ReferenceStack,
-        components: OpenAPI.Components
-    ) throws -> Bool {
+    func isKeyValuePair(_ schema: JSONSchema, referenceStack: inout ReferenceStack, components: OpenAPI.Components)
+        throws -> Bool
+    {
         switch schema.value {
         case .object, .fragment: return true
         case .null, .boolean, .number, .integer, .string, .array, .not: return false
@@ -223,7 +220,7 @@ struct TypeMatcher {
     ///   - components: The reusable components from the OpenAPI document.
     /// - Throws: An error if there's an issue while checking the schema.
     /// - Returns: `true` if the schema is a key-value pair; `false` otherwise.
-    static func isKeyValuePair(
+    func isKeyValuePair(
         _ schema: UnresolvedSchema?,
         referenceStack: inout ReferenceStack,
         components: OpenAPI.Components
@@ -286,7 +283,7 @@ struct TypeMatcher {
     /// - Parameter schema: The schema to match a referenceable type for.
     /// - Returns: A type usage for the schema if the schema is built-in.
     /// Otherwise, returns nil.
-    private static func _tryMatchBuiltinNonRecursive(for schema: JSONSchema.Schema) -> TypeUsage? {
+    private func _tryMatchBuiltinNonRecursive(for schema: JSONSchema.Schema) -> TypeUsage? {
         let typeName: TypeName
         switch schema {
         case .boolean(_): typeName = .swift("Bool")

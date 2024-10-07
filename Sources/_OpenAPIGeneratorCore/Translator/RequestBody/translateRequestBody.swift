@@ -46,7 +46,8 @@ extension TypesFileTranslator {
         let contentTypeName = typeName.appending(jsonComponent: "content")
         let contents = requestBody.contents
         for content in contents {
-            if TypeMatcher.isInlinable(content.content.schema) || content.content.isReferenceableMultipart {
+            if typeMatcher.isInlinable(content.content.schema) || typeMatcher.isReferenceableMultipart(content.content)
+            {
                 let inlineTypeDecls = try translateRequestBodyContentInTypes(content)
                 bodyMembers.append(contentsOf: inlineTypeDecls)
             }
@@ -92,7 +93,7 @@ extension TypesFileTranslator {
             typeUsage: bodyEnumTypeUsage,
             default: nil,
             associatedDeclarations: extraDecls,
-            asSwiftSafeName: swiftSafeName
+            context: context
         )
         return bodyProperty
     }

@@ -31,7 +31,7 @@ extension TestConfig {
 }
 
 /// Tests that the generator produces Swift files that match a reference.
-class FileBasedReferenceTests: XCTestCase {
+final class FileBasedReferenceTests: XCTestCase {
 
     /// Setup method called before the invocation of each test method in the class.
     override func setUp() {

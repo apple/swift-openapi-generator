@@ -120,7 +120,7 @@ extension FileTranslator {
         }
         var parts: [MultipartSchemaTypedContent] = try topLevelObject.properties.compactMap {
             (key, value) -> MultipartSchemaTypedContent? in
-            let swiftSafeName = swiftSafeName(for: key)
+            let swiftSafeName = context.asSwiftSafeName(key)
             let typeName = typeName.appending(
                 swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
                 jsonComponent: key
@@ -312,7 +312,7 @@ extension FileTranslator {
         }
         let contentType = finalContentTypeSource.contentType
         if finalContentTypeSource.contentType.isMultipart {
-            diagnostics.emitUnsupported("Multipart part cannot nest another multipart content.", foundIn: foundIn)
+            try diagnostics.emitUnsupported("Multipart part cannot nest another multipart content.", foundIn: foundIn)
             return nil
         }
         let info = MultipartPartInfo(repetition: repetitionKind, contentTypeSource: finalContentTypeSource)

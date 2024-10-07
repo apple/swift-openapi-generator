@@ -32,7 +32,6 @@ extension TypesFileTranslator {
         objectContext: JSONSchema.ObjectContext,
         isDeprecated: Bool
     ) throws -> Declaration {
-
         let documentedProperties: [PropertyBlueprint] = try objectContext.properties
             .filter { key, value in
 
@@ -42,7 +41,7 @@ extension TypesFileTranslator {
                 // have a proper definition in the `properties` map are skipped, as they
                 // often imply a typo or a mistake in the document. So emit a diagnostic as well.
                 guard !value.inferred else {
-                    diagnostics.emit(
+                    try diagnostics.emit(
                         .warning(
                             message:
                                 "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property.",
@@ -63,7 +62,7 @@ extension TypesFileTranslator {
                 // allowed in object properties, explicitly filter these out
                 // here.
                 if value.isString && value.formatString == "binary" {
-                    diagnostics.emitUnsupportedSchema(
+                    try diagnostics.emitUnsupportedSchema(
                         reason: "Binary properties in object schemas.",
                         schema: value,
                         foundIn: foundIn
@@ -86,7 +85,7 @@ extension TypesFileTranslator {
                     parent: typeName
                 )
                 let associatedDeclarations: [Declaration]
-                if TypeMatcher.isInlinable(value) {
+                if typeMatcher.isInlinable(value) {
                     associatedDeclarations = try translateSchema(
                         typeName: propertyType.typeName,
                         schema: value,
@@ -101,7 +100,7 @@ extension TypesFileTranslator {
                     originalName: key,
                     typeUsage: propertyType,
                     associatedDeclarations: associatedDeclarations,
-                    asSwiftSafeName: swiftSafeName
+                    context: context
                 )
             }
 
@@ -154,7 +153,7 @@ extension TypesFileTranslator {
                 components: components,
                 inParent: parent
             )
-            if TypeMatcher.isInlinable(schema) {
+            if typeMatcher.isInlinable(schema) {
                 associatedDeclarations = try translateSchema(
                     typeName: valueTypeUsage.typeName,
                     schema: schema,
@@ -176,7 +175,7 @@ extension TypesFileTranslator {
             default: .emptyInit,
             isSerializedInTopLevelDictionary: false,
             associatedDeclarations: associatedDeclarations,
-            asSwiftSafeName: swiftSafeName
+            context: context
         )
         return (.allowingAdditionalProperties, extraProperty)
     }

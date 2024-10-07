@@ -42,7 +42,7 @@ extension TypesFileTranslator {
             originalName: parameter.name,
             typeUsage: parameter.typeUsage,
             associatedDeclarations: associatedDeclarations,
-            asSwiftSafeName: swiftSafeName
+            context: context
         )
     }
 
@@ -114,7 +114,7 @@ extension ClientFileTranslator {
             containerExpr = .identifierPattern(requestVariableName)
             supportsStyleAndExplode = true
         default:
-            diagnostics.emitUnsupported(
+            try diagnostics.emitUnsupported(
                 "Parameter of type \(parameter.location.rawValue)",
                 foundIn: parameter.description
             )
@@ -198,7 +198,7 @@ extension ServerFileTranslator {
                     ])
             )
         default:
-            diagnostics.emitUnsupported(
+            try diagnostics.emitUnsupported(
                 "Parameter of type \(parameter.location)",
                 foundIn: "\(typedParameter.description)"
             )

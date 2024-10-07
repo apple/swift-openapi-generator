@@ -127,8 +127,8 @@ final class Test_TypeMatcher: Test_Core {
                 .fullyQualifiedSwiftName,
                 name
             )
-            XCTAssertTrue(TypeMatcher.isReferenceable(schema))
-            XCTAssertFalse(TypeMatcher.isInlinable(schema))
+            XCTAssertTrue(typeMatcher.isReferenceable(schema))
+            XCTAssertFalse(typeMatcher.isInlinable(schema))
         }
     }
 
@@ -145,8 +145,8 @@ final class Test_TypeMatcher: Test_Core {
                 typeMatcher.tryMatchBuiltinType(for: schema.value),
                 "Type is expected to not match a builtin type: \(schema)"
             )
-            XCTAssertFalse(TypeMatcher.isReferenceable(schema), "Expected schema not to be referenceable: \(schema)")
-            XCTAssertTrue(TypeMatcher.isInlinable(schema), "Expected schema to be inlinable: \(schema)")
+            XCTAssertFalse(typeMatcher.isReferenceable(schema), "Expected schema not to be referenceable: \(schema)")
+            XCTAssertTrue(typeMatcher.isInlinable(schema), "Expected schema to be inlinable: \(schema)")
         }
     }
 
@@ -175,7 +175,7 @@ final class Test_TypeMatcher: Test_Core {
         for schema in Self.keyValuePairTypes {
             var referenceStack = ReferenceStack.empty
             XCTAssertTrue(
-                try TypeMatcher.isKeyValuePair(schema, referenceStack: &referenceStack, components: components),
+                try typeMatcher.isKeyValuePair(schema, referenceStack: &referenceStack, components: components),
                 "Type is expected to be a key-value pair schema: \(schema)"
             )
         }
@@ -249,7 +249,7 @@ final class Test_TypeMatcher: Test_Core {
         ]
     func testMultipartElementTypeReferenceIfReferenceableTypes() throws {
         for (schema, encoding, name) in Self.multipartElementTypeReferenceIfReferenceableTypes {
-            let actualName = TypeMatcher.multipartElementTypeReferenceIfReferenceable(
+            let actualName = typeMatcher.multipartElementTypeReferenceIfReferenceable(
                 schema: schema,
                 encoding: encoding
             )?
@@ -257,5 +257,4 @@ final class Test_TypeMatcher: Test_Core {
             XCTAssertEqual(actualName, name)
         }
     }
-
 }

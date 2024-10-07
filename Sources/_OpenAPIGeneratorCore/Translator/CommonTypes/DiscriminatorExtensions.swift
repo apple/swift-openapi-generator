@@ -79,7 +79,9 @@ extension FileTranslator {
     /// component.
     /// - Parameter type: The `OneOfMappedType` for which to determine the case name.
     /// - Returns: A string representing the safe Swift name for the specified `OneOfMappedType`.
-    func safeSwiftNameForOneOfMappedType(_ type: OneOfMappedType) -> String { swiftSafeName(for: type.rawNames[0]) }
+    func safeSwiftNameForOneOfMappedType(_ type: OneOfMappedType) -> String {
+        context.asSwiftSafeName(type.rawNames[0])
+    }
 }
 
 extension OpenAPI.Discriminator {

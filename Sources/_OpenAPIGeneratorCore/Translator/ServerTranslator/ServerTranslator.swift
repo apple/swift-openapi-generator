@@ -35,11 +35,7 @@ struct ServerFileTranslator: FileTranslator {
         let imports =
             Constants.File.clientServerImports + config.additionalImports.map { ImportDescription(moduleName: $0) }
 
-        let allOperations = try OperationDescription.all(
-            from: doc.paths,
-            in: components,
-            asSwiftSafeName: swiftSafeName
-        )
+        let allOperations = try OperationDescription.all(from: doc.paths, in: components, context: context)
 
         let (registerHandlersDecl, serverMethodDecls) = try translateRegisterHandlers(allOperations)
 
