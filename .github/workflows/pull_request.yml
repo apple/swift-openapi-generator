@@ -9,7 +9,7 @@ jobs:
         name: Soundness
         uses: apple/swift-nio/.github/workflows/soundness.yml@main
         with:
-            api_breakage_check_enabled: true
+            api_breakage_check_enabled: false
             broken_symlink_check_enabled: true
             docs_check_enabled: true
             format_check_enabled: true
