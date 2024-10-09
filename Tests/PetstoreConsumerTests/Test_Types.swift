@@ -222,14 +222,17 @@ final class Test_Types: XCTestCase {
             verifyingJSON: #"{"name":"C","parent":{"nested":{"name":"B","parent":{"nested":{"name":"A"}}}}}"#
         )
     }
-    func testServers_1() throws { XCTAssertEqual(try Servers.server1(), URL(string: "https://example.com/api")) }
-    func testServers_2() throws { XCTAssertEqual(try Servers.server2(), URL(string: "/api")) }
+    func testServers_1() throws { XCTAssertEqual(try Servers.Server1.url(), URL(string: "https://example.com/api")) }
+    func testServers_2() throws { XCTAssertEqual(try Servers.Server2.url(), URL(string: "/api")) }
     func testServers_3() throws {
-        XCTAssertEqual(try Servers.server3(), URL(string: "https://test.example.com:443/v1"))
+        XCTAssertEqual(try Servers.Server3.url(), URL(string: "https://test.example.com:443/v1"))
         XCTAssertEqual(
-            try Servers.server3(subdomain: "bar", port: "8443", basePath: "v2/staging"),
+            try Servers.Server3.url(subdomain: "bar", port: ._8443, basePath: "v2/staging"),
             URL(string: "https://bar.example.com:8443/v2/staging")
         )
+        // Intentionally using the deprecated static function to check for regressions.
+        // Once the deprecated functions are no longer being generated this assertion is
+        // unnecessary and can be removed.
         XCTAssertThrowsError(try Servers.server3(port: "foo")) { error in
             guard
                 case let .invalidServerVariableValue(name: name, value: value, allowedValues: allowedValues) = error
