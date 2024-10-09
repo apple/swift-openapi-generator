@@ -189,7 +189,7 @@ public enum Servers {
     /// A custom domain.
     public enum Server3 {
         /// The "port" variable defined in the OpenAPI document. The default value is "443".
-        @frozen public enum Port: Swift.String {
+        @frozen public enum Port: Swift.String, Sendable {
             case _443 = "443"
             case _8443 = "8443"
         }

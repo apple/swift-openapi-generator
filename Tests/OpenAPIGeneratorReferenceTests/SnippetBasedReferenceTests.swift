@@ -5267,7 +5267,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Servers {
                 public enum Server1 {
-                    @frozen public enum Environment: Swift.String {
+                    @frozen public enum Environment: Swift.String, Sendable {
                         case production
                         case sandbox
                     }
@@ -5349,7 +5349,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Servers {
                 public enum Server1 {
-                    @frozen public enum Environment: Swift.String {
+                    @frozen public enum Environment: Swift.String, Sendable {
                         case production
                         case sandbox
                     }
@@ -5396,7 +5396,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     )
                 }
                 public enum Server2 {
-                    @frozen public enum Environment: Swift.String {
+                    @frozen public enum Environment: Swift.String, Sendable {
                         case sandbox
                         case develop
                     }

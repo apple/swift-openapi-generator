@@ -62,6 +62,13 @@ enum Constants {
 
         /// The prefix of the namespace that contains server specific variables.
         static let serverNamespacePrefix: String = "Server"
+
+        /// Constants related to the OpenAPI server variable object.
+        enum Variable {
+
+            /// The types that the protocol conforms to.
+            static let conformances: [String] = [TypeName.string.fullyQualifiedSwiftName, "Sendable"]
+        }
     }
 
     /// Constants related to the configuration type, which is used by both

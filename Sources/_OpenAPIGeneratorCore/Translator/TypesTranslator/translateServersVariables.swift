@@ -192,9 +192,7 @@ extension TypesFileTranslator {
                     isFrozen: true,
                     accessModifier: accessModifier,
                     name: enumName,
-                    conformances: [
-                        TypeName.string.fullyQualifiedSwiftName,
-                    ],
+                    conformances: Constants.ServerURL.Variable.conformances,
                     members: enumValues.map(translateVariableCase)
                 )
             )
