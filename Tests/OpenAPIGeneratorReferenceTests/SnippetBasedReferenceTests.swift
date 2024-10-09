@@ -2330,6 +2330,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testAPIProtocolConformance() throws {
+        try self.assertProtocolConformanceTranslation(
+            additionalProtocolConformances: ["ExampleProtocol"],
+            "public protocol APIProtocol: Sendable, ExampleProtocol {}"
+        )
+    }
+
     func testServerRegisterHandlers_oneOperation() throws {
         try self.assertServerRegisterHandlers(
             """
@@ -5195,13 +5202,19 @@ extension SnippetBasedReferenceTests {
 
     func makeTypesTranslator(
         accessModifier: AccessModifier = .public,
+        additionalProtocolConformances: [String] = [],
         featureFlags: FeatureFlags = [],
         ignoredDiagnosticMessages: Set<String> = [],
         componentsYAML: String
     ) throws -> TypesFileTranslator {
         let components = try YAMLDecoder().decode(OpenAPI.Components.self, from: componentsYAML)
         return TypesFileTranslator(
-            config: Config(mode: .types, access: accessModifier, featureFlags: featureFlags),
+            config: Config(
+                mode: .types,
+                access: accessModifier,
+                additionalAPIProtocols: additionalProtocolConformances,
+                featureFlags: featureFlags
+            ),
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
             components: components
         )
@@ -5440,6 +5453,21 @@ extension SnippetBasedReferenceTests {
     ) throws {
         let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
         let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
+        let translation = try translator.translateAPIProtocol(paths)
+        try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
+    }
+
+    func assertProtocolConformanceTranslation(
+        additionalProtocolConformances: [String],
+        _ expectedSwift: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let translator = try makeTypesTranslator(
+            additionalProtocolConformances: additionalProtocolConformances,
+            componentsYAML: "{}"
+        )
+        let paths: OpenAPI.PathItem.Map = .init()
         let translation = try translator.translateAPIProtocol(paths)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
