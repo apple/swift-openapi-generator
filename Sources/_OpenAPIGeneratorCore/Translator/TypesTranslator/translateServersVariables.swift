@@ -24,7 +24,7 @@ extension TypesFileTranslator {
     /// - Returns: A declaration of the server variables namespace, or `nil` if no
     /// variables are declared.
     func translateServerVariables(index: Int, server: OpenAPI.Server, generateAsEnum: Bool) -> [any ServerVariableGenerator] {
-        return server.variables.map { (key, variable) in
+        return server.variables.map { key, variable in
             guard generateAsEnum, let enumValues = variable.enum else {
                 return RawStringTranslatedServerVariable(
                     key: key,
@@ -32,7 +32,7 @@ extension TypesFileTranslator {
                     context: context
                 )
             }
-
+            
             return GeneratedEnumTranslatedServerVariable(
                 key: key,
                 variable: variable,
@@ -47,9 +47,8 @@ extension TypesFileTranslator {
     
     /// Represents a server variable and the function of generation that should be applied.
     protocol ServerVariableGenerator {
-        /// Returns the declaration (enum) that should be added to the `Variables.Server#`
-        /// namespace. If the server variable does not require any codegen then it should
-        /// return `nil`.
+        /// Returns the declaration (enum) that should be added to the server's namespace.
+        /// If the server variable does not require any codegen then it should return `nil`.
         var declaration: Declaration? { get }
 
         /// Returns the description of the parameter that will be used to define the variable
@@ -64,22 +63,39 @@ extension TypesFileTranslator {
         /// the server's static method.
         var functionComment: (name: String, comment: String?) { get }
     }
-
+    
     /// Represents a variable that is required to be represented as a `Swift.String`.
     private struct RawStringTranslatedServerVariable: ServerVariableGenerator {
+        /// The key of the variable defined in the Open API document.
         let key: String
+
+        /// The ``key`` after being santized for use as an identifier.
         let swiftSafeKey: String
+
+        /// The server variable information.
         let variable: OpenAPI.Server.Variable
 
+        /// Create a generator for an Open API "Server Variable Object" that is represented
+        /// by a `Swift.String` in the generated output.
+        ///
+        /// - Parameters:
+        ///   - key: The key of the variable defined in the Open API document.
+        ///   - variable: The server variable information.
+        ///   - context: The translator context the generator should use to create
+        ///   Swift safe identifiers.
         init(key: String, variable: OpenAPI.Server.Variable, context: TranslatorContext) {
             self.key = key
             swiftSafeKey = context.asSwiftSafeName(key)
             self.variable = variable
         }
 
-        /// A variable being represented by a `Swift.String` does not have a declaration that needs to
-        /// be added to the `Variables.Server#` namespace.
-        var declaration: Declaration? { nil }
+        /// Returns the declaration (enum) that should be added to the server's namespace.
+        /// If the server variable does not require any codegen then it should return `nil`.
+        var declaration: Declaration? {
+            // A variable being represented by a `Swift.String` does not have a declaration that needs to
+            // be added to the server's namespace.
+            return nil
+        }
 
         /// Returns the description of the parameter that will be used to define the variable
         /// in the static method for a given server.
@@ -114,32 +130,53 @@ extension TypesFileTranslator {
         }
     }
 
-    /// Represents a variable that will be generated as an enum and added to the `Variables.Server#`
-    /// namespace. The enum will contain a `default` static case which returns the default defined in
-    /// the OpenAPI Document.
+    /// Represents an Open API "Server Variable Object" that will be generated as an enum and added
+    /// to the server's namespace.
     private struct GeneratedEnumTranslatedServerVariable: ServerVariableGenerator {
+        /// The key of the variable defined in the Open API document.
         let key: String
+
+        /// The ``key`` after being santized for use as an identifier.
         let swiftSafeKey: String
+
+        /// The ``key`` after being santized for use as the enum identifier.
         let enumName: String
+
+        /// The server variable information.
         let variable: OpenAPI.Server.Variable
+
+        /// The 'enum' values of the variable as defined in the Open API document.
         let enumValues: [String]
 
+        /// The access modifier to use for generated declarations.
         let accessModifier: AccessModifier
+
+        /// The translator context the generator should use to create Swift safe identifiers.
         let context: TranslatorContext
 
+        /// Create a generator for an Open API "Server Variable Object" that is represented
+        /// by an enumeration in the generated output.
+        ///
+        /// - Parameters:
+        ///   - key: The key of the variable defined in the Open API document.
+        ///   - variable: The server variable information.
+        ///   - enumValues: The 'enum' values of the variable as defined in the Open API document.
+        ///   - accessModifier: The access modifier to use for generated declarations.
+        ///   - context: The translator context the generator should use to create
+        ///   Swift safe identifiers.
         init(key: String, variable: OpenAPI.Server.Variable, enumValues: [String], accessModifier: AccessModifier, context: TranslatorContext) {
             self.key = key
             swiftSafeKey = context.asSwiftSafeName(key)
             enumName = context.asSwiftSafeName(key.localizedCapitalized)
             self.variable = variable
             self.enumValues = enumValues
-
+            
             self.context = context
             self.accessModifier = accessModifier
         }
 
-        /// Returns the declaration (enum) that should be added to the `Variables.Server#`
-        /// namespace.
+        /// Returns the declaration (enum) that should be added to the server's namespace.
+        /// If the server variable does not require any codegen then it should return `nil`.
         var declaration: Declaration? {
             let description: String = if let description = variable.description {
                 description + "\n\n"
@@ -204,11 +241,7 @@ extension TypesFileTranslator {
         /// - Returns: A declaration of an enum case.
         private func translateVariableCase(_ name: String) -> Declaration {
             let caseName = context.asSwiftSafeName(name)
-            if caseName == name {
-                return .enumCase(name: caseName, kind: .nameOnly)
-            } else {
-                return .enumCase(name: caseName, kind: .nameWithRawValue(.string(name)))
-            }
+            return .enumCase(name: caseName, kind: caseName == name ? .nameOnly : .nameWithRawValue(.string(name)))
         }
     }
 }

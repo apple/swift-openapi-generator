@@ -1628,7 +1628,7 @@ extension KeywordKind {
 }
 
 extension Declaration {
-    /// Returns a new deprecated variant of the declaration if `shouldDeprecate` is true.
+    /// Returns a new deprecated variant of the declaration if the provided `description` is not `nil`.
     func deprecate(if description: DeprecationDescription?) -> Self {
         if let description { return .deprecated(description, self) }
         return self
