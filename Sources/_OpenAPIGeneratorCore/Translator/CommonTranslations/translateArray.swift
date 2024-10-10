@@ -26,11 +26,15 @@ extension TypesFileTranslator {
     ///   document.
     ///   - arrayContext: The context for the array, including information such
     ///   as the element schema.
+    ///   - defaultValue: An optional default value for the array.
     /// - Throws: An error if there is an issue during translation.
     /// - Returns: A list of declarations representing the translated array.
-    func translateArray(typeName: TypeName, openAPIDescription: String?, arrayContext: JSONSchema.ArrayContext) throws
-        -> [Declaration]
-    {
+    func translateArray(
+        typeName: TypeName,
+        openAPIDescription: String?,
+        arrayContext: JSONSchema.ArrayContext,
+        defaultValue: AnyCodable?
+    ) throws -> [Declaration] {
 
         var inline: [Declaration] = []
 
@@ -61,6 +65,20 @@ extension TypesFileTranslator {
                 existingType: .init(elementType.typeName.asUsage.asArray)
             )
         )
-        return inline + [arrayDecl]
+        inline.append(arrayDecl)
+        if let defaultValue, let literalDescription = convertValueToLiteralDescription(defaultValue.value) {
+
+            let defaultDecl: Declaration = .variable(
+                accessModifier: config.access,
+                isStatic: true,
+                kind: .let,
+                left: "`default`",
+                type: .init(elementType.typeName.asUsage.asArray),
+                right: .literal(literalDescription)
+            )
+            inline.append(defaultDecl)
+        }
+
+        return inline
     }
 }

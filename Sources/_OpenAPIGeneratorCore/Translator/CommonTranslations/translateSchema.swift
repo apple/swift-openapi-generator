@@ -90,14 +90,14 @@ extension TypesFileTranslator {
 
         // If this type maps to a referenceable schema, define a typealias
         if let builtinType = try typeMatcher.tryMatchReferenceableType(for: schema, components: components) {
-            let typealiasDecl = try translateTypealias(
+            return try translateTypealias(
                 named: typeName,
                 userDescription: overrides.userDescription ?? schema.description,
                 to: builtinType.withOptional(
                     overrides.isOptional ?? typeMatcher.isOptional(schema, components: components)
-                )
+                ),
+                defaultValue: schema.defaultValue
             )
-            return [typealiasDecl]
         }
 
         // Not a global schema, we have to actually define a type for it
@@ -138,7 +138,8 @@ extension TypesFileTranslator {
             return try translateArray(
                 typeName: typeName,
                 openAPIDescription: overrides.userDescription ?? coreContext.description,
-                arrayContext: arrayContext
+                arrayContext: arrayContext,
+                defaultValue: coreContext.defaultValue
             )
         case let .all(of: schemas, core: coreContext):
             let allOfDecl = try translateAllOrAnyOf(
