@@ -85,6 +85,8 @@ extension TypesFileTranslator {
     ///   - index: The index of the server in the list of servers defined
     ///   in the OpenAPI document.
     ///   - server: The server URL information.
+    ///   - pathToReplacementSymbol: The Swift path of the symbol
+    ///   which has resulted in the deprecation of this symbol.
     /// - Returns: A static function declaration.
     func translateServerAsDeprecated(index: Int, server: OpenAPI.Server, renamedTo pathToReplacementSymbol: String) -> Declaration {
         let serverVariables = translateServerVariables(index: index, server: server, generateAsEnum: false)

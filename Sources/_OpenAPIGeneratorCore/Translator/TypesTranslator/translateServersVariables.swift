@@ -21,6 +21,8 @@ extension TypesFileTranslator {
     ///   - index: The index of the server in the list of servers defined
     ///   in the OpenAPI document.
     ///   - server: The server variables information.
+    ///   - generateAsEnum: Whether the enum generator is allowed, if `false`
+    ///   only `RawStringTranslatedServerVariable` generators will be returned.
     /// - Returns: A declaration of the server variables namespace, or `nil` if no
     /// variables are declared.
     func translateServerVariables(index: Int, server: OpenAPI.Server, generateAsEnum: Bool) -> [any ServerVariableGenerator] {
