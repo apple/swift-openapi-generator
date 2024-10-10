@@ -122,7 +122,7 @@
             @Step {
                 Next we'll create an instance of our client.
 
-                Note: `Servers.server2()` is the localhost service, defined in the OpenAPI document.
+                Note: `Servers.Server2.url()` is the localhost service, defined in the OpenAPI document.
                 @Code(name: "main.swift", file: client.main.2.swift)
             }
             @Step {

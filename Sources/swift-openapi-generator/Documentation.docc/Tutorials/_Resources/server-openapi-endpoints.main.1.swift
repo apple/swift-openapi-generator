@@ -26,7 +26,7 @@ let handler = GreetingServiceAPIImpl()
 
 // Call the generated function on your implementation to add its request
 // handlers to the app.
-try handler.registerHandlers(on: transport, serverURL: Servers.server1())
+try handler.registerHandlers(on: transport, serverURL: Servers.Server1.url())
 
 // Add Vapor middleware to serve the contents of the Public/ directory.
 app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))

@@ -119,7 +119,7 @@
             @Step {
                 Next we'll create an instance of the generated client.
 
-                Note: `Servers.server2()` is the localhost service, defined in the OpenAPI document.
+                Note: `Servers.Server2.url()` is the localhost service, defined in the OpenAPI document.
                 
                 @Code(name: "GreetingClient.swift", file: client.xcode.2.swift)
             }
