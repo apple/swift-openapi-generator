@@ -230,20 +230,5 @@ final class Test_Types: XCTestCase {
             try Servers.Server3.url(subdomain: "bar", port: ._8443, basePath: "v2/staging"),
             URL(string: "https://bar.example.com:8443/v2/staging")
         )
-        // Intentionally using the deprecated static function to check for regressions.
-        // Once the deprecated functions are no longer being generated this assertion is
-        // unnecessary and can be removed.
-        XCTAssertThrowsError(try Servers.server3(port: "foo")) { error in
-            guard
-                case let .invalidServerVariableValue(name: name, value: value, allowedValues: allowedValues) = error
-                    as? RuntimeError
-            else {
-                XCTFail("Expected error, but not this: \(error)")
-                return
-            }
-            XCTAssertEqual(name, "port")
-            XCTAssertEqual(value, "foo")
-            XCTAssertEqual(allowedValues, ["443", "8443"])
-        }
     }
 }
