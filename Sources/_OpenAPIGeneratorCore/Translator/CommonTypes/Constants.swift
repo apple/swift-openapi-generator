@@ -56,7 +56,6 @@ enum Constants {
 
         /// The prefix of each generated method name.
         static let propertyPrefix: String = "server"
-        
         /// The name of each generated static function.
         static let urlStaticFunc: String = "url"
 

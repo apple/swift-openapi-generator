@@ -5497,14 +5497,13 @@ extension SnippetBasedReferenceTests {
             components: components
         )
     }
-    
     func makeTypesTranslator(
         accessModifier: AccessModifier = .public,
         featureFlags: FeatureFlags = [],
         ignoredDiagnosticMessages: Set<String> = [],
         components: OpenAPI.Components = .noComponents
     ) throws -> TypesFileTranslator {
-        return TypesFileTranslator(
+        TypesFileTranslator(
             config: Config(mode: .types, access: accessModifier, featureFlags: featureFlags),
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
             components: components
