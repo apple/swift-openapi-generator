@@ -64,7 +64,7 @@ extension TypesFileTranslator {
                     parent: typeName
                 )
                 let associatedDeclarations: [Declaration]
-                if TypeMatcher.isInlinable(schema) {
+                if typeMatcher.isInlinable(schema) {
                     associatedDeclarations = try translateSchema(
                         typeName: propertyType.typeName,
                         schema: schema,
@@ -78,10 +78,10 @@ extension TypesFileTranslator {
                     originalName: key,
                     typeUsage: propertyType,
                     associatedDeclarations: associatedDeclarations,
-                    asSwiftSafeName: swiftSafeName
+                    context: context
                 )
                 var referenceStack = ReferenceStack.empty
-                let isKeyValuePairSchema = try TypeMatcher.isKeyValuePair(
+                let isKeyValuePairSchema = try typeMatcher.isKeyValuePair(
                     schema,
                     referenceStack: &referenceStack,
                     components: components
@@ -173,7 +173,7 @@ extension TypesFileTranslator {
                         parent: typeName
                     )
                     let associatedDeclarations: [Declaration]
-                    if TypeMatcher.isInlinable(schema) {
+                    if typeMatcher.isInlinable(schema) {
                         associatedDeclarations = try translateSchema(
                             typeName: childType.typeName,
                             schema: schema,
@@ -183,7 +183,7 @@ extension TypesFileTranslator {
                         associatedDeclarations = []
                     }
                     var referenceStack = ReferenceStack.empty
-                    let isKeyValuePair = try TypeMatcher.isKeyValuePair(
+                    let isKeyValuePair = try typeMatcher.isKeyValuePair(
                         schema,
                         referenceStack: &referenceStack,
                         components: components
@@ -209,7 +209,7 @@ extension TypesFileTranslator {
         let decoder: Declaration
         if let discriminator {
             let originalName = discriminator.propertyName
-            let swiftName = swiftSafeName(for: originalName)
+            let swiftName = context.asSwiftSafeName(originalName)
             codingKeysDecls = [
                 .enum(
                     accessModifier: config.access,

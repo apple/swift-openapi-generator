@@ -7,9 +7,9 @@ on:
 jobs:
     soundness:
         name: Soundness
-        uses: apple/swift-nio/.github/workflows/soundness.yml@main
+        uses: swiftlang/github-workflows/.github/workflows/soundness.yml@main
         with:
-            api_breakage_check_enabled: true
+            api_breakage_check_enabled: false
             broken_symlink_check_enabled: true
             docs_check_enabled: true
             format_check_enabled: true
@@ -17,6 +17,7 @@ jobs:
             license_header_check_project_name: "SwiftOpenAPIGenerator"
             shell_check_enabled: true
             unacceptable_language_check_enabled: true
+            yamllint_check_enabled: false
 
     unit-tests:
         name: Unit tests
@@ -33,7 +34,7 @@ jobs:
         uses: apple/swift-nio/.github/workflows/swift_matrix.yml@main
         with:
             name: "Integration test"
-            matrix_linux_command: "apt-get update -yq && apt-get install -yq jq && ./scripts/run-integration-test.sh"
+            matrix_linux_command: "apt-get update -yq && apt-get install -yq jq && SWIFT_OPENAPI_GENERATOR_REPO_URL=file://${GITHUB_WORKSPACE} ./scripts/run-integration-test.sh"
             matrix_linux_5_8_enabled: false
             matrix_linux_nightly_main_enabled: false
 

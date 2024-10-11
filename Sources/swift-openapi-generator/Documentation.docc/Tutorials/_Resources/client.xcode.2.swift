@@ -6,7 +6,7 @@ public struct GreetingClient {
 
     public func getGreeting(name: String?) async throws -> String {
         let client = Client(
-            serverURL: try Servers.server2(),
+            serverURL: try Servers.Server2.url(),
             transport: URLSessionTransport()
         )
     }

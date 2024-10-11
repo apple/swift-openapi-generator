@@ -64,7 +64,7 @@ final class Test_String: Test_Core {
             ("application", "application"), ("vendor1+json", "vendor1_plus_json"),
         ]
         let translator = makeTranslator()
-        let asSwiftSafeName: (String) -> String = translator.swiftSafeName
+        let asSwiftSafeName: (String) -> String = translator.context.asSwiftSafeName
         for (input, sanitized) in cases { XCTAssertEqual(asSwiftSafeName(input), sanitized) }
     }
 }
