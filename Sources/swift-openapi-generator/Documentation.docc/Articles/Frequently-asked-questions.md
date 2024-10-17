@@ -71,3 +71,23 @@ For Xcode projects, make sure the target that uses the Swift OpenAPI Generator b
 Alternatively, change the access modifier of the generated code to either `internal` (if no code outside of that module needs to use it) or `public` (if the generated code is exported to other modules and packages.) You can do so by setting `accessModifier: internal` in the generator configuration file, or by providing `--access-modifier internal` to the `swift-openapi-generator` CLI.
 
 For details, check out <doc:Configuring-the-generator>.
+
+### How do I enable the build plugin in Xcode and Xcode Cloud?
+
+By default, build plugins must be explicitly enabled by the adopter.
+
+In Xcode, the first time you add a build plugin as a dependency of your project or package, the build fails and requires you to enable the plugin.
+
+In Xcode Cloud, you might encounter the error _"OpenAPIGenerator" is disabled_, caused by the fact that build plugins must also be enabled explicitly when run in automation.
+
+One way to enable build plugins in Xcode Cloud is by adding the script `ci_scripts/ci_post_clone.sh` next to your Xcode project or workspace, containing:
+
+```bash
+#!/usr/bin/env bash
+
+set -e
+
+defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidatation -bool YES
+```
+
+Learn more about Xcode Cloud custom scripts in the [documentation](https://developer.apple.com/documentation/xcode/writing-custom-build-scripts).
