@@ -74,13 +74,13 @@ For details, check out <doc:Configuring-the-generator>.
 
 ### How do I enable the build plugin in Xcode and Xcode Cloud?
 
-By default, build plugins must be explicitly enabled by the adopter.
+By default, you must explicitly enable build plugins before they are allowed to run.
 
-In Xcode, the first time you add a build plugin as a dependency of your project or package, the build fails and requires you to enable the plugin.
+Before a plugin is enabled, you might encounter a build error with the message _"OpenAPIGenerator" is disabled_.
 
-In Xcode Cloud, you might encounter the error _"OpenAPIGenerator" is disabled_, caused by the fact that build plugins must also be enabled explicitly when run in automation.
+In Xcode, enable the plugin by clicking the "Enable Plugin" button next to the build error and confirm the dialog by clicking "Trust & Enable".
 
-One way to enable build plugins in Xcode Cloud is by adding the script `ci_scripts/ci_post_clone.sh` next to your Xcode project or workspace, containing:
+In Xcode Cloud, add the script `ci_scripts/ci_post_clone.sh` next to your Xcode project or workspace, containing:
 
 ```bash
 #!/usr/bin/env bash
