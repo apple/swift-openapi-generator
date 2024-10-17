@@ -76,7 +76,7 @@ For details, check out <doc:Configuring-the-generator>.
 
 By default, you must explicitly enable build plugins before they are allowed to run.
 
-Before a plugin is enabled, you might encounter a build error with the message _"OpenAPIGenerator" is disabled_.
+Before a plugin is enabled, you will encounter a build error with the message `"OpenAPIGenerator" is disabled`.
 
 In Xcode, enable the plugin by clicking the "Enable Plugin" button next to the build error and confirm the dialog by clicking "Trust & Enable".
 
