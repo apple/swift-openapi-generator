@@ -2,7 +2,7 @@
     @Intro(title: "Adding OpenAPI and Swagger UI endpoints") {
         One of the most popular ways to share your OpenAPI document with your users is to host it alongside your API server itself.
         
-        Typically this is at `/openapi.yaml` or similar, which serves a plain-text OpenAPI document for consumpion by clients.
+        Typically this is at `/openapi.yaml` or similar, which serves a plain-text OpenAPI document for consumption by clients.
         
         Additionally, you can host an HTML page that renders the OpenAPI document as interactive documentation that you can use from the browser, for example using [swagger-ui](https://github.com/swagger-api/swagger-ui).
         
@@ -37,7 +37,7 @@
                 This step is necessary because the Vapor middleware serves files relative to the current working directory for the running server process.
             }
             @Step {
-                Test this enpoint in your browser, or using curl.
+                Test this endpoint in your browser, or using curl.
                 
                 @Code(name: "console", file: server-openapi-endpoints.console.2.txt, previousFile: server-openapi-endpoints.console.1.txt)
             }
