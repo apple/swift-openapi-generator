@@ -21,7 +21,7 @@ let app = Vapor.Application()
 let transport = VaporTransport(routesBuilder: app)
 
 // Create an instance of your handler type that conforms the generated protocol
-// defininig your service API.
+// defining your service API.
 let handler = GreetingServiceAPIImpl()
 
 // Call the generated function on your implementation to add its request

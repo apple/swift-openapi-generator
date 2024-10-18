@@ -16,13 +16,13 @@ This article includes some commonly asked questions and answers.
 
 Check out <doc:Project-scope-and-goals>.
 
-### What OpenAPI featues does the generator support?
+### What OpenAPI features does the generator support?
 
 Check out <doc:Supported-OpenAPI-features>.
 
 ### Which underlying HTTP library does the generated code use?
 
-Swift OpenAPI Generator is not tied to any particular HTTP library. Instead, the generated code utilizies a general protocol called [`ClientTransport`](https://swiftpackageindex.com/apple/swift-openapi-runtime/documentation/openapiruntime/clienttransport) for client code, and [`ServerTransport`](https://swiftpackageindex.com/apple/swift-openapi-runtime/documentation/openapiruntime/servertransport) for server code.
+Swift OpenAPI Generator is not tied to any particular HTTP library. Instead, the generated code utilizes a general protocol called [`ClientTransport`](https://swiftpackageindex.com/apple/swift-openapi-runtime/documentation/openapiruntime/clienttransport) for client code, and [`ServerTransport`](https://swiftpackageindex.com/apple/swift-openapi-runtime/documentation/openapiruntime/servertransport) for server code.
 
 The user of the generated code provides one of the concrete transport implementations, based on what's appropriate for their use case.
 
@@ -87,6 +87,7 @@ In Xcode Cloud, add the script `ci_scripts/ci_post_clone.sh` next to your Xcode 
 
 set -e
 
+# NOTE: the misspelling of validation as "validatation" is intentional and the spelling Xcode expects.
 defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidatation -bool YES
 ```
 
