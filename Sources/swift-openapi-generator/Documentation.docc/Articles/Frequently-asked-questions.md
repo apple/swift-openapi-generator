@@ -87,6 +87,7 @@ In Xcode Cloud, add the script `ci_scripts/ci_post_clone.sh` next to your Xcode 
 
 set -e
 
+# NOTE: the misspelling of validation as "validatation" is intentional and the spelling Xcode expects.
 defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidatation -bool YES
 ```
 
