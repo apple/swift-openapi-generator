@@ -37,7 +37,7 @@ For example:
 
 ```yaml
 MyOptionalString:
-  type: [string, null]
+  type: [string, 'null']
 ```
 
 > The rule can be summarized as: `schema is optional := schema is nullable`, where being `nullable` is represented slightly differently between the two JSON Schema versions.
@@ -75,7 +75,7 @@ MyPerson:
     name:
       type: string
     age:
-      type: [integer, null]
+      type: [integer, 'null']
   required:
     - name
     - age # even though required, the nullability of the schema "wins"

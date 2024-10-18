@@ -70,7 +70,7 @@ extension TypesFileTranslator {
         let decl = try translateSchema(
             typeName: typeName,
             schema: parameter.schema,
-            overrides: .init(isOptional: !parameter.required, userDescription: parameter.parameter.description)
+            overrides: .init(userDescription: parameter.parameter.description)
         )
         return decl
     }
