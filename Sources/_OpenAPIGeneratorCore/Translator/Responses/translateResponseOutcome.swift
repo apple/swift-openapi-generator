@@ -68,14 +68,19 @@ extension TypesFileTranslator {
         let responseHasNoContent = typedResponse.response.content.isEmpty
         if responseHasNoContent && responseHasNoHeaders && !responseKind.wantsStatusCode {
             let staticMemberDesc = VariableDescription(
-                accessModifier: .internal,
+                accessModifier: config.access,
                 isStatic: true,
                 kind: .var,
                 left: .identifier(.pattern(enumCaseName)),
                 type: .member(["Self"]),
-                right: .closureInvocation(body: [
-                    .expression(.functionCall(calledExpression: .dot(enumCaseName), arguments: [.dot("init")]))
-                ])
+                getter: [
+                    .expression(
+                        .functionCall(
+                            calledExpression: .dot(enumCaseName),
+                            arguments: [.functionCall(calledExpression: .dot("init"))]
+                        )
+                    )
+                ]
             )
             staticMemberDecl = .commentable(enumCaseDocComment, .variable(staticMemberDesc))
         }
