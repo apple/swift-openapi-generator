@@ -104,6 +104,27 @@ class Test_TypeAssigner: Test_Core {
         }
     }
 
+    func testTypeNameForReferenceProperties() throws {
+        let parent = TypeName(swiftKeyPath: ["MyType"])
+        let components: OpenAPI.Components = .init(schemas: [
+            "SomeString": .string(),
+            "MaybeString": .one(of: [.reference(.component(named: "SomeString")), .null()]),
+        ])
+        func assertTypeName(_ property: String, _ schema: JSONSchema, _ typeName: String, file: StaticString = #file, line: UInt = #line) throws {
+            let actual = try typeAssigner.typeUsage(
+                forObjectPropertyNamed: property,
+                withSchema: schema,
+                components: components,
+                inParent: parent
+            ).fullyQualifiedSwiftName
+            XCTAssertEqual(typeName, actual, file: file, line: line)
+        }
+        try assertTypeName("someString", .reference(.component(named: "SomeString")), "Components.Schemas.SomeString")
+        try assertTypeName("maybeString", .reference(.component(named: "MaybeString")), "Components.Schemas.MaybeString")
+        try assertTypeName("optionalSomeString", .reference(.component(named: "SomeString"), required: false), "Components.Schemas.SomeString?")
+        try assertTypeName("optionalMaybeString", .reference(.component(named: "MaybeString"), required: false), "Components.Schemas.MaybeString")
+    }
+
     func testContentSwiftName() throws {
         let nameMaker = makeTranslator().typeAssigner.contentSwiftName
         let cases: [(String, String)] = [

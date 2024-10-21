@@ -403,9 +403,9 @@ components:
       type: object
       properties:
         foo:
-          type: [array, null]
+          type: [array, 'null']
           items:
-            type: [string, null]
+            type: [string, 'null']
     CodeError:
       type: object
       properties:
