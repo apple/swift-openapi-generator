@@ -63,7 +63,7 @@ extension TypesFileTranslator {
         let enumCaseDesc = EnumCaseDescription(name: enumCaseName, kind: .nameWithAssociatedValues(associatedValues))
         let enumCaseDecl: Declaration = .commentable(enumCaseDocComment, .enumCase(enumCaseDesc))
 
-        var staticMemberDecl: Declaration?
+        let staticMemberDecl: Declaration?
         let responseHasNoHeaders = typedResponse.response.headers?.isEmpty ?? true
         let responseHasNoContent = typedResponse.response.content.isEmpty
         if responseHasNoContent && responseHasNoHeaders && !responseKind.wantsStatusCode {
@@ -83,6 +83,8 @@ extension TypesFileTranslator {
                 ]
             )
             staticMemberDecl = .commentable(enumCaseDocComment, .variable(staticMemberDesc))
+        } else {
+            staticMemberDecl = nil
         }
 
         let throwingGetterDesc = VariableDescription(
