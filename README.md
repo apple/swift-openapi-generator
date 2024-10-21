@@ -120,6 +120,10 @@ Swift OpenAPI Generator and integrate with other packages in the ecosystem.
 Or if you prefer to watch a video, check out [Meet Swift OpenAPI
 Generator](https://developer.apple.com/wwdc23/10171) from WWDC23.
 
+> [!NOTE]
+> When using Visual Studio Code or other editors that rely on [SourceKit-LSP](https://github.com/swiftlang/sourcekit-lsp), the editor may not correctly recognize generated code within same module. As a workaround, consider creating a separate target for code generation and importing this module into your application code. For more details, see the discussion in [swiftlang/sourcekit-lsp#665](https://github.com/swiftlang/sourcekit-lsp/issues/665#issuecomment-2093169169).
+
+
 [openapi]: https://openapis.org
 [repo-generator]: https://github.com/apple/swift-openapi-generator
 [docs-generator]: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation
