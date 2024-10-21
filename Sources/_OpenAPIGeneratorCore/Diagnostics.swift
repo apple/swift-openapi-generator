@@ -322,7 +322,9 @@ public struct StdErrPrintingDiagnosticCollector: DiagnosticCollector, Sendable {
     /// Emits a diagnostic message to standard error.
     ///
     /// - Parameter diagnostic: The diagnostic message to emit.
-    public func emit(_ diagnostic: Diagnostic) { stdErrHandle.write(diagnostic.description) }
+    public func emit(_ diagnostic: Diagnostic) {
+        stdErrHandle.write(diagnostic.description + "\n")
+    }
 }
 
 /// A no-op collector, silently ignores all diagnostics.
