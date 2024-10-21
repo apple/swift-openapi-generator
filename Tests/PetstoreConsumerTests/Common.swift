@@ -14,10 +14,6 @@
 import XCTest
 import HTTPTypes
 
-extension Operations.listPets.Output {
-    static var success: Self { .ok(.init(headers: .init(My_hyphen_Response_hyphen_UUID: "abcd"), body: .json([]))) }
-}
-
 extension HTTPRequest {
     /// Initializes an HTTP request with the specified path, HTTP method, and  header fields.
     ///

@@ -28,7 +28,7 @@ class Test_Core: XCTestCase {
     func makeTranslator(
         components: OpenAPI.Components = .noComponents,
         diagnostics: any DiagnosticCollector = PrintingDiagnosticCollector(),
-        featureFlags: FeatureFlags = []
+        featureFlags: FeatureFlags = [.uuidSupport]
     ) -> TypesFileTranslator {
         makeTypesTranslator(components: components, diagnostics: diagnostics, featureFlags: featureFlags)
     }
