@@ -28,7 +28,7 @@ extension TypesFileTranslator {
         let protocolDescription = ProtocolDescription(
             accessModifier: config.access,
             name: Constants.APIProtocol.typeName,
-            conformances: Constants.APIProtocol.conformances,
+            conformances: Constants.APIProtocol.conformances + config.additionalAPIProtocols,
             members: functionDecls
         )
         let protocolComment: Comment = .doc("A type that performs HTTP operations defined by the OpenAPI document.")
