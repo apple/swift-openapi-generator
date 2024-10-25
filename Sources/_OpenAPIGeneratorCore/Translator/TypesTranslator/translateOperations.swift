@@ -143,7 +143,8 @@ extension TypesFileTranslator {
         let documentedMembers: [Declaration] = documentedOutcomes.flatMap {
             inlineResponseDecl,
             caseDecl,
-            throwingGetter in [inlineResponseDecl, caseDecl, throwingGetter].compactMap { $0 }
+            staticDecl,
+            throwingGetter in [inlineResponseDecl, caseDecl, staticDecl, throwingGetter].compactMap { $0 }
         }
 
         let allMembers: [Declaration]
