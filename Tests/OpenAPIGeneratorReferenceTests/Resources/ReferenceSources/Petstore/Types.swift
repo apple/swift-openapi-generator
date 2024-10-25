@@ -2279,6 +2279,14 @@ public enum Operations {
             ///
             /// HTTP response code: `204 noContent`.
             case noContent(Operations.createPetWithForm.Output.NoContent)
+            /// Successfully created pet using a url form
+            ///
+            /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)/responses/204`.
+            ///
+            /// HTTP response code: `204 noContent`.
+            public static var noContent: Self {
+                .noContent(.init())
+            }
             /// The associated value of the enum case if `self` is `.noContent`.
             ///
             /// - Throws: An error if `self` is not `.noContent`.
@@ -2499,6 +2507,14 @@ public enum Operations {
             ///
             /// HTTP response code: `202 accepted`.
             case accepted(Operations.postStats.Output.Accepted)
+            /// Accepted data.
+            ///
+            /// - Remark: Generated from `#/paths//pets/stats/post(postStats)/responses/202`.
+            ///
+            /// HTTP response code: `202 accepted`.
+            public static var accepted: Self {
+                .accepted(.init())
+            }
             /// The associated value of the enum case if `self` is `.accepted`.
             ///
             /// - Throws: An error if `self` is not `.accepted`.
@@ -2541,6 +2557,14 @@ public enum Operations {
             ///
             /// HTTP response code: `204 noContent`.
             case noContent(Operations.probe.Output.NoContent)
+            /// Ack
+            ///
+            /// - Remark: Generated from `#/paths//probe//post(probe)/responses/204`.
+            ///
+            /// HTTP response code: `204 noContent`.
+            public static var noContent: Self {
+                .noContent(.init())
+            }
             /// The associated value of the enum case if `self` is `.noContent`.
             ///
             /// - Throws: An error if `self` is not `.noContent`.
@@ -2626,6 +2650,14 @@ public enum Operations {
             ///
             /// HTTP response code: `204 noContent`.
             case noContent(Operations.updatePet.Output.NoContent)
+            /// Successfully updated
+            ///
+            /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)/responses/204`.
+            ///
+            /// HTTP response code: `204 noContent`.
+            public static var noContent: Self {
+                .noContent(.init())
+            }
             /// The associated value of the enum case if `self` is `.noContent`.
             ///
             /// - Throws: An error if `self` is not `.noContent`.
@@ -3098,6 +3130,14 @@ public enum Operations {
             ///
             /// HTTP response code: `202 accepted`.
             case accepted(Operations.multipartUploadTyped.Output.Accepted)
+            /// Successfully accepted the data.
+            ///
+            /// - Remark: Generated from `#/paths//pets/multipart-typed/post(multipartUploadTyped)/responses/202`.
+            ///
+            /// HTTP response code: `202 accepted`.
+            public static var accepted: Self {
+                .accepted(.init())
+            }
             /// The associated value of the enum case if `self` is `.accepted`.
             ///
             /// - Throws: An error if `self` is not `.accepted`.
