@@ -131,7 +131,9 @@ extension FileTranslator {
             switch location {
             case .query:
                 switch style {
-                case .form, .deepObject:
+                case .form:
+                    break
+                case .deepObject where explode:
                     break
                 default:
                     try diagnostics.emitUnsupported(
