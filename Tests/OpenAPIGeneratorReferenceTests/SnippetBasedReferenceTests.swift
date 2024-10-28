@@ -2602,7 +2602,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         type: string
                   - name: sort
                     in: query
-                    required: true
+                    required: false
                     style: deepObject
                     explode: true
                     schema:
