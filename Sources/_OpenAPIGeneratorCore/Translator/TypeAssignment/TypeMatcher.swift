@@ -286,6 +286,7 @@ struct TypeMatcher {
     private func _tryMatchBuiltinNonRecursive(for schema: JSONSchema.Schema) -> TypeUsage? {
         let typeName: TypeName
         switch schema {
+        case .null(_): typeName = TypeName.valueContainer
         case .boolean(_): typeName = .swift("Bool")
         case .number(let core, _):
             switch core.format {
@@ -328,7 +329,7 @@ struct TypeMatcher {
             // arrays are already recursed-into by _tryMatchTypeRecursive
             // so just return nil here
             return nil
-        case .reference, .not, .all, .any, .one, .null:
+        case .reference, .not, .all, .any, .one:
             // never built-in
             return nil
         }
