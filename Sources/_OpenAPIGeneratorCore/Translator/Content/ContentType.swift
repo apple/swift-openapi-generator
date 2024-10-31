@@ -56,9 +56,14 @@ struct ContentType: Hashable {
         /// The type is encoded as an async sequence of parts.
         case multipart
 
+        /// A content type for XML.
+        ///
+        /// The bytes are provided to a CustomCoder.
+        case xml
+
         /// Creates a category from the provided type and subtype.
         ///
-        /// First checks if the provided content type is a JSON, then text,
+        /// First checks if the provided content type is a JSON, then XML, then text,
         /// and uses binary if none of the two match.
         /// - Parameters:
         ///   - lowercasedType: The first component of the MIME type.
@@ -68,6 +73,10 @@ struct ContentType: Hashable {
             if (lowercasedType == "application" && lowercasedSubtype == "json") || lowercasedSubtype.hasSuffix("+json")
             {
                 self = .json
+            } else if (lowercasedType == "application" && lowercasedSubtype == "xml")
+                || lowercasedSubtype.hasSuffix("+xml")
+            {
+                self = .xml
             } else if lowercasedType == "application" && lowercasedSubtype == "x-www-form-urlencoded" {
                 self = .urlEncodedForm
             } else if lowercasedType == "multipart" && lowercasedSubtype == "form-data" {
@@ -84,6 +93,7 @@ struct ContentType: Hashable {
             case .binary: return .binary
             case .urlEncodedForm: return .urlEncodedForm
             case .multipart: return .multipart
+            case .xml: return .xml
             }
         }
     }
@@ -214,12 +224,17 @@ struct ContentType: Hashable {
     /// A Boolean value that indicates whether the content type
     /// is a multipart form.
     var isMultipart: Bool { category == .multipart }
+    /// A Boolean value that indicates whether the content type
+    /// is a type of XML.
+    var isXml: Bool { category == .xml }
 
     /// The content type `text/plain`.
     static var textPlain: Self { try! .init(string: "text/plain") }
 
     /// The content type `application/json`.
     static var applicationJSON: Self { try! .init(string: "application/json") }
+    /// The content type `application/xml`.
+    static var applicationXML: Self { try! .init(string: "application/xml") }
 
     /// The content type `application/octet-stream`.
     static var applicationOctetStream: Self { try! .init(string: "application/octet-stream") }

@@ -267,7 +267,7 @@ extension ClientFileTranslator {
                     )
                 let bodyExpr: Expression
                 switch codingStrategy {
-                case .json, .uri, .urlEncodedForm:
+                case .json, .xml, .uri, .urlEncodedForm:
                     // Buffering.
                     bodyExpr = .try(.await(converterExpr))
                 case .binary, .multipart:
