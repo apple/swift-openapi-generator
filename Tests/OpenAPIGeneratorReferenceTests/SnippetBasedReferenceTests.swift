@@ -302,7 +302,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
               StringArrayNullableItems:
                 type: array
                 items:
-                  type: [string, null]
+                  type: [string, 'null']
             """,
             """
             public enum Schemas {
@@ -323,7 +323,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 items:
                   $ref: '#/components/schemas/NullableString'
               NullableString:
-                type: [string, null]
+                type: [string, 'null']
             """,
             """
             public enum Schemas {
@@ -332,6 +332,25 @@ final class SnippetBasedReferenceTests: XCTestCase {
             }
             """
         )
+    }
+
+    func testComponentsSchemasNull() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              Null:
+                type: "null"
+              NullArray:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Null"
+            """,
+            """
+            public enum Schemas {
+                public typealias Null = OpenAPIRuntime.OpenAPIValueContainer?
+                public typealias NullArray = [Components.Schemas.Null]
+            }
+            """)
     }
 
     func testComponentsSchemasNullableStringProperty() throws {
@@ -346,9 +365,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   fooRequired:
                     type: string
                   fooOptionalNullable:
-                    type: [string, null]
+                    type: [string, 'null']
                   fooRequiredNullable:
-                    type: [string, null]
+                    type: [string, 'null']
 
                   fooOptionalArray:
                     type: array
@@ -359,30 +378,30 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     items:
                       type: string
                   fooOptionalNullableArray:
-                    type: [array, null]
+                    type: [array, 'null']
                     items:
                       type: string
                   fooRequiredNullableArray:
-                    type: [array, null]
+                    type: [array, 'null']
                     items:
                       type: string
 
                   fooOptionalArrayOfNullableItems:
                     type: array
                     items:
-                      type: [string, null]
+                      type: [string, 'null']
                   fooRequiredArrayOfNullableItems:
                     type: array
                     items:
-                      type: [string, null]
+                      type: [string, 'null']
                   fooOptionalNullableArrayOfNullableItems:
-                    type: [array, null]
+                    type: [array, 'null']
                     items:
-                      type: [string, null]
+                      type: [string, 'null']
                   fooRequiredNullableArrayOfNullableItems:
-                    type: [array, null]
+                    type: [array, 'null']
                     items:
-                      type: [string, null]
+                      type: [string, 'null']
                 required:
                   - fooRequired
                   - fooRequiredNullable
@@ -590,7 +609,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
               MyRequiredString:
                 type: string
               MyNullableString:
-                type: [string, null]
+                type: [string, 'null']
               MyObject:
                 type: object
                 properties:
@@ -611,17 +630,17 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Schemas {
                 public typealias MyRequiredString = Swift.String
-                public typealias MyNullableString = Swift.String
+                public typealias MyNullableString = Swift.String?
                 public struct MyObject: Codable, Hashable, Sendable {
                     public var id: Swift.Int64
                     public var alias: Swift.String?
                     public var requiredString: Components.Schemas.MyRequiredString
-                    public var nullableString: Components.Schemas.MyNullableString?
+                    public var nullableString: Components.Schemas.MyNullableString
                     public init(
                         id: Swift.Int64,
                         alias: Swift.String? = nil,
                         requiredString: Components.Schemas.MyRequiredString,
-                        nullableString: Components.Schemas.MyNullableString? = nil
+                        nullableString: Components.Schemas.MyNullableString
                     ) {
                         self.id = id
                         self.alias = alias
@@ -1852,6 +1871,31 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testOneOfRefOrNull() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              SomeString:
+                type: string
+              NullableRef:
+                oneOf:
+                  - $ref: '#/components/schemas/SomeString'
+                  - type: 'null'
+              ArrayOfNullableRefs:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NullableRef'
+            """,
+            """
+            public enum Schemas {
+                public typealias SomeString = Swift.String
+                public typealias NullableRef = Components.Schemas.SomeString?
+                public typealias ArrayOfNullableRefs = [Components.Schemas.NullableRef]
+            }
+            """
+        )
+    }
+
     func testComponentsResponsesResponseNoBody() throws {
         try self.assertResponsesTranslation(
             """
@@ -2843,7 +2887,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   content:
                     application/json:
                       schema:
-                        type: [string, null]
+                        type: [string, 'null']
                 responses:
                   default:
                     description: Response
@@ -2999,7 +3043,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                   content:
                     application/json:
                       schema:
-                        type: [string, null]
+                        type: [string, 'null']
                 responses:
                   default:
                     description: Response

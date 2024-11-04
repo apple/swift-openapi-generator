@@ -114,7 +114,7 @@ extension TypesFileTranslator {
         let decl = try translateSchema(
             typeName: typeName,
             schema: header.schema,
-            overrides: .init(isOptional: header.isOptional, userDescription: header.header.description)
+            overrides: .init(userDescription: header.header.description)
         )
         return decl
     }
