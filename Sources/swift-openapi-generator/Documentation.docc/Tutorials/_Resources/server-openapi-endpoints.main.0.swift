@@ -21,12 +21,12 @@ let app = Vapor.Application()
 let transport = VaporTransport(routesBuilder: app)
 
 // Create an instance of your handler type that conforms the generated protocol
-// defininig your service API.
+// defining your service API.
 let handler = GreetingServiceAPIImpl()
 
 // Call the generated function on your implementation to add its request
 // handlers to the app.
-try handler.registerHandlers(on: transport, serverURL: Servers.server1())
+try handler.registerHandlers(on: transport, serverURL: Servers.Server1.url())
 
 // Start the app as you would normally.
 try await app.execute()
