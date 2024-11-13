@@ -12,6 +12,11 @@
 //
 //===----------------------------------------------------------------------===//
 
+public enum NamingStrategy: String, Sendable, Codable, Equatable {
+    case defensive
+    case optimistic
+}
+
 /// A structure that contains configuration options for a single execution
 /// of the generator pipeline run.
 ///
@@ -35,6 +40,10 @@ public struct Config: Sendable {
     /// Filter to apply to the OpenAPI document before generation.
     public var filter: DocumentFilter?
 
+    public var namingStrategy: NamingStrategy?
+    
+    public var nameOverrides: [String: String]?
+    
     /// Additional pre-release features to enable.
     public var featureFlags: FeatureFlags
 
@@ -50,12 +59,16 @@ public struct Config: Sendable {
         access: AccessModifier,
         additionalImports: [String] = [],
         filter: DocumentFilter? = nil,
+        namingStrategy: NamingStrategy? = nil,
+        nameOverrides: [String: String]? = nil,
         featureFlags: FeatureFlags = []
     ) {
         self.mode = mode
         self.access = access
         self.additionalImports = additionalImports
         self.filter = filter
+        self.namingStrategy = namingStrategy
+        self.nameOverrides = nameOverrides
         self.featureFlags = featureFlags
     }
 }

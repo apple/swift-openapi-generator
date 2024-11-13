@@ -84,7 +84,7 @@ extension TypesFileTranslator {
         ///   Swift safe identifiers.
         init(key: String, variable: OpenAPI.Server.Variable, context: TranslatorContext) {
             self.key = key
-            swiftSafeKey = context.asSwiftSafeName(key)
+            swiftSafeKey = context.asSwiftSafeName(key, .none)
             self.variable = variable
         }
 
@@ -164,8 +164,8 @@ extension TypesFileTranslator {
             context: TranslatorContext
         ) {
             self.key = key
-            swiftSafeKey = context.asSwiftSafeName(key)
-            enumName = context.asSwiftSafeName(key.localizedCapitalized)
+            swiftSafeKey = context.asSwiftSafeName(key, .none)
+            enumName = context.asSwiftSafeName(key.localizedCapitalized, .capitalize)
             self.variable = variable
             self.enumValues = enumValues
             self.context = context
@@ -199,7 +199,7 @@ extension TypesFileTranslator {
             .init(
                 label: swiftSafeKey,
                 type: .member([enumName]),
-                defaultValue: .memberAccess(.dot(context.asSwiftSafeName(variable.default)))
+                defaultValue: .memberAccess(.dot(context.asSwiftSafeName(variable.default, .none)))
             )
         }
 
@@ -230,7 +230,7 @@ extension TypesFileTranslator {
         /// - Parameter name: The original name.
         /// - Returns: A declaration of an enum case.
         private func translateVariableCase(_ name: String) -> Declaration {
-            let caseName = context.asSwiftSafeName(name)
+            let caseName = context.asSwiftSafeName(name, .none)
             return .enumCase(name: caseName, kind: caseName == name ? .nameOnly : .nameWithRawValue(.string(name)))
         }
     }

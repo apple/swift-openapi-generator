@@ -83,7 +83,14 @@ extension OperationDescription {
     /// Uses the `operationID` value in the OpenAPI operation, if one was
     /// specified. Otherwise, computes a unique name from the operation's
     /// path and HTTP method.
-    var methodName: String { context.asSwiftSafeName(operationID) }
+    var methodName: String { context.asSwiftSafeName(operationID, .none) }
+
+    /// Returns a Swift-safe type name for the operation.
+    ///
+    /// Uses the `operationID` value in the OpenAPI operation, if one was
+    /// specified. Otherwise, computes a unique name from the operation's
+    /// path and HTTP method.
+    var operationTypeName: String { context.asSwiftSafeName(operationID, .capitalize) }
 
     /// Returns the identifier for the operation.
     ///
@@ -103,7 +110,7 @@ extension OperationDescription {
         .init(
             components: [.root, .init(swift: Constants.Operations.namespace, json: "paths")]
                 + path.components.map { .init(swift: nil, json: $0) } + [
-                    .init(swift: methodName, json: httpMethod.rawValue)
+                    .init(swift: operationTypeName, json: httpMethod.rawValue)
                 ]
         )
     }
@@ -292,7 +299,7 @@ extension OperationDescription {
             }
             let newPath = OpenAPI.Path(newComponents, trailingSlash: path.trailingSlash)
             let names: [Expression] = orderedPathParameters.map { param in
-                .identifierPattern("input").dot("path").dot(context.asSwiftSafeName(param))
+                .identifierPattern("input").dot("path").dot(context.asSwiftSafeName(param, .none))
             }
             let arrayExpr: Expression = .literal(.array(names))
             return (newPath.rawValue, arrayExpr)
