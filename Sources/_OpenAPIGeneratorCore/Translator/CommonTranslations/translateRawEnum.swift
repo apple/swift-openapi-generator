@@ -23,6 +23,23 @@ enum RawEnumBackingType {
     case integer
 }
 
+/// The extracted enum value.
+private enum EnumValue: Hashable, CustomStringConvertible {
+
+    /// A string value.
+    case string(String)
+
+    /// An integer value.
+    case integer(Int)
+
+    var description: String {
+        switch self {
+        case .string(let value): return "\"\(value)\""
+        case .integer(let value): return String(value)
+        }
+    }
+}
+
 extension FileTranslator {
 
     /// Returns a declaration of the specified raw value-based enum schema.
@@ -42,32 +59,48 @@ extension FileTranslator {
         isNullable: Bool,
         allowedValues: [AnyCodable]
     ) throws -> Declaration {
-        let cases: [(String, LiteralDescription)] = try allowedValues.map(\.value)
-            .map { anyValue in
-                switch backingType {
-                case .string:
-                    // In nullable enum schemas, empty strings are parsed as Void.
-                    // This is unlikely to be fixed, so handling that case here.
-                    // https://github.com/apple/swift-openapi-generator/issues/118
-                    if isNullable && anyValue is Void { return (context.asSwiftSafeName(""), .string("")) }
+        var seen: Set<EnumValue> = []
+        var cases: [(String, LiteralDescription)] = []
+        func shouldAdd(_ value: EnumValue) throws -> Bool {
+            guard seen.insert(value).inserted else {
+                try diagnostics.emit(
+                    .warning(
+                        message: "Duplicate enum value, skipping",
+                        context: ["value": "\(value)", "foundIn": typeName.description]
+                    )
+                )
+                return false
+            }
+            return true
+        }
+        for anyValue in allowedValues.map(\.value) {
+            switch backingType {
+            case .string:
+                // In nullable enum schemas, empty strings are parsed as Void.
+                // This is unlikely to be fixed, so handling that case here.
+                // https://github.com/apple/swift-openapi-generator/issues/118
+                if isNullable && anyValue is Void {
+                    if try shouldAdd(.string("")) { cases.append((context.asSwiftSafeName(""), .string(""))) }
+                } else {
                     guard let rawValue = anyValue as? String else {
                         throw GenericError(message: "Disallowed value for a string enum '\(typeName)': \(anyValue)")
                     }
                     let caseName = context.asSwiftSafeName(rawValue)
-                    return (caseName, .string(rawValue))
-                case .integer:
-                    let rawValue: Int
-                    if let intRawValue = anyValue as? Int {
-                        rawValue = intRawValue
-                    } else if let stringRawValue = anyValue as? String, let intRawValue = Int(stringRawValue) {
-                        rawValue = intRawValue
-                    } else {
-                        throw GenericError(message: "Disallowed value for an integer enum '\(typeName)': \(anyValue)")
-                    }
-                    let caseName = rawValue < 0 ? "_n\(abs(rawValue))" : "_\(rawValue)"
-                    return (caseName, .int(rawValue))
+                    if try shouldAdd(.string(rawValue)) { cases.append((caseName, .string(rawValue))) }
                 }
+            case .integer:
+                let rawValue: Int
+                if let intRawValue = anyValue as? Int {
+                    rawValue = intRawValue
+                } else if let stringRawValue = anyValue as? String, let intRawValue = Int(stringRawValue) {
+                    rawValue = intRawValue
+                } else {
+                    throw GenericError(message: "Disallowed value for an integer enum '\(typeName)': \(anyValue)")
+                }
+                let caseName = rawValue < 0 ? "_n\(abs(rawValue))" : "_\(rawValue)"
+                if try shouldAdd(.integer(rawValue)) { cases.append((caseName, .int(rawValue))) }
             }
+        }
         let baseConformance: String
         switch backingType {
         case .string: baseConformance = Constants.RawEnum.baseConformanceString
