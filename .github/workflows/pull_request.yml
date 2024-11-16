@@ -57,8 +57,3 @@ jobs:
             name: "Example packages"
             matrix_linux_command: "./scripts/test-examples.sh"
             matrix_linux_nightly_main_enabled: false
-
-    swift-6-language-mode:
-        name: Swift 6 Language Mode
-        uses: apple/swift-nio/.github/workflows/swift_6_language_mode.yml@main
-        if: false  # Disabled for now.
