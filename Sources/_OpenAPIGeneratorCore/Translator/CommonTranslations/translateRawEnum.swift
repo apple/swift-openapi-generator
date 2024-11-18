@@ -12,6 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
+import OrderedCollections
 
 /// The backing type of a raw enum.
 enum RawEnumBackingType {
@@ -23,8 +24,8 @@ enum RawEnumBackingType {
     case integer
 }
 
-/// The extracted enum value.
-private enum EnumValue: Hashable, CustomStringConvertible {
+/// The extracted enum value's identifier.
+private enum EnumCaseID: Hashable, CustomStringConvertible {
 
     /// A string value.
     case string(String)
@@ -39,6 +40,23 @@ private enum EnumValue: Hashable, CustomStringConvertible {
         }
     }
 }
+
+/// A wrapper for the metadata about the raw enum case.
+private struct EnumCase {
+
+    /// Used for checking uniqueness.
+    var id: EnumCaseID
+
+    /// The raw Swift-safe name for the case.
+    var caseName: String
+
+    /// The literal value of the enum case.
+    var literal: LiteralDescription
+}
+
+extension EnumCase: Equatable { static func == (lhs: EnumCase, rhs: EnumCase) -> Bool { lhs.id == rhs.id } }
+
+extension EnumCase: Hashable { func hash(into hasher: inout Hasher) { hasher.combine(id) } }
 
 extension FileTranslator {
 
@@ -59,19 +77,22 @@ extension FileTranslator {
         isNullable: Bool,
         allowedValues: [AnyCodable]
     ) throws -> Declaration {
-        var seen: Set<EnumValue> = []
-        var cases: [(String, LiteralDescription)] = []
-        func shouldAdd(_ value: EnumValue) throws -> Bool {
-            guard seen.insert(value).inserted else {
+        var cases: OrderedSet<EnumCase> = []
+        func addIfUnique(id: EnumCaseID, caseName: String) throws {
+            let literal: LiteralDescription
+            switch id {
+            case .string(let string): literal = .string(string)
+            case .integer(let int): literal = .int(int)
+            }
+            guard cases.append(.init(id: id, caseName: caseName, literal: literal)).inserted else {
                 try diagnostics.emit(
                     .warning(
                         message: "Duplicate enum value, skipping",
-                        context: ["value": "\(value)", "foundIn": typeName.description]
+                        context: ["id": "\(id)", "foundIn": typeName.description]
                     )
                 )
-                return false
+                return
             }
-            return true
         }
         for anyValue in allowedValues.map(\.value) {
             switch backingType {
@@ -80,13 +101,13 @@ extension FileTranslator {
                 // This is unlikely to be fixed, so handling that case here.
                 // https://github.com/apple/swift-openapi-generator/issues/118
                 if isNullable && anyValue is Void {
-                    if try shouldAdd(.string("")) { cases.append((context.asSwiftSafeName(""), .string(""))) }
+                    try addIfUnique(id: .string(""), caseName: context.asSwiftSafeName(""))
                 } else {
                     guard let rawValue = anyValue as? String else {
                         throw GenericError(message: "Disallowed value for a string enum '\(typeName)': \(anyValue)")
                     }
                     let caseName = context.asSwiftSafeName(rawValue)
-                    if try shouldAdd(.string(rawValue)) { cases.append((caseName, .string(rawValue))) }
+                    try addIfUnique(id: .string(rawValue), caseName: caseName)
                 }
             case .integer:
                 let rawValue: Int
@@ -98,7 +119,7 @@ extension FileTranslator {
                     throw GenericError(message: "Disallowed value for an integer enum '\(typeName)': \(anyValue)")
                 }
                 let caseName = rawValue < 0 ? "_n\(abs(rawValue))" : "_\(rawValue)"
-                if try shouldAdd(.integer(rawValue)) { cases.append((caseName, .int(rawValue))) }
+                try addIfUnique(id: .integer(rawValue), caseName: caseName)
             }
         }
         let baseConformance: String
@@ -111,7 +132,7 @@ extension FileTranslator {
             typeName: typeName,
             conformances: conformances,
             userDescription: userDescription,
-            cases: cases,
+            cases: cases.map { ($0.caseName, $0.literal) },
             unknownCaseName: nil,
             unknownCaseDescription: nil
         )
