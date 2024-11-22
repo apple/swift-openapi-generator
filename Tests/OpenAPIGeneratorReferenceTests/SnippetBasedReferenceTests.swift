@@ -1310,6 +1310,33 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasStringEnumWithDuplicates() throws {
+        try self.assertSchemasTranslation(
+            ignoredDiagnosticMessages: ["Duplicate enum value, skipping"],
+            """
+            schemas:
+              MyEnum:
+                type: string
+                enum:
+                  - one
+                  - two
+                  - three
+                  - two
+                  - four
+            """,
+            """
+            public enum Schemas {
+                @frozen public enum MyEnum: String, Codable, Hashable, Sendable, CaseIterable {
+                    case one = "one"
+                    case two = "two"
+                    case three = "three"
+                    case four = "four"
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsSchemasIntEnum() throws {
         try self.assertSchemasTranslation(
             """

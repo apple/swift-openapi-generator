@@ -139,7 +139,7 @@ extension Diagnostic {
     static func openAPIMissingVersionError(location: Location) -> Diagnostic {
         error(
             message:
-                "No openapi key found, please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x or 3.1.x sets.",
+                "No key named openapi found. Please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x or 3.1.x sets.",
             location: location
         )
     }
