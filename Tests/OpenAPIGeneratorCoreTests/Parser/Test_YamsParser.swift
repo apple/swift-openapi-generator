@@ -56,7 +56,7 @@ final class Test_YamsParser: Test_Core {
             """
 
         let expected =
-            "/foo.yaml: error: No openapi key found, please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x or 3.1.x sets."
+            "/foo.yaml: error: No key named openapi found. Please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x or 3.1.x sets."
         assertThrownError(try _test(yaml), expectedDiagnostic: expected)
     }
 
