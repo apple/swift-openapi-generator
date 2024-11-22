@@ -70,10 +70,10 @@ public struct YamsParser: ParserProtocol {
         do {
             let document: OpenAPIKit.OpenAPI.Document
             switch openAPIVersion {
-            case "3.0.0", "3.0.1", "3.0.2", "3.0.3":
+            case "3.0.0", "3.0.1", "3.0.2", "3.0.3", "3.0.4":
                 let openAPI30Document = try decoder.decode(OpenAPIKit30.OpenAPI.Document.self, from: input.contents)
                 document = openAPI30Document.convert(to: .v3_1_0)
-            case "3.1.0": document = try decoder.decode(OpenAPIKit.OpenAPI.Document.self, from: input.contents)
+            case "3.1.0", "3.1.1": document = try decoder.decode(OpenAPIKit.OpenAPI.Document.self, from: input.contents)
             default:
                 throw Diagnostic.openAPIVersionError(
                     versionString: "openapi: \(openAPIVersion)",
@@ -139,7 +139,7 @@ extension Diagnostic {
     static func openAPIMissingVersionError(location: Location) -> Diagnostic {
         error(
             message:
-                "No openapi key found, please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x or 3.1.x sets.",
+                "No key named openapi found. Please provide a valid OpenAPI document with OpenAPI versions in the 3.0.x or 3.1.x sets.",
             location: location
         )
     }

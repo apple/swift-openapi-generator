@@ -113,7 +113,7 @@ Publishing the source of truth is preferable to relying on transcoding from code
 
 By inferring the specification from existing code, the resulting OpenAPI spec is often lossy and incomplete. And even with annotated code, it can be difficult to predict the OpenAPI output.
 
-Additionally, any feature unsupported by the transcoder cannot be represented in the generated OpenAPI document, further limiting the creativity and expressivness of the API.
+Additionally, any feature unsupported by the transcoder cannot be represented in the generated OpenAPI document, further limiting the creativity and expressiveness of the API.
 
 > Tip: Publish the source of truth, not a representation transcoded from the source of truth.
 

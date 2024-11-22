@@ -16,13 +16,13 @@ This article includes some commonly asked questions and answers.
 
 Check out <doc:Project-scope-and-goals>.
 
-### What OpenAPI featues does the generator support?
+### What OpenAPI features does the generator support?
 
 Check out <doc:Supported-OpenAPI-features>.
 
 ### Which underlying HTTP library does the generated code use?
 
-Swift OpenAPI Generator is not tied to any particular HTTP library. Instead, the generated code utilizies a general protocol called [`ClientTransport`](https://swiftpackageindex.com/apple/swift-openapi-runtime/documentation/openapiruntime/clienttransport) for client code, and [`ServerTransport`](https://swiftpackageindex.com/apple/swift-openapi-runtime/documentation/openapiruntime/servertransport) for server code.
+Swift OpenAPI Generator is not tied to any particular HTTP library. Instead, the generated code utilizes a general protocol called [`ClientTransport`](https://swiftpackageindex.com/apple/swift-openapi-runtime/documentation/openapiruntime/clienttransport) for client code, and [`ServerTransport`](https://swiftpackageindex.com/apple/swift-openapi-runtime/documentation/openapiruntime/servertransport) for server code.
 
 The user of the generated code provides one of the concrete transport implementations, based on what's appropriate for their use case.
 
@@ -71,3 +71,24 @@ For Xcode projects, make sure the target that uses the Swift OpenAPI Generator b
 Alternatively, change the access modifier of the generated code to either `internal` (if no code outside of that module needs to use it) or `public` (if the generated code is exported to other modules and packages.) You can do so by setting `accessModifier: internal` in the generator configuration file, or by providing `--access-modifier internal` to the `swift-openapi-generator` CLI.
 
 For details, check out <doc:Configuring-the-generator>.
+
+### How do I enable the build plugin in Xcode and Xcode Cloud?
+
+By default, you must explicitly enable build plugins before they are allowed to run.
+
+Before a plugin is enabled, you will encounter a build error with the message `"OpenAPIGenerator" is disabled`.
+
+In Xcode, enable the plugin by clicking the "Enable Plugin" button next to the build error and confirm the dialog by clicking "Trust & Enable".
+
+In Xcode Cloud, add the script `ci_scripts/ci_post_clone.sh` next to your Xcode project or workspace, containing:
+
+```bash
+#!/usr/bin/env bash
+
+set -e
+
+# NOTE: the misspelling of validation as "validatation" is intentional and the spelling Xcode expects.
+defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidatation -bool YES
+```
+
+Learn more about Xcode Cloud custom scripts in the [documentation](https://developer.apple.com/documentation/xcode/writing-custom-build-scripts).

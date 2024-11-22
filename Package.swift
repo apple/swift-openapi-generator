@@ -49,9 +49,10 @@ let package = Package(
 
         // General algorithms
         .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
+        .package(url: "https://github.com/apple/swift-collections", from: "1.1.4"),
 
         // Read OpenAPI documents
-        .package(url: "https://github.com/mattpolzin/OpenAPIKit", from: "3.1.2"),
+        .package(url: "https://github.com/mattpolzin/OpenAPIKit", from: "3.3.0"),
         .package(url: "https://github.com/jpsim/Yams", "4.0.0"..<"6.0.0"),
 
         // CLI Tool
@@ -72,7 +73,9 @@ let package = Package(
                 .product(name: "OpenAPIKit", package: "OpenAPIKit"),
                 .product(name: "OpenAPIKit30", package: "OpenAPIKit"),
                 .product(name: "OpenAPIKitCompat", package: "OpenAPIKit"),
-                .product(name: "Algorithms", package: "swift-algorithms"), .product(name: "Yams", package: "Yams"),
+                .product(name: "Algorithms", package: "swift-algorithms"),
+                .product(name: "OrderedCollections", package: "swift-collections"),
+                .product(name: "Yams", package: "Yams"),
             ],
             swiftSettings: swiftSettings
         ),

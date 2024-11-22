@@ -39,3 +39,4 @@ Examples/HelloWorldiOSClientAppExample/HelloWorldiOSClientApp/Preview*
 Examples/**/Generated*
 **/Makefile
 **/*.html
+.editorconfig

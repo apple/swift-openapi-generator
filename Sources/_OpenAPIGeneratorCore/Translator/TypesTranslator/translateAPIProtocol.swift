@@ -22,7 +22,7 @@ extension TypesFileTranslator {
     /// - Throws: If `paths` contains any references.
     func translateAPIProtocol(_ paths: OpenAPI.PathItem.Map) throws -> Declaration {
 
-        let operations = try OperationDescription.all(from: paths, in: components, asSwiftSafeName: swiftSafeName)
+        let operations = try OperationDescription.all(from: paths, in: components, context: context)
         let functionDecls = operations.map(translateAPIProtocolDeclaration(operation:))
 
         let protocolDescription = ProtocolDescription(
@@ -38,7 +38,7 @@ extension TypesFileTranslator {
 
     /// Returns an extension to the `APIProtocol` protocol, with some syntactic sugar APIs.
     func translateAPIProtocolExtension(_ paths: OpenAPI.PathItem.Map) throws -> Declaration {
-        let operations = try OperationDescription.all(from: paths, in: components, asSwiftSafeName: swiftSafeName)
+        let operations = try OperationDescription.all(from: paths, in: components, context: context)
 
         // This looks for all initializers in the operation input struct and creates a flattened function.
         let flattenedOperations = try operations.flatMap { operation in
