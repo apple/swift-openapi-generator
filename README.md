@@ -123,7 +123,6 @@ Swift OpenAPI Generator and integrate with other packages in the ecosystem.
 Or if you prefer to watch a video, check out [Meet Swift OpenAPI
 Generator](https://developer.apple.com/wwdc23/10171) from WWDC23.
 
-
 [openapi]: https://openapis.org
 [repo-generator]: https://github.com/apple/swift-openapi-generator
 [docs-generator]: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation
