@@ -1301,7 +1301,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 @frozen public enum MyEnum: String, Codable, Hashable, Sendable, CaseIterable {
                     case one = "one"
-                    case _empty = ""
+                    case _empty_ = ""
                     case _dollar_tart = "$tart"
                     case _public = "public"
                 }
@@ -2033,9 +2033,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Responses {
                 public struct BadRequest: Sendable, Hashable {
                     public struct Headers: Sendable, Hashable {
-                        public var X_hyphen_Reason: Swift.String?
-                        public init(X_hyphen_Reason: Swift.String? = nil) {
-                            self.X_hyphen_Reason = X_hyphen_Reason
+                        public var xReason: Swift.String?
+                        public init(xReason: Swift.String? = nil) {
+                            self.xReason = xReason
                         }
                     }
                     public var headers: Components.Responses.BadRequest.Headers
@@ -2065,12 +2065,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Responses {
                 public struct BadRequest: Sendable, Hashable {
                     public struct Headers: Sendable, Hashable {
-                        @frozen public enum X_hyphen_ReasonPayload: String, Codable, Hashable, Sendable, CaseIterable {
+                        @frozen public enum xReasonPayload: String, Codable, Hashable, Sendable, CaseIterable {
                             case badLuck = "badLuck"
                         }
-                        public var X_hyphen_Reason: Components.Responses.BadRequest.Headers.X_hyphen_ReasonPayload?
-                        public init(X_hyphen_Reason: Components.Responses.BadRequest.Headers.X_hyphen_ReasonPayload? = nil) {
-                            self.X_hyphen_Reason = X_hyphen_Reason
+                        public var xReason: Components.Responses.BadRequest.Headers.xReasonPayload?
+                        public init(xReason: Components.Responses.BadRequest.Headers.xReasonPayload? = nil) {
+                            self.xReason = xReason
                         }
                     }
                     public var headers: Components.Responses.BadRequest.Headers
@@ -2099,9 +2099,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Responses {
                 public struct BadRequest: Sendable, Hashable {
                     public struct Headers: Sendable, Hashable {
-                        public var X_hyphen_Reason: Swift.String
-                        public init(X_hyphen_Reason: Swift.String) {
-                            self.X_hyphen_Reason = X_hyphen_Reason
+                        public var xReason: Swift.String
+                        public init(xReason: Swift.String) {
+                            self.xReason = xReason
                         }
                     }
                     public var headers: Components.Responses.BadRequest.Headers
@@ -2252,31 +2252,31 @@ final class SnippetBasedReferenceTests: XCTestCase {
             #"""
             public enum RequestBodies {
                 @frozen public enum MultipartUploadTypedRequest: Sendable, Hashable {
-                    @frozen public enum multipartFormPayload: Sendable, Hashable {
-                        public struct logPayload: Sendable, Hashable {
+                    @frozen public enum MultipartFormPayload: Sendable, Hashable {
+                        public struct LogPayload: Sendable, Hashable {
                             public struct Headers: Sendable, Hashable {
-                                @frozen public enum x_hyphen_log_hyphen_typePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                                @frozen public enum XLogTypePayload: String, Codable, Hashable, Sendable, CaseIterable {
                                     case structured = "structured"
                                     case unstructured = "unstructured"
                                 }
-                                public var x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload?
-                                public init(x_hyphen_log_hyphen_type: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload? = nil) {
-                                    self.x_hyphen_log_hyphen_type = x_hyphen_log_hyphen_type
+                                public var xLogType: Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.LogPayload.Headers.XLogTypePayload?
+                                public init(xLogType: Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.LogPayload.Headers.XLogTypePayload? = nil) {
+                                    self.xLogType = xLogType
                                 }
                             }
-                            public var headers: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers
+                            public var headers: Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.LogPayload.Headers
                             public var body: OpenAPIRuntime.HTTPBody
                             public init(
-                                headers: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers = .init(),
+                                headers: Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.LogPayload.Headers = .init(),
                                 body: OpenAPIRuntime.HTTPBody
                             ) {
                                 self.headers = headers
                                 self.body = body
                             }
                         }
-                        case log(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload>)
-                        public struct metadataPayload: Sendable, Hashable {
-                            public struct bodyPayload: Codable, Hashable, Sendable {
+                        case log(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.LogPayload>)
+                        public struct MetadataPayload: Sendable, Hashable {
+                            public struct BodyPayload: Codable, Hashable, Sendable {
                                 public var createdAt: Foundation.Date
                                 public init(createdAt: Foundation.Date) {
                                     self.createdAt = createdAt
@@ -2285,22 +2285,22 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                     case createdAt
                                 }
                             }
-                            public var body: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.bodyPayload
-                            public init(body: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.bodyPayload) {
+                            public var body: Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.MetadataPayload.BodyPayload
+                            public init(body: Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.MetadataPayload.BodyPayload) {
                                 self.body = body
                             }
                         }
-                        case metadata(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload>)
-                        public struct keywordPayload: Sendable, Hashable {
+                        case metadata(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.MetadataPayload>)
+                        public struct KeywordPayload: Sendable, Hashable {
                             public var body: OpenAPIRuntime.HTTPBody
                             public init(body: OpenAPIRuntime.HTTPBody) {
                                 self.body = body
                             }
                         }
-                        case keyword(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.keywordPayload>)
+                        case keyword(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.KeywordPayload>)
                         case undocumented(OpenAPIRuntime.MultipartRawPart)
                     }
-                    case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload>)
+                    case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload>)
                 }
             }
             """#
@@ -3129,17 +3129,17 @@ final class SnippetBasedReferenceTests: XCTestCase {
             requestBodies: """
                 public enum RequestBodies {
                     @frozen public enum MultipartRequest: Sendable, Hashable {
-                        @frozen public enum multipartFormPayload: Sendable, Hashable {
-                            public struct logPayload: Sendable, Hashable {
+                        @frozen public enum MultipartFormPayload: Sendable, Hashable {
+                            public struct LogPayload: Sendable, Hashable {
                                 public var body: OpenAPIRuntime.HTTPBody
                                 public init(body: OpenAPIRuntime.HTTPBody) {
                                     self.body = body
                                 }
                             }
-                            case log(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartRequest.multipartFormPayload.logPayload>)
+                            case log(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartRequest.MultipartFormPayload.LogPayload>)
                             case undocumented(OpenAPIRuntime.MultipartRawPart)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartRequest.multipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartRequest.MultipartFormPayload>)
                     }
                 }
                 """,
@@ -3206,7 +3206,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartRequest.multipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartRequest.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -3274,17 +3274,17 @@ final class SnippetBasedReferenceTests: XCTestCase {
             types: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
-                        @frozen public enum multipartFormPayload: Sendable, Hashable {
-                            public struct logPayload: Sendable, Hashable {
+                        @frozen public enum MultipartFormPayload: Sendable, Hashable {
+                            public struct LogPayload: Sendable, Hashable {
                                 public var body: OpenAPIRuntime.HTTPBody
                                 public init(body: OpenAPIRuntime.HTTPBody) {
                                     self.body = body
                                 }
                             }
-                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.multipartFormPayload.logPayload>)
+                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload>)
                             case undocumented(OpenAPIRuntime.MultipartRawPart)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
                     }
                     public var body: Operations.post_sol_foo.Input.Body
                     public init(body: Operations.post_sol_foo.Input.Body) {
@@ -3355,7 +3355,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -3428,17 +3428,17 @@ final class SnippetBasedReferenceTests: XCTestCase {
             types: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
-                        @frozen public enum multipartFormPayload: Sendable, Hashable {
+                        @frozen public enum MultipartFormPayload: Sendable, Hashable {
                             public struct infoPayload: Sendable, Hashable {
                                 public var body: Components.Schemas.Info
                                 public init(body: Components.Schemas.Info) {
                                     self.body = body
                                 }
                             }
-                            case info(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.multipartFormPayload.infoPayload>)
+                            case info(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.infoPayload>)
                             case undocumented(OpenAPIRuntime.MultipartRawPart)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
                     }
                     public var body: Operations.post_sol_foo.Input.Body
                     public init(body: Operations.post_sol_foo.Input.Body) {
@@ -3509,7 +3509,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -3595,13 +3595,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
             schemas: """
                 public enum Schemas {
                     @frozen public enum Multipet: Sendable, Hashable {
-                        public struct logPayload: Sendable, Hashable {
+                        public struct LogPayload: Sendable, Hashable {
                             public var body: OpenAPIRuntime.HTTPBody
                             public init(body: OpenAPIRuntime.HTTPBody) {
                                 self.body = body
                             }
                         }
-                        case log(OpenAPIRuntime.MultipartPart<Components.Schemas.Multipet.logPayload>)
+                        case log(OpenAPIRuntime.MultipartPart<Components.Schemas.Multipet.LogPayload>)
                         case undocumented(OpenAPIRuntime.MultipartRawPart)
                     }
                 }
@@ -3750,28 +3750,28 @@ final class SnippetBasedReferenceTests: XCTestCase {
             types: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
-                        @frozen public enum multipartFormPayload: Sendable, Hashable {
-                            public struct logPayload: Sendable, Hashable {
+                        @frozen public enum MultipartFormPayload: Sendable, Hashable {
+                            public struct LogPayload: Sendable, Hashable {
                                 public struct Headers: Sendable, Hashable {
-                                    public var x_hyphen_log_hyphen_type: Swift.String?
-                                    public init(x_hyphen_log_hyphen_type: Swift.String? = nil) {
-                                        self.x_hyphen_log_hyphen_type = x_hyphen_log_hyphen_type
+                                    public var xLogType: Swift.String?
+                                    public init(xLogType: Swift.String? = nil) {
+                                        self.xLogType = xLogType
                                     }
                                 }
-                                public var headers: Operations.post_sol_foo.Input.Body.multipartFormPayload.logPayload.Headers
+                                public var headers: Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload.Headers
                                 public var body: OpenAPIRuntime.HTTPBody
                                 public init(
-                                    headers: Operations.post_sol_foo.Input.Body.multipartFormPayload.logPayload.Headers = .init(),
+                                    headers: Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload.Headers = .init(),
                                     body: OpenAPIRuntime.HTTPBody
                                 ) {
                                     self.headers = headers
                                     self.body = body
                                 }
                             }
-                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.multipartFormPayload.logPayload>)
+                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload>)
                             case undocumented(OpenAPIRuntime.MultipartRawPart)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
                     }
                     public var body: Operations.post_sol_foo.Input.Body
                     public init(body: Operations.post_sol_foo.Input.Body) {
@@ -3782,13 +3782,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
             schemas: """
                 public enum Schemas {
                     @frozen public enum Multipet: Sendable, Hashable {
-                        public struct logPayload: Sendable, Hashable {
+                        public struct LogPayload: Sendable, Hashable {
                             public var body: OpenAPIRuntime.HTTPBody
                             public init(body: OpenAPIRuntime.HTTPBody) {
                                 self.body = body
                             }
                         }
-                        case log(OpenAPIRuntime.MultipartPart<Components.Schemas.Multipet.logPayload>)
+                        case log(OpenAPIRuntime.MultipartPart<Components.Schemas.Multipet.LogPayload>)
                         case undocumented(OpenAPIRuntime.MultipartRawPart)
                     }
                 }
@@ -3826,7 +3826,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                     try converter.setHeaderFieldAsURI(
                                         in: &headerFields,
                                         name: "x-log-type",
-                                        value: value.headers.x_hyphen_log_hyphen_type
+                                        value: value.headers.xLogType
                                     )
                                     let body = try converter.setRequiredRequestBodyAsBinary(
                                         value.body,
@@ -3861,7 +3861,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -3879,7 +3879,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 let (name, filename) = try converter.extractContentDispositionNameAndFilename(in: headerFields)
                                 switch name {
                                 case "log":
-                                    let headers: Operations.post_sol_foo.Input.Body.multipartFormPayload.logPayload.Headers = .init(x_hyphen_log_hyphen_type: try converter.getOptionalHeaderFieldAsURI(
+                                    let headers: Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload.Headers = .init(xLogType: try converter.getOptionalHeaderFieldAsURI(
                                         in: headerFields,
                                         name: "x-log-type",
                                         as: Swift.String.self
@@ -3932,10 +3932,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
             types: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
-                        @frozen public enum multipartFormPayload: Sendable, Hashable {
+                        @frozen public enum MultipartFormPayload: Sendable, Hashable {
                             case undocumented(OpenAPIRuntime.MultipartRawPart)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
                     }
                     public var body: Operations.post_sol_foo.Input.Body
                     public init(body: Operations.post_sol_foo.Input.Body) {
@@ -3990,7 +3990,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -4038,10 +4038,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
             types: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
-                        @frozen public enum multipartFormPayload: Sendable, Hashable {
+                        @frozen public enum MultipartFormPayload: Sendable, Hashable {
                             case other(OpenAPIRuntime.MultipartRawPart)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
                     }
                     public var body: Operations.post_sol_foo.Input.Body
                     public init(body: Operations.post_sol_foo.Input.Body) {
@@ -4096,7 +4096,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -4149,16 +4149,16 @@ final class SnippetBasedReferenceTests: XCTestCase {
             types: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
-                        @frozen public enum multipartFormPayload: Sendable, Hashable {
-                            public struct logPayload: Sendable, Hashable {
+                        @frozen public enum MultipartFormPayload: Sendable, Hashable {
+                            public struct LogPayload: Sendable, Hashable {
                                 public var body: OpenAPIRuntime.HTTPBody
                                 public init(body: OpenAPIRuntime.HTTPBody) {
                                     self.body = body
                                 }
                             }
-                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.multipartFormPayload.logPayload>)
+                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload>)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
                     }
                     public var body: Operations.post_sol_foo.Input.Body
                     public init(body: Operations.post_sol_foo.Input.Body) {
@@ -4227,7 +4227,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -4302,14 +4302,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
             types: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
-                        @frozen public enum multipartFormPayload: Sendable, Hashable {
-                            public struct logPayload: Sendable, Hashable {
+                        @frozen public enum MultipartFormPayload: Sendable, Hashable {
+                            public struct LogPayload: Sendable, Hashable {
                                 public var body: OpenAPIRuntime.HTTPBody
                                 public init(body: OpenAPIRuntime.HTTPBody) {
                                     self.body = body
                                 }
                             }
-                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.multipartFormPayload.logPayload>)
+                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload>)
                             public struct additionalPropertiesPayload: Codable, Hashable, Sendable {
                                 public var foo: Swift.String?
                                 public init(foo: Swift.String? = nil) {
@@ -4319,9 +4319,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                     case foo
                                 }
                             }
-                            case additionalProperties(OpenAPIRuntime.MultipartDynamicallyNamedPart<Operations.post_sol_foo.Input.Body.multipartFormPayload.additionalPropertiesPayload>)
+                            case additionalProperties(OpenAPIRuntime.MultipartDynamicallyNamedPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.additionalPropertiesPayload>)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
                     }
                     public var body: Operations.post_sol_foo.Input.Body
                     public init(body: Operations.post_sol_foo.Input.Body) {
@@ -4404,7 +4404,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -4443,7 +4443,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                         matches: "application/json"
                                     )
                                     let body = try await converter.getRequiredRequestBodyAsJSON(
-                                        Operations.post_sol_foo.Input.Body.multipartFormPayload.additionalPropertiesPayload.self,
+                                        Operations.post_sol_foo.Input.Body.MultipartFormPayload.additionalPropertiesPayload.self,
                                         from: part.body,
                                         transforming: {
                                             $0
@@ -4499,17 +4499,17 @@ final class SnippetBasedReferenceTests: XCTestCase {
             types: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
-                        @frozen public enum multipartFormPayload: Sendable, Hashable {
-                            public struct logPayload: Sendable, Hashable {
+                        @frozen public enum MultipartFormPayload: Sendable, Hashable {
+                            public struct LogPayload: Sendable, Hashable {
                                 public var body: OpenAPIRuntime.HTTPBody
                                 public init(body: OpenAPIRuntime.HTTPBody) {
                                     self.body = body
                                 }
                             }
-                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.multipartFormPayload.logPayload>)
+                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload>)
                             case additionalProperties(OpenAPIRuntime.MultipartDynamicallyNamedPart<Components.Schemas.AssociatedValue>)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
                     }
                     public var body: Operations.post_sol_foo.Input.Body
                     public init(body: Operations.post_sol_foo.Input.Body) {
@@ -4592,7 +4592,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -4674,10 +4674,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
             types: """
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
-                        @frozen public enum multipartFormPayload: Sendable, Hashable {
+                        @frozen public enum MultipartFormPayload: Sendable, Hashable {
                             case additionalProperties(OpenAPIRuntime.MultipartDynamicallyNamedPart<OpenAPIRuntime.HTTPBody>)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
                     }
                     public var body: Operations.post_sol_foo.Input.Body
                     public init(body: Operations.post_sol_foo.Input.Body) {
@@ -4744,7 +4744,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.multipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -4832,18 +4832,18 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public enum Responses {
                     public struct MultipartResponse: Sendable, Hashable {
                         @frozen public enum Body: Sendable, Hashable {
-                            @frozen public enum multipartFormPayload: Sendable, Hashable {
-                                public struct logPayload: Sendable, Hashable {
+                            @frozen public enum MultipartFormPayload: Sendable, Hashable {
+                                public struct LogPayload: Sendable, Hashable {
                                     public var body: OpenAPIRuntime.HTTPBody
                                     public init(body: OpenAPIRuntime.HTTPBody) {
                                         self.body = body
                                     }
                                 }
-                                case log(OpenAPIRuntime.MultipartPart<Components.Responses.MultipartResponse.Body.multipartFormPayload.logPayload>)
+                                case log(OpenAPIRuntime.MultipartPart<Components.Responses.MultipartResponse.Body.MultipartFormPayload.LogPayload>)
                                 case undocumented(OpenAPIRuntime.MultipartRawPart)
                             }
-                            case multipartForm(OpenAPIRuntime.MultipartBody<Components.Responses.MultipartResponse.Body.multipartFormPayload>)
-                            public var multipartForm: OpenAPIRuntime.MultipartBody<Components.Responses.MultipartResponse.Body.multipartFormPayload> {
+                            case multipartForm(OpenAPIRuntime.MultipartBody<Components.Responses.MultipartResponse.Body.MultipartFormPayload>)
+                            public var multipartForm: OpenAPIRuntime.MultipartBody<Components.Responses.MultipartResponse.Body.MultipartFormPayload> {
                                 get throws {
                                     switch self {
                                     case let .multipartForm(body):
@@ -4927,7 +4927,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         switch chosenContentType {
                         case "multipart/form-data":
                             body = try converter.getResponseBodyAsMultipart(
-                                OpenAPIRuntime.MultipartBody<Components.Responses.MultipartResponse.Body.multipartFormPayload>.self,
+                                OpenAPIRuntime.MultipartBody<Components.Responses.MultipartResponse.Body.MultipartFormPayload>.self,
                                 from: responseBody,
                                 transforming: { value in
                                     .multipartForm(value)
@@ -5003,18 +5003,18 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 @frozen public enum Output: Sendable, Hashable {
                     public struct Ok: Sendable, Hashable {
                         @frozen public enum Body: Sendable, Hashable {
-                            @frozen public enum multipartFormPayload: Sendable, Hashable {
-                                public struct logPayload: Sendable, Hashable {
+                            @frozen public enum MultipartFormPayload: Sendable, Hashable {
+                                public struct LogPayload: Sendable, Hashable {
                                     public var body: OpenAPIRuntime.HTTPBody
                                     public init(body: OpenAPIRuntime.HTTPBody) {
                                         self.body = body
                                     }
                                 }
-                                case log(OpenAPIRuntime.MultipartPart<Operations.get_sol_foo.Output.Ok.Body.multipartFormPayload.logPayload>)
+                                case log(OpenAPIRuntime.MultipartPart<Operations.get_sol_foo.Output.Ok.Body.MultipartFormPayload.LogPayload>)
                                 case undocumented(OpenAPIRuntime.MultipartRawPart)
                             }
-                            case multipartForm(OpenAPIRuntime.MultipartBody<Operations.get_sol_foo.Output.Ok.Body.multipartFormPayload>)
-                            public var multipartForm: OpenAPIRuntime.MultipartBody<Operations.get_sol_foo.Output.Ok.Body.multipartFormPayload> {
+                            case multipartForm(OpenAPIRuntime.MultipartBody<Operations.get_sol_foo.Output.Ok.Body.MultipartFormPayload>)
+                            public var multipartForm: OpenAPIRuntime.MultipartBody<Operations.get_sol_foo.Output.Ok.Body.MultipartFormPayload> {
                                 get throws {
                                     switch self {
                                     case let .multipartForm(body):
@@ -5113,7 +5113,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         switch chosenContentType {
                         case "multipart/form-data":
                             body = try converter.getResponseBodyAsMultipart(
-                                OpenAPIRuntime.MultipartBody<Operations.get_sol_foo.Output.Ok.Body.multipartFormPayload>.self,
+                                OpenAPIRuntime.MultipartBody<Operations.get_sol_foo.Output.Ok.Body.MultipartFormPayload>.self,
                                 from: responseBody,
                                 transforming: { value in
                                     .multipartForm(value)

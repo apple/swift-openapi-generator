@@ -60,36 +60,36 @@ struct TestClient: APIProtocol {
         return try await block(input)
     }
 
-    typealias UpdatePetSignature = @Sendable (Operations.updatePet.Input) async throws -> Operations.updatePet.Output
+    typealias UpdatePetSignature = @Sendable (Operations.UpdatePet.Input) async throws -> Operations.UpdatePet.Output
     var updatePetBlock: UpdatePetSignature?
-    func updatePet(_ input: Operations.updatePet.Input) async throws -> Operations.updatePet.Output {
+    func updatePet(_ input: Operations.UpdatePet.Input) async throws -> Operations.UpdatePet.Output {
         guard let block = updatePetBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
 
-    typealias UploadAvatarForPetSignature = @Sendable (Operations.uploadAvatarForPet.Input) async throws ->
-        Operations.uploadAvatarForPet.Output
+    typealias UploadAvatarForPetSignature = @Sendable (Operations.UploadAvatarForPet.Input) async throws ->
+        Operations.UploadAvatarForPet.Output
     var uploadAvatarForPetBlock: UploadAvatarForPetSignature?
-    func uploadAvatarForPet(_ input: Operations.uploadAvatarForPet.Input) async throws
-        -> Operations.uploadAvatarForPet.Output
+    func uploadAvatarForPet(_ input: Operations.UploadAvatarForPet.Input) async throws
+        -> Operations.UploadAvatarForPet.Output
     {
         guard let block = uploadAvatarForPetBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
-    typealias MultipartDownloadTypedSignature = @Sendable (Operations.multipartDownloadTyped.Input) async throws ->
-        Operations.multipartDownloadTyped.Output
+    typealias MultipartDownloadTypedSignature = @Sendable (Operations.MultipartDownloadTyped.Input) async throws ->
+        Operations.MultipartDownloadTyped.Output
     var multipartDownloadTypedBlock: MultipartDownloadTypedSignature?
-    func multipartDownloadTyped(_ input: Operations.multipartDownloadTyped.Input) async throws
-        -> Operations.multipartDownloadTyped.Output
+    func multipartDownloadTyped(_ input: Operations.MultipartDownloadTyped.Input) async throws
+        -> Operations.MultipartDownloadTyped.Output
     {
         guard let block = multipartDownloadTypedBlock else { throw UnspecifiedBlockError() }
         return try await block(input)
     }
-    typealias MultipartUploadTypedSignature = @Sendable (Operations.multipartUploadTyped.Input) async throws ->
-        Operations.multipartUploadTyped.Output
+    typealias MultipartUploadTypedSignature = @Sendable (Operations.MultipartUploadTyped.Input) async throws ->
+        Operations.MultipartUploadTyped.Output
     var multipartUploadTypedBlock: MultipartUploadTypedSignature?
-    func multipartUploadTyped(_ input: Operations.multipartUploadTyped.Input) async throws
-        -> Operations.multipartUploadTyped.Output
+    func multipartUploadTyped(_ input: Operations.MultipartUploadTyped.Input) async throws
+        -> Operations.MultipartUploadTyped.Output
     {
         guard let block = multipartUploadTypedBlock else { throw UnspecifiedBlockError() }
         return try await block(input)

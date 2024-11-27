@@ -100,7 +100,7 @@ final class Test_Types: XCTestCase {
             expectedJSON: #""2023-01-18T10:04:11Z""#
         )
         try testJSON(
-            Components.Schemas.MixedAnyOf(value2: .BIG_ELEPHANT_1, value4: #"BIG_ELEPHANT_1"#),
+            Components.Schemas.MixedAnyOf(value2: .bigElephant1, value4: #"BIG_ELEPHANT_1"#),
             expectedJSON: #""BIG_ELEPHANT_1""#
         )
         try testJSON(
@@ -111,7 +111,7 @@ final class Test_Types: XCTestCase {
             Components.Schemas.MixedOneOf.case1(Date(timeIntervalSince1970: 1_674_036_251)),
             expectedJSON: #""2023-01-18T10:04:11Z""#
         )
-        try testJSON(Components.Schemas.MixedOneOf.PetKind(.BIG_ELEPHANT_1), expectedJSON: #""BIG_ELEPHANT_1""#)
+        try testJSON(Components.Schemas.MixedOneOf.PetKind(.bigElephant1), expectedJSON: #""BIG_ELEPHANT_1""#)
         try testJSON(
             Components.Schemas.MixedOneOf.Pet(.init(id: 1, name: "Fluffz")),
             expectedJSON: #"{"id":1,"name":"Fluffz"}"#
