@@ -16,7 +16,7 @@ import XCTest
 
 final class Test_SwiftSafeNames: Test_Core {
     func testAsSwiftSafeName() {
-        let cases: [(original: String, defensive: String, optimisticUpper: String, optimisticLower: String)] = [
+        let cases: [(original: String, defensive: String, idiomaticUpper: String, idiomaticLower: String)] = [
 
             // Simple
             ("foo", "foo", "Foo", "foo"),
@@ -39,6 +39,14 @@ final class Test_SwiftSafeNames: Test_Core {
             // Numbers
             ("version 2.0", "version_space_2_period_0", "Version2_0", "version2_0"),
             ("V1.2Release", "V1_period_2Release", "V1_2Release", "v1_2Release"),
+            
+            // Synthesized operationId from method + path
+            (
+                "get/pets/{petId}/notifications",
+                "get_sol_pets_sol__lcub_petId_rcub__sol_notifications",
+                "GetPetsPetIdNotifications",
+                "getPetsPetIdNotifications"
+            ),
             
             // Technical strings
             ("file/path/to/resource", "file_sol_path_sol_to_sol_resource", "file_sol_path_sol_to_sol_resource", "file_sol_path_sol_to_sol_resource"),
@@ -118,13 +126,13 @@ final class Test_SwiftSafeNames: Test_Core {
         }
         do {
             let translator = makeTranslator(
-                namingStrategy: .optimistic,
+                namingStrategy: .idiomatic,
                 nameOverrides: ["MEGA": "m_e_g_a"]
             )
             let asSwiftSafeName: (String, SwiftNameOptions) -> String = translator.context.asSwiftSafeName
-            for (input, _, optimisticUpper, optimisticLower) in cases {
-                XCTAssertEqual(asSwiftSafeName(input, .capitalize), optimisticUpper, "Optimistic upper, input: \(input)")
-                XCTAssertEqual(asSwiftSafeName(input, .none), optimisticLower, "Optimistic lower, input: \(input)")
+            for (input, _, idiomaticUpper, idiomaticLower) in cases {
+                XCTAssertEqual(asSwiftSafeName(input, .capitalize), idiomaticUpper, "Idiomatic upper, input: \(input)")
+                XCTAssertEqual(asSwiftSafeName(input, .none), idiomaticLower, "Idiomatic lower, input: \(input)")
             }
         }
     }

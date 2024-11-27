@@ -52,8 +52,8 @@ extension FileTranslator {
         switch config.namingStrategy {
         case .defensive, .none:
             asSwiftSafeName = { $0.safeForSwiftCode_defensive(options: $1) }
-        case .optimistic:
-            asSwiftSafeName = { $0.safeForSwiftCode_optimistic(options: $1) }
+        case .idiomatic:
+            asSwiftSafeName = { $0.safeForSwiftCode_idiomatic(options: $1) }
         }
         let overrides = config.nameOverrides ?? [:]
         return TranslatorContext(

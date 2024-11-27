@@ -812,20 +812,20 @@ final class SnippetBasedReferenceTests: XCTestCase {
         try self.assertSchemasTranslation(
             """
             schemas:
-              A:
+              Aaa:
                 type: object
                 properties:
                   which:
                     type: string
-              B:
+              Bbb:
                 type: object
                 properties:
                   which:
                     type: string
               MyOneOf:
                 oneOf:
-                  - $ref: '#/components/schemas/A'
-                  - $ref: '#/components/schemas/B'
+                  - $ref: '#/components/schemas/Aaa'
+                  - $ref: '#/components/schemas/Bbb'
                   - type: string
                   - type: object
                     properties:
@@ -836,7 +836,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct A: Codable, Hashable, Sendable {
+                public struct Aaa: Codable, Hashable, Sendable {
                     public var which: Swift.String?
                     public init(which: Swift.String? = nil) {
                         self.which = which
@@ -845,7 +845,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case which
                     }
                 }
-                public struct B: Codable, Hashable, Sendable {
+                public struct Bbb: Codable, Hashable, Sendable {
                     public var which: Swift.String?
                     public init(which: Swift.String? = nil) {
                         self.which = which
@@ -855,8 +855,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                 }
                 @frozen public enum MyOneOf: Codable, Hashable, Sendable {
-                    case A(Components.Schemas.A)
-                    case B(Components.Schemas.B)
+                    case aaa(Components.Schemas.Aaa)
+                    case bbb(Components.Schemas.Bbb)
                     public enum CodingKeys: String, CodingKey {
                         case which
                     }
@@ -867,10 +867,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             forKey: .which
                         )
                         switch discriminator {
-                        case "A", "#/components/schemas/A":
-                            self = .A(try .init(from: decoder))
-                        case "B", "#/components/schemas/B":
-                            self = .B(try .init(from: decoder))
+                        case "Aaa", "#/components/schemas/Aaa":
+                            self = .aaa(try .init(from: decoder))
+                        case "Bbb", "#/components/schemas/Bbb":
+                            self = .bbb(try .init(from: decoder))
                         default:
                             throw Swift.DecodingError.unknownOneOfDiscriminator(
                                 discriminatorKey: CodingKeys.which,
@@ -881,9 +881,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public func encode(to encoder: any Encoder) throws {
                         switch self {
-                        case let .A(value):
+                        case let .aaa(value):
                             try value.encode(to: encoder)
-                        case let .B(value):
+                        case let .bbb(value):
                             try value.encode(to: encoder)
                         }
                     }
@@ -897,36 +897,36 @@ final class SnippetBasedReferenceTests: XCTestCase {
         try self.assertSchemasTranslation(
             """
             schemas:
-              A:
+              Aaa:
                 type: object
                 properties:
                   which:
                     type: string
-              B:
+              Bbb:
                 type: object
                 properties:
                   which:
                     type: string
-              C:
+              Ccc:
                 type: object
                 properties:
                   which:
                     type: string
               MyOneOf:
                 oneOf:
-                  - $ref: '#/components/schemas/A'
-                  - $ref: '#/components/schemas/B'
-                  - $ref: '#/components/schemas/C'
+                  - $ref: '#/components/schemas/Aaa'
+                  - $ref: '#/components/schemas/Bbb'
+                  - $ref: '#/components/schemas/Ccc'
                 discriminator:
                   propertyName: which
                   mapping:
-                    a: '#/components/schemas/A'
-                    a2: '#/components/schemas/A'
-                    b: '#/components/schemas/B'
+                    a: '#/components/schemas/Aaa'
+                    a2: '#/components/schemas/Aaa'
+                    b: '#/components/schemas/Bbb'
             """,
             """
             public enum Schemas {
-                public struct A: Codable, Hashable, Sendable {
+                public struct Aaa: Codable, Hashable, Sendable {
                     public var which: Swift.String?
                     public init(which: Swift.String? = nil) {
                         self.which = which
@@ -935,7 +935,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case which
                     }
                 }
-                public struct B: Codable, Hashable, Sendable {
+                public struct Bbb: Codable, Hashable, Sendable {
                     public var which: Swift.String?
                     public init(which: Swift.String? = nil) {
                         self.which = which
@@ -944,7 +944,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case which
                     }
                 }
-                public struct C: Codable, Hashable, Sendable {
+                public struct Ccc: Codable, Hashable, Sendable {
                     public var which: Swift.String?
                     public init(which: Swift.String? = nil) {
                         self.which = which
@@ -954,10 +954,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                 }
                 @frozen public enum MyOneOf: Codable, Hashable, Sendable {
-                    case a(Components.Schemas.A)
-                    case a2(Components.Schemas.A)
-                    case b(Components.Schemas.B)
-                    case C(Components.Schemas.C)
+                    case a(Components.Schemas.Aaa)
+                    case a2(Components.Schemas.Aaa)
+                    case b(Components.Schemas.Bbb)
+                    case ccc(Components.Schemas.Ccc)
                     public enum CodingKeys: String, CodingKey {
                         case which
                     }
@@ -974,8 +974,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self = .a2(try .init(from: decoder))
                         case "b":
                             self = .b(try .init(from: decoder))
-                        case "C", "#/components/schemas/C":
-                            self = .C(try .init(from: decoder))
+                        case "Ccc", "#/components/schemas/Ccc":
+                            self = .ccc(try .init(from: decoder))
                         default:
                             throw Swift.DecodingError.unknownOneOfDiscriminator(
                                 discriminatorKey: CodingKeys.which,
@@ -992,7 +992,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             try value.encode(to: encoder)
                         case let .b(value):
                             try value.encode(to: encoder)
-                        case let .C(value):
+                        case let .ccc(value):
                             try value.encode(to: encoder)
                         }
                     }
@@ -2352,6 +2352,30 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public func getHealthNew(headers: Operations.getHealthNew.Input.Headers = .init()) async throws -> Operations.getHealthNew.Output {
                     try await getHealthNew(Operations.getHealthNew.Input(headers: headers))
                 }
+            }
+            """
+        )
+    }
+    
+    func testSynthesizedOperationId() throws {
+        let paths = """
+            /pets/{petId}/notifications:
+              parameters:
+                - name: petId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              get:
+                responses:
+                  '204':
+                    description: A success response.
+            """
+        try self.assertPathsTranslation(
+            paths,
+            """
+            public protocol APIProtocol: Sendable {
+                func getHealthNew(_ input: Operations.getHealthNew.Input) async throws -> Operations.getHealthNew.Output
             }
             """
         )
@@ -5519,7 +5543,12 @@ extension SnippetBasedReferenceTests {
     ) throws -> TypesFileTranslator {
         let components = try YAMLDecoder().decode(OpenAPI.Components.self, from: componentsYAML)
         return TypesFileTranslator(
-            config: Config(mode: .types, access: accessModifier, featureFlags: featureFlags),
+            config: Config(
+                mode: .types,
+                access: accessModifier,
+                namingStrategy: .idiomatic,
+                featureFlags: featureFlags
+            ),
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
             components: components
         )
@@ -5531,7 +5560,12 @@ extension SnippetBasedReferenceTests {
         components: OpenAPI.Components = .noComponents
     ) throws -> TypesFileTranslator {
         TypesFileTranslator(
-            config: Config(mode: .types, access: accessModifier, featureFlags: featureFlags),
+            config: Config(
+                mode: .types,
+                access: accessModifier,
+                namingStrategy: .idiomatic,
+                featureFlags: featureFlags
+            ),
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
             components: components
         )
@@ -5545,17 +5579,32 @@ extension SnippetBasedReferenceTests {
         let collector = XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages)
         return (
             TypesFileTranslator(
-                config: Config(mode: .types, access: .public, featureFlags: featureFlags),
+                config: Config(
+                    mode: .types,
+                    access: .public,
+                    namingStrategy: .idiomatic,
+                    featureFlags: featureFlags
+                ),
                 diagnostics: collector,
                 components: components
             ),
             ClientFileTranslator(
-                config: Config(mode: .client, access: .public, featureFlags: featureFlags),
+                config: Config(
+                    mode: .client,
+                    access: .public,
+                    namingStrategy: .idiomatic,
+                    featureFlags: featureFlags
+                ),
                 diagnostics: collector,
                 components: components
             ),
             ServerFileTranslator(
-                config: Config(mode: .server, access: .public, featureFlags: featureFlags),
+                config: Config(
+                    mode: .server,
+                    access: .public,
+                    namingStrategy: .idiomatic,
+                    featureFlags: featureFlags
+                ),
                 diagnostics: collector,
                 components: components
             )

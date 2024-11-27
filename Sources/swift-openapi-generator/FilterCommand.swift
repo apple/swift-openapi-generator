@@ -91,7 +91,7 @@ private let sampleConfig = _UserConfig(
         paths: ["/greeting"],
         schemas: ["Greeting"]
     ),
-    namingStrategy: .optimistic,
+    namingStrategy: .idiomatic,
     nameOverrides: [
         "SPECIAL_NAME": "SpecialName"
     ]

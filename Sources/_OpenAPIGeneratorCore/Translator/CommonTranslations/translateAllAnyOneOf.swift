@@ -144,7 +144,7 @@ extension TypesFileTranslator {
                     userDescription: nil,
                     parent: typeName
                 )
-                let caseName = safeSwiftNameForOneOfMappedType(mappedType)
+                let caseName = safeSwiftNameForOneOfMappedCase(mappedType)
                 return (caseName, mappedType.rawNames, true, comment, mappedType.typeName.asUsage, [])
             }
         } else {

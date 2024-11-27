@@ -82,7 +82,7 @@ extension String {
     ///
     /// If the string contains any illegal characters, falls back to the behavior
     /// matching `safeForSwiftCode_defensive`.
-    func safeForSwiftCode_optimistic(options: SwiftNameOptions) -> String {
+    func safeForSwiftCode_idiomatic(options: SwiftNameOptions) -> String {
         let capitalize = options.contains(.capitalize)
         if isEmpty {
             return capitalize ? "_Empty_" : "_empty_"

@@ -14,7 +14,7 @@
 
 public enum NamingStrategy: String, Sendable, Codable, Equatable {
     case defensive
-    case optimistic
+    case idiomatic
 }
 
 /// A structure that contains configuration options for a single execution

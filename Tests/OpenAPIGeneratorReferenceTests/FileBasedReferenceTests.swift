@@ -136,7 +136,7 @@ final class FileBasedReferenceTests: XCTestCase {
                     mode: mode,
                     additionalImports: [],
                     featureFlags: featureFlags,
-                    namingStrategy: .optimistic,
+                    namingStrategy: .idiomatic,
                     nameOverrides: [:],
                     referenceOutputDirectory: "ReferenceSources/\(project.fixtureCodeDirectoryName)"
                 ),
