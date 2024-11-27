@@ -18,26 +18,26 @@ public protocol APIProtocol: Sendable {
     ///
     /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
-    func listPets(_ input: Operations.listPets.Input) async throws -> Operations.listPets.Output
+    func listPets(_ input: Operations.ListPets.Input) async throws -> Operations.ListPets.Output
     /// Create a pet
     ///
     /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
-    func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output
+    func createPet(_ input: Operations.CreatePet.Input) async throws -> Operations.CreatePet.Output
     /// Create a pet using a url form
     ///
     /// - Remark: HTTP `POST /pets/create`.
     /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
-    func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws -> Operations.createPetWithForm.Output
+    func createPetWithForm(_ input: Operations.CreatePetWithForm.Input) async throws -> Operations.CreatePetWithForm.Output
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
-    func getStats(_ input: Operations.getStats.Input) async throws -> Operations.getStats.Output
+    func getStats(_ input: Operations.GetStats.Input) async throws -> Operations.GetStats.Output
     /// - Remark: HTTP `POST /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/post(postStats)`.
-    func postStats(_ input: Operations.postStats.Input) async throws -> Operations.postStats.Output
+    func postStats(_ input: Operations.PostStats.Input) async throws -> Operations.PostStats.Output
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output
+    func probe(_ input: Operations.Probe.Input) async throws -> Operations.Probe.Output
     /// Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
     ///
     /// - Remark: HTTP `PATCH /pets/{petId}`.
@@ -66,10 +66,10 @@ extension APIProtocol {
     /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
     public func listPets(
-        query: Operations.listPets.Input.Query = .init(),
-        headers: Operations.listPets.Input.Headers = .init()
-    ) async throws -> Operations.listPets.Output {
-        try await listPets(Operations.listPets.Input(
+        query: Operations.ListPets.Input.Query = .init(),
+        headers: Operations.ListPets.Input.Headers = .init()
+    ) async throws -> Operations.ListPets.Output {
+        try await listPets(Operations.ListPets.Input(
             query: query,
             headers: headers
         ))
@@ -79,10 +79,10 @@ extension APIProtocol {
     /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
     public func createPet(
-        headers: Operations.createPet.Input.Headers = .init(),
-        body: Operations.createPet.Input.Body
-    ) async throws -> Operations.createPet.Output {
-        try await createPet(Operations.createPet.Input(
+        headers: Operations.CreatePet.Input.Headers = .init(),
+        body: Operations.CreatePet.Input.Body
+    ) async throws -> Operations.CreatePet.Output {
+        try await createPet(Operations.CreatePet.Input(
             headers: headers,
             body: body
         ))
@@ -91,23 +91,23 @@ extension APIProtocol {
     ///
     /// - Remark: HTTP `POST /pets/create`.
     /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
-    public func createPetWithForm(body: Operations.createPetWithForm.Input.Body) async throws -> Operations.createPetWithForm.Output {
-        try await createPetWithForm(Operations.createPetWithForm.Input(body: body))
+    public func createPetWithForm(body: Operations.CreatePetWithForm.Input.Body) async throws -> Operations.CreatePetWithForm.Output {
+        try await createPetWithForm(Operations.CreatePetWithForm.Input(body: body))
     }
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
-    public func getStats(headers: Operations.getStats.Input.Headers = .init()) async throws -> Operations.getStats.Output {
-        try await getStats(Operations.getStats.Input(headers: headers))
+    public func getStats(headers: Operations.GetStats.Input.Headers = .init()) async throws -> Operations.GetStats.Output {
+        try await getStats(Operations.GetStats.Input(headers: headers))
     }
     /// - Remark: HTTP `POST /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/post(postStats)`.
-    public func postStats(body: Operations.postStats.Input.Body) async throws -> Operations.postStats.Output {
-        try await postStats(Operations.postStats.Input(body: body))
+    public func postStats(body: Operations.PostStats.Input.Body) async throws -> Operations.PostStats.Output {
+        try await postStats(Operations.PostStats.Input(body: body))
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    public func probe() async throws -> Operations.probe.Output {
-        try await probe(Operations.probe.Input())
+    public func probe() async throws -> Operations.Probe.Output {
+        try await probe(Operations.Probe.Input())
     }
     /// Update just a specific property of an existing pet. Nothing is updated if no request body is provided.
     ///
@@ -1844,7 +1844,7 @@ public enum Operations {
                     case _empty = ""
                 }
                 /// - Remark: Generated from `#/paths/pets/GET/query/habitat`.
-                public var habitat: Operations.listPets.Input.Query.habitatPayload?
+                public var habitat: Operations.ListPets.Input.Query.habitatPayload?
                 /// - Remark: Generated from `#/paths/pets/GET/query/feedsPayload`.
                 @frozen public enum feedsPayloadPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case omnivore = "omnivore"
@@ -1852,9 +1852,9 @@ public enum Operations {
                     case herbivore = "herbivore"
                 }
                 /// - Remark: Generated from `#/paths/pets/GET/query/feeds`.
-                public typealias feedsPayload = [Operations.listPets.Input.Query.feedsPayloadPayload]
+                public typealias feedsPayload = [Operations.ListPets.Input.Query.feedsPayloadPayload]
                 /// - Remark: Generated from `#/paths/pets/GET/query/feeds`.
-                public var feeds: Operations.listPets.Input.Query.feedsPayload?
+                public var feeds: Operations.ListPets.Input.Query.feedsPayload?
                 /// Supply this parameter to filter pets born since the provided date.
                 ///
                 /// - Remark: Generated from `#/paths/pets/GET/query/since`.
@@ -1868,8 +1868,8 @@ public enum Operations {
                 ///   - since: Supply this parameter to filter pets born since the provided date.
                 public init(
                     limit: Swift.Int32? = nil,
-                    habitat: Operations.listPets.Input.Query.habitatPayload? = nil,
-                    feeds: Operations.listPets.Input.Query.feedsPayload? = nil,
+                    habitat: Operations.ListPets.Input.Query.habitatPayload? = nil,
+                    feeds: Operations.ListPets.Input.Query.feedsPayload? = nil,
                     since: Components.Parameters.query_period_born_hyphen_since? = nil
                 ) {
                     self.limit = limit
@@ -1878,14 +1878,14 @@ public enum Operations {
                     self.since = since
                 }
             }
-            public var query: Operations.listPets.Input.Query
+            public var query: Operations.ListPets.Input.Query
             /// - Remark: Generated from `#/paths/pets/GET/header`.
             public struct Headers: Sendable, Hashable {
                 /// Request identifier
                 ///
                 /// - Remark: Generated from `#/paths/pets/GET/header/My-Request-UUID`.
                 public var My_hyphen_Request_hyphen_UUID: Swift.String?
-                public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.listPets.AcceptableContentType>]
+                public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.ListPets.AcceptableContentType>]
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
@@ -1893,21 +1893,21 @@ public enum Operations {
                 ///   - accept:
                 public init(
                     My_hyphen_Request_hyphen_UUID: Swift.String? = nil,
-                    accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.listPets.AcceptableContentType>] = .defaultValues()
+                    accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.ListPets.AcceptableContentType>] = .defaultValues()
                 ) {
                     self.My_hyphen_Request_hyphen_UUID = My_hyphen_Request_hyphen_UUID
                     self.accept = accept
                 }
             }
-            public var headers: Operations.listPets.Input.Headers
+            public var headers: Operations.ListPets.Input.Headers
             /// Creates a new `Input`.
             ///
             /// - Parameters:
             ///   - query:
             ///   - headers:
             public init(
-                query: Operations.listPets.Input.Query = .init(),
-                headers: Operations.listPets.Input.Headers = .init()
+                query: Operations.ListPets.Input.Query = .init(),
+                headers: Operations.ListPets.Input.Headers = .init()
             ) {
                 self.query = query
                 self.headers = headers
@@ -1939,7 +1939,7 @@ public enum Operations {
                     }
                 }
                 /// Received HTTP response headers
-                public var headers: Operations.listPets.Output.Ok.Headers
+                public var headers: Operations.ListPets.Output.Ok.Headers
                 /// - Remark: Generated from `#/paths/pets/GET/responses/200/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/GET/responses/200/content/application\/json`.
@@ -1958,15 +1958,15 @@ public enum Operations {
                     }
                 }
                 /// Received HTTP response body
-                public var body: Operations.listPets.Output.Ok.Body
+                public var body: Operations.ListPets.Output.Ok.Body
                 /// Creates a new `Ok`.
                 ///
                 /// - Parameters:
                 ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
                 public init(
-                    headers: Operations.listPets.Output.Ok.Headers,
-                    body: Operations.listPets.Output.Ok.Body
+                    headers: Operations.ListPets.Output.Ok.Headers,
+                    body: Operations.ListPets.Output.Ok.Body
                 ) {
                     self.headers = headers
                     self.body = body
@@ -1977,12 +1977,12 @@ public enum Operations {
             /// - Remark: Generated from `#/paths//pets/get(listPets)/responses/200`.
             ///
             /// HTTP response code: `200 ok`.
-            case ok(Operations.listPets.Output.Ok)
+            case ok(Operations.ListPets.Output.Ok)
             /// The associated value of the enum case if `self` is `.ok`.
             ///
             /// - Throws: An error if `self` is not `.ok`.
             /// - SeeAlso: `.ok`.
-            public var ok: Operations.listPets.Output.Ok {
+            public var ok: Operations.ListPets.Output.Ok {
                 get throws {
                     switch self {
                     case let .ok(response):
@@ -2014,12 +2014,12 @@ public enum Operations {
                     }
                 }
                 /// Received HTTP response body
-                public var body: Operations.listPets.Output.Default.Body
+                public var body: Operations.ListPets.Output.Default.Body
                 /// Creates a new `Default`.
                 ///
                 /// - Parameters:
                 ///   - body: Received HTTP response body
-                public init(body: Operations.listPets.Output.Default.Body) {
+                public init(body: Operations.ListPets.Output.Default.Body) {
                     self.body = body
                 }
             }
@@ -2028,12 +2028,12 @@ public enum Operations {
             /// - Remark: Generated from `#/paths//pets/get(listPets)/responses/default`.
             ///
             /// HTTP response code: `default`.
-            case `default`(statusCode: Swift.Int, Operations.listPets.Output.Default)
+            case `default`(statusCode: Swift.Int, Operations.ListPets.Output.Default)
             /// The associated value of the enum case if `self` is `.`default``.
             ///
             /// - Throws: An error if `self` is not `.`default``.
             /// - SeeAlso: `.`default``.
-            public var `default`: Operations.listPets.Output.Default {
+            public var `default`: Operations.ListPets.Output.Default {
                 get throws {
                     switch self {
                     case let .`default`(_, response):
@@ -2086,7 +2086,7 @@ public enum Operations {
                 ///
                 /// - Remark: Generated from `#/paths/pets/POST/header/X-Extra-Arguments`.
                 public var X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError?
-                public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.createPet.AcceptableContentType>]
+                public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.CreatePet.AcceptableContentType>]
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
@@ -2094,27 +2094,27 @@ public enum Operations {
                 ///   - accept:
                 public init(
                     X_hyphen_Extra_hyphen_Arguments: Components.Schemas.CodeError? = nil,
-                    accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.createPet.AcceptableContentType>] = .defaultValues()
+                    accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.CreatePet.AcceptableContentType>] = .defaultValues()
                 ) {
                     self.X_hyphen_Extra_hyphen_Arguments = X_hyphen_Extra_hyphen_Arguments
                     self.accept = accept
                 }
             }
-            public var headers: Operations.createPet.Input.Headers
+            public var headers: Operations.CreatePet.Input.Headers
             /// - Remark: Generated from `#/paths/pets/POST/requestBody`.
             @frozen public enum Body: Sendable, Hashable {
                 /// - Remark: Generated from `#/paths/pets/POST/requestBody/content/application\/json`.
                 case json(Components.Schemas.CreatePetRequest)
             }
-            public var body: Operations.createPet.Input.Body
+            public var body: Operations.CreatePet.Input.Body
             /// Creates a new `Input`.
             ///
             /// - Parameters:
             ///   - headers:
             ///   - body:
             public init(
-                headers: Operations.createPet.Input.Headers = .init(),
-                body: Operations.createPet.Input.Body
+                headers: Operations.CreatePet.Input.Headers = .init(),
+                body: Operations.CreatePet.Input.Body
             ) {
                 self.headers = headers
                 self.body = body
@@ -2137,7 +2137,7 @@ public enum Operations {
                     }
                 }
                 /// Received HTTP response headers
-                public var headers: Operations.createPet.Output.Created.Headers
+                public var headers: Operations.CreatePet.Output.Created.Headers
                 /// - Remark: Generated from `#/paths/pets/POST/responses/201/content`.
                 @frozen public enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/pets/POST/responses/201/content/application\/json`.
@@ -2156,15 +2156,15 @@ public enum Operations {
                     }
                 }
                 /// Received HTTP response body
-                public var body: Operations.createPet.Output.Created.Body
+                public var body: Operations.CreatePet.Output.Created.Body
                 /// Creates a new `Created`.
                 ///
                 /// - Parameters:
                 ///   - headers: Received HTTP response headers
                 ///   - body: Received HTTP response body
                 public init(
-                    headers: Operations.createPet.Output.Created.Headers = .init(),
-                    body: Operations.createPet.Output.Created.Body
+                    headers: Operations.CreatePet.Output.Created.Headers = .init(),
+                    body: Operations.CreatePet.Output.Created.Body
                 ) {
                     self.headers = headers
                     self.body = body
@@ -2175,12 +2175,12 @@ public enum Operations {
             /// - Remark: Generated from `#/paths//pets/post(createPet)/responses/201`.
             ///
             /// HTTP response code: `201 created`.
-            case created(Operations.createPet.Output.Created)
+            case created(Operations.CreatePet.Output.Created)
             /// The associated value of the enum case if `self` is `.created`.
             ///
             /// - Throws: An error if `self` is not `.created`.
             /// - SeeAlso: `.created`.
-            public var created: Operations.createPet.Output.Created {
+            public var created: Operations.CreatePet.Output.Created {
                 get throws {
                     switch self {
                     case let .created(response):
@@ -2259,12 +2259,12 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/pets/create/POST/requestBody/content/application\/x-www-form-urlencoded`.
                 case urlEncodedForm(Components.Schemas.CreatePetRequest)
             }
-            public var body: Operations.createPetWithForm.Input.Body
+            public var body: Operations.CreatePetWithForm.Input.Body
             /// Creates a new `Input`.
             ///
             /// - Parameters:
             ///   - body:
-            public init(body: Operations.createPetWithForm.Input.Body) {
+            public init(body: Operations.CreatePetWithForm.Input.Body) {
                 self.body = body
             }
         }
@@ -2278,7 +2278,7 @@ public enum Operations {
             /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)/responses/204`.
             ///
             /// HTTP response code: `204 noContent`.
-            case noContent(Operations.createPetWithForm.Output.NoContent)
+            case noContent(Operations.CreatePetWithForm.Output.NoContent)
             /// Successfully created pet using a url form
             ///
             /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)/responses/204`.
@@ -2291,7 +2291,7 @@ public enum Operations {
             ///
             /// - Throws: An error if `self` is not `.noContent`.
             /// - SeeAlso: `.noContent`.
-            public var noContent: Operations.createPetWithForm.Output.NoContent {
+            public var noContent: Operations.CreatePetWithForm.Output.NoContent {
                 get throws {
                     switch self {
                     case let .noContent(response):
@@ -2317,21 +2317,21 @@ public enum Operations {
         public struct Input: Sendable, Hashable {
             /// - Remark: Generated from `#/paths/pets/stats/GET/header`.
             public struct Headers: Sendable, Hashable {
-                public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.getStats.AcceptableContentType>]
+                public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.GetStats.AcceptableContentType>]
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
                 ///   - accept:
-                public init(accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.getStats.AcceptableContentType>] = .defaultValues()) {
+                public init(accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.GetStats.AcceptableContentType>] = .defaultValues()) {
                     self.accept = accept
                 }
             }
-            public var headers: Operations.getStats.Input.Headers
+            public var headers: Operations.GetStats.Input.Headers
             /// Creates a new `Input`.
             ///
             /// - Parameters:
             ///   - headers:
-            public init(headers: Operations.getStats.Input.Headers = .init()) {
+            public init(headers: Operations.GetStats.Input.Headers = .init()) {
                 self.headers = headers
             }
         }
@@ -2398,12 +2398,12 @@ public enum Operations {
                     }
                 }
                 /// Received HTTP response body
-                public var body: Operations.getStats.Output.Ok.Body
+                public var body: Operations.GetStats.Output.Ok.Body
                 /// Creates a new `Ok`.
                 ///
                 /// - Parameters:
                 ///   - body: Received HTTP response body
-                public init(body: Operations.getStats.Output.Ok.Body) {
+                public init(body: Operations.GetStats.Output.Ok.Body) {
                     self.body = body
                 }
             }
@@ -2412,12 +2412,12 @@ public enum Operations {
             /// - Remark: Generated from `#/paths//pets/stats/get(getStats)/responses/200`.
             ///
             /// HTTP response code: `200 ok`.
-            case ok(Operations.getStats.Output.Ok)
+            case ok(Operations.GetStats.Output.Ok)
             /// The associated value of the enum case if `self` is `.ok`.
             ///
             /// - Throws: An error if `self` is not `.ok`.
             /// - SeeAlso: `.ok`.
-            public var ok: Operations.getStats.Output.Ok {
+            public var ok: Operations.GetStats.Output.Ok {
                 get throws {
                     switch self {
                     case let .ok(response):
@@ -2487,12 +2487,12 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/pets/stats/POST/requestBody/content/application\/octet-stream`.
                 case binary(OpenAPIRuntime.HTTPBody)
             }
-            public var body: Operations.postStats.Input.Body
+            public var body: Operations.PostStats.Input.Body
             /// Creates a new `Input`.
             ///
             /// - Parameters:
             ///   - body:
-            public init(body: Operations.postStats.Input.Body) {
+            public init(body: Operations.PostStats.Input.Body) {
                 self.body = body
             }
         }
@@ -2506,7 +2506,7 @@ public enum Operations {
             /// - Remark: Generated from `#/paths//pets/stats/post(postStats)/responses/202`.
             ///
             /// HTTP response code: `202 accepted`.
-            case accepted(Operations.postStats.Output.Accepted)
+            case accepted(Operations.PostStats.Output.Accepted)
             /// Accepted data.
             ///
             /// - Remark: Generated from `#/paths//pets/stats/post(postStats)/responses/202`.
@@ -2519,7 +2519,7 @@ public enum Operations {
             ///
             /// - Throws: An error if `self` is not `.accepted`.
             /// - SeeAlso: `.accepted`.
-            public var accepted: Operations.postStats.Output.Accepted {
+            public var accepted: Operations.PostStats.Output.Accepted {
                 get throws {
                     switch self {
                     case let .accepted(response):
@@ -2556,7 +2556,7 @@ public enum Operations {
             /// - Remark: Generated from `#/paths//probe//post(probe)/responses/204`.
             ///
             /// HTTP response code: `204 noContent`.
-            case noContent(Operations.probe.Output.NoContent)
+            case noContent(Operations.Probe.Output.NoContent)
             /// Ack
             ///
             /// - Remark: Generated from `#/paths//probe//post(probe)/responses/204`.
@@ -2569,7 +2569,7 @@ public enum Operations {
             ///
             /// - Throws: An error if `self` is not `.noContent`.
             /// - SeeAlso: `.noContent`.
-            public var noContent: Operations.probe.Output.NoContent {
+            public var noContent: Operations.Probe.Output.NoContent {
                 get throws {
                     switch self {
                     case let .noContent(response):

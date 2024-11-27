@@ -47,10 +47,10 @@ public struct Client: APIProtocol {
     ///
     /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
-    public func listPets(_ input: Operations.listPets.Input) async throws -> Operations.listPets.Output {
+    public func listPets(_ input: Operations.ListPets.Input) async throws -> Operations.ListPets.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.listPets.id,
+            forOperation: Operations.ListPets.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets",
@@ -103,7 +103,7 @@ public struct Client: APIProtocol {
             deserializer: { response, responseBody in
                 switch response.status.code {
                 case 200:
-                    let headers: Operations.listPets.Output.Ok.Headers = .init(
+                    let headers: Operations.ListPets.Output.Ok.Headers = .init(
                         My_hyphen_Response_hyphen_UUID: try converter.getRequiredHeaderFieldAsURI(
                             in: response.headerFields,
                             name: "My-Response-UUID",
@@ -116,7 +116,7 @@ public struct Client: APIProtocol {
                         )
                     )
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.listPets.Output.Ok.Body
+                    let body: Operations.ListPets.Output.Ok.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -141,7 +141,7 @@ public struct Client: APIProtocol {
                     ))
                 default:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.listPets.Output.Default.Body
+                    let body: Operations.ListPets.Output.Default.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -172,10 +172,10 @@ public struct Client: APIProtocol {
     ///
     /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
-    public func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output {
+    public func createPet(_ input: Operations.CreatePet.Input) async throws -> Operations.CreatePet.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.createPet.id,
+            forOperation: Operations.CreatePet.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets",
@@ -209,13 +209,13 @@ public struct Client: APIProtocol {
             deserializer: { response, responseBody in
                 switch response.status.code {
                 case 201:
-                    let headers: Operations.createPet.Output.Created.Headers = .init(X_hyphen_Extra_hyphen_Arguments: try converter.getOptionalHeaderFieldAsJSON(
+                    let headers: Operations.CreatePet.Output.Created.Headers = .init(X_hyphen_Extra_hyphen_Arguments: try converter.getOptionalHeaderFieldAsJSON(
                         in: response.headerFields,
                         name: "X-Extra-Arguments",
                         as: Components.Schemas.CodeError.self
                     ))
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.createPet.Output.Created.Body
+                    let body: Operations.CreatePet.Output.Created.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -287,10 +287,10 @@ public struct Client: APIProtocol {
     ///
     /// - Remark: HTTP `POST /pets/create`.
     /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
-    public func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws -> Operations.createPetWithForm.Output {
+    public func createPetWithForm(_ input: Operations.CreatePetWithForm.Input) async throws -> Operations.CreatePetWithForm.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.createPetWithForm.id,
+            forOperation: Operations.CreatePetWithForm.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/create",
@@ -330,10 +330,10 @@ public struct Client: APIProtocol {
     }
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
-    public func getStats(_ input: Operations.getStats.Input) async throws -> Operations.getStats.Output {
+    public func getStats(_ input: Operations.GetStats.Input) async throws -> Operations.GetStats.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.getStats.id,
+            forOperation: Operations.GetStats.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/stats",
@@ -354,7 +354,7 @@ public struct Client: APIProtocol {
                 switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.getStats.Output.Ok.Body
+                    let body: Operations.GetStats.Output.Ok.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -406,10 +406,10 @@ public struct Client: APIProtocol {
     }
     /// - Remark: HTTP `POST /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/post(postStats)`.
-    public func postStats(_ input: Operations.postStats.Input) async throws -> Operations.postStats.Output {
+    public func postStats(_ input: Operations.PostStats.Input) async throws -> Operations.PostStats.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.postStats.id,
+            forOperation: Operations.PostStats.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/stats",
@@ -461,10 +461,10 @@ public struct Client: APIProtocol {
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    public func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output {
+    public func probe(_ input: Operations.Probe.Input) async throws -> Operations.Probe.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.probe.id,
+            forOperation: Operations.Probe.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/probe/",
