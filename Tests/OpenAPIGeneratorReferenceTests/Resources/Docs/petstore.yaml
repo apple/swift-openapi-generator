@@ -69,6 +69,18 @@ paths:
           schema:
             format: uuid
             type: string
+        - name: sort
+          in: query
+          required: false
+          style: deepObject
+          explode: true
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
         - $ref: '#/components/parameters/query.born-since'
       responses:
         '200':
