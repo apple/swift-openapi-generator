@@ -39,17 +39,23 @@ final class Test_SwiftSafeNames: Test_Core {
             // Numbers
             ("version 2.0", "version_space_2_period_0", "Version2_0", "version2_0"),
             ("V1.2Release", "V1_period_2Release", "V1_2Release", "v1_2Release"),
-            
+
             // Synthesized operationId from method + path
             (
                 "get/pets/{petId}/notifications",
                 "get_sol_pets_sol__lcub_petId_rcub__sol_notifications",
-                "GetPetsPetIdNotifications",
-                "getPetsPetIdNotifications"
+                "Get_pets_petId_notifications",
+                "get_pets_petId_notifications",
             ),
-            
+            (
+                "get/name/v{version}.zip",
+                "get_sol_name_sol_v_lcub_version_rcub__period_zip",
+                "Get_name_vversion_zip",
+                "get_name_vversion_zip"
+            ),
+
             // Technical strings
-            ("file/path/to/resource", "file_sol_path_sol_to_sol_resource", "file_sol_path_sol_to_sol_resource", "file_sol_path_sol_to_sol_resource"),
+            ("file/path/to/resource", "file_sol_path_sol_to_sol_resource", "File_path_to_resource", "file_path_to_resource"),
             ("user.name@domain.com", "user_period_name_commat_domain_period_com", "user_period_name_commat_domain_period_com", "user_period_name_commat_domain_period_com"),
             ("hello.world.2023", "hello_period_world_period_2023", "Hello_world_2023", "hello_world_2023"),
             ("order#123", "order_num_123", "order_num_123", "order_num_123"),

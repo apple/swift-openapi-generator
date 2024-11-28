@@ -97,13 +97,15 @@ extension String {
 
         // 1. Leave leading underscores as-are
         // 2. In the middle: word separators: ["_", "-", <space>] -> remove and capitalize next word
-        // 3. In the middle: period: ["."] -> replace with "_"
+        // 3. In the middle: period: [".", "/"] -> replace with "_"
+        // 4. In the middle: drop ["{", "}"] -> replace with ""
         
         var buffer: [Character] = []
         buffer.reserveCapacity(count)
         
         enum State {
             case modifying
+            case fallback
             case preFirstWord
             case accumulatingWord
             case waitingForWordStarter
@@ -129,7 +131,7 @@ extension String {
                     state = .accumulatingWord
                 } else {
                     // Illegal character, fall back to the defensive strategy.
-                    return safeForSwiftCode_defensive(options: options)
+                    state = .fallback
                 }
             case .accumulatingWord:
                 if char.isLetter || char.isNumber {
@@ -139,22 +141,25 @@ extension String {
                         buffer.append(char)
                     }
                     state = .accumulatingWord
-                } else if char == "_" || char == "-" || char == " " {
+                } else if ["_", "-", " "].contains(char) {
                     // In the middle of an identifier, dashes, underscores, and spaces are considered
                     // word separators, so we remove the character and end the current word.
                     state = .waitingForWordStarter
-                } else if char == "." {
-                    // In the middle of an identifier, a period gets replaced with an underscore, but continues
-                    // the current word.
+                } else if [".", "/"].contains(char) {
+                    // In the middle of an identifier, a period or a slash gets replaced with
+                    // an underscore, but continues the current word.
                     buffer.append("_")
+                    state = .accumulatingWord
+                } else if ["{", "}"].contains(char) {
+                    // In the middle of an identifier, curly braces are dropped.
                     state = .accumulatingWord
                 } else {
                     // Illegal character, fall back to the defensive strategy.
-                    return safeForSwiftCode_defensive(options: options)
+                    state = .fallback
                 }
             case .waitingForWordStarter:
-                if char == "_" || char == "-" {
-                    // Between words, just drop dashes, underscores, and spaces, since
+                if ["_", "-", ".", "/", "{", "}"].contains(char) {
+                    // Between words, just drop allowed special characters, since
                     // we're already between words anyway.
                     state = .waitingForWordStarter
                 } else if char.isLetter || char.isNumber {
@@ -163,12 +168,15 @@ extension String {
                     state = .accumulatingWord
                 } else {
                     // Illegal character, fall back to the defensive strategy.
-                    return safeForSwiftCode_defensive(options: options)
+                    state = .fallback
                 }
-            case .modifying:
+            case .modifying, .fallback:
                 preconditionFailure("Logic error in \(#function), string: '\(self)'")
             }
             precondition(state != .modifying, "Logic error in \(#function), string: '\(self)'")
+            if case .fallback = state {
+                return safeForSwiftCode_defensive(options: options)
+            }
         }
         if buffer.isEmpty || state == .preFirstWord {
             return safeForSwiftCode_defensive(options: options)
