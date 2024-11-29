@@ -20,13 +20,20 @@ struct TestConfig: Encodable {
     var docFilePath: String
     var mode: GeneratorMode
     var additionalImports: [String]?
+    var additionalAPIProtocols: [String]?
     var featureFlags: FeatureFlags?
     var referenceOutputDirectory: String
 }
 
 extension TestConfig {
     var asConfig: Config {
-        .init(mode: mode, access: .public, additionalImports: additionalImports ?? [], featureFlags: featureFlags ?? [])
+        .init(
+            mode: mode,
+            access: .public,
+            additionalImports: additionalImports ?? [],
+            additionalAPIProtocols: additionalAPIProtocols ?? [],
+            featureFlags: featureFlags ?? []
+        )
     }
 }
 
@@ -126,6 +133,7 @@ final class FileBasedReferenceTests: XCTestCase {
                     docFilePath: "Docs/\(project.openAPIDocFileName)",
                     mode: mode,
                     additionalImports: [],
+                    additionalAPIProtocols: [],
                     featureFlags: featureFlags,
                     referenceOutputDirectory: "ReferenceSources/\(project.fixtureCodeDirectoryName)"
                 ),

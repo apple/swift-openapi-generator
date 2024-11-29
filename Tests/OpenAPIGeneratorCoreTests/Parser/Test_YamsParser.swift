@@ -140,9 +140,12 @@ final class Test_YamsParser: Test_Core {
 
             additionalImports:
               - Foundation
+            
+            additionalAPIProtocols:
+              - ExampleProtocol
             """
         let keys = try? YamsParser.extractTopLevelKeys(fromYAMLString: yaml)
-        XCTAssertEqual(keys, ["generate", "featureFlags", "additionalImports"])
+        XCTAssertEqual(keys, ["generate", "featureFlags", "additionalImports", "additionalAPIProtocols"])
     }
 
     func testExtractTopLevelKeysWithInvalidYAML() {

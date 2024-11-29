@@ -35,6 +35,7 @@ The configuration file has the following keys:
     - `package`: Generated API is accessible from other modules within the same package or project.
     - `internal` (default): Generated API is accessible from the containing module only.
 - `additionalImports` (optional): array of strings. Each string value is a Swift module name. An import statement will be added to the generated source files for each module.
+- `additionalAPIProtocols` (optional): array of strings. Each string value is the name of a protocol the resulting API should conform to. These protocols must be available in the scope that the API is generated.
 - `filter`: (optional): Filters to apply to the OpenAPI document before generation.
     - `operations`: Operations with these operation IDs will be included in the filter.
     - `tags`: Operations tagged with these tags will be included in the filter.
@@ -84,6 +85,17 @@ generate:
 additionalImports:
   - APITypes
 accessModifier: public
+```
+
+To use together with a mocking library, it is possible to add conformance to a custom protocol:
+
+```yaml
+generate:
+  - client
+additionalImports:
+  - APITypes
+additionalAPIProtocols:
+  - AutoMockable
 ```
 
 ### Document filtering
