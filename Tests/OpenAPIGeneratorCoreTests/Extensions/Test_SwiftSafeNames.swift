@@ -36,6 +36,10 @@ final class Test_SwiftSafeNames: Test_Core {
             // All uppercase
             ("HELLO_WORLD", "HELLO_WORLD", "HelloWorld", "helloWorld"),
 
+            // Acronyms
+            ("HTTPProxy", "HTTPProxy", "HTTPProxy", "hTTPProxy"),
+            ("OneHTTPProxy", "OneHTTPProxy", "OneHTTPProxy", "oneHTTPProxy"),
+
             // Numbers
             ("version 2.0", "version_space_2_period_0", "Version2_0", "version2_0"),
             ("V1.2Release", "V1_period_2Release", "V1_2Release", "v1_2Release"),
