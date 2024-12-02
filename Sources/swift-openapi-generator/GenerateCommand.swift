@@ -16,7 +16,7 @@ import Foundation
 import _OpenAPIGeneratorCore
 
 struct _GenerateCommand: AsyncParsableCommand {
-    static var configuration: CommandConfiguration = .init(
+    static let configuration: CommandConfiguration = .init(
         commandName: "generate",
         abstract: "Generate Swift files from an OpenAPI document",
         discussion: """

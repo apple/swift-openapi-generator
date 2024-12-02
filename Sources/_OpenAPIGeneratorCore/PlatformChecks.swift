@@ -21,7 +21,3 @@
     "_OpenAPIGeneratorCore is only to be used by swift-openapi-generator itself—your target should not link this library or the command line tool directly."
 )
 #endif
-
-#if SWIFT_OPENAPI_STRICT_CONCURRENCY
-#warning("Compiling with Strict Concurrency")
-#endif
