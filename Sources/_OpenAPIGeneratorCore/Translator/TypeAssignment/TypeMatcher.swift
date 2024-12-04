@@ -313,6 +313,7 @@ struct TypeMatcher {
             default:
                 switch core.format {
                 case .dateTime: typeName = .date
+                case .uuid where context.enableUUIDSupport: typeName = .uuid
                 default: typeName = .string
                 }
             }

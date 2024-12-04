@@ -4,10 +4,12 @@
 @preconcurrency import struct Foundation.URL
 @preconcurrency import struct Foundation.Data
 @preconcurrency import struct Foundation.Date
+@preconcurrency import struct Foundation.UUID
 #else
 import struct Foundation.URL
 import struct Foundation.Data
 import struct Foundation.Date
+import struct Foundation.UUID
 #endif
 import HTTPTypes
 extension APIProtocol {
@@ -199,7 +201,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     My_hyphen_Request_hyphen_UUID: try converter.getOptionalHeaderFieldAsURI(
                         in: request.headerFields,
                         name: "My-Request-UUID",
-                        as: Swift.String.self
+                        as: Foundation.UUID.self
                     ),
                     accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
                 )
