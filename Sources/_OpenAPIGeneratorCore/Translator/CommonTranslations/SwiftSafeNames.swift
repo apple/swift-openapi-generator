@@ -13,6 +13,16 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 
+struct SwiftNameOptions: OptionSet {
+    let rawValue: Int32
+    
+    static let none = SwiftNameOptions([])
+    
+    static let capitalize = SwiftNameOptions(rawValue: 1 << 0)
+    
+    static let all: SwiftNameOptions = [.capitalize]
+}
+
 extension String {
 
     /// Returns a string sanitized to be usable as a Swift identifier.
@@ -26,7 +36,7 @@ extension String {
     ///
     /// In addition to replacing illegal characters, it also
     /// ensures that the identifier starts with a letter and not a number.
-    var safeForSwiftCode: String {
+    func safeForSwiftCode_defensive(options: SwiftNameOptions) -> String {        
         guard !isEmpty else { return "_empty" }
 
         let firstCharSet: CharacterSet = .letters.union(.init(charactersIn: "_"))
@@ -65,6 +75,118 @@ extension String {
 
         guard Self.keywords.contains(validString) else { return validString }
         return "_\(validString)"
+    }
+
+    /// Returns a string sanitized to be usable as a Swift identifier, and tries to produce UpperCamelCase
+    /// or lowerCamelCase string, the casing is controlled using the provided options.
+    ///
+    /// If the string contains any illegal characters, falls back to the behavior
+    /// matching `safeForSwiftCode_defensive`.
+    func safeForSwiftCode_idiomatic(options: SwiftNameOptions) -> String {
+        let capitalize = options.contains(.capitalize)
+        if isEmpty {
+            return capitalize ? "_Empty_" : "_empty_"
+        }
+        
+        // Detect cases like HELLO_WORLD, sometimes used for constants.
+        let isAllUppercase = allSatisfy {
+            // Must check that no characters are lowercased, as non-letter characters
+            // don't return `true` to `isUppercase`.
+            !$0.isLowercase
+        }
+
+        // 1. Leave leading underscores as-are
+        // 2. In the middle: word separators: ["_", "-", <space>] -> remove and capitalize next word
+        // 3. In the middle: period: [".", "/"] -> replace with "_"
+        // 4. In the middle: drop ["{", "}"] -> replace with ""
+        
+        var buffer: [Character] = []
+        buffer.reserveCapacity(count)
+        
+        enum State {
+            case modifying
+            case fallback
+            case preFirstWord
+            case accumulatingWord
+            case waitingForWordStarter
+        }
+        var state: State = .preFirstWord
+        for char in self {
+            let _state = state
+            state = .modifying
+            switch _state {
+            case .preFirstWord:
+                if char == "_" {
+                    // Leading underscores are kept.
+                    buffer.append(char)
+                    state = .preFirstWord
+                } else if char.isNumber {
+                    // Prefix with an underscore if the first character is a number.
+                    buffer.append("_")
+                    buffer.append(char)
+                    state = .accumulatingWord
+                } else if char.isLetter {
+                    // First character in the identifier.
+                    buffer.append(contentsOf: capitalize ? char.uppercased() : char.lowercased())
+                    state = .accumulatingWord
+                } else {
+                    // Illegal character, fall back to the defensive strategy.
+                    state = .fallback
+                }
+            case .accumulatingWord:
+                if char.isLetter || char.isNumber {
+                    if isAllUppercase {
+                        buffer.append(contentsOf: char.lowercased())
+                    } else {
+                        buffer.append(char)
+                    }
+                    state = .accumulatingWord
+                } else if ["_", "-", " "].contains(char) {
+                    // In the middle of an identifier, dashes, underscores, and spaces are considered
+                    // word separators, so we remove the character and end the current word.
+                    state = .waitingForWordStarter
+                } else if [".", "/"].contains(char) {
+                    // In the middle of an identifier, a period or a slash gets replaced with
+                    // an underscore, but continues the current word.
+                    buffer.append("_")
+                    state = .accumulatingWord
+                } else if ["{", "}"].contains(char) {
+                    // In the middle of an identifier, curly braces are dropped.
+                    state = .accumulatingWord
+                } else {
+                    // Illegal character, fall back to the defensive strategy.
+                    state = .fallback
+                }
+            case .waitingForWordStarter:
+                if ["_", "-", ".", "/", "{", "}"].contains(char) {
+                    // Between words, just drop allowed special characters, since
+                    // we're already between words anyway.
+                    state = .waitingForWordStarter
+                } else if char.isLetter || char.isNumber {
+                    // Starting a new word in the middle of the identifier.
+                    buffer.append(contentsOf: char.uppercased())
+                    state = .accumulatingWord
+                } else {
+                    // Illegal character, fall back to the defensive strategy.
+                    state = .fallback
+                }
+            case .modifying, .fallback:
+                preconditionFailure("Logic error in \(#function), string: '\(self)'")
+            }
+            precondition(state != .modifying, "Logic error in \(#function), string: '\(self)'")
+            if case .fallback = state {
+                return safeForSwiftCode_defensive(options: options)
+            }
+        }
+        if buffer.isEmpty || state == .preFirstWord {
+            return safeForSwiftCode_defensive(options: options)
+        }
+        // Check for keywords
+        let newString = String(buffer)
+        if Self.keywords.contains(newString) {
+            return "_\(newString)"
+        }
+        return newString
     }
 
     /// A list of Swift keywords.

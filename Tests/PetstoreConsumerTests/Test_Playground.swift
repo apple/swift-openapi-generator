@@ -27,7 +27,7 @@ final class Test_Playground: XCTestCase {
 
         // Server
         let serverHandler:
-            @Sendable (Operations.uploadAvatarForPet.Input) async throws -> Operations.uploadAvatarForPet.Output = {
+            @Sendable (Operations.UploadAvatarForPet.Input) async throws -> Operations.UploadAvatarForPet.Output = {
                 input in
                 // The server handler verifies the pet id, sends back
                 // the start of the 200 response, and then streams back
@@ -108,7 +108,7 @@ final class Test_Playground: XCTestCase {
 
         // Server
 
-        let serverHandler: @Sendable (Operations.getStats.Input) async throws -> Operations.getStats.Output = { input in
+        let serverHandler: @Sendable (Operations.GetStats.Input) async throws -> Operations.GetStats.Output = { input in
 
             // The server handler sends back the start of the 200 response,
             // and then sends a few chunks.
@@ -160,7 +160,7 @@ final class Test_Playground: XCTestCase {
 
         // Server
 
-        let serverHandler: @Sendable (Operations.getStats.Input) async throws -> Operations.getStats.Output = { input in
+        let serverHandler: @Sendable (Operations.GetStats.Input) async throws -> Operations.GetStats.Output = { input in
 
             // The server handler sends back the start of the 200 response,
             // and then sends a few chunks.

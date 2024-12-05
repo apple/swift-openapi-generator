@@ -101,12 +101,12 @@ extension FileTranslator {
                 // This is unlikely to be fixed, so handling that case here.
                 // https://github.com/apple/swift-openapi-generator/issues/118
                 if isNullable && anyValue is Void {
-                    try addIfUnique(id: .string(""), caseName: context.asSwiftSafeName(""))
+                    try addIfUnique(id: .string(""), caseName: context.asSwiftSafeName("", .none))
                 } else {
                     guard let rawValue = anyValue as? String else {
                         throw GenericError(message: "Disallowed value for a string enum '\(typeName)': \(anyValue)")
                     }
-                    let caseName = context.asSwiftSafeName(rawValue)
+                    let caseName = context.asSwiftSafeName(rawValue, .none)
                     try addIfUnique(id: .string(rawValue), caseName: caseName)
                 }
             case .integer:

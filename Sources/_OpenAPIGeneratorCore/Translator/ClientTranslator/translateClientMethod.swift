@@ -145,7 +145,7 @@ extension ClientFileTranslator {
     func translateClientMethod(_ description: OperationDescription) throws -> Declaration {
 
         let operationTypeExpr = Expression.identifierType(.member(Constants.Operations.namespace))
-            .dot(description.methodName)
+            .dot(description.operationTypeName)
 
         let operationArg = FunctionArgumentDescription(label: "forOperation", expression: operationTypeExpr.dot("id"))
         let inputArg = FunctionArgumentDescription(

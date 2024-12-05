@@ -39,7 +39,7 @@ struct TypedResponseHeader {
 extension TypedResponseHeader {
 
     /// The name of the header sanitized to be a valid Swift identifier.
-    var variableName: String { context.asSwiftSafeName(name) }
+    var variableName: String { context.asSwiftSafeName(name, .none) }
 
     /// A Boolean value that indicates whether the response header can
     /// be omitted in the HTTP response.

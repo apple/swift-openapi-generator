@@ -47,10 +47,10 @@ public struct Client: APIProtocol {
     ///
     /// - Remark: HTTP `GET /pets`.
     /// - Remark: Generated from `#/paths//pets/get(listPets)`.
-    public func listPets(_ input: Operations.listPets.Input) async throws -> Operations.listPets.Output {
+    public func listPets(_ input: Operations.ListPets.Input) async throws -> Operations.ListPets.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.listPets.id,
+            forOperation: Operations.ListPets.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets",
@@ -85,7 +85,7 @@ public struct Client: APIProtocol {
                 try converter.setHeaderFieldAsURI(
                     in: &request.headerFields,
                     name: "My-Request-UUID",
-                    value: input.headers.My_hyphen_Request_hyphen_UUID
+                    value: input.headers.myRequestUUID
                 )
                 try converter.setQueryItemAsURI(
                     in: &request,
@@ -103,20 +103,20 @@ public struct Client: APIProtocol {
             deserializer: { response, responseBody in
                 switch response.status.code {
                 case 200:
-                    let headers: Operations.listPets.Output.Ok.Headers = .init(
-                        My_hyphen_Response_hyphen_UUID: try converter.getRequiredHeaderFieldAsURI(
+                    let headers: Operations.ListPets.Output.Ok.Headers = .init(
+                        myResponseUUID: try converter.getRequiredHeaderFieldAsURI(
                             in: response.headerFields,
                             name: "My-Response-UUID",
                             as: Swift.String.self
                         ),
-                        My_hyphen_Tracing_hyphen_Header: try converter.getOptionalHeaderFieldAsURI(
+                        myTracingHeader: try converter.getOptionalHeaderFieldAsURI(
                             in: response.headerFields,
                             name: "My-Tracing-Header",
                             as: Components.Headers.TracingHeader.self
                         )
                     )
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.listPets.Output.Ok.Body
+                    let body: Operations.ListPets.Output.Ok.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -141,7 +141,7 @@ public struct Client: APIProtocol {
                     ))
                 default:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.listPets.Output.Default.Body
+                    let body: Operations.ListPets.Output.Default.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -172,10 +172,10 @@ public struct Client: APIProtocol {
     ///
     /// - Remark: HTTP `POST /pets`.
     /// - Remark: Generated from `#/paths//pets/post(createPet)`.
-    public func createPet(_ input: Operations.createPet.Input) async throws -> Operations.createPet.Output {
+    public func createPet(_ input: Operations.CreatePet.Input) async throws -> Operations.CreatePet.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.createPet.id,
+            forOperation: Operations.CreatePet.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets",
@@ -189,7 +189,7 @@ public struct Client: APIProtocol {
                 try converter.setHeaderFieldAsJSON(
                     in: &request.headerFields,
                     name: "X-Extra-Arguments",
-                    value: input.headers.X_hyphen_Extra_hyphen_Arguments
+                    value: input.headers.xExtraArguments
                 )
                 converter.setAcceptHeader(
                     in: &request.headerFields,
@@ -209,13 +209,13 @@ public struct Client: APIProtocol {
             deserializer: { response, responseBody in
                 switch response.status.code {
                 case 201:
-                    let headers: Operations.createPet.Output.Created.Headers = .init(X_hyphen_Extra_hyphen_Arguments: try converter.getOptionalHeaderFieldAsJSON(
+                    let headers: Operations.CreatePet.Output.Created.Headers = .init(xExtraArguments: try converter.getOptionalHeaderFieldAsJSON(
                         in: response.headerFields,
                         name: "X-Extra-Arguments",
                         as: Components.Schemas.CodeError.self
                     ))
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.createPet.Output.Created.Body
+                    let body: Operations.CreatePet.Output.Created.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -239,7 +239,7 @@ public struct Client: APIProtocol {
                         body: body
                     ))
                 case 400 ... 499:
-                    let headers: Components.Responses.ErrorBadRequest.Headers = .init(X_hyphen_Reason: try converter.getOptionalHeaderFieldAsURI(
+                    let headers: Components.Responses.ErrorBadRequest.Headers = .init(xReason: try converter.getOptionalHeaderFieldAsURI(
                         in: response.headerFields,
                         name: "X-Reason",
                         as: Swift.String.self
@@ -255,7 +255,7 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
-                            Components.Responses.ErrorBadRequest.Body.jsonPayload.self,
+                            Components.Responses.ErrorBadRequest.Body.JsonPayload.self,
                             from: responseBody,
                             transforming: { value in
                                 .json(value)
@@ -287,10 +287,10 @@ public struct Client: APIProtocol {
     ///
     /// - Remark: HTTP `POST /pets/create`.
     /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)`.
-    public func createPetWithForm(_ input: Operations.createPetWithForm.Input) async throws -> Operations.createPetWithForm.Output {
+    public func createPetWithForm(_ input: Operations.CreatePetWithForm.Input) async throws -> Operations.CreatePetWithForm.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.createPetWithForm.id,
+            forOperation: Operations.CreatePetWithForm.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/create",
@@ -330,10 +330,10 @@ public struct Client: APIProtocol {
     }
     /// - Remark: HTTP `GET /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/get(getStats)`.
-    public func getStats(_ input: Operations.getStats.Input) async throws -> Operations.getStats.Output {
+    public func getStats(_ input: Operations.GetStats.Input) async throws -> Operations.GetStats.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.getStats.id,
+            forOperation: Operations.GetStats.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/stats",
@@ -354,7 +354,7 @@ public struct Client: APIProtocol {
                 switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.getStats.Output.Ok.Body
+                    let body: Operations.GetStats.Output.Ok.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -406,10 +406,10 @@ public struct Client: APIProtocol {
     }
     /// - Remark: HTTP `POST /pets/stats`.
     /// - Remark: Generated from `#/paths//pets/stats/post(postStats)`.
-    public func postStats(_ input: Operations.postStats.Input) async throws -> Operations.postStats.Output {
+    public func postStats(_ input: Operations.PostStats.Input) async throws -> Operations.PostStats.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.postStats.id,
+            forOperation: Operations.PostStats.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/stats",
@@ -461,10 +461,10 @@ public struct Client: APIProtocol {
     }
     /// - Remark: HTTP `POST /probe/`.
     /// - Remark: Generated from `#/paths//probe//post(probe)`.
-    public func probe(_ input: Operations.probe.Input) async throws -> Operations.probe.Output {
+    public func probe(_ input: Operations.Probe.Input) async throws -> Operations.Probe.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.probe.id,
+            forOperation: Operations.Probe.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/probe/",
@@ -497,10 +497,10 @@ public struct Client: APIProtocol {
     ///
     /// - Remark: HTTP `PATCH /pets/{petId}`.
     /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)`.
-    public func updatePet(_ input: Operations.updatePet.Input) async throws -> Operations.updatePet.Output {
+    public func updatePet(_ input: Operations.UpdatePet.Input) async throws -> Operations.UpdatePet.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.updatePet.id,
+            forOperation: Operations.UpdatePet.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/{}",
@@ -536,7 +536,7 @@ public struct Client: APIProtocol {
                     return .noContent(.init())
                 case 400:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.updatePet.Output.BadRequest.Body
+                    let body: Operations.UpdatePet.Output.BadRequest.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -546,7 +546,7 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
-                            Operations.updatePet.Output.BadRequest.Body.jsonPayload.self,
+                            Operations.UpdatePet.Output.BadRequest.Body.JsonPayload.self,
                             from: responseBody,
                             transforming: { value in
                                 .json(value)
@@ -572,10 +572,10 @@ public struct Client: APIProtocol {
     ///
     /// - Remark: HTTP `PUT /pets/{petId}/avatar`.
     /// - Remark: Generated from `#/paths//pets/{petId}/avatar/put(uploadAvatarForPet)`.
-    public func uploadAvatarForPet(_ input: Operations.uploadAvatarForPet.Input) async throws -> Operations.uploadAvatarForPet.Output {
+    public func uploadAvatarForPet(_ input: Operations.UploadAvatarForPet.Input) async throws -> Operations.UploadAvatarForPet.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.uploadAvatarForPet.id,
+            forOperation: Operations.UploadAvatarForPet.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/{}/avatar",
@@ -607,7 +607,7 @@ public struct Client: APIProtocol {
                 switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.uploadAvatarForPet.Output.Ok.Body
+                    let body: Operations.UploadAvatarForPet.Output.Ok.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -629,7 +629,7 @@ public struct Client: APIProtocol {
                     return .ok(.init(body: body))
                 case 412:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.uploadAvatarForPet.Output.PreconditionFailed.Body
+                    let body: Operations.UploadAvatarForPet.Output.PreconditionFailed.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -651,7 +651,7 @@ public struct Client: APIProtocol {
                     return .preconditionFailed(.init(body: body))
                 case 500:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.uploadAvatarForPet.Output.InternalServerError.Body
+                    let body: Operations.UploadAvatarForPet.Output.InternalServerError.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -685,10 +685,10 @@ public struct Client: APIProtocol {
     }
     /// - Remark: HTTP `GET /pets/multipart-typed`.
     /// - Remark: Generated from `#/paths//pets/multipart-typed/get(multipartDownloadTyped)`.
-    public func multipartDownloadTyped(_ input: Operations.multipartDownloadTyped.Input) async throws -> Operations.multipartDownloadTyped.Output {
+    public func multipartDownloadTyped(_ input: Operations.MultipartDownloadTyped.Input) async throws -> Operations.MultipartDownloadTyped.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.multipartDownloadTyped.id,
+            forOperation: Operations.MultipartDownloadTyped.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/multipart-typed",
@@ -719,7 +719,7 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getResponseBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Components.Responses.MultipartDownloadTypedResponse.Body.MultipartFormPayload>.self,
                             from: responseBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -741,10 +741,10 @@ public struct Client: APIProtocol {
                                 let (name, filename) = try converter.extractContentDispositionNameAndFilename(in: headerFields)
                                 switch name {
                                 case "log":
-                                    let headers: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers = .init(x_hyphen_log_hyphen_type: try converter.getOptionalHeaderFieldAsURI(
+                                    let headers: Components.Responses.MultipartDownloadTypedResponse.Body.MultipartFormPayload.LogPayload.Headers = .init(xLogType: try converter.getOptionalHeaderFieldAsURI(
                                         in: headerFields,
                                         name: "x-log-type",
-                                        as: Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload.self
+                                        as: Components.Responses.MultipartDownloadTypedResponse.Body.MultipartFormPayload.LogPayload.Headers.XLogTypePayload.self
                                     ))
                                     try converter.verifyContentTypeIfPresent(
                                         in: headerFields,
@@ -770,7 +770,7 @@ public struct Client: APIProtocol {
                                         matches: "application/json"
                                     )
                                     let body = try await converter.getResponseBodyAsJSON(
-                                        Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload.metadataPayload.bodyPayload.self,
+                                        Components.Responses.MultipartDownloadTypedResponse.Body.MultipartFormPayload.MetadataPayload.BodyPayload.self,
                                         from: part.body,
                                         transforming: {
                                             $0
@@ -819,10 +819,10 @@ public struct Client: APIProtocol {
     }
     /// - Remark: HTTP `POST /pets/multipart-typed`.
     /// - Remark: Generated from `#/paths//pets/multipart-typed/post(multipartUploadTyped)`.
-    public func multipartUploadTyped(_ input: Operations.multipartUploadTyped.Input) async throws -> Operations.multipartUploadTyped.Output {
+    public func multipartUploadTyped(_ input: Operations.MultipartUploadTyped.Input) async throws -> Operations.MultipartUploadTyped.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.multipartUploadTyped.id,
+            forOperation: Operations.MultipartUploadTyped.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/pets/multipart-typed",
@@ -859,7 +859,7 @@ public struct Client: APIProtocol {
                                 try converter.setHeaderFieldAsURI(
                                     in: &headerFields,
                                     name: "x-log-type",
-                                    value: value.headers.x_hyphen_log_hyphen_type
+                                    value: value.headers.xLogType
                                 )
                                 let body = try converter.setRequiredRequestBodyAsBinary(
                                     value.body,
