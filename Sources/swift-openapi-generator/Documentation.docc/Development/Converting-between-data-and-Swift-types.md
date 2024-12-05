@@ -26,10 +26,13 @@ At the time of writing, the list of coders used is as follows.
 | Format | Encoder | Decoder | Supported in |
 | ------ | ------- | ------- | ----- |
 | JSON | `Foundation.JSONEncoder` | `Foundation.JSONDecoder` | Bodies, headers |
-| URI (†) | `OpenAPIRuntime.URIEncoder` | `OpenAPIRuntime.URIDecoder` | Path, query, headers |
+| XML (†) | `OpenAPIRuntime.CustomCoder` | `OpenAPIRuntime.CustomCoder` | Bodies |
+| URI (††) | `OpenAPIRuntime.URIEncoder` | `OpenAPIRuntime.URIDecoder` | Path, query, headers |
 | Plain text | `OpenAPIRuntime.StringEncoder` | `OpenAPIRuntime.StringDecoder` | Bodies |
 
-> †: Configurable implementation of variable expansion from URI Template (RFC 6570), the `application/x-www-form-urlencoded` serialization from RFC 1866, and OpenAPI 3.0.3. For details of the supported combinations, review <doc:Supported-OpenAPI-features>.
+> †: XML support is optional, and not enabled by default. Encoding and decoding requires to define a `OpenAPIRuntime.CustomCoder` in `OpenAPIRuntime.Configuration` initializer.
+
+> ††: Configurable implementation of variable expansion from URI Template (RFC 6570), the `application/x-www-form-urlencoded` serialization from RFC 1866, and OpenAPI 3.0.3. For details of the supported combinations, review <doc:Supported-OpenAPI-features>.
 
 While the generator attempts to catch invalid inputs at generation time, there are still combinations of `Codable` types and locations that aren't compatible, and will only get caught at runtime by the specific coder implementation. For example, one could ask the `StringEncoder` to encode an array, but the encoder will throw an error, as containers are not supported in that encoder.
 
@@ -50,6 +53,9 @@ Below is a list of the "dimensions" across which the helper methods differ:
     - `JSON`
         - example content type: `application/json` and any with the `+json` suffix
         - `{"color": "red", "power": 24}`
+    - `XML`
+        - example content type: `application/xml` and any with the `+xml` suffix
+        - `<root><color>red</color><power>24</power></root>`
     - `URI`
         - example: query, path, header parameters
         - `color=red&power=24`
@@ -93,12 +99,15 @@ method parameters: value or type of value
 | client | set | request query | URI | both | setQueryItemAsURI |
 | client | set | request body | JSON | optional | setOptionalRequestBodyAsJSON |
 | client | set | request body | JSON | required | setRequiredRequestBodyAsJSON |
+| client | set | request body | XML | optional | setOptionalRequestBodyAsXML |
+| client | set | request body | XML | required | setRequiredRequestBodyAsXML |
 | client | set | request body | binary | optional | setOptionalRequestBodyAsBinary |
 | client | set | request body | binary | required | setRequiredRequestBodyAsBinary |
 | client | set | request body | urlEncodedForm | optional | setOptionalRequestBodyAsURLEncodedForm | 
 | client | set | request body | urlEncodedForm | required | setRequiredRequestBodyAsURLEncodedForm | 
 | client | set | request body | multipart | required | setRequiredRequestBodyAsMultipart | 
 | client | get | response body | JSON | required | getResponseBodyAsJSON |
+| client | get | response body | XML | required | getResponseBodyAsXML |
 | client | get | response body | binary | required | getResponseBodyAsBinary |
 | client | get | response body | multipart | required | getResponseBodyAsMultipart |
 | server | get | request path | URI | required | getPathParameterAsURI |
@@ -106,11 +115,14 @@ method parameters: value or type of value
 | server | get | request query | URI | required | getRequiredQueryItemAsURI |
 | server | get | request body | JSON | optional | getOptionalRequestBodyAsJSON |
 | server | get | request body | JSON | required | getRequiredRequestBodyAsJSON |
+| server | get | request body | XML | optional | getOptionalRequestBodyAsXML |
+| server | get | request body | XML | required | getRequiredRequestBodyAsXML |
 | server | get | request body | binary | optional | getOptionalRequestBodyAsBinary |
 | server | get | request body | binary | required | getRequiredRequestBodyAsBinary |
 | server | get | request body | urlEncodedForm | optional | getOptionalRequestBodyAsURLEncodedForm |
 | server | get | request body | urlEncodedForm | required | getRequiredRequestBodyAsURLEncodedForm |
 | server | get | request body | multipart | required | getRequiredRequestBodyAsMultipart |
 | server | set | response body | JSON | required | setResponseBodyAsJSON |
+| server | set | response body   | XML | required | setResponseBodyAsXML |
 | server | set | response body | binary | required | setResponseBodyAsBinary |
 | server | set | response body | multipart | required | setResponseBodyAsMultipart |
