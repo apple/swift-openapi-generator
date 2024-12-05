@@ -4,7 +4,7 @@
 
 # The following values can be changed here, or passed on the command line.
 SWIFT_OPENAPI_GENERATOR_GIT_URL ?= https://github.com/apple/swift-openapi-generator
-SWIFT_OPENAPI_GENERATOR_GIT_TAG ?= 1.0.0
+SWIFT_OPENAPI_GENERATOR_GIT_TAG ?= 1.5.0
 SWIFT_OPENAPI_GENERATOR_CLONE_DIR ?= $(CURRENT_MAKEFILE_DIR)/.swift-openapi-generator
 SWIFT_OPENAPI_GENERATOR_BUILD_CONFIGURATION ?= debug
 OPENAPI_YAML_PATH ?= $(CURRENT_MAKEFILE_DIR)/openapi.yaml

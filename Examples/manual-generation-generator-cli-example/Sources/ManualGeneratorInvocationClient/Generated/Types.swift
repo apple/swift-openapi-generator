@@ -34,6 +34,17 @@ extension APIProtocol {
 /// Server URLs defined in the OpenAPI document.
 internal enum Servers {
     /// Example service deployment.
+    internal enum Server1 {
+        /// Example service deployment.
+        internal static func url() throws -> Foundation.URL {
+            try Foundation.URL(
+                validatingOpenAPIServerURL: "https://example.com/api",
+                variables: []
+            )
+        }
+    }
+    /// Example service deployment.
+    @available(*, deprecated, renamed: "Servers.Server1.url")
     internal static func server1() throws -> Foundation.URL {
         try Foundation.URL(
             validatingOpenAPIServerURL: "https://example.com/api",
@@ -123,10 +134,10 @@ internal enum Operations {
                 self.headers = headers
             }
         }
-        @frozen internal enum Output: Sendable, Hashable {
+        internal enum Output: Sendable, Hashable {
             internal struct Ok: Sendable, Hashable {
                 /// - Remark: Generated from `#/paths/greet/GET/responses/200/content`.
-                @frozen internal enum Body: Sendable, Hashable {
+                internal enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/greet/GET/responses/200/content/application\/json`.
                     case json(Components.Schemas.Greeting)
                     /// The associated value of the enum case if `self` is `.json`.
@@ -180,7 +191,7 @@ internal enum Operations {
             /// A response with a code that is not documented in the OpenAPI document.
             case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
         }
-        @frozen internal enum AcceptableContentType: AcceptableProtocol {
+        internal enum AcceptableContentType: AcceptableProtocol {
             case json
             case other(Swift.String)
             internal init?(rawValue: Swift.String) {
