@@ -93,7 +93,10 @@ internal struct Client: APIProtocol {
                 default:
                     return .undocumented(
                         statusCode: response.status.code,
-                        .init()
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
                     )
                 }
             }

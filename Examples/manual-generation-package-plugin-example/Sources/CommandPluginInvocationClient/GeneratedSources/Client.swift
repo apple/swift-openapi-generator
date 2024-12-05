@@ -10,7 +10,7 @@ import struct Foundation.Data
 import struct Foundation.Date
 #endif
 import HTTPTypes
-package struct Client: APIProtocol {
+internal struct Client: APIProtocol {
     /// The underlying HTTP client.
     private let client: UniversalClient
     /// Creates a new client.
@@ -21,7 +21,7 @@ package struct Client: APIProtocol {
     ///   - configuration: A set of configuration values for the client.
     ///   - transport: A transport that performs HTTP operations.
     ///   - middlewares: A list of middlewares to call before the transport.
-    package init(
+    internal init(
         serverURL: Foundation.URL,
         configuration: Configuration = .init(),
         transport: any ClientTransport,
@@ -39,7 +39,7 @@ package struct Client: APIProtocol {
     }
     /// - Remark: HTTP `GET /greet`.
     /// - Remark: Generated from `#/paths//greet/get(getGreeting)`.
-    package func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
+    internal func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
         try await client.send(
             input: input,
             forOperation: Operations.getGreeting.id,
@@ -93,7 +93,10 @@ package struct Client: APIProtocol {
                 default:
                     return .undocumented(
                         statusCode: response.status.code,
-                        .init()
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
                     )
                 }
             }
