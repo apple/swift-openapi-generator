@@ -79,6 +79,7 @@ paths:
               required: true
               schema:
                 type: string
+                format: uuid
             My-Tracing-Header:
               $ref: '#/components/headers/TracingHeader'
           content:

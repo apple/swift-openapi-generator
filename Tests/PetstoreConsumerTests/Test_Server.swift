@@ -28,15 +28,20 @@ final class Test_Server: XCTestCase {
     }
 
     func testListPets_200() async throws {
+        let requestUUID = UUID(uuidString: "da6811e6-112f-494e-8bdd-7f8b2367cb66")!
+        let responseUUID = UUID(uuidString: "b1c601c1-8963-460b-9fe4-fda2f73da64f")!
         client = .init(listPetsBlock: { input in
             XCTAssertEqual(input.query.limit, 24)
             XCTAssertEqual(input.query.habitat, .water)
             XCTAssertEqual(input.query.since, .test)
             XCTAssertEqual(input.query.feeds, [.carnivore, .herbivore])
-            XCTAssertEqual(input.headers.My_hyphen_Request_hyphen_UUID, "abcd-1234")
+            XCTAssertEqual(input.headers.My_hyphen_Request_hyphen_UUID, requestUUID)
             return .ok(
                 .init(
-                    headers: .init(My_hyphen_Response_hyphen_UUID: "abcd", My_hyphen_Tracing_hyphen_Header: "1234"),
+                    headers: .init(
+                        My_hyphen_Response_hyphen_UUID: responseUUID,
+                        My_hyphen_Tracing_hyphen_Header: "1234"
+                    ),
                     body: .json([.init(id: 1, name: "Fluffz")])
                 )
             )
@@ -45,7 +50,7 @@ final class Test_Server: XCTestCase {
             .init(
                 soar_path: "/api/pets?limit=24&habitat=water&feeds=carnivore&feeds=herbivore&since=\(Date.testString)",
                 method: .get,
-                headerFields: [.init("My-Request-UUID")!: "abcd-1234"]
+                headerFields: [.init("My-Request-UUID")!: requestUUID.uuidString]
             ),
             nil,
             .init()
@@ -54,7 +59,7 @@ final class Test_Server: XCTestCase {
         XCTAssertEqual(
             response.headerFields,
             [
-                .init("My-Response-UUID")!: "abcd", .init("My-Tracing-Header")!: "1234",
+                .init("My-Response-UUID")!: responseUUID.uuidString, .init("My-Tracing-Header")!: "1234",
                 .contentType: "application/json; charset=utf-8", .contentLength: "47",
             ]
         )
