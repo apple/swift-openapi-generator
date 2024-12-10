@@ -12,6 +12,11 @@
 //
 //===----------------------------------------------------------------------===//
 
+public enum NamingStrategy: String, Sendable, Codable, Equatable {
+    case defensive
+    case idiomatic
+}
+
 /// A structure that contains configuration options for a single execution
 /// of the generator pipeline run.
 ///
@@ -35,6 +40,8 @@ public struct Config: Sendable {
     /// Filter to apply to the OpenAPI document before generation.
     public var filter: DocumentFilter?
 
+    public var namingStrategy: NamingStrategy?
+    public var nameOverrides: [String: String]?
     /// Additional pre-release features to enable.
     public var featureFlags: FeatureFlags
 
@@ -44,18 +51,24 @@ public struct Config: Sendable {
     ///   - access: The access modifier to use for generated declarations.
     ///   - additionalImports: Additional imports to add to each generated file.
     ///   - filter: Filter to apply to the OpenAPI document before generation.
+    ///   - namingStrategy: The OpenAPI -> Swift name conversion strategy.
+    ///   - nameOverrides: A map of OpenAPI -> Swift name overrides.
     ///   - featureFlags: Additional pre-release features to enable.
     public init(
         mode: GeneratorMode,
         access: AccessModifier,
         additionalImports: [String] = [],
         filter: DocumentFilter? = nil,
+        namingStrategy: NamingStrategy? = nil,
+        nameOverrides: [String: String]? = nil,
         featureFlags: FeatureFlags = []
     ) {
         self.mode = mode
         self.access = access
         self.additionalImports = additionalImports
         self.filter = filter
+        self.namingStrategy = namingStrategy
+        self.nameOverrides = nameOverrides
         self.featureFlags = featureFlags
     }
 }

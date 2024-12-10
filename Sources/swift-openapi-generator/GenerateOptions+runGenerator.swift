@@ -32,6 +32,8 @@ extension _GenerateOptions {
         let sortedModes = try resolvedModes(config)
         let resolvedAccessModifier = resolvedAccessModifier(config) ?? Config.defaultAccessModifier
         let resolvedAdditionalImports = resolvedAdditionalImports(config)
+        let resolvedNamingStragy = resolvedNamingStrategy(config)
+        let resolvedNameOverrides = resolvedNameOverrides(config)
         let resolvedFeatureFlags = resolvedFeatureFlags(config)
         let configs: [Config] = sortedModes.map {
             .init(
@@ -39,6 +41,8 @@ extension _GenerateOptions {
                 access: resolvedAccessModifier,
                 additionalImports: resolvedAdditionalImports,
                 filter: config?.filter,
+                namingStrategy: resolvedNamingStragy,
+                nameOverrides: resolvedNameOverrides,
                 featureFlags: resolvedFeatureFlags
             )
         }
@@ -51,6 +55,10 @@ extension _GenerateOptions {
             - Configuration path: \(self.config?.path ?? "<none>")
             - Generator modes: \(sortedModes.map(\.rawValue).joined(separator: ", "))
             - Access modifier: \(resolvedAccessModifier.rawValue)
+            - Naming strategy: \(resolvedNamingStragy.rawValue)
+            - Name overrides: \(resolvedNameOverrides.isEmpty ? "<none>" : resolvedNameOverrides
+                .sorted(by: { $0.key < $1.key })
+                .map { "\"\($0.key)\"->\"\($0.value)\"" }.joined(separator: ", "))
             - Feature flags: \(resolvedFeatureFlags.isEmpty ? "<none>" : resolvedFeatureFlags.map(\.rawValue).joined(separator: ", "))
             - Output file names: \(sortedModes.map(\.outputFileName).joined(separator: ", "))
             - Output directory: \(outputDirectory.path)

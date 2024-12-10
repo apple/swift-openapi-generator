@@ -81,13 +81,15 @@ private func timing<Output>(_ title: String, _ operation: @autoclosure () throws
 }
 
 private let sampleConfig = _UserConfig(
-    generate: [],
+    generate: [.types, .client],
     filter: DocumentFilter(
         operations: ["getGreeting"],
         tags: ["greetings"],
         paths: ["/greeting"],
         schemas: ["Greeting"]
-    )
+    ),
+    namingStrategy: .idiomatic,
+    nameOverrides: ["SPECIAL_NAME": "SpecialName"]
 )
 
 enum OutputFormat: String, ExpressibleByArgument {

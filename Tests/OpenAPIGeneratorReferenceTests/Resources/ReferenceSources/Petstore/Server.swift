@@ -160,12 +160,12 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             requestBody: body,
             metadata: metadata,
-            forOperation: Operations.listPets.id,
+            forOperation: Operations.ListPets.id,
             using: {
                 APIHandler.listPets($0)
             },
             deserializer: { request, requestBody, metadata in
-                let query: Operations.listPets.Input.Query = .init(
+                let query: Operations.ListPets.Input.Query = .init(
                     limit: try converter.getOptionalQueryItemAsURI(
                         in: request.soar_query,
                         style: .form,
@@ -178,32 +178,32 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         style: .form,
                         explode: true,
                         name: "habitat",
-                        as: Operations.listPets.Input.Query.habitatPayload.self
+                        as: Operations.ListPets.Input.Query.HabitatPayload.self
                     ),
                     feeds: try converter.getOptionalQueryItemAsURI(
                         in: request.soar_query,
                         style: .form,
                         explode: true,
                         name: "feeds",
-                        as: Operations.listPets.Input.Query.feedsPayload.self
+                        as: Operations.ListPets.Input.Query.FeedsPayload.self
                     ),
                     since: try converter.getOptionalQueryItemAsURI(
                         in: request.soar_query,
                         style: .form,
                         explode: true,
                         name: "since",
-                        as: Components.Parameters.query_period_born_hyphen_since.self
+                        as: Components.Parameters.Query_bornSince.self
                     )
                 )
-                let headers: Operations.listPets.Input.Headers = .init(
-                    My_hyphen_Request_hyphen_UUID: try converter.getOptionalHeaderFieldAsURI(
+                let headers: Operations.ListPets.Input.Headers = .init(
+                    myRequestUUID: try converter.getOptionalHeaderFieldAsURI(
                         in: request.headerFields,
                         name: "My-Request-UUID",
                         as: Swift.String.self
                     ),
                     accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
                 )
-                return Operations.listPets.Input(
+                return Operations.ListPets.Input(
                     query: query,
                     headers: headers
                 )
@@ -217,12 +217,12 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
                         name: "My-Response-UUID",
-                        value: value.headers.My_hyphen_Response_hyphen_UUID
+                        value: value.headers.myResponseUUID
                     )
                     try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
                         name: "My-Tracing-Header",
-                        value: value.headers.My_hyphen_Tracing_hyphen_Header
+                        value: value.headers.myTracingHeader
                     )
                     let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
@@ -273,13 +273,13 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             requestBody: body,
             metadata: metadata,
-            forOperation: Operations.createPet.id,
+            forOperation: Operations.CreatePet.id,
             using: {
                 APIHandler.createPet($0)
             },
             deserializer: { request, requestBody, metadata in
-                let headers: Operations.createPet.Input.Headers = .init(
-                    X_hyphen_Extra_hyphen_Arguments: try converter.getOptionalHeaderFieldAsJSON(
+                let headers: Operations.CreatePet.Input.Headers = .init(
+                    xExtraArguments: try converter.getOptionalHeaderFieldAsJSON(
                         in: request.headerFields,
                         name: "X-Extra-Arguments",
                         as: Components.Schemas.CodeError.self
@@ -287,7 +287,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields)
                 )
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                let body: Operations.createPet.Input.Body
+                let body: Operations.CreatePet.Input.Body
                 let chosenContentType = try converter.bestContentType(
                     received: contentType,
                     options: [
@@ -306,7 +306,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 default:
                     preconditionFailure("bestContentType chose an invalid content type.")
                 }
-                return Operations.createPet.Input(
+                return Operations.CreatePet.Input(
                     headers: headers,
                     body: body
                 )
@@ -320,7 +320,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     try converter.setHeaderFieldAsJSON(
                         in: &response.headerFields,
                         name: "X-Extra-Arguments",
-                        value: value.headers.X_hyphen_Extra_hyphen_Arguments
+                        value: value.headers.xExtraArguments
                     )
                     let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
@@ -343,7 +343,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                     try converter.setHeaderFieldAsURI(
                         in: &response.headerFields,
                         name: "X-Reason",
-                        value: value.headers.X_hyphen_Reason
+                        value: value.headers.xReason
                     )
                     let body: OpenAPIRuntime.HTTPBody
                     switch value.body {
@@ -378,13 +378,13 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             requestBody: body,
             metadata: metadata,
-            forOperation: Operations.createPetWithForm.id,
+            forOperation: Operations.CreatePetWithForm.id,
             using: {
                 APIHandler.createPetWithForm($0)
             },
             deserializer: { request, requestBody, metadata in
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                let body: Operations.createPetWithForm.Input.Body
+                let body: Operations.CreatePetWithForm.Input.Body
                 let chosenContentType = try converter.bestContentType(
                     received: contentType,
                     options: [
@@ -403,7 +403,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 default:
                     preconditionFailure("bestContentType chose an invalid content type.")
                 }
-                return Operations.createPetWithForm.Input(body: body)
+                return Operations.CreatePetWithForm.Input(body: body)
             },
             serializer: { output, request in
                 switch output {
@@ -429,13 +429,13 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             requestBody: body,
             metadata: metadata,
-            forOperation: Operations.getStats.id,
+            forOperation: Operations.GetStats.id,
             using: {
                 APIHandler.getStats($0)
             },
             deserializer: { request, requestBody, metadata in
-                let headers: Operations.getStats.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
-                return Operations.getStats.Input(headers: headers)
+                let headers: Operations.GetStats.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
+                return Operations.GetStats.Input(headers: headers)
             },
             serializer: { output, request in
                 switch output {
@@ -494,13 +494,13 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             requestBody: body,
             metadata: metadata,
-            forOperation: Operations.postStats.id,
+            forOperation: Operations.PostStats.id,
             using: {
                 APIHandler.postStats($0)
             },
             deserializer: { request, requestBody, metadata in
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                let body: Operations.postStats.Input.Body
+                let body: Operations.PostStats.Input.Body
                 let chosenContentType = try converter.bestContentType(
                     received: contentType,
                     options: [
@@ -537,7 +537,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 default:
                     preconditionFailure("bestContentType chose an invalid content type.")
                 }
-                return Operations.postStats.Input(body: body)
+                return Operations.PostStats.Input(body: body)
             },
             serializer: { output, request in
                 switch output {
@@ -563,12 +563,12 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             requestBody: body,
             metadata: metadata,
-            forOperation: Operations.probe.id,
+            forOperation: Operations.Probe.id,
             using: {
                 APIHandler.probe($0)
             },
             deserializer: { request, requestBody, metadata in
-                return Operations.probe.Input()
+                return Operations.Probe.Input()
             },
             serializer: { output, request in
                 switch output {
@@ -596,17 +596,17 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             requestBody: body,
             metadata: metadata,
-            forOperation: Operations.updatePet.id,
+            forOperation: Operations.UpdatePet.id,
             using: {
                 APIHandler.updatePet($0)
             },
             deserializer: { request, requestBody, metadata in
-                let path: Operations.updatePet.Input.Path = .init(petId: try converter.getPathParameterAsURI(
+                let path: Operations.UpdatePet.Input.Path = .init(petId: try converter.getPathParameterAsURI(
                     in: metadata.pathParameters,
                     name: "petId",
                     as: Swift.Int64.self
                 ))
-                let headers: Operations.updatePet.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
+                let headers: Operations.UpdatePet.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
                 let body: Components.RequestBodies.UpdatePetRequest?
                 let chosenContentType = try converter.bestContentType(
@@ -618,7 +618,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch chosenContentType {
                 case "application/json":
                     body = try await converter.getOptionalRequestBodyAsJSON(
-                        Components.RequestBodies.UpdatePetRequest.jsonPayload.self,
+                        Components.RequestBodies.UpdatePetRequest.JsonPayload.self,
                         from: requestBody,
                         transforming: { value in
                             .json(value)
@@ -627,7 +627,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 default:
                     preconditionFailure("bestContentType chose an invalid content type.")
                 }
-                return Operations.updatePet.Input(
+                return Operations.UpdatePet.Input(
                     path: path,
                     headers: headers,
                     body: body
@@ -677,19 +677,19 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             requestBody: body,
             metadata: metadata,
-            forOperation: Operations.uploadAvatarForPet.id,
+            forOperation: Operations.UploadAvatarForPet.id,
             using: {
                 APIHandler.uploadAvatarForPet($0)
             },
             deserializer: { request, requestBody, metadata in
-                let path: Operations.uploadAvatarForPet.Input.Path = .init(petId: try converter.getPathParameterAsURI(
+                let path: Operations.UploadAvatarForPet.Input.Path = .init(petId: try converter.getPathParameterAsURI(
                     in: metadata.pathParameters,
                     name: "petId",
-                    as: Components.Parameters.path_period_petId.self
+                    as: Components.Parameters.Path_petId.self
                 ))
-                let headers: Operations.uploadAvatarForPet.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
+                let headers: Operations.UploadAvatarForPet.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
                 let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                let body: Operations.uploadAvatarForPet.Input.Body
+                let body: Operations.UploadAvatarForPet.Input.Body
                 let chosenContentType = try converter.bestContentType(
                     received: contentType,
                     options: [
@@ -708,7 +708,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 default:
                     preconditionFailure("bestContentType chose an invalid content type.")
                 }
-                return Operations.uploadAvatarForPet.Input(
+                return Operations.UploadAvatarForPet.Input(
                     path: path,
                     headers: headers,
                     body: body
@@ -787,13 +787,13 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             requestBody: body,
             metadata: metadata,
-            forOperation: Operations.multipartDownloadTyped.id,
+            forOperation: Operations.MultipartDownloadTyped.id,
             using: {
                 APIHandler.multipartDownloadTyped($0)
             },
             deserializer: { request, requestBody, metadata in
-                let headers: Operations.multipartDownloadTyped.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
-                return Operations.multipartDownloadTyped.Input(headers: headers)
+                let headers: Operations.MultipartDownloadTyped.Input.Headers = .init(accept: try converter.extractAcceptHeaderIfPresent(in: request.headerFields))
+                return Operations.MultipartDownloadTyped.Input(headers: headers)
             },
             serializer: { output, request in
                 switch output {
@@ -831,7 +831,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                                     try converter.setHeaderFieldAsURI(
                                         in: &headerFields,
                                         name: "x-log-type",
-                                        value: value.headers.x_hyphen_log_hyphen_type
+                                        value: value.headers.xLogType
                                     )
                                     let body = try converter.setResponseBodyAsBinary(
                                         value.body,
@@ -896,7 +896,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
             request: request,
             requestBody: body,
             metadata: metadata,
-            forOperation: Operations.multipartUploadTyped.id,
+            forOperation: Operations.MultipartUploadTyped.id,
             using: {
                 APIHandler.multipartUploadTyped($0)
             },
@@ -912,7 +912,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 switch chosenContentType {
                 case "multipart/form-data":
                     body = try converter.getRequiredRequestBodyAsMultipart(
-                        OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload>.self,
+                        OpenAPIRuntime.MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload>.self,
                         from: requestBody,
                         transforming: { value in
                             .multipartForm(value)
@@ -934,10 +934,10 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                             let (name, filename) = try converter.extractContentDispositionNameAndFilename(in: headerFields)
                             switch name {
                             case "log":
-                                let headers: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers = .init(x_hyphen_log_hyphen_type: try converter.getOptionalHeaderFieldAsURI(
+                                let headers: Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.LogPayload.Headers = .init(xLogType: try converter.getOptionalHeaderFieldAsURI(
                                     in: headerFields,
                                     name: "x-log-type",
-                                    as: Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload.Headers.x_hyphen_log_hyphen_typePayload.self
+                                    as: Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.LogPayload.Headers.XLogTypePayload.self
                                 ))
                                 try converter.verifyContentTypeIfPresent(
                                     in: headerFields,
@@ -963,7 +963,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                                     matches: "application/json"
                                 )
                                 let body = try await converter.getRequiredRequestBodyAsJSON(
-                                    Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.metadataPayload.bodyPayload.self,
+                                    Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.MetadataPayload.BodyPayload.self,
                                     from: part.body,
                                     transforming: {
                                         $0
@@ -997,7 +997,7 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                 default:
                     preconditionFailure("bestContentType chose an invalid content type.")
                 }
-                return Operations.multipartUploadTyped.Input(body: body)
+                return Operations.MultipartUploadTyped.Input(body: body)
             },
             serializer: { output, request in
                 switch output {
