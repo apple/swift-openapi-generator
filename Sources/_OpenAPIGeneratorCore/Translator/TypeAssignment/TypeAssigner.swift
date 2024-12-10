@@ -59,7 +59,7 @@ struct TypeAssigner {
     /// - Returns: A Swift type name for the specified component type.
     func typeName(forComponentOriginallyNamed originalName: String, in location: TypeLocation) -> TypeName {
         typeName(forLocation: location)
-            .appending(swiftComponent: context.asSwiftSafeName(originalName, .capitalize), jsonComponent: originalName)
+            .appending(swiftComponent: context.asSwiftSafeName(originalName, .capitalized), jsonComponent: originalName)
     }
 
     /// Returns the type name for an OpenAPI-named component namespace.
@@ -127,7 +127,7 @@ struct TypeAssigner {
         {
             multipartBodyElementTypeName = try typeName(for: ref)
         } else {
-            let swiftSafeName = context.asSwiftSafeName(hint, .capitalize)
+            let swiftSafeName = context.asSwiftSafeName(hint, .capitalized)
             multipartBodyElementTypeName = parent.appending(
                 swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
                 jsonComponent: hint
@@ -343,7 +343,7 @@ struct TypeAssigner {
         }
         return
             baseType.appending(
-                swiftComponent: context.asSwiftSafeName(originalName, .capitalize) + suffix,
+                swiftComponent: context.asSwiftSafeName(originalName, .capitalized) + suffix,
                 jsonComponent: jsonReferenceComponentOverride ?? originalName
             )
             .asUsage.withOptional(try typeMatcher.isOptional(schema, components: components))
@@ -406,7 +406,7 @@ struct TypeAssigner {
         of componentType: Component.Type
     ) -> TypeName {
         typeName(for: Component.self)
-            .appending(swiftComponent: context.asSwiftSafeName(key.rawValue, .capitalize), jsonComponent: key.rawValue)
+            .appending(swiftComponent: context.asSwiftSafeName(key.rawValue, .capitalized), jsonComponent: key.rawValue)
     }
 
     /// Returns a type name for a JSON reference.
@@ -471,7 +471,7 @@ struct TypeAssigner {
             throw JSONReferenceParsingError.nonComponentPathsUnsupported(reference.name)
         }
         return typeName(for: componentType)
-            .appending(swiftComponent: context.asSwiftSafeName(name, .capitalize), jsonComponent: name)
+            .appending(swiftComponent: context.asSwiftSafeName(name, .capitalized), jsonComponent: name)
     }
 
     /// Returns a type name for the namespace for the specified component type.
@@ -495,7 +495,7 @@ struct TypeAssigner {
     {
         typeNameForComponents()
             .appending(
-                swiftComponent: context.asSwiftSafeName(componentType.openAPIComponentsKey, .capitalize)
+                swiftComponent: context.asSwiftSafeName(componentType.openAPIComponentsKey, .capitalized)
                     .uppercasingFirstLetter,
                 jsonComponent: componentType.openAPIComponentsKey
             )
@@ -529,14 +529,14 @@ struct TypeAssigner {
         case "application/pdf": return "pdf"
         case "image/jpeg": return "jpeg"
         default:
-            let safedType = context.asSwiftSafeName(contentType.originallyCasedType, .none)
-            let safedSubtype = context.asSwiftSafeName(contentType.originallyCasedSubtype, .none)
+            let safedType = context.asSwiftSafeName(contentType.originallyCasedType, .noncapitalized)
+            let safedSubtype = context.asSwiftSafeName(contentType.originallyCasedSubtype, .noncapitalized)
             let prefix = "\(safedType)_\(safedSubtype)"
             let params = contentType.lowercasedParameterPairs
             guard !params.isEmpty else { return prefix }
             let safedParams =
                 params.map { pair in
-                    pair.split(separator: "=").map { context.asSwiftSafeName(String($0), .none) }.joined(separator: "_")
+                    pair.split(separator: "=").map { context.asSwiftSafeName(String($0), .noncapitalized) }.joined(separator: "_")
                 }
                 .joined(separator: "_")
             return prefix + "_" + safedParams

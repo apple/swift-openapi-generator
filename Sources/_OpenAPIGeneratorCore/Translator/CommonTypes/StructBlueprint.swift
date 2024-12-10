@@ -153,7 +153,7 @@ struct PropertyBlueprint {
 extension PropertyBlueprint {
 
     /// A name that is verified to be a valid Swift identifier.
-    var swiftSafeName: String { context.asSwiftSafeName(originalName, .none) }
+    var swiftSafeName: String { context.asSwiftSafeName(originalName, .noncapitalized) }
 
     /// The JSON path to the property.
     ///

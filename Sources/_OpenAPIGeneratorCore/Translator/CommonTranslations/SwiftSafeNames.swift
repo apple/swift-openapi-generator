@@ -13,11 +13,14 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 
-struct SwiftNameOptions: OptionSet {
-    let rawValue: Int32
-    static let none = SwiftNameOptions([])
-    static let capitalize = SwiftNameOptions(rawValue: 1 << 0)
-    static let all: SwiftNameOptions = [.capitalize]
+struct SwiftNameOptions {
+    enum NameKind {
+        case capitalized
+        case noncapitalized
+    }
+    var kind: NameKind
+    static let capitalized = SwiftNameOptions(kind: .capitalized)
+    static let noncapitalized = SwiftNameOptions(kind: .noncapitalized)
 }
 
 extension String {
@@ -80,7 +83,7 @@ extension String {
     /// If the string contains any illegal characters, falls back to the behavior
     /// matching `safeForSwiftCode_defensive`.
     func safeForSwiftCode_idiomatic(options: SwiftNameOptions) -> String {
-        let capitalize = options.contains(.capitalize)
+        let capitalize = options.kind == .capitalized
         if isEmpty { return capitalize ? "_Empty_" : "_empty_" }
         // Detect cases like HELLO_WORLD, sometimes used for constants.
         let isAllUppercase = allSatisfy {

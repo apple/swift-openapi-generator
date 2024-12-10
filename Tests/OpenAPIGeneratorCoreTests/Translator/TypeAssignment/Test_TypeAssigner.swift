@@ -56,7 +56,7 @@ class Test_TypeAssigner: Test_Core {
             "enum": "_enum",
         ]
         for (componentKey, expectedSwiftTypeName) in expectedSchemaTypeNames {
-            XCTAssertEqual(asSwiftSafeName(componentKey.rawValue, .none), expectedSwiftTypeName)
+            XCTAssertEqual(asSwiftSafeName(componentKey.rawValue, .noncapitalized), expectedSwiftTypeName)
         }
     }
 

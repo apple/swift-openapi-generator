@@ -125,15 +125,15 @@ final class Test_SwiftSafeNames: Test_Core {
             let translator = makeTranslator(nameOverrides: ["MEGA": "m_e_g_a"])
             let asSwiftSafeName: (String, SwiftNameOptions) -> String = translator.context.asSwiftSafeName
             for (input, sanitizedDefensive, _, _) in cases {
-                XCTAssertEqual(asSwiftSafeName(input, .none), sanitizedDefensive, "Defensive, input: \(input)")
+                XCTAssertEqual(asSwiftSafeName(input, .noncapitalized), sanitizedDefensive, "Defensive, input: \(input)")
             }
         }
         do {
             let translator = makeTranslator(namingStrategy: .idiomatic, nameOverrides: ["MEGA": "m_e_g_a"])
             let asSwiftSafeName: (String, SwiftNameOptions) -> String = translator.context.asSwiftSafeName
             for (input, _, idiomaticUpper, idiomaticLower) in cases {
-                XCTAssertEqual(asSwiftSafeName(input, .capitalize), idiomaticUpper, "Idiomatic upper, input: \(input)")
-                XCTAssertEqual(asSwiftSafeName(input, .none), idiomaticLower, "Idiomatic lower, input: \(input)")
+                XCTAssertEqual(asSwiftSafeName(input, .capitalized), idiomaticUpper, "Idiomatic upper, input: \(input)")
+                XCTAssertEqual(asSwiftSafeName(input, .noncapitalized), idiomaticLower, "Idiomatic lower, input: \(input)")
             }
         }
     }

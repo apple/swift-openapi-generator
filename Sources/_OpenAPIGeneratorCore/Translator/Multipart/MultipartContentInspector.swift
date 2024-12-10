@@ -120,7 +120,7 @@ extension FileTranslator {
         }
         var parts: [MultipartSchemaTypedContent] = try topLevelObject.properties.compactMap {
             (key, value) -> MultipartSchemaTypedContent? in
-            let swiftSafeName = context.asSwiftSafeName(key, .capitalize)
+            let swiftSafeName = context.asSwiftSafeName(key, .capitalized)
             let typeName = typeName.appending(
                 swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
                 jsonComponent: key
