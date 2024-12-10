@@ -510,15 +510,30 @@ final class SnippetBasedReferenceTests: XCTestCase {
             schemas:
               MyObject:
                 type: object
-                properties: {}
+                properties:
+                  id:
+                    type: string
                 additionalProperties: false
             """,
             """
             public enum Schemas {
                 public struct MyObject: Codable, Hashable, Sendable {
-                    public init() {}
+                    public var id: Swift.String?
+                    public init(id: Swift.String? = nil) {
+                        self.id = id
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case id
+                    }
                     public init(from decoder: any Decoder) throws {
-                        try decoder.ensureNoAdditionalProperties(knownKeys: [])
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        self.id = try container.decodeIfPresent(
+                            Swift.String.self,
+                            forKey: .id
+                        )
+                        try decoder.ensureNoAdditionalProperties(knownKeys: [
+                            "id"
+                        ])
                     }
                 }
             }
