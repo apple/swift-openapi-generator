@@ -305,7 +305,7 @@ extension FileTranslator {
             return nil
         }
         let finalContentTypeSource: MultipartPartInfo.ContentTypeSource
-        if let encoding, let contentType = encoding.contentType {
+        if let contentTypes = encoding?.contentTypes, let contentType = contentTypes.first, contentTypes.count == 1 {
             finalContentTypeSource = try .explicit(contentType.asGeneratorContentType)
         } else {
             finalContentTypeSource = candidateSource

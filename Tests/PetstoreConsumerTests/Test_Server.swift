@@ -105,10 +105,7 @@ final class Test_Server: XCTestCase {
             guard case let .json(createPet) = input.body else { throw TestError.unexpectedValue(input.body) }
             XCTAssertEqual(createPet, .init(name: "Fluffz"))
             return .created(
-                .init(
-                    headers: .init(xExtraArguments: .init(code: 1)),
-                    body: .json(.init(id: 1, name: "Fluffz"))
-                )
+                .init(headers: .init(xExtraArguments: .init(code: 1)), body: .json(.init(id: 1, name: "Fluffz")))
             )
         })
         let (response, responseBody) = try await server.createPet(
@@ -149,10 +146,7 @@ final class Test_Server: XCTestCase {
 
     func testCreatePet_400() async throws {
         client = .init(createPetBlock: { input in
-            .clientError(
-                statusCode: 400,
-                .init(headers: .init(xReason: "bad luck"), body: .json(.init(code: 1)))
-            )
+            .clientError(statusCode: 400, .init(headers: .init(xReason: "bad luck"), body: .json(.init(code: 1))))
         })
         let (response, responseBody) = try await server.createPet(
             .init(
@@ -245,10 +239,7 @@ final class Test_Server: XCTestCase {
                 )
             )
             return .created(
-                .init(
-                    headers: .init(xExtraArguments: .init(code: 1)),
-                    body: .json(.init(id: 1, name: "Fluffz"))
-                )
+                .init(headers: .init(xExtraArguments: .init(code: 1)), body: .json(.init(id: 1, name: "Fluffz")))
             )
         })
         let (response, responseBody) = try await server.createPet(

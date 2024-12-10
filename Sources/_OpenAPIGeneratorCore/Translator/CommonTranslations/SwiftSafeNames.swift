@@ -15,11 +15,8 @@ import Foundation
 
 struct SwiftNameOptions: OptionSet {
     let rawValue: Int32
-    
     static let none = SwiftNameOptions([])
-    
     static let capitalize = SwiftNameOptions(rawValue: 1 << 0)
-    
     static let all: SwiftNameOptions = [.capitalize]
 }
 
@@ -36,7 +33,7 @@ extension String {
     ///
     /// In addition to replacing illegal characters, it also
     /// ensures that the identifier starts with a letter and not a number.
-    func safeForSwiftCode_defensive(options: SwiftNameOptions) -> String {        
+    func safeForSwiftCode_defensive(options: SwiftNameOptions) -> String {
         guard !isEmpty else { return "_empty" }
 
         let firstCharSet: CharacterSet = .letters.union(.init(charactersIn: "_"))
@@ -84,10 +81,7 @@ extension String {
     /// matching `safeForSwiftCode_defensive`.
     func safeForSwiftCode_idiomatic(options: SwiftNameOptions) -> String {
         let capitalize = options.contains(.capitalize)
-        if isEmpty {
-            return capitalize ? "_Empty_" : "_empty_"
-        }
-        
+        if isEmpty { return capitalize ? "_Empty_" : "_empty_" }
         // Detect cases like HELLO_WORLD, sometimes used for constants.
         let isAllUppercase = allSatisfy {
             // Must check that no characters are lowercased, as non-letter characters
@@ -96,22 +90,24 @@ extension String {
         }
 
         // 1. Leave leading underscores as-are
-        // 2. In the middle: word separators: ["_", "-", <space>] -> remove and capitalize next word
-        // 3. In the middle: period: [".", "/"] -> replace with "_"
+        // 2. In the middle: word separators: ["_", "-", "/", <space>] -> remove and capitalize next word
+        // 3. In the middle: period: ["."] -> replace with "_"
         // 4. In the middle: drop ["{", "}"] -> replace with ""
-        
+
         var buffer: [Character] = []
         buffer.reserveCapacity(count)
-        
-        enum State {
+        enum State: Equatable {
             case modifying
-            case fallback
             case preFirstWord
+            struct AccumulatingFirstWordContext: Equatable { var isAccumulatingInitialUppercase: Bool }
+            case accumulatingFirstWord(AccumulatingFirstWordContext)
             case accumulatingWord
             case waitingForWordStarter
+            case fallback
         }
         var state: State = .preFirstWord
-        for char in self {
+        for index in self[...].indices {
+            let char = self[index]
             let _state = state
             state = .modifying
             switch _state {
@@ -124,30 +120,93 @@ extension String {
                     // Prefix with an underscore if the first character is a number.
                     buffer.append("_")
                     buffer.append(char)
-                    state = .accumulatingWord
+                    state = .accumulatingFirstWord(.init(isAccumulatingInitialUppercase: false))
                 } else if char.isLetter {
                     // First character in the identifier.
                     buffer.append(contentsOf: capitalize ? char.uppercased() : char.lowercased())
-                    state = .accumulatingWord
+                    state = .accumulatingFirstWord(
+                        .init(isAccumulatingInitialUppercase: !capitalize && char.isUppercase)
+                    )
+                } else {
+                    // Illegal character, fall back to the defensive strategy.
+                    state = .fallback
+                }
+            case .accumulatingFirstWord(var context):
+                if char.isLetter || char.isNumber {
+                    if isAllUppercase {
+                        buffer.append(contentsOf: char.lowercased())
+                    } else if context.isAccumulatingInitialUppercase {
+                        // Example: "HTTPProxy"/"HTTP_Proxy"/"HTTP_proxy"" should all
+                        // become "httpProxy" when capitalize == false.
+                        // This means treating the first word differently.
+                        // Here we are on the second or later character of the first word (the first
+                        // character is handled in `.preFirstWord`.
+                        // If the first character was uppercase, and we're in lowercasing mode,
+                        // we need to lowercase every consequtive uppercase character while there's
+                        // another uppercase character after it.
+                        if char.isLowercase {
+                            // No accumulating anymore, just append it and turn off accumulation.
+                            buffer.append(char)
+                            context.isAccumulatingInitialUppercase = false
+                        } else {
+                            let suffix = suffix(from: self.index(after: index))
+                            if suffix.count >= 2 {
+                                let next = suffix.first!
+                                let secondNext = suffix.dropFirst().first!
+                                if next.isUppercase && secondNext.isLowercase {
+                                    // Finished lowercasing.
+                                    context.isAccumulatingInitialUppercase = false
+                                    buffer.append(contentsOf: char.lowercased())
+                                } else if Self.wordSeparators.contains(next) {
+                                    // Finished lowercasing.
+                                    context.isAccumulatingInitialUppercase = false
+                                    buffer.append(contentsOf: char.lowercased())
+                                } else if next.isUppercase {
+                                    // Keep lowercasing.
+                                    buffer.append(contentsOf: char.lowercased())
+                                } else {
+                                    // Append as-is, stop accumulating.
+                                    context.isAccumulatingInitialUppercase = false
+                                    buffer.append(char)
+                                }
+                            } else {
+                                // This is the last or second to last character,
+                                // since we were accumulating capitals, lowercase it.
+                                buffer.append(contentsOf: char.lowercased())
+                                context.isAccumulatingInitialUppercase = false
+                            }
+                        }
+                    } else {
+                        buffer.append(char)
+                    }
+                    state = .accumulatingFirstWord(context)
+                } else if ["_", "-", " ", "/"].contains(char) {
+                    // In the middle of an identifier, these are considered
+                    // word separators, so we remove the character and end the current word.
+                    state = .waitingForWordStarter
+                } else if ["."].contains(char) {
+                    // In the middle of an identifier, these get replaced with
+                    // an underscore, but continue the current word.
+                    buffer.append("_")
+                    state = .accumulatingFirstWord(.init(isAccumulatingInitialUppercase: false))
+                } else if ["{", "}"].contains(char) {
+                    // In the middle of an identifier, curly braces are dropped.
+                    state = .accumulatingFirstWord(.init(isAccumulatingInitialUppercase: false))
                 } else {
                     // Illegal character, fall back to the defensive strategy.
                     state = .fallback
                 }
             case .accumulatingWord:
                 if char.isLetter || char.isNumber {
-                    if isAllUppercase {
-                        buffer.append(contentsOf: char.lowercased())
-                    } else {
-                        buffer.append(char)
-                    }
+                    if isAllUppercase { buffer.append(contentsOf: char.lowercased()) } else { buffer.append(char) }
                     state = .accumulatingWord
-                } else if ["_", "-", " "].contains(char) {
-                    // In the middle of an identifier, dashes, underscores, and spaces are considered
+                } else if Self.wordSeparators.contains(char) {
+                    // In the middle of an identifier, these are considered
                     // word separators, so we remove the character and end the current word.
                     state = .waitingForWordStarter
-                } else if [".", "/"].contains(char) {
-                    // In the middle of an identifier, a period or a slash gets replaced with
-                    // an underscore, but continues the current word.
+                } else if ["."].contains(char) {
+                    // In the middle of an identifier, these get replaced with
+                    // an underscore, but continue the current word.
                     buffer.append("_")
                     state = .accumulatingWord
                 } else if ["{", "}"].contains(char) {
@@ -170,24 +229,18 @@ extension String {
                     // Illegal character, fall back to the defensive strategy.
                     state = .fallback
                 }
-            case .modifying, .fallback:
-                preconditionFailure("Logic error in \(#function), string: '\(self)'")
+            case .modifying, .fallback: preconditionFailure("Logic error in \(#function), string: '\(self)'")
             }
             precondition(state != .modifying, "Logic error in \(#function), string: '\(self)'")
-            if case .fallback = state {
-                return safeForSwiftCode_defensive(options: options)
-            }
+            if case .fallback = state { return safeForSwiftCode_defensive(options: options) }
         }
-        if buffer.isEmpty || state == .preFirstWord {
-            return safeForSwiftCode_defensive(options: options)
-        }
+        if buffer.isEmpty || state == .preFirstWord { return safeForSwiftCode_defensive(options: options) }
         // Check for keywords
         let newString = String(buffer)
-        if Self.keywords.contains(newString) {
-            return "_\(newString)"
-        }
+        if Self.keywords.contains(newString) { return "_\(newString)" }
         return newString
     }
+    private static let wordSeparators: Set<Character> = ["_", "-", " ", "/"]
 
     /// A list of Swift keywords.
     ///

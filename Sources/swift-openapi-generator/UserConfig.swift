@@ -37,7 +37,7 @@ struct _UserConfig: Codable {
     var namingStrategy: NamingStrategy?
 
     /// A dictionary of name overrides for generated types and members.
-    /// 
+    ///
     /// Any names not included use the `namingStrategy` to compute a Swift name.
     var nameOverrides: [String: String]?
 

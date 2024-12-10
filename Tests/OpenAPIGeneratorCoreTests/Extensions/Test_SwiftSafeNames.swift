@@ -37,31 +37,30 @@ final class Test_SwiftSafeNames: Test_Core {
             ("HELLO_WORLD", "HELLO_WORLD", "HelloWorld", "helloWorld"),
 
             // Acronyms
-            ("HTTPProxy", "HTTPProxy", "HTTPProxy", "hTTPProxy"),
-            ("OneHTTPProxy", "OneHTTPProxy", "OneHTTPProxy", "oneHTTPProxy"),
-
+            ("HTTPProxy", "HTTPProxy", "HTTPProxy", "httpProxy"),
+            ("HTTP_Proxy", "HTTP_Proxy", "HTTPProxy", "httpProxy"),
+            ("HTTP_proxy", "HTTP_proxy", "HTTPProxy", "httpProxy"),
+            ("OneHTTPProxy", "OneHTTPProxy", "OneHTTPProxy", "oneHTTPProxy"), ("iOS", "iOS", "IOS", "iOS"),
             // Numbers
             ("version 2.0", "version_space_2_period_0", "Version2_0", "version2_0"),
             ("V1.2Release", "V1_period_2Release", "V1_2Release", "v1_2Release"),
 
             // Synthesized operationId from method + path
             (
-                "get/pets/{petId}/notifications",
-                "get_sol_pets_sol__lcub_petId_rcub__sol_notifications",
-                "Get_pets_petId_notifications",
-                "get_pets_petId_notifications",
+                "get/pets/{petId}/notifications", "get_sol_pets_sol__lcub_petId_rcub__sol_notifications",
+                "GetPetsPetIdNotifications", "getPetsPetIdNotifications"
             ),
             (
-                "get/name/v{version}.zip",
-                "get_sol_name_sol_v_lcub_version_rcub__period_zip",
-                "Get_name_vversion_zip",
-                "get_name_vversion_zip"
+                "get/name/v{version}.zip", "get_sol_name_sol_v_lcub_version_rcub__period_zip", "GetNameVversion_zip",
+                "getNameVversion_zip"
             ),
 
             // Technical strings
-            ("file/path/to/resource", "file_sol_path_sol_to_sol_resource", "File_path_to_resource", "file_path_to_resource"),
-            ("user.name@domain.com", "user_period_name_commat_domain_period_com", "user_period_name_commat_domain_period_com", "user_period_name_commat_domain_period_com"),
-            ("hello.world.2023", "hello_period_world_period_2023", "Hello_world_2023", "hello_world_2023"),
+            ("file/path/to/resource", "file_sol_path_sol_to_sol_resource", "FilePathToResource", "filePathToResource"),
+            (
+                "user.name@domain.com", "user_period_name_commat_domain_period_com",
+                "user_period_name_commat_domain_period_com", "user_period_name_commat_domain_period_com"
+            ), ("hello.world.2023", "hello_period_world_period_2023", "Hello_world_2023", "hello_world_2023"),
             ("order#123", "order_num_123", "order_num_123", "order_num_123"),
             ("pressKeys#123", "pressKeys_num_123", "pressKeys_num_123", "pressKeys_num_123"),
 
@@ -94,7 +93,6 @@ final class Test_SwiftSafeNames: Test_Core {
 
             // Preserve only leading underscores
             ("user__name", "user__name", "UserName", "userName"),
-            
             // Invalid underscore case
             ("_", "_underscore_", "_underscore_", "_underscore_"),
 
@@ -109,7 +107,6 @@ final class Test_SwiftSafeNames: Test_Core {
 
             // Non Latin Characters combined with a RTL language
             ("$مرحبا", "_dollar_مرحبا", "_dollar_مرحبا", "_dollar_مرحبا"),
-            
             // Emoji
             ("heart❤️emoji", "heart_x2764_️emoji", "heart_x2764_️emoji", "heart_x2764_️emoji"),
 
@@ -118,27 +115,21 @@ final class Test_SwiftSafeNames: Test_Core {
             ("vendor1+json", "vendor1_plus_json", "vendor1_plus_json", "vendor1_plus_json"),
 
             // Known real-world examples
-            ("+1", "_plus_1", "_plus_1", "_plus_1"),
-            ("-1", "_hyphen_1", "_hyphen_1", "_hyphen_1"),
+            ("+1", "_plus_1", "_plus_1", "_plus_1"), ("-1", "_hyphen_1", "_hyphen_1", "_hyphen_1"),
 
             // Override
             ("MEGA", "m_e_g_a", "m_e_g_a", "m_e_g_a"),
         ]
         self.continueAfterFailure = true
         do {
-            let translator = makeTranslator(
-                nameOverrides: ["MEGA": "m_e_g_a"]
-            )
+            let translator = makeTranslator(nameOverrides: ["MEGA": "m_e_g_a"])
             let asSwiftSafeName: (String, SwiftNameOptions) -> String = translator.context.asSwiftSafeName
             for (input, sanitizedDefensive, _, _) in cases {
                 XCTAssertEqual(asSwiftSafeName(input, .none), sanitizedDefensive, "Defensive, input: \(input)")
             }
         }
         do {
-            let translator = makeTranslator(
-                namingStrategy: .idiomatic,
-                nameOverrides: ["MEGA": "m_e_g_a"]
-            )
+            let translator = makeTranslator(namingStrategy: .idiomatic, nameOverrides: ["MEGA": "m_e_g_a"])
             let asSwiftSafeName: (String, SwiftNameOptions) -> String = translator.context.asSwiftSafeName
             for (input, _, idiomaticUpper, idiomaticLower) in cases {
                 XCTAssertEqual(asSwiftSafeName(input, .capitalize), idiomaticUpper, "Idiomatic upper, input: \(input)")

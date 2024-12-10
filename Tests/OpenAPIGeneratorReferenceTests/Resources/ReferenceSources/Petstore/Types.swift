@@ -968,9 +968,9 @@ public enum Components {
         /// - Remark: Generated from `#/components/schemas/OneOfObjectsWithDiscriminator`.
         @frozen public enum OneOfObjectsWithDiscriminator: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/OneOfObjectsWithDiscriminator/Walk`.
-            case Walk(Components.Schemas.Walk)
+            case walk(Components.Schemas.Walk)
             /// - Remark: Generated from `#/components/schemas/OneOfObjectsWithDiscriminator/MessagedExercise`.
-            case MessagedExercise(Components.Schemas.MessagedExercise)
+            case messagedExercise(Components.Schemas.MessagedExercise)
             public enum CodingKeys: String, CodingKey {
                 case kind
             }
@@ -982,9 +982,9 @@ public enum Components {
                 )
                 switch discriminator {
                 case "Walk", "#/components/schemas/Walk":
-                    self = .Walk(try .init(from: decoder))
+                    self = .walk(try .init(from: decoder))
                 case "MessagedExercise", "#/components/schemas/MessagedExercise":
-                    self = .MessagedExercise(try .init(from: decoder))
+                    self = .messagedExercise(try .init(from: decoder))
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
                         discriminatorKey: CodingKeys.kind,
@@ -995,9 +995,9 @@ public enum Components {
             }
             public func encode(to encoder: any Encoder) throws {
                 switch self {
-                case let .Walk(value):
+                case let .walk(value):
                     try value.encode(to: encoder)
-                case let .MessagedExercise(value):
+                case let .messagedExercise(value):
                     try value.encode(to: encoder)
                 }
             }
@@ -1308,9 +1308,9 @@ public enum Components {
         /// - Remark: Generated from `#/components/schemas/RecursivePetOneOf`.
         @frozen public enum RecursivePetOneOf: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/RecursivePetOneOf/RecursivePetOneOfFirst`.
-            case RecursivePetOneOfFirst(Components.Schemas.RecursivePetOneOfFirst)
+            case recursivePetOneOfFirst(Components.Schemas.RecursivePetOneOfFirst)
             /// - Remark: Generated from `#/components/schemas/RecursivePetOneOf/RecursivePetOneOfSecond`.
-            case RecursivePetOneOfSecond(Components.Schemas.RecursivePetOneOfSecond)
+            case recursivePetOneOfSecond(Components.Schemas.RecursivePetOneOfSecond)
             public enum CodingKeys: String, CodingKey {
                 case _type = "type"
             }
@@ -1322,9 +1322,9 @@ public enum Components {
                 )
                 switch discriminator {
                 case "RecursivePetOneOfFirst", "#/components/schemas/RecursivePetOneOfFirst":
-                    self = .RecursivePetOneOfFirst(try .init(from: decoder))
+                    self = .recursivePetOneOfFirst(try .init(from: decoder))
                 case "RecursivePetOneOfSecond", "#/components/schemas/RecursivePetOneOfSecond":
-                    self = .RecursivePetOneOfSecond(try .init(from: decoder))
+                    self = .recursivePetOneOfSecond(try .init(from: decoder))
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
                         discriminatorKey: CodingKeys._type,
@@ -1335,9 +1335,9 @@ public enum Components {
             }
             public func encode(to encoder: any Encoder) throws {
                 switch self {
-                case let .RecursivePetOneOfFirst(value):
+                case let .recursivePetOneOfFirst(value):
                     try value.encode(to: encoder)
-                case let .RecursivePetOneOfSecond(value):
+                case let .recursivePetOneOfSecond(value):
                     try value.encode(to: encoder)
                 }
             }

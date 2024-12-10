@@ -148,9 +148,9 @@ final class Test_Types: XCTestCase {
         try _testRoundtrip(Components.Schemas.OneOfAny.case4(.init(message: "hello")))
     }
     func testOneOfWithDiscriminator_roundtrip() throws {
-        try _testRoundtrip(Components.Schemas.OneOfObjectsWithDiscriminator.Walk(.init(kind: "Walk", length: 1)))
+        try _testRoundtrip(Components.Schemas.OneOfObjectsWithDiscriminator.walk(.init(kind: "Walk", length: 1)))
         try _testRoundtrip(
-            Components.Schemas.OneOfObjectsWithDiscriminator.MessagedExercise(
+            Components.Schemas.OneOfObjectsWithDiscriminator.messagedExercise(
                 .init(value1: .init(kind: "MessagedExercise"), value2: .init(message: "hello"))
             )
         )

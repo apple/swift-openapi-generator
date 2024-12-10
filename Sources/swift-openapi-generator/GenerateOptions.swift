@@ -75,14 +75,8 @@ extension _GenerateOptions {
         return []
     }
 
-    func resolvedNamingStrategy(_ config: _UserConfig?) -> NamingStrategy {
-        config?.namingStrategy ?? .defensive
-    }
-    
-    func resolvedNameOverrides(_ config: _UserConfig?) -> [String: String] {
-        config?.nameOverrides ?? [:]
-    }
-    
+    func resolvedNamingStrategy(_ config: _UserConfig?) -> NamingStrategy { config?.namingStrategy ?? .defensive }
+    func resolvedNameOverrides(_ config: _UserConfig?) -> [String: String] { config?.nameOverrides ?? [:] }
     /// Returns a list of the feature flags requested by the user.
     /// - Parameter config: The configuration specified by the user.
     /// - Returns: A set of feature flags requested by the user.

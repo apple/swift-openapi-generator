@@ -50,20 +50,14 @@ extension FileTranslator {
     var context: TranslatorContext {
         let asSwiftSafeName: (String, SwiftNameOptions) -> String
         switch config.namingStrategy {
-        case .defensive, .none:
-            asSwiftSafeName = { $0.safeForSwiftCode_defensive(options: $1) }
-        case .idiomatic:
-            asSwiftSafeName = { $0.safeForSwiftCode_idiomatic(options: $1) }
+        case .defensive, .none: asSwiftSafeName = { $0.safeForSwiftCode_defensive(options: $1) }
+        case .idiomatic: asSwiftSafeName = { $0.safeForSwiftCode_idiomatic(options: $1) }
         }
         let overrides = config.nameOverrides ?? [:]
-        return TranslatorContext(
-            asSwiftSafeName: { name, options in
-                if let override = overrides[name] {
-                    return override
-                }
-                return asSwiftSafeName(name, options)
-            }
-        )
+        return TranslatorContext(asSwiftSafeName: { name, options in
+            if let override = overrides[name] { return override }
+            return asSwiftSafeName(name, options)
+        })
     }
 }
 

@@ -1202,24 +1202,24 @@ final class SnippetBasedReferenceTests: XCTestCase {
         try self.assertSchemasTranslation(
             """
             schemas:
-              A:
+              Aaa:
                 type: string
-              B:
+              Bbb:
                 type: object
                 required:
-                  - c
+                  - ccc
                 properties:
-                  c:
+                  ccc:
                     allOf:
-                      - $ref: "#/components/schemas/A"
+                      - $ref: "#/components/schemas/Aaa"
             """,
             """
             public enum Schemas {
-                public typealias A = Swift.String
-                public struct B: Codable, Hashable, Sendable {
-                    public struct cPayload: Codable, Hashable, Sendable {
-                        public var value1: Components.Schemas.A
-                        public init(value1: Components.Schemas.A) {
+                public typealias Aaa = Swift.String
+                public struct Bbb: Codable, Hashable, Sendable {
+                    public struct CccPayload: Codable, Hashable, Sendable {
+                        public var value1: Components.Schemas.Aaa
+                        public init(value1: Components.Schemas.Aaa) {
                             self.value1 = value1
                         }
                         public init(from decoder: any Decoder) throws {
@@ -1229,12 +1229,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             try encoder.encodeToSingleValueContainer(value1)
                         }
                     }
-                    public var c: Components.Schemas.B.cPayload
-                    public init(c: Components.Schemas.B.cPayload) {
-                        self.c = c
+                    public var ccc: Components.Schemas.Bbb.CccPayload
+                    public init(ccc: Components.Schemas.Bbb.CccPayload) {
+                        self.ccc = ccc
                     }
                     public enum CodingKeys: String, CodingKey {
-                        case c
+                        case ccc
                     }
                 }
             }
@@ -1246,23 +1246,23 @@ final class SnippetBasedReferenceTests: XCTestCase {
         try self.assertSchemasTranslation(
             """
             schemas:
-              A:
+              Aaa:
                 type: string
-              B:
+              Bbb:
                 type: object
                 required: []
                 properties:
-                  c:
+                  ccc:
                     allOf:
-                      - $ref: "#/components/schemas/A"
+                      - $ref: "#/components/schemas/Aaa"
             """,
             """
             public enum Schemas {
-                public typealias A = Swift.String
-                public struct B: Codable, Hashable, Sendable {
-                    public struct cPayload: Codable, Hashable, Sendable {
-                        public var value1: Components.Schemas.A
-                        public init(value1: Components.Schemas.A) {
+                public typealias Aaa = Swift.String
+                public struct Bbb: Codable, Hashable, Sendable {
+                    public struct CccPayload: Codable, Hashable, Sendable {
+                        public var value1: Components.Schemas.Aaa
+                        public init(value1: Components.Schemas.Aaa) {
                             self.value1 = value1
                         }
                         public init(from decoder: any Decoder) throws {
@@ -1272,12 +1272,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             try encoder.encodeToSingleValueContainer(value1)
                         }
                     }
-                    public var c: Components.Schemas.B.cPayload?
-                    public init(c: Components.Schemas.B.cPayload? = nil) {
-                        self.c = c
+                    public var ccc: Components.Schemas.Bbb.CccPayload?
+                    public init(ccc: Components.Schemas.Bbb.CccPayload? = nil) {
+                        self.ccc = ccc
                     }
                     public enum CodingKeys: String, CodingKey {
-                        case c
+                        case ccc
                     }
                 }
             }
@@ -1610,7 +1610,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             yield &storage.value.name
                         }
                     }
-                    public struct parentPayload: Codable, Hashable, Sendable {
+                    public struct ParentPayload: Codable, Hashable, Sendable {
                         public var nested: Components.Schemas.Node
                         public init(nested: Components.Schemas.Node) {
                             self.nested = nested
@@ -1619,7 +1619,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             case nested
                         }
                     }
-                    public var parent: Components.Schemas.Node.parentPayload? {
+                    public var parent: Components.Schemas.Node.ParentPayload? {
                         get  {
                             storage.value.parent
                         }
@@ -1629,7 +1629,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public init(
                         name: Swift.String,
-                        parent: Components.Schemas.Node.parentPayload? = nil
+                        parent: Components.Schemas.Node.ParentPayload? = nil
                     ) {
                         storage = .init(value: .init(
                             name: name,
@@ -1649,7 +1649,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
                         var name: Swift.String
-                        struct parentPayload: Codable, Hashable, Sendable {
+                        struct ParentPayload: Codable, Hashable, Sendable {
                             public var nested: Components.Schemas.Node
                             public init(nested: Components.Schemas.Node) {
                                 self.nested = nested
@@ -1658,10 +1658,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 case nested
                             }
                         }
-                        var parent: Components.Schemas.Node.parentPayload?
+                        var parent: Components.Schemas.Node.ParentPayload?
                         init(
                             name: Swift.String,
-                            parent: Components.Schemas.Node.parentPayload? = nil
+                            parent: Components.Schemas.Node.ParentPayload? = nil
                         ) {
                             self.name = name
                             self.parent = parent
@@ -1978,11 +1978,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Responses {
                 public struct BadRequest: Sendable, Hashable {
                     public struct Headers: Sendable, Hashable {
-                        @frozen public enum xReasonPayload: String, Codable, Hashable, Sendable, CaseIterable {
+                        @frozen public enum XReasonPayload: String, Codable, Hashable, Sendable, CaseIterable {
                             case badLuck = "badLuck"
                         }
-                        public var xReason: Components.Responses.BadRequest.Headers.xReasonPayload?
-                        public init(xReason: Components.Responses.BadRequest.Headers.xReasonPayload? = nil) {
+                        public var xReason: Components.Responses.BadRequest.Headers.XReasonPayload?
+                        public init(xReason: Components.Responses.BadRequest.Headers.XReasonPayload? = nil) {
                             self.xReason = xReason
                         }
                     }
@@ -2108,7 +2108,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum RequestBodies {
                 @frozen public enum MyRequestBody: Sendable, Hashable {
-                    public struct urlEncodedFormPayload: Codable, Hashable, Sendable {
+                    public struct UrlEncodedFormPayload: Codable, Hashable, Sendable {
                         public var foo: Swift.String
                         public init(foo: Swift.String) {
                             self.foo = foo
@@ -2117,7 +2117,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             case foo
                         }
                     }
-                    case urlEncodedForm(Components.RequestBodies.MyRequestBody.urlEncodedFormPayload)
+                    case urlEncodedForm(Components.RequestBodies.MyRequestBody.UrlEncodedFormPayload)
                 }
             }
             """
@@ -2249,8 +2249,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public protocol APIProtocol: Sendable {
                 @available(*, deprecated)
-                func getHealthOld(_ input: Operations.getHealthOld.Input) async throws -> Operations.getHealthOld.Output
-                func getHealthNew(_ input: Operations.getHealthNew.Input) async throws -> Operations.getHealthNew.Output
+                func getHealthOld(_ input: Operations.GetHealthOld.Input) async throws -> Operations.GetHealthOld.Output
+                func getHealthNew(_ input: Operations.GetHealthNew.Input) async throws -> Operations.GetHealthNew.Output
             }
             """
         )
@@ -2259,17 +2259,16 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             extension APIProtocol {
                 @available(*, deprecated)
-                public func getHealthOld(headers: Operations.getHealthOld.Input.Headers = .init()) async throws -> Operations.getHealthOld.Output {
-                    try await getHealthOld(Operations.getHealthOld.Input(headers: headers))
+                public func getHealthOld(headers: Operations.GetHealthOld.Input.Headers = .init()) async throws -> Operations.GetHealthOld.Output {
+                    try await getHealthOld(Operations.GetHealthOld.Input(headers: headers))
                 }
-                public func getHealthNew(headers: Operations.getHealthNew.Input.Headers = .init()) async throws -> Operations.getHealthNew.Output {
-                    try await getHealthNew(Operations.getHealthNew.Input(headers: headers))
+                public func getHealthNew(headers: Operations.GetHealthNew.Input.Headers = .init()) async throws -> Operations.GetHealthNew.Output {
+                    try await getHealthNew(Operations.GetHealthNew.Input(headers: headers))
                 }
             }
             """
         )
     }
-    
     func testSynthesizedOperationId() throws {
         let paths = """
             /pets/{petId}/notifications:
@@ -2288,7 +2287,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             paths,
             """
             public protocol APIProtocol: Sendable {
-                func getHealthNew(_ input: Operations.getHealthNew.Input) async throws -> Operations.getHealthNew.Output
+                func getPetsPetIdNotifications(_ input: Operations.GetPetsPetIdNotifications.Input) async throws -> Operations.GetPetsPetIdNotifications.Output
             }
             """
         )
@@ -2498,8 +2497,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self.manyUnexploded = manyUnexploded
                         }
                     }
-                    public var query: Operations.get_sol_foo.Input.Query
-                    public init(query: Operations.get_sol_foo.Input.Query = .init()) {
+                    public var query: Operations.GetFoo.Input.Query
+                    public init(query: Operations.GetFoo.Input.Query = .init()) {
                         self.query = query
                     }
                 }
@@ -2541,7 +2540,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """,
             server: """
                 { request, requestBody, metadata in
-                    let query: Operations.get_sol_foo.Input.Query = .init(
+                    let query: Operations.GetFoo.Input.Query = .init(
                         single: try converter.getOptionalQueryItemAsURI(
                             in: request.soar_query,
                             style: .form,
@@ -2564,7 +2563,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             as: [Swift.String].self
                         )
                     )
-                    return Operations.get_sol_foo.Input(query: query)
+                    return Operations.GetFoo.Input(query: query)
                 }
                 """
         )
@@ -2612,8 +2611,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self.num = num
                         }
                     }
-                    public var path: Operations.getFoo.Input.Path
-                    public init(path: Operations.getFoo.Input.Path) {
+                    public var path: Operations.GetFoo.Input.Path
+                    public init(path: Operations.GetFoo.Input.Path) {
                         self.path = path
                     }
                 }
@@ -2638,7 +2637,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """,
             server: """
                 { request, requestBody, metadata in
-                    let path: Operations.getFoo.Input.Path = .init(
+                    let path: Operations.GetFoo.Input.Path = .init(
                         b: try converter.getPathParameterAsURI(
                             in: metadata.pathParameters,
                             name: "b",
@@ -2655,7 +2654,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             as: Swift.Int.self
                         )
                     )
-                    return Operations.getFoo.Input(path: path)
+                    return Operations.GetFoo.Input(path: path)
                 }
                 """
         )
@@ -2680,13 +2679,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
             input: """
                 public struct Input: Sendable, Hashable {
                     public struct Path: Sendable, Hashable {
-                        public var p_period_a_hyphen_b: Swift.String
-                        public init(p_period_a_hyphen_b: Swift.String) {
-                            self.p_period_a_hyphen_b = p_period_a_hyphen_b
+                        public var p_aB: Swift.String
+                        public init(p_aB: Swift.String) {
+                            self.p_aB = p_aB
                         }
                     }
-                    public var path: Operations.getFoo.Input.Path
-                    public init(path: Operations.getFoo.Input.Path) {
+                    public var path: Operations.GetFoo.Input.Path
+                    public init(path: Operations.GetFoo.Input.Path) {
                         self.path = path
                     }
                 }
@@ -2696,7 +2695,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     let path = try converter.renderedPath(
                         template: "/foo/{}",
                         parameters: [
-                            input.path.p_period_a_hyphen_b
+                            input.path.p_aB
                         ]
                     )
                     var request: HTTPTypes.HTTPRequest = .init(
@@ -2709,12 +2708,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 """,
             server: """
                 { request, requestBody, metadata in
-                    let path: Operations.getFoo.Input.Path = .init(p_period_a_hyphen_b: try converter.getPathParameterAsURI(
+                    let path: Operations.GetFoo.Input.Path = .init(p_aB: try converter.getPathParameterAsURI(
                         in: metadata.pathParameters,
                         name: "p.a-b",
                         as: Swift.String.self
                     ))
-                    return Operations.getFoo.Input(path: path)
+                    return Operations.GetFoo.Input(path: path)
                 }
                 """
         )
@@ -2740,8 +2739,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
                     }
-                    public var body: Operations.get_sol_foo.Input.Body
-                    public init(body: Operations.get_sol_foo.Input.Body) {
+                    public var body: Operations.GetFoo.Input.Body
+                    public init(body: Operations.GetFoo.Input.Body) {
                         self.body = body
                     }
                 }
@@ -2772,7 +2771,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.get_sol_foo.Input.Body
+                    let body: Operations.GetFoo.Input.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -2791,7 +2790,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.get_sol_foo.Input(body: body)
+                    return Operations.GetFoo.Input(body: body)
                 }
                 """
         )
@@ -2817,8 +2816,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
                     }
-                    public var body: Operations.get_sol_foo.Input.Body
-                    public init(body: Operations.get_sol_foo.Input.Body) {
+                    public var body: Operations.GetFoo.Input.Body
+                    public init(body: Operations.GetFoo.Input.Body) {
                         self.body = body
                     }
                 }
@@ -2849,7 +2848,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.get_sol_foo.Input.Body
+                    let body: Operations.GetFoo.Input.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -2868,7 +2867,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.get_sol_foo.Input(body: body)
+                    return Operations.GetFoo.Input(body: body)
                 }
                 """
         )
@@ -2894,8 +2893,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
                     }
-                    public var body: Operations.get_sol_foo.Input.Body?
-                    public init(body: Operations.get_sol_foo.Input.Body? = nil) {
+                    public var body: Operations.GetFoo.Input.Body?
+                    public init(body: Operations.GetFoo.Input.Body? = nil) {
                         self.body = body
                     }
                 }
@@ -2928,7 +2927,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.get_sol_foo.Input.Body?
+                    let body: Operations.GetFoo.Input.Body?
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -2947,7 +2946,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.get_sol_foo.Input(body: body)
+                    return Operations.GetFoo.Input(body: body)
                 }
                 """
         )
@@ -2973,8 +2972,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     @frozen public enum Body: Sendable, Hashable {
                         case json(Swift.String)
                     }
-                    public var body: Operations.get_sol_foo.Input.Body?
-                    public init(body: Operations.get_sol_foo.Input.Body? = nil) {
+                    public var body: Operations.GetFoo.Input.Body?
+                    public init(body: Operations.GetFoo.Input.Body? = nil) {
                         self.body = body
                     }
                 }
@@ -3007,7 +3006,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.get_sol_foo.Input.Body?
+                    let body: Operations.GetFoo.Input.Body?
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -3026,7 +3025,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.get_sol_foo.Input(body: body)
+                    return Operations.GetFoo.Input(body: body)
                 }
                 """
         )
@@ -3166,7 +3165,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.getFoo.Input(body: body)
+                    return Operations.GetFoo.Input(body: body)
                 }
                 """
         )
@@ -3549,7 +3548,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.post_sol_foo.Input(body: body)
+                    return Operations.PostFoo.Input(body: body)
                 }
                 """
         )
@@ -3583,13 +3582,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                     self.body = body
                                 }
                             }
-                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload>)
+                            case log(OpenAPIRuntime.MultipartPart<Operations.PostFoo.Input.Body.MultipartFormPayload.LogPayload>)
                             case undocumented(OpenAPIRuntime.MultipartRawPart)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>)
                     }
-                    public var body: Operations.post_sol_foo.Input.Body
-                    public init(body: Operations.post_sol_foo.Input.Body) {
+                    public var body: Operations.PostFoo.Input.Body
+                    public init(body: Operations.PostFoo.Input.Body) {
                         self.body = body
                     }
                 }
@@ -3647,7 +3646,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.post_sol_foo.Input.Body
+                    let body: Operations.PostFoo.Input.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -3657,7 +3656,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -3698,7 +3697,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.post_sol_foo.Input(body: body)
+                    return Operations.PostFoo.Input(body: body)
                 }
                 """
         )
@@ -3731,19 +3730,19 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct Input: Sendable, Hashable {
                     @frozen public enum Body: Sendable, Hashable {
                         @frozen public enum MultipartFormPayload: Sendable, Hashable {
-                            public struct infoPayload: Sendable, Hashable {
+                            public struct InfoPayload: Sendable, Hashable {
                                 public var body: Components.Schemas.Info
                                 public init(body: Components.Schemas.Info) {
                                     self.body = body
                                 }
                             }
-                            case info(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.infoPayload>)
+                            case info(OpenAPIRuntime.MultipartPart<Operations.PostFoo.Input.Body.MultipartFormPayload.InfoPayload>)
                             case undocumented(OpenAPIRuntime.MultipartRawPart)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>)
                     }
-                    public var body: Operations.post_sol_foo.Input.Body
-                    public init(body: Operations.post_sol_foo.Input.Body) {
+                    public var body: Operations.PostFoo.Input.Body
+                    public init(body: Operations.PostFoo.Input.Body) {
                         self.body = body
                     }
                 }
@@ -3801,7 +3800,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.post_sol_foo.Input.Body
+                    let body: Operations.PostFoo.Input.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -3811,7 +3810,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -3852,7 +3851,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.post_sol_foo.Input(body: body)
+                    return Operations.PostFoo.Input(body: body)
                 }
                 """
         )
@@ -3888,8 +3887,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     @frozen public enum Body: Sendable, Hashable {
                         case multipartForm(OpenAPIRuntime.MultipartBody<Components.Schemas.Multipet>)
                     }
-                    public var body: Operations.post_sol_foo.Input.Body
-                    public init(body: Operations.post_sol_foo.Input.Body) {
+                    public var body: Operations.PostFoo.Input.Body
+                    public init(body: Operations.PostFoo.Input.Body) {
                         self.body = body
                     }
                 }
@@ -3961,7 +3960,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.post_sol_foo.Input.Body
+                    let body: Operations.PostFoo.Input.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -4012,7 +4011,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.post_sol_foo.Input(body: body)
+                    return Operations.PostFoo.Input(body: body)
                 }
                 """
         )
@@ -4060,23 +4059,23 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                         self.xLogType = xLogType
                                     }
                                 }
-                                public var headers: Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload.Headers
+                                public var headers: Operations.PostFoo.Input.Body.MultipartFormPayload.LogPayload.Headers
                                 public var body: OpenAPIRuntime.HTTPBody
                                 public init(
-                                    headers: Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload.Headers = .init(),
+                                    headers: Operations.PostFoo.Input.Body.MultipartFormPayload.LogPayload.Headers = .init(),
                                     body: OpenAPIRuntime.HTTPBody
                                 ) {
                                     self.headers = headers
                                     self.body = body
                                 }
                             }
-                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload>)
+                            case log(OpenAPIRuntime.MultipartPart<Operations.PostFoo.Input.Body.MultipartFormPayload.LogPayload>)
                             case undocumented(OpenAPIRuntime.MultipartRawPart)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>)
                     }
-                    public var body: Operations.post_sol_foo.Input.Body
-                    public init(body: Operations.post_sol_foo.Input.Body) {
+                    public var body: Operations.PostFoo.Input.Body
+                    public init(body: Operations.PostFoo.Input.Body) {
                         self.body = body
                     }
                 }
@@ -4153,7 +4152,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.post_sol_foo.Input.Body
+                    let body: Operations.PostFoo.Input.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -4163,7 +4162,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -4181,7 +4180,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 let (name, filename) = try converter.extractContentDispositionNameAndFilename(in: headerFields)
                                 switch name {
                                 case "log":
-                                    let headers: Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload.Headers = .init(xLogType: try converter.getOptionalHeaderFieldAsURI(
+                                    let headers: Operations.PostFoo.Input.Body.MultipartFormPayload.LogPayload.Headers = .init(xLogType: try converter.getOptionalHeaderFieldAsURI(
                                         in: headerFields,
                                         name: "x-log-type",
                                         as: Swift.String.self
@@ -4212,7 +4211,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.post_sol_foo.Input(body: body)
+                    return Operations.PostFoo.Input(body: body)
                 }
                 """
         )
@@ -4237,10 +4236,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         @frozen public enum MultipartFormPayload: Sendable, Hashable {
                             case undocumented(OpenAPIRuntime.MultipartRawPart)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>)
                     }
-                    public var body: Operations.post_sol_foo.Input.Body
-                    public init(body: Operations.post_sol_foo.Input.Body) {
+                    public var body: Operations.PostFoo.Input.Body
+                    public init(body: Operations.PostFoo.Input.Body) {
                         self.body = body
                     }
                 }
@@ -4282,7 +4281,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.post_sol_foo.Input.Body
+                    let body: Operations.PostFoo.Input.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -4292,7 +4291,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -4315,7 +4314,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.post_sol_foo.Input(body: body)
+                    return Operations.PostFoo.Input(body: body)
                 }
                 """
         )
@@ -4343,10 +4342,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         @frozen public enum MultipartFormPayload: Sendable, Hashable {
                             case other(OpenAPIRuntime.MultipartRawPart)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>)
                     }
-                    public var body: Operations.post_sol_foo.Input.Body
-                    public init(body: Operations.post_sol_foo.Input.Body) {
+                    public var body: Operations.PostFoo.Input.Body
+                    public init(body: Operations.PostFoo.Input.Body) {
                         self.body = body
                     }
                 }
@@ -4388,7 +4387,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.post_sol_foo.Input.Body
+                    let body: Operations.PostFoo.Input.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -4398,7 +4397,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -4421,7 +4420,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.post_sol_foo.Input(body: body)
+                    return Operations.PostFoo.Input(body: body)
                 }
                 """
         )
@@ -4458,12 +4457,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                     self.body = body
                                 }
                             }
-                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload>)
+                            case log(OpenAPIRuntime.MultipartPart<Operations.PostFoo.Input.Body.MultipartFormPayload.LogPayload>)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>)
                     }
-                    public var body: Operations.post_sol_foo.Input.Body
-                    public init(body: Operations.post_sol_foo.Input.Body) {
+                    public var body: Operations.PostFoo.Input.Body
+                    public init(body: Operations.PostFoo.Input.Body) {
                         self.body = body
                     }
                 }
@@ -4519,7 +4518,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.post_sol_foo.Input.Body
+                    let body: Operations.PostFoo.Input.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -4529,7 +4528,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -4570,7 +4569,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.post_sol_foo.Input(body: body)
+                    return Operations.PostFoo.Input(body: body)
                 }
                 """
         )
@@ -4611,8 +4610,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                     self.body = body
                                 }
                             }
-                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload>)
-                            public struct additionalPropertiesPayload: Codable, Hashable, Sendable {
+                            case log(OpenAPIRuntime.MultipartPart<Operations.PostFoo.Input.Body.MultipartFormPayload.LogPayload>)
+                            public struct AdditionalPropertiesPayload: Codable, Hashable, Sendable {
                                 public var foo: Swift.String?
                                 public init(foo: Swift.String? = nil) {
                                     self.foo = foo
@@ -4621,12 +4620,12 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                     case foo
                                 }
                             }
-                            case additionalProperties(OpenAPIRuntime.MultipartDynamicallyNamedPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.additionalPropertiesPayload>)
+                            case additionalProperties(OpenAPIRuntime.MultipartDynamicallyNamedPart<Operations.PostFoo.Input.Body.MultipartFormPayload.AdditionalPropertiesPayload>)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>)
                     }
-                    public var body: Operations.post_sol_foo.Input.Body
-                    public init(body: Operations.post_sol_foo.Input.Body) {
+                    public var body: Operations.PostFoo.Input.Body
+                    public init(body: Operations.PostFoo.Input.Body) {
                         self.body = body
                     }
                 }
@@ -4696,7 +4695,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.post_sol_foo.Input.Body
+                    let body: Operations.PostFoo.Input.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -4706,7 +4705,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -4745,7 +4744,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                         matches: "application/json"
                                     )
                                     let body = try await converter.getRequiredRequestBodyAsJSON(
-                                        Operations.post_sol_foo.Input.Body.MultipartFormPayload.additionalPropertiesPayload.self,
+                                        Operations.PostFoo.Input.Body.MultipartFormPayload.AdditionalPropertiesPayload.self,
                                         from: part.body,
                                         transforming: {
                                             $0
@@ -4762,7 +4761,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.post_sol_foo.Input(body: body)
+                    return Operations.PostFoo.Input(body: body)
                 }
                 """
         )
@@ -4808,13 +4807,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                     self.body = body
                                 }
                             }
-                            case log(OpenAPIRuntime.MultipartPart<Operations.post_sol_foo.Input.Body.MultipartFormPayload.LogPayload>)
+                            case log(OpenAPIRuntime.MultipartPart<Operations.PostFoo.Input.Body.MultipartFormPayload.LogPayload>)
                             case additionalProperties(OpenAPIRuntime.MultipartDynamicallyNamedPart<Components.Schemas.AssociatedValue>)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>)
                     }
-                    public var body: Operations.post_sol_foo.Input.Body
-                    public init(body: Operations.post_sol_foo.Input.Body) {
+                    public var body: Operations.PostFoo.Input.Body
+                    public init(body: Operations.PostFoo.Input.Body) {
                         self.body = body
                     }
                 }
@@ -4884,7 +4883,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.post_sol_foo.Input.Body
+                    let body: Operations.PostFoo.Input.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -4894,7 +4893,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -4950,7 +4949,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.post_sol_foo.Input(body: body)
+                    return Operations.PostFoo.Input(body: body)
                 }
                 """
         )
@@ -4979,10 +4978,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         @frozen public enum MultipartFormPayload: Sendable, Hashable {
                             case additionalProperties(OpenAPIRuntime.MultipartDynamicallyNamedPart<OpenAPIRuntime.HTTPBody>)
                         }
-                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>)
+                        case multipartForm(OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>)
                     }
-                    public var body: Operations.post_sol_foo.Input.Body
-                    public init(body: Operations.post_sol_foo.Input.Body) {
+                    public var body: Operations.PostFoo.Input.Body
+                    public init(body: Operations.PostFoo.Input.Body) {
                         self.body = body
                     }
                 }
@@ -5036,7 +5035,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             server: """
                 { request, requestBody, metadata in
                     let contentType = converter.extractContentTypeIfPresent(in: request.headerFields)
-                    let body: Operations.post_sol_foo.Input.Body
+                    let body: Operations.PostFoo.Input.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -5046,7 +5045,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch chosenContentType {
                     case "multipart/form-data":
                         body = try converter.getRequiredRequestBodyAsMultipart(
-                            OpenAPIRuntime.MultipartBody<Operations.post_sol_foo.Input.Body.MultipartFormPayload>.self,
+                            OpenAPIRuntime.MultipartBody<Operations.PostFoo.Input.Body.MultipartFormPayload>.self,
                             from: requestBody,
                             transforming: { value in
                                 .multipartForm(value)
@@ -5084,7 +5083,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     default:
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
-                    return Operations.post_sol_foo.Input(body: body)
+                    return Operations.PostFoo.Input(body: body)
                 }
                 """
         )
@@ -5312,11 +5311,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                         self.body = body
                                     }
                                 }
-                                case log(OpenAPIRuntime.MultipartPart<Operations.get_sol_foo.Output.Ok.Body.MultipartFormPayload.LogPayload>)
+                                case log(OpenAPIRuntime.MultipartPart<Operations.GetFoo.Output.Ok.Body.MultipartFormPayload.LogPayload>)
                                 case undocumented(OpenAPIRuntime.MultipartRawPart)
                             }
-                            case multipartForm(OpenAPIRuntime.MultipartBody<Operations.get_sol_foo.Output.Ok.Body.MultipartFormPayload>)
-                            public var multipartForm: OpenAPIRuntime.MultipartBody<Operations.get_sol_foo.Output.Ok.Body.MultipartFormPayload> {
+                            case multipartForm(OpenAPIRuntime.MultipartBody<Operations.GetFoo.Output.Ok.Body.MultipartFormPayload>)
+                            public var multipartForm: OpenAPIRuntime.MultipartBody<Operations.GetFoo.Output.Ok.Body.MultipartFormPayload> {
                                 get throws {
                                     switch self {
                                     case let .multipartForm(body):
@@ -5325,13 +5324,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 }
                             }
                         }
-                        public var body: Operations.get_sol_foo.Output.Ok.Body
-                        public init(body: Operations.get_sol_foo.Output.Ok.Body) {
+                        public var body: Operations.GetFoo.Output.Ok.Body
+                        public init(body: Operations.GetFoo.Output.Ok.Body) {
                             self.body = body
                         }
                     }
-                    case ok(Operations.get_sol_foo.Output.Ok)
-                    public var ok: Operations.get_sol_foo.Output.Ok {
+                    case ok(Operations.GetFoo.Output.Ok)
+                    public var ok: Operations.GetFoo.Output.Ok {
                         get throws {
                             switch self {
                             case let .ok(response):
@@ -5405,7 +5404,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     switch response.status.code {
                     case 200:
                         let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                        let body: Operations.get_sol_foo.Output.Ok.Body
+                        let body: Operations.GetFoo.Output.Ok.Body
                         let chosenContentType = try converter.bestContentType(
                             received: contentType,
                             options: [
@@ -5415,7 +5414,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         switch chosenContentType {
                         case "multipart/form-data":
                             body = try converter.getResponseBodyAsMultipart(
-                                OpenAPIRuntime.MultipartBody<Operations.get_sol_foo.Output.Ok.Body.MultipartFormPayload>.self,
+                                OpenAPIRuntime.MultipartBody<Operations.GetFoo.Output.Ok.Body.MultipartFormPayload>.self,
                                 from: responseBody,
                                 transforming: { value in
                                     .multipartForm(value)
@@ -5857,32 +5856,17 @@ extension SnippetBasedReferenceTests {
         let collector = XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages)
         return (
             TypesFileTranslator(
-                config: Config(
-                    mode: .types,
-                    access: .public,
-                    namingStrategy: .idiomatic,
-                    featureFlags: featureFlags
-                ),
+                config: Config(mode: .types, access: .public, namingStrategy: .idiomatic, featureFlags: featureFlags),
                 diagnostics: collector,
                 components: components
             ),
             ClientFileTranslator(
-                config: Config(
-                    mode: .client,
-                    access: .public,
-                    namingStrategy: .idiomatic,
-                    featureFlags: featureFlags
-                ),
+                config: Config(mode: .client, access: .public, namingStrategy: .idiomatic, featureFlags: featureFlags),
                 diagnostics: collector,
                 components: components
             ),
             ServerFileTranslator(
-                config: Config(
-                    mode: .server,
-                    access: .public,
-                    namingStrategy: .idiomatic,
-                    featureFlags: featureFlags
-                ),
+                config: Config(mode: .server, access: .public, namingStrategy: .idiomatic, featureFlags: featureFlags),
                 diagnostics: collector,
                 components: components
             )
