@@ -530,7 +530,7 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                foo = try container.decodeIfPresent(
+                self.foo = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .foo
                 )
@@ -562,7 +562,7 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                foo = try container.decodeIfPresent(
+                self.foo = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .foo
                 )
@@ -602,7 +602,7 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                foo = try container.decodeIfPresent(
+                self.foo = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .foo
                 )

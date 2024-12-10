@@ -118,7 +118,7 @@ extension FileTranslator {
         let assignExprs: [Expression] = properties.map { property in
             let typeUsage = property.typeUsage
             return .assignment(
-                left: .identifierPattern(property.swiftSafeName),
+                left: .identifierPattern("self").dot(property.swiftSafeName),
                 right: .try(
                     .identifierPattern("container").dot("decode\(typeUsage.isOptional ? "IfPresent" : "")")
                         .call([
