@@ -10,7 +10,7 @@ import struct Foundation.Data
 import struct Foundation.Date
 #endif
 /// A type that performs HTTP operations defined by the OpenAPI document.
-package protocol APIProtocol: Sendable {
+internal protocol APIProtocol: Sendable {
     /// - Remark: HTTP `GET /greet`.
     /// - Remark: Generated from `#/paths//greet/get(getGreeting)`.
     func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output
@@ -20,7 +20,7 @@ package protocol APIProtocol: Sendable {
 extension APIProtocol {
     /// - Remark: HTTP `GET /greet`.
     /// - Remark: Generated from `#/paths//greet/get(getGreeting)`.
-    package func getGreeting(
+    internal func getGreeting(
         query: Operations.getGreeting.Input.Query = .init(),
         headers: Operations.getGreeting.Input.Headers = .init()
     ) async throws -> Operations.getGreeting.Output {
@@ -32,9 +32,20 @@ extension APIProtocol {
 }
 
 /// Server URLs defined in the OpenAPI document.
-package enum Servers {
+internal enum Servers {
     /// Example service deployment.
-    package static func server1() throws -> Foundation.URL {
+    internal enum Server1 {
+        /// Example service deployment.
+        internal static func url() throws -> Foundation.URL {
+            try Foundation.URL(
+                validatingOpenAPIServerURL: "https://example.com/api",
+                variables: []
+            )
+        }
+    }
+    /// Example service deployment.
+    @available(*, deprecated, renamed: "Servers.Server1.url")
+    internal static func server1() throws -> Foundation.URL {
         try Foundation.URL(
             validatingOpenAPIServerURL: "https://example.com/api",
             variables: []
@@ -43,79 +54,79 @@ package enum Servers {
 }
 
 /// Types generated from the components section of the OpenAPI document.
-package enum Components {
+internal enum Components {
     /// Types generated from the `#/components/schemas` section of the OpenAPI document.
-    package enum Schemas {
+    internal enum Schemas {
         /// A value with the greeting contents.
         ///
         /// - Remark: Generated from `#/components/schemas/Greeting`.
-        package struct Greeting: Codable, Hashable, Sendable {
+        internal struct Greeting: Codable, Hashable, Sendable {
             /// The string representation of the greeting.
             ///
             /// - Remark: Generated from `#/components/schemas/Greeting/message`.
-            package var message: Swift.String
+            internal var message: Swift.String
             /// Creates a new `Greeting`.
             ///
             /// - Parameters:
             ///   - message: The string representation of the greeting.
-            package init(message: Swift.String) {
+            internal init(message: Swift.String) {
                 self.message = message
             }
-            package enum CodingKeys: String, CodingKey {
+            internal enum CodingKeys: String, CodingKey {
                 case message
             }
         }
     }
     /// Types generated from the `#/components/parameters` section of the OpenAPI document.
-    package enum Parameters {}
+    internal enum Parameters {}
     /// Types generated from the `#/components/requestBodies` section of the OpenAPI document.
-    package enum RequestBodies {}
+    internal enum RequestBodies {}
     /// Types generated from the `#/components/responses` section of the OpenAPI document.
-    package enum Responses {}
+    internal enum Responses {}
     /// Types generated from the `#/components/headers` section of the OpenAPI document.
-    package enum Headers {}
+    internal enum Headers {}
 }
 
 /// API operations, with input and output types, generated from `#/paths` in the OpenAPI document.
-package enum Operations {
+internal enum Operations {
     /// - Remark: HTTP `GET /greet`.
     /// - Remark: Generated from `#/paths//greet/get(getGreeting)`.
-    package enum getGreeting {
-        package static let id: Swift.String = "getGreeting"
-        package struct Input: Sendable, Hashable {
+    internal enum getGreeting {
+        internal static let id: Swift.String = "getGreeting"
+        internal struct Input: Sendable, Hashable {
             /// - Remark: Generated from `#/paths/greet/GET/query`.
-            package struct Query: Sendable, Hashable {
+            internal struct Query: Sendable, Hashable {
                 /// The name used in the returned greeting.
                 ///
                 /// - Remark: Generated from `#/paths/greet/GET/query/name`.
-                package var name: Swift.String?
+                internal var name: Swift.String?
                 /// Creates a new `Query`.
                 ///
                 /// - Parameters:
                 ///   - name: The name used in the returned greeting.
-                package init(name: Swift.String? = nil) {
+                internal init(name: Swift.String? = nil) {
                     self.name = name
                 }
             }
-            package var query: Operations.getGreeting.Input.Query
+            internal var query: Operations.getGreeting.Input.Query
             /// - Remark: Generated from `#/paths/greet/GET/header`.
-            package struct Headers: Sendable, Hashable {
-                package var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.getGreeting.AcceptableContentType>]
+            internal struct Headers: Sendable, Hashable {
+                internal var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.getGreeting.AcceptableContentType>]
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
                 ///   - accept:
-                package init(accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.getGreeting.AcceptableContentType>] = .defaultValues()) {
+                internal init(accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.getGreeting.AcceptableContentType>] = .defaultValues()) {
                     self.accept = accept
                 }
             }
-            package var headers: Operations.getGreeting.Input.Headers
+            internal var headers: Operations.getGreeting.Input.Headers
             /// Creates a new `Input`.
             ///
             /// - Parameters:
             ///   - query:
             ///   - headers:
-            package init(
+            internal init(
                 query: Operations.getGreeting.Input.Query = .init(),
                 headers: Operations.getGreeting.Input.Headers = .init()
             ) {
@@ -123,17 +134,17 @@ package enum Operations {
                 self.headers = headers
             }
         }
-        @frozen package enum Output: Sendable, Hashable {
-            package struct Ok: Sendable, Hashable {
+        internal enum Output: Sendable, Hashable {
+            internal struct Ok: Sendable, Hashable {
                 /// - Remark: Generated from `#/paths/greet/GET/responses/200/content`.
-                @frozen package enum Body: Sendable, Hashable {
+                internal enum Body: Sendable, Hashable {
                     /// - Remark: Generated from `#/paths/greet/GET/responses/200/content/application\/json`.
                     case json(Components.Schemas.Greeting)
                     /// The associated value of the enum case if `self` is `.json`.
                     ///
                     /// - Throws: An error if `self` is not `.json`.
                     /// - SeeAlso: `.json`.
-                    package var json: Components.Schemas.Greeting {
+                    internal var json: Components.Schemas.Greeting {
                         get throws {
                             switch self {
                             case let .json(body):
@@ -143,12 +154,12 @@ package enum Operations {
                     }
                 }
                 /// Received HTTP response body
-                package var body: Operations.getGreeting.Output.Ok.Body
+                internal var body: Operations.getGreeting.Output.Ok.Body
                 /// Creates a new `Ok`.
                 ///
                 /// - Parameters:
                 ///   - body: Received HTTP response body
-                package init(body: Operations.getGreeting.Output.Ok.Body) {
+                internal init(body: Operations.getGreeting.Output.Ok.Body) {
                     self.body = body
                 }
             }
@@ -162,7 +173,7 @@ package enum Operations {
             ///
             /// - Throws: An error if `self` is not `.ok`.
             /// - SeeAlso: `.ok`.
-            package var ok: Operations.getGreeting.Output.Ok {
+            internal var ok: Operations.getGreeting.Output.Ok {
                 get throws {
                     switch self {
                     case let .ok(response):
@@ -180,10 +191,10 @@ package enum Operations {
             /// A response with a code that is not documented in the OpenAPI document.
             case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
         }
-        @frozen package enum AcceptableContentType: AcceptableProtocol {
+        internal enum AcceptableContentType: AcceptableProtocol {
             case json
             case other(Swift.String)
-            package init?(rawValue: Swift.String) {
+            internal init?(rawValue: Swift.String) {
                 switch rawValue.lowercased() {
                 case "application/json":
                     self = .json
@@ -191,7 +202,7 @@ package enum Operations {
                     self = .other(rawValue)
                 }
             }
-            package var rawValue: Swift.String {
+            internal var rawValue: Swift.String {
                 switch self {
                 case let .other(string):
                     return string
@@ -199,7 +210,7 @@ package enum Operations {
                     return "application/json"
                 }
             }
-            package static var allCases: [Self] {
+            internal static var allCases: [Self] {
                 [
                     .json
                 ]

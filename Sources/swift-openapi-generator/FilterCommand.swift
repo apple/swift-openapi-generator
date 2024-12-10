@@ -18,7 +18,7 @@ import Yams
 import OpenAPIKit
 
 struct _FilterCommand: AsyncParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "filter",
         abstract: "Filter an OpenAPI document",
         discussion: """
