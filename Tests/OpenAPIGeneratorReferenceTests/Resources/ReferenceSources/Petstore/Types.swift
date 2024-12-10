@@ -154,17 +154,80 @@ extension APIProtocol {
 /// Server URLs defined in the OpenAPI document.
 public enum Servers {
     /// Example Petstore implementation service
+    public enum Server1 {
+        /// Example Petstore implementation service
+        public static func url() throws -> Foundation.URL {
+            try Foundation.URL(
+                validatingOpenAPIServerURL: "https://example.com/api",
+                variables: []
+            )
+        }
+    }
+    /// Example Petstore implementation service
+    @available(*, deprecated, renamed: "Servers.Server1.url")
     public static func server1() throws -> Foundation.URL {
         try Foundation.URL(
             validatingOpenAPIServerURL: "https://example.com/api",
             variables: []
         )
     }
+    public enum Server2 {
+        public static func url() throws -> Foundation.URL {
+            try Foundation.URL(
+                validatingOpenAPIServerURL: "/api",
+                variables: []
+            )
+        }
+    }
+    @available(*, deprecated, renamed: "Servers.Server2.url")
     public static func server2() throws -> Foundation.URL {
         try Foundation.URL(
             validatingOpenAPIServerURL: "/api",
             variables: []
         )
+    }
+    /// A custom domain.
+    public enum Server3 {
+        /// The "port" variable defined in the OpenAPI document. The default value is "443".
+        @frozen public enum Port: Swift.String, Sendable {
+            case _443 = "443"
+            case _8443 = "8443"
+        }
+        /// A custom domain.
+        ///
+        /// - Parameters:
+        ///   - _protocol:
+        ///   - subdomain: A subdomain name.
+        ///   - port:
+        ///   - basePath: The base API path.
+        public static func url(
+            _protocol: Swift.String = "https",
+            subdomain: Swift.String = "test",
+            port: Port = ._443,
+            basePath: Swift.String = "v1"
+        ) throws -> Foundation.URL {
+            try Foundation.URL(
+                validatingOpenAPIServerURL: "{protocol}://{subdomain}.example.com:{port}/{basePath}",
+                variables: [
+                    .init(
+                        name: "protocol",
+                        value: _protocol
+                    ),
+                    .init(
+                        name: "subdomain",
+                        value: subdomain
+                    ),
+                    .init(
+                        name: "port",
+                        value: port.rawValue
+                    ),
+                    .init(
+                        name: "basePath",
+                        value: basePath
+                    )
+                ]
+            )
+        }
     }
     /// A custom domain.
     ///
@@ -173,6 +236,7 @@ public enum Servers {
     ///   - subdomain: A subdomain name.
     ///   - port:
     ///   - basePath: The base API path.
+    @available(*, deprecated, renamed: "Servers.Server3.url")
     public static func server3(
         _protocol: Swift.String = "https",
         subdomain: Swift.String = "test",
@@ -2215,6 +2279,14 @@ public enum Operations {
             ///
             /// HTTP response code: `204 noContent`.
             case noContent(Operations.createPetWithForm.Output.NoContent)
+            /// Successfully created pet using a url form
+            ///
+            /// - Remark: Generated from `#/paths//pets/create/post(createPetWithForm)/responses/204`.
+            ///
+            /// HTTP response code: `204 noContent`.
+            public static var noContent: Self {
+                .noContent(.init())
+            }
             /// The associated value of the enum case if `self` is `.noContent`.
             ///
             /// - Throws: An error if `self` is not `.noContent`.
@@ -2435,6 +2507,14 @@ public enum Operations {
             ///
             /// HTTP response code: `202 accepted`.
             case accepted(Operations.postStats.Output.Accepted)
+            /// Accepted data.
+            ///
+            /// - Remark: Generated from `#/paths//pets/stats/post(postStats)/responses/202`.
+            ///
+            /// HTTP response code: `202 accepted`.
+            public static var accepted: Self {
+                .accepted(.init())
+            }
             /// The associated value of the enum case if `self` is `.accepted`.
             ///
             /// - Throws: An error if `self` is not `.accepted`.
@@ -2477,6 +2557,14 @@ public enum Operations {
             ///
             /// HTTP response code: `204 noContent`.
             case noContent(Operations.probe.Output.NoContent)
+            /// Ack
+            ///
+            /// - Remark: Generated from `#/paths//probe//post(probe)/responses/204`.
+            ///
+            /// HTTP response code: `204 noContent`.
+            public static var noContent: Self {
+                .noContent(.init())
+            }
             /// The associated value of the enum case if `self` is `.noContent`.
             ///
             /// - Throws: An error if `self` is not `.noContent`.
@@ -2562,6 +2650,14 @@ public enum Operations {
             ///
             /// HTTP response code: `204 noContent`.
             case noContent(Operations.updatePet.Output.NoContent)
+            /// Successfully updated
+            ///
+            /// - Remark: Generated from `#/paths//pets/{petId}/patch(updatePet)/responses/204`.
+            ///
+            /// HTTP response code: `204 noContent`.
+            public static var noContent: Self {
+                .noContent(.init())
+            }
             /// The associated value of the enum case if `self` is `.noContent`.
             ///
             /// - Throws: An error if `self` is not `.noContent`.
@@ -3034,6 +3130,14 @@ public enum Operations {
             ///
             /// HTTP response code: `202 accepted`.
             case accepted(Operations.multipartUploadTyped.Output.Accepted)
+            /// Successfully accepted the data.
+            ///
+            /// - Remark: Generated from `#/paths//pets/multipart-typed/post(multipartUploadTyped)/responses/202`.
+            ///
+            /// HTTP response code: `202 accepted`.
+            public static var accepted: Self {
+                .accepted(.init())
+            }
             /// The associated value of the enum case if `self` is `.accepted`.
             ///
             /// - Throws: An error if `self` is not `.accepted`.

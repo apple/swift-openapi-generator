@@ -109,6 +109,9 @@ platforms, listed below.
 | Generator plugin and CLI            | ✅ 10.15+ | ✅    | ✖️      | ✖️      | ✖️       | ✖️        |
 | Generated code and runtime library  | ✅ 10.15+ | ✅    | ✅ 13+ | ✅ 13+ | ✅ 6+   | ✅ 1+    |
 
+> [!NOTE]
+> When using Visual Studio Code or other editors that rely on [SourceKit-LSP](https://github.com/swiftlang/sourcekit-lsp), the editor may not correctly recognize generated code within the same module. As a workaround, consider creating a separate target for code generation and then importing it into your main module. For more details, see the discussion in [swiftlang/sourcekit-lsp#665](https://github.com/swiftlang/sourcekit-lsp/issues/665#issuecomment-2093169169).
+
 ## Documentation and example projects
 
 To get started, check out the [documentation][docs-generator], which contains

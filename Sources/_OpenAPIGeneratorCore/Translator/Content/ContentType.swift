@@ -194,7 +194,7 @@ struct ContentType: Hashable {
     /// The header value used when validating a content-type header.
     ///
     /// This should be less strict, e.g. not require `charset`.
-    var headerValueForValidation: String { lowercasedTypeAndSubtype }
+    var headerValueForValidation: String { lowercasedTypeSubtypeAndParameters }
 
     /// The coding strategy appropriate for this content type.
     var codingStrategy: CodingStrategy { category.codingStrategy }

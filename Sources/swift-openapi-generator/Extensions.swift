@@ -18,13 +18,11 @@ import Yams
 
 #if $RetroactiveAttribute
 extension URL: @retroactive ExpressibleByArgument {}
-extension GeneratorMode: @retroactive ExpressibleByArgument {}
-extension FeatureFlag: @retroactive ExpressibleByArgument {}
 #else
 extension URL: ExpressibleByArgument {}
+#endif
 extension GeneratorMode: ExpressibleByArgument {}
 extension FeatureFlag: ExpressibleByArgument {}
-#endif
 
 extension URL {
 

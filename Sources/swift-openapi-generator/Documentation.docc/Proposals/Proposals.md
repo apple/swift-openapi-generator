@@ -4,7 +4,7 @@ Collaborate on API changes to Swift OpenAPI Generator by writing a proposal.
 
 ## Overview
 
-For non-trivial changes that affect the public API, the Swift OpenAPI Generator project adopts a ligthweight version of the [Swift Evolution](https://github.com/apple/swift-evolution/blob/main/process.md) process.
+For non-trivial changes that affect the public API, the Swift OpenAPI Generator project adopts a lightweight version of the [Swift Evolution](https://github.com/apple/swift-evolution/blob/main/process.md) process.
 
 Writing a proposal first helps discuss multiple possible solutions early, apply useful feedback from other contributors, and avoid reimplementing the same feature multiple times.
 
@@ -52,3 +52,5 @@ If you have any questions, tag [Honza Dvorsky](https://github.com/czechboy0) or 
 - <doc:SOAR-0008>
 - <doc:SOAR-0009>
 - <doc:SOAR-0010>
+- <doc:SOAR-0011>
+- <doc:SOAR-0012>
