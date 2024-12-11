@@ -13,14 +13,30 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 
+/// Extra context for the `safeForSwiftCode_` family of functions to produce more appropriate Swift identifiers.
 struct SwiftNameOptions {
-    enum NameKind {
+
+    /// An option for controlling capitalization.
+    ///
+    /// Generally, type names are capitalized, for example: `Foo`.
+    /// And member names are not capitalized, for example: `foo`.
+    enum Capitalization {
+
+        /// Capitalize the name, used for type names, for example: `Foo`.
         case capitalized
+
+        /// Don't capitalize the name, used for member names, for example: `foo`.
         case noncapitalized
     }
-    var kind: NameKind
-    static let capitalized = SwiftNameOptions(kind: .capitalized)
-    static let noncapitalized = SwiftNameOptions(kind: .noncapitalized)
+
+    /// The capitalization option.
+    var capitalization: Capitalization
+
+    /// Preset options for capitalized names.
+    static let capitalized = SwiftNameOptions(capitalization: .capitalized)
+
+    /// Preset options for non-capitalized names.
+    static let noncapitalized = SwiftNameOptions(capitalization: .noncapitalized)
 }
 
 extension String {
@@ -82,8 +98,10 @@ extension String {
     ///
     /// If the string contains any illegal characters, falls back to the behavior
     /// matching `safeForSwiftCode_defensive`.
+    ///
+    /// Check out [SOAR-0013](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0013) for details.
     func safeForSwiftCode_idiomatic(options: SwiftNameOptions) -> String {
-        let capitalize = options.kind == .capitalized
+        let capitalize = options.capitalization == .capitalized
         if isEmpty { return capitalize ? "_Empty_" : "_empty_" }
         // Detect cases like HELLO_WORLD, sometimes used for constants.
         let isAllUppercase = allSatisfy {
@@ -243,6 +261,8 @@ extension String {
         if Self.keywords.contains(newString) { return "_\(newString)" }
         return newString
     }
+
+    /// A list of word separator characters for the idiomatic naming strategy.
     private static let wordSeparators: Set<Character> = ["_", "-", " ", "/"]
 
     /// A list of Swift keywords.

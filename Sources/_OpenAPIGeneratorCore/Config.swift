@@ -12,8 +12,21 @@
 //
 //===----------------------------------------------------------------------===//
 
+/// A strategy for turning OpenAPI identifiers into Swift identifiers.
 public enum NamingStrategy: String, Sendable, Codable, Equatable {
+
+    /// A defensive strategy that can handle any OpenAPI identifier and produce a non-conflicting Swift identifier.
+    ///
+    /// This strategy is the default in Swift OpenAPI Generator 1.x.
+    ///
+    /// Introduced in [SOAR-0001](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0001).
     case defensive
+
+    /// An idiomatic strategy that produces Swift identifiers that more likely conform to Swift conventions.
+    ///
+    /// Opt-in since Swift OpenAPI Generator 1.6.0.
+    ///
+    /// Introduced in [SOAR-0013](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0013).
     case idiomatic
 }
 
@@ -40,8 +53,14 @@ public struct Config: Sendable {
     /// Filter to apply to the OpenAPI document before generation.
     public var filter: DocumentFilter?
 
+    /// The naming strategy to use for deriving Swift identifiers from OpenAPI identifiers.
+    ///
+    /// Defaults to `defensive`.
     public var namingStrategy: NamingStrategy?
+
+    /// A map of OpenAPI identifiers to desired Swift identifiers, used instead of the naming strategy.
     public var nameOverrides: [String: String]?
+
     /// Additional pre-release features to enable.
     public var featureFlags: FeatureFlags
 
@@ -51,8 +70,10 @@ public struct Config: Sendable {
     ///   - access: The access modifier to use for generated declarations.
     ///   - additionalImports: Additional imports to add to each generated file.
     ///   - filter: Filter to apply to the OpenAPI document before generation.
-    ///   - namingStrategy: The OpenAPI -> Swift name conversion strategy.
-    ///   - nameOverrides: A map of OpenAPI -> Swift name overrides.
+    ///   - namingStrategy: The naming strategy to use for deriving Swift identifiers from OpenAPI identifiers.
+    ///     Defaults to `defensive`.
+    ///   - nameOverrides: A map of OpenAPI identifiers to desired Swift identifiers, used instead
+    ///     of the naming strategy.
     ///   - featureFlags: Additional pre-release features to enable.
     public init(
         mode: GeneratorMode,

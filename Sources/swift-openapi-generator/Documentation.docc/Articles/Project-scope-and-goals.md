@@ -16,7 +16,7 @@ The goal of the project is to compose with the wider OpenAPI tooling ecosystem s
 
 The OpenAPI document is considered as the source of truth. The generator aims to produce code that reflects the document where possible. This includes the specification structure, and the identifiers used by the authors of the OpenAPI document.
 
-As a result, the generated code may not always be idiomatic Swift style or conform to your own custom style guidelines. For example, the API operation identifiers may not be `lowerCamelCase`.
+As a result, the generated code may not always be idiomatic Swift style or conform to your own custom style guidelines. For example, the API operation identifiers may not be `lowerCamelCase` by default, when using the `defensive` naming strategy. However, an alternative naming strategy called [`idiomatic`](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0013) is available since version 1.6.0 that closer matches Swift conventions.
 
 If you require the generated code to conform to specific style, we recommend you preprocess the OpenAPI document to update the identifiers to produce different code.
 
