@@ -637,7 +637,7 @@ public enum Components {
             public func encode(to encoder: any Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encodeIfPresent(
-                    foo,
+                    self.foo,
                     forKey: .foo
                 )
                 try encoder.encodeAdditionalProperties(additionalProperties)
@@ -677,7 +677,7 @@ public enum Components {
             public func encode(to encoder: any Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encodeIfPresent(
-                    foo,
+                    self.foo,
                     forKey: .foo
                 )
                 try encoder.encodeAdditionalProperties(additionalProperties)
