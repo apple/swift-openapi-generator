@@ -156,7 +156,7 @@ extension FileTranslator {
             .try(
                 .identifierPattern("container").dot("encode\(property.typeUsage.isOptional ? "IfPresent" : "")")
                     .call([
-                        .init(label: nil, expression: .identifierPattern(property.swiftSafeName)),
+                        .init(label: nil, expression: .identifierPattern("self").dot(property.swiftSafeName)),
                         .init(label: "forKey", expression: .dot(property.swiftSafeName)),
                     ])
             )

@@ -637,7 +637,7 @@ public enum Components {
             public func encode(to encoder: any Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encodeIfPresent(
-                    foo,
+                    self.foo,
                     forKey: .foo
                 )
                 try encoder.encodeAdditionalProperties(additionalProperties)
@@ -677,7 +677,7 @@ public enum Components {
             public func encode(to encoder: any Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encodeIfPresent(
-                    foo,
+                    self.foo,
                     forKey: .foo
                 )
                 try encoder.encodeAdditionalProperties(additionalProperties)
@@ -696,6 +696,46 @@ public enum Components {
             }
             public enum CodingKeys: String, CodingKey {
                 case foo
+            }
+        }
+        /// - Remark: Generated from `#/components/schemas/TypedAdditionalPropertiesWithPropertyNamedContainer`.
+        public struct TypedAdditionalPropertiesWithPropertyNamedContainer: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/TypedAdditionalPropertiesWithPropertyNamedContainer/container`.
+            public var container: Swift.String?
+            /// A container of undocumented properties.
+            public var additionalProperties: [String: Swift.Int]
+            /// Creates a new `TypedAdditionalPropertiesWithPropertyNamedContainer`.
+            ///
+            /// - Parameters:
+            ///   - container:
+            ///   - additionalProperties: A container of undocumented properties.
+            public init(
+                container: Swift.String? = nil,
+                additionalProperties: [String: Swift.Int] = .init()
+            ) {
+                self.container = container
+                self.additionalProperties = additionalProperties
+            }
+            public enum CodingKeys: String, CodingKey {
+                case container
+            }
+            public init(from decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                self.container = try container.decodeIfPresent(
+                    Swift.String.self,
+                    forKey: .container
+                )
+                additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [
+                    "container"
+                ])
+            }
+            public func encode(to encoder: any Encoder) throws {
+                var container = encoder.container(keyedBy: CodingKeys.self)
+                try container.encodeIfPresent(
+                    self.container,
+                    forKey: .container
+                )
+                try encoder.encodeAdditionalProperties(additionalProperties)
             }
         }
         /// - Remark: Generated from `#/components/schemas/CodeError`.

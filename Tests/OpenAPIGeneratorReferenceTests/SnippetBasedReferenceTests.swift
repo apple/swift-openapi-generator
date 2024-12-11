@@ -547,20 +547,42 @@ final class SnippetBasedReferenceTests: XCTestCase {
             schemas:
               MyObject:
                 type: object
-                properties: {}
+                properties:
+                  id:
+                    type: string
                 additionalProperties: true
             """,
             """
             public enum Schemas {
                 public struct MyObject: Codable, Hashable, Sendable {
+                    public var id: Swift.String?
                     public var additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer
-                    public init(additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer = .init()) {
+                    public init(
+                        id: Swift.String? = nil,
+                        additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer = .init()
+                    ) {
+                        self.id = id
                         self.additionalProperties = additionalProperties
                     }
+                    public enum CodingKeys: String, CodingKey {
+                        case id
+                    }
                     public init(from decoder: any Decoder) throws {
-                        additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [])
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        self.id = try container.decodeIfPresent(
+                            Swift.String.self,
+                            forKey: .id
+                        )
+                        additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [
+                            "id"
+                        ])
                     }
                     public func encode(to encoder: any Encoder) throws {
+                        var container = encoder.container(keyedBy: CodingKeys.self)
+                        try container.encodeIfPresent(
+                            self.id,
+                            forKey: .id
+                        )
                         try encoder.encodeAdditionalProperties(additionalProperties)
                     }
                 }
