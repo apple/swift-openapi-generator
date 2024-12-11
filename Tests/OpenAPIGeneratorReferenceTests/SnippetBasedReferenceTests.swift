@@ -547,20 +547,42 @@ final class SnippetBasedReferenceTests: XCTestCase {
             schemas:
               MyObject:
                 type: object
-                properties: {}
+                properties:
+                  id:
+                    type: string
                 additionalProperties: true
             """,
             """
             public enum Schemas {
                 public struct MyObject: Codable, Hashable, Sendable {
+                    public var id: Swift.String?
                     public var additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer
-                    public init(additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer = .init()) {
+                    public init(
+                        id: Swift.String? = nil,
+                        additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer = .init()
+                    ) {
+                        self.id = id
                         self.additionalProperties = additionalProperties
                     }
+                    public enum CodingKeys: String, CodingKey {
+                        case id
+                    }
                     public init(from decoder: any Decoder) throws {
-                        additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [])
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        self.id = try container.decodeIfPresent(
+                            Swift.String.self,
+                            forKey: .id
+                        )
+                        additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [
+                            "id"
+                        ])
                     }
                     public func encode(to encoder: any Encoder) throws {
+                        var container = encoder.container(keyedBy: CodingKeys.self)
+                        try container.encodeIfPresent(
+                            self.id,
+                            forKey: .id
+                        )
                         try encoder.encodeAdditionalProperties(additionalProperties)
                     }
                 }
@@ -726,13 +748,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         self.value4 = value4
                     }
                     public init(from decoder: any Decoder) throws {
-                        value1 = try .init(from: decoder)
-                        value2 = try .init(from: decoder)
-                        value3 = try decoder.decodeFromSingleValueContainer()
-                        value4 = try decoder.decodeFromSingleValueContainer()
+                        self.value1 = try .init(from: decoder)
+                        self.value2 = try .init(from: decoder)
+                        self.value3 = try decoder.decodeFromSingleValueContainer()
+                        self.value4 = try decoder.decodeFromSingleValueContainer()
                     }
                     public func encode(to encoder: any Encoder) throws {
-                        try encoder.encodeToSingleValueContainer(value3)
+                        try encoder.encodeToSingleValueContainer(self.value3)
                     }
                 }
             }
@@ -778,31 +800,31 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(from decoder: any Decoder) throws {
                         var errors: [any Error] = []
                         do {
-                            value1 = try .init(from: decoder)
+                            self.value1 = try .init(from: decoder)
                         } catch {
                             errors.append(error)
                         }
                         do {
-                            value2 = try .init(from: decoder)
+                            self.value2 = try .init(from: decoder)
                         } catch {
                             errors.append(error)
                         }
                         do {
-                            value3 = try decoder.decodeFromSingleValueContainer()
+                            self.value3 = try decoder.decodeFromSingleValueContainer()
                         } catch {
                             errors.append(error)
                         }
                         do {
-                            value4 = try decoder.decodeFromSingleValueContainer()
+                            self.value4 = try decoder.decodeFromSingleValueContainer()
                         } catch {
                             errors.append(error)
                         }
                         try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [
-                                value1,
-                                value2,
-                                value3,
-                                value4
+                                self.value1,
+                                self.value2,
+                                self.value3,
+                                self.value4
                             ],
                             type: Self.self,
                             codingPath: decoder.codingPath,
@@ -811,11 +833,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public func encode(to encoder: any Encoder) throws {
                         try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                            value3,
-                            value4
+                            self.value3,
+                            self.value4
                         ])
-                        try value1?.encode(to: encoder)
-                        try value2?.encode(to: encoder)
+                        try self.value1?.encode(to: encoder)
+                        try self.value2?.encode(to: encoder)
                     }
                 }
             }
@@ -1154,19 +1176,19 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(from decoder: any Decoder) throws {
                         var errors: [any Error] = []
                         do {
-                            value1 = try .init(from: decoder)
+                            self.value1 = try .init(from: decoder)
                         } catch {
                             errors.append(error)
                         }
                         do {
-                            value2 = try .init(from: decoder)
+                            self.value2 = try .init(from: decoder)
                         } catch {
                             errors.append(error)
                         }
                         try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [
-                                value1,
-                                value2
+                                self.value1,
+                                self.value2
                             ],
                             type: Self.self,
                             codingPath: decoder.codingPath,
@@ -1174,8 +1196,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         )
                     }
                     public func encode(to encoder: any Encoder) throws {
-                        try value1?.encode(to: encoder)
-                        try value2?.encode(to: encoder)
+                        try self.value1?.encode(to: encoder)
+                        try self.value2?.encode(to: encoder)
                     }
                 }
             }
@@ -1202,10 +1224,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         self.value1 = value1
                     }
                     public init(from decoder: any Decoder) throws {
-                        value1 = try decoder.decodeFromSingleValueContainer()
+                        self.value1 = try decoder.decodeFromSingleValueContainer()
                     }
                     public func encode(to encoder: any Encoder) throws {
-                        try encoder.encodeToSingleValueContainer(value1)
+                        try encoder.encodeToSingleValueContainer(self.value1)
                     }
                 }
             }
@@ -1238,10 +1260,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self.value1 = value1
                         }
                         public init(from decoder: any Decoder) throws {
-                            value1 = try decoder.decodeFromSingleValueContainer()
+                            self.value1 = try decoder.decodeFromSingleValueContainer()
                         }
                         public func encode(to encoder: any Encoder) throws {
-                            try encoder.encodeToSingleValueContainer(value1)
+                            try encoder.encodeToSingleValueContainer(self.value1)
                         }
                     }
                     public var c: Components.Schemas.B.cPayload
@@ -1281,10 +1303,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self.value1 = value1
                         }
                         public init(from decoder: any Decoder) throws {
-                            value1 = try decoder.decodeFromSingleValueContainer()
+                            self.value1 = try decoder.decodeFromSingleValueContainer()
                         }
                         public func encode(to encoder: any Encoder) throws {
-                            try encoder.encodeToSingleValueContainer(value1)
+                            try encoder.encodeToSingleValueContainer(self.value1)
                         }
                     }
                     public var c: Components.Schemas.B.cPayload?
@@ -1406,19 +1428,19 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(from decoder: any Decoder) throws {
                         var errors: [any Error] = []
                         do {
-                            value1 = try decoder.decodeFromSingleValueContainer()
+                            self.value1 = try decoder.decodeFromSingleValueContainer()
                         } catch {
                             errors.append(error)
                         }
                         do {
-                            value2 = try decoder.decodeFromSingleValueContainer()
+                            self.value2 = try decoder.decodeFromSingleValueContainer()
                         } catch {
                             errors.append(error)
                         }
                         try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                             [
-                                value1,
-                                value2
+                                self.value1,
+                                self.value2
                             ],
                             type: Self.self,
                             codingPath: decoder.codingPath,
@@ -1427,8 +1449,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public func encode(to encoder: any Encoder) throws {
                         try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                            value1,
-                            value2
+                            self.value1,
+                            self.value2
                         ])
                     }
                 }
@@ -1563,23 +1585,23 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct Node: Codable, Hashable, Sendable {
                     public var parent: Components.Schemas.Node? {
                         get  {
-                            storage.value.parent
+                            self.storage.value.parent
                         }
                         _modify {
-                            yield &storage.value.parent
+                            yield &self.storage.value.parent
                         }
                     }
                     public init(parent: Components.Schemas.Node? = nil) {
-                        storage = .init(value: .init(parent: parent))
+                        self.storage = .init(value: .init(parent: parent))
                     }
                     public enum CodingKeys: String, CodingKey {
                         case parent
                     }
                     public init(from decoder: any Decoder) throws {
-                        storage = try .init(from: decoder)
+                        self.storage = try .init(from: decoder)
                     }
                     public func encode(to encoder: any Encoder) throws {
-                        try storage.encode(to: encoder)
+                        try self.storage.encode(to: encoder)
                     }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
@@ -1619,10 +1641,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct Node: Codable, Hashable, Sendable {
                     public var name: Swift.String {
                         get  {
-                            storage.value.name
+                            self.storage.value.name
                         }
                         _modify {
-                            yield &storage.value.name
+                            yield &self.storage.value.name
                         }
                     }
                     public struct parentPayload: Codable, Hashable, Sendable {
@@ -1636,17 +1658,17 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public var parent: Components.Schemas.Node.parentPayload? {
                         get  {
-                            storage.value.parent
+                            self.storage.value.parent
                         }
                         _modify {
-                            yield &storage.value.parent
+                            yield &self.storage.value.parent
                         }
                     }
                     public init(
                         name: Swift.String,
                         parent: Components.Schemas.Node.parentPayload? = nil
                     ) {
-                        storage = .init(value: .init(
+                        self.storage = .init(value: .init(
                             name: name,
                             parent: parent
                         ))
@@ -1656,10 +1678,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case parent
                     }
                     public init(from decoder: any Decoder) throws {
-                        storage = try .init(from: decoder)
+                        self.storage = try .init(from: decoder)
                     }
                     public func encode(to encoder: any Encoder) throws {
-                        try storage.encode(to: encoder)
+                        try self.storage.encode(to: encoder)
                     }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
@@ -1714,20 +1736,20 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public var value1: Components.Schemas.Node.Value1Payload {
                         get  {
-                            storage.value.value1
+                            self.storage.value.value1
                         }
                         _modify {
-                            yield &storage.value.value1
+                            yield &self.storage.value.value1
                         }
                     }
                     public init(value1: Components.Schemas.Node.Value1Payload) {
-                        storage = .init(value: .init(value1: value1))
+                        self.storage = .init(value: .init(value1: value1))
                     }
                     public init(from decoder: any Decoder) throws {
-                        storage = try .init(from: decoder)
+                        self.storage = try .init(from: decoder)
                     }
                     public func encode(to encoder: any Encoder) throws {
-                        try storage.encode(to: encoder)
+                        try self.storage.encode(to: encoder)
                     }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
@@ -1745,10 +1767,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self.value1 = value1
                         }
                         init(from decoder: any Decoder) throws {
-                            value1 = try .init(from: decoder)
+                            self.value1 = try .init(from: decoder)
                         }
                         func encode(to encoder: any Encoder) throws {
-                            try value1.encode(to: encoder)
+                            try self.value1.encode(to: encoder)
                         }
                     }
                 }
@@ -1771,34 +1793,34 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public struct Node: Codable, Hashable, Sendable {
                     public var value1: Components.Schemas.Node? {
                         get  {
-                            storage.value.value1
+                            self.storage.value.value1
                         }
                         _modify {
-                            yield &storage.value.value1
+                            yield &self.storage.value.value1
                         }
                     }
                     public var value2: Swift.String? {
                         get  {
-                            storage.value.value2
+                            self.storage.value.value2
                         }
                         _modify {
-                            yield &storage.value.value2
+                            yield &self.storage.value.value2
                         }
                     }
                     public init(
                         value1: Components.Schemas.Node? = nil,
                         value2: Swift.String? = nil
                     ) {
-                        storage = .init(value: .init(
+                        self.storage = .init(value: .init(
                             value1: value1,
                             value2: value2
                         ))
                     }
                     public init(from decoder: any Decoder) throws {
-                        storage = try .init(from: decoder)
+                        self.storage = try .init(from: decoder)
                     }
                     public func encode(to encoder: any Encoder) throws {
-                        try storage.encode(to: encoder)
+                        try self.storage.encode(to: encoder)
                     }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
@@ -1814,19 +1836,19 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         init(from decoder: any Decoder) throws {
                             var errors: [any Error] = []
                             do {
-                                value1 = try .init(from: decoder)
+                                self.value1 = try .init(from: decoder)
                             } catch {
                                 errors.append(error)
                             }
                             do {
-                                value2 = try decoder.decodeFromSingleValueContainer()
+                                self.value2 = try decoder.decodeFromSingleValueContainer()
                             } catch {
                                 errors.append(error)
                             }
                             try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                                 [
-                                    value1,
-                                    value2
+                                    self.value1,
+                                    self.value2
                                 ],
                                 type: Self.self,
                                 codingPath: decoder.codingPath,
@@ -1835,9 +1857,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         }
                         func encode(to encoder: any Encoder) throws {
                             try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                                value2
+                                self.value2
                             ])
-                            try value1?.encode(to: encoder)
+                            try self.value1?.encode(to: encoder)
                         }
                     }
                 }

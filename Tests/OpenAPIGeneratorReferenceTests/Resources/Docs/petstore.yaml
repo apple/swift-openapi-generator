@@ -406,6 +406,14 @@ components:
           type: [array, null]
           items:
             type: [string, null]
+    # To catch the clashes of members and the decoding container.
+    TypedAdditionalPropertiesWithPropertyNamedContainer:
+      type: object
+      properties:
+        container:
+          type: string
+      additionalProperties:
+        type: integer
     CodeError:
       type: object
       properties:
