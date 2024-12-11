@@ -97,3 +97,9 @@ extension Array where Element == String {
         return "\(self.dropLast().joined(separator: separator))\(lastSeparator)\(self.last!)"
     }
 }
+
+extension String {
+    func prepended(_ prefix: String) -> String {
+        return prefix + self
+    }
+}
