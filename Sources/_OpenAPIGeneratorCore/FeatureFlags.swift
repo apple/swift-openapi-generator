@@ -28,6 +28,10 @@
 public enum FeatureFlag: String, Hashable, Codable, CaseIterable, Sendable {
     // needs to be here for the enum to compile
     case empty
+    /// UUID support
+    ///
+    /// Enable interpretation of `type: string, format: uuid` as `Foundation.UUID` typed data.
+    case uuidSupport
 }
 
 /// A set of enabled feature flags.

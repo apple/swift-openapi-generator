@@ -50,6 +50,9 @@ extension TypeName {
     /// Returns the type name for the URL type.
     static var url: Self { .foundation("URL") }
 
+    /// Returns the type name for the UUID type.
+    static var uuid: Self { .foundation("UUID") }
+
     /// Returns the type name for the DecodingError type.
     static var decodingError: Self { .swift("DecodingError") }
 

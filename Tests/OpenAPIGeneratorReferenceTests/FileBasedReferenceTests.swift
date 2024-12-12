@@ -42,7 +42,7 @@ final class FileBasedReferenceTests: XCTestCase {
         #endif
     }
 
-    func testPetstore() throws { try _test(referenceProject: .init(name: .petstore)) }
+    func testPetstore() throws { try _test(referenceProject: .init(name: .petstore), featureFlags: [.uuidSupport]) }
 
     // MARK: - Private
 

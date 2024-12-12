@@ -4,10 +4,12 @@
 @preconcurrency import struct Foundation.URL
 @preconcurrency import struct Foundation.Data
 @preconcurrency import struct Foundation.Date
+@preconcurrency import struct Foundation.UUID
 #else
 import struct Foundation.URL
 import struct Foundation.Data
 import struct Foundation.Date
+import struct Foundation.UUID
 #endif
 import HTTPTypes
 /// Service for managing pet metadata.
@@ -107,7 +109,7 @@ public struct Client: APIProtocol {
                         My_hyphen_Response_hyphen_UUID: try converter.getRequiredHeaderFieldAsURI(
                             in: response.headerFields,
                             name: "My-Response-UUID",
-                            as: Swift.String.self
+                            as: Foundation.UUID.self
                         ),
                         My_hyphen_Tracing_hyphen_Header: try converter.getOptionalHeaderFieldAsURI(
                             in: response.headerFields,

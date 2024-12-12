@@ -4,10 +4,12 @@
 @preconcurrency import struct Foundation.URL
 @preconcurrency import struct Foundation.Data
 @preconcurrency import struct Foundation.Date
+@preconcurrency import struct Foundation.UUID
 #else
 import struct Foundation.URL
 import struct Foundation.Data
 import struct Foundation.Date
+import struct Foundation.UUID
 #endif
 /// A type that performs HTTP operations defined by the OpenAPI document.
 public protocol APIProtocol: Sendable {
@@ -1924,7 +1926,7 @@ public enum Operations {
                 /// Request identifier
                 ///
                 /// - Remark: Generated from `#/paths/pets/GET/header/My-Request-UUID`.
-                public var My_hyphen_Request_hyphen_UUID: Swift.String?
+                public var My_hyphen_Request_hyphen_UUID: Foundation.UUID?
                 public var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.listPets.AcceptableContentType>]
                 /// Creates a new `Headers`.
                 ///
@@ -1932,7 +1934,7 @@ public enum Operations {
                 ///   - My_hyphen_Request_hyphen_UUID: Request identifier
                 ///   - accept:
                 public init(
-                    My_hyphen_Request_hyphen_UUID: Swift.String? = nil,
+                    My_hyphen_Request_hyphen_UUID: Foundation.UUID? = nil,
                     accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.listPets.AcceptableContentType>] = .defaultValues()
                 ) {
                     self.My_hyphen_Request_hyphen_UUID = My_hyphen_Request_hyphen_UUID
@@ -1960,7 +1962,7 @@ public enum Operations {
                     /// Response identifier
                     ///
                     /// - Remark: Generated from `#/paths/pets/GET/responses/200/headers/My-Response-UUID`.
-                    public var My_hyphen_Response_hyphen_UUID: Swift.String
+                    public var My_hyphen_Response_hyphen_UUID: Foundation.UUID
                     /// A description here.
                     ///
                     /// - Remark: Generated from `#/paths/pets/GET/responses/200/headers/My-Tracing-Header`.
@@ -1971,7 +1973,7 @@ public enum Operations {
                     ///   - My_hyphen_Response_hyphen_UUID: Response identifier
                     ///   - My_hyphen_Tracing_hyphen_Header: A description here.
                     public init(
-                        My_hyphen_Response_hyphen_UUID: Swift.String,
+                        My_hyphen_Response_hyphen_UUID: Foundation.UUID,
                         My_hyphen_Tracing_hyphen_Header: Components.Headers.TracingHeader? = nil
                     ) {
                         self.My_hyphen_Response_hyphen_UUID = My_hyphen_Response_hyphen_UUID
