@@ -37,7 +37,7 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
             let targetNames = targetNames.joined(separator: ", ", lastSeparator: " and ")
             return "Found no targets with names \(targetNames)."
         case .fileErrors(let fileErrors):
-            return "Issues with required files: \(fileErrors.map(\.description).joined(separator: ", and"))."
+            return "Issues with required files:\n\(fileErrors.map { "- " + $0.description }.joined(separator: "\n"))."
         }
     }
 
