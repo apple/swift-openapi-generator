@@ -35,6 +35,8 @@ struct _GenerateOptions: ParsableArguments {
 
     @Option(help: "Additional import to add to all generated files.") var additionalImport: [String] = []
 
+    @Option(help: "Additional protocol conformances to add to the APIProtocol type") var additionalAPIProtocols: [String] = []
+
     @Option(help: "Pre-release feature to enable. Options: \(FeatureFlag.prettyListing).") var featureFlag:
         [FeatureFlag] = []
 
@@ -80,6 +82,14 @@ extension _GenerateOptions {
     func resolvedAdditionalImports(_ config: _UserConfig?) -> [String] {
         if !additionalImport.isEmpty { return additionalImport }
         if let additionalImports = config?.additionalImports, !additionalImports.isEmpty { return additionalImports }
+        return []
+    }
+
+    func resolvedAdditionalAPIProtocols(_ config: _UserConfig?) -> [String] {
+        if !additionalAPIProtocols.isEmpty { return additionalAPIProtocols }
+        if let additionalAPIProcotols = config?.additionalAPIProtocols, !additionalAPIProcotols.isEmpty {
+            return additionalAPIProcotols
+        }
         return []
     }
 

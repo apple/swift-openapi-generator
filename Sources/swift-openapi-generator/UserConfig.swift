@@ -30,6 +30,10 @@ struct _UserConfig: Codable {
     /// generated Swift file.
     var additionalImports: [String]?
 
+    /// A list of additional protocol conformances to add to the APIProtocol
+    /// that is generated.
+    var additionalAPIProtocols: [String]?
+
     /// Filter to apply to the OpenAPI document before generation.
     var filter: DocumentFilter?
 
