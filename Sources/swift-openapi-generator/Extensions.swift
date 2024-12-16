@@ -47,10 +47,7 @@ extension _UserConfig {
         .init(
             generate: [.types, .client],
             accessModifier: .internal,
-            filter: .init(operations: [
-                "listPets",
-                "createPet"
-            ]),
+            filter: .init(operations: ["listPets", "createPet"]),
             namingStrategy: .idiomatic
         )
     }

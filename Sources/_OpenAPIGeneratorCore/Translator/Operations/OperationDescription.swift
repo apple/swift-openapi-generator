@@ -299,7 +299,7 @@ extension OperationDescription {
             }
             let newPath = OpenAPI.Path(newComponents, trailingSlash: path.trailingSlash)
             let names: [Expression] = orderedPathParameters.map { param in
-                    .identifierPattern("input").dot("path").dot(context.asSwiftSafeName(param, .noncapitalized))
+                .identifierPattern("input").dot("path").dot(context.asSwiftSafeName(param, .noncapitalized))
             }
             let arrayExpr: Expression = .literal(.array(names))
             return (newPath.rawValue, arrayExpr)

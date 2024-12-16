@@ -536,7 +536,8 @@ struct TypeAssigner {
             guard !params.isEmpty else { return prefix }
             let safedParams =
                 params.map { pair in
-                    pair.split(separator: "=").map { context.asSwiftSafeName(String($0), .noncapitalized) }.joined(separator: "_")
+                    pair.split(separator: "=").map { context.asSwiftSafeName(String($0), .noncapitalized) }
+                        .joined(separator: "_")
                 }
                 .joined(separator: "_")
             return prefix + "_" + safedParams
