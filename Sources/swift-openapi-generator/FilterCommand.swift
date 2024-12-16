@@ -87,9 +87,7 @@ private let sampleConfig = _UserConfig(
         tags: ["greetings"],
         paths: ["/greeting"],
         schemas: ["Greeting"]
-    ),
-    namingStrategy: .idiomatic,
-    nameOverrides: ["SPECIAL_NAME": "SpecialName"]
+    )
 )
 
 enum OutputFormat: String, ExpressibleByArgument {

@@ -52,10 +52,10 @@ public struct Config: Sendable {
     /// The naming strategy to use for deriving Swift identifiers from OpenAPI identifiers.
     ///
     /// Defaults to `defensive`.
-    public var namingStrategy: NamingStrategy?
+    public var namingStrategy: NamingStrategy
 
     /// A map of OpenAPI identifiers to desired Swift identifiers, used instead of the naming strategy.
-    public var nameOverrides: [String: String]?
+    public var nameOverrides: [String: String]
 
     /// Additional pre-release features to enable.
     public var featureFlags: FeatureFlags
@@ -76,8 +76,8 @@ public struct Config: Sendable {
         access: AccessModifier,
         additionalImports: [String] = [],
         filter: DocumentFilter? = nil,
-        namingStrategy: NamingStrategy? = nil,
-        nameOverrides: [String: String]? = nil,
+        namingStrategy: NamingStrategy = .defensive,
+        nameOverrides: [String: String] = [:],
         featureFlags: FeatureFlags = []
     ) {
         self.mode = mode

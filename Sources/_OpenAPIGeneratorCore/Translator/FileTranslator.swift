@@ -50,14 +50,17 @@ extension FileTranslator {
     var context: TranslatorContext {
         let asSwiftSafeName: (String, SwiftNameOptions) -> String
         switch config.namingStrategy {
-        case .defensive, .none: asSwiftSafeName = { $0.safeForSwiftCode_defensive(options: $1) }
+        case .defensive: asSwiftSafeName = { $0.safeForSwiftCode_defensive(options: $1) }
         case .idiomatic: asSwiftSafeName = { $0.safeForSwiftCode_idiomatic(options: $1) }
         }
-        let overrides = config.nameOverrides ?? [:]
-        return TranslatorContext(asSwiftSafeName: { name, options in
-            if let override = overrides[name] { return override }
-            return asSwiftSafeName(name, options)
-        })
+        let overrides = config.nameOverrides
+        return TranslatorContext(
+            asSwiftSafeName: { name, options in
+                if let override = overrides[name] { return override }
+                return asSwiftSafeName(name, options)
+            },
+            namingStrategy: config.namingStrategy
+        )
     }
 }
 
@@ -69,4 +72,7 @@ struct TranslatorContext {
     /// - Parameter string: The string to convert to be safe for Swift.
     /// - Returns: A Swift-safe version of the input string.
     var asSwiftSafeName: (String, SwiftNameOptions) -> String
+
+    /// The naming strategy.
+    var namingStrategy: NamingStrategy
 }

@@ -28,7 +28,7 @@ class Test_Core: XCTestCase {
     func makeTranslator(
         components: OpenAPI.Components = .noComponents,
         diagnostics: any DiagnosticCollector = PrintingDiagnosticCollector(),
-        namingStrategy: NamingStrategy? = nil,
+        namingStrategy: NamingStrategy = .defensive,
         nameOverrides: [String: String] = [:],
         featureFlags: FeatureFlags = []
     ) -> TypesFileTranslator {
@@ -44,7 +44,7 @@ class Test_Core: XCTestCase {
     func makeTypesTranslator(
         components: OpenAPI.Components = .noComponents,
         diagnostics: any DiagnosticCollector = PrintingDiagnosticCollector(),
-        namingStrategy: NamingStrategy? = nil,
+        namingStrategy: NamingStrategy = .defensive,
         nameOverrides: [String: String] = [:],
         featureFlags: FeatureFlags = []
     ) -> TypesFileTranslator {
@@ -60,7 +60,7 @@ class Test_Core: XCTestCase {
     }
 
     func makeConfig(
-        namingStrategy: NamingStrategy? = nil,
+        namingStrategy: NamingStrategy = .defensive,
         nameOverrides: [String: String] = [:],
         featureFlags: FeatureFlags = []
     ) -> Config {

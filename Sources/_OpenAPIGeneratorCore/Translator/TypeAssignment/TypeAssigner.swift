@@ -531,19 +531,34 @@ struct TypeAssigner {
         default:
             let safedType = context.asSwiftSafeName(contentType.originallyCasedType, .noncapitalized)
             let safedSubtype = context.asSwiftSafeName(contentType.originallyCasedSubtype, .noncapitalized)
-            let prefix = "\(safedType)_\(safedSubtype)"
+            let componentSeparator: String
+            let capitalizeNonFirstWords: Bool
+            switch context.namingStrategy {
+            case .defensive:
+                componentSeparator = "_"
+                capitalizeNonFirstWords = false
+            case .idiomatic:
+                componentSeparator = ""
+                capitalizeNonFirstWords = true
+            }
+            let prettifiedSubtype = capitalizeNonFirstWords ? safedSubtype.capitalized : safedSubtype
+            let prefix = "\(safedType)\(componentSeparator)\(prettifiedSubtype)"
             let params = contentType.lowercasedParameterPairs
             guard !params.isEmpty else { return prefix }
             let safedParams =
-                params.map { pair in
-                    pair.split(separator: "=").map { context.asSwiftSafeName(String($0), .noncapitalized) }
-                        .joined(separator: "_")
-                }
-                .joined(separator: "_")
-            return prefix + "_" + safedParams
+            params.map { pair in
+                pair
+                    .split(separator: "=")
+                    .map { component in
+                        let safedComponent = context.asSwiftSafeName(String(component), .noncapitalized)
+                        return capitalizeNonFirstWords ? safedComponent.capitalized : safedComponent
+                    }
+                    .joined(separator: componentSeparator)
+            }
+            .joined(separator: componentSeparator)
+            return prefix + componentSeparator + safedParams
         }
     }
-
 }
 
 extension FileTranslator {

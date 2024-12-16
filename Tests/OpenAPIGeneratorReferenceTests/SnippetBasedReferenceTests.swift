@@ -3106,7 +3106,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public enum RequestBodies {
                     @frozen public enum MultipleContentTypes: Sendable, Hashable {
                         case json(Swift.Int)
-                        case application_json_foo_bar(Swift.Int)
+                        case applicationJsonFooBar(Swift.Int)
                         case plainText(OpenAPIRuntime.HTTPBody)
                         case binary(OpenAPIRuntime.HTTPBody)
                     }
@@ -3131,7 +3131,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             headerFields: &request.headerFields,
                             contentType: "application/json; charset=utf-8"
                         )
-                    case let .application_json_foo_bar(value):
+                    case let .applicationJsonFooBar(value):
                         body = try converter.setRequiredRequestBodyAsJSON(
                             value,
                             headerFields: &request.headerFields,
@@ -3180,7 +3180,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             Swift.Int.self,
                             from: requestBody,
                             transforming: { value in
-                                .application_json_foo_bar(value)
+                                .applicationJsonFooBar(value)
                             }
                         )
                     case "text/plain":
@@ -3268,11 +3268,11 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                     }
                                 }
                             }
-                            case application_json_foo_bar(Swift.Int)
-                            public var application_json_foo_bar: Swift.Int {
+                            case applicationJsonFooBar(Swift.Int)
+                            public var applicationJsonFooBar: Swift.Int {
                                 get throws {
                                     switch self {
-                                    case let .application_json_foo_bar(body):
+                                    case let .applicationJsonFooBar(body):
                                         return body
                                     default:
                                         try throwUnexpectedResponseBody(
@@ -3337,7 +3337,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 headerFields: &response.headerFields,
                                 contentType: "application/json; charset=utf-8"
                             )
-                        case let .application_json_foo_bar(value):
+                        case let .applicationJsonFooBar(value):
                             try converter.validateAcceptIfPresent(
                                 "application/json; foo=bar",
                                 in: request.headerFields
@@ -3401,7 +3401,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 Swift.Int.self,
                                 from: responseBody,
                                 transforming: { value in
-                                    .application_json_foo_bar(value)
+                                    .applicationJsonFooBar(value)
                                 }
                             )
                         case "text/plain":
