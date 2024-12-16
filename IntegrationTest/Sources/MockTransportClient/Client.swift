@@ -24,6 +24,6 @@ struct MockClientTransport: ClientTransport {
 }
 
 func run() async throws {
-    let client = Client(serverURL: try Servers.server1(), transport: MockClientTransport())
+    let client = Client(serverURL: try Servers.Server1.url(), transport: MockClientTransport())
     _ = try await client.getGreeting(.init())
 }

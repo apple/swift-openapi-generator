@@ -36,5 +36,5 @@ class MockServerTransport: ServerTransport {
 func initializeServer() throws {
     let handler = SimpleAPIImpl()
     let transport = MockServerTransport()
-    try handler.registerHandlers(on: transport, serverURL: Servers.server1())
+    try handler.registerHandlers(on: transport, serverURL: Servers.Server1.url())
 }

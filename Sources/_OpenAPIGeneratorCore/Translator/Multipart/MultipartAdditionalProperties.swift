@@ -11,10 +11,10 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIKit
+@preconcurrency import OpenAPIKit
 
 /// The strategy for handling the additional properties key in a multipart schema.
-enum MultipartAdditionalPropertiesStrategy: Equatable {
+enum MultipartAdditionalPropertiesStrategy: Equatable, Sendable {
 
     /// A strategy where additional properties are explicitly disallowed.
     case disallowed

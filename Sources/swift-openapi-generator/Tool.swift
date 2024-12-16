@@ -14,7 +14,7 @@
 import ArgumentParser
 
 @main struct _Tool: AsyncParsableCommand {
-    static var configuration: CommandConfiguration = .init(
+    static let configuration: CommandConfiguration = .init(
         commandName: "swift-openapi-generator",
         abstract: "Generate Swift client and server code from an OpenAPI document",
         subcommands: [_FilterCommand.self, _GenerateCommand.self]

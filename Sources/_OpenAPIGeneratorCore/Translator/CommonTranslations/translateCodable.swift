@@ -118,7 +118,7 @@ extension FileTranslator {
         let assignExprs: [Expression] = properties.map { property in
             let typeUsage = property.typeUsage
             return .assignment(
-                left: .identifierPattern(property.swiftSafeName),
+                left: .selfDot(property.swiftSafeName),
                 right: .try(
                     .identifierPattern("container").dot("decode\(typeUsage.isOptional ? "IfPresent" : "")")
                         .call([
@@ -156,7 +156,7 @@ extension FileTranslator {
             .try(
                 .identifierPattern("container").dot("encode\(property.typeUsage.isOptional ? "IfPresent" : "")")
                     .call([
-                        .init(label: nil, expression: .identifierPattern(property.swiftSafeName)),
+                        .init(label: nil, expression: .selfDot(property.swiftSafeName)),
                         .init(label: "forKey", expression: .dot(property.swiftSafeName)),
                     ])
             )
@@ -181,7 +181,7 @@ extension FileTranslator {
         let assignExprs: [Expression] = properties.map { property, isKeyValuePair in
             let decoderExpr: Expression =
                 isKeyValuePair ? .initFromDecoderExpr() : .decodeFromSingleValueContainerExpr()
-            return .assignment(left: .identifierPattern(property.swiftSafeName), right: .try(decoderExpr))
+            return .assignment(left: .selfDot(property.swiftSafeName), right: .try(decoderExpr))
         }
         return decoderInitializer(body: assignExprs.map { .expression($0) })
     }
@@ -194,12 +194,11 @@ extension FileTranslator {
     {
         let exprs: [Expression]
         if let firstSingleValue = properties.first(where: { !$0.isKeyValuePair }) {
-            let expr: Expression = .identifierPattern(firstSingleValue.property.swiftSafeName)
+            let expr: Expression = .selfDot(firstSingleValue.property.swiftSafeName)
                 .encodeToSingleValueContainerExpr(gracefully: false)
             exprs = [expr]
         } else {
-            exprs = properties.filter { $0.isKeyValuePair }.map(\.property.swiftSafeName)
-                .map { name in .identifierPattern(name).encodeExpr() }
+            exprs = properties.filter(\.isKeyValuePair).map { .selfDot($0.property.swiftSafeName).encodeExpr() }
         }
         return encoderFunction(body: exprs.map { .expression($0) })
     }
@@ -216,10 +215,7 @@ extension FileTranslator {
         let assignBlocks: [CodeBlock] = properties.map { (property, isKeyValuePair) in
             let decoderExpr: Expression =
                 isKeyValuePair ? .initFromDecoderExpr() : .decodeFromSingleValueContainerExpr()
-            let assignExpr: Expression = .assignment(
-                left: .identifierPattern(property.swiftSafeName),
-                right: .try(decoderExpr)
-            )
+            let assignExpr: Expression = .assignment(left: .selfDot(property.swiftSafeName), right: .try(decoderExpr))
             return .expression(assignExpr.wrapInDoCatchAppendArrayExpr())
         }
         let atLeastOneNotNilCheckExpr: Expression = .try(
@@ -227,7 +223,7 @@ extension FileTranslator {
                 .call([
                     .init(
                         label: nil,
-                        expression: .literal(.array(properties.map { .identifierPattern($0.property.swiftSafeName) }))
+                        expression: .literal(.array(properties.map { .selfDot($0.property.swiftSafeName) }))
                     ), .init(label: "type", expression: .identifierPattern("Self").dot("self")),
                     .init(label: "codingPath", expression: .identifierPattern("decoder").dot("codingPath")),
                     .init(label: "errors", expression: .identifierPattern("errors")),
@@ -250,14 +246,12 @@ extension FileTranslator {
             ? nil
             : .try(
                 .identifierPattern("encoder").dot("encodeFirstNonNilValueToSingleValueContainer")
-                    .call([
-                        .init(label: nil, expression: .literal(.array(singleValueNames.map { .identifierPattern($0) })))
-                    ])
+                    .call([.init(label: nil, expression: .literal(.array(singleValueNames.map { .selfDot($0) })))])
             )
         let encodeExprs: [Expression] =
             (encodeSingleValuesExpr.flatMap { [$0] } ?? [])
             + properties.filter { $0.isKeyValuePair }.map(\.property)
-            .map { property in .identifierPattern(property.swiftSafeName).optionallyChained().encodeExpr() }
+            .map { property in .selfDot(property.swiftSafeName).optionallyChained().encodeExpr() }
         return encoderFunction(body: encodeExprs.map { .expression($0) })
     }
 
