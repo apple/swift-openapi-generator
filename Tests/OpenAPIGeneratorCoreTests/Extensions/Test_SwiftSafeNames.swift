@@ -35,6 +35,7 @@ final class Test_SwiftSafeNames: Test_Core {
 
             // All uppercase
             ("HELLO_WORLD", "HELLO_WORLD", "HelloWorld", "helloWorld"),
+            ("HELLO", "HELLO", "Hello", "hello"),
 
             // Acronyms
             ("HTTPProxy", "HTTPProxy", "HTTPProxy", "httpProxy"),
@@ -89,10 +90,11 @@ final class Test_SwiftSafeNames: Test_Core {
             ("invalidNam?", "invalidNam_quest_", "invalidNam_quest_", "invalidNam_quest_"),
 
             // Preserve leading underscores
-            ("__user", "__user", "__User", "__user"),
+            ("__user_name", "__user_name", "__UserName", "__userName"),
 
             // Preserve only leading underscores
             ("user__name", "user__name", "UserName", "userName"),
+
             // Invalid underscore case
             ("_", "_underscore_", "_underscore_", "_underscore_"),
 
@@ -107,6 +109,7 @@ final class Test_SwiftSafeNames: Test_Core {
 
             // Non Latin Characters combined with a RTL language
             ("$مرحبا", "_dollar_مرحبا", "_dollar_مرحبا", "_dollar_مرحبا"),
+
             // Emoji
             ("heart❤️emoji", "heart_x2764_️emoji", "heart_x2764_️emoji", "heart_x2764_️emoji"),
 
