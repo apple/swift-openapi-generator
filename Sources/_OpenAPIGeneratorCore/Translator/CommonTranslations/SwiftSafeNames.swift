@@ -16,27 +16,14 @@ import Foundation
 /// Extra context for the `safeForSwiftCode_` family of functions to produce more appropriate Swift identifiers.
 struct SwiftNameOptions {
 
-    /// An option for controlling capitalization.
-    ///
-    /// Generally, type names are capitalized, for example: `Foo`.
-    /// And member names are not capitalized, for example: `foo`.
-    enum Capitalization {
-
-        /// Capitalize the name, used for type names, for example: `Foo`.
-        case capitalized
-
-        /// Don't capitalize the name, used for member names, for example: `foo`.
-        case noncapitalized
-    }
-
     /// The capitalization option.
-    var capitalization: Capitalization
+    var isCapitalized: Bool
 
     /// Preset options for capitalized names.
-    static let capitalized = SwiftNameOptions(capitalization: .capitalized)
+    static let capitalized = SwiftNameOptions(isCapitalized: true)
 
     /// Preset options for non-capitalized names.
-    static let noncapitalized = SwiftNameOptions(capitalization: .noncapitalized)
+    static let noncapitalized = SwiftNameOptions(isCapitalized: false)
 }
 
 extension String {
@@ -101,7 +88,7 @@ extension String {
     ///
     /// Check out [SOAR-0013](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0013) for details.
     func safeForSwiftCode_idiomatic(options: SwiftNameOptions) -> String {
-        let capitalize = options.capitalization == .capitalized
+        let capitalize = options.isCapitalized
         if isEmpty { return capitalize ? "_Empty_" : "_empty_" }
         // Detect cases like HELLO_WORLD, sometimes used for constants.
         let isAllUppercase = allSatisfy {
