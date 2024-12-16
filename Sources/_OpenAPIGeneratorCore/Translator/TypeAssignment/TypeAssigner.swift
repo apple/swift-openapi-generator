@@ -541,7 +541,7 @@ struct TypeAssigner {
                 componentSeparator = ""
                 capitalizeNonFirstWords = true
             }
-            let prettifiedSubtype = capitalizeNonFirstWords ? safedSubtype.capitalized : safedSubtype
+            let prettifiedSubtype = capitalizeNonFirstWords ? safedSubtype.uppercasingFirstLetter : safedSubtype
             let prefix = "\(safedType)\(componentSeparator)\(prettifiedSubtype)"
             let params = contentType.lowercasedParameterPairs
             guard !params.isEmpty else { return prefix }
@@ -551,7 +551,7 @@ struct TypeAssigner {
                     .split(separator: "=")
                     .map { component in
                         let safedComponent = context.asSwiftSafeName(String(component), .noncapitalized)
-                        return capitalizeNonFirstWords ? safedComponent.capitalized : safedComponent
+                        return capitalizeNonFirstWords ? safedComponent.uppercasingFirstLetter : safedComponent
                     }
                     .joined(separator: componentSeparator)
             }

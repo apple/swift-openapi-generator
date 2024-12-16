@@ -105,27 +105,39 @@ class Test_TypeAssigner: Test_Core {
     }
 
     func testContentSwiftName() throws {
-        let nameMaker = makeTranslator().typeAssigner.contentSwiftName
-        let cases: [(String, String)] = [
+        let defensiveNameMaker = makeTranslator().typeAssigner.contentSwiftName
+        let idiomaticNameMaker = makeTranslator(namingStrategy: .idiomatic).typeAssigner.contentSwiftName
+        let cases: [(input: String, defensive: String, idiomatic: String)] = [
 
             // Short names.
-            ("application/json", "json"), ("application/x-www-form-urlencoded", "urlEncodedForm"),
-            ("multipart/form-data", "multipartForm"), ("text/plain", "plainText"), ("*/*", "any"),
-            ("application/xml", "xml"), ("application/octet-stream", "binary"), ("text/html", "html"),
-            ("application/yaml", "yaml"), ("text/csv", "csv"), ("image/png", "png"), ("application/pdf", "pdf"),
-            ("image/jpeg", "jpeg"),
+            ("application/json", "json", "json"),
+            ("application/x-www-form-urlencoded", "urlEncodedForm", "urlEncodedForm"),
+            ("multipart/form-data", "multipartForm", "multipartForm"),
+            ("text/plain", "plainText", "plainText"),
+            ("*/*", "any", "any"),
+            ("application/xml", "xml", "xml"),
+            ("application/octet-stream", "binary", "binary"),
+            ("text/html", "html", "html"),
+            ("application/yaml", "yaml", "yaml"),
+            ("text/csv", "csv", "csv"),
+            ("image/png", "png", "png"),
+            ("application/pdf", "pdf", "pdf"),
+            ("image/jpeg", "jpeg", "jpeg"),
 
             // Generic names.
-            ("application/myformat+json", "application_myformat_plus_json"), ("foo/bar", "foo_bar"),
+            ("application/myformat+json", "application_myformat_plus_json", "applicationMyformatJson"),
+            ("foo/bar", "foo_bar", "fooBar"),
+            ("text/event-stream", "text_event_hyphen_stream", "textEventStream"),
 
             // Names with a parameter.
-            ("application/foo", "application_foo"),
-            ("application/foo; bar=baz; boo=foo", "application_foo_bar_baz_boo_foo"),
-            ("application/foo; bar = baz", "application_foo_bar_baz"),
+            ("application/foo", "application_foo", "applicationFoo"),
+            ("application/foo; bar=baz; boo=foo", "application_foo_bar_baz_boo_foo", "applicationFooBarBazBooFoo"),
+            ("application/foo; bar = baz", "application_foo_bar_baz", "applicationFooBarBaz"),
         ]
-        for (string, name) in cases {
+        for (string, defensiveName, idiomaticName) in cases {
             let contentType = try XCTUnwrap(ContentType(string: string))
-            XCTAssertEqual(nameMaker(contentType), name, "Case \(string) failed")
+            XCTAssertEqual(defensiveNameMaker(contentType), defensiveName, "Case \(string) failed for defensive strategy")
+            XCTAssertEqual(idiomaticNameMaker(contentType), idiomaticName, "Case \(string) failed for idiomatic strategy")
         }
     }
 }

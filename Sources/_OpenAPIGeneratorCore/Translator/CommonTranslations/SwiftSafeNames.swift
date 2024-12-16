@@ -98,7 +98,8 @@ extension String {
         }
 
         // 1. Leave leading underscores as-are
-        // 2. In the middle: word separators: ["_", "-", "/", <space>] -> remove and capitalize next word
+        // 2. In the middle: word separators: ["_", "-", "/", "+", <space>] -> remove and capitalize
+        //    next word
         // 3. In the middle: period: ["."] -> replace with "_"
         // 4. In the middle: drop ["{", "}"] -> replace with ""
 
@@ -188,7 +189,7 @@ extension String {
                         buffer.append(char)
                     }
                     state = .accumulatingFirstWord(context)
-                } else if ["_", "-", " ", "/"].contains(char) {
+                } else if ["_", "-", " ", "/", "+"].contains(char) {
                     // In the middle of an identifier, these are considered
                     // word separators, so we remove the character and end the current word.
                     state = .waitingForWordStarter
@@ -218,14 +219,14 @@ extension String {
                     buffer.append("_")
                     state = .accumulatingWord
                 } else if ["{", "}"].contains(char) {
-                    // In the middle of an identifier, curly braces are dropped.
+                    // In the middle of an identifier, these are dropped.
                     state = .accumulatingWord
                 } else {
                     // Illegal character, fall back to the defensive strategy.
                     state = .fallback
                 }
             case .waitingForWordStarter:
-                if ["_", "-", ".", "/", "{", "}"].contains(char) {
+                if ["_", "-", ".", "/", "+", "{", "}"].contains(char) {
                     // Between words, just drop allowed special characters, since
                     // we're already between words anyway.
                     state = .waitingForWordStarter
@@ -250,7 +251,7 @@ extension String {
     }
 
     /// A list of word separator characters for the idiomatic naming strategy.
-    private static let wordSeparators: Set<Character> = ["_", "-", " ", "/"]
+    private static let wordSeparators: Set<Character> = ["_", "-", " ", "/", "+"]
 
     /// A list of Swift keywords.
     ///
