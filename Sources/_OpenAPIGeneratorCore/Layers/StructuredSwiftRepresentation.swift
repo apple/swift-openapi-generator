@@ -1354,6 +1354,16 @@ extension Expression {
     /// - Returns: A new expression representing member access with a dot prefix.
     static func dot(_ member: String) -> Self { Self.memberAccess(.init(right: member)) }
 
+    /// Returns a new member access expression with `self` as the receiver.
+    ///
+    /// For example: `self.foo`, where `member` is `foo`.
+    ///
+    /// - Parameter member: The name of the member to access on the expression.
+    /// - Returns: A new expression representing member access.
+    static func selfDot(_ member: String) -> Expression {
+        .memberAccess(.init(left: .identifier(.pattern("self")), right: member))
+    }
+
     /// Returns a new identifier expression for the provided pattern, such
     /// as a variable or function name.
     /// - Parameter name: The name of the identifier.
@@ -1555,6 +1565,7 @@ extension Expression {
     /// - Parameter expressions: The member expressions.
     /// - Returns: A tuple expression.
     static func tuple(_ expressions: [Expression]) -> Self { .tuple(.init(members: expressions)) }
+
 }
 
 extension MemberAccessDescription {

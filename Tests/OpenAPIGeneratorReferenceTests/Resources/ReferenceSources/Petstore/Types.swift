@@ -355,31 +355,31 @@ public enum Components {
             public init(from decoder: any Decoder) throws {
                 var errors: [any Error] = []
                 do {
-                    value1 = try decoder.decodeFromSingleValueContainer()
+                    self.value1 = try decoder.decodeFromSingleValueContainer()
                 } catch {
                     errors.append(error)
                 }
                 do {
-                    value2 = try decoder.decodeFromSingleValueContainer()
+                    self.value2 = try decoder.decodeFromSingleValueContainer()
                 } catch {
                     errors.append(error)
                 }
                 do {
-                    value3 = try .init(from: decoder)
+                    self.value3 = try .init(from: decoder)
                 } catch {
                     errors.append(error)
                 }
                 do {
-                    value4 = try decoder.decodeFromSingleValueContainer()
+                    self.value4 = try decoder.decodeFromSingleValueContainer()
                 } catch {
                     errors.append(error)
                 }
                 try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                     [
-                        value1,
-                        value2,
-                        value3,
-                        value4
+                        self.value1,
+                        self.value2,
+                        self.value3,
+                        self.value4
                     ],
                     type: Self.self,
                     codingPath: decoder.codingPath,
@@ -388,11 +388,11 @@ public enum Components {
             }
             public func encode(to encoder: any Encoder) throws {
                 try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                    value1,
-                    value2,
-                    value4
+                    self.value1,
+                    self.value2,
+                    self.value4
                 ])
-                try value3?.encode(to: encoder)
+                try self.value3?.encode(to: encoder)
             }
         }
         /// - Remark: Generated from `#/components/schemas/MixedOneOf`.
@@ -459,11 +459,11 @@ public enum Components {
                 self.value2 = value2
             }
             public init(from decoder: any Decoder) throws {
-                value1 = try decoder.decodeFromSingleValueContainer()
-                value2 = try decoder.decodeFromSingleValueContainer()
+                self.value1 = try decoder.decodeFromSingleValueContainer()
+                self.value2 = try decoder.decodeFromSingleValueContainer()
             }
             public func encode(to encoder: any Encoder) throws {
-                try encoder.encodeToSingleValueContainer(value1)
+                try encoder.encodeToSingleValueContainer(self.value1)
             }
         }
         /// Kind of pet
@@ -637,7 +637,7 @@ public enum Components {
             public func encode(to encoder: any Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encodeIfPresent(
-                    foo,
+                    self.foo,
                     forKey: .foo
                 )
                 try encoder.encodeAdditionalProperties(additionalProperties)
@@ -677,7 +677,7 @@ public enum Components {
             public func encode(to encoder: any Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encodeIfPresent(
-                    foo,
+                    self.foo,
                     forKey: .foo
                 )
                 try encoder.encodeAdditionalProperties(additionalProperties)
@@ -696,6 +696,46 @@ public enum Components {
             }
             public enum CodingKeys: String, CodingKey {
                 case foo
+            }
+        }
+        /// - Remark: Generated from `#/components/schemas/TypedAdditionalPropertiesWithPropertyNamedContainer`.
+        public struct TypedAdditionalPropertiesWithPropertyNamedContainer: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/TypedAdditionalPropertiesWithPropertyNamedContainer/container`.
+            public var container: Swift.String?
+            /// A container of undocumented properties.
+            public var additionalProperties: [String: Swift.Int]
+            /// Creates a new `TypedAdditionalPropertiesWithPropertyNamedContainer`.
+            ///
+            /// - Parameters:
+            ///   - container:
+            ///   - additionalProperties: A container of undocumented properties.
+            public init(
+                container: Swift.String? = nil,
+                additionalProperties: [String: Swift.Int] = .init()
+            ) {
+                self.container = container
+                self.additionalProperties = additionalProperties
+            }
+            public enum CodingKeys: String, CodingKey {
+                case container
+            }
+            public init(from decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                self.container = try container.decodeIfPresent(
+                    Swift.String.self,
+                    forKey: .container
+                )
+                additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [
+                    "container"
+                ])
+            }
+            public func encode(to encoder: any Encoder) throws {
+                var container = encoder.container(keyedBy: CodingKeys.self)
+                try container.encodeIfPresent(
+                    self.container,
+                    forKey: .container
+                )
+                try encoder.encodeAdditionalProperties(additionalProperties)
             }
         }
         /// - Remark: Generated from `#/components/schemas/CodeError`.
@@ -747,12 +787,12 @@ public enum Components {
                 self.value2 = value2
             }
             public init(from decoder: any Decoder) throws {
-                value1 = try .init(from: decoder)
-                value2 = try .init(from: decoder)
+                self.value1 = try .init(from: decoder)
+                self.value2 = try .init(from: decoder)
             }
             public func encode(to encoder: any Encoder) throws {
-                try value1.encode(to: encoder)
-                try value2.encode(to: encoder)
+                try self.value1.encode(to: encoder)
+                try self.value2.encode(to: encoder)
             }
         }
         /// - Remark: Generated from `#/components/schemas/AnyOfObjects`.
@@ -791,19 +831,19 @@ public enum Components {
             public init(from decoder: any Decoder) throws {
                 var errors: [any Error] = []
                 do {
-                    value1 = try .init(from: decoder)
+                    self.value1 = try .init(from: decoder)
                 } catch {
                     errors.append(error)
                 }
                 do {
-                    value2 = try .init(from: decoder)
+                    self.value2 = try .init(from: decoder)
                 } catch {
                     errors.append(error)
                 }
                 try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                     [
-                        value1,
-                        value2
+                        self.value1,
+                        self.value2
                     ],
                     type: Self.self,
                     codingPath: decoder.codingPath,
@@ -811,8 +851,8 @@ public enum Components {
                 )
             }
             public func encode(to encoder: any Encoder) throws {
-                try value1?.encode(to: encoder)
-                try value2?.encode(to: encoder)
+                try self.value1?.encode(to: encoder)
+                try self.value2?.encode(to: encoder)
             }
         }
         /// - Remark: Generated from `#/components/schemas/OneOfAny`.
@@ -957,12 +997,12 @@ public enum Components {
                 self.value2 = value2
             }
             public init(from decoder: any Decoder) throws {
-                value1 = try .init(from: decoder)
-                value2 = try .init(from: decoder)
+                self.value1 = try .init(from: decoder)
+                self.value2 = try .init(from: decoder)
             }
             public func encode(to encoder: any Encoder) throws {
-                try value1.encode(to: encoder)
-                try value2.encode(to: encoder)
+                try self.value1.encode(to: encoder)
+                try self.value2.encode(to: encoder)
             }
         }
         /// - Remark: Generated from `#/components/schemas/OneOfObjectsWithDiscriminator`.
@@ -1022,19 +1062,19 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RecursivePet/name`.
             public var name: Swift.String {
                 get  {
-                    storage.value.name
+                    self.storage.value.name
                 }
                 _modify {
-                    yield &storage.value.name
+                    yield &self.storage.value.name
                 }
             }
             /// - Remark: Generated from `#/components/schemas/RecursivePet/parent`.
             public var parent: Components.Schemas.RecursivePet? {
                 get  {
-                    storage.value.parent
+                    self.storage.value.parent
                 }
                 _modify {
-                    yield &storage.value.parent
+                    yield &self.storage.value.parent
                 }
             }
             /// Creates a new `RecursivePet`.
@@ -1046,7 +1086,7 @@ public enum Components {
                 name: Swift.String,
                 parent: Components.Schemas.RecursivePet? = nil
             ) {
-                storage = .init(value: .init(
+                self.storage = .init(value: .init(
                     name: name,
                     parent: parent
                 ))
@@ -1056,10 +1096,10 @@ public enum Components {
                 case parent
             }
             public init(from decoder: any Decoder) throws {
-                storage = try .init(from: decoder)
+                self.storage = try .init(from: decoder)
             }
             public func encode(to encoder: any Encoder) throws {
-                try storage.encode(to: encoder)
+                try self.storage.encode(to: encoder)
             }
             /// Internal reference storage to allow type recursion.
             private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
@@ -1083,10 +1123,10 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RecursivePetNested/name`.
             public var name: Swift.String {
                 get  {
-                    storage.value.name
+                    self.storage.value.name
                 }
                 _modify {
-                    yield &storage.value.name
+                    yield &self.storage.value.name
                 }
             }
             /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent`.
@@ -1107,10 +1147,10 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent`.
             public var parent: Components.Schemas.RecursivePetNested.ParentPayload? {
                 get  {
-                    storage.value.parent
+                    self.storage.value.parent
                 }
                 _modify {
-                    yield &storage.value.parent
+                    yield &self.storage.value.parent
                 }
             }
             /// Creates a new `RecursivePetNested`.
@@ -1122,7 +1162,7 @@ public enum Components {
                 name: Swift.String,
                 parent: Components.Schemas.RecursivePetNested.ParentPayload? = nil
             ) {
-                storage = .init(value: .init(
+                self.storage = .init(value: .init(
                     name: name,
                     parent: parent
                 ))
@@ -1132,10 +1172,10 @@ public enum Components {
                 case parent
             }
             public init(from decoder: any Decoder) throws {
-                storage = try .init(from: decoder)
+                self.storage = try .init(from: decoder)
             }
             public func encode(to encoder: any Encoder) throws {
-                try storage.encode(to: encoder)
+                try self.storage.encode(to: encoder)
             }
             /// Internal reference storage to allow type recursion.
             private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
@@ -1174,10 +1214,10 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value1`.
             public var value1: Components.Schemas.RecursivePetOneOf {
                 get  {
-                    storage.value.value1
+                    self.storage.value.value1
                 }
                 _modify {
-                    yield &storage.value.value1
+                    yield &self.storage.value.value1
                 }
             }
             /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value2`.
@@ -1198,10 +1238,10 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value2`.
             public var value2: Components.Schemas.RecursivePetOneOfFirst.Value2Payload {
                 get  {
-                    storage.value.value2
+                    self.storage.value.value2
                 }
                 _modify {
-                    yield &storage.value.value2
+                    yield &self.storage.value.value2
                 }
             }
             /// Creates a new `RecursivePetOneOfFirst`.
@@ -1213,16 +1253,16 @@ public enum Components {
                 value1: Components.Schemas.RecursivePetOneOf,
                 value2: Components.Schemas.RecursivePetOneOfFirst.Value2Payload
             ) {
-                storage = .init(value: .init(
+                self.storage = .init(value: .init(
                     value1: value1,
                     value2: value2
                 ))
             }
             public init(from decoder: any Decoder) throws {
-                storage = try .init(from: decoder)
+                self.storage = try .init(from: decoder)
             }
             public func encode(to encoder: any Encoder) throws {
-                try storage.encode(to: encoder)
+                try self.storage.encode(to: encoder)
             }
             /// Internal reference storage to allow type recursion.
             private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
@@ -1254,12 +1294,12 @@ public enum Components {
                     self.value2 = value2
                 }
                 init(from decoder: any Decoder) throws {
-                    value1 = try .init(from: decoder)
-                    value2 = try .init(from: decoder)
+                    self.value1 = try .init(from: decoder)
+                    self.value2 = try .init(from: decoder)
                 }
                 func encode(to encoder: any Encoder) throws {
-                    try value1.encode(to: encoder)
-                    try value2.encode(to: encoder)
+                    try self.value1.encode(to: encoder)
+                    try self.value2.encode(to: encoder)
                 }
             }
         }
@@ -1297,12 +1337,12 @@ public enum Components {
                 self.value2 = value2
             }
             public init(from decoder: any Decoder) throws {
-                value1 = try .init(from: decoder)
-                value2 = try .init(from: decoder)
+                self.value1 = try .init(from: decoder)
+                self.value2 = try .init(from: decoder)
             }
             public func encode(to encoder: any Encoder) throws {
-                try value1.encode(to: encoder)
-                try value2.encode(to: encoder)
+                try self.value1.encode(to: encoder)
+                try self.value2.encode(to: encoder)
             }
         }
         /// - Remark: Generated from `#/components/schemas/RecursivePetOneOf`.
@@ -1347,19 +1387,19 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RecursivePetAnyOf/value1`.
             public var value1: Components.Schemas.RecursivePetAnyOf? {
                 get  {
-                    storage.value.value1
+                    self.storage.value.value1
                 }
                 _modify {
-                    yield &storage.value.value1
+                    yield &self.storage.value.value1
                 }
             }
             /// - Remark: Generated from `#/components/schemas/RecursivePetAnyOf/value2`.
             public var value2: Swift.String? {
                 get  {
-                    storage.value.value2
+                    self.storage.value.value2
                 }
                 _modify {
-                    yield &storage.value.value2
+                    yield &self.storage.value.value2
                 }
             }
             /// Creates a new `RecursivePetAnyOf`.
@@ -1371,16 +1411,16 @@ public enum Components {
                 value1: Components.Schemas.RecursivePetAnyOf? = nil,
                 value2: Swift.String? = nil
             ) {
-                storage = .init(value: .init(
+                self.storage = .init(value: .init(
                     value1: value1,
                     value2: value2
                 ))
             }
             public init(from decoder: any Decoder) throws {
-                storage = try .init(from: decoder)
+                self.storage = try .init(from: decoder)
             }
             public func encode(to encoder: any Encoder) throws {
-                try storage.encode(to: encoder)
+                try self.storage.encode(to: encoder)
             }
             /// Internal reference storage to allow type recursion.
             private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
@@ -1399,19 +1439,19 @@ public enum Components {
                 init(from decoder: any Decoder) throws {
                     var errors: [any Error] = []
                     do {
-                        value1 = try .init(from: decoder)
+                        self.value1 = try .init(from: decoder)
                     } catch {
                         errors.append(error)
                     }
                     do {
-                        value2 = try decoder.decodeFromSingleValueContainer()
+                        self.value2 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                         [
-                            value1,
-                            value2
+                            self.value1,
+                            self.value2
                         ],
                         type: Self.self,
                         codingPath: decoder.codingPath,
@@ -1420,9 +1460,9 @@ public enum Components {
                 }
                 func encode(to encoder: any Encoder) throws {
                     try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                        value2
+                        self.value2
                     ])
-                    try value1?.encode(to: encoder)
+                    try self.value1?.encode(to: encoder)
                 }
             }
         }
@@ -1446,10 +1486,10 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf/value1`.
             public var value1: Components.Schemas.RecursivePetAllOf.Value1Payload {
                 get  {
-                    storage.value.value1
+                    self.storage.value.value1
                 }
                 _modify {
-                    yield &storage.value.value1
+                    yield &self.storage.value.value1
                 }
             }
             /// Creates a new `RecursivePetAllOf`.
@@ -1457,13 +1497,13 @@ public enum Components {
             /// - Parameters:
             ///   - value1:
             public init(value1: Components.Schemas.RecursivePetAllOf.Value1Payload) {
-                storage = .init(value: .init(value1: value1))
+                self.storage = .init(value: .init(value1: value1))
             }
             public init(from decoder: any Decoder) throws {
-                storage = try .init(from: decoder)
+                self.storage = try .init(from: decoder)
             }
             public func encode(to encoder: any Encoder) throws {
-                try storage.encode(to: encoder)
+                try self.storage.encode(to: encoder)
             }
             /// Internal reference storage to allow type recursion.
             private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
@@ -1489,10 +1529,10 @@ public enum Components {
                     self.value1 = value1
                 }
                 init(from decoder: any Decoder) throws {
-                    value1 = try .init(from: decoder)
+                    self.value1 = try .init(from: decoder)
                 }
                 func encode(to encoder: any Encoder) throws {
-                    try value1.encode(to: encoder)
+                    try self.value1.encode(to: encoder)
                 }
             }
         }

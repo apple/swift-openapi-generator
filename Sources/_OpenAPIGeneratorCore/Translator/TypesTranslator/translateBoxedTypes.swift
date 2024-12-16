@@ -107,10 +107,8 @@ extension TypesFileTranslator {
                 case .variable(var variableDescription) = commented
             else { return member }
             let name = TextBasedRenderer.renderedExpressionAsString(variableDescription.left)
-            variableDescription.getter = [.expression(.identifierPattern("storage").dot("value").dot(name))]
-            variableDescription.modify = [
-                .expression(.yield(.inOut(.identifierPattern("storage").dot("value").dot(name))))
-            ]
+            variableDescription.getter = [.expression(.selfDot("storage").dot("value").dot(name))]
+            variableDescription.modify = [.expression(.yield(.inOut(.selfDot("storage").dot("value").dot(name))))]
             return .commentable(comment, .variable(variableDescription))
         }
 
@@ -127,7 +125,7 @@ extension TypesFileTranslator {
             funcDesc.body = [
                 .expression(
                     .assignment(
-                        left: .identifierPattern("storage"),
+                        left: .selfDot("storage"),
                         right: .dot("init")
                             .call([
                                 .init(
@@ -167,7 +165,7 @@ extension TypesFileTranslator {
                 body: [
                     .expression(
                         .assignment(
-                            left: .identifierPattern("storage"),
+                            left: .selfDot("storage"),
                             right: .try(
                                 .dot("init").call([.init(label: "from", expression: .identifierPattern("decoder"))])
                             )
@@ -185,7 +183,7 @@ extension TypesFileTranslator {
                 body: [
                     .expression(
                         .try(
-                            .identifierPattern("storage").dot("encode")
+                            .selfDot("storage").dot("encode")
                                 .call([.init(label: "to", expression: .identifierPattern("encoder"))])
                         )
                     )
