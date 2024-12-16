@@ -17,14 +17,10 @@ public enum NamingStrategy: String, Sendable, Codable, Equatable {
 
     /// A defensive strategy that can handle any OpenAPI identifier and produce a non-conflicting Swift identifier.
     ///
-    /// This strategy is the default in Swift OpenAPI Generator 1.x.
-    ///
     /// Introduced in [SOAR-0001](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0001).
     case defensive
 
     /// An idiomatic strategy that produces Swift identifiers that more likely conform to Swift conventions.
-    ///
-    /// Opt-in since Swift OpenAPI Generator 1.6.0.
     ///
     /// Introduced in [SOAR-0013](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0013).
     case idiomatic

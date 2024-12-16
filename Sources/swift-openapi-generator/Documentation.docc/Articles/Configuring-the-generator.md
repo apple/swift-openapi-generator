@@ -40,9 +40,9 @@ The configuration file has the following keys:
     - `tags`: Operations tagged with these tags will be included in the filter.
     - `paths`: Operations for these paths will be included in the filter.
     - `schemas`: These (additional) schemas will be included in the filter.
-- `namingStrategy` (optional): a string. Customizes the strategy of converting OpenAPI identifiers into Swift identifiers.
+- `namingStrategy` (optional): a string. The strategy of converting OpenAPI identifiers into Swift identifiers.
     - `defensive` (default): Produces non-conflicting Swift identifiers for any OpenAPI identifiers. Check out [SOAR-0001](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0001) for details.
-    - `idiomatic`: Produces more idiomatic Swift identifiers for OpenAPI identifiers, might produce name conflicts (in that case, switch back to `defensive`.) Check out [SOAR-0013](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0013) for details.
+    - `idiomatic`: Produces more idiomatic Swift identifiers for OpenAPI identifiers. Might produce name conflicts (in that case, switch back to `defensive`). Check out [SOAR-0013](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0013) for details.
 - `nameOverrides` (optional): a string to string dictionary. Allows customizing how individual OpenAPI identifiers get converted to Swift identifiers.
 - `featureFlags` (optional): array of strings. Each string must be a valid feature flag to enable. For a list of currently supported feature flags, check out [FeatureFlags.swift](https://github.com/apple/swift-openapi-generator/blob/main/Sources/_OpenAPIGeneratorCore/FeatureFlags.swift).
 
