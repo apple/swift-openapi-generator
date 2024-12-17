@@ -34,8 +34,7 @@ final class Test_SwiftSafeNames: Test_Core {
             ("Retry-After", "Retry_hyphen_After", "RetryAfter", "retryAfter"),
 
             // All uppercase
-            ("HELLO_WORLD", "HELLO_WORLD", "HelloWorld", "helloWorld"),
-            ("HELLO", "HELLO", "Hello", "hello"),
+            ("HELLO_WORLD", "HELLO_WORLD", "HelloWorld", "helloWorld"), ("HELLO", "HELLO", "Hello", "hello"),
 
             // Acronyms
             ("HTTPProxy", "HTTPProxy", "HTTPProxy", "httpProxy"),

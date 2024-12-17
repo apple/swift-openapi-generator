@@ -2309,53 +2309,52 @@ final class SnippetBasedReferenceTests: XCTestCase {
 
     func testSynthesizedOperationId_defensive() throws {
         let paths = """
-                /pets/{petId}/notifications:
-                  parameters:
-                    - name: petId
-                      in: path
-                      required: true
-                      schema:
-                        type: string
-                  get:
-                    responses:
-                      '204':
-                        description: A success response.
-                """
+            /pets/{petId}/notifications:
+              parameters:
+                - name: petId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              get:
+                responses:
+                  '204':
+                    description: A success response.
+            """
         try self.assertPathsTranslation(
             paths,
-                """
-                public protocol APIProtocol: Sendable {
-                    func get_sol_pets_sol__lcub_petId_rcub__sol_notifications(_ input: Operations.get_sol_pets_sol__lcub_petId_rcub__sol_notifications.Input) async throws -> Operations.get_sol_pets_sol__lcub_petId_rcub__sol_notifications.Output
-                }
-                """
+            """
+            public protocol APIProtocol: Sendable {
+                func get_sol_pets_sol__lcub_petId_rcub__sol_notifications(_ input: Operations.get_sol_pets_sol__lcub_petId_rcub__sol_notifications.Input) async throws -> Operations.get_sol_pets_sol__lcub_petId_rcub__sol_notifications.Output
+            }
+            """
         )
     }
 
     func testSynthesizedOperationId_idiomatic() throws {
         let paths = """
-                /pets/{petId}/notifications:
-                  parameters:
-                    - name: petId
-                      in: path
-                      required: true
-                      schema:
-                        type: string
-                  get:
-                    responses:
-                      '204':
-                        description: A success response.
-                """
+            /pets/{petId}/notifications:
+              parameters:
+                - name: petId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              get:
+                responses:
+                  '204':
+                    description: A success response.
+            """
         try self.assertPathsTranslation(
             paths,
             namingStrategy: .idiomatic,
-                """
-                public protocol APIProtocol: Sendable {
-                    func getPetsPetIdNotifications(_ input: Operations.GetPetsPetIdNotifications.Input) async throws -> Operations.GetPetsPetIdNotifications.Output
-                }
-                """
+            """
+            public protocol APIProtocol: Sendable {
+                func getPetsPetIdNotifications(_ input: Operations.GetPetsPetIdNotifications.Input) async throws -> Operations.GetPetsPetIdNotifications.Output
+            }
+            """
         )
     }
-    
     func testServerRegisterHandlers_oneOperation() throws {
         try self.assertServerRegisterHandlers(
             """
@@ -6140,10 +6139,7 @@ extension SnippetBasedReferenceTests {
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
-        let translator = try makeTypesTranslator(
-            namingStrategy: namingStrategy,
-            componentsYAML: componentsYAML
-        )
+        let translator = try makeTypesTranslator(namingStrategy: namingStrategy, componentsYAML: componentsYAML)
         let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
         let translation = try translator.translateAPIProtocol(paths)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)

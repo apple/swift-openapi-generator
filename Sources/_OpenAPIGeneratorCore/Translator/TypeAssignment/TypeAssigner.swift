@@ -546,16 +546,15 @@ struct TypeAssigner {
             let params = contentType.lowercasedParameterPairs
             guard !params.isEmpty else { return prefix }
             let safedParams =
-            params.map { pair in
-                pair
-                    .split(separator: "=")
-                    .map { component in
-                        let safedComponent = context.asSwiftSafeName(String(component), .noncapitalized)
-                        return capitalizeNonFirstWords ? safedComponent.uppercasingFirstLetter : safedComponent
-                    }
-                    .joined(separator: componentSeparator)
-            }
-            .joined(separator: componentSeparator)
+                params.map { pair in
+                    pair.split(separator: "=")
+                        .map { component in
+                            let safedComponent = context.asSwiftSafeName(String(component), .noncapitalized)
+                            return capitalizeNonFirstWords ? safedComponent.uppercasingFirstLetter : safedComponent
+                        }
+                        .joined(separator: componentSeparator)
+                }
+                .joined(separator: componentSeparator)
             return prefix + componentSeparator + safedParams
         }
     }

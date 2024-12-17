@@ -112,22 +112,14 @@ class Test_TypeAssigner: Test_Core {
             // Short names.
             ("application/json", "json", "json"),
             ("application/x-www-form-urlencoded", "urlEncodedForm", "urlEncodedForm"),
-            ("multipart/form-data", "multipartForm", "multipartForm"),
-            ("text/plain", "plainText", "plainText"),
-            ("*/*", "any", "any"),
-            ("application/xml", "xml", "xml"),
-            ("application/octet-stream", "binary", "binary"),
-            ("text/html", "html", "html"),
-            ("application/yaml", "yaml", "yaml"),
-            ("text/csv", "csv", "csv"),
-            ("image/png", "png", "png"),
-            ("application/pdf", "pdf", "pdf"),
-            ("image/jpeg", "jpeg", "jpeg"),
+            ("multipart/form-data", "multipartForm", "multipartForm"), ("text/plain", "plainText", "plainText"),
+            ("*/*", "any", "any"), ("application/xml", "xml", "xml"), ("application/octet-stream", "binary", "binary"),
+            ("text/html", "html", "html"), ("application/yaml", "yaml", "yaml"), ("text/csv", "csv", "csv"),
+            ("image/png", "png", "png"), ("application/pdf", "pdf", "pdf"), ("image/jpeg", "jpeg", "jpeg"),
 
             // Generic names.
             ("application/myformat+json", "application_myformat_plus_json", "applicationMyformatJson"),
-            ("foo/bar", "foo_bar", "fooBar"),
-            ("text/event-stream", "text_event_hyphen_stream", "textEventStream"),
+            ("foo/bar", "foo_bar", "fooBar"), ("text/event-stream", "text_event_hyphen_stream", "textEventStream"),
 
             // Names with a parameter.
             ("application/foo", "application_foo", "applicationFoo"),
@@ -136,8 +128,16 @@ class Test_TypeAssigner: Test_Core {
         ]
         for (string, defensiveName, idiomaticName) in cases {
             let contentType = try XCTUnwrap(ContentType(string: string))
-            XCTAssertEqual(defensiveNameMaker(contentType), defensiveName, "Case \(string) failed for defensive strategy")
-            XCTAssertEqual(idiomaticNameMaker(contentType), idiomaticName, "Case \(string) failed for idiomatic strategy")
+            XCTAssertEqual(
+                defensiveNameMaker(contentType),
+                defensiveName,
+                "Case \(string) failed for defensive strategy"
+            )
+            XCTAssertEqual(
+                idiomaticNameMaker(contentType),
+                idiomaticName,
+                "Case \(string) failed for idiomatic strategy"
+            )
         }
     }
 }
