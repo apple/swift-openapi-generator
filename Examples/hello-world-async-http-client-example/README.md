@@ -19,6 +19,7 @@ Start one of the Hello World servers in a different terminal:
 ```console
 % cd Examples/hello-world-hummingbird-server-example
 % swift run
+2024-12-17T09:54:40-0600 info HummingBird : [HummingbirdCore] Server started and listening on 127.0.0.1:8080
 ```
 
 or
@@ -26,6 +27,7 @@ or
 ```console
 % cd Examples/hello-world-vapor-server-example
 % swift run
+2024-12-17T10:34:55-0600 notice codes.vapor.application : [Vapor] Server started on http://127.0.0.1:8080
 ```
 
 Then, build and run the client CLI using:
