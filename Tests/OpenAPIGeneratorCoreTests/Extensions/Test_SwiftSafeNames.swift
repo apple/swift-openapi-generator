@@ -58,11 +58,11 @@ final class Test_SwiftSafeNames: Test_Core {
             // Technical strings
             ("file/path/to/resource", "file_sol_path_sol_to_sol_resource", "FilePathToResource", "filePathToResource"),
             (
-                "user.name@domain.com", "user_period_name_commat_domain_period_com",
-                "user_period_name_commat_domain_period_com", "user_period_name_commat_domain_period_com"
+                "user.name@domain.com", "user_period_name_commat_domain_period_com", "User_name_commat_domain_com",
+                "user_name_commat_domain_com"
             ), ("hello.world.2023", "hello_period_world_period_2023", "Hello_world_2023", "hello_world_2023"),
-            ("order#123", "order_num_123", "order_num_123", "order_num_123"),
-            ("pressKeys#123", "pressKeys_num_123", "pressKeys_num_123", "pressKeys_num_123"),
+            ("order#123", "order_num_123", "Order_num_123", "order_num_123"),
+            ("pressKeys#123", "pressKeys_num_123", "PressKeys_num_123", "pressKeys_num_123"),
 
             // Non-English characters
             ("naïve café", "naïve_space_café", "NaïveCafé", "naïveCafé"),
@@ -80,13 +80,13 @@ final class Test_SwiftSafeNames: Test_Core {
             ("", "_empty", "_Empty_", "_empty_"),
 
             // Special Char in middle
-            ("inv@lidName", "inv_commat_lidName", "inv_commat_lidName", "inv_commat_lidName"),
+            ("inv@lidName", "inv_commat_lidName", "Inv_commat_lidName", "inv_commat_lidName"),
 
             // Special Char in first position
             ("!nvalidName", "_excl_nvalidName", "_excl_nvalidName", "_excl_nvalidName"),
 
             // Special Char in last position
-            ("invalidNam?", "invalidNam_quest_", "invalidNam_quest_", "invalidNam_quest_"),
+            ("invalidNam?", "invalidNam_quest_", "InvalidNam_quest_", "invalidNam_quest_"),
 
             // Preserve leading underscores
             ("__user_name", "__user_name", "__UserName", "__userName"),
@@ -110,14 +110,15 @@ final class Test_SwiftSafeNames: Test_Core {
             ("$مرحبا", "_dollar_مرحبا", "_dollar_مرحبا", "_dollar_مرحبا"),
 
             // Emoji
-            ("heart❤️emoji", "heart_x2764_️emoji", "heart_x2764_️emoji", "heart_x2764_️emoji"),
+            ("heart❤️emoji", "heart_x2764_️emoji", "Heart_x2764_️emoji", "heart_x2764_️emoji"),
 
             // Content type components
             ("application", "application", "Application", "application"),
             ("vendor1+json", "vendor1_plus_json", "Vendor1Json", "vendor1Json"),
 
             // Known real-world examples
-            ("+1", "_plus_1", "_plus_1", "_plus_1"), ("-1", "_hyphen_1", "_hyphen_1", "_hyphen_1"),
+            ("+1", "_plus_1", "_plus_1", "_plus_1"), ("one+two", "one_plus_two", "OneTwo", "oneTwo"),
+            ("-1", "_hyphen_1", "_hyphen_1", "_hyphen_1"), ("one-two", "one_hyphen_two", "OneTwo", "oneTwo"),
 
             // Override
             ("MEGA", "m_e_g_a", "m_e_g_a", "m_e_g_a"),

@@ -126,8 +126,7 @@ extension String {
                     buffer.append(char)
                     state = .preFirstWord
                 } else if char.isNumber {
-                    // Prefix with an underscore if the first character is a number.
-                    buffer.append("_")
+                    // The underscore will be added by the defensive strategy.
                     buffer.append(char)
                     state = .accumulatingFirstWord(.init(isAccumulatingInitialUppercase: false))
                 } else if char.isLetter {
@@ -138,7 +137,7 @@ extension String {
                     )
                 } else {
                     // Illegal character, keep and let the defensive strategy deal with it.
-                    state = .preFirstWord
+                    state = .accumulatingFirstWord(.init(isAccumulatingInitialUppercase: false))
                     buffer.append(char)
                 }
             case .accumulatingFirstWord(var context):
