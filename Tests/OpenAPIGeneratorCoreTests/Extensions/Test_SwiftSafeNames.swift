@@ -114,7 +114,7 @@ final class Test_SwiftSafeNames: Test_Core {
 
             // Content type components
             ("application", "application", "Application", "application"),
-            ("vendor1+json", "vendor1_plus_json", "vendor1_plus_json", "vendor1_plus_json"),
+            ("vendor1+json", "vendor1_plus_json", "Vendor1Json", "vendor1Json"),
 
             // Known real-world examples
             ("+1", "_plus_1", "_plus_1", "_plus_1"), ("-1", "_hyphen_1", "_hyphen_1", "_hyphen_1"),
