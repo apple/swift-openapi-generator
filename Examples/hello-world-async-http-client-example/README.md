@@ -14,7 +14,21 @@ The server can be started by running any of the Hello World server examples loca
 
 ## Usage
 
-Build and run the client CLI using:
+Start one of the Hello World servers in a different terminal:
+
+```console
+% cd Examples/hello-world-hummingbird-server-example
+% swift run
+```
+
+or
+
+```console
+% cd Examples/hello-world-vapor-server-example
+% swift run
+```
+
+Then, build and run the client CLI using:
 
 ```console
 % swift run
