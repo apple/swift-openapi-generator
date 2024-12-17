@@ -72,8 +72,8 @@ extension String {
 
         let validString = String(UnicodeScalarView(sanitizedScalars))
 
-        //Special case for a single underscore.
-        //We can't add it to the map as its a valid swift identifier in other cases.
+        // Special case for a single underscore.
+        // We can't add it to the map as its a valid swift identifier in other cases.
         if validString == "_" { return "_underscore_" }
 
         guard Self.keywords.contains(validString) else { return validString }
@@ -90,6 +90,7 @@ extension String {
     func safeForSwiftCode_idiomatic(options: SwiftNameOptions) -> String {
         let capitalize = options.isCapitalized
         if isEmpty { return capitalize ? "_Empty_" : "_empty_" }
+
         // Detect cases like HELLO_WORLD, sometimes used for constants.
         let isAllUppercase = allSatisfy {
             // Must check that no characters are lowercased, as non-letter characters
@@ -112,7 +113,6 @@ extension String {
             case accumulatingFirstWord(AccumulatingFirstWordContext)
             case accumulatingWord
             case waitingForWordStarter
-            case fallback
         }
         var state: State = .preFirstWord
         for index in self[...].indices {
@@ -137,8 +137,9 @@ extension String {
                         .init(isAccumulatingInitialUppercase: !capitalize && char.isUppercase)
                     )
                 } else {
-                    // Illegal character, fall back to the defensive strategy.
-                    state = .fallback
+                    // Illegal character, keep and let the defensive strategy deal with it.
+                    state = .preFirstWord
+                    buffer.append(char)
                 }
             case .accumulatingFirstWord(var context):
                 if char.isLetter || char.isNumber {
@@ -202,8 +203,9 @@ extension String {
                     // In the middle of an identifier, curly braces are dropped.
                     state = .accumulatingFirstWord(.init(isAccumulatingInitialUppercase: false))
                 } else {
-                    // Illegal character, fall back to the defensive strategy.
-                    state = .fallback
+                    // Illegal character, keep and let the defensive strategy deal with it.
+                    state = .accumulatingFirstWord(.init(isAccumulatingInitialUppercase: false))
+                    buffer.append(char)
                 }
             case .accumulatingWord:
                 if char.isLetter || char.isNumber {
@@ -222,8 +224,9 @@ extension String {
                     // In the middle of an identifier, these are dropped.
                     state = .accumulatingWord
                 } else {
-                    // Illegal character, fall back to the defensive strategy.
-                    state = .fallback
+                    // Illegal character, keep and let the defensive strategy deal with it.
+                    state = .accumulatingWord
+                    buffer.append(char)
                 }
             case .waitingForWordStarter:
                 if ["_", "-", ".", "/", "+", "{", "}"].contains(char) {
@@ -235,19 +238,15 @@ extension String {
                     buffer.append(contentsOf: char.uppercased())
                     state = .accumulatingWord
                 } else {
-                    // Illegal character, fall back to the defensive strategy.
-                    state = .fallback
+                    // Illegal character, keep and let the defensive strategy deal with it.
+                    state = .waitingForWordStarter
+                    buffer.append(char)
                 }
-            case .modifying, .fallback: preconditionFailure("Logic error in \(#function), string: '\(self)'")
+            case .modifying: preconditionFailure("Logic error in \(#function), string: '\(self)'")
             }
             precondition(state != .modifying, "Logic error in \(#function), string: '\(self)'")
-            if case .fallback = state { return safeForSwiftCode_defensive(options: options) }
         }
-        if buffer.isEmpty || state == .preFirstWord { return safeForSwiftCode_defensive(options: options) }
-        // Check for keywords
-        let newString = String(buffer)
-        if Self.keywords.contains(newString) { return "_\(newString)" }
-        return newString
+        return String(buffer).safeForSwiftCode_defensive(options: options)
     }
 
     /// A list of word separator characters for the idiomatic naming strategy.
