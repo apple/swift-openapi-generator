@@ -21,12 +21,21 @@ struct TestConfig: Encodable {
     var mode: GeneratorMode
     var additionalImports: [String]?
     var featureFlags: FeatureFlags?
+    var namingStrategy: NamingStrategy
+    var nameOverrides: [String: String]
     var referenceOutputDirectory: String
 }
 
 extension TestConfig {
     var asConfig: Config {
-        .init(mode: mode, access: .public, additionalImports: additionalImports ?? [], featureFlags: featureFlags ?? [])
+        .init(
+            mode: mode,
+            access: .public,
+            additionalImports: additionalImports ?? [],
+            namingStrategy: namingStrategy,
+            nameOverrides: nameOverrides,
+            featureFlags: featureFlags ?? []
+        )
     }
 }
 
@@ -127,6 +136,8 @@ final class FileBasedReferenceTests: XCTestCase {
                     mode: mode,
                     additionalImports: [],
                     featureFlags: featureFlags,
+                    namingStrategy: .idiomatic,
+                    nameOverrides: [:],
                     referenceOutputDirectory: "ReferenceSources/\(project.fixtureCodeDirectoryName)"
                 ),
                 ignoredDiagnosticMessages: ignoredDiagnosticMessages

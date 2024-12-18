@@ -43,7 +43,14 @@ extension CaseIterable where Self: RawRepresentable, Self.RawValue == String {
 extension _UserConfig {
 
     /// An example configuration used in the command-line tool help section.
-    static var sample: Self { .init(generate: [.types, .client], additionalImports: nil) }
+    static var sample: Self {
+        .init(
+            generate: [.types, .client],
+            accessModifier: .internal,
+            filter: .init(operations: ["listPets", "createPet"]),
+            namingStrategy: .idiomatic
+        )
+    }
 
     /// A YAML representation of the configuration.
     var yamlString: String { get throws { try YAMLEncoder().encode(self) } }

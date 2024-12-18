@@ -28,25 +28,49 @@ class Test_Core: XCTestCase {
     func makeTranslator(
         components: OpenAPI.Components = .noComponents,
         diagnostics: any DiagnosticCollector = PrintingDiagnosticCollector(),
+        namingStrategy: NamingStrategy = .defensive,
+        nameOverrides: [String: String] = [:],
         featureFlags: FeatureFlags = []
     ) -> TypesFileTranslator {
-        makeTypesTranslator(components: components, diagnostics: diagnostics, featureFlags: featureFlags)
+        makeTypesTranslator(
+            components: components,
+            diagnostics: diagnostics,
+            namingStrategy: namingStrategy,
+            nameOverrides: nameOverrides,
+            featureFlags: featureFlags
+        )
     }
 
     func makeTypesTranslator(
         components: OpenAPI.Components = .noComponents,
         diagnostics: any DiagnosticCollector = PrintingDiagnosticCollector(),
+        namingStrategy: NamingStrategy = .defensive,
+        nameOverrides: [String: String] = [:],
         featureFlags: FeatureFlags = []
     ) -> TypesFileTranslator {
         TypesFileTranslator(
-            config: makeConfig(featureFlags: featureFlags),
+            config: makeConfig(
+                namingStrategy: namingStrategy,
+                nameOverrides: nameOverrides,
+                featureFlags: featureFlags
+            ),
             diagnostics: diagnostics,
             components: components
         )
     }
 
-    func makeConfig(featureFlags: FeatureFlags = []) -> Config {
-        .init(mode: .types, access: Config.defaultAccessModifier, featureFlags: featureFlags)
+    func makeConfig(
+        namingStrategy: NamingStrategy = .defensive,
+        nameOverrides: [String: String] = [:],
+        featureFlags: FeatureFlags = []
+    ) -> Config {
+        .init(
+            mode: .types,
+            access: Config.defaultAccessModifier,
+            namingStrategy: namingStrategy,
+            nameOverrides: nameOverrides,
+            featureFlags: featureFlags
+        )
     }
 
     func loadSchemaFromYAML(_ yamlString: String) throws -> JSONSchema {
@@ -60,8 +84,6 @@ class Test_Core: XCTestCase {
     var typeMatcher: TypeMatcher { makeTranslator().typeMatcher }
 
     var context: TranslatorContext { makeTranslator().context }
-
-    var asSwiftSafeName: (String) -> String { context.asSwiftSafeName }
 
     func makeProperty(originalName: String, typeUsage: TypeUsage) -> PropertyBlueprint {
         .init(originalName: originalName, typeUsage: typeUsage, context: context)

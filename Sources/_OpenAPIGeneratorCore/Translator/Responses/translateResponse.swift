@@ -141,7 +141,7 @@ extension TypesFileTranslator {
     ) throws -> [Declaration] {
         var bodyCases: [Declaration] = []
         let contentType = typedContent.content.contentType
-        let identifier = typeAssigner.contentSwiftName(contentType)
+        let identifier = context.safeNameGenerator.swiftContentTypeName(for: contentType)
         let associatedType = typedContent.resolvedTypeUsage
         let content = typedContent.content
         let schema = content.schema

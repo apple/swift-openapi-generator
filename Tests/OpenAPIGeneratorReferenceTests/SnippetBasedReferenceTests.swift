@@ -2307,6 +2307,54 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testSynthesizedOperationId_defensive() throws {
+        let paths = """
+            /pets/{petId}/notifications:
+              parameters:
+                - name: petId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              get:
+                responses:
+                  '204':
+                    description: A success response.
+            """
+        try self.assertPathsTranslation(
+            paths,
+            """
+            public protocol APIProtocol: Sendable {
+                func get_sol_pets_sol__lcub_petId_rcub__sol_notifications(_ input: Operations.get_sol_pets_sol__lcub_petId_rcub__sol_notifications.Input) async throws -> Operations.get_sol_pets_sol__lcub_petId_rcub__sol_notifications.Output
+            }
+            """
+        )
+    }
+
+    func testSynthesizedOperationId_idiomatic() throws {
+        let paths = """
+            /pets/{petId}/notifications:
+              parameters:
+                - name: petId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              get:
+                responses:
+                  '204':
+                    description: A success response.
+            """
+        try self.assertPathsTranslation(
+            paths,
+            namingStrategy: .idiomatic,
+            """
+            public protocol APIProtocol: Sendable {
+                func getPetsPetIdNotifications(_ input: Operations.GetPetsPetIdNotifications.Input) async throws -> Operations.GetPetsPetIdNotifications.Output
+            }
+            """
+        )
+    }
     func testServerRegisterHandlers_oneOperation() throws {
         try self.assertServerRegisterHandlers(
             """
@@ -5828,17 +5876,24 @@ extension SnippetBasedReferenceTests {
 
     func makeTypesTranslator(
         accessModifier: AccessModifier = .public,
+        namingStrategy: NamingStrategy = .defensive,
         featureFlags: FeatureFlags = [],
         ignoredDiagnosticMessages: Set<String> = [],
         componentsYAML: String
     ) throws -> TypesFileTranslator {
         let components = try YAMLDecoder().decode(OpenAPI.Components.self, from: componentsYAML)
         return TypesFileTranslator(
-            config: Config(mode: .types, access: accessModifier, featureFlags: featureFlags),
+            config: Config(
+                mode: .types,
+                access: accessModifier,
+                namingStrategy: namingStrategy,
+                featureFlags: featureFlags
+            ),
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
             components: components
         )
     }
+
     func makeTypesTranslator(
         accessModifier: AccessModifier = .public,
         featureFlags: FeatureFlags = [],
@@ -6079,11 +6134,12 @@ extension SnippetBasedReferenceTests {
     func assertPathsTranslation(
         _ pathsYAML: String,
         componentsYAML: String = "{}",
+        namingStrategy: NamingStrategy = .defensive,
         _ expectedSwift: String,
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
-        let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
+        let translator = try makeTypesTranslator(namingStrategy: namingStrategy, componentsYAML: componentsYAML)
         let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
         let translation = try translator.translateAPIProtocol(paths)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
