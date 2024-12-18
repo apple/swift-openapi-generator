@@ -20,8 +20,9 @@ extension FileTranslator {
     ///
     /// Priority:
     /// 1. JSON
-    /// 2. text
-    /// 3. binary
+    /// 2. XML
+    /// 3. text
+    /// 4. binary
     ///
     /// - Parameters:
     ///   - map: The content map from the OpenAPI document.
@@ -108,8 +109,9 @@ extension FileTranslator {
     ///
     /// Priority:
     /// 1. JSON
-    /// 2. text
-    /// 3. binary
+    /// 2. XML
+    /// 3. text
+    /// 4. binary
     ///
     /// - Parameters:
     ///   - map: The content map from the OpenAPI document.
@@ -127,7 +129,7 @@ extension FileTranslator {
         let mapWithContentTypes = try map.map { key, content in try (type: key.asGeneratorContentType, value: content) }
 
         let chosenContent: (type: ContentType, schema: SchemaContent, content: OpenAPI.Content)?
-        if let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isJSON }) {
+        if let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isJSON || $0.type.isXml }) {
             chosenContent = (contentType, .init(contentType: contentType, schema: contentValue.schema), contentValue)
         } else if !excludeBinary,
             let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isBinary })
@@ -160,6 +162,7 @@ extension FileTranslator {
     ///
     /// Priority of checking for known MIME types:
     /// 1. JSON
+    /// 2. XML
     /// 2. text
     /// 3. binary
     ///
@@ -188,6 +191,7 @@ extension FileTranslator {
             )
         }
         if contentType.isJSON { return .init(contentType: contentType, schema: contentValue.schema) }
+        if contentType.isXml { return .init(contentType: contentType, schema: contentValue.schema) }
         if contentType.isUrlEncodedForm { return .init(contentType: contentType, schema: contentValue.schema) }
         if contentType.isMultipart {
             guard isRequired else {
