@@ -512,51 +512,16 @@ struct TypeAssigner {
     ///
     /// - Parameter contentType: The content type for which to compute the name.
     /// - Returns: A Swift-safe identifier representing the name of the content enum case.
+    @available(*, deprecated)
     func contentSwiftName(_ contentType: ContentType) -> String {
-        let rawContentType = contentType.lowercasedTypeSubtypeAndParameters
-        switch rawContentType {
-        case "application/json": return "json"
-        case "application/x-www-form-urlencoded": return "urlEncodedForm"
-        case "multipart/form-data": return "multipartForm"
-        case "text/plain": return "plainText"
-        case "*/*": return "any"
-        case "application/xml": return "xml"
-        case "application/octet-stream": return "binary"
-        case "text/html": return "html"
-        case "application/yaml": return "yaml"
-        case "text/csv": return "csv"
-        case "image/png": return "png"
-        case "application/pdf": return "pdf"
-        case "image/jpeg": return "jpeg"
-        default:
-            let safedType = context.asSwiftSafeName(contentType.originallyCasedType, .noncapitalized)
-            let safedSubtype = context.asSwiftSafeName(contentType.originallyCasedSubtype, .noncapitalized)
-            let componentSeparator: String
-            let capitalizeNonFirstWords: Bool
-            switch context.namingStrategy {
-            case .defensive:
-                componentSeparator = "_"
-                capitalizeNonFirstWords = false
-            case .idiomatic:
-                componentSeparator = ""
-                capitalizeNonFirstWords = true
-            }
-            let prettifiedSubtype = capitalizeNonFirstWords ? safedSubtype.uppercasingFirstLetter : safedSubtype
-            let prefix = "\(safedType)\(componentSeparator)\(prettifiedSubtype)"
-            let params = contentType.lowercasedParameterPairs
-            guard !params.isEmpty else { return prefix }
-            let safedParams =
-                params.map { pair in
-                    pair.split(separator: "=")
-                        .map { component in
-                            let safedComponent = context.asSwiftSafeName(String(component), .noncapitalized)
-                            return capitalizeNonFirstWords ? safedComponent.uppercasingFirstLetter : safedComponent
-                        }
-                        .joined(separator: componentSeparator)
-                }
-                .joined(separator: componentSeparator)
-            return prefix + componentSeparator + safedParams
+        let nameGenerator: any SafeNameGenerator
+        switch context.namingStrategy {
+        case .defensive:
+            nameGenerator = .defensive
+        case .idiomatic:
+            nameGenerator = .idiomatic
         }
+        return nameGenerator.contentTypeSwiftName(for: contentType)
     }
 }
 
