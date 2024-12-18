@@ -59,7 +59,10 @@ struct TypeAssigner {
     /// - Returns: A Swift type name for the specified component type.
     func typeName(forComponentOriginallyNamed originalName: String, in location: TypeLocation) -> TypeName {
         typeName(forLocation: location)
-            .appending(swiftComponent: context.asSwiftSafeName(originalName, .capitalized), jsonComponent: originalName)
+            .appending(
+                swiftComponent: context.safeNameGenerator.swiftTypeName(for: originalName),
+                jsonComponent: originalName
+            )
     }
 
     /// Returns the type name for an OpenAPI-named component namespace.
@@ -127,7 +130,7 @@ struct TypeAssigner {
         {
             multipartBodyElementTypeName = try typeName(for: ref)
         } else {
-            let swiftSafeName = context.asSwiftSafeName(hint, .capitalized)
+            let swiftSafeName = context.safeNameGenerator.swiftTypeName(for: hint)
             multipartBodyElementTypeName = parent.appending(
                 swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
                 jsonComponent: hint
@@ -147,7 +150,7 @@ struct TypeAssigner {
     func typeUsage(withContent content: SchemaContent, components: OpenAPI.Components, inParent parent: TypeName) throws
         -> TypeUsage?
     {
-        let identifier = contentSwiftName(content.contentType)
+        let identifier = context.safeNameGenerator.swiftContentTypeName(for: content.contentType)
         if content.contentType.isMultipart {
             return try typeUsage(
                 usingNamingHint: identifier,
@@ -343,7 +346,7 @@ struct TypeAssigner {
         }
         return
             baseType.appending(
-                swiftComponent: context.asSwiftSafeName(originalName, .capitalized) + suffix,
+                swiftComponent: context.safeNameGenerator.swiftTypeName(for: originalName) + suffix,
                 jsonComponent: jsonReferenceComponentOverride ?? originalName
             )
             .asUsage.withOptional(try typeMatcher.isOptional(schema, components: components))
@@ -406,7 +409,10 @@ struct TypeAssigner {
         of componentType: Component.Type
     ) -> TypeName {
         typeName(for: Component.self)
-            .appending(swiftComponent: context.asSwiftSafeName(key.rawValue, .capitalized), jsonComponent: key.rawValue)
+            .appending(
+                swiftComponent: context.safeNameGenerator.swiftTypeName(for: key.rawValue),
+                jsonComponent: key.rawValue
+            )
     }
 
     /// Returns a type name for a JSON reference.
@@ -471,7 +477,7 @@ struct TypeAssigner {
             throw JSONReferenceParsingError.nonComponentPathsUnsupported(reference.name)
         }
         return typeName(for: componentType)
-            .appending(swiftComponent: context.asSwiftSafeName(name, .capitalized), jsonComponent: name)
+            .appending(swiftComponent: context.safeNameGenerator.swiftTypeName(for: name), jsonComponent: name)
     }
 
     /// Returns a type name for the namespace for the specified component type.
@@ -495,7 +501,7 @@ struct TypeAssigner {
     {
         typeNameForComponents()
             .appending(
-                swiftComponent: context.asSwiftSafeName(componentType.openAPIComponentsKey, .capitalized)
+                swiftComponent: context.safeNameGenerator.swiftTypeName(for: componentType.openAPIComponentsKey)
                     .uppercasingFirstLetter,
                 jsonComponent: componentType.openAPIComponentsKey
             )
@@ -505,23 +511,6 @@ struct TypeAssigner {
     /// - Returns: The root namespace for all OpenAPI components.
     func typeNameForComponents() -> TypeName {
         TypeName(components: [.root, .init(swift: Constants.Components.namespace, json: "components")])
-    }
-
-    /// Returns a Swift-safe identifier used as the name of the content
-    /// enum case.
-    ///
-    /// - Parameter contentType: The content type for which to compute the name.
-    /// - Returns: A Swift-safe identifier representing the name of the content enum case.
-    @available(*, deprecated)
-    func contentSwiftName(_ contentType: ContentType) -> String {
-        let nameGenerator: any SafeNameGenerator
-        switch context.namingStrategy {
-        case .defensive:
-            nameGenerator = .defensive
-        case .idiomatic:
-            nameGenerator = .idiomatic
-        }
-        return nameGenerator.contentTypeSwiftName(for: contentType)
     }
 }
 

@@ -209,7 +209,7 @@ extension TypesFileTranslator {
         let decoder: Declaration
         if let discriminator {
             let originalName = discriminator.propertyName
-            let swiftName = context.asSwiftSafeName(originalName, .noncapitalized)
+            let swiftName = context.safeNameGenerator.swiftMemberName(for: originalName)
             codingKeysDecls = [
                 .enum(
                     accessModifier: config.access,

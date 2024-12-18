@@ -13,33 +13,23 @@
 //===----------------------------------------------------------------------===//
 import Foundation
 
-/// Extra context for the `safeForSwiftCode_` family of functions to produce more appropriate Swift identifiers.
-struct SwiftNameOptions {
-
-    /// The capitalization option.
-    var isCapitalized: Bool
-
-    /// Preset options for capitalized names.
-    static let capitalized = SwiftNameOptions(isCapitalized: true)
-
-    /// Preset options for non-capitalized names.
-    static let noncapitalized = SwiftNameOptions(isCapitalized: false)
-}
-
 /// Computes a string sanitized to be usable as a Swift identifier in various contexts.
 protocol SafeNameGenerator {
 
-    /// Returns a string sanitized to be usable as a Swift identifier in a general context.
-    /// - Parameters:
-    ///   - documentedName: The input unsanitized string from the OpenAPI document.
-    ///   - options: Additional context for how the sanitized string will be used.
+    /// Returns a string sanitized to be usable as a Swift type name in a general context.
+    /// - Parameter documentedName: The input unsanitized string from the OpenAPI document.
     /// - Returns: The sanitized string.
-    func swiftName(for documentedName: String, options: SwiftNameOptions) -> String
+    func swiftTypeName(for documentedName: String) -> String
+
+    /// Returns a string sanitized to be usable as a Swift member name in a general context.
+    /// - Parameter documentedName: The input unsanitized string from the OpenAPI document.
+    /// - Returns: The sanitized string.
+    func swiftMemberName(for documentedName: String) -> String
 
     /// Returns a string sanitized to be usable as a Swift identifier for the provided content type.
     /// - Parameter contentType: The content type for which to compute a Swift identifier.
     /// - Returns: A Swift identifier for the provided content type.
-    func contentTypeSwiftName(for contentType: ContentType) -> String
+    func swiftContentTypeName(for contentType: ContentType) -> String
 }
 
 extension SafeNameGenerator {
@@ -64,8 +54,7 @@ extension SafeNameGenerator {
         case "image/png": return "png"
         case "application/pdf": return "pdf"
         case "image/jpeg": return "jpeg"
-        default:
-            return nil
+        default: return nil
         }
     }
 }
@@ -83,7 +72,9 @@ extension SafeNameGenerator {
 /// ensures that the identifier starts with a letter and not a number.
 struct DefensiveSafeNameGenerator: SafeNameGenerator {
 
-    func swiftName(for documentedName: String, options: SwiftNameOptions) -> String {
+    func swiftTypeName(for documentedName: String) -> String { swiftName(for: documentedName) }
+    func swiftMemberName(for documentedName: String) -> String { swiftName(for: documentedName) }
+    private func swiftName(for documentedName: String) -> String {
         guard !documentedName.isEmpty else { return "_empty" }
 
         let firstCharSet: CharacterSet = .letters.union(.init(charactersIn: "_"))
@@ -124,25 +115,20 @@ struct DefensiveSafeNameGenerator: SafeNameGenerator {
         return "_\(validString)"
     }
 
-    func contentTypeSwiftName(for contentType: ContentType) -> String {
-        if let common = swiftNameOverride(for: contentType) {
-            return common
-        }
-        let safedType = swiftName(for: contentType.originallyCasedType, options: .noncapitalized)
-        let safedSubtype = swiftName(for: contentType.originallyCasedSubtype, options: .noncapitalized)
+    func swiftContentTypeName(for contentType: ContentType) -> String {
+        if let common = swiftNameOverride(for: contentType) { return common }
+        let safedType = swiftName(for: contentType.originallyCasedType)
+        let safedSubtype = swiftName(for: contentType.originallyCasedSubtype)
         let componentSeparator = "_"
         let prefix = "\(safedType)\(componentSeparator)\(safedSubtype)"
         let params = contentType.lowercasedParameterPairs
         guard !params.isEmpty else { return prefix }
         let safedParams =
-        params.map { pair in
-            pair.split(separator: "=")
-                .map { component in
-                    swiftName(for: String(component), options: .noncapitalized)
-                }
-                .joined(separator: componentSeparator)
-        }
-        .joined(separator: componentSeparator)
+            params.map { pair in
+                pair.split(separator: "=").map { component in swiftName(for: String(component)) }
+                    .joined(separator: componentSeparator)
+            }
+            .joined(separator: componentSeparator)
         return prefix + componentSeparator + safedParams
     }
 
@@ -168,9 +154,7 @@ struct DefensiveSafeNameGenerator: SafeNameGenerator {
 }
 
 extension SafeNameGenerator where Self == DefensiveSafeNameGenerator {
-    static var defensive: DefensiveSafeNameGenerator {
-        DefensiveSafeNameGenerator()
-    }
+    static var defensive: DefensiveSafeNameGenerator { DefensiveSafeNameGenerator() }
 }
 
 /// Returns a string sanitized to be usable as a Swift identifier, and tries to produce UpperCamelCase
@@ -185,8 +169,9 @@ struct IdiomaticSafeNameGenerator: SafeNameGenerator {
     /// The defensive strategy to use as fallback.
     var defensive: DefensiveSafeNameGenerator
 
-    func swiftName(for documentedName: String, options: SwiftNameOptions) -> String {
-        let capitalize = options.isCapitalized
+    func swiftTypeName(for documentedName: String) -> String { swiftName(for: documentedName, capitalize: true) }
+    func swiftMemberName(for documentedName: String) -> String { swiftName(for: documentedName, capitalize: false) }
+    private func swiftName(for documentedName: String, capitalize: Bool) -> String {
         if documentedName.isEmpty { return capitalize ? "_Empty_" : "_empty_" }
 
         // Detect cases like HELLO_WORLD, sometimes used for constants.
@@ -343,29 +328,33 @@ struct IdiomaticSafeNameGenerator: SafeNameGenerator {
             }
             precondition(state != .modifying, "Logic error in \(#function), string: '\(self)'")
         }
-        return defensive.swiftName(for: String(buffer), options: options)
+        let defensiveFallback: (String) -> String
+        if capitalize {
+            defensiveFallback = defensive.swiftTypeName
+        } else {
+            defensiveFallback = defensive.swiftMemberName
+        }
+        return defensiveFallback(String(buffer))
     }
 
-    func contentTypeSwiftName(for contentType: ContentType) -> String {
-        if let common = swiftNameOverride(for: contentType) {
-            return common
-        }
-        let safedType = swiftName(for: contentType.originallyCasedType, options: .noncapitalized)
-        let safedSubtype = swiftName(for: contentType.originallyCasedSubtype, options: .noncapitalized)
+    func swiftContentTypeName(for contentType: ContentType) -> String {
+        if let common = swiftNameOverride(for: contentType) { return common }
+        let safedType = swiftMemberName(for: contentType.originallyCasedType)
+        let safedSubtype = swiftMemberName(for: contentType.originallyCasedSubtype)
         let prettifiedSubtype = safedSubtype.uppercasingFirstLetter
         let prefix = "\(safedType)\(prettifiedSubtype)"
         let params = contentType.lowercasedParameterPairs
         guard !params.isEmpty else { return prefix }
         let safedParams =
-        params.map { pair in
-            pair.split(separator: "=")
-                .map { component in
-                    let safedComponent = swiftName(for: String(component), options: .noncapitalized)
-                    return safedComponent.uppercasingFirstLetter
-                }
-                .joined()
-        }
-        .joined()
+            params.map { pair in
+                pair.split(separator: "=")
+                    .map { component in
+                        let safedComponent = swiftMemberName(for: String(component))
+                        return safedComponent.uppercasingFirstLetter
+                    }
+                    .joined()
+            }
+            .joined()
         return prefix + safedParams
     }
 
@@ -374,20 +363,5 @@ struct IdiomaticSafeNameGenerator: SafeNameGenerator {
 }
 
 extension SafeNameGenerator where Self == DefensiveSafeNameGenerator {
-    static var idiomatic: IdiomaticSafeNameGenerator {
-        IdiomaticSafeNameGenerator(defensive: .defensive)
-    }
-}
-
-extension String {
-
-    @available(*, deprecated)
-    func safeForSwiftCode_defensive(options: SwiftNameOptions) -> String {
-        DefensiveSafeNameGenerator().swiftName(for: self, options: options)
-    }
-
-    @available(*, deprecated)
-    func safeForSwiftCode_idiomatic(options: SwiftNameOptions) -> String {
-        IdiomaticSafeNameGenerator(defensive: DefensiveSafeNameGenerator()).swiftName(for: self, options: options)
-    }
+    static var idiomatic: IdiomaticSafeNameGenerator { IdiomaticSafeNameGenerator(defensive: .defensive) }
 }

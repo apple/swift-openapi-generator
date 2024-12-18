@@ -85,8 +85,6 @@ class Test_Core: XCTestCase {
 
     var context: TranslatorContext { makeTranslator().context }
 
-    var asSwiftSafeName: (String, SwiftNameOptions) -> String { context.asSwiftSafeName }
-
     func makeProperty(originalName: String, typeUsage: TypeUsage) -> PropertyBlueprint {
         .init(originalName: originalName, typeUsage: typeUsage, context: context)
     }

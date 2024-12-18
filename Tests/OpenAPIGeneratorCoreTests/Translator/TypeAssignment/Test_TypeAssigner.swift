@@ -56,7 +56,7 @@ class Test_TypeAssigner: Test_Core {
             "enum": "_enum",
         ]
         for (componentKey, expectedSwiftTypeName) in expectedSchemaTypeNames {
-            XCTAssertEqual(asSwiftSafeName(componentKey.rawValue, .noncapitalized), expectedSwiftTypeName)
+            XCTAssertEqual(context.safeNameGenerator.swiftMemberName(for: componentKey.rawValue), expectedSwiftTypeName)
         }
     }
 
@@ -105,8 +105,9 @@ class Test_TypeAssigner: Test_Core {
     }
 
     func testContentSwiftName() throws {
-        let defensiveNameMaker = makeTranslator().typeAssigner.contentSwiftName
-        let idiomaticNameMaker = makeTranslator(namingStrategy: .idiomatic).typeAssigner.contentSwiftName
+        let defensiveNameMaker = makeTranslator().context.safeNameGenerator.swiftContentTypeName
+        let idiomaticNameMaker = makeTranslator(namingStrategy: .idiomatic).context.safeNameGenerator
+            .swiftContentTypeName
         let cases: [(input: String, defensive: String, idiomatic: String)] = [
 
             // Short names.

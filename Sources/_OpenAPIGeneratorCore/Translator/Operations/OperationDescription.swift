@@ -83,14 +83,14 @@ extension OperationDescription {
     /// Uses the `operationID` value in the OpenAPI operation, if one was
     /// specified. Otherwise, computes a unique name from the operation's
     /// path and HTTP method.
-    var methodName: String { context.asSwiftSafeName(operationID, .noncapitalized) }
+    var methodName: String { context.safeNameGenerator.swiftMemberName(for: operationID) }
 
     /// Returns a Swift-safe type name for the operation.
     ///
     /// Uses the `operationID` value in the OpenAPI operation, if one was
     /// specified. Otherwise, computes a unique name from the operation's
     /// path and HTTP method.
-    var operationTypeName: String { context.asSwiftSafeName(operationID, .capitalized) }
+    var operationTypeName: String { context.safeNameGenerator.swiftTypeName(for: operationID) }
 
     /// Returns the identifier for the operation.
     ///
@@ -299,7 +299,7 @@ extension OperationDescription {
             }
             let newPath = OpenAPI.Path(newComponents, trailingSlash: path.trailingSlash)
             let names: [Expression] = orderedPathParameters.map { param in
-                .identifierPattern("input").dot("path").dot(context.asSwiftSafeName(param, .noncapitalized))
+                .identifierPattern("input").dot("path").dot(context.safeNameGenerator.swiftMemberName(for: param))
             }
             let arrayExpr: Expression = .literal(.array(names))
             return (newPath.rawValue, arrayExpr)

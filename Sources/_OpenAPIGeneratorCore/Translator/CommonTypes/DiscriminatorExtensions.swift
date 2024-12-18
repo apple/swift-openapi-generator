@@ -80,7 +80,7 @@ extension FileTranslator {
     /// - Parameter type: The `OneOfMappedType` for which to determine the case name.
     /// - Returns: A string representing the safe Swift name for the specified `OneOfMappedType`.
     func safeSwiftNameForOneOfMappedCase(_ type: OneOfMappedType) -> String {
-        context.asSwiftSafeName(type.rawNames[0], .noncapitalized)
+        context.safeNameGenerator.swiftMemberName(for: type.rawNames[0])
     }
 }
 

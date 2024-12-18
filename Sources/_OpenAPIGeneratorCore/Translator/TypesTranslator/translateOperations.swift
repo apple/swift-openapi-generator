@@ -192,7 +192,10 @@ extension TypesFileTranslator {
         let contentTypes = try acceptHeaderContentTypes(for: description)
         guard !contentTypes.isEmpty else { return nil }
         let cases: [(caseName: String, rawExpr: LiteralDescription)] = contentTypes.map { contentType in
-            (typeAssigner.contentSwiftName(contentType), .string(contentType.lowercasedTypeAndSubtype))
+            (
+                context.safeNameGenerator.swiftContentTypeName(for: contentType),
+                .string(contentType.lowercasedTypeAndSubtype)
+            )
         }
         return try translateRawRepresentableEnum(
             typeName: acceptableContentTypeName,
