@@ -110,7 +110,7 @@ final class ContentTypesServerTests: XCTestCase {
         let handler: APIProtocol = Handler()
         let response = try await handler.getExampleMultipart()
         let multipartBody = try response.ok.body.multipartForm
-        var parts: [Operations.getExampleMultipart.Output.Ok.Body.multipartFormPayload] = []
+        var parts: [Operations.GetExampleMultipart.Output.Ok.Body.MultipartFormPayload] = []
         for try await part in multipartBody { parts.append(part) }
         XCTAssertEqual(parts.count, 3)
     }

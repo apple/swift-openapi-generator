@@ -19,7 +19,7 @@ import Metrics
 import Prometheus
 
 struct Handler: APIProtocol {
-    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
+    func getGreeting(_ input: Operations.GetGreeting.Input) async throws -> Operations.GetGreeting.Output {
         let name = input.query.name ?? "Stranger"
         return .ok(.init(body: .json(.init(message: "Hello, \(name)!"))))
     }
@@ -30,7 +30,7 @@ struct Handler: APIProtocol {
         let registry = PrometheusCollectorRegistry()
         MetricsSystem.bootstrap(PrometheusMetricsFactory(registry: registry))
 
-        let app = Vapor.Application()
+        let app = try await Vapor.Application.make()
 
         app.get("metrics") { request in
             var buffer: [UInt8] = []

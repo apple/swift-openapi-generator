@@ -47,7 +47,7 @@ actor Handler: APIProtocol {
 
     deinit { try? self.postgresConnection.close().wait() }
 
-    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
+    func getGreeting(_ input: Operations.GetGreeting.Input) async throws -> Operations.GetGreeting.Output {
         let name = input.query.name ?? "Stranger"
         let greeting = Components.Schemas.Greeting(message: "Hello, \(name)!")
         _ = try await self.postgresConnection.query(
@@ -57,12 +57,12 @@ actor Handler: APIProtocol {
         return .ok(.init(body: .json(greeting)))
     }
 
-    func getCount(_ input: Operations.getCount.Input) async throws -> Operations.getCount.Output {
+    func getCount(_ input: Operations.GetCount.Input) async throws -> Operations.GetCount.Output {
         let count = try await self.postgresConnection.query("SELECT * FROM messages", logger: logger).collect().count
         return .ok(.init(body: .json(.init(count: count))))
     }
 
-    func reset(_ input: Operations.reset.Input) async throws -> Operations.reset.Output {
+    func reset(_ input: Operations.Reset.Input) async throws -> Operations.Reset.Output {
         _ = try await self.postgresConnection.query("DELETE FROM messages", logger: logger)
         return .noContent(.init(body: .json(.init())))
     }
@@ -70,7 +70,7 @@ actor Handler: APIProtocol {
 
 @main struct HelloWorldVaporServer {
     static func main() async throws {
-        let app = Vapor.Application()
+        let app = try await Vapor.Application.make()
         let transport = VaporTransport(routesBuilder: app)
         let handler = try await Handler()
         try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!)

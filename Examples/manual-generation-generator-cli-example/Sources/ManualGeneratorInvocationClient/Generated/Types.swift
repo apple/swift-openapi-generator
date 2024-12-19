@@ -13,7 +13,7 @@ import struct Foundation.Date
 internal protocol APIProtocol: Sendable {
     /// - Remark: HTTP `GET /greet`.
     /// - Remark: Generated from `#/paths//greet/get(getGreeting)`.
-    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output
+    func getGreeting(_ input: Operations.GetGreeting.Input) async throws -> Operations.GetGreeting.Output
 }
 
 /// Convenience overloads for operation inputs.
@@ -21,10 +21,10 @@ extension APIProtocol {
     /// - Remark: HTTP `GET /greet`.
     /// - Remark: Generated from `#/paths//greet/get(getGreeting)`.
     internal func getGreeting(
-        query: Operations.getGreeting.Input.Query = .init(),
-        headers: Operations.getGreeting.Input.Headers = .init()
-    ) async throws -> Operations.getGreeting.Output {
-        try await getGreeting(Operations.getGreeting.Input(
+        query: Operations.GetGreeting.Input.Query = .init(),
+        headers: Operations.GetGreeting.Input.Headers = .init()
+    ) async throws -> Operations.GetGreeting.Output {
+        try await getGreeting(Operations.GetGreeting.Input(
             query: query,
             headers: headers
         ))
@@ -91,7 +91,7 @@ internal enum Components {
 internal enum Operations {
     /// - Remark: HTTP `GET /greet`.
     /// - Remark: Generated from `#/paths//greet/get(getGreeting)`.
-    internal enum getGreeting {
+    internal enum GetGreeting {
         internal static let id: Swift.String = "getGreeting"
         internal struct Input: Sendable, Hashable {
             /// - Remark: Generated from `#/paths/greet/GET/query`.
@@ -108,27 +108,27 @@ internal enum Operations {
                     self.name = name
                 }
             }
-            internal var query: Operations.getGreeting.Input.Query
+            internal var query: Operations.GetGreeting.Input.Query
             /// - Remark: Generated from `#/paths/greet/GET/header`.
             internal struct Headers: Sendable, Hashable {
-                internal var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.getGreeting.AcceptableContentType>]
+                internal var accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.GetGreeting.AcceptableContentType>]
                 /// Creates a new `Headers`.
                 ///
                 /// - Parameters:
                 ///   - accept:
-                internal init(accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.getGreeting.AcceptableContentType>] = .defaultValues()) {
+                internal init(accept: [OpenAPIRuntime.AcceptHeaderContentType<Operations.GetGreeting.AcceptableContentType>] = .defaultValues()) {
                     self.accept = accept
                 }
             }
-            internal var headers: Operations.getGreeting.Input.Headers
+            internal var headers: Operations.GetGreeting.Input.Headers
             /// Creates a new `Input`.
             ///
             /// - Parameters:
             ///   - query:
             ///   - headers:
             internal init(
-                query: Operations.getGreeting.Input.Query = .init(),
-                headers: Operations.getGreeting.Input.Headers = .init()
+                query: Operations.GetGreeting.Input.Query = .init(),
+                headers: Operations.GetGreeting.Input.Headers = .init()
             ) {
                 self.query = query
                 self.headers = headers
@@ -154,12 +154,12 @@ internal enum Operations {
                     }
                 }
                 /// Received HTTP response body
-                internal var body: Operations.getGreeting.Output.Ok.Body
+                internal var body: Operations.GetGreeting.Output.Ok.Body
                 /// Creates a new `Ok`.
                 ///
                 /// - Parameters:
                 ///   - body: Received HTTP response body
-                internal init(body: Operations.getGreeting.Output.Ok.Body) {
+                internal init(body: Operations.GetGreeting.Output.Ok.Body) {
                     self.body = body
                 }
             }
@@ -168,12 +168,12 @@ internal enum Operations {
             /// - Remark: Generated from `#/paths//greet/get(getGreeting)/responses/200`.
             ///
             /// HTTP response code: `200 ok`.
-            case ok(Operations.getGreeting.Output.Ok)
+            case ok(Operations.GetGreeting.Output.Ok)
             /// The associated value of the enum case if `self` is `.ok`.
             ///
             /// - Throws: An error if `self` is not `.ok`.
             /// - SeeAlso: `.ok`.
-            internal var ok: Operations.getGreeting.Output.Ok {
+            internal var ok: Operations.GetGreeting.Output.Ok {
                 get throws {
                     switch self {
                     case let .ok(response):

@@ -105,7 +105,7 @@ import Foundation
                 case .names(let name):
                     let stringName = try await String(collecting: name.payload.body, upTo: 1024)
                     // Multipart parts can have headers.
-                    let locale = name.payload.headers.x_hyphen_name_hyphen_locale ?? "<nil>"
+                    let locale = name.payload.headers.xNameLocale ?? "<nil>"
                     print("Received a name: '\(stringName)', header value: '\(locale)'")
                 case .undocumented(let part):
                     // Any part with a raw HTTPBody body must have its body consumed before moving on to the next part.
@@ -117,9 +117,9 @@ import Foundation
             }
         }
         do {
-            let multipartBody: MultipartBody<Operations.postExampleMultipart.Input.Body.multipartFormPayload> = [
+            let multipartBody: MultipartBody<Operations.PostExampleMultipart.Input.Body.MultipartFormPayload> = [
                 .greetingTemplate(.init(payload: .init(body: .init(message: "Hello, {name}!")))),
-                .names(.init(payload: .init(headers: .init(x_hyphen_name_hyphen_locale: "en_US"), body: "Frank"))),
+                .names(.init(payload: .init(headers: .init(xNameLocale: "en_US"), body: "Frank"))),
                 .names(.init(payload: .init(body: "Not Frank"))),
             ]
             let response = try await client.postExampleMultipart(body: .multipartForm(multipartBody))

@@ -22,9 +22,9 @@ import Foundation
             print("Fetching greetings using JSON Lines")
             let response = try await client.getGreetingsStream(
                 query: .init(name: "Example", count: 3),
-                headers: .init(accept: [.init(contentType: .application_jsonl)])
+                headers: .init(accept: [.init(contentType: .applicationJsonl)])
             )
-            let greetingStream = try response.ok.body.application_jsonl.asDecodedJSONLines(
+            let greetingStream = try response.ok.body.applicationJsonl.asDecodedJSONLines(
                 of: Components.Schemas.Greeting.self
             )
             for try await greeting in greetingStream { print("Got greeting: \(greeting.message)") }
@@ -33,9 +33,9 @@ import Foundation
             print("Fetching greetings using JSON Sequence")
             let response = try await client.getGreetingsStream(
                 query: .init(name: "Example", count: 3),
-                headers: .init(accept: [.init(contentType: .application_json_hyphen_seq)])
+                headers: .init(accept: [.init(contentType: .applicationJsonSeq)])
             )
-            let greetingStream = try response.ok.body.application_json_hyphen_seq.asDecodedJSONSequence(
+            let greetingStream = try response.ok.body.applicationJsonSeq.asDecodedJSONSequence(
                 of: Components.Schemas.Greeting.self
             )
             for try await greeting in greetingStream { print("Got greeting: \(greeting.message)") }
@@ -44,9 +44,9 @@ import Foundation
             print("Fetching greetings using Server-sent Events")
             let response = try await client.getGreetingsStream(
                 query: .init(name: "Example", count: 3),
-                headers: .init(accept: [.init(contentType: .text_event_hyphen_stream)])
+                headers: .init(accept: [.init(contentType: .textEventStream)])
             )
-            let greetingStream = try response.ok.body.text_event_hyphen_stream.asDecodedServerSentEventsWithJSONData(
+            let greetingStream = try response.ok.body.textEventStream.asDecodedServerSentEventsWithJSONData(
                 of: Components.Schemas.Greeting.self
             )
             for try await greeting in greetingStream { print("Got greeting: \(greeting.data?.message ?? "<nil>")") }

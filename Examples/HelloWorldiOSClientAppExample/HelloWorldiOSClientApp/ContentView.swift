@@ -60,7 +60,7 @@ struct ContentView: View {
 
 // A mock client used in previews and tests to avoid making live network calls.
 struct MockClient: APIProtocol {
-    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
+    func getGreeting(_ input: Operations.GetGreeting.Input) async throws -> Operations.GetGreeting.Output {
         let name = input.query.name ?? "Stranger"
         return .ok(.init(body: .json(.init(message: "(Mock) Hello, \(name)!"))))
     }

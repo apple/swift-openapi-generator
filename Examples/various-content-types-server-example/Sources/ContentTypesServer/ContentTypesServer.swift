@@ -17,13 +17,13 @@ import Vapor
 
 struct Handler: APIProtocol {
 
-    func getExampleJSON(_ input: Operations.getExampleJSON.Input) async throws -> Operations.getExampleJSON.Output {
+    func getExampleJSON(_ input: Operations.GetExampleJSON.Input) async throws -> Operations.GetExampleJSON.Output {
         let name = input.query.name ?? "Stranger"
         print("Greeting a person with the name: \(name)")
         return .ok(.init(body: .json(.init(message: "Hello, \(name)!"))))
     }
 
-    func postExampleJSON(_ input: Operations.postExampleJSON.Input) async throws -> Operations.postExampleJSON.Output {
+    func postExampleJSON(_ input: Operations.PostExampleJSON.Input) async throws -> Operations.PostExampleJSON.Output {
         let requestBody: Components.Schemas.Greeting
         switch input.body {
         case .json(let json): requestBody = json
@@ -32,8 +32,8 @@ struct Handler: APIProtocol {
         return .accepted(.init())
     }
 
-    func getExamplePlainText(_ input: Operations.getExamplePlainText.Input) async throws
-        -> Operations.getExamplePlainText.Output
+    func getExamplePlainText(_ input: Operations.GetExamplePlainText.Input) async throws
+        -> Operations.GetExamplePlainText.Output
     {
         .ok(
             .init(
@@ -49,8 +49,8 @@ struct Handler: APIProtocol {
         )
     }
 
-    func postExamplePlainText(_ input: Operations.postExamplePlainText.Input) async throws
-        -> Operations.postExamplePlainText.Output
+    func postExamplePlainText(_ input: Operations.PostExamplePlainText.Input) async throws
+        -> Operations.PostExamplePlainText.Output
     {
         let plainText: HTTPBody
         switch input.body {
@@ -61,8 +61,8 @@ struct Handler: APIProtocol {
         return .accepted(.init())
     }
 
-    func getExampleMultipleContentTypes(_ input: Operations.getExampleMultipleContentTypes.Input) async throws
-        -> Operations.getExampleMultipleContentTypes.Output
+    func getExampleMultipleContentTypes(_ input: Operations.GetExampleMultipleContentTypes.Input) async throws
+        -> Operations.GetExampleMultipleContentTypes.Output
     {
         // The Accept header field lets the client communicate which response content type it prefers, by giving
         // each content type a "quality" (in other words, a preference), from 0.0 to 1.0, from least to most preferred.
@@ -72,7 +72,7 @@ struct Handler: APIProtocol {
         // As a server, here we sort the received content types in the Accept header by quality, from most to least
         // preferred. If none are provided, default to JSON.
         let chosenContentType = input.headers.accept.sortedByQuality().first?.contentType ?? .json
-        let responseBody: Operations.getExampleMultipleContentTypes.Output.Ok.Body
+        let responseBody: Operations.GetExampleMultipleContentTypes.Output.Ok.Body
         switch chosenContentType {
         case .json, .other: responseBody = .json(.init(message: "Hello, Stranger!"))
         case .plainText: responseBody = .plainText("Hello, Stranger!")
@@ -80,8 +80,8 @@ struct Handler: APIProtocol {
         return .ok(.init(body: responseBody))
     }
 
-    func postExampleMultipleContentTypes(_ input: Operations.postExampleMultipleContentTypes.Input) async throws
-        -> Operations.postExampleMultipleContentTypes.Output
+    func postExampleMultipleContentTypes(_ input: Operations.PostExampleMultipleContentTypes.Input) async throws
+        -> Operations.PostExampleMultipleContentTypes.Output
     {
         switch input.body {
         case .json(let json): print("Received a JSON greeting with the message: \(json.message)")
@@ -92,10 +92,10 @@ struct Handler: APIProtocol {
         return .accepted(.init())
     }
 
-    func postExampleURLEncoded(_ input: Operations.postExampleURLEncoded.Input) async throws
-        -> Operations.postExampleURLEncoded.Output
+    func postExampleURLEncoded(_ input: Operations.PostExampleURLEncoded.Input) async throws
+        -> Operations.PostExampleURLEncoded.Output
     {
-        let requestBody: Operations.postExampleURLEncoded.Input.Body.urlEncodedFormPayload
+        let requestBody: Operations.PostExampleURLEncoded.Input.Body.UrlEncodedFormPayload
         switch input.body {
         case .urlEncodedForm(let form): requestBody = form
         }
@@ -103,12 +103,12 @@ struct Handler: APIProtocol {
         return .accepted(.init())
     }
 
-    func getExampleRawBytes(_ input: Operations.getExampleRawBytes.Input) async throws
-        -> Operations.getExampleRawBytes.Output
+    func getExampleRawBytes(_ input: Operations.GetExampleRawBytes.Input) async throws
+        -> Operations.GetExampleRawBytes.Output
     { .ok(.init(body: .binary([0x73, 0x6e, 0x6f, 0x77, 0x0a]))) }
 
-    func postExampleRawBytes(_ input: Operations.postExampleRawBytes.Input) async throws
-        -> Operations.postExampleRawBytes.Output
+    func postExampleRawBytes(_ input: Operations.PostExampleRawBytes.Input) async throws
+        -> Operations.PostExampleRawBytes.Output
     {
         let binary: HTTPBody
         switch input.body {
@@ -119,21 +119,21 @@ struct Handler: APIProtocol {
         return .accepted(.init())
     }
 
-    func getExampleMultipart(_ input: Operations.getExampleMultipart.Input) async throws
-        -> Operations.getExampleMultipart.Output
+    func getExampleMultipart(_ input: Operations.GetExampleMultipart.Input) async throws
+        -> Operations.GetExampleMultipart.Output
     {
-        let multipartBody: MultipartBody<Operations.getExampleMultipart.Output.Ok.Body.multipartFormPayload> = [
+        let multipartBody: MultipartBody<Operations.GetExampleMultipart.Output.Ok.Body.MultipartFormPayload> = [
             .greetingTemplate(.init(payload: .init(body: .init(message: "Hello, {name}!")))),
-            .names(.init(payload: .init(headers: .init(x_hyphen_name_hyphen_locale: "en_US"), body: "Frank"))),
+            .names(.init(payload: .init(headers: .init(xNameLocale: "en_US"), body: "Frank"))),
             .names(.init(payload: .init(body: "Not Frank"))),
         ]
         return .ok(.init(body: .multipartForm(multipartBody)))
     }
 
-    func postExampleMultipart(_ input: Operations.postExampleMultipart.Input) async throws
-        -> Operations.postExampleMultipart.Output
+    func postExampleMultipart(_ input: Operations.PostExampleMultipart.Input) async throws
+        -> Operations.PostExampleMultipart.Output
     {
-        let multipartBody: MultipartBody<Operations.postExampleMultipart.Input.Body.multipartFormPayload>
+        let multipartBody: MultipartBody<Operations.PostExampleMultipart.Input.Body.MultipartFormPayload>
         switch input.body {
         case .multipartForm(let form): multipartBody = form
         }
@@ -145,7 +145,7 @@ struct Handler: APIProtocol {
             case .names(let name):
                 let stringName = try await String(collecting: name.payload.body, upTo: 1024)
                 // Multipart parts can have headers.
-                let locale = name.payload.headers.x_hyphen_name_hyphen_locale ?? "<nil>"
+                let locale = name.payload.headers.xNameLocale ?? "<nil>"
                 print("Received a name: '\(stringName)', header value: '\(locale)'")
             case .undocumented(let part):
                 // Any part with a raw HTTPBody body must have its body consumed before moving on to the next part.
@@ -159,7 +159,7 @@ struct Handler: APIProtocol {
 
 @main struct ContentTypesServer {
     static func main() async throws {
-        let app = Vapor.Application()
+        let app = try await Vapor.Application.make()
         let transport = VaporTransport(routesBuilder: app)
         let handler = Handler()
         try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!)

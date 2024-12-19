@@ -17,7 +17,7 @@ import OpenAPIRuntime
 import HTTPTypes
 
 actor SimpleAPIImpl: APIProtocol {
-    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
+    func getGreeting(_ input: Operations.GetGreeting.Input) async throws -> Operations.GetGreeting.Output {
         let message = "Hello, \(input.query.name ?? "Stranger")!"
         return .ok(.init(body: .json(.init(message: message))))
     }
