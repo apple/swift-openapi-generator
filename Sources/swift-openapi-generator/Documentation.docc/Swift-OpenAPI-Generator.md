@@ -57,7 +57,7 @@ import OpenAPIVapor
 import Vapor
 
 struct Handler: APIProtocol {
-    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
+    func getGreeting(_ input: Operations.GetGreeting.Input) async throws -> Operations.GetGreeting.Output {
         let name = input.query.name ?? "Stranger"
         return .ok(.init(body: .json(.init(message: "Hello, \(name)!"))))
     }
