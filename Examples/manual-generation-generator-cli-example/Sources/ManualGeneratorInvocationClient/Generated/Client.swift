@@ -39,10 +39,10 @@ internal struct Client: APIProtocol {
     }
     /// - Remark: HTTP `GET /greet`.
     /// - Remark: Generated from `#/paths//greet/get(getGreeting)`.
-    internal func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
+    internal func getGreeting(_ input: Operations.GetGreeting.Input) async throws -> Operations.GetGreeting.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.getGreeting.id,
+            forOperation: Operations.GetGreeting.id,
             serializer: { input in
                 let path = try converter.renderedPath(
                     template: "/greet",
@@ -70,7 +70,7 @@ internal struct Client: APIProtocol {
                 switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.getGreeting.Output.Ok.Body
+                    let body: Operations.GetGreeting.Output.Ok.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [

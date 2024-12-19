@@ -3,3 +3,4 @@ generate:
 additionalImports:
   - Types
 accessModifier: package
+namingStrategy: idiomatic

@@ -27,11 +27,11 @@ import Foundation
             let (stream, continuation) = AsyncStream<Components.Schemas.Greeting>.makeStream()
             /// To keep it simple, using JSON Lines, as it most straightforward and easy way to have streams.
             /// For SSE and JSON Sequences cases please check `event-streams-client-example`.
-            let requestBody: Operations.getGreetingsStream.Input.Body = .application_jsonl(
+            let requestBody: Operations.GetGreetingsStream.Input.Body = .applicationJsonl(
                 .init(stream.asEncodedJSONLines(), length: .unknown, iterationBehavior: .single)
             )
             let response = try await client.getGreetingsStream(query: .init(name: "Example"), body: requestBody)
-            let greetingStream = try response.ok.body.application_jsonl.asDecodedJSONLines(
+            let greetingStream = try response.ok.body.applicationJsonl.asDecodedJSONLines(
                 of: Components.Schemas.Greeting.self
             )
             try await withThrowingTaskGroup(of: Void.self) { group in

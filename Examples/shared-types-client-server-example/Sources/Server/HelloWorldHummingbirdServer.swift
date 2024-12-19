@@ -18,7 +18,7 @@ import Foundation
 import Types
 
 struct Handler: APIProtocol {
-    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
+    func getGreeting(_ input: Operations.GetGreeting.Input) async throws -> Operations.GetGreeting.Output {
         let name = input.query.name ?? "Stranger"
         let message = Components.Schemas.Greeting(message: "Hello, \(name)!")
         return .ok(.init(body: .json(message.boxed())))
@@ -27,10 +27,10 @@ struct Handler: APIProtocol {
 
 @main struct HelloWorldHummingbirdServer {
     static func main() async throws {
-        let app = Hummingbird.HBApplication()
-        let transport = HBOpenAPITransport(app)
+        let router = Router()
         let handler = Handler()
-        try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!)
-        try await app.asyncRun()
+        try handler.registerHandlers(on: router, serverURL: URL(string: "/api")!)
+        let app = Application(router: router, configuration: .init())
+        try await app.run()
     }
 }
