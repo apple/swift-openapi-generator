@@ -49,6 +49,7 @@ struct Handler: APIProtocol {
         let transport = VaporTransport(routesBuilder: app)
         let handler = Handler()
         try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!, middlewares: [TracingMiddleware()])
+        // Consider using Swift Service Lifecycle — https://github.com/swift-server/swift-service-lifecycle
         try await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask { try await app.execute() }
             group.addTask { try await tracer.run() }
