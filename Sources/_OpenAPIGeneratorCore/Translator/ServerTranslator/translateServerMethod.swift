@@ -129,9 +129,8 @@ extension ServerFileTranslator {
     func translateServerMethod(_ description: OperationDescription, serverUrlVariableName: String) throws -> (
         registerCall: Expression, functionDecl: Declaration
     ) {
-
         let operationTypeExpr = Expression.identifierType(.member(Constants.Operations.namespace))
-            .dot(description.methodName)
+            .dot(description.operationTypeName)
 
         let operationArg = FunctionArgumentDescription(label: "forOperation", expression: operationTypeExpr.dot("id"))
         let requestArg = FunctionArgumentDescription(label: "request", expression: .identifierPattern("request"))

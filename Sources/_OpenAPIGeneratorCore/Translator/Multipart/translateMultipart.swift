@@ -137,7 +137,7 @@ extension TypesFileTranslator {
             switch part {
             case .documentedTyped(let documentedPart):
                 let caseDecl: Declaration = .enumCase(
-                    name: context.asSwiftSafeName(documentedPart.originalName),
+                    name: context.safeNameGenerator.swiftMemberName(for: documentedPart.originalName),
                     kind: .nameWithAssociatedValues([.init(type: .init(part.wrapperTypeUsage))])
                 )
                 let decl = try translateMultipartPartContent(
@@ -404,7 +404,7 @@ extension FileTranslator {
             switch part {
             case .documentedTyped(let part):
                 let originalName = part.originalName
-                let identifier = context.asSwiftSafeName(originalName)
+                let identifier = context.safeNameGenerator.swiftMemberName(for: originalName)
                 let contentType = part.partInfo.contentType
                 let partTypeName = part.typeName
                 let schema = part.schema
@@ -613,7 +613,7 @@ extension FileTranslator {
             switch part {
             case .documentedTyped(let part):
                 let originalName = part.originalName
-                let identifier = context.asSwiftSafeName(originalName)
+                let identifier = context.safeNameGenerator.swiftMemberName(for: originalName)
                 let contentType = part.partInfo.contentType
                 let headersTypeName = part.typeName.appending(
                     swiftComponent: Constants.Operation.Output.Payload.Headers.typeName,

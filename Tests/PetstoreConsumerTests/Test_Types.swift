@@ -100,7 +100,7 @@ final class Test_Types: XCTestCase {
             expectedJSON: #""2023-01-18T10:04:11Z""#
         )
         try testJSON(
-            Components.Schemas.MixedAnyOf(value2: .BIG_ELEPHANT_1, value4: #"BIG_ELEPHANT_1"#),
+            Components.Schemas.MixedAnyOf(value2: .bigElephant1, value4: #"BIG_ELEPHANT_1"#),
             expectedJSON: #""BIG_ELEPHANT_1""#
         )
         try testJSON(
@@ -111,7 +111,7 @@ final class Test_Types: XCTestCase {
             Components.Schemas.MixedOneOf.case1(Date(timeIntervalSince1970: 1_674_036_251)),
             expectedJSON: #""2023-01-18T10:04:11Z""#
         )
-        try testJSON(Components.Schemas.MixedOneOf.PetKind(.BIG_ELEPHANT_1), expectedJSON: #""BIG_ELEPHANT_1""#)
+        try testJSON(Components.Schemas.MixedOneOf.PetKind(.bigElephant1), expectedJSON: #""BIG_ELEPHANT_1""#)
         try testJSON(
             Components.Schemas.MixedOneOf.Pet(.init(id: 1, name: "Fluffz")),
             expectedJSON: #"{"id":1,"name":"Fluffz"}"#
@@ -148,9 +148,9 @@ final class Test_Types: XCTestCase {
         try _testRoundtrip(Components.Schemas.OneOfAny.case4(.init(message: "hello")))
     }
     func testOneOfWithDiscriminator_roundtrip() throws {
-        try _testRoundtrip(Components.Schemas.OneOfObjectsWithDiscriminator.Walk(.init(kind: "Walk", length: 1)))
+        try _testRoundtrip(Components.Schemas.OneOfObjectsWithDiscriminator.walk(.init(kind: "Walk", length: 1)))
         try _testRoundtrip(
-            Components.Schemas.OneOfObjectsWithDiscriminator.MessagedExercise(
+            Components.Schemas.OneOfObjectsWithDiscriminator.messagedExercise(
                 .init(value1: .init(kind: "MessagedExercise"), value2: .init(message: "hello"))
             )
         )
@@ -167,23 +167,23 @@ final class Test_Types: XCTestCase {
         )
     }
     func testThrowingShorthandAPIs() throws {
-        let created = Operations.createPet.Output.Created(body: .json(.init(id: 42, name: "Scruffy")))
-        let output = Operations.createPet.Output.created(created)
+        let created = Operations.CreatePet.Output.Created(body: .json(.init(id: 42, name: "Scruffy")))
+        let output = Operations.CreatePet.Output.created(created)
         XCTAssertEqual(try output.created, created)
         XCTAssertThrowsError(try output.clientError) { error in
             guard case let .unexpectedResponseStatus(expectedStatus, actualOutput) = error as? RuntimeError,
-                expectedStatus == "clientError", actualOutput as? Operations.createPet.Output == output
+                expectedStatus == "clientError", actualOutput as? Operations.CreatePet.Output == output
             else {
                 XCTFail("Expected error, but not this: \(error)")
                 return
             }
         }
         let stats = Components.Schemas.PetStats(count: 42)
-        let ok = Operations.getStats.Output.Ok(body: .json(stats))
+        let ok = Operations.GetStats.Output.Ok(body: .json(stats))
         XCTAssertEqual(try ok.body.json, stats)
         XCTAssertThrowsError(try ok.body.plainText) { error in
             guard case let .unexpectedResponseBody(expectedContentType, actualBody) = error as? RuntimeError,
-                expectedContentType == "text/plain", actualBody as? Operations.getStats.Output.Ok.Body == .json(stats)
+                expectedContentType == "text/plain", actualBody as? Operations.GetStats.Output.Ok.Body == .json(stats)
             else {
                 XCTFail("Expected error, but not this: \(error)")
                 return

@@ -144,7 +144,7 @@ extension TypesFileTranslator {
                     userDescription: nil,
                     parent: typeName
                 )
-                let caseName = safeSwiftNameForOneOfMappedType(mappedType)
+                let caseName = safeSwiftNameForOneOfMappedCase(mappedType)
                 return (caseName, mappedType.rawNames, true, comment, mappedType.typeName.asUsage, [])
             }
         } else {
@@ -209,7 +209,7 @@ extension TypesFileTranslator {
         let decoder: Declaration
         if let discriminator {
             let originalName = discriminator.propertyName
-            let swiftName = context.asSwiftSafeName(originalName)
+            let swiftName = context.safeNameGenerator.swiftMemberName(for: originalName)
             codingKeysDecls = [
                 .enum(
                     accessModifier: config.access,

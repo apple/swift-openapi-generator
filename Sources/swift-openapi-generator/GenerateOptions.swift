@@ -47,14 +47,6 @@ extension AccessModifier: ExpressibleByArgument {}
 
 extension _GenerateOptions {
 
-    /// The user-provided user config, not yet resolved with defaults.
-    var resolvedUserConfig: _UserConfig {
-        get throws {
-            let config = try loadedConfig()
-            return try .init(generate: resolvedModes(config), additionalImports: resolvedAdditionalImports(config))
-        }
-    }
-
     /// Returns a list of the generator modes requested by the user.
     /// - Parameter config: The configuration specified by the user.
     /// - Returns: A list of generator modes requested by the user.
@@ -82,6 +74,16 @@ extension _GenerateOptions {
         if let additionalImports = config?.additionalImports, !additionalImports.isEmpty { return additionalImports }
         return []
     }
+
+    /// Returns the naming strategy requested by the user.
+    /// - Parameter config: The configuration specified by the user.
+    /// - Returns: The naming strategy requestd by the user.
+    func resolvedNamingStrategy(_ config: _UserConfig?) -> NamingStrategy { config?.namingStrategy ?? .defensive }
+
+    /// Returns the name overrides requested by the user.
+    /// - Parameter config: The configuration specified by the user.
+    /// - Returns: The name overrides requested by the user
+    func resolvedNameOverrides(_ config: _UserConfig?) -> [String: String] { config?.nameOverrides ?? [:] }
 
     /// Returns a list of the feature flags requested by the user.
     /// - Parameter config: The configuration specified by the user.

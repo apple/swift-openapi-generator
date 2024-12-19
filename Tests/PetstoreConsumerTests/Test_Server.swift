@@ -33,10 +33,10 @@ final class Test_Server: XCTestCase {
             XCTAssertEqual(input.query.habitat, .water)
             XCTAssertEqual(input.query.since, .test)
             XCTAssertEqual(input.query.feeds, [.carnivore, .herbivore])
-            XCTAssertEqual(input.headers.My_hyphen_Request_hyphen_UUID, "abcd-1234")
+            XCTAssertEqual(input.headers.myRequestUUID, "abcd-1234")
             return .ok(
                 .init(
-                    headers: .init(My_hyphen_Response_hyphen_UUID: "abcd", My_hyphen_Tracing_hyphen_Header: "1234"),
+                    headers: .init(myResponseUUID: "abcd", myTracingHeader: "1234"),
                     body: .json([.init(id: 1, name: "Fluffz")])
                 )
             )
@@ -101,14 +101,11 @@ final class Test_Server: XCTestCase {
 
     func testCreatePet_201() async throws {
         client = .init(createPetBlock: { input in
-            XCTAssertEqual(input.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
+            XCTAssertEqual(input.headers.xExtraArguments, .init(code: 1))
             guard case let .json(createPet) = input.body else { throw TestError.unexpectedValue(input.body) }
             XCTAssertEqual(createPet, .init(name: "Fluffz"))
             return .created(
-                .init(
-                    headers: .init(X_hyphen_Extra_hyphen_Arguments: .init(code: 1)),
-                    body: .json(.init(id: 1, name: "Fluffz"))
-                )
+                .init(headers: .init(xExtraArguments: .init(code: 1)), body: .json(.init(id: 1, name: "Fluffz")))
             )
         })
         let (response, responseBody) = try await server.createPet(
@@ -149,10 +146,7 @@ final class Test_Server: XCTestCase {
 
     func testCreatePet_400() async throws {
         client = .init(createPetBlock: { input in
-            .clientError(
-                statusCode: 400,
-                .init(headers: .init(X_hyphen_Reason: "bad luck"), body: .json(.init(code: 1)))
-            )
+            .clientError(statusCode: 400, .init(headers: .init(xReason: "bad luck"), body: .json(.init(code: 1))))
         })
         let (response, responseBody) = try await server.createPet(
             .init(
@@ -235,7 +229,7 @@ final class Test_Server: XCTestCase {
 
     func testCreatePet_201_withBase64() async throws {
         client = .init(createPetBlock: { input in
-            XCTAssertEqual(input.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
+            XCTAssertEqual(input.headers.xExtraArguments, .init(code: 1))
             guard case let .json(createPet) = input.body else { throw TestError.unexpectedValue(input.body) }
             XCTAssertEqual(
                 createPet,
@@ -245,10 +239,7 @@ final class Test_Server: XCTestCase {
                 )
             )
             return .created(
-                .init(
-                    headers: .init(X_hyphen_Extra_hyphen_Arguments: .init(code: 1)),
-                    body: .json(.init(id: 1, name: "Fluffz"))
-                )
+                .init(headers: .init(xExtraArguments: .init(code: 1)), body: .json(.init(id: 1, name: "Fluffz")))
             )
         })
         let (response, responseBody) = try await server.createPet(
@@ -771,11 +762,11 @@ final class Test_Server: XCTestCase {
 
     func testMultipartDownloadTyped_202() async throws {
         client = .init(multipartDownloadTypedBlock: { input in
-            let parts: MultipartBody<Components.Responses.MultipartDownloadTypedResponse.Body.multipartFormPayload> = [
+            let parts: MultipartBody<Components.Responses.MultipartDownloadTypedResponse.Body.MultipartFormPayload> = [
                 .log(
                     .init(
                         payload: .init(
-                            headers: .init(x_hyphen_log_hyphen_type: .unstructured),
+                            headers: .init(xLogType: .unstructured),
                             body: .init("here be logs!\nand more lines\nwheee\n")
                         ),
                         filename: "process.log"
@@ -802,7 +793,7 @@ final class Test_Server: XCTestCase {
 
     func testMultipartUploadTyped_202() async throws {
         client = .init(multipartUploadTypedBlock: { input in
-            let body: MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload>
+            let body: MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload>
             switch input.body {
             case .multipartForm(let value): body = value
             }
@@ -814,7 +805,7 @@ final class Test_Server: XCTestCase {
                     return .undocumented(statusCode: 500, .init())
                 }
                 XCTAssertEqual(log.filename, "process.log")
-                XCTAssertEqual(log.payload.headers, .init(x_hyphen_log_hyphen_type: .unstructured))
+                XCTAssertEqual(log.payload.headers, .init(xLogType: .unstructured))
                 try await XCTAssertEqualData(log.payload.body, "here be logs!\nand more lines\nwheee\n".utf8)
             }
             do {

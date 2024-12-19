@@ -33,6 +33,14 @@ struct _UserConfig: Codable {
     /// Filter to apply to the OpenAPI document before generation.
     var filter: DocumentFilter?
 
+    /// The strategy to use for naming generated Swift types and members.
+    var namingStrategy: NamingStrategy?
+
+    /// A dictionary of name overrides for generated types and members.
+    ///
+    /// Any names not included use the `namingStrategy` to compute a Swift name.
+    var nameOverrides: [String: String]?
+
     /// A set of features to explicitly enable.
     var featureFlags: FeatureFlags?
 
@@ -44,6 +52,8 @@ struct _UserConfig: Codable {
         case accessModifier
         case additionalImports
         case filter
+        case namingStrategy
+        case nameOverrides
         case featureFlags
     }
 }

@@ -243,7 +243,7 @@ extension ClientFileTranslator {
                     argumentNames: ["value"],
                     body: [
                         .expression(
-                            .dot(typeAssigner.contentSwiftName(typedContent.content.contentType))
+                            .dot(context.safeNameGenerator.swiftContentTypeName(for: typedContent.content.contentType))
                                 .call([.init(label: nil, expression: .identifierPattern("value"))])
                         )
                     ]
@@ -442,7 +442,7 @@ extension ServerFileTranslator {
                 caseCodeBlocks.append(.expression(assignBodyExpr))
 
                 return .init(
-                    kind: .case(.dot(typeAssigner.contentSwiftName(contentType)), ["value"]),
+                    kind: .case(.dot(context.safeNameGenerator.swiftContentTypeName(for: contentType)), ["value"]),
                     body: caseCodeBlocks
                 )
             }
