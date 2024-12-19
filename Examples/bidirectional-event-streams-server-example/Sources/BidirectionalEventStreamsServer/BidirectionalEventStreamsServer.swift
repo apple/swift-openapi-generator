@@ -18,13 +18,13 @@ import Foundation
 
 struct Handler: APIProtocol {
     private let storage: StreamStorage = .init()
-    func getGreetingsStream(_ input: Operations.getGreetingsStream.Input) async throws
-        -> Operations.getGreetingsStream.Output
+    func getGreetingsStream(_ input: Operations.GetGreetingsStream.Input) async throws
+        -> Operations.GetGreetingsStream.Output
     {
         let eventStream = await self.storage.makeStream(input: input)
         /// To keep it simple, using JSON Lines, as it most straightforward and easy way to have streams.
         /// For SSE and JSON Sequences cases please check `event-streams-server-example`.
-        let responseBody = Operations.getGreetingsStream.Output.Ok.Body.application_jsonl(
+        let responseBody = Operations.GetGreetingsStream.Output.Ok.Body.applicationJsonl(
             .init(eventStream.asEncodedJSONLines(), length: .unknown, iterationBehavior: .single)
         )
         return .ok(.init(body: responseBody))

@@ -16,12 +16,12 @@ import OpenAPIVapor
 import Vapor
 import TracingMiddleware
 import Tracing
-import OpenTelemetry
-import OtlpGRPCSpanExporting
+import OTel
+import OTLPGRPC
 import NIO
 
 struct Handler: APIProtocol {
-    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
+    func getGreeting(_ input: Operations.GetGreeting.Input) async throws -> Operations.GetGreeting.Output {
         let name = input.query.name ?? "Stranger"
         return .ok(.init(body: .json(.init(message: "Hello, \(name)!"))))
     }
@@ -29,23 +29,33 @@ struct Handler: APIProtocol {
 
 @main struct HelloWorldVaporServer {
     static func main() async throws {
-        let eventLoopGroup = MultiThreadedEventLoopGroup.singleton
-        let otel = OTel(
-            serviceName: "HelloWorldServer",
-            eventLoopGroup: eventLoopGroup,
-            processor: OTel.BatchSpanProcessor(
-                exportingTo: OtlpGRPCSpanExporter(config: .init(eventLoopGroup: eventLoopGroup)),
-                eventLoopGroup: eventLoopGroup
-            )
+        let environment = OTelEnvironment.detected()
+        let resourceDetection = OTelResourceDetection(detectors: [
+            OTelProcessResourceDetector(), OTelEnvironmentResourceDetector(environment: environment),
+        ])
+        let resource = await resourceDetection.resource(environment: environment, logLevel: .trace)
+        let exporter = try OTLPGRPCSpanExporter(configuration: .init(environment: environment))
+        let processor = OTelBatchSpanProcessor(exporter: exporter, configuration: .init(environment: environment))
+        let tracer = OTelTracer(
+            idGenerator: OTelRandomIDGenerator(),
+            sampler: OTelConstantSampler(isOn: true),
+            propagator: OTelW3CPropagator(),
+            processor: processor,
+            environment: environment,
+            resource: resource
         )
-        try await otel.start().get()
-        defer { try? otel.shutdown().wait() }
-        InstrumentationSystem.bootstrap(otel.tracer())
-
-        let app = Vapor.Application()
+        InstrumentationSystem.bootstrap(tracer)
+        let app = try await Vapor.Application.make()
         let transport = VaporTransport(routesBuilder: app)
         let handler = Handler()
         try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!, middlewares: [TracingMiddleware()])
-        try await app.execute()
+        // Consider using Swift Service Lifecycle — https://github.com/swift-server/swift-service-lifecycle
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            group.addTask { try await app.execute() }
+            group.addTask { try await tracer.run() }
+            group.addTask { try await processor.run() }
+            _ = try await group.next()
+            group.cancelAll()
+        }
     }
 }
