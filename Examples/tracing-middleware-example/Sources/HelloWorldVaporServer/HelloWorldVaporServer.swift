@@ -31,8 +31,7 @@ struct Handler: APIProtocol {
     static func main() async throws {
         let environment = OTelEnvironment.detected()
         let resourceDetection = OTelResourceDetection(detectors: [
-            OTelProcessResourceDetector(),
-            OTelEnvironmentResourceDetector(environment: environment),
+            OTelProcessResourceDetector(), OTelEnvironmentResourceDetector(environment: environment),
         ])
         let resource = await resourceDetection.resource(environment: environment, logLevel: .trace)
         let exporter = try OTLPGRPCSpanExporter(configuration: .init(environment: environment))
@@ -46,27 +45,14 @@ struct Handler: APIProtocol {
             resource: resource
         )
         InstrumentationSystem.bootstrap(tracer)
-        
         let app = try await Vapor.Application.make()
         let transport = VaporTransport(routesBuilder: app)
         let handler = Handler()
-        try handler.registerHandlers(
-            on: transport,
-            serverURL: URL(string: "/api")!,
-            middlewares: [
-                TracingMiddleware()
-            ]
-        )
+        try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!, middlewares: [TracingMiddleware()])
         try await withThrowingTaskGroup(of: Void.self) { group in
-            group.addTask {
-                try await app.execute()
-            }
-            group.addTask {
-                try await tracer.run()
-            }
-            group.addTask {
-                try await processor.run()
-            }
+            group.addTask { try await app.execute() }
+            group.addTask { try await tracer.run() }
+            group.addTask { try await processor.run() }
             _ = try await group.next()
             group.cancelAll()
         }
