@@ -28,8 +28,10 @@ struct _GenerateOptions: ParsableArguments {
             "The Swift files to generate. Options: \(GeneratorMode.prettyListing). Note that '\(GeneratorMode.client.rawValue)' and '\(GeneratorMode.server.rawValue)' depend on declarations in '\(GeneratorMode.types.rawValue)'."
     ) var mode: [GeneratorMode] = []
 
-    @Option(help: "The access modifier to use for the API of generated code. Default: \(Config.defaultAccessModifier.rawValue)")
-    var accessModifier: AccessModifier?
+    @Option(
+        help:
+            "The access modifier to use for the API of generated code. Default: \(Config.defaultAccessModifier.rawValue)"
+    ) var accessModifier: AccessModifier?
 
     @Option(
         help:
@@ -84,7 +86,7 @@ extension _GenerateOptions {
     /// - Returns: The naming strategy requestd by the user.
     func resolvedNamingStrategy(_ config: _UserConfig?) -> NamingStrategy {
         if let namingStrategy { return namingStrategy }
-        return config?.namingStrategy ?? .defensive
+        return config?.namingStrategy ?? Config.defaultNamingStrategy
     }
 
     /// Returns the name overrides requested by the user.
