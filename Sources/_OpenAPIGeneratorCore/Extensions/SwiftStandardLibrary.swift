@@ -11,6 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+import Foundation
+
 extension Int {
     /// Returns the digits for the number using the specified radix.
     /// - Parameter radix: The radix used to format the integer.

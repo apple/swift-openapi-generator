@@ -12,6 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
+import Foundation
 
 /// Utilities for asking questions about OpenAPI.Content
 extension FileTranslator {
