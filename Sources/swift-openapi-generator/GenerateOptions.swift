@@ -28,10 +28,13 @@ struct _GenerateOptions: ParsableArguments {
             "The Swift files to generate. Options: \(GeneratorMode.prettyListing). Note that '\(GeneratorMode.client.rawValue)' and '\(GeneratorMode.server.rawValue)' depend on declarations in '\(GeneratorMode.types.rawValue)'."
     ) var mode: [GeneratorMode] = []
 
+    @Option(help: "The access modifier to use for the API of generated code. Default: \(Config.defaultAccessModifier.rawValue)")
+    var accessModifier: AccessModifier?
+
     @Option(
         help:
-            "The access modifier to use for the API of generated code. Default: \(Config.defaultAccessModifier.rawValue)"
-    ) var accessModifier: AccessModifier?
+            "The strategy for converting OpenAPI names into Swift names. Default: \(Config.defaultNamingStrategy.rawValue)"
+    ) var namingStrategy: NamingStrategy?
 
     @Option(help: "Additional import to add to all generated files.") var additionalImport: [String] = []
 
@@ -44,6 +47,7 @@ struct _GenerateOptions: ParsableArguments {
 }
 
 extension AccessModifier: ExpressibleByArgument {}
+extension NamingStrategy: ExpressibleByArgument {}
 
 extension _GenerateOptions {
 
@@ -78,7 +82,10 @@ extension _GenerateOptions {
     /// Returns the naming strategy requested by the user.
     /// - Parameter config: The configuration specified by the user.
     /// - Returns: The naming strategy requestd by the user.
-    func resolvedNamingStrategy(_ config: _UserConfig?) -> NamingStrategy { config?.namingStrategy ?? .defensive }
+    func resolvedNamingStrategy(_ config: _UserConfig?) -> NamingStrategy {
+        if let namingStrategy { return namingStrategy }
+        return config?.namingStrategy ?? .defensive
+    }
 
     /// Returns the name overrides requested by the user.
     /// - Parameter config: The configuration specified by the user.

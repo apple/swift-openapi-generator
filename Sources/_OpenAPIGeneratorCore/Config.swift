@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 /// A strategy for turning OpenAPI identifiers into Swift identifiers.
-public enum NamingStrategy: String, Sendable, Codable, Equatable {
+public enum NamingStrategy: String, Sendable, Codable, Equatable, CaseIterable {
 
     /// A defensive strategy that can handle any OpenAPI identifier and produce a non-conflicting Swift identifier.
     ///
@@ -53,6 +53,9 @@ public struct Config: Sendable {
     ///
     /// Defaults to `defensive`.
     public var namingStrategy: NamingStrategy
+
+    /// The default naming strategy.
+    public static let defaultNamingStrategy: NamingStrategy = .defensive
 
     /// A map of OpenAPI identifiers to desired Swift identifiers, used instead of the naming strategy.
     public var nameOverrides: [String: String]
