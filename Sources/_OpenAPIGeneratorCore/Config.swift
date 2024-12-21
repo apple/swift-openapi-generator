@@ -79,7 +79,7 @@ public struct Config: Sendable {
         access: AccessModifier,
         additionalImports: [String] = [],
         filter: DocumentFilter? = nil,
-        namingStrategy: NamingStrategy = .defensive,
+        namingStrategy: NamingStrategy = Config.defaultNamingStrategy,
         nameOverrides: [String: String] = [:],
         featureFlags: FeatureFlags = []
     ) {
