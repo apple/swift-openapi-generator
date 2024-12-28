@@ -313,6 +313,7 @@ private extension FilteredDocumentBuilder {
                 guard predicate(endpoint) else { continue }
                 if requiredEndpoints[path] == nil { requiredEndpoints[path] = Set() }
                 if requiredEndpoints[path]!.insert(endpoint.method).inserted {
+                    for parameter in originalPathItem.parameters { try includeParameter(parameter) }
                     try includeComponentsReferencedBy(endpoint.operation)
                 }
             }

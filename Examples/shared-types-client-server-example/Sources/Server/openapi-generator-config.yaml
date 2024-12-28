@@ -1,5 +1,6 @@
 generate:
   - server
 accessModifier: internal
+namingStrategy: idiomatic
 additionalImports:
   - Types

@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import XCTest
-import OpenAPIKit
+@preconcurrency import OpenAPIKit
 @testable import _OpenAPIGeneratorCore
 
 class Test_MultipartAdditionalProperties: XCTestCase {

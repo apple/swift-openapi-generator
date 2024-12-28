@@ -120,7 +120,7 @@ extension FileTranslator {
         }
         var parts: [MultipartSchemaTypedContent] = try topLevelObject.properties.compactMap {
             (key, value) -> MultipartSchemaTypedContent? in
-            let swiftSafeName = context.asSwiftSafeName(key)
+            let swiftSafeName = context.safeNameGenerator.swiftTypeName(for: key)
             let typeName = typeName.appending(
                 swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
                 jsonComponent: key
@@ -305,7 +305,7 @@ extension FileTranslator {
             return nil
         }
         let finalContentTypeSource: MultipartPartInfo.ContentTypeSource
-        if let encoding, let contentType = encoding.contentType {
+        if let encoding, let contentType = encoding.contentTypes.first, encoding.contentTypes.count == 1 {
             finalContentTypeSource = try .explicit(contentType.asGeneratorContentType)
         } else {
             finalContentTypeSource = candidateSource

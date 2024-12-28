@@ -1,6 +1,6 @@
 % swift run --package-path GreetingServiceClient
 
-ok(GreetingServiceClient.Operations.getGreeting.Output.Ok(
-headers: GreetingServiceClient.Operations.getGreeting.Output.Ok.Headers(),
-body: GreetingServiceClient.Operations.getGreeting.Output.Ok.Body.json(
+ok(GreetingServiceClient.Operations.GetGreeting.Output.Ok(
+headers: GreetingServiceClient.Operations.GetGreeting.Output.Ok.Headers(),
+body: GreetingServiceClient.Operations.GetGreeting.Output.Ok.Body.json(
 GreetingServiceClient.Components.Schemas.Greeting(message: "Hello, CLI"))))

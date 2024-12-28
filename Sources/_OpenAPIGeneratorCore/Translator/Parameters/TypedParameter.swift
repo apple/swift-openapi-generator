@@ -48,7 +48,7 @@ extension TypedParameter {
     var name: String { parameter.name }
 
     /// The name of the parameter sanitized to be a valid Swift identifier.
-    var variableName: String { context.asSwiftSafeName(name) }
+    var variableName: String { context.safeNameGenerator.swiftMemberName(for: name) }
 
     /// A Boolean value that indicates whether the parameter must be specified
     /// when performing the OpenAPI operation.

@@ -1,3 +1,4 @@
 generate:
   - types
 accessModifier: package
+namingStrategy: idiomatic

@@ -2,3 +2,4 @@ generate:
   - types
   - server
 accessModifier: internal
+namingStrategy: idiomatic

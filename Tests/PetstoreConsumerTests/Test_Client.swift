@@ -67,15 +67,15 @@ final class Test_Client: XCTestCase {
         let response = try await client.listPets(
             .init(
                 query: .init(limit: 24, habitat: .water, feeds: [.herbivore, .carnivore], since: .test),
-                headers: .init(My_hyphen_Request_hyphen_UUID: "abcd-1234")
+                headers: .init(myRequestUUID: "abcd-1234")
             )
         )
         guard case let .ok(value) = response else {
             XCTFail("Unexpected response: \(response)")
             return
         }
-        XCTAssertEqual(value.headers.My_hyphen_Response_hyphen_UUID, "abcd")
-        XCTAssertEqual(value.headers.My_hyphen_Tracing_hyphen_Header, "1234")
+        XCTAssertEqual(value.headers.myResponseUUID, "abcd")
+        XCTAssertEqual(value.headers.myTracingHeader, "1234")
         switch value.body {
         case .json(let pets): XCTAssertEqual(pets, [.init(id: 1, name: "Fluffz")])
         }
@@ -154,13 +154,13 @@ final class Test_Client: XCTestCase {
             )
         }
         let response = try await client.createPet(
-            .init(headers: .init(X_hyphen_Extra_hyphen_Arguments: .init(code: 1)), body: .json(.init(name: "Fluffz")))
+            .init(headers: .init(xExtraArguments: .init(code: 1)), body: .json(.init(name: "Fluffz")))
         )
         guard case let .created(value) = response else {
             XCTFail("Unexpected response: \(response)")
             return
         }
-        XCTAssertEqual(value.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
+        XCTAssertEqual(value.headers.xExtraArguments, .init(code: 1))
         switch value.body {
         case .json(let pets): XCTAssertEqual(pets, .init(id: 1, name: "Fluffz"))
         }
@@ -186,7 +186,7 @@ final class Test_Client: XCTestCase {
             return
         }
         XCTAssertEqual(statusCode, 400)
-        XCTAssertEqual(value.headers.X_hyphen_Reason, "bad luck")
+        XCTAssertEqual(value.headers.xReason, "bad luck")
         switch value.body {
         case .json(let body): XCTAssertEqual(body, .init(code: 1))
         }
@@ -301,7 +301,7 @@ final class Test_Client: XCTestCase {
         }
         let response = try await client.createPet(
             .init(
-                headers: .init(X_hyphen_Extra_hyphen_Arguments: .init(code: 1)),
+                headers: .init(xExtraArguments: .init(code: 1)),
                 body: .json(
                     .init(
                         name: "Fluffz",
@@ -314,7 +314,7 @@ final class Test_Client: XCTestCase {
             XCTFail("Unexpected response: \(response)")
             return
         }
-        XCTAssertEqual(value.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
+        XCTAssertEqual(value.headers.xExtraArguments, .init(code: 1))
         switch value.body {
         case .json(let pets):
             XCTAssertEqual(
@@ -713,11 +713,11 @@ final class Test_Client: XCTestCase {
             try await XCTAssertEqualData(requestBody, Data.multipartTypedBodyAsSlice)
             return (.init(status: .accepted), nil)
         }
-        let parts: MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload> = [
+        let parts: MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload> = [
             .log(
                 .init(
                     payload: .init(
-                        headers: .init(x_hyphen_log_hyphen_type: .unstructured),
+                        headers: .init(xLogType: .unstructured),
                         body: .init("here be logs!\nand more lines\nwheee\n")
                     ),
                     filename: "process.log"
@@ -765,7 +765,7 @@ final class Test_Client: XCTestCase {
                 return
             }
             XCTAssertEqual(log.filename, "process.log")
-            XCTAssertEqual(log.payload.headers, .init(x_hyphen_log_hyphen_type: .unstructured))
+            XCTAssertEqual(log.payload.headers, .init(xLogType: .unstructured))
             try await XCTAssertEqualData(log.payload.body, "here be logs!\nand more lines\nwheee\n".utf8)
         }
         do {
