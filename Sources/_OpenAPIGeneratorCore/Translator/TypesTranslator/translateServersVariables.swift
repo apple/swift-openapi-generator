@@ -12,6 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
+import Foundation
 
 /// Represents a server variable and the function of generation that should be applied.
 protocol ServerVariableGenerator {
