@@ -66,10 +66,10 @@ extension _GenerateOptions {
     /// Returns the access modifier requested by the user.
     /// - Parameter config: The configuration specified by the user.
     /// - Returns: The access modifier requested by the user, or nil if the default should be used.
-    func resolvedAccessModifier(_ config: _UserConfig?) -> AccessModifier? {
+    func resolvedAccessModifier(_ config: _UserConfig?) -> AccessModifier {
         if let accessModifier { return accessModifier }
         if let accessModifier = config?.accessModifier { return accessModifier }
-        return nil
+        return Config.defaultAccessModifier
     }
 
     /// Returns a list of additional imports requested by the user.
