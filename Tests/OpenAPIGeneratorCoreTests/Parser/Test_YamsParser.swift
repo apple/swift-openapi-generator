@@ -165,7 +165,11 @@ final class Test_YamsParser: Test_Core {
         try YamsParser()
             .parseOpenAPI(
                 .init(absolutePath: URL(fileURLWithPath: "/foo.yaml"), contents: Data(yaml.utf8)),
-                config: .init(mode: .types, access: Config.defaultAccessModifier),
+                config: .init(
+                    mode: .types,
+                    access: Config.defaultAccessModifier,
+                    namingStrategy: Config.defaultNamingStrategy
+                ),
                 diagnostics: PrintingDiagnosticCollector()
             )
     }

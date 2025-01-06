@@ -5868,7 +5868,7 @@ extension SnippetBasedReferenceTests {
     func makeTypesTranslator(openAPIDocumentYAML: String) throws -> TypesFileTranslator {
         let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: openAPIDocumentYAML)
         return TypesFileTranslator(
-            config: Config(mode: .types, access: .public),
+            config: Config(mode: .types, access: .public, namingStrategy: .defensive),
             diagnostics: XCTestDiagnosticCollector(test: self),
             components: document.components
         )
@@ -5901,7 +5901,12 @@ extension SnippetBasedReferenceTests {
         components: OpenAPI.Components = .noComponents
     ) throws -> TypesFileTranslator {
         TypesFileTranslator(
-            config: Config(mode: .types, access: accessModifier, featureFlags: featureFlags),
+            config: Config(
+                mode: .types,
+                access: accessModifier,
+                namingStrategy: .defensive,
+                featureFlags: featureFlags
+            ),
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
             components: components
         )
@@ -5915,17 +5920,17 @@ extension SnippetBasedReferenceTests {
         let collector = XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages)
         return (
             TypesFileTranslator(
-                config: Config(mode: .types, access: .public, featureFlags: featureFlags),
+                config: Config(mode: .types, access: .public, namingStrategy: .defensive, featureFlags: featureFlags),
                 diagnostics: collector,
                 components: components
             ),
             ClientFileTranslator(
-                config: Config(mode: .client, access: .public, featureFlags: featureFlags),
+                config: Config(mode: .client, access: .public, namingStrategy: .defensive, featureFlags: featureFlags),
                 diagnostics: collector,
                 components: components
             ),
             ServerFileTranslator(
-                config: Config(mode: .server, access: .public, featureFlags: featureFlags),
+                config: Config(mode: .server, access: .public, namingStrategy: .defensive, featureFlags: featureFlags),
                 diagnostics: collector,
                 components: components
             )
