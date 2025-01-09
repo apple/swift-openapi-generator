@@ -30,7 +30,7 @@ At the time of writing, the list of coders used is as follows.
 | URI (††) | `OpenAPIRuntime.URIEncoder` | `OpenAPIRuntime.URIDecoder` | Path, query, headers |
 | Plain text | `OpenAPIRuntime.StringEncoder` | `OpenAPIRuntime.StringDecoder` | Bodies |
 
-> †: XML support is optional, and not enabled by default. Encoding and decoding requires to define a `OpenAPIRuntime.CustomCoder` in `OpenAPIRuntime.Configuration` initializer.
+> †: XML support is optional, and not enabled by default. Encoding and decoding requires providing a `OpenAPIRuntime.CustomCoder` to the `OpenAPIRuntime.Configuration` initializer.
 
 > ††: Configurable implementation of variable expansion from URI Template (RFC 6570), the `application/x-www-form-urlencoded` serialization from RFC 1866, and OpenAPI 3.0.3. For details of the supported combinations, review <doc:Supported-OpenAPI-features>.
 
