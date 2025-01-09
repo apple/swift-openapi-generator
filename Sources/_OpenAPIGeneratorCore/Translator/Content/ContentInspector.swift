@@ -130,7 +130,7 @@ extension FileTranslator {
         let mapWithContentTypes = try map.map { key, content in try (type: key.asGeneratorContentType, value: content) }
 
         let chosenContent: (type: ContentType, schema: SchemaContent, content: OpenAPI.Content)?
-        if let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isJSON || $0.type.isXml }) {
+        if let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isJSON || $0.type.isXML }) {
             chosenContent = (contentType, .init(contentType: contentType, schema: contentValue.schema), contentValue)
         } else if !excludeBinary,
             let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isBinary })
@@ -192,7 +192,7 @@ extension FileTranslator {
             )
         }
         if contentType.isJSON { return .init(contentType: contentType, schema: contentValue.schema) }
-        if contentType.isXml { return .init(contentType: contentType, schema: contentValue.schema) }
+        if contentType.isXML { return .init(contentType: contentType, schema: contentValue.schema) }
         if contentType.isUrlEncodedForm { return .init(contentType: contentType, schema: contentValue.schema) }
         if contentType.isMultipart {
             guard isRequired else {

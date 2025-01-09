@@ -224,9 +224,10 @@ struct ContentType: Hashable {
     /// A Boolean value that indicates whether the content type
     /// is a multipart form.
     var isMultipart: Bool { category == .multipart }
+
     /// A Boolean value that indicates whether the content type
     /// is a type of XML.
-    var isXml: Bool { category == .xml }
+    var isXML: Bool { category == .xml }
 
     /// The content type `text/plain`.
     static var textPlain: Self { try! .init(string: "text/plain") }
