@@ -50,6 +50,10 @@ final class Test_ContentType: Test_Core {
                     "application/xml"
                 ),
                 (
+                    "application/custom-type", .binary, "application", "custom-type", "", "application/custom-type", "application/custom-type",
+                    "application/custom-type"
+                ),
+                (
                     "application/octet-stream", .binary, "application", "octet-stream", "", "application/octet-stream",
                     "application/octet-stream", "application/octet-stream"
                 ),
