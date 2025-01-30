@@ -1,0 +1,6 @@
+generate: [types, client]
+accessModifier: package
+filter:
+  paths:
+    - /chat/completions
+namingStrategy: idiomatic
