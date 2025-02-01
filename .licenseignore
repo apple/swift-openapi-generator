@@ -1,6 +1,7 @@
 .gitignore
 .licenseignore
 .swiftformatignore
+.unacceptablelanguageignore
 .spi.yml
 .swift-format
 .github/*
@@ -37,6 +38,8 @@ Examples/HelloWorldiOSClientAppExample/HelloWorldiOSClientApp.*
 Examples/HelloWorldiOSClientAppExample/HelloWorldiOSClientApp/Assets.xcassets/*
 Examples/HelloWorldiOSClientAppExample/HelloWorldiOSClientApp/Preview*
 Examples/**/Generated*
+Examples/streaming-chatgpt-proxy/.env.example
+Examples/streaming-chatgpt-proxy/players.txt
 **/Makefile
 **/*.html
 .editorconfig

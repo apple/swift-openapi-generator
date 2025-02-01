@@ -1,0 +1,13 @@
+.DS_Store
+.build/
+.build-linux/
+.env
+/Packages
+/*.xcodeproj
+xcuserdata/
+DerivedData/
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.vscode
+/Package.resolved
+.ci/
+.docc-build/
