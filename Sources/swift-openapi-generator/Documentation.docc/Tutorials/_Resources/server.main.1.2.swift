@@ -15,7 +15,7 @@ struct GreetingServiceAPIImpl: APIProtocol {
 }
 
 // Create your Vapor application.
-let app = Vapor.Application()
+let app = try await Vapor.Application.make()
 
 // Create a VaporTransport using your application.
 let transport = VaporTransport(routesBuilder: app)

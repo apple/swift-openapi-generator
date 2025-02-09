@@ -65,7 +65,7 @@ struct Handler: APIProtocol {
 
 @main struct HelloWorldVaporServer {
     static func main() async throws {
-        let app = Vapor.Application()
+        let app = try await Application.make()
         let transport = VaporTransport(routesBuilder: app)
         let handler = Handler()
         try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!)
