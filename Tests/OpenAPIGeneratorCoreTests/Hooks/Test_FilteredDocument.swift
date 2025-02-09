@@ -75,6 +75,13 @@ final class Test_FilteredDocument: XCTestCase {
                         $ref: '#/components/schemas/B'
                 Empty:
                   description: success
+            webhooks:
+              my-webhook:
+                post:
+                  description: Webhook
+                  responses:
+                    '200':
+                      description: OK
             """
         let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: documentYAML)
         assert(filtering: document, filter: DocumentFilter(), hasPaths: [], hasOperations: [], hasSchemas: [])
@@ -189,6 +196,13 @@ final class Test_FilteredDocument: XCTestCase {
             filteredDocument.components.parameters.keys.map(\.rawValue),
             parameters,
             "Parameters don't match",
+            file: file,
+            line: line
+        )
+        XCTAssertUnsortedEqual(
+            filteredDocument.webhooks.keys,
+            [],
+            "Webhooks don't match",
             file: file,
             line: line
         )
