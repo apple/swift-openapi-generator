@@ -175,8 +175,9 @@ components:
 - <doc:Useful-OpenAPI-patterns>
 - <doc:Supported-OpenAPI-features>
 
-### Generator plugin and CLI
+### Customization
 - <doc:Configuring-the-generator>
+- <doc:Handling-errors-on-clients-and-servers>
 - <doc:Manually-invoking-the-generator-CLI>
 - <doc:Frequently-asked-questions>
 

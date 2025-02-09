@@ -527,7 +527,35 @@ final class Test_Client: XCTestCase {
         do {
             _ = try await client.getStats(.init())
             XCTFail("Should have thrown an error")
-        } catch {}
+        } catch {
+            XCTAssertTrue(error is ClientError)
+        }
+    }
+
+    func testGetStats_200_unexpectedContentType_customErrorMapper() async throws {
+        transport = .init { request, requestBody, baseURL, operationID in
+            XCTAssertEqual(operationID, "getStats")
+            XCTAssertEqual(request.path, "/pets/stats")
+            XCTAssertEqual(request.method, .get)
+            XCTAssertNil(requestBody)
+            return try HTTPResponse(status: .ok, headerFields: [.contentType: "foo/bar"])
+                .withEncodedBody(
+                    #"""
+                    count_is_1
+                    """#
+                )
+        }
+        let client = Client(
+            serverURL: try URL(validatingOpenAPIServerURL: "/api"),
+            configuration: .init(clientErrorMapper: { $0.underlyingError }),
+            transport: transport
+        )
+        do {
+            _ = try await client.getStats(.init())
+            XCTFail("Should have thrown an error")
+        } catch {
+            XCTAssertFalse(error is ClientError)
+        }
     }
 
     func testPostStats_202_json() async throws {

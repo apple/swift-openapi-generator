@@ -54,7 +54,8 @@ let package = Package(
         // Tests-only: Runtime library linked by generated code, and also
         // helps keep the runtime library new enough to work with the generated
         // code.
-        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.3.2"),
+//        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.3.2"),
+        .package(path: "../swift-openapi-runtime"),
         .package(url: "https://github.com/apple/swift-http-types", from: "1.0.2"),
     ],
     targets: [
