@@ -199,12 +199,6 @@ final class Test_FilteredDocument: XCTestCase {
             file: file,
             line: line
         )
-        XCTAssertUnsortedEqual(
-            filteredDocument.webhooks.keys,
-            [],
-            "Webhooks don't match",
-            file: file,
-            line: line
-        )
+        XCTAssertUnsortedEqual(filteredDocument.webhooks.keys, [], "Webhooks don't match", file: file, line: line)
     }
 }
