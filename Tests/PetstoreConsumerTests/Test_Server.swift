@@ -44,7 +44,7 @@ final class Test_Server: XCTestCase {
         })
         let (response, responseBody) = try await server.listPets(
             .init(
-                soar_path: "/api/pets?sort%5Bid%5D=ascending&sort%5Bname%5D=descending",
+                soar_path: "/api/pets?limit=24&habitat=water&feeds=carnivore&feeds=herbivore&sort%5Bid%5D=ascending&sort%5Bname%5D=descending&since=\(Date.testString)",
                 method: .get,
                 headerFields: [.init("My-Request-UUID")!: "abcd-1234"]
             ),

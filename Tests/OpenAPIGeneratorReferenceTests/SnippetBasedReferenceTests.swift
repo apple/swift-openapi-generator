@@ -2551,6 +2551,20 @@ final class SnippetBasedReferenceTests: XCTestCase {
                           type: string
                         option2:
                           type: string
+                  - name: filter
+                    in: query
+                    required: true
+                    style: deepObject
+                    explode: true
+                    schema:
+                      type: object
+                      required:
+                        - option3
+                      properties:
+                        option3:
+                          type: string
+                        option4:
+                          type: string
                 responses:
                   default:
                     description: Response
@@ -2576,17 +2590,35 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 case option2
                             }
                         }
-                        public var sort: Operations.get_sol_foo.Input.Query.sortPayload
+                        public var sort: Operations.get_sol_foo.Input.Query.sortPayload?
+                        public struct filterPayload: Codable, Hashable, Sendable {
+                            public var option3: Swift.String
+                            public var option4: Swift.String?
+                            public init(
+                                option3: Swift.String,
+                                option4: Swift.String? = nil
+                            ) {
+                                self.option3 = option3
+                                self.option4 = option4
+                            }
+                            public enum CodingKeys: String, CodingKey {
+                                case option3
+                                case option4
+                            }
+                        }
+                        public var filter: Operations.get_sol_foo.Input.Query.filterPayload
                         public init(
                             single: Swift.String? = nil,
                             manyExploded: [Swift.String]? = nil,
                             manyUnexploded: [Swift.String]? = nil,
-                            sort: Operations.get_sol_foo.Input.Query.sortPayload
+                            sort: Operations.get_sol_foo.Input.Query.sortPayload? = nil,
+                            filter: Operations.get_sol_foo.Input.Query.filterPayload
                         ) {
                             self.single = single
                             self.manyExploded = manyExploded
                             self.manyUnexploded = manyUnexploded
                             self.sort = sort
+                            self.filter = filter
                         }
                     }
                     public var query: Operations.get_sol_foo.Input.Query
@@ -2634,6 +2666,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         name: "sort",
                         value: input.query.sort
                     )
+                    try converter.setQueryItemAsURI(
+                        in: &request,
+                        style: .deepObject,
+                        explode: true,
+                        name: "filter",
+                        value: input.query.filter
+                    )
                     return (request, nil)
                 }
                 """,
@@ -2661,12 +2700,19 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             name: "manyUnexploded",
                             as: [Swift.String].self
                         ),
-                        sort: try converter.getRequiredQueryItemAsURI(
+                        sort: try converter.getOptionalQueryItemAsURI(
                             in: request.soar_query,
                             style: .deepObject,
                             explode: true,
                             name: "sort",
                             as: Operations.get_sol_foo.Input.Query.sortPayload.self
+                        ),
+                        filter: try converter.getRequiredQueryItemAsURI(
+                            in: request.soar_query,
+                            style: .deepObject,
+                            explode: true,
+                            name: "filter",
+                            as: Operations.get_sol_foo.Input.Query.filterPayload.self
                         )
                     )
                     return Operations.get_sol_foo.Input(query: query)
