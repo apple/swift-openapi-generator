@@ -131,10 +131,8 @@ extension FileTranslator {
             switch location {
             case .query:
                 switch style {
-                case .form:
-                    break
-                case .deepObject where explode:
-                    break
+                case .form: break
+                case .deepObject where explode: break
                 default:
                     try diagnostics.emitUnsupported(
                         "Query params of style \(style.rawValue), explode: \(explode)",
