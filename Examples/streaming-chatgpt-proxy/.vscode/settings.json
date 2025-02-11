@@ -1,0 +1,31 @@
+{
+    "editor.lightbulb.enabled": "off",
+    "explorer.decorations.badges": false,
+    "explorer.decorations.colors": false,
+    "files.exclude": {
+        "**/.build": true,
+        "**/.build-linux": true,
+        "**/.gitignore": true,
+        "**/.swiftpm": true,
+        "**/.vscode": true,
+        ".env": true,
+        "*.o": true,
+        "*.d": true,
+        "*.swiftdeps": true,
+        "*.swiftdeps~": true,
+    },
+    "outline.problems.colors": false,
+    "outline.problems.badges": false,
+    "lldb.library": "/usr/lib/liblldb.so",
+    "lldb.launch.expressions": "native",
+    "swift.diagnosticsStyle": "default",
+    "swift.disableAutoResolve": true,
+    "swift.sourcekit-lsp.backgroundIndexing": "off",
+    "swift.sourcekit-lsp.disable": true,
+    "swift.buildPath": ".build-linux",
+    "workbench.colorCustomizations": {
+        "editorError.foreground": "#00000000",
+        "editorWarning.foreground": "#00000000",
+    },
+    "workbench.startupEditor": "none"
+}

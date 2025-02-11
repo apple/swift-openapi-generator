@@ -30,7 +30,7 @@ extension _GenerateOptions {
     func runGenerator(outputDirectory: URL, pluginSource: PluginSource?, isDryRun: Bool) async throws {
         let config = try loadedConfig()
         let sortedModes = try resolvedModes(config)
-        let resolvedAccessModifier = resolvedAccessModifier(config) ?? Config.defaultAccessModifier
+        let resolvedAccessModifier = resolvedAccessModifier(config)
         let resolvedAdditionalImports = resolvedAdditionalImports(config)
         let resolvedNamingStragy = resolvedNamingStrategy(config)
         let resolvedNameOverrides = resolvedNameOverrides(config)
