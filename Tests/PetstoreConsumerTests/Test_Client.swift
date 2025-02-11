@@ -66,7 +66,13 @@ final class Test_Client: XCTestCase {
         }
         let response = try await client.listPets(
             .init(
-                query: .init(limit: 24, habitat: .water, feeds: [.herbivore, .carnivore], sort: .init(id: "ascending", name: "descending"), since: .test),
+                query: .init(
+                    limit: 24,
+                    habitat: .water,
+                    feeds: [.herbivore, .carnivore],
+                    sort: .init(id: "ascending", name: "descending"),
+                    since: .test
+                ),
                 headers: .init(myRequestUUID: "abcd-1234")
             )
         )
