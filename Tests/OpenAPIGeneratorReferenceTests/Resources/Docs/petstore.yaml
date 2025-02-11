@@ -76,10 +76,26 @@ paths:
           explode: true
           schema:
             type: object
+            required:
+            - id
             properties:
               id:
                 type: string
               name:
+                type: string
+        - name: filter
+          in: query
+          required: true
+          style: deepObject
+          explode: true
+          schema:
+            type: object
+            required:
+            - name
+            properties:
+              name:
+                type: string
+              state:
                 type: string
         - $ref: '#/components/parameters/query.born-since'
       responses:

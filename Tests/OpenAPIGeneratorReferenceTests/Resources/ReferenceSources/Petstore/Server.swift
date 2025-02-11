@@ -192,7 +192,14 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         style: .deepObject,
                         explode: true,
                         name: "sort",
-                        as: Operations.listPets.Input.Query.sortPayload.self
+                        as: Operations.ListPets.Input.Query.SortPayload.self
+                    ),
+                    filter: try converter.getRequiredQueryItemAsURI(
+                        in: request.soar_query,
+                        style: .deepObject,
+                        explode: true,
+                        name: "filter",
+                        as: Operations.ListPets.Input.Query.FilterPayload.self
                     ),
                     since: try converter.getOptionalQueryItemAsURI(
                         in: request.soar_query,
