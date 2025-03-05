@@ -46,8 +46,12 @@ final class Test_ContentType: Test_Core {
                 ), ("text/plain", .binary, "text", "plain", "", "text/plain", "text/plain", "text/plain"),
                 ("*/*", .binary, "*", "*", "", "*/*", "*/*", "*/*"),
                 (
-                    "application/xml", .binary, "application", "xml", "", "application/xml", "application/xml",
+                    "application/xml", .xml, "application", "xml", "", "application/xml", "application/xml",
                     "application/xml"
+                ),
+                (
+                    "application/custom-type", .binary, "application", "custom-type", "", "application/custom-type", "application/custom-type",
+                    "application/custom-type"
                 ),
                 (
                     "application/octet-stream", .binary, "application", "octet-stream", "", "application/octet-stream",
