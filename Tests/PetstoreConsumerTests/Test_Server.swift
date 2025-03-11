@@ -403,7 +403,28 @@ final class Test_Server: XCTestCase {
                 .init()
             )
             XCTFail("Should have thrown an error.")
-        } catch {}
+        } catch {
+            XCTAssertTrue(error is ServerError)
+        }
+    }
+
+    func testGetStats_200_unexpectedAccept_customErrorMapper() async throws {
+        client = .init(getStatsBlock: { input in .ok(.init(body: .json(.init(count: 1)))) })
+        let server = TestServerTransport()
+        try client.registerHandlers(
+            on: server,
+            configuration: .init(serverErrorMapper: { $0.underlyingError })
+        )
+        do {
+            _ = try await server.getStats(
+                .init(soar_path: "/api/pets/stats", method: .patch, headerFields: [.accept: "foo/bar"]),
+                nil,
+                .init()
+            )
+            XCTFail("Should have thrown an error.")
+        } catch {
+            XCTAssertFalse(error is ServerError)
+        }
     }
 
     func testGetStats_200_text() async throws {
