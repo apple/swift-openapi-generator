@@ -36,3 +36,7 @@ jobs:
     uses: apple/swift-nio/.github/workflows/macos_tests.yml@main
     with:
       build_scheme: swift-openapi-generator-Package
+      ios_xcode_build_enabled: false
+      watchos_xcode_build_enabled: false
+      tvos_xcode_build_enabled: false
+      visionos_xcode_build_enabled: false
