@@ -31,8 +31,8 @@ jobs:
       name: "Example packages"
       matrix_linux_command: "./scripts/test-examples.sh"
 
-    macos-tests:
-        name: macOS tests
-        uses: apple/swift-nio/.github/workflows/macos_tests.yml@main
-        with:
-            build_scheme: swift-openapi-generator-Package
+  macos-tests:
+    name: macOS tests
+    uses: apple/swift-nio/.github/workflows/macos_tests.yml@main
+    with:
+      build_scheme: swift-openapi-generator-Package
