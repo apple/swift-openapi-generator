@@ -6247,10 +6247,8 @@ private func XCTAssertSwiftEquivalent(
 
 private func diff(expected: String, actual: String) throws -> String {
     let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-    process.arguments = [
-        "bash", "-c", "diff -U5 --label=expected <(echo '\(expected)') --label=actual <(echo '\(actual)')",
-    ]
+    process.executableURL = try resolveExecutable("bash")
+    process.arguments = ["-c", "diff -U5 --label=expected <(echo '\(expected)') --label=actual <(echo '\(actual)')"]
     let pipe = Pipe()
     process.standardOutput = pipe
     try process.run()

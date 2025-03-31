@@ -15,7 +15,11 @@ import XCTest
 import _OpenAPIGeneratorCore
 import OpenAPIKit
 import ArgumentParser
+
+// https://github.com/swiftlang/swift-package-manager/issues/6367
+#if !os(Windows)
 @testable import swift_openapi_generator
+#endif
 
 final class Test_GenerateOptions: XCTestCase {
 
@@ -29,6 +33,8 @@ final class Test_GenerateOptions: XCTestCase {
         )
     }
 
+    // https://github.com/swiftlang/swift-package-manager/issues/6367
+    #if !os(Windows)
     func testRunGeneratorThrowsErrorDiagnostic() async throws {
         let outputDirectory = URL(fileURLWithPath: "/invalid/path")
         let docsDirectory = resourcesDirectory.appendingPathComponent("Docs")
@@ -45,4 +51,5 @@ final class Test_GenerateOptions: XCTestCase {
             XCTAssertEqual(diagnostic.severity, .error, "Expected diagnostic severity to be `.error`")
         } catch { XCTFail("Expected to throw a Diagnostic `.error`, but threw a different error: \(error)") }
     }
+    #endif
 }
