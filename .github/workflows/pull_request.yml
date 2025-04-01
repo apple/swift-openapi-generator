@@ -57,3 +57,14 @@ jobs:
             name: "Example packages"
             matrix_linux_command: "./scripts/test-examples.sh"
             matrix_linux_nightly_main_enabled: false
+
+  macos-tests:
+    name: macOS tests
+    uses: apple/swift-nio/.github/workflows/macos_tests.yml@main
+    with:
+      runner_pool: general
+      build_scheme: swift-openapi-generator-Package
+      ios_xcode_build_enabled: false
+      watchos_xcode_build_enabled: false
+      tvos_xcode_build_enabled: false
+      visionos_xcode_build_enabled: false
