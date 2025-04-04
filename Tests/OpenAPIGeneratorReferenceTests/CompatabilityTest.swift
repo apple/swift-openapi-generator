@@ -314,10 +314,9 @@ fileprivate extension CompatibilityTest {
 
             // Build the package.
             let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+            process.executableURL = try resolveExecutable("swift")
             process.arguments = [
-                "swift", "build", "--package-path", packageDir.path, "-Xswiftc", "-Xllvm", "-Xswiftc",
-                "-vectorize-slp=false",
+                "build", "--package-path", packageDir.path, "-Xswiftc", "-Xllvm", "-Xswiftc", "-vectorize-slp=false",
             ]
             if let numBuildJobs = compatibilityTestNumBuildJobs {
                 process.arguments!.append(contentsOf: ["-j", String(numBuildJobs)])
@@ -358,14 +357,12 @@ fileprivate extension CompatibilityTest {
     func log(_ message: String) { print("\(name) \(message)") }
 
     var testCaseName: String {
-        /// The `name` property is `<test-suite-name>.<test-case-name>` on Linux,
-        /// and `-[<test-suite-name> <test-case-name>]` on macOS.
+        /// The `name` property is `-[<test-suite-name> <test-case-name>]` on Apple platforms (e.g. with an Objective-C runtime),
+        /// and `<test-suite-name>.<test-case-name>` elsewhere.
         #if canImport(Darwin)
         return String(name.split(separator: " ", maxSplits: 2).last!.dropLast())
-        #elseif os(Linux)
-        return String(name.split(separator: ".", maxSplits: 2).last!)
         #else
-        #error("Platform not supported")
+        return String(name.split(separator: ".", maxSplits: 2).last!)
         #endif
     }
 }
@@ -417,7 +414,7 @@ fileprivate extension URLSession {
     func data(from url: URL) async throws -> (Data, URLResponse) {
         #if canImport(Darwin)
         return try await data(from: url, delegate: nil)
-        #elseif os(Linux)
+        #else
         return try await withCheckedThrowingContinuation { continuation in
             dataTask(with: URLRequest(url: url)) { data, response, error in
                 if let error {
@@ -432,8 +429,6 @@ fileprivate extension URLSession {
             }
             .resume()
         }
-        #else
-        #error("Platform not supported")
         #endif
     }
 }

@@ -64,7 +64,8 @@ enum PluginUtils {
 
     /// Find the config file.
     private static func findConfig(inputFiles: FileList, targetName: String) -> Result<Path, FileError> {
-        let matchedConfigs = inputFiles.filter { supportedConfigFiles.contains($0.path.lastComponent) }.map(\.path)
+        let matchedConfigs = inputFiles.filter { supportedConfigFiles.contains($0.path.lastComponent_fixed) }
+            .map(\.path)
         guard matchedConfigs.count > 0 else {
             return .failure(FileError(targetName: targetName, fileKind: .config, issue: .noFilesFound))
         }
@@ -78,7 +79,7 @@ enum PluginUtils {
 
     /// Find the document file.
     private static func findDocument(inputFiles: FileList, targetName: String) -> Result<Path, FileError> {
-        let matchedDocs = inputFiles.filter { supportedDocFiles.contains($0.path.lastComponent) }.map(\.path)
+        let matchedDocs = inputFiles.filter { supportedDocFiles.contains($0.path.lastComponent_fixed) }.map(\.path)
         guard matchedDocs.count > 0 else {
             return .failure(FileError(targetName: targetName, fileKind: .document, issue: .noFilesFound))
         }
@@ -95,5 +96,26 @@ extension Array where Element == String {
     func joined(separator: String, lastSeparator: String) -> String {
         guard count > 1 else { return self.joined(separator: separator) }
         return "\(self.dropLast().joined(separator: separator))\(lastSeparator)\(self.last!)"
+    }
+}
+
+extension PackagePlugin.Path {
+    /// Workaround for the ``lastComponent`` property being broken on Windows
+    /// due to hardcoded assumptions about the path separator being forward slash.
+    @available(_PackageDescription, deprecated: 6.0, message: "Use `URL` type instead of `Path`.") public
+        var lastComponent_fixed: String
+    {
+        #if !os(Windows)
+        lastComponent
+        #else
+        // Find the last path separator.
+        guard let idx = string.lastIndex(where: { $0 == "/" || $0 == "\\" }) else {
+            // No path separators, so the basename is the whole string.
+            return self.string
+        }
+        // Otherwise, it's the string from (but not including) the last path
+        // separator.
+        return String(self.string.suffix(from: self.string.index(after: idx)))
+        #endif
     }
 }
