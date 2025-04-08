@@ -23,19 +23,55 @@ jobs:
       windows_nightly_6_1_arguments_override: "--explicit-target-dependency-import-check error"
       windows_nightly_main_arguments_override: "--explicit-target-dependency-import-check error"
 
+  construct-integration-test-matrix:
+    name: Construct integration matrix
+    runs-on: ubuntu-latest
+    outputs:
+      integration-test-matrix: '${{ steps.generate-matrix.outputs.integration-test-matrix }}'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - id: generate-matrix
+        run: echo "integration-test-matrix=$(curl -s https://raw.githubusercontent.com/apple/swift-nio/main/scripts/generate_matrix.sh | bash)" >> "$GITHUB_OUTPUT"
+        env:
+          MATRIX_LINUX_SETUP_COMMAND: apt-get update -y && apt-get install -yq jq && git config --global --add safe.directory /swift-openapi-generator
+          MATRIX_LINUX_COMMAND: SWIFT_OPENAPI_GENERATOR_REPO_URL=file://${GITHUB_WORKSPACE} ./scripts/run-integration-test.sh
+          MATRIX_LINUX_NIGHTLY_MAIN_ENABLED: false
+
   integration-test:
     name: Integration test
-    uses: apple/swift-nio/.github/workflows/swift_matrix.yml@main
+    needs: construct-integration-test-matrix
+    uses: apple/swift-nio/.github/workflows/swift_test_matrix.yml@main
     with:
       name: "Integration test"
-      matrix_linux_command: "apt-get update -yq && apt-get install -yq jq && SWIFT_OPENAPI_GENERATOR_REPO_URL=file://${GITHUB_WORKSPACE} ./scripts/run-integration-test.sh"
+      matrix_string: '${{ needs.construct-integration-test-matrix.outputs.integration-test-matrix }}'
+
+  construct-example-packages-matrix:
+    name: Construct example packages matrix
+    runs-on: ubuntu-latest
+    outputs:
+      example-packages-matrix: '${{ steps.generate-matrix.outputs.example-packages-matrix }}'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - id: generate-matrix
+        run: echo "example-packages-matrix=$(curl -s https://raw.githubusercontent.com/apple/swift-nio/main/scripts/generate_matrix.sh | bash)" >> "$GITHUB_OUTPUT"
+        env:
+          MATRIX_LINUX_SETUP_COMMAND: git config --global --add safe.directory /swift-openapi-generator
+          MATRIX_LINUX_COMMAND: ./scripts/test-examples.sh
+          MATRIX_LINUX_NIGHTLY_MAIN_ENABLED: false
 
   example-packages:
     name: Example packages
-    uses: apple/swift-nio/.github/workflows/swift_matrix.yml@main
+    needs: construct-example-packages-matrix
+    uses: apple/swift-nio/.github/workflows/swift_test_matrix.yml@main
     with:
       name: "Example packages"
-      matrix_linux_command: "./scripts/test-examples.sh"
+      matrix_string: '${{ needs.construct-example-packages-matrix.outputs.example-packages-matrix }}'
 
   macos-tests:
     name: macOS tests
