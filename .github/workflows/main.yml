@@ -37,7 +37,7 @@ jobs:
         run: echo "integration-test-matrix=$(curl -s https://raw.githubusercontent.com/apple/swift-nio/main/scripts/generate_matrix.sh | bash)" >> "$GITHUB_OUTPUT"
         env:
           MATRIX_LINUX_SETUP_COMMAND: apt-get update -y && apt-get install -yq jq && git config --global --add safe.directory /swift-openapi-generator
-          MATRIX_LINUX_COMMAND: SWIFT_OPENAPI_GENERATOR_REPO_URL=file://${GITHUB_WORKSPACE} ./scripts/run-integration-test.sh
+          MATRIX_LINUX_COMMAND: SWIFT_OPENAPI_GENERATOR_REPO_URL=file://${workspace} ./scripts/run-integration-test.sh
           MATRIX_LINUX_NIGHTLY_MAIN_ENABLED: false
 
   integration-test:
