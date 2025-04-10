@@ -12,7 +12,7 @@ streaming.
 This package is the reference sources for the talk, _Live coding a streaming ChatGPT proxy with Swift OpenAPI—from scratch!, presented at:
 
 - [FOSDEM 2025][fosdem25-swift-openapi]
-- [try! Swift 2025][tryswift25]
+- [try! Swift Tokyo 2025][tryswift25]
 
 > Join us as we build a ChatGPT client, from scratch, using Swift OpenAPI Generator. We’ll take advantage of Swift OpenAPI’s pluggable HTTP transports to reuse the same generated client to make upstream calls from a Linux server, providing end-to-end streaming, backed by async sequences, without buffering upstream responses.
 >
