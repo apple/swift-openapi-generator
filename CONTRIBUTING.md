@@ -89,21 +89,6 @@ directory, for example:
 --action-offline-mode
 ```
 
-For frequent contributors, we recommend adding the script as a [git pre-push hook](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks), which you can do via executing the following command in the project root directory: 
-
-```bash
-cat << EOF > .git/hooks/pre-push
-
-if [[ -f "scripts/soundness.sh" ]]; then
-  scripts/soundness.sh
-fi
-EOF
-```
-
-Which makes the script execute, and only allow the `git push` to complete if the check has passed.
-
-In the case of formatting issues, you can then `git add` the formatting changes, and attempt the push again. 
-
 ## How to contribute your work
 
 Please open a pull request at https://github.com/apple/swift-openapi-generator. Make sure the CI passes, and then wait for code review.
