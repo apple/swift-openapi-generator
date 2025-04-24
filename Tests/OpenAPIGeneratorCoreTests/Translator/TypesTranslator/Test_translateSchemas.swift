@@ -47,4 +47,30 @@ class Test_translateSchemas: Test_Core {
             XCTAssertEqual(collector.diagnostics.map(\.description), diagnosticDescriptions)
         }
     }
+    
+    func testSchemaTypeSubstitution() throws {
+        let typeName = TypeName(swiftKeyPath: ["Foo"])
+
+        let schema = try loadSchemaFromYAML(
+            #"""
+            type: string
+            x-swift-open-api-substitute-type: MyLibrary.MyCustomType
+            """#
+        )
+        let collector = AccumulatingDiagnosticCollector()
+        let translator = makeTranslator(diagnostics: collector)
+        let translated = try translator.translateSchema(typeName: typeName, schema: schema, overrides: .none)
+
+        XCTAssertEqual(
+            collector.diagnostics.map(\.description),
+            ["note: Substituting type Foo with MyLibrary.MyCustomType"]
+        )
+        XCTAssertTrue(translated.count == 1, "Should have one translated schema")
+        guard case let .typealias(typeAliasDescription) = translated.first?.strippingTopComment else {
+            XCTFail("Expected typealias description got")
+            return
+        }
+        XCTAssertEqual(typeAliasDescription.name, "Foo")
+        XCTAssertEqual(typeAliasDescription.existingType, .member(["MyLibrary", "MyCustomType"]))
+    }
 }
