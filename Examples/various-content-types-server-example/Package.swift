@@ -1,4 +1,4 @@
-// swift-tools-version:5.9.2
+// swift-tools-version:5.10
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
