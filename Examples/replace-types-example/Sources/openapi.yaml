@@ -1,0 +1,46 @@
+openapi: '3.1.0'
+info:
+  title: GreetingService
+  version: 1.0.0
+servers:
+  - url: https://example.com/api
+    description: Example service deployment.
+paths:
+  /user:
+    get:
+      operationId: getUser
+      parameters:
+        - name: name
+          required: false
+          in: query
+          description: The name of the user
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A success response with the user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+components:
+  schemas:
+    UUID:
+      type: string
+      format: uuid
+      
+    User:
+      type: object
+      description: A value with the greeting contents.
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        favorite_prime_number:
+            type: integer
+        foo:
+            type: object
+            properties:
+              foo:
+                type: string
+              bar:
+                type: string
