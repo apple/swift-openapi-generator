@@ -87,16 +87,11 @@ extension TypesFileTranslator {
                 )
             )
         }
-        if let substituteTypeName = schema.vendorExtensions["x-swift-open-api-substitute-type"]?.value
-            as? String
-        {
-            try diagnostics.emit(.note(message: "Substituting type \(typeName) with \(substituteTypeName)"))
-            let substitutedType = TypeName(swiftKeyPath: substituteTypeName.components(separatedBy: ".")).asUsage
-            
-            let typealiasDecl = try translateTypealias(
+        if let substituteType = schema.value.substituteType() {
+            let typealiasDecl = try translateSubstitutedType(
                 named: typeName,
                 userDescription: overrides.userDescription ?? schema.description,
-                to: substitutedType.withOptional(
+                to: substituteType.asUsage.withOptional(
                     overrides.isOptional ?? typeMatcher.isOptional(schema, components: components)
                 )
             )
