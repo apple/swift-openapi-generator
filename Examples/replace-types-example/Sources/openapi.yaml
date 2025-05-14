@@ -28,6 +28,7 @@ components:
     UUID:
       type: string
       format: uuid
+      x-swift-open-api-replace-type: Foundation.UUID
       
     User:
       type: object
@@ -37,6 +38,7 @@ components:
           $ref: '#/components/schemas/UUID'
         favorite_prime_number:
             type: integer
+            x-swift-open-api-replace-type: ExternalLibrary.PrimeNumber
         foo:
             type: object
             properties:
@@ -44,3 +46,5 @@ components:
                 type: string
               bar:
                 type: string
+                        
+            x-swift-open-api-replace-type: ExternalLibrary.ExternalObject

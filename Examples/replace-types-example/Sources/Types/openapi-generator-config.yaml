@@ -2,3 +2,6 @@ generate:
   - types
 accessModifier: package
 namingStrategy: idiomatic
+additionalImports:
+  - Foundation
+  - ExternalLibrary

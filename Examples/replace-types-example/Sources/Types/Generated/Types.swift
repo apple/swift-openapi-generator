@@ -9,6 +9,8 @@ import struct Foundation.URL
 import struct Foundation.Data
 import struct Foundation.Date
 #endif
+import Foundation
+import ExternalLibrary
 /// A type that performs HTTP operations defined by the OpenAPI document.
 package protocol APIProtocol: Sendable {
     /// - Remark: HTTP `GET /user`.
@@ -58,7 +60,7 @@ package enum Components {
     /// Types generated from the `#/components/schemas` section of the OpenAPI document.
     package enum Schemas {
         /// - Remark: Generated from `#/components/schemas/UUID`.
-        package typealias Uuid = Swift.String
+        package typealias Uuid = Foundation.UUID
         /// A value with the greeting contents.
         ///
         /// - Remark: Generated from `#/components/schemas/User`.
@@ -66,32 +68,9 @@ package enum Components {
             /// - Remark: Generated from `#/components/schemas/User/id`.
             package var id: Components.Schemas.Uuid?
             /// - Remark: Generated from `#/components/schemas/User/favorite_prime_number`.
-            package var favoritePrimeNumber: Swift.Int?
+            package var favoritePrimeNumber: ExternalLibrary.PrimeNumber?
             /// - Remark: Generated from `#/components/schemas/User/foo`.
-            package struct FooPayload: Codable, Hashable, Sendable {
-                /// - Remark: Generated from `#/components/schemas/User/foo/foo`.
-                package var foo: Swift.String?
-                /// - Remark: Generated from `#/components/schemas/User/foo/bar`.
-                package var bar: Swift.String?
-                /// Creates a new `FooPayload`.
-                ///
-                /// - Parameters:
-                ///   - foo:
-                ///   - bar:
-                package init(
-                    foo: Swift.String? = nil,
-                    bar: Swift.String? = nil
-                ) {
-                    self.foo = foo
-                    self.bar = bar
-                }
-                package enum CodingKeys: String, CodingKey {
-                    case foo
-                    case bar
-                }
-            }
-            /// - Remark: Generated from `#/components/schemas/User/foo`.
-            package var foo: Components.Schemas.User.FooPayload?
+            package var foo: ExternalLibrary.ExternalObject?
             /// Creates a new `User`.
             ///
             /// - Parameters:
@@ -100,8 +79,8 @@ package enum Components {
             ///   - foo:
             package init(
                 id: Components.Schemas.Uuid? = nil,
-                favoritePrimeNumber: Swift.Int? = nil,
-                foo: Components.Schemas.User.FooPayload? = nil
+                favoritePrimeNumber: ExternalLibrary.PrimeNumber? = nil,
+                foo: ExternalLibrary.ExternalObject? = nil
             ) {
                 self.id = id
                 self.favoritePrimeNumber = favoritePrimeNumber
