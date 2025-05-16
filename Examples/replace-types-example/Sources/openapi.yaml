@@ -46,5 +46,9 @@ components:
                 type: string
               bar:
                 type: string
-                        
             x-swift-open-api-replace-type: ExternalLibrary.ExternalObject
+            default:
+              foo: "foo"
+              bar: "bar"
+      additionalProperties:
+        type: object
