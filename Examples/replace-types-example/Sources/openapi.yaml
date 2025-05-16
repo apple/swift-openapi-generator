@@ -37,18 +37,19 @@ components:
         id:
           $ref: '#/components/schemas/UUID'
         favorite_prime_number:
-            type: integer
-            x-swift-open-api-replace-type: ExternalLibrary.PrimeNumber
+          type: integer
+          x-swift-open-api-replace-type: ExternalLibrary.PrimeNumber
         foo:
-            type: object
-            properties:
-              foo:
-                type: string
-              bar:
-                type: string
-            x-swift-open-api-replace-type: ExternalLibrary.ExternalObject
-            default:
-              foo: "foo"
-              bar: "bar"
+          type: object
+          properties:
+            foo:
+              type: string
+            bar:
+              type: string
+          x-swift-open-api-replace-type: ExternalLibrary.ExternalObject
+          default:
+            foo: "foo"
+            bar: "bar"
       additionalProperties:
-        type: object
+        type: integer
+        x-swift-open-api-replace-type: ExternalLibrary.PrimeNumber

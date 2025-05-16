@@ -72,7 +72,7 @@ package enum Components {
             /// - Remark: Generated from `#/components/schemas/User/foo`.
             package var foo: ExternalLibrary.ExternalObject?
             /// A container of undocumented properties.
-            package var additionalProperties: [String: OpenAPIRuntime.OpenAPIObjectContainer]
+            package var additionalProperties: [String: ExternalLibrary.PrimeNumber]
             /// Creates a new `User`.
             ///
             /// - Parameters:
@@ -84,7 +84,7 @@ package enum Components {
                 id: Components.Schemas.Uuid? = nil,
                 favoritePrimeNumber: ExternalLibrary.PrimeNumber? = nil,
                 foo: ExternalLibrary.ExternalObject? = nil,
-                additionalProperties: [String: OpenAPIRuntime.OpenAPIObjectContainer] = .init()
+                additionalProperties: [String: ExternalLibrary.PrimeNumber] = .init()
             ) {
                 self.id = id
                 self.favoritePrimeNumber = favoritePrimeNumber
