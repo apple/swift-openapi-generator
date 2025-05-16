@@ -12,6 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
+import Foundation
 
 /// A set of functions that match Swift types onto OpenAPI types.
 struct TypeMatcher {
@@ -46,7 +47,11 @@ struct TypeMatcher {
             matchedArrayHandler: { elementType, nullableItems in
                 nullableItems ? elementType.asOptional.asArray : elementType.asArray
             },
-            genericArrayHandler: { TypeName.arrayContainer.asUsage }
+            genericArrayHandler: { TypeName.arrayContainer.asUsage },
+            substitutedTypeHandler: { substitute in
+                // never built-in
+                nil
+            }
         )
     }
 
@@ -75,7 +80,10 @@ struct TypeMatcher {
             matchedArrayHandler: { elementType, nullableItems in
                 nullableItems ? elementType.asOptional.asArray : elementType.asArray
             },
-            genericArrayHandler: { TypeName.arrayContainer.asUsage }
+            genericArrayHandler: { TypeName.arrayContainer.asUsage },
+            substitutedTypeHandler: { substitute in
+                substitute.asUsage
+            }
         )?
         .withOptional(isOptional(schema, components: components))
     }
@@ -98,7 +106,8 @@ struct TypeMatcher {
                 return true
             },
             matchedArrayHandler: { elementIsReferenceable, _ in elementIsReferenceable },
-            genericArrayHandler: { true }
+            genericArrayHandler: { true },
+            substitutedTypeHandler: { _ in true }
         ) ?? false
     }
 
@@ -353,8 +362,10 @@ struct TypeMatcher {
         for schema: JSONSchema.Schema,
         test: (JSONSchema.Schema) throws -> R?,
         matchedArrayHandler: (R, _ nullableItems: Bool) -> R,
-        genericArrayHandler: () -> R
+        genericArrayHandler: () -> R,
+        substitutedTypeHandler: (TypeName) -> R?
     ) rethrows -> R? {
+        if let substitute = schema.substituteType() { return substitutedTypeHandler(substitute) }
         switch schema {
         case let .array(_, arrayContext):
             guard let items = arrayContext.items else { return genericArrayHandler() }
@@ -363,11 +374,39 @@ struct TypeMatcher {
                     for: items.value,
                     test: test,
                     matchedArrayHandler: matchedArrayHandler,
-                    genericArrayHandler: genericArrayHandler
+                    genericArrayHandler: genericArrayHandler,
+                    substitutedTypeHandler: substitutedTypeHandler
                 )
             else { return nil }
             return matchedArrayHandler(itemsResult, items.nullable)
         default: return try test(schema)
         }
+    }
+}
+
+extension JSONSchema.Schema {
+    func substituteType() -> TypeName? {
+        let extensions: [String: AnyCodable] =
+            switch self {
+            case .null(let context): context.vendorExtensions
+            case .boolean(let context): context.vendorExtensions
+            case .number(let context, _): context.vendorExtensions
+            case .integer(let context, _): context.vendorExtensions
+            case .string(let context, _): context.vendorExtensions
+            case .object(let context, _): context.vendorExtensions
+            case .array(let context, _): context.vendorExtensions
+            case .all(of: _, core: let context): context.vendorExtensions
+            case .one(of: _, core: let context): context.vendorExtensions
+            case .any(of: _, core: let context): context.vendorExtensions
+            case .not: [:]
+            case .reference(_, let context): context.vendorExtensions
+            case .fragment(let context): context.vendorExtensions
+            }
+        guard let substituteTypeName = extensions[Constants.VendorExtension.replaceType]?.value as? String else {
+            return nil
+        }
+        assert(!substituteTypeName.isEmpty)
+        
+        return TypeName(swiftKeyPath: substituteTypeName.components(separatedBy: "."))
     }
 }

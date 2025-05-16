@@ -87,6 +87,16 @@ extension TypesFileTranslator {
                 )
             )
         }
+        if let substituteType = schema.value.substituteType() {
+            let typealiasDecl = try translateSubstitutedType(
+                named: typeName,
+                userDescription: overrides.userDescription ?? schema.description,
+                to: substituteType.asUsage.withOptional(
+                    overrides.isOptional ?? typeMatcher.isOptional(schema, components: components)
+                )
+            )
+            return [typealiasDecl]
+        }
 
         // If this type maps to a referenceable schema, define a typealias
         if let builtinType = try typeMatcher.tryMatchReferenceableType(for: schema, components: components) {
