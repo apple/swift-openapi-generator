@@ -87,7 +87,7 @@ extension TypesFileTranslator {
                 )
             )
         }
-        if let jsonPath = typeName.fullyQualifiedJSONPath, let typeOverride = config.typeOverrides[jsonPath] {
+        if let jsonPath = typeName.shortJSONName, let typeOverride = config.typeOverrides[jsonPath] {
             let typeOverride = TypeName(swiftKeyPath: typeOverride.components(separatedBy: "."))
             let typealiasDecl = try translateTypealias(
                 named: typeName,

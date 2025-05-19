@@ -38,13 +38,48 @@ class Test_typeOverrides: Test_Core {
         let translated = try translator.translateSchemas(components.schemas, multipartSchemaNames: [])
             .strippingTopComment
         guard let enumDecl = translated.enum else { return XCTFail("Expected enum declaration") }
-        let typeAliases = enumDecl.members.compactMap(\.typealias)
+        let typeAliases = enumDecl.members.compactMap(\.strippingTopComment.typealias)
         XCTAssertEqual(
             typeAliases,
             [
                 TypealiasDescription(
                     accessModifier: .internal,
                     name: "UUID",
+                    existingType: .member(["Foundation", "UUID"])
+                )
+            ]
+        )
+    }
+    
+    func testTypeOverrideWithNameOverride() throws {
+        let components = try loadComponentsFromYAML(
+            #"""
+            schemas:
+              User:
+                type: object
+                properties:
+                  id:
+                    $ref: '#/components/schemas/UUID'
+              UUID:
+                type: string
+                format: uuid
+            """#
+        )
+        let translator = makeTranslator(
+            components: components,
+            nameOverrides: ["UUID": "MyUUID"],
+            typeOverrides: ["UUID": "Foundation.UUID"]
+        )
+        let translated = try translator.translateSchemas(components.schemas, multipartSchemaNames: [])
+            .strippingTopComment
+        guard let enumDecl = translated.enum else { return XCTFail("Expected enum declaration") }
+        let typeAliases = enumDecl.members.compactMap(\.strippingTopComment.typealias)
+        XCTAssertEqual(
+            typeAliases,
+            [
+                TypealiasDescription(
+                    accessModifier: .internal,
+                    name: "MyUUID",
                     existingType: .member(["Foundation", "UUID"])
                 )
             ]
