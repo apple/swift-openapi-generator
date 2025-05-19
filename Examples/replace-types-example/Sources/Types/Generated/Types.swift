@@ -60,7 +60,7 @@ package enum Components {
     /// Types generated from the `#/components/schemas` section of the OpenAPI document.
     package enum Schemas {
         /// - Remark: Generated from `#/components/schemas/UUID`.
-        package typealias Uuid = Swift.String
+        package typealias Uuid = Foundation.UUID
         /// - Remark: Generated from `#/components/schemas/User`.
         package struct User: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/User/id`.

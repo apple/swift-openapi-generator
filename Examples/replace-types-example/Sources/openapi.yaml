@@ -25,7 +25,7 @@ paths:
                 $ref: '#/components/schemas/User'
 components:
   schemas:
-    UUID:
+    UUID: # this will be replaced by with Foundation.UUID specified by typeOverrides in open-api-generator-config
       type: string
       format: uuid
       
