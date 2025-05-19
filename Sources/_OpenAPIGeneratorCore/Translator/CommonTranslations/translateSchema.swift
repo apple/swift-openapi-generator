@@ -87,11 +87,12 @@ extension TypesFileTranslator {
                 )
             )
         }
-        if let substituteType = schema.value.substituteType() {
-            let typealiasDecl = try translateSubstitutedType(
+        if let jsonPath = typeName.fullyQualifiedJSONPath, let typeOverride = config.typeOverrides[jsonPath] {
+            let typeOverride = TypeName(swiftKeyPath: typeOverride.components(separatedBy: "."))
+            let typealiasDecl = try translateTypealias(
                 named: typeName,
                 userDescription: overrides.userDescription ?? schema.description,
-                to: substituteType.asUsage.withOptional(
+                to: typeOverride.asUsage.withOptional(
                     overrides.isOptional ?? typeMatcher.isOptional(schema, components: components)
                 )
             )

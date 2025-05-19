@@ -372,9 +372,7 @@ enum Constants {
         /// The substring used in method names for the multipart coding strategy.
         static let multipart: String = "Multipart"
     }
-    /// Constants related to the vendor extensions..
-    enum VendorExtension { static let replaceType: String = "x-swift-open-api-replace-type" }
-
+    
     /// Constants related to types used in many components.
     enum Global {
 

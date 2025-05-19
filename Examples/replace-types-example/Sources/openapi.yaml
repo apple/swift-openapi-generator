@@ -28,28 +28,11 @@ components:
     UUID:
       type: string
       format: uuid
-      x-swift-open-api-replace-type: Foundation.UUID
       
     User:
       type: object
-      description: A value with the greeting contents.
       properties:
         id:
           $ref: '#/components/schemas/UUID'
-        favorite_prime_number:
-          type: integer
-          x-swift-open-api-replace-type: ExternalLibrary.PrimeNumber
-        foo:
-          type: object
-          properties:
-            foo:
-              type: string
-            bar:
-              type: string
-          x-swift-open-api-replace-type: ExternalLibrary.ExternalObject
-          default:
-            foo: "foo"
-            bar: "bar"
-      additionalProperties:
-        type: integer
-        x-swift-open-api-replace-type: ExternalLibrary.PrimeNumber
+        name:
+          type: string

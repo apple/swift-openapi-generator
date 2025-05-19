@@ -144,7 +144,7 @@ final class Test_OperationDescription: Test_Core {
             endpoint: endpoint,
             pathParameters: pathItem.parameters,
             components: .init(),
-            context: .init(safeNameGenerator: .defensive)
+            context: .init(safeNameGenerator: .defensive, typeOverrides: [:])
         )
     }
 }

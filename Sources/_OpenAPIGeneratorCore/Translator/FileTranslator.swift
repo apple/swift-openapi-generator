@@ -81,7 +81,7 @@ extension FileTranslator {
             upstream: safeNameGenerator,
             overrides: config.nameOverrides
         )
-        return TranslatorContext(safeNameGenerator: overridingGenerator)
+        return TranslatorContext(safeNameGenerator: overridingGenerator, typeOverrides: config.typeOverrides)
     }
 }
 
@@ -90,4 +90,5 @@ struct TranslatorContext {
 
     /// A type that generates safe names for use as Swift identifiers.
     var safeNameGenerator: any SafeNameGenerator
+    var typeOverrides: [String: String]
 }

@@ -60,77 +60,28 @@ package enum Components {
     /// Types generated from the `#/components/schemas` section of the OpenAPI document.
     package enum Schemas {
         /// - Remark: Generated from `#/components/schemas/UUID`.
-        package typealias Uuid = Foundation.UUID
-        /// A value with the greeting contents.
-        ///
+        package typealias Uuid = Swift.String
         /// - Remark: Generated from `#/components/schemas/User`.
         package struct User: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/User/id`.
             package var id: Components.Schemas.Uuid?
-            /// - Remark: Generated from `#/components/schemas/User/favorite_prime_number`.
-            package var favoritePrimeNumber: ExternalLibrary.PrimeNumber?
-            /// - Remark: Generated from `#/components/schemas/User/foo`.
-            package var foo: ExternalLibrary.ExternalObject?
-            /// A container of undocumented properties.
-            package var additionalProperties: [String: ExternalLibrary.PrimeNumber]
+            /// - Remark: Generated from `#/components/schemas/User/name`.
+            package var name: Swift.String?
             /// Creates a new `User`.
             ///
             /// - Parameters:
             ///   - id:
-            ///   - favoritePrimeNumber:
-            ///   - foo:
-            ///   - additionalProperties: A container of undocumented properties.
+            ///   - name:
             package init(
                 id: Components.Schemas.Uuid? = nil,
-                favoritePrimeNumber: ExternalLibrary.PrimeNumber? = nil,
-                foo: ExternalLibrary.ExternalObject? = nil,
-                additionalProperties: [String: ExternalLibrary.PrimeNumber] = .init()
+                name: Swift.String? = nil
             ) {
                 self.id = id
-                self.favoritePrimeNumber = favoritePrimeNumber
-                self.foo = foo
-                self.additionalProperties = additionalProperties
+                self.name = name
             }
             package enum CodingKeys: String, CodingKey {
                 case id
-                case favoritePrimeNumber = "favorite_prime_number"
-                case foo
-            }
-            package init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self.id = try container.decodeIfPresent(
-                    Components.Schemas.Uuid.self,
-                    forKey: .id
-                )
-                self.favoritePrimeNumber = try container.decodeIfPresent(
-                    ExternalLibrary.PrimeNumber.self,
-                    forKey: .favoritePrimeNumber
-                )
-                self.foo = try container.decodeIfPresent(
-                    ExternalLibrary.ExternalObject.self,
-                    forKey: .foo
-                )
-                additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [
-                    "id",
-                    "favorite_prime_number",
-                    "foo"
-                ])
-            }
-            package func encode(to encoder: any Encoder) throws {
-                var container = encoder.container(keyedBy: CodingKeys.self)
-                try container.encodeIfPresent(
-                    self.id,
-                    forKey: .id
-                )
-                try container.encodeIfPresent(
-                    self.favoritePrimeNumber,
-                    forKey: .favoritePrimeNumber
-                )
-                try container.encodeIfPresent(
-                    self.foo,
-                    forKey: .foo
-                )
-                try encoder.encodeAdditionalProperties(additionalProperties)
+                case name
             }
         }
     }

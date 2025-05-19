@@ -34,6 +34,7 @@ extension _GenerateOptions {
         let resolvedAdditionalImports = resolvedAdditionalImports(config)
         let resolvedNamingStragy = resolvedNamingStrategy(config)
         let resolvedNameOverrides = resolvedNameOverrides(config)
+        let resolvedTypeOverrides = resolvedTypeOverrides(config)
         let resolvedFeatureFlags = resolvedFeatureFlags(config)
         let configs: [Config] = sortedModes.map {
             .init(
@@ -43,6 +44,7 @@ extension _GenerateOptions {
                 filter: config?.filter,
                 namingStrategy: resolvedNamingStragy,
                 nameOverrides: resolvedNameOverrides,
+                typeOverrides: resolvedTypeOverrides,
                 featureFlags: resolvedFeatureFlags
             )
         }
@@ -57,6 +59,9 @@ extension _GenerateOptions {
             - Access modifier: \(resolvedAccessModifier.rawValue)
             - Naming strategy: \(resolvedNamingStragy.rawValue)
             - Name overrides: \(resolvedNameOverrides.isEmpty ? "<none>" : resolvedNameOverrides
+                .sorted(by: { $0.key < $1.key })
+                .map { "\"\($0.key)\"->\"\($0.value)\"" }.joined(separator: ", "))
+            - Type overrides: \(resolvedTypeOverrides.isEmpty ? "<none>" : resolvedTypeOverrides
                 .sorted(by: { $0.key < $1.key })
                 .map { "\"\($0.key)\"->\"\($0.value)\"" }.joined(separator: ", "))
             - Feature flags: \(resolvedFeatureFlags.isEmpty ? "<none>" : resolvedFeatureFlags.map(\.rawValue).joined(separator: ", "))
