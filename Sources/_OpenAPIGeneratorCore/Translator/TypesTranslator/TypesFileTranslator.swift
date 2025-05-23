@@ -32,7 +32,7 @@ struct TypesFileTranslator: FileTranslator {
 
         let doc = parsedOpenAPI
 
-        let topComment: Comment = .inline(Constants.File.topComment)
+        let topComment = self.topComment
 
         let imports = Constants.File.imports + config.additionalImports.map { ImportDescription(moduleName: $0) }
 

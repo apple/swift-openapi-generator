@@ -35,6 +35,7 @@ The configuration file has the following keys:
     - `package`: Generated API is accessible from other modules within the same package or project.
     - `internal` (default): Generated API is accessible from the containing module only.
 - `additionalImports` (optional): array of strings. Each string value is a Swift module name. An import statement will be added to the generated source files for each module.
+- `additionalFileComments` (optional): array of strings. Each string value is a comment that will be added to the top of each generated file (after the do-not-edit comment). Useful for adding directives like `swift-format-ignore-file` or `swiftlint:disable all`.
 - `filter` (optional): Filters to apply to the OpenAPI document before generation.
     - `operations`: Operations with these operation IDs will be included in the filter.
     - `tags`: Operations tagged with these tags will be included in the filter.
@@ -93,6 +94,18 @@ namingStrategy: idiomatic
 additionalImports:
   - APITypes
 accessModifier: public
+```
+
+To add file comments to exclude generated files from formatting tools:
+
+```yaml
+generate:
+  - types
+  - client
+namingStrategy: idiomatic
+additionalFileComments:
+  - "swift-format-ignore-file"
+  - "swiftlint:disable all"
 ```
 
 ### Document filtering

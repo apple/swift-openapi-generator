@@ -17,4 +17,17 @@ import OpenAPIKit
 
 final class Test_Config: Test_Core {
     func testDefaultAccessModifier() { XCTAssertEqual(Config.defaultAccessModifier, .internal) }
+    func testAdditionalFileComments() {
+        let config = Config(
+            mode: .types,
+            access: .public,
+            additionalFileComments: ["swift-format-ignore-file", "swiftlint:disable all"],
+            namingStrategy: .defensive
+        )
+        XCTAssertEqual(config.additionalFileComments, ["swift-format-ignore-file", "swiftlint:disable all"])
+    }
+    func testEmptyAdditionalFileComments() {
+        let config = Config(mode: .types, access: .public, namingStrategy: .defensive)
+        XCTAssertEqual(config.additionalFileComments, [])
+    }
 }

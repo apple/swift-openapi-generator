@@ -32,6 +32,7 @@ extension _GenerateOptions {
         let sortedModes = try resolvedModes(config)
         let resolvedAccessModifier = resolvedAccessModifier(config)
         let resolvedAdditionalImports = resolvedAdditionalImports(config)
+        let resolvedAdditionalFileComments = resolvedAdditionalFileComments(config)
         let resolvedNamingStragy = resolvedNamingStrategy(config)
         let resolvedNameOverrides = resolvedNameOverrides(config)
         let resolvedFeatureFlags = resolvedFeatureFlags(config)
@@ -40,6 +41,7 @@ extension _GenerateOptions {
                 mode: $0,
                 access: resolvedAccessModifier,
                 additionalImports: resolvedAdditionalImports,
+                additionalFileComments: resolvedAdditionalFileComments,
                 filter: config?.filter,
                 namingStrategy: resolvedNamingStragy,
                 nameOverrides: resolvedNameOverrides,
@@ -67,6 +69,7 @@ extension _GenerateOptions {
             - Plugin source: \(pluginSource?.rawValue ?? "<none>")
             - Is dry run: \(isDryRun)
             - Additional imports: \(resolvedAdditionalImports.isEmpty ? "<none>" : resolvedAdditionalImports.joined(separator: ", "))
+            - Additional file comments: \(resolvedAdditionalFileComments.isEmpty ? "<none>" : resolvedAdditionalFileComments.joined(separator: ", "))
             """
         )
         do {
