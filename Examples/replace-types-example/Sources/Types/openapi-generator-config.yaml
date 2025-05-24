@@ -1,0 +1,9 @@
+generate:
+  - types
+accessModifier: package
+namingStrategy: idiomatic
+additionalImports:
+  - Foundation
+  - ExternalLibrary
+typeOverrides:
+  UUID: Foundation.UUID

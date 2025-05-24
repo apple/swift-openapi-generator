@@ -30,6 +30,7 @@ class Test_Core: XCTestCase {
         diagnostics: any DiagnosticCollector = PrintingDiagnosticCollector(),
         namingStrategy: NamingStrategy = .defensive,
         nameOverrides: [String: String] = [:],
+        typeOverrides: [String: String] = [:],
         featureFlags: FeatureFlags = []
     ) -> TypesFileTranslator {
         makeTypesTranslator(
@@ -37,6 +38,7 @@ class Test_Core: XCTestCase {
             diagnostics: diagnostics,
             namingStrategy: namingStrategy,
             nameOverrides: nameOverrides,
+            typeOverrides: typeOverrides,
             featureFlags: featureFlags
         )
     }
@@ -46,12 +48,14 @@ class Test_Core: XCTestCase {
         diagnostics: any DiagnosticCollector = PrintingDiagnosticCollector(),
         namingStrategy: NamingStrategy = .defensive,
         nameOverrides: [String: String] = [:],
+        typeOverrides: [String: String] = [:],
         featureFlags: FeatureFlags = []
     ) -> TypesFileTranslator {
         TypesFileTranslator(
             config: makeConfig(
                 namingStrategy: namingStrategy,
                 nameOverrides: nameOverrides,
+                typeOverrides: typeOverrides,
                 featureFlags: featureFlags
             ),
             diagnostics: diagnostics,
@@ -62,6 +66,7 @@ class Test_Core: XCTestCase {
     func makeConfig(
         namingStrategy: NamingStrategy = .defensive,
         nameOverrides: [String: String] = [:],
+        typeOverrides: [String: String] = [:],
         featureFlags: FeatureFlags = []
     ) -> Config {
         .init(
@@ -69,12 +74,16 @@ class Test_Core: XCTestCase {
             access: Config.defaultAccessModifier,
             namingStrategy: namingStrategy,
             nameOverrides: nameOverrides,
+            typeOverrides: typeOverrides,
             featureFlags: featureFlags
         )
     }
 
     func loadSchemaFromYAML(_ yamlString: String) throws -> JSONSchema {
         try YAMLDecoder().decode(JSONSchema.self, from: yamlString)
+    }
+    func loadComponentsFromYAML(_ yamlString: String) throws -> OpenAPI.Components {
+        try YAMLDecoder().decode(OpenAPI.Components.self, from: yamlString)
     }
 
     static var testTypeName: TypeName { .init(swiftKeyPath: ["Foo"]) }

@@ -87,6 +87,17 @@ extension TypesFileTranslator {
                 )
             )
         }
+        if let jsonPath = typeName.shortJSONName, let typeOverride = config.typeOverrides[jsonPath] {
+            let typeOverride = TypeName(swiftKeyPath: typeOverride.components(separatedBy: "."))
+            let typealiasDecl = try translateTypealias(
+                named: typeName,
+                userDescription: overrides.userDescription ?? schema.description,
+                to: typeOverride.asUsage.withOptional(
+                    overrides.isOptional ?? typeMatcher.isOptional(schema, components: components)
+                )
+            )
+            return [typealiasDecl]
+        }
 
         // If this type maps to a referenceable schema, define a typealias
         if let builtinType = try typeMatcher.tryMatchReferenceableType(for: schema, components: components) {

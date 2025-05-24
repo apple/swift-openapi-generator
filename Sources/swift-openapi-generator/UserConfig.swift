@@ -45,6 +45,9 @@ struct _UserConfig: Codable {
     /// Any names not included use the `namingStrategy` to compute a Swift name.
     var nameOverrides: [String: String]?
 
+    /// A dictionary of overrides for replacing the types of generated with manually provided types
+    var typeOverrides: [String: String]?
+
     /// A set of features to explicitly enable.
     var featureFlags: FeatureFlags?
 
@@ -59,6 +62,7 @@ struct _UserConfig: Codable {
         case filter
         case namingStrategy
         case nameOverrides
+        case typeOverrides
         case featureFlags
     }
 }
