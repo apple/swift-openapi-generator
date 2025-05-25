@@ -6,4 +6,5 @@ additionalImports:
   - Foundation
   - ExternalLibrary
 typeOverrides:
-  UUID: Foundation.UUID
+  schemas:
+    UUID: Foundation.UUID

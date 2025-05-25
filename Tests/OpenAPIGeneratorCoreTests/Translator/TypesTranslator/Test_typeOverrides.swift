@@ -33,7 +33,7 @@ class Test_typeOverrides: Test_Core {
         )
         let translator = makeTranslator(
             components: components,
-            typeOverrides: ["#/components/schemas/UUID": "Foundation.UUID"]
+            schemaOverrides: ["#/components/schemas/UUID": "Foundation.UUID"]
         )
         let translated = try translator.translateSchemas(components.schemas, multipartSchemaNames: [])
             .strippingTopComment
@@ -68,7 +68,7 @@ class Test_typeOverrides: Test_Core {
         let translator = makeTranslator(
             components: components,
             nameOverrides: ["UUID": "MyUUID"],
-            typeOverrides: ["UUID": "Foundation.UUID"]
+            schemaOverrides: ["UUID": "Foundation.UUID"]
         )
         let translated = try translator.translateSchemas(components.schemas, multipartSchemaNames: [])
             .strippingTopComment

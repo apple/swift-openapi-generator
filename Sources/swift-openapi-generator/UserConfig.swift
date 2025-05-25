@@ -42,7 +42,7 @@ struct _UserConfig: Codable {
     var nameOverrides: [String: String]?
 
     /// A dictionary of overrides for replacing the types of generated with manually provided types
-    var typeOverrides: [String: String]?
+    var typeOverrides: TypeOverrides?
 
     /// A set of features to explicitly enable.
     var featureFlags: FeatureFlags?
@@ -59,5 +59,11 @@ struct _UserConfig: Codable {
         case nameOverrides
         case typeOverrides
         case featureFlags
+    }
+    
+    struct TypeOverrides: Codable {
+        
+        /// A dictionary of overrides for replacing the types generated from schemas with manually provided types
+        var schemas: [String: String]?
     }
 }
