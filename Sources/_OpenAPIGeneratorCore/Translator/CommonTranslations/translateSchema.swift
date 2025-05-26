@@ -92,9 +92,7 @@ extension TypesFileTranslator {
             let typealiasDecl = try translateTypealias(
                 named: typeName,
                 userDescription: overrides.userDescription ?? schema.description,
-                to: typeOverride.asUsage.withOptional(
-                    overrides.isOptional ?? typeMatcher.isOptional(schema, components: components)
-                )
+                to: typeOverride.asUsage
             )
             return [typealiasDecl]
         }
