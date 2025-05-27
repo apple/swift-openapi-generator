@@ -12,6 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+/// Type containing overrides for schema types.
 public struct TypeOverrides: Sendable {
     /// A dictionary of overrides for replacing the types generated from schemas with manually provided types
     public var schemas: [String: String]
