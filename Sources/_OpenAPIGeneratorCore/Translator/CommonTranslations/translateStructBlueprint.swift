@@ -163,10 +163,10 @@ extension FileTranslator {
             // are not handled by this specific "value" initializer.
             guard valueTypeName == .string else { return nil }
             needsStringConversion = false
-        default:
-            // Other schema types (e.g., .object, .array, .fragment, .reference)
-            // are not supported for this value initializer, even if they might
-            // be considered "built-in" by the TypeMatcher for other purposes.
+        case .object, .array, .all, .one, .any, .not, .reference, .fragment, .null:
+            // Other schema types are not supported for this value initializer,
+            // even if they might be considered "built-in" by the TypeMatcher
+            // for other purposes.
             return nil
         }
 
