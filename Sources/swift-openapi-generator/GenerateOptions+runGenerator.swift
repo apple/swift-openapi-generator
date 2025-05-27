@@ -35,6 +35,7 @@ extension _GenerateOptions {
         let resolvedAdditionalFileComments = resolvedAdditionalFileComments(config)
         let resolvedNamingStragy = resolvedNamingStrategy(config)
         let resolvedNameOverrides = resolvedNameOverrides(config)
+        let resolvedTypeOverrides = resolvedTypeOverrides(config)
         let resolvedFeatureFlags = resolvedFeatureFlags(config)
         let configs: [Config] = sortedModes.map {
             .init(
@@ -45,11 +46,19 @@ extension _GenerateOptions {
                 filter: config?.filter,
                 namingStrategy: resolvedNamingStragy,
                 nameOverrides: resolvedNameOverrides,
+                typeOverrides: resolvedTypeOverrides,
                 featureFlags: resolvedFeatureFlags
             )
         }
         let (diagnostics, finalizeDiagnostics) = preparedDiagnosticsCollector(outputPath: diagnosticsOutputPath)
         let doc = self.docPath
+        let typeOverridesDescription = """
+            
+                - Schemas: \(resolvedTypeOverrides.schemas.isEmpty ? "<none>" : resolvedTypeOverrides.schemas
+            .sorted(by: { $0.key < $1.key })
+            .map { "\"\($0.key)\"->\"\($0.value)\"" }
+            .joined(separator: ", "))
+            """
         print(
             """
             Swift OpenAPI Generator is running with the following configuration:
@@ -61,6 +70,7 @@ extension _GenerateOptions {
             - Name overrides: \(resolvedNameOverrides.isEmpty ? "<none>" : resolvedNameOverrides
                 .sorted(by: { $0.key < $1.key })
                 .map { "\"\($0.key)\"->\"\($0.value)\"" }.joined(separator: ", "))
+            - Type overrides: \(resolvedTypeOverrides.isEmpty ? "<none>" : typeOverridesDescription)
             - Feature flags: \(resolvedFeatureFlags.isEmpty ? "<none>" : resolvedFeatureFlags.map(\.rawValue).joined(separator: ", "))
             - Output file names: \(sortedModes.map(\.outputFileName).joined(separator: ", "))
             - Output directory: \(outputDirectory.path)

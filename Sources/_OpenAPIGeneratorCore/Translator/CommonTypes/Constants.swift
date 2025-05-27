@@ -372,7 +372,6 @@ enum Constants {
         /// The substring used in method names for the multipart coding strategy.
         static let multipart: String = "Multipart"
     }
-
     /// Constants related to types used in many components.
     enum Global {
 
