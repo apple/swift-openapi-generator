@@ -15,7 +15,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "replace-types-example",
+    name: "type-overrides-example",
     platforms: [.macOS(.v14)],
     products: [
         .library(name: "Types", targets: ["Types"]),

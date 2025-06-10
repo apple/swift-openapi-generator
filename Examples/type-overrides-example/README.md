@@ -1,4 +1,4 @@
-# Replacing types
+# Overriding types
 
 An example project using [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator).
 

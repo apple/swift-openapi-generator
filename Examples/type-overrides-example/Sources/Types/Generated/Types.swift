@@ -61,27 +61,35 @@ package enum Components {
     package enum Schemas {
         /// - Remark: Generated from `#/components/schemas/UUID`.
         package typealias Uuid = Foundation.UUID
+        /// - Remark: Generated from `#/components/schemas/PrimeNumber`.
+        package typealias PrimeNumber = Swift.String
         /// - Remark: Generated from `#/components/schemas/User`.
         package struct User: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/User/id`.
             package var id: Components.Schemas.Uuid?
             /// - Remark: Generated from `#/components/schemas/User/name`.
             package var name: Swift.String?
+            /// - Remark: Generated from `#/components/schemas/User/favorite_prime_number`.
+            package var favoritePrimeNumber: Components.Schemas.PrimeNumber?
             /// Creates a new `User`.
             ///
             /// - Parameters:
             ///   - id:
             ///   - name:
+            ///   - favoritePrimeNumber:
             package init(
                 id: Components.Schemas.Uuid? = nil,
-                name: Swift.String? = nil
+                name: Swift.String? = nil,
+                favoritePrimeNumber: Components.Schemas.PrimeNumber? = nil
             ) {
                 self.id = id
                 self.name = name
+                self.favoritePrimeNumber = favoritePrimeNumber
             }
             package enum CodingKeys: String, CodingKey {
                 case id
                 case name
+                case favoritePrimeNumber = "favorite_prime_number"
             }
         }
     }

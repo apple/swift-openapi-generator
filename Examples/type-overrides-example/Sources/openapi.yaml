@@ -28,6 +28,10 @@ components:
     UUID: # this will be replaced by with Foundation.UUID specified by typeOverrides in open-api-generator-config
       type: string
       format: uuid
+    
+    PrimeNumber: # this will be replaced by with ExternalLibrary.PrimeNumber specified by typeOverrides in open-api-generator-config
+      type: string
+      format: uuid
       
     User:
       type: object
@@ -36,3 +40,7 @@ components:
           $ref: '#/components/schemas/UUID'
         name:
           type: string
+        favorite_prime_number:
+          $ref: '#/components/schemas/PrimeNumber'
+        
+          

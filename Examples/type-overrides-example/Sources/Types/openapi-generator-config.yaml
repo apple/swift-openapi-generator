@@ -8,3 +8,4 @@ additionalImports:
 typeOverrides:
   schemas:
     UUID: Foundation.UUID
+    PrimeNumber: ExternalLibrary.PrimeNumber

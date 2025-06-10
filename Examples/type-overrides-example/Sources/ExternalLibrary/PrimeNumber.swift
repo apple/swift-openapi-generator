@@ -1,3 +1,6 @@
+
+/// Example struct to be used instead of the default generated type.
+/// This illustrates how to introduce a type performing additional validation during Decoding that cannot be expressed with OpenAPI
 public struct PrimeNumber: Codable, Hashable, RawRepresentable, Sendable {
     public let rawValue: Int
     public init?(rawValue: Int) {
