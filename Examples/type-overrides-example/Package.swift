@@ -21,6 +21,7 @@ let package = Package(
         .library(name: "Types", targets: ["Types"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.6.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.7.0"),
     ],
     targets: [
@@ -28,7 +29,8 @@ let package = Package(
             name: "Types",
             dependencies: [
                 "ExternalLibrary",
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")]
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
+            plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         ),
         .target(
             name: "ExternalLibrary"
