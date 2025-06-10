@@ -62,6 +62,9 @@ public struct Config: Sendable {
 
     /// A map of OpenAPI identifiers to desired Swift identifiers, used instead of the naming strategy.
     public var nameOverrides: [String: String]
+    
+    /// A map of OpenAPI paths to desired Types
+    public var typeOverrides: TypeOverrides
 
     /// Additional pre-release features to enable.
     public var featureFlags: FeatureFlags
@@ -77,6 +80,7 @@ public struct Config: Sendable {
     ///     Defaults to `defensive`.
     ///   - nameOverrides: A map of OpenAPI identifiers to desired Swift identifiers, used instead
     ///     of the naming strategy.
+    ///   - typeOverrides: A map of OpenAPI paths to desired Types
     ///   - featureFlags: Additional pre-release features to enable.
     public init(
         mode: GeneratorMode,
@@ -86,6 +90,7 @@ public struct Config: Sendable {
         filter: DocumentFilter? = nil,
         namingStrategy: NamingStrategy,
         nameOverrides: [String: String] = [:],
+        typeOverrides: TypeOverrides = TypeOverrides(),
         featureFlags: FeatureFlags = []
     ) {
         self.mode = mode
@@ -95,6 +100,7 @@ public struct Config: Sendable {
         self.filter = filter
         self.namingStrategy = namingStrategy
         self.nameOverrides = nameOverrides
+        self.typeOverrides = typeOverrides
         self.featureFlags = featureFlags
     }
 }

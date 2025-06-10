@@ -1,0 +1,11 @@
+generate:
+  - types
+accessModifier: package
+namingStrategy: idiomatic
+additionalImports:
+  - Foundation
+  - ExternalLibrary
+typeOverrides:
+  schemas:
+    UUID: Foundation.UUID
+    PrimeNumber: ExternalLibrary.PrimeNumber
