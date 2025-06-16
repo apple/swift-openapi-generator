@@ -132,3 +132,15 @@ filter:
   tags:
     - myTag
 ```
+
+### Type Overrides
+
+Type Overrides can be used used to replace the default generated type with a custom type.
+
+```yaml
+typeOverrides:
+  schemas:
+    UUID: Foundation.UUID
+```
+
+Check out [SOAR-0014](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0014) for details.
