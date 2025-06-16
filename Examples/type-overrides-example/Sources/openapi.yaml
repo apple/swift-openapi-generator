@@ -5,24 +5,6 @@ info:
 servers:
   - url: https://example.com/api
     description: Example service deployment.
-paths:
-  /user:
-    get:
-      operationId: getUser
-      parameters:
-        - name: name
-          required: false
-          in: query
-          description: The name of the user
-          schema:
-            type: string
-      responses:
-        '200':
-          description: A success response with the user.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
 components:
   schemas:
     UUID: # this will be replaced by with Foundation.UUID specified by typeOverrides in open-api-generator-config
@@ -42,5 +24,3 @@ components:
           type: string
         favorite_prime_number:
           $ref: '#/components/schemas/PrimeNumber'
-        
-          

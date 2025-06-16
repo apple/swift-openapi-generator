@@ -3,7 +3,7 @@
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
 //
-// Copyright (c) 2024 Apple Inc. and the SwiftOpenAPIGenerator project authors
+// Copyright (c) 2025 Apple Inc. and the SwiftOpenAPIGenerator project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -16,7 +16,7 @@ import PackageDescription
 
 let package = Package(
     name: "type-overrides-example",
-    platforms: [.macOS(.v14)],
+    platforms: [.macOS(.v10_15)],
     products: [
         .library(name: "Types", targets: ["Types"]),
     ],

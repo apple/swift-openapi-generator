@@ -87,7 +87,7 @@ extension TypesFileTranslator {
         
         for override in nonExistentOverrides {
             try diagnostics.emit(
-                .warning(message: "TypeOverride defined for schema '\(override)' that is not defined in the OpenAPI document")
+                .warning(message: "A type override defined for schema '\(override)' is not defined in the OpenAPI document.")
             )
         }
     }

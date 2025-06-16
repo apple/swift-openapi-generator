@@ -12,15 +12,12 @@
 //
 //===----------------------------------------------------------------------===//
 
-/// Type containing overrides for schema types.
+/// A container of schema type overrides.
 public struct TypeOverrides: Sendable {
-    /// A dictionary of overrides for replacing the types generated from schemas with manually provided types
+    /// A dictionary of overrides for replacing named schemas from the OpenAPI document with custom types.
     public var schemas: [String: String]
 
-    /// Creates a new instance of `TypeOverrides`
-    /// - Parameter schemas: A dictionary mapping schema names to their override types.
+    /// Creates a new instance.
+    /// - Parameter schemas: A dictionary of overrides for replacing named schemas from the OpenAPI document with custom types.
     public init(schemas: [String: String] = [:]) { self.schemas = schemas }
-
-    /// A Boolean value indicating whether there are no overrides.
-    public var isEmpty: Bool { schemas.isEmpty }
 }

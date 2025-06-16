@@ -6,7 +6,7 @@ An example project using [Swift OpenAPI Generator](https://github.com/apple/swif
 
 ## Overview
 
-This example shows how to use the TypeOverrides feature of the Swift OpenAPI Generator.
+This example shows how to use [type overrides](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/configuring-the-generator) with Swift OpenAPI Generator.
 
 ## Usage
 

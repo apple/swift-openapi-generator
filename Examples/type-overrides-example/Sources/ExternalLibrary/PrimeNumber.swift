@@ -16,11 +16,11 @@ public struct PrimeNumber: Codable, Hashable, RawRepresentable, Sendable {
         }
         self = value
     }
+
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(self.rawValue)
     }
-
 }
 
 extension Int {
