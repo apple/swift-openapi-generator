@@ -1915,6 +1915,68 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
+    func testTypeOverrides() throws {
+        try assertSchemasTranslation(
+            typeOverrides: TypeOverrides(schemas: ["UUID": "Foundation.UUID"]),
+            """
+            schemas:
+              User:
+                type: object
+                properties:
+                  id:
+                    $ref: '#/components/schemas/UUID'
+              UUID:
+                type: string
+                format: uuid
+            """,
+            """
+            public enum Schemas {
+                public struct User: Codable, Hashable, Sendable {
+                    public var id: Components.Schemas.UUID?
+                    public init(id: Components.Schemas.UUID? = nil) {
+                        self.id = id
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case id
+                    }
+                }
+                public typealias UUID = Foundation.UUID
+            }
+            """
+        )
+    }
+    
+    func testTypeOverridesWithNameOverrides() throws {
+        try assertSchemasTranslation(
+            nameOverrides: ["UUID": "MyUUID"],
+            typeOverrides: TypeOverrides(schemas: ["UUID": "Foundation.UUID"]),
+            """
+            schemas:
+              User:
+                type: object
+                properties:
+                  id:
+                    $ref: '#/components/schemas/UUID'
+              UUID:
+                type: string
+                format: uuid
+            """,
+            """
+            public enum Schemas {
+                public struct User: Codable, Hashable, Sendable {
+                    public var id: Components.Schemas.MyUUID?
+                    public init(id: Components.Schemas.MyUUID? = nil) {
+                        self.id = id
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case id
+                    }
+                }
+                public typealias MyUUID = Foundation.UUID
+            }
+            """
+        )
+    }
 
     func testComponentsResponsesResponseNoBody() throws {
         try self.assertResponsesTranslation(
@@ -5877,6 +5939,8 @@ extension SnippetBasedReferenceTests {
     func makeTypesTranslator(
         accessModifier: AccessModifier = .public,
         namingStrategy: NamingStrategy = .defensive,
+        nameOverrides: [String: String] = [:],
+        typeOverrides: TypeOverrides = .init(),
         featureFlags: FeatureFlags = [],
         ignoredDiagnosticMessages: Set<String> = [],
         componentsYAML: String
@@ -5887,6 +5951,8 @@ extension SnippetBasedReferenceTests {
                 mode: .types,
                 access: accessModifier,
                 namingStrategy: namingStrategy,
+                nameOverrides: nameOverrides,
+                typeOverrides: typeOverrides,
                 featureFlags: featureFlags
             ),
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
@@ -6080,6 +6146,8 @@ extension SnippetBasedReferenceTests {
 
     func assertSchemasTranslation(
         featureFlags: FeatureFlags = [],
+        nameOverrides: [String: String] = [:],
+        typeOverrides: TypeOverrides = .init(),
         ignoredDiagnosticMessages: Set<String> = [],
         _ componentsYAML: String,
         _ expectedSwift: String,
@@ -6089,6 +6157,8 @@ extension SnippetBasedReferenceTests {
     ) throws {
         let translator = try makeTypesTranslator(
             accessModifier: accessModifier,
+            nameOverrides: nameOverrides,
+            typeOverrides: typeOverrides,
             featureFlags: featureFlags,
             ignoredDiagnosticMessages: ignoredDiagnosticMessages,
             componentsYAML: componentsYAML
