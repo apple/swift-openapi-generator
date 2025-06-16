@@ -97,8 +97,7 @@ func validateContentTypes(in doc: ParsedOpenAPIRepresentation, validate: (String
 
 /// Validates all references from an OpenAPI document represented by a ParsedOpenAPIRepresentation against its components.
 ///
-/// This method traverses the OpenAPI document to ensure that all references
-/// within the document are valid and point to existing components.
+/// This method iterates through all Type overrides in a config and checks if a schem
 ///
 /// - Parameter doc: The OpenAPI document to validate.
 /// - Throws: `Diagnostic.error` if an external reference is found or a reference is not found in components.
@@ -252,6 +251,28 @@ func validateReferences(in doc: ParsedOpenAPIRepresentation) throws {
     }
 }
 
+/// Validates all type overrides from a Config are present in the components of a ParsedOpenAPIRepresentation.
+///
+/// This method iterates through the type overrides defined in the config and checks that for each of them a named schema is defined in the OpenAPI document.
+///
+/// - Parameters:
+///   - doc: The OpenAPI document to validate.
+///   - config: The generator config.
+/// - Returns: An array of diagnostic messages representing type overrides for nonexistent schemas.
+func validateTypeOverrides(_ doc: ParsedOpenAPIRepresentation, config: Config) -> [Diagnostic] {
+    let nonExistentOverrides = config.typeOverrides.schemas.keys
+        .filter { key in
+            guard let componentKey = OpenAPI.ComponentKey(rawValue: key) else { return false }
+            return !doc.components.schemas.contains(key: componentKey)
+        }
+        .sorted()
+    return nonExistentOverrides.map { override in
+        Diagnostic.warning(
+            message: "A type override defined for schema '\(override)' is not defined in the OpenAPI document."
+        )
+    }
+}
+
 /// Runs validation steps on the incoming OpenAPI document.
 /// - Parameters:
 ///   - doc: The OpenAPI document to validate.
@@ -263,6 +284,7 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [
     try validateContentTypes(in: doc) { contentType in
         (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
     }
+    let typeOverrideDiagnostics = validateTypeOverrides(doc, config: config)
 
     // Run OpenAPIKit's built-in validation.
     // Pass `false` to `strict`, however, because we don't
@@ -283,5 +305,5 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [
             ]
         )
     }
-    return diagnostics
+    return typeOverrideDiagnostics + diagnostics
 }

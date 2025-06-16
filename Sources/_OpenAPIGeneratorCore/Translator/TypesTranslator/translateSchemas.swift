@@ -57,8 +57,6 @@ extension TypesFileTranslator {
         _ schemas: OpenAPI.ComponentDictionary<JSONSchema>,
         multipartSchemaNames: Set<OpenAPI.ComponentKey>
     ) throws -> Declaration {
-        try diagnoseTypeOverrideForNonExistentSchema()
-
         let decls: [Declaration] = try schemas.flatMap { key, value in
             try translateSchema(
                 componentKey: key,
@@ -76,19 +74,5 @@ extension TypesFileTranslator {
             )
         )
         return componentsSchemasEnum
-    }
-    private func diagnoseTypeOverrideForNonExistentSchema() throws {
-        let nonExistentOverrides = config.typeOverrides.schemas.keys
-            .filter { key in
-                guard let componentKey = OpenAPI.ComponentKey(rawValue: key) else { return false }
-                return !self.components.schemas.contains(key: componentKey)
-            }
-            .sorted()
-        
-        for override in nonExistentOverrides {
-            try diagnostics.emit(
-                .warning(message: "A type override defined for schema '\(override)' is not defined in the OpenAPI document.")
-            )
-        }
     }
 }
