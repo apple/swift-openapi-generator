@@ -62,7 +62,6 @@ public struct Config: Sendable {
 
     /// A map of OpenAPI identifiers to desired Swift identifiers, used instead of the naming strategy.
     public var nameOverrides: [String: String]
-    
     /// A map of OpenAPI schema names to desired custom type names.
     public var typeOverrides: TypeOverrides
 

@@ -68,7 +68,6 @@ struct _UserConfig: Codable {
 
     /// A container of type overrides.
     struct TypeOverrides: Codable {
-        
         /// A dictionary of overrides for replacing the types generated from schemas with manually provided types.
         var schemas: [String: String]?
     }

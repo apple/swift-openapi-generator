@@ -111,9 +111,7 @@ extension _GenerateOptions {
     /// - Parameter config: The configuration specified by the user.
     /// - Returns: The type overrides requested by the user.
     func resolvedTypeOverrides(_ config: _UserConfig?) -> TypeOverrides {
-        guard let schemaOverrides = config?.typeOverrides?.schemas, !schemaOverrides.isEmpty else {
-            return .init()
-        }
+        guard let schemaOverrides = config?.typeOverrides?.schemas, !schemaOverrides.isEmpty else { return .init() }
         return TypeOverrides(schemas: schemaOverrides)
     }
 

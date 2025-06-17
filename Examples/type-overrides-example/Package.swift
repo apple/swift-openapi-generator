@@ -17,9 +17,7 @@ import PackageDescription
 let package = Package(
     name: "type-overrides-example",
     platforms: [.macOS(.v10_15)],
-    products: [
-        .library(name: "Types", targets: ["Types"]),
-    ],
+    products: [.library(name: "Types", targets: ["Types"])],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.9.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.7.0"),
@@ -27,13 +25,8 @@ let package = Package(
     targets: [
         .target(
             name: "Types",
-            dependencies: [
-                "ExternalLibrary",
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
+            dependencies: ["ExternalLibrary", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
-        ),
-        .target(
-            name: "ExternalLibrary"
-        ),
+        ), .target(name: "ExternalLibrary"),
     ]
 )
