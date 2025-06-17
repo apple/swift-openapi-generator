@@ -7,11 +7,11 @@ servers:
     description: Example service deployment.
 components:
   schemas:
-    UUID: # this will be replaced by with Foundation.UUID specified by typeOverrides in open-api-generator-config
+    UUID: # this will be replaced by with Foundation.UUID specified by typeOverrides in openapi-generator-config
       type: string
       format: uuid
     
-    PrimeNumber: # this will be replaced by with ExternalLibrary.PrimeNumber specified by typeOverrides in open-api-generator-config
+    PrimeNumber: # this will be replaced by with ExternalLibrary.PrimeNumber specified by typeOverrides in openapi-generator-config
       type: string
       format: uuid
       
