@@ -1945,7 +1945,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
         )
     }
-    
     func testTypeOverridesWithNameOverrides() throws {
         try assertSchemasTranslation(
             nameOverrides: ["UUID": "MyUUID"],

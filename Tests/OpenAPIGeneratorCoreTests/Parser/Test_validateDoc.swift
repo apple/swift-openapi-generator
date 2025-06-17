@@ -449,7 +449,6 @@ final class Test_validateDoc: Test_Core {
             )
         }
     }
-    
     func testValidateTypeOverrides() throws {
         let schema = try loadSchemaFromYAML(
             #"""
