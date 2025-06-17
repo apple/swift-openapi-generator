@@ -449,5 +449,32 @@ final class Test_validateDoc: Test_Core {
             )
         }
     }
+    func testValidateTypeOverrides() throws {
+        let schema = try loadSchemaFromYAML(
+            #"""
+            type: string
+            """#
+        )
+        let doc = OpenAPI.Document(
+            info: .init(title: "Test", version: "1.0.0"),
+            servers: [],
+            paths: [:],
+            components: .init(schemas: ["MyType": schema])
+        )
+        let diagnostics = validateTypeOverrides(
+            doc,
+            config: .init(
+                mode: .types,
+                access: Config.defaultAccessModifier,
+                namingStrategy: Config.defaultNamingStrategy,
+                typeOverrides: TypeOverrides(schemas: ["NonExistent": "NonExistent"])
+            )
+        )
+        XCTAssertEqual(diagnostics.count, 1)
+        XCTAssertEqual(
+            diagnostics.first?.message,
+            "A type override defined for schema 'NonExistent' is not defined in the OpenAPI document."
+        )
+    }
 
 }

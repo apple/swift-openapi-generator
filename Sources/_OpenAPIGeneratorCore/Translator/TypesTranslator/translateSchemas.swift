@@ -57,7 +57,6 @@ extension TypesFileTranslator {
         _ schemas: OpenAPI.ComponentDictionary<JSONSchema>,
         multipartSchemaNames: Set<OpenAPI.ComponentKey>
     ) throws -> Declaration {
-
         let decls: [Declaration] = try schemas.flatMap { key, value in
             try translateSchema(
                 componentKey: key,
