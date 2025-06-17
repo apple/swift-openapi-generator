@@ -30,6 +30,10 @@ struct _UserConfig: Codable {
     /// generated Swift file.
     var additionalImports: [String]?
 
+    /// A list of additional comments that are added to the top of every
+    /// generated Swift file.
+    var additionalFileComments: [String]?
+
     /// Filter to apply to the OpenAPI document before generation.
     var filter: DocumentFilter?
 
@@ -54,6 +58,7 @@ struct _UserConfig: Codable {
         case generate
         case accessModifier
         case additionalImports
+        case additionalFileComments
         case filter
         case namingStrategy
         case nameOverrides

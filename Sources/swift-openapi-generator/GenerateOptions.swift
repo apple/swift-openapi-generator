@@ -40,6 +40,8 @@ struct _GenerateOptions: ParsableArguments {
 
     @Option(help: "Additional import to add to all generated files.") var additionalImport: [String] = []
 
+    @Option(help: "Additional file comment to add to all generated files.") var additionalFileComment: [String] = []
+
     @Option(help: "Pre-release feature to enable. Options: \(FeatureFlag.prettyListing).") var featureFlag:
         [FeatureFlag] = []
 
@@ -78,6 +80,17 @@ extension _GenerateOptions {
     func resolvedAdditionalImports(_ config: _UserConfig?) -> [String] {
         if !additionalImport.isEmpty { return additionalImport }
         if let additionalImports = config?.additionalImports, !additionalImports.isEmpty { return additionalImports }
+        return []
+    }
+
+    /// Returns a list of additional file comments requested by the user.
+    /// - Parameter config: The configuration specified by the user.
+    /// - Returns: A list of additional file comments requested by the user.
+    func resolvedAdditionalFileComments(_ config: _UserConfig?) -> [String] {
+        if !additionalFileComment.isEmpty { return additionalFileComment }
+        if let additionalFileComments = config?.additionalFileComments, !additionalFileComments.isEmpty {
+            return additionalFileComments
+        }
         return []
     }
 
