@@ -146,7 +146,7 @@ filter:
     - myTag
 ```
 
-### Type Overrides
+### Type overrides
 
 Type Overrides can be used used to replace the default generated type with a custom type.
 

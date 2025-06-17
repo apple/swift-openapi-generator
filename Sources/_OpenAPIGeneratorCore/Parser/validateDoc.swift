@@ -97,7 +97,8 @@ func validateContentTypes(in doc: ParsedOpenAPIRepresentation, validate: (String
 
 /// Validates all references from an OpenAPI document represented by a ParsedOpenAPIRepresentation against its components.
 ///
-/// This method iterates through all Type overrides in a config and checks if a schem
+/// This method traverses the OpenAPI document to ensure that all references
+/// within the document are valid and point to existing components.
 ///
 /// - Parameter doc: The OpenAPI document to validate.
 /// - Throws: `Diagnostic.error` if an external reference is found or a reference is not found in components.

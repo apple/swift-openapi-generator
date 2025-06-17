@@ -21,7 +21,7 @@ let package = Package(
         .library(name: "Types", targets: ["Types"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.9.0" /* TODO: Put the actual version where type-overrides will land here */),
+        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.9.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.7.0"),
     ],
     targets: [
