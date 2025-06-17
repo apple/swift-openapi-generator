@@ -107,6 +107,14 @@ extension _GenerateOptions {
     /// - Returns: The name overrides requested by the user
     func resolvedNameOverrides(_ config: _UserConfig?) -> [String: String] { config?.nameOverrides ?? [:] }
 
+    /// Returns the type overrides requested by the user.
+    /// - Parameter config: The configuration specified by the user.
+    /// - Returns: The type overrides requested by the user.
+    func resolvedTypeOverrides(_ config: _UserConfig?) -> TypeOverrides {
+        guard let schemaOverrides = config?.typeOverrides?.schemas, !schemaOverrides.isEmpty else { return .init() }
+        return TypeOverrides(schemas: schemaOverrides)
+    }
+
     /// Returns a list of the feature flags requested by the user.
     /// - Parameter config: The configuration specified by the user.
     /// - Returns: A set of feature flags requested by the user.
