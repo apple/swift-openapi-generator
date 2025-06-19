@@ -14,7 +14,7 @@
 
 /// Example struct to be used instead of the default generated type.
 /// This illustrates how to introduce a type performing additional validation during Decoding that cannot be expressed with OpenAPI
-public struct PrimeNumber: Codable, Hashable, RawRepresentable, Sendable {
+public struct CustomPrimeNumber: Codable, Hashable, RawRepresentable, Sendable {
     public let rawValue: Int
     public init?(rawValue: Int) {
         if !rawValue.isPrime { return nil }
@@ -24,7 +24,7 @@ public struct PrimeNumber: Codable, Hashable, RawRepresentable, Sendable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         let number = try container.decode(Int.self)
-        guard let value = PrimeNumber(rawValue: number) else {
+        guard let value = Self(rawValue: number) else {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "The number is not prime.")
         }
         self = value
