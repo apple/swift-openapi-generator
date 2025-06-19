@@ -18,10 +18,8 @@ import XCTest
 
 final class TypeOverridesTests: XCTestCase {
     func testTypeWasOverriden() throws {
-        let user = try JSONDecoder().decode(
-            Components.Schemas.User.self, 
-            from: Data(#"{"favoritePrimeNumber":23}"#.utf8)
-        )
+        let user = try JSONDecoder()
+            .decode(Components.Schemas.User.self, from: Data(#"{"favoritePrimeNumber":23}"#.utf8))
         XCTAssertEqual(user.favoritePrimeNumber.rawValue, 23)
         // This validates, at build time, that the type was overriden.
         let _: CustomPrimeNumber = user.favoritePrimeNumber
