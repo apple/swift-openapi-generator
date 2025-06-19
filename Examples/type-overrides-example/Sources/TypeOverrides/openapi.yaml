@@ -1,0 +1,16 @@
+openapi: '3.1.0'
+info:
+  title: GreetingService
+  version: 1.0.0
+components:
+  schemas:
+    PrimeNumber:
+      type: string
+      format: uuid
+    User:
+      type: object
+      properties:
+        favoritePrimeNumber:
+          $ref: '#/components/schemas/PrimeNumber'
+      required:
+        - favoritePrimeNumber

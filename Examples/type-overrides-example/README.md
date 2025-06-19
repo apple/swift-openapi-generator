@@ -16,3 +16,9 @@ Build:
 % swift build
 Build complete!
 ```
+
+Test:
+
+```console
+% swift test
+```

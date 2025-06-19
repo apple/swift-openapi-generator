@@ -1,0 +1,6 @@
+generate:
+  - types
+namingStrategy: idiomatic
+typeOverrides:
+  schemas:
+    PrimeNumber: CustomPrimeNumber
