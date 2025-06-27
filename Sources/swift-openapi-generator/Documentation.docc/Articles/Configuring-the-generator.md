@@ -35,6 +35,7 @@ The configuration file has the following keys:
     - `package`: Generated API is accessible from other modules within the same package or project.
     - `internal` (default): Generated API is accessible from the containing module only.
 - `additionalImports` (optional): array of strings. Each string value is a Swift module name. An import statement will be added to the generated source files for each module.
+- `additionalFileComments` (optional): array of strings. Each string value is a comment that will be added to the top of each generated file (after the do-not-edit comment). Useful for adding directives like `swift-format-ignore-file` or `swiftlint:disable all`.
 - `filter` (optional): Filters to apply to the OpenAPI document before generation.
     - `operations`: Operations with these operation IDs will be included in the filter.
     - `tags`: Operations tagged with these tags will be included in the filter.
@@ -44,6 +45,8 @@ The configuration file has the following keys:
     - `defensive` (default): Produces non-conflicting Swift identifiers for any OpenAPI identifiers. Check out [SOAR-0001](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0001) for details.
     - `idiomatic`: Produces more idiomatic Swift identifiers for OpenAPI identifiers. Might produce name conflicts (in that case, switch back to `defensive`). Check out [SOAR-0013](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0013) for details.
 - `nameOverrides` (optional): a string to string dictionary. Allows customizing how individual OpenAPI identifiers get converted to Swift identifiers.
+- `typeOverrides` (optional): Allows replacing a generated type with a custom type.
+    - `schemas` (optional): a string to string dictionary. The key is the name of the schema, the last component of `#/components/schemas/Foo` (here, `Foo`). The value is the custom type name, such as `CustomFoo`. Check out details in [SOAR-0014](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0014).
 - `featureFlags` (optional): array of strings. Each string must be a valid feature flag to enable. For a list of currently supported feature flags, check out [FeatureFlags.swift](https://github.com/apple/swift-openapi-generator/blob/main/Sources/_OpenAPIGeneratorCore/FeatureFlags.swift).
 
 ### Example config files
@@ -95,6 +98,18 @@ additionalImports:
 accessModifier: public
 ```
 
+To add file comments to exclude generated files from formatting tools:
+
+```yaml
+generate:
+  - types
+  - client
+namingStrategy: idiomatic
+additionalFileComments:
+  - "swift-format-ignore-file"
+  - "swiftlint:disable all"
+```
+
 ### Document filtering
 
 The generator supports filtering the OpenAPI document prior to generation, which can be useful when
@@ -132,3 +147,15 @@ filter:
   tags:
     - myTag
 ```
+
+### Type overrides
+
+Type Overrides can be used used to replace the default generated type with a custom type.
+
+```yaml
+typeOverrides:
+  schemas:
+    UUID: Foundation.UUID
+```
+
+Check out [SOAR-0014](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0014) for details.

@@ -83,6 +83,12 @@ extension FileTranslator {
         )
         return TranslatorContext(safeNameGenerator: overridingGenerator)
     }
+
+    /// Creates a top comment that includes the default "do not modify" comment
+    /// and any additional file comments from the configuration.
+    var topComment: Comment {
+        .inline(([Constants.File.topComment] + config.additionalFileComments).joined(separator: "\n"))
+    }
 }
 
 /// A set of configuration values for concrete file translators.

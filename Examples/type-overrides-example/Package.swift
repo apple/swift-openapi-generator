@@ -3,7 +3,7 @@
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
 //
-// Copyright (c) 2023 Apple Inc. and the SwiftOpenAPIGenerator project authors
+// Copyright (c) 2025 Apple Inc. and the SwiftOpenAPIGenerator project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -15,21 +15,24 @@
 import PackageDescription
 
 let package = Package(
-    name: "hello-world-async-http-client-example",
-    platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .visionOS(.v1)],
+    name: "type-overrides-example",
+    platforms: [.macOS(.v10_15)],
+    products: [.library(name: "TypeOverrides", targets: ["TypeOverrides"])],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.6.0"),
+        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.9.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.7.0"),
-        .package(url: "https://github.com/swift-server/swift-openapi-async-http-client", from: "1.0.0"),
     ],
     targets: [
-        .executableTarget(
-            name: "HelloWorldAsyncHTTPClient",
-            dependencies: [
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
-                .product(name: "OpenAPIAsyncHTTPClient", package: "swift-openapi-async-http-client"),
-            ],
+        .target(
+            name: "TypeOverrides",
+            dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
+        ),
+        .testTarget(
+            name: "TypeOverridesTests", 
+            dependencies: [
+                "TypeOverrides"
+            ]
         )
     ]
 )

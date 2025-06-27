@@ -30,6 +30,7 @@ class Test_Core: XCTestCase {
         diagnostics: any DiagnosticCollector = PrintingDiagnosticCollector(),
         namingStrategy: NamingStrategy = .defensive,
         nameOverrides: [String: String] = [:],
+        schemaOverrides: [String: String] = [:],
         featureFlags: FeatureFlags = []
     ) -> TypesFileTranslator {
         makeTypesTranslator(
@@ -37,6 +38,7 @@ class Test_Core: XCTestCase {
             diagnostics: diagnostics,
             namingStrategy: namingStrategy,
             nameOverrides: nameOverrides,
+            schemaOverrides: schemaOverrides,
             featureFlags: featureFlags
         )
     }
@@ -46,12 +48,14 @@ class Test_Core: XCTestCase {
         diagnostics: any DiagnosticCollector = PrintingDiagnosticCollector(),
         namingStrategy: NamingStrategy = .defensive,
         nameOverrides: [String: String] = [:],
+        schemaOverrides: [String: String] = [:],
         featureFlags: FeatureFlags = []
     ) -> TypesFileTranslator {
         TypesFileTranslator(
             config: makeConfig(
                 namingStrategy: namingStrategy,
                 nameOverrides: nameOverrides,
+                schemaOverrides: schemaOverrides,
                 featureFlags: featureFlags
             ),
             diagnostics: diagnostics,
@@ -62,6 +66,7 @@ class Test_Core: XCTestCase {
     func makeConfig(
         namingStrategy: NamingStrategy = .defensive,
         nameOverrides: [String: String] = [:],
+        schemaOverrides: [String: String] = [:],
         featureFlags: FeatureFlags = []
     ) -> Config {
         .init(
@@ -69,6 +74,7 @@ class Test_Core: XCTestCase {
             access: Config.defaultAccessModifier,
             namingStrategy: namingStrategy,
             nameOverrides: nameOverrides,
+            typeOverrides: TypeOverrides(schemas: schemaOverrides),
             featureFlags: featureFlags
         )
     }

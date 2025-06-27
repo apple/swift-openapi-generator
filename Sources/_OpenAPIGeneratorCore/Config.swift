@@ -46,6 +46,9 @@ public struct Config: Sendable {
     /// Additional imports to add to each generated file.
     public var additionalImports: [String]
 
+    /// Additional comments to add to the top of each generated file.
+    public var additionalFileComments: [String]
+
     /// Filter to apply to the OpenAPI document before generation.
     public var filter: DocumentFilter?
 
@@ -59,6 +62,8 @@ public struct Config: Sendable {
 
     /// A map of OpenAPI identifiers to desired Swift identifiers, used instead of the naming strategy.
     public var nameOverrides: [String: String]
+    /// A map of OpenAPI schema names to desired custom type names.
+    public var typeOverrides: TypeOverrides
 
     /// Additional pre-release features to enable.
     public var featureFlags: FeatureFlags
@@ -68,27 +73,33 @@ public struct Config: Sendable {
     ///   - mode: The mode to use for generation.
     ///   - access: The access modifier to use for generated declarations.
     ///   - additionalImports: Additional imports to add to each generated file.
+    ///   - additionalFileComments: Additional comments to add to the top of each generated file.
     ///   - filter: Filter to apply to the OpenAPI document before generation.
     ///   - namingStrategy: The naming strategy to use for deriving Swift identifiers from OpenAPI identifiers.
     ///     Defaults to `defensive`.
     ///   - nameOverrides: A map of OpenAPI identifiers to desired Swift identifiers, used instead
     ///     of the naming strategy.
+    ///   - typeOverrides: A map of OpenAPI schema names to desired custom type names.
     ///   - featureFlags: Additional pre-release features to enable.
     public init(
         mode: GeneratorMode,
         access: AccessModifier,
         additionalImports: [String] = [],
+        additionalFileComments: [String] = [],
         filter: DocumentFilter? = nil,
         namingStrategy: NamingStrategy,
         nameOverrides: [String: String] = [:],
+        typeOverrides: TypeOverrides = .init(),
         featureFlags: FeatureFlags = []
     ) {
         self.mode = mode
         self.access = access
         self.additionalImports = additionalImports
+        self.additionalFileComments = additionalFileComments
         self.filter = filter
         self.namingStrategy = namingStrategy
         self.nameOverrides = nameOverrides
+        self.typeOverrides = typeOverrides
         self.featureFlags = featureFlags
     }
 }

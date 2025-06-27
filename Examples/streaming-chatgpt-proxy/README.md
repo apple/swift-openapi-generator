@@ -9,9 +9,10 @@ An example project using [Swift OpenAPI Generator](https://github.com/apple/swif
 A tailored API server, backed by ChatGPT, and client CLI, with end-to-end
 streaming.
 
-This package is the reference sources for the demo presented at [FOSDEM 2025:
-_Live coding a streaming ChatGPT proxy with Swift OpenAPI—from
-scratch!_][fosdem25-swift-openapi]
+This package is the reference sources for the talk, _Live coding a streaming ChatGPT proxy with Swift OpenAPI—from scratch!, presented at:
+
+- [FOSDEM 2025][fosdem25-swift-openapi]
+- [try! Swift 2025][tryswift25]
 
 > Join us as we build a ChatGPT client, from scratch, using Swift OpenAPI Generator. We’ll take advantage of Swift OpenAPI’s pluggable HTTP transports to reuse the same generated client to make upstream calls from a Linux server, providing end-to-end streaming, backed by async sequences, without buffering upstream responses.
 >
@@ -24,7 +25,7 @@ scratch!_][fosdem25-swift-openapi]
 > * Efficiently transform responses from SSE to JSON Lines, maintaining end-to-end streaming.
 
 The example provides an API for a fictitious _ChantGPT_ service, which produces
-creative chants to sing at basketball games. 🙌 🏀 🙌
+creative chants to sing at sports games. 🙌 🏟️ 🙌
 
 ## Usage
 
@@ -70,4 +71,5 @@ Containers][dev-containers].
 If you have the Dev Containers extension installed, use the `Dev Containers: Reopen in Container` command to switch to build and run for Linux.
 
 [fosdem25-swift-openapi]: https://fosdem.org/2025/schedule/event/fosdem-2025-5230-live-coding-a-streaming-chatgpt-proxy-with-swift-openapi-from-scratch-/
+[tryswift25]: https://tryswift.jp/en/
 [dev-containers]: https://code.visualstudio.com/docs/devcontainers/containers
