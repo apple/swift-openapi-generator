@@ -319,6 +319,8 @@ enum Constants {
 
                 /// The form style.
                 static let form = "form"
+                /// The deepObject style.
+                static let deepObject = "deepObject"
             }
         }
 

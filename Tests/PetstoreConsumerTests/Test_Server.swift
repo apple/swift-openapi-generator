@@ -33,6 +33,7 @@ final class Test_Server: XCTestCase {
             XCTAssertEqual(input.query.habitat, .water)
             XCTAssertEqual(input.query.since, .test)
             XCTAssertEqual(input.query.feeds, [.carnivore, .herbivore])
+            XCTAssertEqual(input.query.sort, .init(id: "ascending", name: "descending"))
             XCTAssertEqual(input.headers.myRequestUUID, "abcd-1234")
             return .ok(
                 .init(
@@ -43,7 +44,8 @@ final class Test_Server: XCTestCase {
         })
         let (response, responseBody) = try await server.listPets(
             .init(
-                soar_path: "/api/pets?limit=24&habitat=water&feeds=carnivore&feeds=herbivore&since=\(Date.testString)",
+                soar_path:
+                    "/api/pets?limit=24&habitat=water&feeds=carnivore&feeds=herbivore&sort%5Bid%5D=ascending&sort%5Bname%5D=descending&filter%5Bname%5D=whale&since=\(Date.testString)",
                 method: .get,
                 headerFields: [.init("My-Request-UUID")!: "abcd-1234"]
             ),
@@ -82,7 +84,7 @@ final class Test_Server: XCTestCase {
             .default(statusCode: 400, .init(body: .json(.init(code: 1, me_dollar_sage: "Oh no!"))))
         })
         let (response, responseBody) = try await server.listPets(
-            .init(soar_path: "/api/pets", method: .get),
+            .init(soar_path: "/api/pets?filter%5Bname%5D=whale", method: .get),
             nil,
             .init()
         )
