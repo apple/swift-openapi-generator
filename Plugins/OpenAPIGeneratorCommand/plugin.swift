@@ -82,10 +82,11 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
                 hadASuccessfulRun = true
             } catch let error as PluginError {
                 if error.isMisconfigurationError {
-                    print("- OpenAPI code generation failed with error.")
+                    print("- Stopping because target isn't configured for OpenAPI code generation.")
                     throw error
                 } else {
-                    print("- Stopping because target isn't configured for OpenAPI code generation.")
+                    print("- OpenAPI code generation failed with error.")
+                    throw error
                 }
             }
         }
