@@ -1,0 +1,2 @@
+generate: [types, client]
+namingStrategy: idiomatic

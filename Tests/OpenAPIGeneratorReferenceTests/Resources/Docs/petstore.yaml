@@ -69,6 +69,34 @@ paths:
           schema:
             format: uuid
             type: string
+        - name: sort
+          in: query
+          required: false
+          style: deepObject
+          explode: true
+          schema:
+            type: object
+            required:
+            - id
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+        - name: filter
+          in: query
+          required: true
+          style: deepObject
+          explode: true
+          schema:
+            type: object
+            required:
+            - name
+            properties:
+              name:
+                type: string
+              state:
+                type: string
         - $ref: '#/components/parameters/query.born-since'
       responses:
         '200':
@@ -406,6 +434,14 @@ components:
           type: [array, null]
           items:
             type: [string, null]
+    # To catch the clashes of members and the decoding container.
+    TypedAdditionalPropertiesWithPropertyNamedContainer:
+      type: object
+      properties:
+        container:
+          type: string
+      additionalProperties:
+        type: integer
     CodeError:
       type: object
       properties:

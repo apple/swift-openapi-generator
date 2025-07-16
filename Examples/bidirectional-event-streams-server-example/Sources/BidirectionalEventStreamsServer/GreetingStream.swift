@@ -28,7 +28,7 @@ actor StreamStorage: Sendable {
         task.cancel()
         print("Canceled stream \(id)")
     }
-    func makeStream(input: Operations.getGreetingsStream.Input) -> AsyncStream<Components.Schemas.Greeting> {
+    func makeStream(input: Operations.GetGreetingsStream.Input) -> AsyncStream<Components.Schemas.Greeting> {
         let name = input.query.name ?? "Stranger"
         let id = UUID().uuidString
         print("Creating stream \(id) for name: \(name)")
@@ -44,7 +44,7 @@ actor StreamStorage: Sendable {
         }
         let inputStream =
             switch input.body {
-            case .application_jsonl(let body): body.asDecodedJSONLines(of: Components.Schemas.Greeting.self)
+            case .applicationJsonl(let body): body.asDecodedJSONLines(of: Components.Schemas.Greeting.self)
             }
         let task = Task<Void, any Error> {
             for try await message in inputStream {

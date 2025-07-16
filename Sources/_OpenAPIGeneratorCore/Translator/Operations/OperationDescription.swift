@@ -31,9 +31,8 @@ struct OperationDescription {
     /// The OpenAPI components, used to resolve JSON references.
     var components: OpenAPI.Components
 
-    /// A converted function from user-provided strings to strings
-    /// safe to be used as a Swift identifier.
-    var asSwiftSafeName: (String) -> String
+    /// A set of configuration values that inform translation.
+    var context: TranslatorContext
 
     /// The OpenAPI operation object.
     var operation: OpenAPI.Operation { endpoint.operation }
@@ -52,7 +51,7 @@ extension OperationDescription {
     /// - Parameters:
     ///   - map: The paths from the OpenAPI document.
     ///   - components: The components from the OpenAPI document.
-    ///   - asSwiftSafeName: A converted function from user-provided strings
+    ///   - context: A set of configuration values that inform translation.
     ///   to strings safe to be used as a Swift identifier.
     /// - Returns: An array of `OperationDescription` instances, each representing
     ///   an operation discovered in the provided paths.
@@ -62,11 +61,9 @@ extension OperationDescription {
     /// 1. OpenAPI 3.0.3 only supports external path references (cf. 3.1, which supports internal references too)
     /// 2. Swift OpenAPI Generator currently only supports OpenAPI 3.0.x.
     /// 3. Swift OpenAPI Generator currently doesn't support external references.
-    static func all(
-        from map: OpenAPI.PathItem.Map,
-        in components: OpenAPI.Components,
-        asSwiftSafeName: @escaping (String) -> String
-    ) throws -> [OperationDescription] {
+    static func all(from map: OpenAPI.PathItem.Map, in components: OpenAPI.Components, context: TranslatorContext)
+        throws -> [OperationDescription]
+    {
         try map.flatMap { path, value in
             let value = try value.resolve(in: components)
             return value.endpoints.map { endpoint in
@@ -75,7 +72,7 @@ extension OperationDescription {
                     endpoint: endpoint,
                     pathParameters: value.parameters,
                     components: components,
-                    asSwiftSafeName: asSwiftSafeName
+                    context: context
                 )
             }
         }
@@ -86,7 +83,14 @@ extension OperationDescription {
     /// Uses the `operationID` value in the OpenAPI operation, if one was
     /// specified. Otherwise, computes a unique name from the operation's
     /// path and HTTP method.
-    var methodName: String { asSwiftSafeName(operationID) }
+    var methodName: String { context.safeNameGenerator.swiftMemberName(for: operationID) }
+
+    /// Returns a Swift-safe type name for the operation.
+    ///
+    /// Uses the `operationID` value in the OpenAPI operation, if one was
+    /// specified. Otherwise, computes a unique name from the operation's
+    /// path and HTTP method.
+    var operationTypeName: String { context.safeNameGenerator.swiftTypeName(for: operationID) }
 
     /// Returns the identifier for the operation.
     ///
@@ -106,7 +110,7 @@ extension OperationDescription {
         .init(
             components: [.root, .init(swift: Constants.Operations.namespace, json: "paths")]
                 + path.components.map { .init(swift: nil, json: $0) } + [
-                    .init(swift: methodName, json: httpMethod.rawValue)
+                    .init(swift: operationTypeName, json: httpMethod.rawValue)
                 ]
         )
     }
@@ -295,7 +299,7 @@ extension OperationDescription {
             }
             let newPath = OpenAPI.Path(newComponents, trailingSlash: path.trailingSlash)
             let names: [Expression] = orderedPathParameters.map { param in
-                .identifierPattern("input").dot("path").dot(asSwiftSafeName(param))
+                .identifierPattern("input").dot("path").dot(context.safeNameGenerator.swiftMemberName(for: param))
             }
             let arrayExpr: Expression = .literal(.array(names))
             return (newPath.rawValue, arrayExpr)

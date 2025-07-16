@@ -23,17 +23,18 @@ extension TypesFileTranslator {
     ///   - operation: The OpenAPI operation.
     ///   - operationJSONPath: The JSON path to the operation in the OpenAPI
     ///   document.
-    /// - Returns: A declaration of the enum case and a declaration of the
+    /// - Returns: A tuple containing a declaration of the enum case, a declaration of the
     /// structure unique to the response that contains the response headers
-    /// and a body payload.
+    /// and a body payload, a declaration of a throwing getter and, an optional convenience static property.
     /// - Throws: An error if there's an issue generating the declarations, such
     ///           as unsupported response types or invalid definitions.
     func translateResponseOutcomeInTypes(
         _ outcome: OpenAPI.Operation.ResponseOutcome,
         operation: OperationDescription,
         operationJSONPath: String
-    ) throws -> (payloadStruct: Declaration?, enumCase: Declaration, throwingGetter: Declaration) {
-
+    ) throws -> (
+        payloadStruct: Declaration?, enumCase: Declaration, staticMember: Declaration?, throwingGetter: Declaration
+    ) {
         let typedResponse = try typedResponse(from: outcome, operation: operation)
         let responseStructTypeName = typedResponse.typeUsage.typeName
         let responseKind = outcome.status.value.asKind
@@ -55,14 +56,36 @@ extension TypesFileTranslator {
         }
         associatedValues.append(.init(type: .init(responseStructTypeName)))
 
-        let enumCaseDesc = EnumCaseDescription(name: enumCaseName, kind: .nameWithAssociatedValues(associatedValues))
-        let enumCaseDecl: Declaration = .commentable(
-            responseKind.docComment(
-                userDescription: typedResponse.response.description,
-                jsonPath: operationJSONPath + "/responses/" + responseKind.jsonPathComponent
-            ),
-            .enumCase(enumCaseDesc)
+        let enumCaseDocComment = responseKind.docComment(
+            userDescription: typedResponse.response.description,
+            jsonPath: operationJSONPath + "/responses/" + responseKind.jsonPathComponent
         )
+        let enumCaseDesc = EnumCaseDescription(name: enumCaseName, kind: .nameWithAssociatedValues(associatedValues))
+        let enumCaseDecl: Declaration = .commentable(enumCaseDocComment, .enumCase(enumCaseDesc))
+
+        let staticMemberDecl: Declaration?
+        let responseHasNoHeaders = typedResponse.response.headers?.isEmpty ?? true
+        let responseHasNoContent = typedResponse.response.content.isEmpty
+        if responseHasNoContent && responseHasNoHeaders && !responseKind.wantsStatusCode {
+            let staticMemberDesc = VariableDescription(
+                accessModifier: config.access,
+                isStatic: true,
+                kind: .var,
+                left: .identifier(.pattern(enumCaseName)),
+                type: .member(["Self"]),
+                getter: [
+                    .expression(
+                        .functionCall(
+                            calledExpression: .dot(enumCaseName),
+                            arguments: [.functionCall(calledExpression: .dot("init"))]
+                        )
+                    )
+                ]
+            )
+            staticMemberDecl = .commentable(enumCaseDocComment, .variable(staticMemberDesc))
+        } else {
+            staticMemberDecl = nil
+        }
 
         let throwingGetterDesc = VariableDescription(
             accessModifier: config.access,
@@ -113,7 +136,7 @@ extension TypesFileTranslator {
         )
         let throwingGetterDecl = Declaration.commentable(throwingGetterComment, .variable(throwingGetterDesc))
 
-        return (responseStructDecl, enumCaseDecl, throwingGetterDecl)
+        return (responseStructDecl, enumCaseDecl, staticMemberDecl, throwingGetterDecl)
     }
 }
 
@@ -220,7 +243,7 @@ extension ClientFileTranslator {
                     argumentNames: ["value"],
                     body: [
                         .expression(
-                            .dot(typeAssigner.contentSwiftName(typedContent.content.contentType))
+                            .dot(context.safeNameGenerator.swiftContentTypeName(for: typedContent.content.contentType))
                                 .call([.init(label: nil, expression: .identifierPattern("value"))])
                         )
                     ]
@@ -419,7 +442,7 @@ extension ServerFileTranslator {
                 caseCodeBlocks.append(.expression(assignBodyExpr))
 
                 return .init(
-                    kind: .case(.dot(typeAssigner.contentSwiftName(contentType)), ["value"]),
+                    kind: .case(.dot(context.safeNameGenerator.swiftContentTypeName(for: contentType)), ["value"]),
                     body: caseCodeBlocks
                 )
             }

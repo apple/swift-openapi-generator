@@ -35,11 +35,18 @@ The configuration file has the following keys:
     - `package`: Generated API is accessible from other modules within the same package or project.
     - `internal` (default): Generated API is accessible from the containing module only.
 - `additionalImports` (optional): array of strings. Each string value is a Swift module name. An import statement will be added to the generated source files for each module.
-- `filter`: (optional): Filters to apply to the OpenAPI document before generation.
+- `additionalFileComments` (optional): array of strings. Each string value is a comment that will be added to the top of each generated file (after the do-not-edit comment). Useful for adding directives like `swift-format-ignore-file` or `swiftlint:disable all`.
+- `filter` (optional): Filters to apply to the OpenAPI document before generation.
     - `operations`: Operations with these operation IDs will be included in the filter.
     - `tags`: Operations tagged with these tags will be included in the filter.
     - `paths`: Operations for these paths will be included in the filter.
     - `schemas`: These (additional) schemas will be included in the filter.
+- `namingStrategy` (optional): a string. The strategy of converting OpenAPI identifiers into Swift identifiers.
+    - `defensive` (default): Produces non-conflicting Swift identifiers for any OpenAPI identifiers. Check out [SOAR-0001](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0001) for details.
+    - `idiomatic`: Produces more idiomatic Swift identifiers for OpenAPI identifiers. Might produce name conflicts (in that case, switch back to `defensive`). Check out [SOAR-0013](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0013) for details.
+- `nameOverrides` (optional): a string to string dictionary. Allows customizing how individual OpenAPI identifiers get converted to Swift identifiers.
+- `typeOverrides` (optional): Allows replacing a generated type with a custom type.
+    - `schemas` (optional): a string to string dictionary. The key is the name of the schema, the last component of `#/components/schemas/Foo` (here, `Foo`). The value is the custom type name, such as `CustomFoo`. Check out details in [SOAR-0014](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0014).
 - `featureFlags` (optional): array of strings. Each string must be a valid feature flag to enable. For a list of currently supported feature flags, check out [FeatureFlags.swift](https://github.com/apple/swift-openapi-generator/blob/main/Sources/_OpenAPIGeneratorCore/FeatureFlags.swift).
 
 ### Example config files
@@ -50,6 +57,7 @@ To generate client code in a single target:
 generate:
   - types
   - client
+namingStrategy: idiomatic
 ```
 
 To generate server code in a single target:
@@ -58,6 +66,7 @@ To generate server code in a single target:
 generate:
   - types
   - server
+namingStrategy: idiomatic
 ```
 
 If you are generating client _and_ server code, you can generate the types in a shared target using the following config:
@@ -65,6 +74,7 @@ If you are generating client _and_ server code, you can generate the types in a 
 ```yaml
 generate:
   - types
+namingStrategy: idiomatic
 ```
 
 Then, to generate client code that depends on the module from this target, use the following config (where `APITypes` is the name of the library target that contains the generated `types`):
@@ -72,6 +82,7 @@ Then, to generate client code that depends on the module from this target, use t
 ```yaml
 generate:
   - client
+namingStrategy: idiomatic
 additionalImports:
   - APITypes
 ```
@@ -81,9 +92,22 @@ To use the generated code from other packages, also customize the access modifie
 ```yaml
 generate:
   - client
+namingStrategy: idiomatic
 additionalImports:
   - APITypes
 accessModifier: public
+```
+
+To add file comments to exclude generated files from formatting tools:
+
+```yaml
+generate:
+  - types
+  - client
+namingStrategy: idiomatic
+additionalFileComments:
+  - "swift-format-ignore-file"
+  - "swiftlint:disable all"
 ```
 
 ### Document filtering
@@ -97,6 +121,7 @@ For example, to generate client code for only the operations with a given tag, u
 generate:
   - types
   - client
+namingStrategy: idiomatic
 
 filter:
   tags:
@@ -122,3 +147,15 @@ filter:
   tags:
     - myTag
 ```
+
+### Type overrides
+
+Type Overrides can be used used to replace the default generated type with a custom type.
+
+```yaml
+typeOverrides:
+  schemas:
+    UUID: Foundation.UUID
+```
+
+Check out [SOAR-0014](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0014) for details.

@@ -12,6 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
+import Foundation
 
 extension TypesFileTranslator {
 
@@ -86,6 +87,17 @@ extension TypesFileTranslator {
                     ]
                 )
             )
+        }
+
+        // Apply type overrides.
+        if let jsonPath = typeName.shortJSONName, let typeOverride = config.typeOverrides.schemas[jsonPath] {
+            let typeOverride = TypeName(swiftKeyPath: typeOverride.components(separatedBy: "."))
+            let typealiasDecl = try translateTypealias(
+                named: typeName,
+                userDescription: overrides.userDescription ?? schema.description,
+                to: typeOverride.asUsage
+            )
+            return [typealiasDecl]
         }
 
         // If this type maps to a referenceable schema, define a typealias

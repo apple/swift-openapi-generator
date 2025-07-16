@@ -57,7 +57,7 @@ import OpenAPIVapor
 import Vapor
 
 struct Handler: APIProtocol {
-    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
+    func getGreeting(_ input: Operations.GetGreeting.Input) async throws -> Operations.GetGreeting.Output {
         let name = input.query.name ?? "Stranger"
         return .ok(.init(body: .json(.init(message: "Hello, \(name)!"))))
     }
@@ -65,7 +65,7 @@ struct Handler: APIProtocol {
 
 @main struct HelloWorldVaporServer {
     static func main() async throws {
-        let app = Vapor.Application()
+        let app = try await Application.make()
         let transport = VaporTransport(routesBuilder: app)
         let handler = Handler()
         try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!)
@@ -106,6 +106,8 @@ The generated code, runtime library, and transports are supported on more platfo
 | ----------------------------------: | :---      | :---  | :-     | :--    | :-----  | :------  |
 | Generator plugin and CLI            | ✅ 10.15+ | ✅    | ✖️      | ✖️      | ✖️       | ✖️        |
 | Generated code and runtime library  | ✅ 10.15+ | ✅    | ✅ 13+ | ✅ 13+ | ✅ 6+   | ✅ 1+    |
+
+> Note: When using Visual Studio Code or other editors that rely on [SourceKit-LSP](https://github.com/swiftlang/sourcekit-lsp), the editor may not correctly recognize generated code within the same module. As a workaround, consider creating a separate target for code generation and then importing it into your main module. For more details, see the discussion in [swiftlang/sourcekit-lsp#665](https://github.com/swiftlang/sourcekit-lsp/issues/665#issuecomment-2093169169).
 
 ### Documentation and example projects
 

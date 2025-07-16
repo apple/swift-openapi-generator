@@ -67,3 +67,7 @@ However, if you cannot use the build plugin, for example because you must check 
 If you can't even use the command plugin, for example because your package is not allowed to depend on Swift OpenAPI Generator, you can invoke the generator CLI manually from a Makefile. See the following example for this workflow:
 
 - [manual-generation-generator-cli-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/manual-generation-generator-cli-example) - A client using the `swift-openapi-generator` CLI for manual code generation.
+
+## Talks
+
+- [FOSDEM 2025: Streaming ChatGPT Proxy with Swift OpenAPI](./streaming-chatgpt-proxy) - A tailored API server, backed by ChatGPT, and client CLI, with end-to-end streaming.

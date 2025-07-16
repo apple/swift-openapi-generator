@@ -1,4 +1,4 @@
-// swift-tools-version:5.9
+// swift-tools-version:5.10
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
@@ -18,12 +18,12 @@ let package = Package(
     name: "metrics-middleware-example",
     platforms: [.macOS(.v13)],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.6.0"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.7.0"),
         .package(url: "https://github.com/swift-server/swift-openapi-vapor", from: "1.0.0"),
         .package(url: "https://github.com/vapor/vapor", from: "4.89.0"),
         .package(url: "https://github.com/apple/swift-metrics", from: "2.4.1"),
-        .package(url: "https://github.com/swift-server/swift-prometheus", exact: "2.0.0-alpha.1"),
+        .package(url: "https://github.com/swift-server/swift-prometheus", from: "2.0.0"),
     ],
     targets: [
         .target(

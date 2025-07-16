@@ -50,7 +50,7 @@ extension TypesFileTranslator {
                 typeUsage: headersTypeName.asUsage,
                 default: headersStructBlueprint.hasEmptyInit ? .emptyInit : nil,
                 associatedDeclarations: [headersStructDecl],
-                asSwiftSafeName: swiftSafeName
+                context: context
             )
         } else {
             headersProperty = nil
@@ -92,7 +92,7 @@ extension TypesFileTranslator {
                 typeUsage: contentTypeUsage,
                 default: hasNoContent ? .nil : nil,
                 associatedDeclarations: [contentEnumDecl],
-                asSwiftSafeName: swiftSafeName
+                context: context
             )
         } else {
             bodyProperty = nil
@@ -141,11 +141,11 @@ extension TypesFileTranslator {
     ) throws -> [Declaration] {
         var bodyCases: [Declaration] = []
         let contentType = typedContent.content.contentType
-        let identifier = typeAssigner.contentSwiftName(contentType)
+        let identifier = context.safeNameGenerator.swiftContentTypeName(for: contentType)
         let associatedType = typedContent.resolvedTypeUsage
         let content = typedContent.content
         let schema = content.schema
-        if TypeMatcher.isInlinable(schema) || content.isReferenceableMultipart {
+        if typeMatcher.isInlinable(schema) || typeMatcher.isReferenceableMultipart(content) {
             let decls: [Declaration]
             if contentType.isMultipart {
                 decls = try translateMultipartBody(typedContent)

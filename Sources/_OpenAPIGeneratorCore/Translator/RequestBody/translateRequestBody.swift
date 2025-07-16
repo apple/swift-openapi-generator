@@ -46,12 +46,13 @@ extension TypesFileTranslator {
         let contentTypeName = typeName.appending(jsonComponent: "content")
         let contents = requestBody.contents
         for content in contents {
-            if TypeMatcher.isInlinable(content.content.schema) || content.content.isReferenceableMultipart {
+            if typeMatcher.isInlinable(content.content.schema) || typeMatcher.isReferenceableMultipart(content.content)
+            {
                 let inlineTypeDecls = try translateRequestBodyContentInTypes(content)
                 bodyMembers.append(contentsOf: inlineTypeDecls)
             }
             let contentType = content.content.contentType
-            let identifier = typeAssigner.contentSwiftName(contentType)
+            let identifier = context.safeNameGenerator.swiftContentTypeName(for: contentType)
             let associatedType = content.resolvedTypeUsage.withOptional(false)
             let contentCase: Declaration = .commentable(
                 contentType.docComment(typeName: contentTypeName),
@@ -92,7 +93,7 @@ extension TypesFileTranslator {
             typeUsage: bodyEnumTypeUsage,
             default: nil,
             associatedDeclarations: extraDecls,
-            asSwiftSafeName: swiftSafeName
+            context: context
         )
         return bodyProperty
     }
@@ -147,7 +148,7 @@ extension ClientFileTranslator {
         var cases: [SwitchCaseDescription] = try contents.map { typedContent in
             let content = typedContent.content
             let contentType = content.contentType
-            let contentTypeIdentifier = typeAssigner.contentSwiftName(contentType)
+            let contentTypeIdentifier = context.safeNameGenerator.swiftContentTypeName(for: contentType)
             let contentTypeHeaderValue = contentType.headerValueForSending
 
             let extraBodyAssignArgs: [FunctionArgumentDescription]
@@ -250,7 +251,7 @@ extension ServerFileTranslator {
                 argumentNames: ["value"],
                 body: [
                     .expression(
-                        .dot(typeAssigner.contentSwiftName(typedContent.content.contentType))
+                        .dot(context.safeNameGenerator.swiftContentTypeName(for: typedContent.content.contentType))
                             .call([.init(label: nil, expression: .identifierPattern("value"))])
                     )
                 ]

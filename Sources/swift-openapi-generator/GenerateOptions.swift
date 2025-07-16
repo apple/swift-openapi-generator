@@ -33,7 +33,14 @@ struct _GenerateOptions: ParsableArguments {
             "The access modifier to use for the API of generated code. Default: \(Config.defaultAccessModifier.rawValue)"
     ) var accessModifier: AccessModifier?
 
+    @Option(
+        help:
+            "The strategy for converting OpenAPI names into Swift names. Default: \(Config.defaultNamingStrategy.rawValue)"
+    ) var namingStrategy: NamingStrategy?
+
     @Option(help: "Additional import to add to all generated files.") var additionalImport: [String] = []
+
+    @Option(help: "Additional file comment to add to all generated files.") var additionalFileComment: [String] = []
 
     @Option(help: "Pre-release feature to enable. Options: \(FeatureFlag.prettyListing).") var featureFlag:
         [FeatureFlag] = []
@@ -44,16 +51,9 @@ struct _GenerateOptions: ParsableArguments {
 }
 
 extension AccessModifier: ExpressibleByArgument {}
+extension NamingStrategy: ExpressibleByArgument {}
 
 extension _GenerateOptions {
-
-    /// The user-provided user config, not yet resolved with defaults.
-    var resolvedUserConfig: _UserConfig {
-        get throws {
-            let config = try loadedConfig()
-            return try .init(generate: resolvedModes(config), additionalImports: resolvedAdditionalImports(config))
-        }
-    }
 
     /// Returns a list of the generator modes requested by the user.
     /// - Parameter config: The configuration specified by the user.
@@ -68,10 +68,10 @@ extension _GenerateOptions {
     /// Returns the access modifier requested by the user.
     /// - Parameter config: The configuration specified by the user.
     /// - Returns: The access modifier requested by the user, or nil if the default should be used.
-    func resolvedAccessModifier(_ config: _UserConfig?) -> AccessModifier? {
+    func resolvedAccessModifier(_ config: _UserConfig?) -> AccessModifier {
         if let accessModifier { return accessModifier }
         if let accessModifier = config?.accessModifier { return accessModifier }
-        return nil
+        return Config.defaultAccessModifier
     }
 
     /// Returns a list of additional imports requested by the user.
@@ -81,6 +81,38 @@ extension _GenerateOptions {
         if !additionalImport.isEmpty { return additionalImport }
         if let additionalImports = config?.additionalImports, !additionalImports.isEmpty { return additionalImports }
         return []
+    }
+
+    /// Returns a list of additional file comments requested by the user.
+    /// - Parameter config: The configuration specified by the user.
+    /// - Returns: A list of additional file comments requested by the user.
+    func resolvedAdditionalFileComments(_ config: _UserConfig?) -> [String] {
+        if !additionalFileComment.isEmpty { return additionalFileComment }
+        if let additionalFileComments = config?.additionalFileComments, !additionalFileComments.isEmpty {
+            return additionalFileComments
+        }
+        return []
+    }
+
+    /// Returns the naming strategy requested by the user.
+    /// - Parameter config: The configuration specified by the user.
+    /// - Returns: The naming strategy requestd by the user.
+    func resolvedNamingStrategy(_ config: _UserConfig?) -> NamingStrategy {
+        if let namingStrategy { return namingStrategy }
+        return config?.namingStrategy ?? Config.defaultNamingStrategy
+    }
+
+    /// Returns the name overrides requested by the user.
+    /// - Parameter config: The configuration specified by the user.
+    /// - Returns: The name overrides requested by the user
+    func resolvedNameOverrides(_ config: _UserConfig?) -> [String: String] { config?.nameOverrides ?? [:] }
+
+    /// Returns the type overrides requested by the user.
+    /// - Parameter config: The configuration specified by the user.
+    /// - Returns: The type overrides requested by the user.
+    func resolvedTypeOverrides(_ config: _UserConfig?) -> TypeOverrides {
+        guard let schemaOverrides = config?.typeOverrides?.schemas, !schemaOverrides.isEmpty else { return .init() }
+        return TypeOverrides(schemas: schemaOverrides)
     }
 
     /// Returns a list of the feature flags requested by the user.

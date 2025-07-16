@@ -43,3 +43,57 @@ protocol FileTranslator {
     /// - Throws: An error if translation encounters issues or errors during the process.
     func translateFile(parsedOpenAPI: ParsedOpenAPIRepresentation) throws -> StructuredSwiftRepresentation
 }
+
+/// A generator that allows overriding the documented name.
+struct OverridableSafeNameGenerator: SafeNameGenerator {
+
+    /// The upstream name generator for names that aren't overriden.
+    var upstream: any SafeNameGenerator
+
+    /// A set of overrides, where the key is the documented name and the value the desired identifier.
+    var overrides: [String: String]
+
+    func swiftTypeName(for documentedName: String) -> String {
+        if let override = overrides[documentedName] { return override }
+        return upstream.swiftTypeName(for: documentedName)
+    }
+
+    func swiftMemberName(for documentedName: String) -> String {
+        if let override = overrides[documentedName] { return override }
+        return upstream.swiftMemberName(for: documentedName)
+    }
+
+    func swiftContentTypeName(for contentType: ContentType) -> String {
+        upstream.swiftContentTypeName(for: contentType)
+    }
+}
+
+extension FileTranslator {
+
+    /// A new context from the file translator.
+    var context: TranslatorContext {
+        let safeNameGenerator: any SafeNameGenerator
+        switch config.namingStrategy {
+        case .defensive: safeNameGenerator = .defensive
+        case .idiomatic: safeNameGenerator = .idiomatic
+        }
+        let overridingGenerator = OverridableSafeNameGenerator(
+            upstream: safeNameGenerator,
+            overrides: config.nameOverrides
+        )
+        return TranslatorContext(safeNameGenerator: overridingGenerator)
+    }
+
+    /// Creates a top comment that includes the default "do not modify" comment
+    /// and any additional file comments from the configuration.
+    var topComment: Comment {
+        .inline(([Constants.File.topComment] + config.additionalFileComments).joined(separator: "\n"))
+    }
+}
+
+/// A set of configuration values for concrete file translators.
+struct TranslatorContext {
+
+    /// A type that generates safe names for use as Swift identifiers.
+    var safeNameGenerator: any SafeNameGenerator
+}

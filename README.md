@@ -1,6 +1,6 @@
 # Swift OpenAPI Generator
 
-[![](https://img.shields.io/badge/sswg-sandbox-lightgrey.svg)](https://www.swift.org/sswg/)
+[![](https://img.shields.io/badge/sswg-incubating-yellow.svg)](https://www.swift.org/sswg/)
 [![](https://img.shields.io/badge/docc-read_documentation-blue)](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation)
 [![](https://img.shields.io/github/v/release/apple/swift-openapi-generator)](https://github.com/apple/swift-openapi-generator/releases)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fapple%2Fswift-openapi-generator%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/apple/swift-openapi-generator)
@@ -58,7 +58,7 @@ import OpenAPIVapor
 import Vapor
 
 struct Handler: APIProtocol {
-    func getGreeting(_ input: Operations.getGreeting.Input) async throws -> Operations.getGreeting.Output {
+    func getGreeting(_ input: Operations.GetGreeting.Input) async throws -> Operations.GetGreeting.Output {
         let name = input.query.name ?? "Stranger"
         return .ok(.init(body: .json(.init(message: "Hello, \(name)!"))))
     }
@@ -66,7 +66,7 @@ struct Handler: APIProtocol {
 
 @main struct HelloWorldVaporServer {
     static func main() async throws {
-        let app = Vapor.Application()
+        let app = try await Application.make()
         let transport = VaporTransport(routesBuilder: app)
         let handler = Handler()
         try handler.registerHandlers(on: transport, serverURL: URL(string: "/api")!)
@@ -99,15 +99,18 @@ See also [Supported OpenAPI features][supported-openapi-features].
 
 ### Supported platforms and minimum versions
 
-The generator is used during development and is supported on macOS and Linux.
+The generator is used during development and is supported on macOS, Linux, and Windows.
 
 The generated code, runtime library, and transports are supported on more
 platforms, listed below.
 
-| Component                           | macOS     | Linux | iOS    | tvOS   | watchOS | visionOS |
+| Component                           | macOS     | Linux, Windows | iOS    | tvOS   | watchOS | visionOS |
 | ----------------------------------: | :---      | :---  | :-     | :--    | :-----  | :------  |
 | Generator plugin and CLI            | ✅ 10.15+ | ✅    | ✖️      | ✖️      | ✖️       | ✖️        |
 | Generated code and runtime library  | ✅ 10.15+ | ✅    | ✅ 13+ | ✅ 13+ | ✅ 6+   | ✅ 1+    |
+
+> [!NOTE]
+> When using Visual Studio Code or other editors that rely on [SourceKit-LSP](https://github.com/swiftlang/sourcekit-lsp), the editor may not correctly recognize generated code within the same module. As a workaround, consider creating a separate target for code generation and then importing it into your main module. For more details, see the discussion in [swiftlang/sourcekit-lsp#665](https://github.com/swiftlang/sourcekit-lsp/issues/665#issuecomment-2093169169).
 
 ## Documentation and example projects
 

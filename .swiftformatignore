@@ -2,3 +2,5 @@ Tests/OpenAPIGeneratorReferenceTests/Resources
 Sources/swift-openapi-generator/Documentation.docc
 Examples/**/Generated/*
 Examples/**/GeneratedSources/*
+Examples/streaming-chatgpt-proxy/**
+**Package.swift

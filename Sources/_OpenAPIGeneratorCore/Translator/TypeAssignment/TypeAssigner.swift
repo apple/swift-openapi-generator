@@ -41,9 +41,8 @@ import Foundation
 /// cases when it's a simple string schema.
 struct TypeAssigner {
 
-    /// A converted function from user-provided strings to strings
-    /// safe to be used as a Swift identifier.
-    var asSwiftSafeName: (String) -> String
+    /// A set of configuration values that inform translation.
+    var context: TranslatorContext
 
     /// Returns a type name for an OpenAPI-named component type.
     ///
@@ -60,7 +59,10 @@ struct TypeAssigner {
     /// - Returns: A Swift type name for the specified component type.
     func typeName(forComponentOriginallyNamed originalName: String, in location: TypeLocation) -> TypeName {
         typeName(forLocation: location)
-            .appending(swiftComponent: asSwiftSafeName(originalName), jsonComponent: originalName)
+            .appending(
+                swiftComponent: context.safeNameGenerator.swiftTypeName(for: originalName),
+                jsonComponent: originalName
+            )
     }
 
     /// Returns the type name for an OpenAPI-named component namespace.
@@ -123,10 +125,12 @@ struct TypeAssigner {
         inParent parent: TypeName
     ) throws -> TypeUsage {
         let multipartBodyElementTypeName: TypeName
-        if let ref = TypeMatcher.multipartElementTypeReferenceIfReferenceable(schema: schema, encoding: encoding) {
+        if let ref = TypeMatcher(context: context)
+            .multipartElementTypeReferenceIfReferenceable(schema: schema, encoding: encoding)
+        {
             multipartBodyElementTypeName = try typeName(for: ref)
         } else {
-            let swiftSafeName = asSwiftSafeName(hint)
+            let swiftSafeName = context.safeNameGenerator.swiftTypeName(for: hint)
             multipartBodyElementTypeName = parent.appending(
                 swiftComponent: swiftSafeName + Constants.Global.inlineTypeSuffix,
                 jsonComponent: hint
@@ -146,7 +150,7 @@ struct TypeAssigner {
     func typeUsage(withContent content: SchemaContent, components: OpenAPI.Components, inParent parent: TypeName) throws
         -> TypeUsage?
     {
-        let identifier = contentSwiftName(content.contentType)
+        let identifier = context.safeNameGenerator.swiftContentTypeName(for: content.contentType)
         if content.contentType.isMultipart {
             return try typeUsage(
                 usingNamingHint: identifier,
@@ -328,7 +332,7 @@ struct TypeAssigner {
         inParent parent: TypeName,
         subtype: SubtypeNamingMethod
     ) throws -> TypeUsage {
-        let typeMatcher = TypeMatcher(asSwiftSafeName: asSwiftSafeName)
+        let typeMatcher = TypeMatcher(context: context)
         // Check if this type can be simply referenced without
         // creating a new inline type.
         if let referenceableType = try typeMatcher.tryMatchReferenceableType(for: schema, components: components) {
@@ -342,7 +346,7 @@ struct TypeAssigner {
         }
         return
             baseType.appending(
-                swiftComponent: asSwiftSafeName(originalName) + suffix,
+                swiftComponent: context.safeNameGenerator.swiftTypeName(for: originalName) + suffix,
                 jsonComponent: jsonReferenceComponentOverride ?? originalName
             )
             .asUsage.withOptional(try typeMatcher.isOptional(schema, components: components))
@@ -405,7 +409,10 @@ struct TypeAssigner {
         of componentType: Component.Type
     ) -> TypeName {
         typeName(for: Component.self)
-            .appending(swiftComponent: asSwiftSafeName(key.rawValue), jsonComponent: key.rawValue)
+            .appending(
+                swiftComponent: context.safeNameGenerator.swiftTypeName(for: key.rawValue),
+                jsonComponent: key.rawValue
+            )
     }
 
     /// Returns a type name for a JSON reference.
@@ -469,7 +476,8 @@ struct TypeAssigner {
         guard case let .component(name) = reference else {
             throw JSONReferenceParsingError.nonComponentPathsUnsupported(reference.name)
         }
-        return typeName(for: componentType).appending(swiftComponent: asSwiftSafeName(name), jsonComponent: name)
+        return typeName(for: componentType)
+            .appending(swiftComponent: context.safeNameGenerator.swiftTypeName(for: name), jsonComponent: name)
     }
 
     /// Returns a type name for the namespace for the specified component type.
@@ -493,7 +501,8 @@ struct TypeAssigner {
     {
         typeNameForComponents()
             .appending(
-                swiftComponent: asSwiftSafeName(componentType.openAPIComponentsKey).uppercasingFirstLetter,
+                swiftComponent: context.safeNameGenerator.swiftTypeName(for: componentType.openAPIComponentsKey)
+                    .uppercasingFirstLetter,
                 jsonComponent: componentType.openAPIComponentsKey
             )
     }
@@ -503,52 +512,15 @@ struct TypeAssigner {
     func typeNameForComponents() -> TypeName {
         TypeName(components: [.root, .init(swift: Constants.Components.namespace, json: "components")])
     }
-
-    /// Returns a Swift-safe identifier used as the name of the content
-    /// enum case.
-    ///
-    /// - Parameter contentType: The content type for which to compute the name.
-    /// - Returns: A Swift-safe identifier representing the name of the content enum case.
-    func contentSwiftName(_ contentType: ContentType) -> String {
-        let rawContentType = contentType.lowercasedTypeSubtypeAndParameters
-        switch rawContentType {
-        case "application/json": return "json"
-        case "application/x-www-form-urlencoded": return "urlEncodedForm"
-        case "multipart/form-data": return "multipartForm"
-        case "text/plain": return "plainText"
-        case "*/*": return "any"
-        case "application/xml": return "xml"
-        case "application/octet-stream": return "binary"
-        case "text/html": return "html"
-        case "application/yaml": return "yaml"
-        case "text/csv": return "csv"
-        case "image/png": return "png"
-        case "application/pdf": return "pdf"
-        case "image/jpeg": return "jpeg"
-        default:
-            let safedType = asSwiftSafeName(contentType.originallyCasedType)
-            let safedSubtype = asSwiftSafeName(contentType.originallyCasedSubtype)
-            let prefix = "\(safedType)_\(safedSubtype)"
-            let params = contentType.lowercasedParameterPairs
-            guard !params.isEmpty else { return prefix }
-            let safedParams =
-                params.map { pair in
-                    pair.split(separator: "=").map { asSwiftSafeName(String($0)) }.joined(separator: "_")
-                }
-                .joined(separator: "_")
-            return prefix + "_" + safedParams
-        }
-    }
-
 }
 
 extension FileTranslator {
 
     /// A configured type assigner.
-    var typeAssigner: TypeAssigner { TypeAssigner(asSwiftSafeName: swiftSafeName) }
+    var typeAssigner: TypeAssigner { TypeAssigner(context: context) }
 
     /// A configured type matcher.
-    var typeMatcher: TypeMatcher { TypeMatcher(asSwiftSafeName: swiftSafeName) }
+    var typeMatcher: TypeMatcher { TypeMatcher(context: context) }
 }
 
 /// An error used during the parsing of JSON references specified in an

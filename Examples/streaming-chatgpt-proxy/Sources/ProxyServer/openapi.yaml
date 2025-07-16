@@ -1,0 +1,42 @@
+openapi: '3.0.3'
+info:
+  title: ChantGPT
+  version: 0.1.0
+paths:
+#----------------------------------------------------------
+  /chant:
+    post:
+      operationId: createChant
+      summary: Generate a new chant for your favorite NBA team!
+      tags:
+        - Chants
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChantRequest"
+      responses:
+        "200":
+          description: A successful response with the generated chant.
+          content:
+            application/jsonl:
+              schema:
+                $ref: "#/components/schemas/ChantMessage"
+#----------------------------------------------------------
+components:
+  schemas:
+    ChantRequest:
+      type: object
+      required: [userInput]
+      properties:
+        userInput:
+          type: string
+      example:
+        userInput: The one with the bull logo.
+    ChantMessage:
+      type: object
+      required: [delta]
+      properties:
+        delta:
+          type: string

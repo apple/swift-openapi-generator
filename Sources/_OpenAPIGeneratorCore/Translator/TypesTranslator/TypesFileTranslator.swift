@@ -32,7 +32,7 @@ struct TypesFileTranslator: FileTranslator {
 
         let doc = parsedOpenAPI
 
-        let topComment: Comment = .inline(Constants.File.topComment)
+        let topComment = self.topComment
 
         let imports = Constants.File.imports + config.additionalImports.map { ImportDescription(moduleName: $0) }
 
@@ -45,11 +45,7 @@ struct TypesFileTranslator: FileTranslator {
         let multipartSchemaNames = try parseSchemaNamesUsedInMultipart(paths: doc.paths, components: doc.components)
         let components = try translateComponents(doc.components, multipartSchemaNames: multipartSchemaNames)
 
-        let operationDescriptions = try OperationDescription.all(
-            from: doc.paths,
-            in: doc.components,
-            asSwiftSafeName: swiftSafeName
-        )
+        let operationDescriptions = try OperationDescription.all(from: doc.paths, in: doc.components, context: context)
         let operations = try translateOperations(operationDescriptions)
 
         let typesFile = FileDescription(

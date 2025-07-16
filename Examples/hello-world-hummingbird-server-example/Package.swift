@@ -1,4 +1,4 @@
-// swift-tools-version:5.9.2
+// swift-tools-version:5.10
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
@@ -16,12 +16,12 @@ import PackageDescription
 
 let package = Package(
     name: "hello-world-hummingbird-server-example",
-    platforms: [.macOS(.v10_15)],
+    platforms: [.macOS(.v14)],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.0.0"),
-        .package(url: "https://github.com/swift-server/swift-openapi-hummingbird", from: "1.0.0"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird", from: "1.10.1"),
+        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.6.0"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.7.0"),
+        .package(url: "https://github.com/swift-server/swift-openapi-hummingbird", from: "2.0.1"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird", from: "2.5.0"),
     ],
     targets: [
         .executableTarget(

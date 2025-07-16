@@ -30,15 +30,23 @@ extension _GenerateOptions {
     func runGenerator(outputDirectory: URL, pluginSource: PluginSource?, isDryRun: Bool) async throws {
         let config = try loadedConfig()
         let sortedModes = try resolvedModes(config)
-        let resolvedAccessModifier = resolvedAccessModifier(config) ?? Config.defaultAccessModifier
+        let resolvedAccessModifier = resolvedAccessModifier(config)
         let resolvedAdditionalImports = resolvedAdditionalImports(config)
+        let resolvedAdditionalFileComments = resolvedAdditionalFileComments(config)
+        let resolvedNamingStragy = resolvedNamingStrategy(config)
+        let resolvedNameOverrides = resolvedNameOverrides(config)
+        let resolvedTypeOverrides = resolvedTypeOverrides(config)
         let resolvedFeatureFlags = resolvedFeatureFlags(config)
         let configs: [Config] = sortedModes.map {
             .init(
                 mode: $0,
                 access: resolvedAccessModifier,
                 additionalImports: resolvedAdditionalImports,
+                additionalFileComments: resolvedAdditionalFileComments,
                 filter: config?.filter,
+                namingStrategy: resolvedNamingStragy,
+                nameOverrides: resolvedNameOverrides,
+                typeOverrides: resolvedTypeOverrides,
                 featureFlags: resolvedFeatureFlags
             )
         }
@@ -51,6 +59,13 @@ extension _GenerateOptions {
             - Configuration path: \(self.config?.path ?? "<none>")
             - Generator modes: \(sortedModes.map(\.rawValue).joined(separator: ", "))
             - Access modifier: \(resolvedAccessModifier.rawValue)
+            - Naming strategy: \(resolvedNamingStragy.rawValue)
+            - Name overrides: \(resolvedNameOverrides.isEmpty ? "<none>" : resolvedNameOverrides
+                .sorted(by: { $0.key < $1.key })
+                .map { "\"\($0.key)\"->\"\($0.value)\"" }.joined(separator: ", "))
+            - Type overrides: \(resolvedTypeOverrides.schemas.isEmpty ? "<none>" : resolvedTypeOverrides.schemas
+                .sorted(by: { $0.key < $1.key })
+                .map { "\"\($0.key)\"->\"\($0.value)\"" }.joined(separator: ", "))
             - Feature flags: \(resolvedFeatureFlags.isEmpty ? "<none>" : resolvedFeatureFlags.map(\.rawValue).joined(separator: ", "))
             - Output file names: \(sortedModes.map(\.outputFileName).joined(separator: ", "))
             - Output directory: \(outputDirectory.path)
@@ -59,6 +74,7 @@ extension _GenerateOptions {
             - Plugin source: \(pluginSource?.rawValue ?? "<none>")
             - Is dry run: \(isDryRun)
             - Additional imports: \(resolvedAdditionalImports.isEmpty ? "<none>" : resolvedAdditionalImports.joined(separator: ", "))
+            - Additional file comments: \(resolvedAdditionalFileComments.isEmpty ? "<none>" : resolvedAdditionalFileComments.joined(separator: ", "))
             """
         )
         do {

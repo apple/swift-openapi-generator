@@ -85,7 +85,7 @@ extension TypesFileTranslator {
                     parent: typeName
                 )
                 let associatedDeclarations: [Declaration]
-                if TypeMatcher.isInlinable(value) {
+                if typeMatcher.isInlinable(value) {
                     associatedDeclarations = try translateSchema(
                         typeName: propertyType.typeName,
                         schema: value,
@@ -100,7 +100,7 @@ extension TypesFileTranslator {
                     originalName: key,
                     typeUsage: propertyType,
                     associatedDeclarations: associatedDeclarations,
-                    asSwiftSafeName: swiftSafeName
+                    context: context
                 )
             }
 
@@ -153,7 +153,7 @@ extension TypesFileTranslator {
                 components: components,
                 inParent: parent
             )
-            if TypeMatcher.isInlinable(schema) {
+            if typeMatcher.isInlinable(schema) {
                 associatedDeclarations = try translateSchema(
                     typeName: valueTypeUsage.typeName,
                     schema: schema,
@@ -175,7 +175,7 @@ extension TypesFileTranslator {
             default: .emptyInit,
             isSerializedInTopLevelDictionary: false,
             associatedDeclarations: associatedDeclarations,
-            asSwiftSafeName: swiftSafeName
+            context: context
         )
         return (.allowingAdditionalProperties, extraProperty)
     }

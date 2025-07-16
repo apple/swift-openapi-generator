@@ -14,14 +14,10 @@
 
 // Emit a compiler error if this library is linked with a target in an adopter
 // project.
-//
-// When compiling for MacCatalyst, the plugin is (erroneously?) compiled with os(iOS).
-#if !(os(macOS) || os(Linux) || (os(iOS) && targetEnvironment(macCatalyst)))
+// This is only done for platforms where the linkage was most likely added
+// erroneously (for platforms which can't be used as development hosts).
+#if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS) || os(watchOS) || os(visionOS)
 #error(
     "_OpenAPIGeneratorCore is only to be used by swift-openapi-generator itself—your target should not link this library or the command line tool directly."
 )
-#endif
-
-#if SWIFT_OPENAPI_STRICT_CONCURRENCY
-#warning("Compiling with Strict Concurrency")
 #endif

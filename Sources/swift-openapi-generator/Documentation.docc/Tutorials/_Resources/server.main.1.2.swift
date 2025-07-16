@@ -6,8 +6,8 @@ import OpenAPIVapor
 // Define a type that conforms to the generated protocol.
 struct GreetingServiceAPIImpl: APIProtocol {
     func getGreeting(
-        _ input: Operations.getGreeting.Input
-    ) async throws -> Operations.getGreeting.Output {
+        _ input: Operations.GetGreeting.Input
+    ) async throws -> Operations.GetGreeting.Output {
         let name = input.query.name ?? "Stranger"
         let greeting = Components.Schemas.Greeting(message: "Hello, \(name)!")
         return .ok(.init(body: .json(greeting)))
@@ -15,18 +15,18 @@ struct GreetingServiceAPIImpl: APIProtocol {
 }
 
 // Create your Vapor application.
-let app = Vapor.Application()
+let app = try await Vapor.Application.make()
 
 // Create a VaporTransport using your application.
 let transport = VaporTransport(routesBuilder: app)
 
 // Create an instance of your handler type that conforms the generated protocol
-// defininig your service API.
+// defining your service API.
 let handler = GreetingServiceAPIImpl()
 
 // Call the generated function on your implementation to add its request
 // handlers to the app.
-try handler.registerHandlers(on: transport, serverURL: Servers.server1())
+try handler.registerHandlers(on: transport, serverURL: Servers.Server1.url())
 
 // Start the app as you would normally.
 try await app.execute()

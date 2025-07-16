@@ -1,0 +1,20 @@
+{
+    "files.exclude": {
+        "**/.build": true,
+        "**/.build-linux": true,
+        "**/.gitignore": true,
+        "**/.swiftpm": true,
+        "**/.vscode": true,
+        ".env": true,
+        "*.o": true,
+        "*.d": true,
+        "*.swiftdeps": true,
+        "*.swiftdeps~": true,
+    },
+    "lldb.library": "/usr/lib/liblldb.so",
+    "lldb.launch.expressions": "native",
+    "swift.diagnosticsStyle": "default",
+    "swift.disableAutoResolve": true,
+    "swift.buildPath": ".build-linux",
+    "workbench.startupEditor": "none"
+}

@@ -64,7 +64,7 @@ extension TypesFileTranslator {
                 typeUsage: headersTypeName.asUsage,
                 default: headersStructBlueprint.hasEmptyInit ? .emptyInit : nil,
                 associatedDeclarations: [headersStructDecl],
-                asSwiftSafeName: swiftSafeName
+                context: context
             )
         } else {
             headersProperty = nil
@@ -76,7 +76,7 @@ extension TypesFileTranslator {
             inParent: typeName.appending(swiftComponent: nil, jsonComponent: "content")
         )
         let associatedDeclarations: [Declaration]
-        if TypeMatcher.isInlinable(schema) {
+        if typeMatcher.isInlinable(schema) {
             associatedDeclarations = try translateSchema(
                 typeName: bodyTypeUsage.typeName,
                 schema: schema,
@@ -90,7 +90,7 @@ extension TypesFileTranslator {
             originalName: Constants.Operation.Body.variableName,
             typeUsage: bodyTypeUsage,
             associatedDeclarations: associatedDeclarations,
-            asSwiftSafeName: swiftSafeName
+            context: context
         )
         let structDecl = translateStructBlueprint(
             .init(
@@ -117,7 +117,7 @@ extension TypesFileTranslator {
         schema: JSONSchema
     ) throws -> [Declaration] {
         let associatedDeclarations: [Declaration]
-        if TypeMatcher.isInlinable(schema) {
+        if typeMatcher.isInlinable(schema) {
             associatedDeclarations = try translateSchema(typeName: typeName, schema: schema, overrides: .none)
         } else {
             associatedDeclarations = []
@@ -137,7 +137,7 @@ extension TypesFileTranslator {
             switch part {
             case .documentedTyped(let documentedPart):
                 let caseDecl: Declaration = .enumCase(
-                    name: swiftSafeName(for: documentedPart.originalName),
+                    name: context.safeNameGenerator.swiftMemberName(for: documentedPart.originalName),
                     kind: .nameWithAssociatedValues([.init(type: .init(part.wrapperTypeUsage))])
                 )
                 let decl = try translateMultipartPartContent(
@@ -404,7 +404,7 @@ extension FileTranslator {
             switch part {
             case .documentedTyped(let part):
                 let originalName = part.originalName
-                let identifier = swiftSafeName(for: originalName)
+                let identifier = context.safeNameGenerator.swiftMemberName(for: originalName)
                 let contentType = part.partInfo.contentType
                 let partTypeName = part.typeName
                 let schema = part.schema
@@ -613,7 +613,7 @@ extension FileTranslator {
             switch part {
             case .documentedTyped(let part):
                 let originalName = part.originalName
-                let identifier = swiftSafeName(for: originalName)
+                let identifier = context.safeNameGenerator.swiftMemberName(for: originalName)
                 let contentType = part.partInfo.contentType
                 let headersTypeName = part.typeName.appending(
                     swiftComponent: Constants.Operation.Output.Payload.Headers.typeName,

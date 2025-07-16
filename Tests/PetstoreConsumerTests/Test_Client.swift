@@ -40,7 +40,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(operationID, "listPets")
             XCTAssertEqual(
                 request.path,
-                "/pets?limit=24&habitat=water&feeds=herbivore&feeds=carnivore&since=2023-01-18T10%3A04%3A11Z"
+                "/pets?limit=24&habitat=water&feeds=herbivore&feeds=carnivore&sort%5Bid%5D=ascending&sort%5Bname%5D=descending&filter%5Bname%5D=whale&since=2023-01-18T10%3A04%3A11Z"
             )
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .get)
@@ -66,16 +66,23 @@ final class Test_Client: XCTestCase {
         }
         let response = try await client.listPets(
             .init(
-                query: .init(limit: 24, habitat: .water, feeds: [.herbivore, .carnivore], since: .test),
-                headers: .init(My_hyphen_Request_hyphen_UUID: "abcd-1234")
+                query: .init(
+                    limit: 24,
+                    habitat: .water,
+                    feeds: [.herbivore, .carnivore],
+                    sort: .init(id: "ascending", name: "descending"),
+                    filter: .init(name: "whale"),
+                    since: .test
+                ),
+                headers: .init(myRequestUUID: "abcd-1234")
             )
         )
         guard case let .ok(value) = response else {
             XCTFail("Unexpected response: \(response)")
             return
         }
-        XCTAssertEqual(value.headers.My_hyphen_Response_hyphen_UUID, "abcd")
-        XCTAssertEqual(value.headers.My_hyphen_Tracing_hyphen_Header, "1234")
+        XCTAssertEqual(value.headers.myResponseUUID, "abcd")
+        XCTAssertEqual(value.headers.myTracingHeader, "1234")
         switch value.body {
         case .json(let pets): XCTAssertEqual(pets, [.init(id: 1, name: "Fluffz")])
         }
@@ -84,7 +91,7 @@ final class Test_Client: XCTestCase {
     func testListPets_default() async throws {
         transport = .init { request, body, baseURL, operationID in
             XCTAssertEqual(operationID, "listPets")
-            XCTAssertEqual(request.path, "/pets?limit=24")
+            XCTAssertEqual(request.path, "/pets?limit=24&filter%5Bname%5D=whale")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .get)
             XCTAssertEqual(request.headerFields, [.accept: "application/json"])
@@ -100,7 +107,7 @@ final class Test_Client: XCTestCase {
                     """#
                 )
         }
-        let response = try await client.listPets(.init(query: .init(limit: 24)))
+        let response = try await client.listPets(.init(query: .init(limit: 24, filter: .init(name: "whale"))))
         guard case let .default(statusCode, value) = response else {
             XCTFail("Unexpected response: \(response)")
             return
@@ -154,13 +161,13 @@ final class Test_Client: XCTestCase {
             )
         }
         let response = try await client.createPet(
-            .init(headers: .init(X_hyphen_Extra_hyphen_Arguments: .init(code: 1)), body: .json(.init(name: "Fluffz")))
+            .init(headers: .init(xExtraArguments: .init(code: 1)), body: .json(.init(name: "Fluffz")))
         )
         guard case let .created(value) = response else {
             XCTFail("Unexpected response: \(response)")
             return
         }
-        XCTAssertEqual(value.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
+        XCTAssertEqual(value.headers.xExtraArguments, .init(code: 1))
         switch value.body {
         case .json(let pets): XCTAssertEqual(pets, .init(id: 1, name: "Fluffz"))
         }
@@ -186,7 +193,7 @@ final class Test_Client: XCTestCase {
             return
         }
         XCTAssertEqual(statusCode, 400)
-        XCTAssertEqual(value.headers.X_hyphen_Reason, "bad luck")
+        XCTAssertEqual(value.headers.xReason, "bad luck")
         switch value.body {
         case .json(let body): XCTAssertEqual(body, .init(code: 1))
         }
@@ -301,7 +308,7 @@ final class Test_Client: XCTestCase {
         }
         let response = try await client.createPet(
             .init(
-                headers: .init(X_hyphen_Extra_hyphen_Arguments: .init(code: 1)),
+                headers: .init(xExtraArguments: .init(code: 1)),
                 body: .json(
                     .init(
                         name: "Fluffz",
@@ -314,7 +321,7 @@ final class Test_Client: XCTestCase {
             XCTFail("Unexpected response: \(response)")
             return
         }
-        XCTAssertEqual(value.headers.X_hyphen_Extra_hyphen_Arguments, .init(code: 1))
+        XCTAssertEqual(value.headers.xExtraArguments, .init(code: 1))
         switch value.body {
         case .json(let pets):
             XCTAssertEqual(
@@ -713,11 +720,11 @@ final class Test_Client: XCTestCase {
             try await XCTAssertEqualData(requestBody, Data.multipartTypedBodyAsSlice)
             return (.init(status: .accepted), nil)
         }
-        let parts: MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload> = [
+        let parts: MultipartBody<Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload> = [
             .log(
                 .init(
                     payload: .init(
-                        headers: .init(x_hyphen_log_hyphen_type: .unstructured),
+                        headers: .init(xLogType: .unstructured),
                         body: .init("here be logs!\nand more lines\nwheee\n")
                     ),
                     filename: "process.log"
@@ -765,7 +772,7 @@ final class Test_Client: XCTestCase {
                 return
             }
             XCTAssertEqual(log.filename, "process.log")
-            XCTAssertEqual(log.payload.headers, .init(x_hyphen_log_hyphen_type: .unstructured))
+            XCTAssertEqual(log.payload.headers, .init(xLogType: .unstructured))
             try await XCTAssertEqualData(log.payload.body, "here be logs!\nand more lines\nwheee\n".utf8)
         }
         do {

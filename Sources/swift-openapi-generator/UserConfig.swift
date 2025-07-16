@@ -30,8 +30,23 @@ struct _UserConfig: Codable {
     /// generated Swift file.
     var additionalImports: [String]?
 
+    /// A list of additional comments that are added to the top of every
+    /// generated Swift file.
+    var additionalFileComments: [String]?
+
     /// Filter to apply to the OpenAPI document before generation.
     var filter: DocumentFilter?
+
+    /// The strategy to use for naming generated Swift types and members.
+    var namingStrategy: NamingStrategy?
+
+    /// A dictionary of name overrides for generated types and members.
+    ///
+    /// Any names not included use the `namingStrategy` to compute a Swift name.
+    var nameOverrides: [String: String]?
+
+    /// A dictionary of overrides for replacing the types of generated with manually provided types
+    var typeOverrides: TypeOverrides?
 
     /// A set of features to explicitly enable.
     var featureFlags: FeatureFlags?
@@ -43,7 +58,17 @@ struct _UserConfig: Codable {
         case generate
         case accessModifier
         case additionalImports
+        case additionalFileComments
         case filter
+        case namingStrategy
+        case nameOverrides
+        case typeOverrides
         case featureFlags
+    }
+
+    /// A container of type overrides.
+    struct TypeOverrides: Codable {
+        /// A dictionary of overrides for replacing the types generated from schemas with manually provided types.
+        var schemas: [String: String]?
     }
 }

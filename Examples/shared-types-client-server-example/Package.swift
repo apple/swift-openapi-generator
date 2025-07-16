@@ -1,4 +1,4 @@
-// swift-tools-version:5.9
+// swift-tools-version:5.10
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
@@ -16,16 +16,16 @@ import PackageDescription
 
 let package = Package(
     name: "shared-types-client-server-example",
-    platforms: [.macOS(.v13)],
+    platforms: [.macOS(.v14)],
     products: [
         .executable(name: "hello-world-client", targets: ["Client"]),
         .executable(name: "hello-world-server", targets: ["Server"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.6.0"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.7.0"),
         .package(url: "https://github.com/apple/swift-openapi-urlsession", from: "1.0.0"),
-        .package(url: "https://github.com/swift-server/swift-openapi-hummingbird", from: "1.0.0"),
+        .package(url: "https://github.com/swift-server/swift-openapi-hummingbird", from: "2.0.0"),
     ],
     targets: [
         .target(

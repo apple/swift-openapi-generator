@@ -113,7 +113,7 @@ Publishing the source of truth is preferable to relying on transcoding from code
 
 By inferring the specification from existing code, the resulting OpenAPI spec is often lossy and incomplete. And even with annotated code, it can be difficult to predict the OpenAPI output.
 
-Additionally, any feature unsupported by the transcoder cannot be represented in the generated OpenAPI document, further limiting the creativity and expressivness of the API.
+Additionally, any feature unsupported by the transcoder cannot be represented in the generated OpenAPI document, further limiting the creativity and expressiveness of the API.
 
 > Tip: Publish the source of truth, not a representation transcoded from the source of truth.
 
@@ -138,7 +138,7 @@ This example starts with a [Vapor](https://github.com/vapor/vapor) server that h
 The existing server might look something like this:
 
 ```swift
-let app = Vapor.Application()
+let app = try await Vapor.Application.make()
 app.get("foo") { ... a, b, c ... }
 app.post("foo") { ... a, b, c ... }
 app.get("bar") { ... a, b, c ... }
@@ -173,7 +173,7 @@ As you go through the tutorial, the important part is that you only _add_ the ge
 After this step, your code looks something like this:
 
 ```swift
-let app = Vapor.Application()
+let app = try await Vapor.Application.make()
 
 // Registers your existing routes.
 app.get("foo") { ... a, b, c ... }
@@ -216,7 +216,7 @@ paths:
 Comment out the first of the existing route implementations in your Vapor app:
 
 ```swift
-let app = Vapor.Application()
+let app = try await Vapor.Application.make()
 
 // Registers your existing routes.
 // app.get("foo") { ... a, b, c ... } // <<< just comment this out, and this route will be registered below by registerHandlers, as it is now defined by your OpenAPI document.
@@ -236,7 +236,7 @@ When you compile the example above, you'll get a build error because `APIProtoco
 Xcode will offer a Fix-it, and if you accept it, it will drop in a function stub that you can fill in:
 
 ```swift
-let app = Vapor.Application()
+let app = try await Vapor.Application.make()
 
 // Registers your existing routes.
 // <<< now you can just delete the first original route, as you've moved the business logic below into the Handler type
@@ -271,7 +271,7 @@ Endpoints that provide static content, such as CSS or JavaScript files, are not 
 The end result should look something like this:
 
 ```swift
-let app = Vapor.Application()
+let app = try await Vapor.Application.make()
 
 // Register some manual routes, for example, for serving static files.
 app.middlewares.on(FileMiddleware(...))

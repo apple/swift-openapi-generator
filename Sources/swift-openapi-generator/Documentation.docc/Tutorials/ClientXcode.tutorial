@@ -50,7 +50,7 @@
             @Step {
                 Add the two configuration files required by the Swift OpenAPI Generator build plugin.
                 
-                The first is the OpenAPI document. Add it to to the "GreetingServiceClient" target by right-clicking on the "GreetingServiceClient" folder in the project navigator, and choosing Add Files to "GreetingServiceClient"…
+                The first is the OpenAPI document. Add it to to the "GreetingServiceClient" target by right-clicking on the "GreetingServiceClient" folder in the project navigator, choosing "New Empty File", and pasting the OpenAPI document on the right.
                 @Code(name: "Sources/openapi.yaml", file: client.openapi.yaml)
             }
             @Step {
@@ -63,6 +63,11 @@
                 The second file to add is a configuration file that controls the behavior of the build plugin. Create a file in the same target called `openapi-generator-config.yaml`, with the following contents.
                 
                 @Code(name: "Sources/openapi-generator-config.yaml", file: client.openapi-generator-config.yaml)
+            }
+            @Step {
+                Include the two files in the target by going to the Build Phases tab of the "GreetingServiceClient" target in the Project Editor, and adding the two files to the "Compile Sources" section.
+
+                If you skip this step, you will see the error "Issues with required files: No config file found in the target...".
             }
             @Step {
                 With the configuration files in place, we will add the following three package dependencies: the build plugin, the Runtime library, and a concrete client transport that uses URLSession to send HTTP requests. 
@@ -91,7 +96,7 @@
                 Click the plus button and add the OpenAPIGenerator plugin.
             }
             @Step {
-                To verify everything is configured correctly, choose Product -> Build. If this is the first time using the plugin, you will be asked for confirmation that you trust the plugin. To continue, click Trust & Enable All.
+                To verify everything is configured correctly, choose Product -> Build. If this is the first time using the plugin, you will encounter a build error with the message `"OpenAPIGenerator" is disabled`. To continue, click on the error in the Issue Navigator, click "Trust & Enable", and choose Product -> Build again.
                 
                 Xcode now builds the Swift OpenAPI Generator plugin itself, and then runs it on the configuration files `openapi.yaml` and `openapi-generator-config.yaml` to generate a Swift client for GreetingService. Once it finishes, the `Client` type will become available in the GreetingServiceClient target.
             }
@@ -119,7 +124,7 @@
             @Step {
                 Next we'll create an instance of the generated client.
 
-                Note: `Servers.server2()` is the localhost service, defined in the OpenAPI document.
+                Note: `Servers.Server2.url()` is the localhost service, defined in the OpenAPI document.
                 
                 @Code(name: "GreetingClient.swift", file: client.xcode.2.swift)
             }

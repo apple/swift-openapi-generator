@@ -1,4 +1,4 @@
-// swift-tools-version:5.9
+// swift-tools-version:5.10
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
@@ -18,14 +18,14 @@ let package = Package(
     name: "tracing-middleware-example",
     platforms: [.macOS(.v13)],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.6.0"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.7.0"),
         .package(url: "https://github.com/swift-server/swift-openapi-vapor", from: "1.0.0"),
-        .package(url: "https://github.com/vapor/vapor", from: "4.89.0"),
+        .package(url: "https://github.com/vapor/vapor", from: "4.108.0"),
         .package(url: "https://github.com/apple/swift-distributed-tracing", from: "1.0.1"),
         .package(url: "https://github.com/apple/swift-distributed-tracing-extras", exact: "1.0.0-beta.1"),
         .package(url: "https://github.com/apple/swift-nio", from: "2.62.0"),
-        .package(url: "https://github.com/slashmo/swift-otel", .upToNextMinor(from: "0.8.0")),
+        .package(url: "https://github.com/swift-otel/swift-otel", .upToNextMinor(from: "0.10.1")),
     ],
     targets: [
         .target(
@@ -42,8 +42,8 @@ let package = Package(
                 "TracingMiddleware", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
                 .product(name: "Vapor", package: "vapor"), .product(name: "NIO", package: "swift-nio"),
-                .product(name: "OpenTelemetry", package: "swift-otel"),
-                .product(name: "OtlpGRPCSpanExporting", package: "swift-otel"),
+                .product(name: "OTel", package: "swift-otel"),
+                .product(name: "OTLPGRPC", package: "swift-otel"),
             ],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         ),

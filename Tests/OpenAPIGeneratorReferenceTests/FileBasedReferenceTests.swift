@@ -21,12 +21,21 @@ struct TestConfig: Encodable {
     var mode: GeneratorMode
     var additionalImports: [String]?
     var featureFlags: FeatureFlags?
+    var namingStrategy: NamingStrategy
+    var nameOverrides: [String: String]
     var referenceOutputDirectory: String
 }
 
 extension TestConfig {
     var asConfig: Config {
-        .init(mode: mode, access: .public, additionalImports: additionalImports ?? [], featureFlags: featureFlags ?? [])
+        .init(
+            mode: mode,
+            access: .public,
+            additionalImports: additionalImports ?? [],
+            namingStrategy: namingStrategy,
+            nameOverrides: nameOverrides,
+            featureFlags: featureFlags ?? []
+        )
     }
 }
 
@@ -127,6 +136,8 @@ final class FileBasedReferenceTests: XCTestCase {
                     mode: mode,
                     additionalImports: [],
                     featureFlags: featureFlags,
+                    namingStrategy: .idiomatic,
+                    nameOverrides: [:],
                     referenceOutputDirectory: "ReferenceSources/\(project.fixtureCodeDirectoryName)"
                 ),
                 ignoredDiagnosticMessages: ignoredDiagnosticMessages
@@ -179,6 +190,24 @@ extension FileBasedReferenceTests {
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
+        // Normalize newlines
+        #if os(Windows)
+        let hasCarriageReturns = String(
+            decoding: FileManager.default.contents(atPath: referenceFile.path) ?? Data(),
+            as: UTF8.self
+        )
+        .contains("\r\n")
+        XCTAssertNoThrow(
+            try Data(
+                (String(decoding: FileManager.default.contents(atPath: generatedFile.path) ?? Data(), as: UTF8.self)
+                    .split(omittingEmptySubsequences: false, whereSeparator: { $0 == "\r" || $0 == "\n" })
+                    .joined(separator: hasCarriageReturns ? "\r\n" : "\n"))
+                    .utf8
+            )
+            .write(to: URL(fileURLWithPath: generatedFile.path))
+        )
+        #endif
+
         if FileManager.default.contentsEqual(atPath: generatedFile.path, andPath: referenceFile.path) { return }
 
         let diffOutput: String?
@@ -208,10 +237,10 @@ extension FileBasedReferenceTests {
 
     private func runDiff(reference: URL, actual: URL) throws -> String {
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+        process.executableURL = try resolveExecutable("git")
         process.currentDirectoryURL = self.referenceTestResourcesDirectory
         process.arguments = [
-            "git", "diff", "--no-index", "-U5",
+            "diff", "--no-index", "-U5",
             // The following arguments are useful for development.
             //            "--ignore-space-change",
             //            "--ignore-all-space",

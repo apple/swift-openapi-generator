@@ -50,7 +50,7 @@ struct ImportDescription: Equatable, Codable {
 /// A description of an access modifier.
 ///
 /// For example: `public`.
-public enum AccessModifier: String, Sendable, Equatable, Codable {
+public enum AccessModifier: String, Sendable, Equatable, Codable, CaseIterable {
 
     /// A declaration accessible outside of the module.
     case `public`
@@ -1354,6 +1354,16 @@ extension Expression {
     /// - Returns: A new expression representing member access with a dot prefix.
     static func dot(_ member: String) -> Self { Self.memberAccess(.init(right: member)) }
 
+    /// Returns a new member access expression with `self` as the receiver.
+    ///
+    /// For example: `self.foo`, where `member` is `foo`.
+    ///
+    /// - Parameter member: The name of the member to access on the expression.
+    /// - Returns: A new expression representing member access.
+    static func selfDot(_ member: String) -> Expression {
+        .memberAccess(.init(left: .identifier(.pattern("self")), right: member))
+    }
+
     /// Returns a new identifier expression for the provided pattern, such
     /// as a variable or function name.
     /// - Parameter name: The name of the identifier.
@@ -1555,6 +1565,7 @@ extension Expression {
     /// - Parameter expressions: The member expressions.
     /// - Returns: A tuple expression.
     static func tuple(_ expressions: [Expression]) -> Self { .tuple(.init(members: expressions)) }
+
 }
 
 extension MemberAccessDescription {
@@ -1628,9 +1639,15 @@ extension KeywordKind {
 }
 
 extension Declaration {
+    /// Returns a new deprecated variant of the declaration if the provided `description` is not `nil`.
+    func deprecate(if description: DeprecationDescription?) -> Self {
+        if let description { return .deprecated(description, self) }
+        return self
+    }
+
     /// Returns a new deprecated variant of the declaration if `shouldDeprecate` is true.
-    func deprecate(if shouldDeprecate: Bool) -> Self {
-        if shouldDeprecate { return .deprecated(.init(), self) }
+    func deprecate(if shouldDeprecate: Bool, description: @autoclosure () -> DeprecationDescription = .init()) -> Self {
+        if shouldDeprecate { return .deprecated(description(), self) }
         return self
     }
 

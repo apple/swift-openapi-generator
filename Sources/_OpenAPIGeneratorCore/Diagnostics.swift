@@ -174,15 +174,17 @@ public protocol DiagnosticCollector {
 /// It receives diagnostics and forwards them to an upstream `DiagnosticCollector`.
 ///
 /// If a diagnostic with a severity of `.error` is emitted, this collector will throw the diagnostic as an error.
-public struct ErrorThrowingDiagnosticCollector: DiagnosticCollector {
-    let upstream: any DiagnosticCollector
+public struct ErrorThrowingDiagnosticCollector: DiagnosticCollector, Sendable {
+
+    /// The `DiagnosticCollector` to which this collector will forward diagnostics.
+    internal let upstream: any DiagnosticCollector & Sendable
 
     /// Initializes a new `ErrorThrowingDiagnosticCollector` with an upstream `DiagnosticCollector`.
     ///
     /// The upstream collector is where this collector will forward all received diagnostics.
     ///
     /// - Parameter upstream: The `DiagnosticCollector` to which this collector will forward diagnostics.
-    public init(upstream: any DiagnosticCollector) { self.upstream = upstream }
+    public init(upstream: any DiagnosticCollector & Sendable) { self.upstream = upstream }
 
     /// Emits a diagnostic to the collector.
     ///
@@ -322,7 +324,7 @@ public struct StdErrPrintingDiagnosticCollector: DiagnosticCollector, Sendable {
     /// Emits a diagnostic message to standard error.
     ///
     /// - Parameter diagnostic: The diagnostic message to emit.
-    public func emit(_ diagnostic: Diagnostic) { stdErrHandle.write(diagnostic.description) }
+    public func emit(_ diagnostic: Diagnostic) { stdErrHandle.write(diagnostic.description + "\n") }
 }
 
 /// A no-op collector, silently ignores all diagnostics.
