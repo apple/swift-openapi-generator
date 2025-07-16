@@ -40,7 +40,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(operationID, "listPets")
             XCTAssertEqual(
                 request.path,
-                "/pets?limit=24&habitat=water&feeds=herbivore&feeds=carnivore&since=2023-01-18T10%3A04%3A11Z"
+                "/pets?limit=24&habitat=water&feeds=herbivore&feeds=carnivore&sort%5Bid%5D=ascending&sort%5Bname%5D=descending&filter%5Bname%5D=whale&since=2023-01-18T10%3A04%3A11Z"
             )
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .get)
@@ -66,7 +66,14 @@ final class Test_Client: XCTestCase {
         }
         let response = try await client.listPets(
             .init(
-                query: .init(limit: 24, habitat: .water, feeds: [.herbivore, .carnivore], since: .test),
+                query: .init(
+                    limit: 24,
+                    habitat: .water,
+                    feeds: [.herbivore, .carnivore],
+                    sort: .init(id: "ascending", name: "descending"),
+                    filter: .init(name: "whale"),
+                    since: .test
+                ),
                 headers: .init(myRequestUUID: "abcd-1234")
             )
         )
@@ -84,7 +91,7 @@ final class Test_Client: XCTestCase {
     func testListPets_default() async throws {
         transport = .init { request, body, baseURL, operationID in
             XCTAssertEqual(operationID, "listPets")
-            XCTAssertEqual(request.path, "/pets?limit=24")
+            XCTAssertEqual(request.path, "/pets?limit=24&filter%5Bname%5D=whale")
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .get)
             XCTAssertEqual(request.headerFields, [.accept: "application/json"])
@@ -100,7 +107,7 @@ final class Test_Client: XCTestCase {
                     """#
                 )
         }
-        let response = try await client.listPets(.init(query: .init(limit: 24)))
+        let response = try await client.listPets(.init(query: .init(limit: 24, filter: .init(name: "whale"))))
         guard case let .default(statusCode, value) = response else {
             XCTFail("Unexpected response: \(response)")
             return
