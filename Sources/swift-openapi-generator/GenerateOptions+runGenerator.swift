@@ -52,7 +52,7 @@ extension _GenerateOptions {
         }
         let (diagnostics, finalizeDiagnostics) = preparedDiagnosticsCollector(outputPath: diagnosticsOutputPath)
         let doc = self.docPath
-        print(
+        FileHandle.standardError.write(
             """
             Swift OpenAPI Generator is running with the following configuration:
             - OpenAPI document path: \(doc.path)
