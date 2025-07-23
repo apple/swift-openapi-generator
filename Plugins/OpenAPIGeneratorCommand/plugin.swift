@@ -82,7 +82,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
                 hadASuccessfulRun = true
             } catch let error as PluginError {
                 if targetNameArguments.isEmpty, case .fileErrors(let errors) = error,
-                    errors.map(\.fileKind) == FileError.Kind.allCases,
+                    Set(errors.map(\.fileKind)) == Set(FileError.Kind.allCases),
                     errors.map(\.issue).allSatisfy({ $0 == FileError.Issue.noFilesFound })
                 {
                     // The command plugin was run with no --target argument so its looping over all targets.
