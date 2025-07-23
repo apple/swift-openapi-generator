@@ -14,7 +14,7 @@
 import PackagePlugin
 import Foundation
 
-enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
+enum PluginError: Swift.Error, Equatable, CustomStringConvertible, LocalizedError {
     case incompatibleTarget(name: String)
     case generatorFailure(targetName: String)
     case noTargetsWithExpectedFiles(targetNames: [String])
@@ -55,10 +55,10 @@ enum PluginError: Swift.Error, CustomStringConvertible, LocalizedError {
     }
 }
 
-struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
+struct FileError: Swift.Error, Equatable, CustomStringConvertible, LocalizedError {
 
     /// The kind of the file.
-    enum Kind: CaseIterable {
+    enum Kind: Equatable, CaseIterable {
         /// Config file.
         case config
         /// OpenAPI document file.
@@ -73,7 +73,7 @@ struct FileError: Swift.Error, CustomStringConvertible, LocalizedError {
     }
 
     /// Encountered issue.
-    enum Issue {
+    enum Issue: Equatable {
         /// File wasn't found.
         case noFilesFound
         /// More than 1 file found.
