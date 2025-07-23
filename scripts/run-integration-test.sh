@@ -45,4 +45,8 @@ swift package --package-path "${INTEGRATION_TEST_PACKAGE_PATH}" \
 log "Building integration test package: ${INTEGRATION_TEST_PACKAGE_PATH}"
 swift build --package-path "${INTEGRATION_TEST_PACKAGE_PATH}"
 
+log "Running command plugin on integration test package: ${INTEGRATION_TEST_PACKAGE_PATH}"
+swift package --package-path "${INTEGRATION_TEST_PACKAGE_PATH}" \
+ --allow-writing-to-package-directory generate-code-from-openapi
+
 log "✅ Successfully built integration test package."
