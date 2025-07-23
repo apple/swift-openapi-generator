@@ -81,6 +81,18 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
                 log("- ✅ OpenAPI code generation for target '\(target.name)' successfully completed.")
                 hadASuccessfulRun = true
             } catch let error as PluginError {
+                if targetNameArguments.isEmpty, case .fileErrors(let errors) = error,
+                    errors.map(\.fileKind) == FileError.Kind.allCases,
+                    errors.map(\.issue).allSatisfy({ $0 == FileError.Issue.noFilesFound })
+                {
+                    // The command plugin was run with no --target argument so its looping over all targets.
+                    // If a target does not have any of the required files, this should only be considered an error
+                    // if the plugin is being explicitly run on a target, either using the build plugin, or using the
+                    // command plugin with a --target argument.
+                    log("- Skipping because target isn't configured for OpenAPI code generation.")
+                    continue
+                }
+
                 if error.isMisconfigurationError {
                     log("- Stopping because target is misconfigured for OpenAPI code generation.")
                     throw error
