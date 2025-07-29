@@ -85,3 +85,7 @@ jobs:
       watchos_xcode_build_enabled: false
       tvos_xcode_build_enabled: false
       visionos_xcode_build_enabled: false
+
+  release-builds:
+    name: Release builds
+    uses: apple/swift-nio/.github/workflows/release_builds.yml@main
