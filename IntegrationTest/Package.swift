@@ -53,10 +53,7 @@ let package = Package(
         ),
         // Targets to integration test the command plugin
         .target(name: "Empty"),
-        .target(
-            name: "TypesAOT",
-            dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")]
-        ),
+        .target(name: "TypesAOT", dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")]),
         .target(
             name: "TypesAOTWithDependency",
             dependencies: ["Empty", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")]

@@ -81,8 +81,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
                 log("- ✅ OpenAPI code generation for target '\(target.name)' successfully completed.")
                 hadASuccessfulRun = true
             } catch let error as PluginError {
-                if case .fileErrors(let errors) = error,
-                    Set(errors.map(\.fileKind)) == Set(FileError.Kind.allCases),
+                if case .fileErrors(let errors) = error, Set(errors.map(\.fileKind)) == Set(FileError.Kind.allCases),
                     errors.map(\.issue).allSatisfy({ $0 == FileError.Issue.noFilesFound })
                 {
                     // The error is that neither of the required files are present for code generation for this target.
