@@ -49,4 +49,22 @@ log "Running command plugin on integration test package: ${INTEGRATION_TEST_PACK
 swift package --package-path "${INTEGRATION_TEST_PACKAGE_PATH}" \
  --allow-writing-to-package-directory generate-code-from-openapi
 
+log "Running command plugin on integration test package AOT target: ${INTEGRATION_TEST_PACKAGE_PATH}"
+swift package --package-path "${INTEGRATION_TEST_PACKAGE_PATH}" \
+ --allow-writing-to-package-directory generate-code-from-openapi \
+ --target TypesAOT
+
+log "Building integration test package AOT target: ${INTEGRATION_TEST_PACKAGE_PATH}"
+swift build --package-path "${INTEGRATION_TEST_PACKAGE_PATH}" \
+ --target TypesAOT
+
+log "Running command plugin on integration test package AOT target with dependency: ${INTEGRATION_TEST_PACKAGE_PATH}"
+swift package --package-path "${INTEGRATION_TEST_PACKAGE_PATH}" \
+ --allow-writing-to-package-directory generate-code-from-openapi \
+ --target TypesAOTWithDependency
+
+log "Building integration test package AOT target with dependency: ${INTEGRATION_TEST_PACKAGE_PATH}"
+swift build --package-path "${INTEGRATION_TEST_PACKAGE_PATH}" \
+ --target TypesAOTWithDependency
+
 log "✅ Successfully built integration test package."
