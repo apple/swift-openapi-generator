@@ -55,11 +55,11 @@ let package = Package(
         .target(name: "Empty"),
         .target(
             name: "TypesAOT",
-            dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
+            dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")]
         ),
         .target(
             name: "TypesAOTWithDependency",
-            dependencies: ["Empty", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
+            dependencies: ["Empty", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")]
         ),
     ]
 )
