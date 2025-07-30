@@ -43,3 +43,4 @@ Examples/streaming-chatgpt-proxy/players.txt
 **/Makefile
 **/*.html
 .editorconfig
+IntegrationTest/**/Empty.swift
