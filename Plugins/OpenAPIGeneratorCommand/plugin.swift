@@ -81,16 +81,24 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
                 log("- ✅ OpenAPI code generation for target '\(target.name)' successfully completed.")
                 hadASuccessfulRun = true
             } catch let error as PluginError {
-                if targetNameArguments.isEmpty, case .fileErrors(let errors) = error,
+                if case .fileErrors(let errors) = error,
                     Set(errors.map(\.fileKind)) == Set(FileError.Kind.allCases),
                     errors.map(\.issue).allSatisfy({ $0 == FileError.Issue.noFilesFound })
                 {
-                    // The command plugin was run with no --target argument so its looping over all targets.
-                    // If a target does not have any of the required files, this should only be considered an error
-                    // if the plugin is being explicitly run on a target, either using the build plugin, or using the
-                    // command plugin with a --target argument.
-                    log("- Skipping because target isn't configured for OpenAPI code generation.")
-                    continue
+                    // The error is that neither of the required files are present for code generation for this target.
+                    // This should only be considered an error if this target was explicitly provided as a target for
+                    // code generation with --target.
+                    // We may get this error for other targets if:
+                    //
+                    // 1. The command plugin was run with no --target arguments, in which case the plugin loops over
+                    //    all targets; or
+                    // 2. This target is a dependency of a target that was requested using --target.
+                    //
+                    // In either of these cases, we should not consider this an error and skip the target.
+                    if !targetNameArguments.contains(target.name) {
+                        log("- Skipping because target isn't configured for OpenAPI code generation.")
+                        continue
+                    }
                 }
 
                 if error.isMisconfigurationError {
