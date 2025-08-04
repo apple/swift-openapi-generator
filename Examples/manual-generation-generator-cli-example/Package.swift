@@ -18,8 +18,8 @@ let package = Package(
     name: "manual-generation-generator-cli-example",
     platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .visionOS(.v1)],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.7.0"),
-        .package(url: "https://github.com/apple/swift-openapi-urlsession", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.8.2"),
+        .package(url: "https://github.com/apple/swift-openapi-urlsession", from: "1.1.0"),
     ],
     targets: [
         .executableTarget(
