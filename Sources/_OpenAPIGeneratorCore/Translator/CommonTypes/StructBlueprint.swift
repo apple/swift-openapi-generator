@@ -79,6 +79,18 @@ struct StructBlueprint {
 
     /// The properties of the structure.
     var properties: [PropertyBlueprint]
+
+    /// Context information for generating additional initializers.
+    enum InitializerContext {
+        /// Standard struct with only the memberwise initializer.
+        case memberwise
+
+        /// Multipart payload struct that may need value initializers.
+        case multipartPayload(originalSchema: JSONSchema)
+    }
+
+    /// The context for initializer generation.
+    var initializerContext: InitializerContext = .memberwise
 }
 
 extension StructBlueprint {
