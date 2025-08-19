@@ -281,7 +281,7 @@ extension FileTranslator {
             case .string(_, let context):
                 repetitionKind = .single
                 candidateSource = try inferStringContent(context)
-            case .object(_, _), .fragment:
+            case .object, .fragment:
                 repetitionKind = .single
                 candidateSource = .infer(.complex)
             case .all(of: let schemas, _), .one(of: let schemas, _), .any(of: let schemas, _):
@@ -295,8 +295,10 @@ extension FileTranslator {
                     case .null, .not: return nil
                     case .boolean, .number, .integer: candidateSource = .infer(.primitive)
                     case .string(_, let context): candidateSource = try inferStringContent(context)
-                    case .object(_, _), .all, .one, .any, .fragment, .array(_, _): candidateSource = .infer(.complex)
-                    default: candidateSource = .infer(.complex)
+                    case .object, .all, .one, .any, .fragment, .array: candidateSource = .infer(.complex)
+                    case .reference(let ref, _):
+                        guard let source = try inferSchema(components.lookup(ref))?.1 else { return nil }
+                        candidateSource = source
                     }
                 } else {
                     candidateSource = .infer(.complex)
