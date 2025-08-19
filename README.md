@@ -28,7 +28,7 @@ To see these features in action, check out the list of [example projects][exampl
 
 Swift OpenAPI Generator can be used to generate API clients and server stubs.
 
-Below you can see some example code, or you can follow one of the [step-by-step tutorials][tutorials-generator].
+Below you can see some example code, or you can follow one of the step-by-step tutorials for [Swift Packages][tutorials-generator-spm] or [Xcode Projects][tutorials-generator-xcode].
 
 ### Using a generated API client
 
@@ -126,7 +126,8 @@ Generator](https://developer.apple.com/wwdc23/10171) from WWDC23.
 [openapi]: https://openapis.org
 [repo-generator]: https://github.com/apple/swift-openapi-generator
 [docs-generator]: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation
-[tutorials-generator]: https://swiftpackageindex.com/apple/swift-openapi-generator/tutorials/swift-openapi-generator
+[tutorials-generator-spm]: https://swiftpackageindex.com/apple/swift-openapi-generator/tutorials/swift-openapi-generator/clientswiftpm
+[tutorials-generator-xcode]: https://swiftpackageindex.com/apple/swift-openapi-generator/tutorials/swift-openapi-generator/clientxcode
 [supported-openapi-features]: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/supported-openapi-features
 [examples-generator]: https://github.com/apple/swift-openapi-generator/blob/main/Examples/README.md
 [repo-runtime]: https://github.com/apple/swift-openapi-runtime
