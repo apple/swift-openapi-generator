@@ -87,8 +87,6 @@ extension TypesFileTranslator {
             staticMemberDecl = nil
         }
 
-        let isSingleCaseOutput = operation.containsDefaultResponse && operation.responseOutcomes.count == 1
-
         var throwingGetterCases: [SwitchCaseDescription] = [
             SwitchCaseDescription(
                 kind: .case(
@@ -98,7 +96,7 @@ extension TypesFileTranslator {
                 body: [.expression(.return(.identifierPattern("response")))]
             )
         ]
-        if !isSingleCaseOutput {
+        if !operation.containsDefaultResponse || operation.responseOutcomes.count > 1 {
             throwingGetterCases.append(
                 SwitchCaseDescription(
                     kind: .default,
