@@ -87,6 +87,39 @@ extension TypesFileTranslator {
             staticMemberDecl = nil
         }
 
+        let isSingleCaseOutput = operation.containsDefaultResponse && operation.responseOutcomes.count == 1
+
+        var throwingGetterCases: [SwitchCaseDescription] = [
+            SwitchCaseDescription(
+                kind: .case(
+                    .dot(responseKind.identifier),
+                    responseKind.wantsStatusCode ? ["_", "response"] : ["response"]
+                ),
+                body: [.expression(.return(.identifierPattern("response")))]
+            )
+        ]
+        if !isSingleCaseOutput {
+            throwingGetterCases.append(
+                SwitchCaseDescription(
+                    kind: .default,
+                    body: [
+                        .expression(
+                            .try(
+                                .identifierPattern("throwUnexpectedResponseStatus")
+                                    .call([
+                                        .init(
+                                            label: "expectedStatus",
+                                            expression: .literal(.string(responseKind.prettyName))
+                                        ),
+                                        .init(label: "response", expression: .identifierPattern("self")),
+                                    ])
+                            )
+                        )
+                    ]
+                )
+            )
+        }
+
         let throwingGetterDesc = VariableDescription(
             accessModifier: config.access,
             kind: .var,
@@ -96,31 +129,7 @@ extension TypesFileTranslator {
                 .expression(
                     .switch(
                         switchedExpression: .identifierPattern("self"),
-                        cases: [
-                            SwitchCaseDescription(
-                                kind: .case(
-                                    .dot(responseKind.identifier),
-                                    responseKind.wantsStatusCode ? ["_", "response"] : ["response"]
-                                ),
-                                body: [.expression(.return(.identifierPattern("response")))]
-                            ),
-                            SwitchCaseDescription(
-                                kind: .default,
-                                body: [
-                                    .expression(
-                                        .try(
-                                            .identifierPattern("throwUnexpectedResponseStatus")
-                                                .call([
-                                                    .init(
-                                                        label: "expectedStatus",
-                                                        expression: .literal(.string(responseKind.prettyName))
-                                                    ), .init(label: "response", expression: .identifierPattern("self")),
-                                                ])
-                                        )
-                                    )
-                                ]
-                            ),
-                        ]
+                        cases: throwingGetterCases
                     )
                 )
             ],
