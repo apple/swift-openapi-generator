@@ -108,8 +108,7 @@ extension TypesFileTranslator {
                                         .init(
                                             label: "expectedStatus",
                                             expression: .literal(.string(responseKind.prettyName))
-                                        ),
-                                        .init(label: "response", expression: .identifierPattern("self")),
+                                        ), .init(label: "response", expression: .identifierPattern("self")),
                                     ])
                             )
                         )
@@ -123,14 +122,7 @@ extension TypesFileTranslator {
             kind: .var,
             left: .identifierPattern(enumCaseName),
             type: .init(responseStructTypeName),
-            getter: [
-                .expression(
-                    .switch(
-                        switchedExpression: .identifierPattern("self"),
-                        cases: throwingGetterCases
-                    )
-                )
-            ],
+            getter: [.expression(.switch(switchedExpression: .identifierPattern("self"), cases: throwingGetterCases))],
             getterEffects: [.throws]
         )
         let throwingGetterComment = Comment.doc(
