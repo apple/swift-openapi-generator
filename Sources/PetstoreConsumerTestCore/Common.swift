@@ -15,6 +15,7 @@ import OpenAPIRuntime
 import Foundation
 import HTTPTypes
 
+/// An error used by Petstore tests.
 public enum TestError: Swift.Error, LocalizedError, CustomStringConvertible, Sendable {
     case noHandlerFound(method: HTTPRequest.Method, path: String)
     case invalidURLString(String)
