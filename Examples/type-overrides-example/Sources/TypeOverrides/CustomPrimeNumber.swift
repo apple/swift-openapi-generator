@@ -14,14 +14,14 @@
 
 /// Example struct to be used instead of the default generated type.
 /// This illustrates how to introduce a type performing additional validation during Decoding that cannot be expressed with OpenAPI
-public struct CustomPrimeNumber: Codable, Hashable, RawRepresentable, Sendable {
-    public let rawValue: Int
-    public init?(rawValue: Int) {
+struct CustomPrimeNumber: Codable, Hashable, RawRepresentable, Sendable {
+    let rawValue: Int
+    init?(rawValue: Int) {
         if !rawValue.isPrime { return nil }
         self.rawValue = rawValue
     }
 
-    public init(from decoder: any Decoder) throws {
+    init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         let number = try container.decode(Int.self)
         guard let value = Self(rawValue: number) else {
@@ -30,7 +30,7 @@ public struct CustomPrimeNumber: Codable, Hashable, RawRepresentable, Sendable {
         self = value
     }
 
-    public func encode(to encoder: any Encoder) throws {
+    func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(self.rawValue)
     }
