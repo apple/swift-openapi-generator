@@ -3416,11 +3416,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             switch self {
                             case let .`default`(_, response):
                                 return response
-                            default:
-                                try throwUnexpectedResponseStatus(
-                                    expectedStatus: "default",
-                                    response: self
-                                )
                             }
                         }
                     }
