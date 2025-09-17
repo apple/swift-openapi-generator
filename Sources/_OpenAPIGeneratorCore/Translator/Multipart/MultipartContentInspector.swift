@@ -257,7 +257,8 @@ extension FileTranslator {
             default: return .infer(.primitive)
             }
         }
-        func inferAllOfAnyOfOneOf(_ schemas: [DereferencedJSONSchema]) throws -> MultipartPartInfo.ContentTypeSource? {
+
+        func inferAllOfAnyOfOneOf(_ schemas: [JSONSchema]) throws -> MultipartPartInfo.ContentTypeSource? {
             // If all schemas are primitive, the allOf/anyOf/oneOf is also primitive.
             // These cannot be binary, so only primitive vs complex.
             for schema in schemas {
@@ -266,12 +267,13 @@ extension FileTranslator {
             }
             return .infer(.primitive)
         }
-        func inferSchema(_ schema: DereferencedJSONSchema) throws -> (
+
+        func inferSchema(_ schema: JSONSchema) throws -> (
             MultipartPartInfo.RepetitionKind, MultipartPartInfo.ContentTypeSource
         )? {
             let repetitionKind: MultipartPartInfo.RepetitionKind
             let candidateSource: MultipartPartInfo.ContentTypeSource
-            switch schema {
+            switch schema.value {
             case .null, .not: return nil
             case .boolean, .number, .integer:
                 repetitionKind = .single
@@ -289,21 +291,30 @@ extension FileTranslator {
             case .array(_, let context):
                 repetitionKind = .array
                 if let items = context.items {
-                    switch items {
+                    switch items.value {
                     case .null, .not: return nil
                     case .boolean, .number, .integer: candidateSource = .infer(.primitive)
                     case .string(_, let context): candidateSource = try inferStringContent(context)
                     case .object, .all, .one, .any, .fragment, .array: candidateSource = .infer(.complex)
+                    case .reference(let ref, _):
+                        guard let source = try inferSchema(components.lookup(ref))?.1 else { return nil }
+                        candidateSource = source
                     }
                 } else {
                     candidateSource = .infer(.complex)
                 }
+            case .reference(let ref, _):
+                guard let (refRepetitionKind, refCandidateSource) = try inferSchema(components.lookup(ref)) else {
+                    return nil
+                }
+                repetitionKind = refRepetitionKind
+                candidateSource = refCandidateSource
             }
+
             return (repetitionKind, candidateSource)
         }
-        guard let (repetitionKind, candidateSource) = try inferSchema(schema.dereferenced(in: components)) else {
-            return nil
-        }
+        guard let (repetitionKind, candidateSource) = try inferSchema(schema) else { return nil }
+
         let finalContentTypeSource: MultipartPartInfo.ContentTypeSource
         if let encoding, let contentType = encoding.contentTypes.first, encoding.contentTypes.count == 1 {
             finalContentTypeSource = try .explicit(contentType.asGeneratorContentType)
