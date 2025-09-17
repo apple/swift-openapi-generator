@@ -87,43 +87,42 @@ extension TypesFileTranslator {
             staticMemberDecl = nil
         }
 
+        var throwingGetterCases: [SwitchCaseDescription] = [
+            SwitchCaseDescription(
+                kind: .case(
+                    .dot(responseKind.identifier),
+                    responseKind.wantsStatusCode ? ["_", "response"] : ["response"]
+                ),
+                body: [.expression(.return(.identifierPattern("response")))]
+            )
+        ]
+        if !operation.containsDefaultResponse || operation.responseOutcomes.count > 1 {
+            throwingGetterCases.append(
+                SwitchCaseDescription(
+                    kind: .default,
+                    body: [
+                        .expression(
+                            .try(
+                                .identifierPattern("throwUnexpectedResponseStatus")
+                                    .call([
+                                        .init(
+                                            label: "expectedStatus",
+                                            expression: .literal(.string(responseKind.prettyName))
+                                        ), .init(label: "response", expression: .identifierPattern("self")),
+                                    ])
+                            )
+                        )
+                    ]
+                )
+            )
+        }
+
         let throwingGetterDesc = VariableDescription(
             accessModifier: config.access,
             kind: .var,
             left: .identifierPattern(enumCaseName),
             type: .init(responseStructTypeName),
-            getter: [
-                .expression(
-                    .switch(
-                        switchedExpression: .identifierPattern("self"),
-                        cases: [
-                            SwitchCaseDescription(
-                                kind: .case(
-                                    .dot(responseKind.identifier),
-                                    responseKind.wantsStatusCode ? ["_", "response"] : ["response"]
-                                ),
-                                body: [.expression(.return(.identifierPattern("response")))]
-                            ),
-                            SwitchCaseDescription(
-                                kind: .default,
-                                body: [
-                                    .expression(
-                                        .try(
-                                            .identifierPattern("throwUnexpectedResponseStatus")
-                                                .call([
-                                                    .init(
-                                                        label: "expectedStatus",
-                                                        expression: .literal(.string(responseKind.prettyName))
-                                                    ), .init(label: "response", expression: .identifierPattern("self")),
-                                                ])
-                                        )
-                                    )
-                                ]
-                            ),
-                        ]
-                    )
-                )
-            ],
+            getter: [.expression(.switch(switchedExpression: .identifierPattern("self"), cases: throwingGetterCases))],
             getterEffects: [.throws]
         )
         let throwingGetterComment = Comment.doc(

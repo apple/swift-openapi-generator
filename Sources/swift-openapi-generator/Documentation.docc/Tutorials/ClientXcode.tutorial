@@ -50,7 +50,7 @@
             @Step {
                 Add the two configuration files required by the Swift OpenAPI Generator build plugin.
                 
-                The first is the OpenAPI document. Add it to to the "GreetingServiceClient" target by right-clicking on the "GreetingServiceClient" folder in the project navigator, choosing "New Empty File", and pasting the OpenAPI document on the right.
+                The first is the OpenAPI document. Add it to the "GreetingServiceClient" target by right-clicking on the "GreetingServiceClient" folder in the project navigator, choosing "New Empty File", and pasting the OpenAPI document on the right.
                 @Code(name: "Sources/openapi.yaml", file: client.openapi.yaml)
             }
             @Step {
@@ -78,7 +78,7 @@
                 Under Packages, click the plus button to add a new package dependency.
             }
             @Step {
-                Find the `swift-openapi-generator` package in an existing collection, or type in the full URL to the search field at the top: `https://github.com/apple/swift-openapi-generator`.
+                Find the `swift-openapi-generator` package in an existing collection, or type in the full URL in the search field at the top: `https://github.com/apple/swift-openapi-generator`.
             }
             @Step {
                 Since the package provides a build plugin that we will integrate later, make sure that on the Choose Package Products screen, the "Add to Target" value is "None" for all products listed.
