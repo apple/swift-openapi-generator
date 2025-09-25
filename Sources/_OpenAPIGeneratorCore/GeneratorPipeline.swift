@@ -69,7 +69,11 @@ struct GeneratorPipeline {
     /// - Returns: The output of the rendering stage.
     /// - Throws: An error if a non-recoverable issue occurs during pipeline execution.
     func run(_ input: RawInput) throws -> RenderedOutput {
-        try renderSwiftFilesStage.run(translateOpenAPIToStructuredSwiftStage.run(parseOpenAPIFileStage.run(input)))
+        var document = try parseOpenAPIFileStage.run(input)
+
+        document.components.schemas = document.components.schemas.removingNullFromAnyOfAndOneOf()
+        
+        return try renderSwiftFilesStage.run(translateOpenAPIToStructuredSwiftStage.run(document))
     }
 }
 
@@ -132,4 +136,250 @@ func makeGeneratorPipeline(
             postTransitionHooks: []
         )
     )
+}
+
+extension JSONSchema {
+    /// Recursively removes null type entries from anyOf and oneOf arrays in the schema
+    /// When null is removed, it will set the schema context for that field as nullable to preserve semantics
+    /// This approach may not be 100% correct but it enables functionality that would otherwise fail.
+    ///
+    /// Background: currently, there are challenges with supporting OpenAPI definitions like this:
+    /// ```
+    /// "phoneNumber": {
+    ///   "description": "phone number",
+    ///     "anyOf": [
+    ///       { "$ref": "#/components/schemas/PhoneNumber" },
+    ///       { "type": "null" }
+    ///     ]
+    /// }
+    /// "phoneNumber2": {
+    ///   "description": "phone number",
+    ///     "oneOf": [
+    ///       { "$ref": "#/components/schemas/PhoneNumber" },
+    ///       { "type": "null" }
+    ///     ]
+    /// }
+    /// "phoneNumber3": {
+    ///   "description": "phone number",
+    ///     "oneOf": [
+    ///       { "$ref": "#/components/schemas/PhoneNumber" },
+    ///       { "$ref": "#/components/schemas/PhoneNumber2" },
+    ///       { "type": "null" }
+    ///     ]
+    /// }
+    /// ```
+    /// This code will effectively treat those definitions as the following while marking them as nullable.
+    /// ```
+    /// "phoneNumber": {
+    ///   "description": "phone number",
+    ///     "$ref": "#/components/schemas/PhoneNumber"
+    /// }
+    /// "phoneNumber2": {
+    ///   "description": "phone number",
+    ///     "$ref": "#/components/schemas/PhoneNumber"
+    /// }
+    /// "phoneNumber3": {
+    ///   "description": "phone number",
+    ///     "oneOf": [
+    ///       { "$ref": "#/components/schemas/PhoneNumber" },
+    ///       { "$ref": "#/components/schemas/PhoneNumber2" }
+    ///     ]
+    /// }
+    /// ```
+    func removingNullFromAnyOfAndOneOf() -> JSONSchema {
+        switch self.value {
+        case .object(let coreContext, let objectContext):
+            // Handle object properties
+            var newProperties = OrderedDictionary<String, JSONSchema>()
+            for (key, value) in objectContext.properties {
+                newProperties[key] = value.removingNullFromAnyOfAndOneOf()
+            }
+            
+            // Handle additionalProperties if it exists
+            let newAdditionalProperties: Either<Bool, JSONSchema>?
+            if let additionalProps = objectContext.additionalProperties {
+                switch additionalProps {
+                case .a(let boolValue):
+                    newAdditionalProperties = .a(boolValue)
+                case .b(let schema):
+                    newAdditionalProperties = .b(schema.removingNullFromAnyOfAndOneOf())
+                }
+            } else {
+                newAdditionalProperties = nil
+            }
+            
+            // Create new ObjectContext
+            let newObjectContext = JSONSchema.ObjectContext(
+                properties: newProperties,
+                additionalProperties: newAdditionalProperties,
+                maxProperties: objectContext.maxProperties,
+                minProperties: objectContext.minProperties
+            )
+            
+            return JSONSchema(schema: .object(coreContext, newObjectContext))
+            
+        case .array(let coreContext, let arrayContext):
+            // Handle array items
+            let newItems = arrayContext.items?.removingNullFromAnyOfAndOneOf()
+            
+            let newArrayContext = JSONSchema.ArrayContext(
+                items: newItems,
+                maxItems: arrayContext.maxItems,
+                minItems: arrayContext.minItems,
+                prefixItems: arrayContext.prefixItems?.map { $0.removingNullFromAnyOfAndOneOf() },
+                uniqueItems: arrayContext.uniqueItems
+            )
+            
+            return JSONSchema(schema: .array(coreContext, newArrayContext))
+            
+        case .all(of: let schemas, core: let coreContext):
+            // Handle allOf
+            let newSchemas = schemas.map { $0.removingNullFromAnyOfAndOneOf() }
+            return JSONSchema(schema: .all(of: newSchemas, core: coreContext))
+            
+        case .one(of: let schemas, core: let coreContext):
+            // Handle oneOf - apply same null removal logic as anyOf
+            let filteredSchemas = schemas.compactMap { schema -> JSONSchema? in
+                // Remove schemas that are just null types
+                if case .null = schema.value {
+                    return nil
+                }
+                return schema.removingNullFromAnyOfAndOneOf()
+            }
+            
+            // Check if we removed any null schemas
+            let hadNullSchema = schemas.count > filteredSchemas.count
+            
+            // If we only have one schema left after filtering, return it directly (and make it nullable if we removed null)
+            if filteredSchemas.count == 1 {
+                let resultSchema = filteredSchemas[0]
+                return hadNullSchema ? resultSchema.nullableSchemaObjectCopy() : resultSchema
+            } else if filteredSchemas.isEmpty {
+                // If all schemas were null, return a null schema (edge case)
+                return JSONSchema(schema: .null(coreContext))
+            } else {
+                // Multiple schemas remain, keep as oneOf (and make nullable if we removed null)
+                let resultSchema = JSONSchema(schema: .one(of: filteredSchemas, core: coreContext))
+                return hadNullSchema ? resultSchema.nullableSchemaObjectCopy() : resultSchema
+            }
+            
+        case .any(of: let schemas, core: let coreContext):
+            // Handle anyOf - this is where we remove null types
+            let filteredSchemas = schemas.compactMap { schema -> JSONSchema? in
+                // Remove schemas that are just null types
+                if case .null = schema.value {
+                    return nil
+                }
+                return schema.removingNullFromAnyOfAndOneOf()
+            }
+            
+            // Check if we removed any null schemas
+            let hadNullSchema = schemas.count > filteredSchemas.count
+            
+            // If we only have one schema left after filtering, return it directly (and make it nullable if we removed null)
+            if filteredSchemas.count == 1 {
+                let resultSchema = filteredSchemas[0]
+                return hadNullSchema ? resultSchema.nullableSchemaObjectCopy() : resultSchema
+            } else if filteredSchemas.isEmpty {
+                // If all schemas were null, return a null schema (edge case)
+                return JSONSchema(schema: .null(coreContext))
+            } else {
+                // Multiple schemas remain, keep as anyOf (and make nullable if we removed null)
+                let resultSchema = JSONSchema(schema: .any(of: filteredSchemas, core: coreContext))
+                return hadNullSchema ? resultSchema.nullableSchemaObjectCopy() : resultSchema
+            }
+            
+        case .not(let schema, core: let coreContext):
+            // Handle not
+            return JSONSchema(schema: .not(schema.removingNullFromAnyOfAndOneOf(), core: coreContext))
+            
+        case .reference:
+            // References remain unchanged
+            return self
+            
+        default:
+            // For primitive types (string, number, integer, boolean, null, fragment), return as-is
+            return self
+        }
+    }
+}
+
+/// Extension for OpenAPI.ComponentDictionary<JSONSchema>
+/// Need to constrain both the Key and Value types properly
+extension OrderedDictionary where Key == OpenAPI.ComponentKey, Value == JSONSchema {
+    /// Removes null types from anyOf arrays in all JSONSchemas in the component dictionary
+    func removingNullFromAnyOfAndOneOf() -> OpenAPI.ComponentDictionary<JSONSchema> {
+        return self.mapValues { schema in
+            schema.removingNullFromAnyOfAndOneOf()
+        }
+    }
+}
+
+/// Alternative approach using OrderedDictionary initializer
+func removeNullFromComponentDictionary(
+    _ schemas: OpenAPI.ComponentDictionary<JSONSchema>
+) -> OpenAPI.ComponentDictionary<JSONSchema> {
+    var processedSchemas = OrderedDictionary<OpenAPI.ComponentKey, JSONSchema>()
+    
+    for (key, schema) in schemas {
+        processedSchemas[key] = schema.removingNullFromAnyOfAndOneOf()
+    }
+    
+    return processedSchemas
+}
+
+
+extension JSONSchema {
+    /// in place of the existing/default` nullableSchemaObject()` located in `OpenAPIKit`
+    /// this version simply makes a copy changing on the value of nullable to true
+    public func nullableSchemaObjectCopy() -> JSONSchema {
+        switch value {
+        case .one(of: let schemas, core: let core):
+            return .init(
+                //warnings: warnings, // the init that allows maintaining warnings is internal
+                schema: .one(of: schemas, core: core.nullableContextCopy())
+            )
+        case .any(of: let schemas, core: let core):
+            return .init(
+                //warnings: warnings, // the init that allows maintaining warnings is internal
+                schema: .any(of: schemas, core: core.nullableContextCopy())
+            )
+        case .reference(let schema, let core):
+            return .init(
+                schema: .reference(schema, core.nullableContextCopy())
+            )
+        default:
+            return self.nullableSchemaObject()
+        }
+    }
+}
+
+extension JSONSchema.CoreContext<JSONTypeFormat.AnyFormat> {
+    
+    /// only sets nullable to true while keeping everything else the same
+    /// this is similar to `nullableSchemaObject()` found in `OpenAPIKit`; however,
+    /// that version also modifies the required flag
+    func nullableContextCopy() -> JSONSchema.CoreContext<Format> {
+        
+        return JSONSchema.CoreContext(
+            format: format,
+            required: self.required,
+            nullable: true,
+            permissions: permissions,
+            deprecated: deprecated,
+            title: title,
+            description: description,
+            discriminator: discriminator,
+            externalDocs: externalDocs,
+            allowedValues: allowedValues,
+            defaultValue: defaultValue,
+            examples: examples,
+            anchor: anchor,
+            dynamicAnchor: dynamicAnchor,
+            defs: defs,
+            vendorExtensions: vendorExtensions,
+            _inferred: inferred
+        )
+
+    }
 }

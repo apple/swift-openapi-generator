@@ -1,0 +1,488 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Open API example",
+    "summary": "An example Todo application",
+    "description": "# Todo API\n\nA very simple Todo app based on Aide Todo example in Rust\n",
+    "version": ""
+  },
+  "paths": {
+    "/todo/": {
+      "get": {
+        "description": "List all Todo items.",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AppError" },
+                "example": {
+                  "error": "some error happened",
+                  "error_id": "00000000-0000-0000-0000-000000000000"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TodoList" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new incomplete Todo item.",
+        "requestBody": {
+          "description": "New Todo details.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/NewTodo" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AppError" },
+                "example": {
+                  "error": "some error happened",
+                  "error_id": "00000000-0000-0000-0000-000000000000"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TodoCreated" }
+              }
+            }
+          },
+          "409": {
+            "description": "conflict with username, email, phone, or similar unique required data",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AppError" },
+                "example": {
+                  "error": "some error happened",
+                  "error_id": "00000000-0000-0000-0000-000000000000"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/todo/{id}": {
+      "get": {
+        "description": "Get a single Todo item.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "The ID of the Todo.",
+            "required": true,
+            "schema": {
+              "description": "The ID of the Todo.",
+              "type": "string",
+              "format": "uuid"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AppError" },
+                "example": {
+                  "error": "some error happened",
+                  "error_id": "00000000-0000-0000-0000-000000000000"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TodoItem" },
+                "example": {
+                  "complete": false,
+                  "description": "fix bugs",
+                  "id": "00000000-0000-0000-0000-000000000000"
+                }
+              }
+            }
+          },
+          "404": { "description": "todo was not found" }
+        }
+      },
+      "delete": {
+        "description": "Delete a Todo item.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "The ID of the Todo.",
+            "required": true,
+            "schema": {
+              "description": "The ID of the Todo.",
+              "type": "string",
+              "format": "uuid"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AppError" },
+                "example": {
+                  "error": "some error happened",
+                  "error_id": "00000000-0000-0000-0000-000000000000"
+                }
+              }
+            }
+          },
+          "204": { "description": "The Todo has been deleted." },
+          "404": { "description": "The todo was not found" }
+        }
+      }
+    },
+    "/todo/{id}/complete": {
+      "put": {
+        "description": "Complete a Todo.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "The ID of the Todo.",
+            "required": true,
+            "schema": {
+              "description": "The ID of the Todo.",
+              "type": "string",
+              "format": "uuid"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AppError" },
+                "example": {
+                  "error": "some error happened",
+                  "error_id": "00000000-0000-0000-0000-000000000000"
+                }
+              }
+            }
+          },
+          "204": { "description": "no content" }
+        }
+      }
+    },
+    "/todo/user/create": {
+      "post": {
+        "summary": "creates an account",
+        "description": "register a new account to be used",
+        "operationId": "create_user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/NewAccount" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AppError" },
+                "example": {
+                  "error": "some error happened",
+                  "error_id": "00000000-0000-0000-0000-000000000000"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Account" },
+                "example": {
+                  "email": "some@email.addr",
+                  "id": "00000000-0000-0000-0000-000000000000",
+                  "phoneNumber": { "countryCode": "1", "number": "5554443322" },
+                  "role": "user",
+                  "username": "someUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorPayload" },
+                "example": { "message": "msg" }
+              }
+            }
+          },
+          "409": {
+            "description": "conflict with username, email, phone, or similar unique required data",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorPayload" },
+                "example": { "message": "msg" }
+              }
+            }
+          },
+          "500": {
+            "description": "parse error or missing data",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorPayload" },
+                "example": { "message": "msg" }
+              }
+            }
+          }
+        },
+        "security": [{ "ApiKey": ["user", "admin"] }]
+      }
+    },
+    "/docs/": {
+      "get": {
+        "description": "This documentation page.",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AppError" },
+                "example": {
+                  "error": "some error happened",
+                  "error_id": "00000000-0000-0000-0000-000000000000"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "HTML content",
+            "content": { "text/html": { "schema": { "type": "string" } } }
+          }
+        },
+        "security": [{ "ApiKey": [] }]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Auth-Key",
+        "description": "A key that is ignored."
+      }
+    },
+    "schemas": {
+      "Account": {
+        "type": "object",
+        "required": ["id", "role", "username"],
+        "properties": {
+          "email": {
+            "description": "email address",
+            "type": ["string", "null"]
+          },
+          "id": {
+            "description": "internal uuid for the user",
+            "type": "string",
+            "format": "uuid"
+          },
+          "phoneNumber": {
+            "description": "phone number",
+            "anyOf": [
+              { "$ref": "#/components/schemas/PhoneNumber" },
+              { "type": "null" }
+            ]
+          },
+          "phoneNumber2": {
+            "description": "phone number",
+            "oneOf": [
+              { "$ref": "#/components/schemas/PhoneNumber" },
+              { "$ref": "#/components/schemas/PhoneNumber2" },
+              { "type": "null" }
+            ]
+          },
+          "phoneNumber3": {
+            "description": "phone number",
+            "oneOf": [
+              { "$ref": "#/components/schemas/PhoneNumber" },
+              { "type": "null" }
+            ]
+          },
+          "role": {
+            "description": "The code (string) for referrals",
+            "$ref": "#/components/schemas/Role"
+          },
+          "username": {
+            "description": "username as A-Za-z0-9",
+            "type": "string"
+          }
+        }
+      },
+      "AppError": {
+        "description": "A default error response for most API errors.",
+        "type": "object",
+        "required": ["error", "error_id"],
+        "properties": {
+          "error": { "description": "An error message.", "type": "string" },
+          "error_details": {
+            "description": "Optional Additional error details."
+          },
+          "error_id": {
+            "description": "A unique error ID.",
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ErrorPayload": {
+        "type": "object",
+        "required": ["message"],
+        "properties": { "message": { "type": "string" } }
+      },
+      "NewAccount": {
+        "type": "object",
+        "required": ["role", "username"],
+        "properties": {
+          "email": {
+            "description": "email address",
+            "type": ["string", "null"]
+          },
+          "phoneNumber": {
+            "description": "phone number",
+            "anyOf": [
+              { "$ref": "#/components/schemas/PhoneNumber" },
+              { "type": "null" }
+            ]
+          },
+          "role": {
+            "description": "The code (string) for referrals",
+            "$ref": "#/components/schemas/Role"
+          },
+          "username": {
+            "description": "username as A-Za-z0-9",
+            "type": "string"
+          }
+        }
+      },
+      "NewTodo": {
+        "description": "New Todo details.",
+        "type": "object",
+        "required": ["description"],
+        "properties": {
+          "description": {
+            "description": "The description for the new Todo.",
+            "type": "string"
+          }
+        }
+      },
+      "PhoneNumber": {
+        "type": "object",
+        "required": ["countryCode", "number"],
+        "properties": {
+          "countryCode": {
+            "description": "country code must contain only a set of digits 0-9",
+            "type": "string"
+          },
+          "number": {
+            "description": "the number should be a set of digits \"333555222\".",
+            "type": "string"
+          }
+        }
+      },
+      "PhoneNumber2": {
+        "type": "object",
+        "required": ["countryCode", "number"],
+        "properties": {
+          "countryCode": {
+            "description": "country code must contain only a set of digits 0-9",
+            "type": "string"
+          },
+          "number": {
+            "description": "the number should be a set of digits \"333555222\".",
+            "type": "string"
+          }
+        }
+      },
+      "Role": { "type": "string", "enum": ["user", "admin"] },
+      "SelectTodo": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "description": "The ID of the Todo.",
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "TodoCreated": {
+        "description": "New Todo details.",
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "description": "The ID of the new Todo.",
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "TodoItem": {
+        "description": "A single Todo item.",
+        "type": "object",
+        "required": ["complete", "description", "id"],
+        "properties": {
+          "complete": {
+            "description": "Whether the item was completed.",
+            "type": "boolean"
+          },
+          "description": {
+            "description": "The description of the item.",
+            "type": "string"
+          },
+          "id": { "type": "string", "format": "uuid" }
+        }
+      },
+      "TodoList": {
+        "type": "object",
+        "required": ["todo_ids"],
+        "properties": {
+          "todo_ids": {
+            "type": "array",
+            "items": { "type": "string", "format": "uuid" }
+          }
+        }
+      }
+    }
+  },
+  "tags": [{ "name": "todo", "description": "Todo Management" }]
+}
+
