@@ -321,7 +321,8 @@ extension JSONSchema {
 extension JSONSchema.CoreContext<JSONTypeFormat.AnyFormat> {
     /// only sets nullable to true while keeping everything else the same
     /// this is similar to `nullableSchemaObject()` found in `OpenAPIKit`; however,
-    /// that version also modifies the required flag
+    /// that version *might* modify the required parameter (not sure as Xcode treats
+    /// `required` as a reserved word)
     func nullableContextCopy() -> JSONSchema.CoreContext<Format> {
         JSONSchema.CoreContext(
             format: format,
