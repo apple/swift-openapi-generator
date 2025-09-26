@@ -69,10 +69,7 @@ struct GeneratorPipeline {
     /// - Returns: The output of the rendering stage.
     /// - Throws: An error if a non-recoverable issue occurs during pipeline execution.
     func run(_ input: RawInput) throws -> RenderedOutput {
-        var document = try parseOpenAPIFileStage.run(input)
-
-        document.components.schemas = document.components.schemas.removingNullFromAnyOfAndOneOf()
-        return try renderSwiftFilesStage.run(translateOpenAPIToStructuredSwiftStage.run(document))
+        return try renderSwiftFilesStage.run(translateOpenAPIToStructuredSwiftStage.run(parseOpenAPIFileStage.run(input)))
     }
 }
 
@@ -112,9 +109,10 @@ func makeGeneratorPipeline(
         return filteredDoc
     }
     let validateDoc = { (doc: OpenAPI.Document) -> OpenAPI.Document in
-        let validationDiagnostics = try validator(doc, config)
+        let sanitizedDoc = sanitizeSchemaNulls(doc)
+        let validationDiagnostics = try validator(sanitizedDoc, config)
         for diagnostic in validationDiagnostics { try diagnostics.emit(diagnostic) }
-        return doc
+        return sanitizedDoc
     }
     return .init(
         parseOpenAPIFileStage: .init(
@@ -288,13 +286,11 @@ extension OrderedDictionary where Key == OpenAPI.ComponentKey, Value == JSONSche
     }
 }
 
-/// Alternative approach using OrderedDictionary initializer
-func removeNullFromComponentDictionary(_ schemas: OpenAPI.ComponentDictionary<JSONSchema>)
-    -> OpenAPI.ComponentDictionary<JSONSchema>
-{
-    var processedSchemas = OrderedDictionary<OpenAPI.ComponentKey, JSONSchema>()
-    for (key, schema) in schemas { processedSchemas[key] = schema.removingNullFromAnyOfAndOneOf() }
-    return processedSchemas
+/// uses `removingNullFromAnyOfAndOneOf()` to remove from an OpenAPI Document
+func sanitizeSchemaNulls(_ doc: OpenAPI.Document) -> OpenAPI.Document {
+    var doc = doc
+    doc.components.schemas = doc.components.schemas.removingNullFromAnyOfAndOneOf()
+    return doc
 }
 
 extension JSONSchema {
