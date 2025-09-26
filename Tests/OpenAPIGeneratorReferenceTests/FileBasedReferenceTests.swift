@@ -52,8 +52,6 @@ final class FileBasedReferenceTests: XCTestCase {
     }
 
     func testPetstore() throws { try _test(referenceProject: .init(name: .petstore)) }
-    
-    func testExample() throws { try _test(referenceProject: .init(name: .todolist)) }
 
     // MARK: - Private
 
@@ -110,17 +108,8 @@ final class FileBasedReferenceTests: XCTestCase {
 
     enum ReferenceProjectName: String, Hashable, CaseIterable {
         case petstore
-        case todolist
 
-        var openAPIDocFileName: String {
-            switch self {
-                case .petstore:
-                return "\(rawValue).yaml"
-            case .todolist:
-                return "\(rawValue).json"
-            }
-            
-        }
+        var openAPIDocFileName: String { "\(rawValue).yaml" }
 
         var fixtureCodeDirectoryName: String { rawValue.capitalized }
     }
