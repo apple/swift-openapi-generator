@@ -305,44 +305,15 @@ extension JSONSchema {
         case .one(of: let schemas, core: let core):
             return .init(
                 //warnings: warnings, // the init that allows maintaining warnings is internal
-                schema: .one(of: schemas, core: core.nullableContextCopy())
+                schema: .one(of: schemas, core: core.nullableContext())
             )
         case .any(of: let schemas, core: let core):
             return .init(
                 //warnings: warnings, // the init that allows maintaining warnings is internal
-                schema: .any(of: schemas, core: core.nullableContextCopy())
+                schema: .any(of: schemas, core: core.nullableContext())
             )
-        case .reference(let schema, let core): return .init(schema: .reference(schema, core.nullableContextCopy()))
+        case .reference(let schema, let core): return .init(schema: .reference(schema, core.nullableContext()))
         default: return self.nullableSchemaObject()
         }
-    }
-}
-
-extension JSONSchema.CoreContext<JSONTypeFormat.AnyFormat> {
-    /// only sets nullable to true while keeping everything else the same
-    /// this is similar to `nullableSchemaObject()` found in `OpenAPIKit`; however,
-    /// that version *might* modify the required parameter (not sure as Xcode treats
-    /// `required` as a reserved word)
-    func nullableContextCopy() -> JSONSchema.CoreContext<Format> {
-        JSONSchema.CoreContext(
-            format: format,
-            required: self.required,
-            nullable: true,
-            permissions: permissions,
-            deprecated: deprecated,
-            title: title,
-            description: description,
-            discriminator: discriminator,
-            externalDocs: externalDocs,
-            allowedValues: allowedValues,
-            defaultValue: defaultValue,
-            examples: examples,
-            anchor: anchor,
-            dynamicAnchor: dynamicAnchor,
-            defs: defs,
-            vendorExtensions: vendorExtensions,
-            _inferred: inferred
-        )
-
     }
 }
