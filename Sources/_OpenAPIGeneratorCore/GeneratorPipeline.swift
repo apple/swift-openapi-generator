@@ -69,7 +69,7 @@ struct GeneratorPipeline {
     /// - Returns: The output of the rendering stage.
     /// - Throws: An error if a non-recoverable issue occurs during pipeline execution.
     func run(_ input: RawInput) throws -> RenderedOutput {
-        return try renderSwiftFilesStage.run(translateOpenAPIToStructuredSwiftStage.run(parseOpenAPIFileStage.run(input)))
+        try renderSwiftFilesStage.run(translateOpenAPIToStructuredSwiftStage.run(parseOpenAPIFileStage.run(input)))
     }
 }
 
