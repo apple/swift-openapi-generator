@@ -6513,7 +6513,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
 extension SnippetBasedReferenceTests {
     func makeTypesTranslator(openAPIDocumentYAML: String) throws -> TypesFileTranslator {
         let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: openAPIDocumentYAML)
-        // remove removingNullFromAnyOfAndOneOf() to match what we do in `GeneratorPipeline`
+        // removingNullFromAnyOfAndOneOf() to match what we do in `GeneratorPipeline`
         let sanitizedDocument = sanitizeSchemaNulls(document)
         return TypesFileTranslator(
             config: Config(mode: .types, access: .public, namingStrategy: .defensive),
@@ -6532,7 +6532,7 @@ extension SnippetBasedReferenceTests {
         componentsYAML: String
     ) throws -> TypesFileTranslator {
         var components = try YAMLDecoder().decode(OpenAPI.Components.self, from: componentsYAML)
-        // remove removingNullFromAnyOfAndOneOf() to match what we do in `GeneratorPipeline`
+        // removingNullFromAnyOfAndOneOf() to match what we do in `GeneratorPipeline`
         components.schemas = components.schemas.removingNullFromAnyOfAndOneOf()
         return TypesFileTranslator(
             config: Config(
