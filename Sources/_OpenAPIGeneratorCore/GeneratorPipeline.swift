@@ -294,22 +294,13 @@ func sanitizeSchemaNulls(_ doc: OpenAPI.Document) -> OpenAPI.Document {
 }
 
 extension JSONSchema {
-    /// in place of the existing/default` nullableSchemaObject()` located in `OpenAPIKit`
-    /// this version simply makes a copy changing on the value of nullable to true
+    /// this simply makes a copy changing on the value of nullable to true, it handles `.reference`
+    /// directly or calls nullableSchemaObject()` located in `OpenAPIKit`
     public func nullableSchemaObjectCopy() -> JSONSchema {
-        switch value {
-        case .one(of: let schemas, core: let core):
-            return .init(
-                //warnings: warnings, // the init that allows maintaining warnings is internal
-                schema: .one(of: schemas, core: core.nullableContext())
-            )
-        case .any(of: let schemas, core: let core):
-            return .init(
-                //warnings: warnings, // the init that allows maintaining warnings is internal
-                schema: .any(of: schemas, core: core.nullableContext())
-            )
-        case .reference(let schema, let core): return .init(schema: .reference(schema, core.nullableContext()))
-        default: return self.nullableSchemaObject()
+        if case let .reference(schema, core) = value {
+            return .init(schema: .reference(schema, core.nullableContext()))
+        } else {
+            return self.nullableSchemaObject()
         }
     }
 }
