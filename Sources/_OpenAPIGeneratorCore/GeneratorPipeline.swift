@@ -287,6 +287,9 @@ extension OrderedDictionary where Key == OpenAPI.ComponentKey, Value == JSONSche
 }
 
 /// uses `removingNullFromAnyOfAndOneOf()` to remove from an OpenAPI Document
+/// resulting in  removing the nulls from anyOf/oneOf while marking it as nullable
+/// - Parameter doc: the `OpenAPI.Document` to remove the nulls from
+/// - Returns: a revised `OpenAPI.Document`
 func sanitizeSchemaNulls(_ doc: OpenAPI.Document) -> OpenAPI.Document {
     var doc = doc
     doc.components.schemas = doc.components.schemas.removingNullFromAnyOfAndOneOf()
@@ -296,6 +299,7 @@ func sanitizeSchemaNulls(_ doc: OpenAPI.Document) -> OpenAPI.Document {
 extension JSONSchema {
     /// this simply makes a copy changing on the value of nullable to true, it handles `.reference`
     /// directly or calls nullableSchemaObject()` located in `OpenAPIKit`
+    /// - Returns: a nullable copy of the `JSONSchema`
     public func nullableSchemaObjectCopy() -> JSONSchema {
         if case let .reference(schema, core) = value {
             return .init(schema: .reference(schema, core.nullableContext()))
