@@ -58,7 +58,7 @@ enum PluginError: Swift.Error, Equatable, CustomStringConvertible, LocalizedErro
 struct FileError: Swift.Error, Equatable, CustomStringConvertible, LocalizedError {
 
     /// The kind of the file.
-    enum Kind: Equatable, CaseIterable {
+    enum Kind: Equatable, CaseIterable, Sendable {
         /// Config file.
         case config
         /// OpenAPI document file.
@@ -73,7 +73,7 @@ struct FileError: Swift.Error, Equatable, CustomStringConvertible, LocalizedErro
     }
 
     /// Encountered issue.
-    enum Issue: Equatable {
+    enum Issue: Equatable, Sendable {
         /// File wasn't found.
         case noFilesFound
         /// More than 1 file found.
