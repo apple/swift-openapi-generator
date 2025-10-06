@@ -17,7 +17,7 @@ import Foundation
 import ArgumentParser
 
 @main struct CommandLineClient: AsyncParsableCommand {
-    static var configuration: CommandConfiguration = .init(
+    static let configuration: CommandConfiguration = .init(
         commandName: "CommandLineClient",
         subcommands: [GreetCommand.self]
     )
@@ -25,7 +25,7 @@ import ArgumentParser
 
 struct GreetCommand: AsyncParsableCommand {
 
-    static var configuration: CommandConfiguration = .init(commandName: "greet")
+    static let configuration: CommandConfiguration = .init(commandName: "greet")
 
     @Option var name: String
 
