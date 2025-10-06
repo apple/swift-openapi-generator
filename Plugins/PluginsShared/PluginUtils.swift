@@ -71,7 +71,11 @@ enum PluginUtils {
         }
         guard matchedConfigs.count == 1 else {
             return .failure(
-                FileError(targetName: targetName, fileKind: .config, issue: .multipleFilesFound(files: matchedConfigs.map(\.description)))
+                FileError(
+                    targetName: targetName,
+                    fileKind: .config,
+                    issue: .multipleFilesFound(files: matchedConfigs.map(\.description))
+                )
             )
         }
         return .success(matchedConfigs[0])
@@ -85,7 +89,11 @@ enum PluginUtils {
         }
         guard matchedDocs.count == 1 else {
             return .failure(
-                FileError(targetName: targetName, fileKind: .document, issue: .multipleFilesFound(files: matchedDocs.map(\.description)))
+                FileError(
+                    targetName: targetName,
+                    fileKind: .document,
+                    issue: .multipleFilesFound(files: matchedDocs.map(\.description))
+                )
             )
         }
         return .success(matchedDocs[0])
