@@ -8,7 +8,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.6.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.6.0"),
         .package(url: "https://github.com/apple/swift-openapi-urlsession", from: "1.0.2"),
-        .package(url: "https://github.com/swift-server/swift-openapi-vapor", from: "1.0.1"),
+        .package(url: "https://github.com/vapor/swift-openapi-vapor", from: "1.0.1"),
         .package(url: "https://github.com/swift-server/swift-openapi-async-http-client", from: "1.1.0"),
     ],
     targets: [

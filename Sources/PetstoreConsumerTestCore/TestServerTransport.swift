@@ -50,9 +50,8 @@ public final class TestServerTransport: ServerTransport {
     }
 
     /// A typealias representing a handler closure for processing server requests.
-    public typealias Handler = @Sendable (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (
-        HTTPResponse, HTTPBody?
-    )
+    public typealias Handler =
+        @Sendable (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (HTTPResponse, HTTPBody?)
 
     /// Represents an operation with its inputs and associated handler.
     public struct Operation {
@@ -86,9 +85,10 @@ public final class TestServerTransport: ServerTransport {
     ///   - path: The path components of the operation.
     /// - Throws: An error if there's an issue registering the operation.
     public func register(
-        _ handler: @Sendable @escaping (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (
-            HTTPResponse, HTTPBody?
-        ),
+        _ handler:
+            @Sendable @escaping (HTTPRequest, HTTPBody?, ServerRequestMetadata) async throws -> (
+                HTTPResponse, HTTPBody?
+            ),
         method: HTTPRequest.Method,
         path: String
     ) throws { registered.append(Operation(inputs: .init(method: method, path: path), closure: handler)) }

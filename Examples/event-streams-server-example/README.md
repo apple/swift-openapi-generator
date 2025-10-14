@@ -8,7 +8,7 @@ An example project using [Swift OpenAPI Generator](https://github.com/apple/swif
 
 A server that uses generated server stubs to show how to work with event streams, such as JSON Lines, JSON Sequence, and Server-sent Events.
 
-The tool uses the [Vapor](https://github.com/vapor/vapor) server framework to handle HTTP requests, wrapped in the [Swift OpenAPI Vapor Transport](https://github.com/swift-server/swift-openapi-vapor).
+The tool uses the [Vapor](https://github.com/vapor/vapor) server framework to handle HTTP requests, wrapped in the [Swift OpenAPI Vapor Transport](https://github.com/vapor/swift-openapi-vapor).
 
 The CLI starts the server on `http://localhost:8080` and can be invoked by running `event-streams-client-example` or on the command line using:
 

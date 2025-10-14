@@ -59,7 +59,8 @@ extension LoggingMiddleware: ServerMiddleware {
         body: OpenAPIRuntime.HTTPBody?,
         metadata: OpenAPIRuntime.ServerRequestMetadata,
         operationID: String,
-        next: @Sendable (HTTPTypes.HTTPRequest, OpenAPIRuntime.HTTPBody?, OpenAPIRuntime.ServerRequestMetadata)
+        next:
+            @Sendable (HTTPTypes.HTTPRequest, OpenAPIRuntime.HTTPBody?, OpenAPIRuntime.ServerRequestMetadata)
             async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?)
     ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
         let (requestBodyToLog, requestBodyForNext) = try await bodyLoggingPolicy.process(body)
