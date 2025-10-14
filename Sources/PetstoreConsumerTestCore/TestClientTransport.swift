@@ -33,9 +33,8 @@ import HTTPTypes
 public struct TestClientTransport: ClientTransport {
 
     /// A typealias representing a call handler closure for processing client requests.
-    public typealias CallHandler = @Sendable (HTTPRequest, HTTPBody?, URL, String) async throws -> (
-        HTTPResponse, HTTPBody?
-    )
+    public typealias CallHandler =
+        @Sendable (HTTPRequest, HTTPBody?, URL, String) async throws -> (HTTPResponse, HTTPBody?)
 
     /// The call handler responsible for processing client requests.
     public let callHandler: CallHandler
