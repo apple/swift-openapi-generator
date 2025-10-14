@@ -20,7 +20,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.6.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.7.0"),
-        .package(url: "https://github.com/swift-server/swift-openapi-hummingbird", from: "2.0.1"),
+        .package(url: "https://github.com/hummingbird-project/swift-openapi-hummingbird", from: "2.0.1"),
         .package(url: "https://github.com/hummingbird-project/hummingbird", from: "2.5.0"),
     ],
     targets: [

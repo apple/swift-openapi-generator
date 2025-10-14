@@ -20,7 +20,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.6.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.7.0"),
-        .package(url: "https://github.com/swift-server/swift-openapi-vapor", from: "1.0.0"),
+        .package(url: "https://github.com/vapor/swift-openapi-vapor", from: "1.0.0"),
         .package(url: "https://github.com/vapor/vapor", from: "4.108.0"),
         .package(url: "https://github.com/apple/swift-distributed-tracing", from: "1.0.1"),
         .package(url: "https://github.com/apple/swift-distributed-tracing-extras", exact: "1.0.0-beta.1"),

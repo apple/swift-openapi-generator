@@ -11,7 +11,7 @@ with a new target, `AuthenticationServerMiddleware`, which is then used when reg
 
 NOTE: This example shows just one way of varifying authentication information in a middleware and is purely for illustrative purposes.
 
-The tool uses the [Vapor](https://github.com/vapor/vapor) server framework to handle HTTP requests, wrapped in the [Swift OpenAPI Vapor Transport](https://github.com/swift-server/swift-openapi-vapor).
+The tool uses the [Vapor](https://github.com/vapor/vapor) server framework to handle HTTP requests, wrapped in the [Swift OpenAPI Vapor Transport](https://github.com/vapor/swift-openapi-vapor).
 
 The CLI starts the server on `http://localhost:8080` and can be invoked by running the `AuthenticationClientMiddleware` example client or on the command line using:
 

@@ -21,7 +21,7 @@ The OpenAPI document also contains the following server definition, which allows
     description: This server.
 ```
 
-The tool uses the [Vapor](https://github.com/vapor/vapor) server framework to handle HTTP requests, wrapped in the [Swift OpenAPI Vapor Transport](https://github.com/swift-server/swift-openapi-vapor).
+The tool uses the [Vapor](https://github.com/vapor/vapor) server framework to handle HTTP requests, wrapped in the [Swift OpenAPI Vapor Transport](https://github.com/vapor/swift-openapi-vapor).
 
 The CLI starts the server on `http://localhost:8080` and you can go to `http://localhost:8080/openapi.yaml` to see the raw OpenAPI document, and to `http://localhost:8080/openapi` to see the rendered documentation.
 
