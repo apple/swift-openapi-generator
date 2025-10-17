@@ -85,9 +85,9 @@ The Swift OpenAPI Generator project is split across multiple repositories to ena
 | [apple/swift-openapi-runtime][repo-runtime]                | Runtime library used by the generated code         |
 | [apple/swift-openapi-urlsession][repo-urlsession]          | `ClientTransport` using [URLSession][urlsession]   |
 | [swift-server/swift-openapi-async-http-client][repo-ahc]   | `ClientTransport` using [AsyncHTTPClient][ahc]     |
-| [vapor/swift-openapi-vapor][repo-vapor]             | `ServerTransport` using [Vapor][vapor]             |
-| [hummingbird-project/swift-openapi-hummingbird][repo-hummingbird] | `ServerTransport` using [Hummingbird][hummingbird] |
-| [swift-server/swift-openapi-lambda][repo-lambda]           | `ServerTransport` using [AWS Lambda][lambda]       |
+| [vapor/swift-openapi-vapor][repo-vapor]                    | `ServerTransport` using [Vapor][vapor]             |
+| [hummingbird-project/swift-openapi-hummingbird][repo-hb]   | `ServerTransport` using [Hummingbird][hb]          |
+| [awslabs/swift-openapi-lambda][repo-lambda]                | `ServerTransport` using [AWS Lambda][lambda]       |
 
 ## Requirements and supported features
 
@@ -133,9 +133,9 @@ Generator](https://developer.apple.com/wwdc23/10171) from WWDC23.
 [ahc]: https://github.com/swift-server/async-http-client
 [repo-vapor]: https://github.com/vapor/swift-openapi-vapor
 [vapor]: https://github.com/vapor/vapor
-[repo-hummingbird]: https://github.com/hummingbird-project/swift-openapi-hummingbird
-[hummingbird]: https://github.com/hummingbird-project/hummingbird
-[repo-lambda]: https://github.com/swift-server/swift-openapi-lambda
+[repo-hb]: https://github.com/hummingbird-project/swift-openapi-hummingbird
+[hb]: https://github.com/hummingbird-project/hummingbird
+[repo-lambda]: https://github.com/awslabs/swift-openapi-lambda
 [lambda]: https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
 [^example-openapi-yaml]: <details><summary>Example OpenAPI document (click to expand)</summary>
 
