@@ -20,6 +20,12 @@ extension TypeName {
     /// Returns the type name for the Int type.
     static var int: Self { .swift("Int") }
 
+    /// Returns the type name for the Bool type.
+    static var bool: Self { .swift("Bool") }
+
+    /// Returns the type name for the Double type.
+    static var double: Self { .swift("Double") }
+
     /// Returns a type name for a type with the specified name in the
     /// Swift module.
     /// - Parameter name: The name of the type.
