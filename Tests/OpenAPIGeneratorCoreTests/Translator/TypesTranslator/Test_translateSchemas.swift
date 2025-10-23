@@ -35,7 +35,7 @@ class Test_translateSchemas: Test_Core {
             (
                 schemaWithWarnings,
                 [
-                    "warning: Schema warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"]. [context: codingPath=, contextString=, subjectName=OpenAPI Schema]"
+                    "warning: Schema warning: Problem encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"]. [context: codingPath=, contextString=, subjectName=OpenAPI Schema]"
                 ]
             ),
         ]
