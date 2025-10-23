@@ -17,7 +17,7 @@ The code is generated at build-time, so it's always in sync with the OpenAPI doc
 
 ## Features
 
-- Works with OpenAPI Specification versions 3.0 and 3.1.
+- Works with OpenAPI Specification versions 3.0 and 3.1 and has preliminary support for version 3.2.
 - Streaming request and response bodies enabling use cases such as JSON event streams, and large payloads without buffering.
 - Support for JSON, multipart, URL-encoded form, base64, plain text, and raw bytes, represented as value types with type-safe properties.
 - Client, server, and middleware abstractions, decoupling the generated code from the HTTP client library and web framework.
@@ -91,9 +91,9 @@ The Swift OpenAPI Generator project is split across multiple repositories to ena
 
 ## Requirements and supported features
 
-| Generator versions | Supported OpenAPI versions |
-| ------------------ | -------------------------- |
-| `1.0.0` ... `main` | 3.0, 3.1                   |
+| Generator versions | Supported OpenAPI versions  |
+| ------------------ | --------------------------- |
+| `1.0.0` ... `main` | 3.0, 3.1, 3.2 (preliminary) |
 
 See also [Supported OpenAPI features][supported-openapi-features].
 
