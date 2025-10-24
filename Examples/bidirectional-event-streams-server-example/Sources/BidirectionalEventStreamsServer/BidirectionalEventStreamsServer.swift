@@ -21,7 +21,7 @@ struct Handler: APIProtocol {
     func getGreetingsStream(_ input: Operations.GetGreetingsStream.Input) async throws
         -> Operations.GetGreetingsStream.Output
     {
-        let eventStream = await self.storage.makeStream(input: input)
+        let eventStream = self.storage.makeStream(input: input)
         /// To keep it simple, using JSON Lines, as it most straightforward and easy way to have streams.
         /// For SSE and JSON Sequences cases please check `event-streams-server-example`.
         let responseBody = Operations.GetGreetingsStream.Output.Ok.Body.applicationJsonl(
