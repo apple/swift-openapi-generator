@@ -46,7 +46,7 @@ let package = Package(
 
         // Read OpenAPI documents
         .package(url: "https://github.com/mattpolzin/OpenAPIKit", from: "4.0.0"),
-        .package(url: "https://github.com/jpsim/Yams", from: "5.1.0"),
+        .package(url: "https://github.com/jpsim/Yams", "5.1.0"..<"7.0.0"),
 
         // CLI Tool
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
@@ -113,8 +113,10 @@ let package = Package(
             dependencies: [
                 "_OpenAPIGeneratorCore",
                 // Everything except windows: https://github.com/swiftlang/swift-package-manager/issues/6367
-                .target(name: "swift-openapi-generator", condition: .when(platforms: [.android, .linux, .macOS, .openbsd, .wasi, .custom("freebsd")])),
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .target(
+                    name: "swift-openapi-generator",
+                    condition: .when(platforms: [.android, .linux, .macOS, .openbsd, .wasi, .custom("freebsd")])
+                ), .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
             resources: [.copy("Resources")],
             swiftSettings: swiftSettings
@@ -162,5 +164,4 @@ for target in package.targets {
     case .macro, .plugin, .system, .binary: ()  // not applicable
     @unknown default: ()  // we don't know what to do here, do nothing
     }
-}
-// --- END: STANDARD CROSS-REPO SETTINGS DO NOT EDIT --- //
+}// --- END: STANDARD CROSS-REPO SETTINGS DO NOT EDIT --- //
