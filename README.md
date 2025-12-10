@@ -104,10 +104,10 @@ The generator is used during development and is supported on macOS, Linux, and W
 The generated code, runtime library, and transports are supported on more
 platforms, listed below.
 
-| Component                           | macOS     | Linux, Windows | iOS    | tvOS   | watchOS | visionOS |
-| ----------------------------------: | :---      | :---  | :-     | :--    | :-----  | :------  |
-| Generator plugin and CLI            | ✅ 10.15+ | ✅    | ✖️      | ✖️      | ✖️       | ✖️        |
-| Generated code and runtime library  | ✅ 10.15+ | ✅    | ✅ 13+ | ✅ 13+ | ✅ 6+   | ✅ 1+    |
+| Component                           | macOS     | Linux, Windows | iOS    | tvOS   | watchOS | visionOS | Android |
+| ----------------------------------: | :---      | :------------  | :-     | :--    | :-----  | :------  | :------ |
+| Generator plugin and CLI            | ✅ 10.15+ | ✅              | ✖️     | ✖️     | ✖️      | ✖️        | ✖️      |
+| Generated code and runtime library  | ✅ 10.15+ | ✅              | ✅ 13+ | ✅ 13+ | ✅ 6+   | ✅ 1+     | ✅      |
 
 ## Documentation and example projects
 

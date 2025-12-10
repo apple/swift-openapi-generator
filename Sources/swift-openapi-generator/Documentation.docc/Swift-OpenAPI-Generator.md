@@ -90,9 +90,9 @@ The Swift OpenAPI Generator project is split across multiple repositories to ena
 
 ### Requirements and supported features
 
-| Generator versions | Supported OpenAPI versions  | Minimum Swift version |
-| ------------------ | --------------------------- | --------------------- |
-| `1.0.0` ... `main` | 3.0, 3.1, 3.2 (preliminary) | 5.9                   |
+| Generator versions | Supported OpenAPI versions  |
+| ------------------ | --------------------------- |
+| `1.0.0` ... `main` | 3.0, 3.1, 3.2 (preliminary) |
 
 See also <doc:Supported-OpenAPI-features>.
 
@@ -102,10 +102,10 @@ The generator is used during development and is supported on macOS and Linux.
 
 The generated code, runtime library, and transports are supported on more platforms, listed below.
 
-| Component                           | macOS     | Linux | iOS    | tvOS   | watchOS | visionOS |
-| ----------------------------------: | :---      | :---  | :-     | :--    | :-----  | :------  |
-| Generator plugin and CLI            | ✅ 10.15+ | ✅    | ✖️      | ✖️      | ✖️       | ✖️        |
-| Generated code and runtime library  | ✅ 10.15+ | ✅    | ✅ 13+ | ✅ 13+ | ✅ 6+   | ✅ 1+    |
+| Component                           | macOS     | Linux | iOS    | tvOS   | watchOS | visionOS | Android |
+| ----------------------------------: | :---      | :---  | :-     | :--    | :-----  | :------  | :------ |
+| Generator plugin and CLI            | ✅ 10.15+ | ✅    | ✖️      | ✖️      | ✖️       | ✖️      | ✖️      |
+| Generated code and runtime library  | ✅ 10.15+ | ✅    | ✅ 13+  | ✅ 13+  | ✅ 6+   | ✅ 1+    | ✅      |
 
 > Note: When using Visual Studio Code or other editors that rely on [SourceKit-LSP](https://github.com/swiftlang/sourcekit-lsp), the editor may not correctly recognize generated code within the same module. As a workaround, consider creating a separate target for code generation and then importing it into your main module. For more details, see the discussion in [swiftlang/sourcekit-lsp#665](https://github.com/swiftlang/sourcekit-lsp/issues/665#issuecomment-2093169169).
 
