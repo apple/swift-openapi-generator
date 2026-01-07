@@ -155,6 +155,14 @@ extension _GenerateOptions {
 
             let config = try YAMLDecoder().decode(_UserConfig.self, from: data)
             return config
-        } catch { throw ValidationError("Failed to load config at path \(config.path), error: \(error)") }
+        } catch {
+            // Check if this is a file not found error
+            if let nsError = error as NSError?,
+               nsError.domain == NSPOSIXErrorDomain,
+               nsError.code == 2 {
+                throw ValidationError("Configuration file not found at path: \(config.path). Please ensure the file exists and the path is correct.")
+            }
+            throw ValidationError("Failed to load config at path \(config.path), error: \(error)")
+        }
     }
 }

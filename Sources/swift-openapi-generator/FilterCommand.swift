@@ -40,7 +40,18 @@ struct _FilterCommand: AsyncParsableCommand {
     @Argument(help: "Path to the OpenAPI document, either in YAML or JSON.") var docPath: URL
 
     func run() async throws {
-        let configData = try Data(contentsOf: config)
+        let configData: Data
+        do {
+            configData = try Data(contentsOf: config)
+        } catch {
+            // Check if this is a file not found error
+            if let nsError = error as NSError?,
+               nsError.domain == NSPOSIXErrorDomain,
+               nsError.code == 2 {
+                throw ValidationError("Configuration file not found at path: \(config.path). Please ensure the file exists and the path is correct.")
+            }
+            throw ValidationError("Failed to load config at path \(config.path), error: \(error)")
+        }
         let config = try YAMLDecoder().decode(_UserConfig.self, from: configData)
         let documentInput = try InMemoryInputFile(absolutePath: docPath, contents: Data(contentsOf: docPath))
         let document = try timing(
