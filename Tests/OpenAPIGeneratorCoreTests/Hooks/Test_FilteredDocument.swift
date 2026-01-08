@@ -48,18 +48,55 @@ final class Test_FilteredDocument: XCTestCase {
                   responses:
                     200:
                       $ref: '#/components/responses/B'
+              /things/c:
+                parameters:
+                  - $ref: '#/components/parameters/C'
+                    description: Parameter C reference description
+                get:
+                  operationId: getC
+                  parameters:
+                    - $ref: '#/components/parameters/D'
+                      description: Parameter D reference description
+                  responses:
+                    200:
+                      $ref: '#/components/responses/C'
+                      description: Response C reference description
             components:
               schemas:
                 A:
                   type: string
                 B:
                   $ref: '#/components/schemas/A'
+                C:
+                  type: object
+                  description: Schema C description
+                  properties:
+                    value:
+                      $ref: '#/components/schemas/A'
+                      description: Schema A reference description
               parameters:
                 A:
                   in: query
                   schema:
                     type: string
                   name: A
+                C:
+                  in: query
+                  name: cParam
+                  schema:
+                    $ref: '#/components/schemas/C'
+                    description: Schema C reference description
+                D:
+                  in: query
+                  name: dParam
+                  schema:
+                    type: string
+              headers:
+                C:
+                  schema:
+                    $ref: '#/components/schemas/A'
+                    description: Schema A reference description
+                  description: Header C
               responses:
                 A:
                   description: success
@@ -73,8 +110,29 @@ final class Test_FilteredDocument: XCTestCase {
                     application/json:
                       schema:
                         $ref: '#/components/schemas/B'
+                C:
+                  description: Response C description
+                  headers:
+                    X-Custom-Header:
+                      $ref: '#/components/headers/C'
+                      description: Header C reference description
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/C'
+                        description: Schema C reference description
+                      examples:
+                        example1:
+                          $ref: '#/components/examples/C'
+                          description: Example C reference description
                 Empty:
                   description: success
+              examples:
+                C:
+                  value:
+                    value: "test"
+                    nested:
+                      deepValue: "nested test"
             """
         let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: documentYAML)
         assert(filtering: document, filter: DocumentFilter(), hasPaths: [], hasOperations: [], hasSchemas: [])
@@ -147,6 +205,16 @@ final class Test_FilteredDocument: XCTestCase {
             hasSchemas: [],
             hasParameters: ["A"]
         )
+        assert(
+            filtering: document,
+            filter: DocumentFilter(paths: ["/things/c"]),
+            hasPaths: ["/things/c"],
+            hasOperations: ["getC"],
+            hasSchemas: ["A", "C"],
+            hasParameters: ["C", "D"],
+            hasHeaders: ["C"],
+            hasExamples: ["C"]
+        )
     }
 
     func assert(
@@ -156,6 +224,8 @@ final class Test_FilteredDocument: XCTestCase {
         hasOperations operationIDs: [String],
         hasSchemas schemas: [String],
         hasParameters parameters: [String] = [],
+        hasHeaders headers: [String] = [],
+        hasExamples examples: [String] = [],
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -189,6 +259,20 @@ final class Test_FilteredDocument: XCTestCase {
             filteredDocument.components.parameters.keys.map(\.rawValue),
             parameters,
             "Parameters don't match",
+            file: file,
+            line: line
+        )
+        XCTAssertUnsortedEqual(
+            filteredDocument.components.headers.keys.map(\.rawValue),
+            headers,
+            "Headers don't match",
+            file: file,
+            line: line
+        )
+        XCTAssertUnsortedEqual(
+            filteredDocument.components.examples.keys.map(\.rawValue),
+            examples,
+            "Examples don't match",
             file: file,
             line: line
         )

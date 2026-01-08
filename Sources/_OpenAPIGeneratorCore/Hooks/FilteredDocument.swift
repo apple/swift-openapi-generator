@@ -29,15 +29,15 @@ struct FilteredDocumentBuilder {
     private(set) var document: OpenAPI.Document
 
     private(set) var requiredPaths: Set<OpenAPI.Path>
-    private(set) var requiredPathItemReferences: Set<OpenAPI.Reference<OpenAPI.PathItem>>
-    private(set) var requiredSchemaReferences: Set<OpenAPI.Reference<JSONSchema>>
-    private(set) var requiredParameterReferences: Set<OpenAPI.Reference<OpenAPI.Parameter>>
-    private(set) var requiredHeaderReferences: Set<OpenAPI.Reference<OpenAPI.Header>>
-    private(set) var requiredResponseReferences: Set<OpenAPI.Reference<OpenAPI.Response>>
-    private(set) var requiredCallbacksReferences: Set<OpenAPI.Reference<OpenAPI.Callbacks>>
-    private(set) var requiredExampleReferences: Set<OpenAPI.Reference<OpenAPI.Example>>
-    private(set) var requiredLinkReferences: Set<OpenAPI.Reference<OpenAPI.Link>>
-    private(set) var requiredRequestReferences: Set<OpenAPI.Reference<OpenAPI.Request>>
+    private(set) var requiredPathItemReferences: Set<OpenAPI.ComponentKey>
+    private(set) var requiredSchemaReferences: Set<OpenAPI.ComponentKey>
+    private(set) var requiredParameterReferences: Set<OpenAPI.ComponentKey>
+    private(set) var requiredHeaderReferences: Set<OpenAPI.ComponentKey>
+    private(set) var requiredResponseReferences: Set<OpenAPI.ComponentKey>
+    private(set) var requiredCallbacksReferences: Set<OpenAPI.ComponentKey>
+    private(set) var requiredExampleReferences: Set<OpenAPI.ComponentKey>
+    private(set) var requiredLinkReferences: Set<OpenAPI.ComponentKey>
+    private(set) var requiredRequestReferences: Set<OpenAPI.ComponentKey>
     private(set) var requiredEndpoints: [OpenAPI.Path: Set<OpenAPI.HttpMethod>]
 
     /// Create a new FilteredDocumentBuilder.
@@ -66,49 +66,31 @@ struct FilteredDocumentBuilder {
         let originalDocument = document
         let originalComponents = originalDocument.components
         var components = OpenAPI.Components.noComponents
-        for (key, value) in originalComponents.schemas {
-            let reference = OpenAPI.Reference<JSONSchema>.component(named: key.rawValue)
-            guard requiredSchemaReferences.contains(reference) else { continue }
+        for (key, value) in originalComponents.schemas where requiredSchemaReferences.contains(key) {
             components.schemas[key] = value
         }
-        for (key, value) in originalComponents.pathItems {
-            let reference = OpenAPI.Reference<OpenAPI.PathItem>.component(named: key.rawValue)
-            guard requiredPathItemReferences.contains(reference) else { continue }
+        for (key, value) in originalComponents.pathItems where requiredPathItemReferences.contains(key) {
             components.pathItems[key] = value
         }
-        for (key, value) in originalComponents.parameters {
-            let reference = OpenAPI.Reference<OpenAPI.Parameter>.component(named: key.rawValue)
-            guard requiredParameterReferences.contains(reference) else { continue }
+        for (key, value) in originalComponents.parameters where requiredParameterReferences.contains(key) {
             components.parameters[key] = value
         }
-        for (key, value) in originalComponents.headers {
-            let reference = OpenAPI.Reference<OpenAPI.Header>.component(named: key.rawValue)
-            guard requiredHeaderReferences.contains(reference) else { continue }
+        for (key, value) in originalComponents.headers where requiredHeaderReferences.contains(key) {
             components.headers[key] = value
         }
-        for (key, value) in originalComponents.responses {
-            let reference = OpenAPI.Reference<OpenAPI.Response>.component(named: key.rawValue)
-            guard requiredResponseReferences.contains(reference) else { continue }
+        for (key, value) in originalComponents.responses where requiredResponseReferences.contains(key) {
             components.responses[key] = value
         }
-        for (key, value) in originalComponents.callbacks {
-            let reference = OpenAPI.Reference<OpenAPI.Callbacks>.component(named: key.rawValue)
-            guard requiredCallbacksReferences.contains(reference) else { continue }
+        for (key, value) in originalComponents.callbacks where requiredCallbacksReferences.contains(key) {
             components.callbacks[key] = value
         }
-        for (key, value) in originalComponents.examples {
-            let reference = OpenAPI.Reference<OpenAPI.Example>.component(named: key.rawValue)
-            guard requiredExampleReferences.contains(reference) else { continue }
+        for (key, value) in originalComponents.examples where requiredExampleReferences.contains(key) {
             components.examples[key] = value
         }
-        for (key, value) in originalComponents.links {
-            let reference = OpenAPI.Reference<OpenAPI.Link>.component(named: key.rawValue)
-            guard requiredLinkReferences.contains(reference) else { continue }
+        for (key, value) in originalComponents.links where requiredLinkReferences.contains(key) {
             components.links[key] = value
         }
-        for (key, value) in originalComponents.requestBodies {
-            let reference = OpenAPI.Reference<OpenAPI.Request>.component(named: key.rawValue)
-            guard requiredRequestReferences.contains(reference) else { continue }
+        for (key, value) in originalComponents.requestBodies where requiredRequestReferences.contains(key) {
             components.requestBodies[key] = value
         }
         var filteredDocument = document.filteringPaths { path in
@@ -215,7 +197,7 @@ private extension FilteredDocumentBuilder {
     {
         switch maybeReference {
         case .a(let reference):
-            guard requiredPathItemReferences.insert(reference).inserted else { return }
+            guard try requiredPathItemReferences.insert(reference.internalComponentKey).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
         case .b(let value): try includeComponentsReferencedBy(value)
         }
@@ -224,7 +206,7 @@ private extension FilteredDocumentBuilder {
     mutating func includeSchema(_ maybeReference: Either<OpenAPI.Reference<JSONSchema>, JSONSchema>) throws {
         switch maybeReference {
         case .a(let reference):
-            guard requiredSchemaReferences.insert(reference).inserted else { return }
+            guard try requiredSchemaReferences.insert(reference.internalComponentKey).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
         case .b(let value): try includeComponentsReferencedBy(value)
         }
@@ -235,7 +217,7 @@ private extension FilteredDocumentBuilder {
     {
         switch maybeReference {
         case .a(let reference):
-            guard requiredParameterReferences.insert(reference).inserted else { return }
+            guard try requiredParameterReferences.insert(reference.internalComponentKey).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
         case .b(let value): try includeComponentsReferencedBy(value)
         }
@@ -246,7 +228,7 @@ private extension FilteredDocumentBuilder {
     {
         switch maybeReference {
         case .a(let reference):
-            guard requiredResponseReferences.insert(reference).inserted else { return }
+            guard try requiredResponseReferences.insert(reference.internalComponentKey).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
         case .b(let value): try includeComponentsReferencedBy(value)
         }
@@ -255,7 +237,7 @@ private extension FilteredDocumentBuilder {
     mutating func includeHeader(_ maybeReference: Either<OpenAPI.Reference<OpenAPI.Header>, OpenAPI.Header>) throws {
         switch maybeReference {
         case .a(let reference):
-            guard requiredHeaderReferences.insert(reference).inserted else { return }
+            guard try requiredHeaderReferences.insert(reference.internalComponentKey).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
         case .b(let value): try includeComponentsReferencedBy(value)
         }
@@ -264,7 +246,7 @@ private extension FilteredDocumentBuilder {
     mutating func includeLink(_ maybeReference: Either<OpenAPI.Reference<OpenAPI.Link>, OpenAPI.Link>) throws {
         switch maybeReference {
         case .a(let reference):
-            guard requiredLinkReferences.insert(reference).inserted else { return }
+            guard try requiredLinkReferences.insert(reference.internalComponentKey).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
         case .b(let value): try includeComponentsReferencedBy(value)
         }
@@ -275,7 +257,7 @@ private extension FilteredDocumentBuilder {
     {
         switch maybeReference {
         case .a(let reference):
-            guard requiredCallbacksReferences.insert(reference).inserted else { return }
+            guard try requiredCallbacksReferences.insert(reference.internalComponentKey).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
         case .b(let value): try includeComponentsReferencedBy(value)
         }
@@ -286,7 +268,7 @@ private extension FilteredDocumentBuilder {
     {
         switch maybeReference {
         case .a(let reference):
-            guard requiredRequestReferences.insert(reference).inserted else { return }
+            guard try requiredRequestReferences.insert(reference.internalComponentKey).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
         case .b(let value): try includeComponentsReferencedBy(value)
         }
@@ -295,7 +277,7 @@ private extension FilteredDocumentBuilder {
     mutating func includeExample(_ maybeReference: Either<OpenAPI.Reference<OpenAPI.Example>, OpenAPI.Example>) throws {
         switch maybeReference {
         case .a(let reference):
-            guard requiredExampleReferences.insert(reference).inserted else { return }
+            guard try requiredExampleReferences.insert(reference.internalComponentKey).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
         case .b(let value): try includeComponentsReferencedBy(value)
         }
@@ -346,7 +328,7 @@ private extension FilteredDocumentBuilder {
         switch schema.value {
 
         case .reference(let reference, _):
-            guard requiredSchemaReferences.insert(OpenAPI.Reference(reference)).inserted else { return }
+            guard requiredSchemaReferences.insert(try OpenAPI.ComponentKey(stringLiteral: reference.requiredName)).inserted else { return }
             try includeComponentsReferencedBy(document.components.lookup(reference))
 
         case .object(_, let object):
@@ -378,7 +360,7 @@ private extension FilteredDocumentBuilder {
         case .a(let schemaContext):
             switch schemaContext.schema {
             case .a(let reference):
-                guard requiredSchemaReferences.insert(reference).inserted else { return }
+                guard try requiredSchemaReferences.insert(reference.internalComponentKey).inserted else { return }
                 try includeComponentsReferencedBy(try document.components.lookup(reference))
             case .b(let schema): try includeComponentsReferencedBy(schema)
             }
@@ -386,7 +368,7 @@ private extension FilteredDocumentBuilder {
             for value in contentMap.values {
                 switch value.schema {
                 case .a(let reference):
-                    guard requiredSchemaReferences.insert(reference).inserted else { return }
+                    guard try requiredSchemaReferences.insert(reference.internalComponentKey).inserted else { return }
                     try includeComponentsReferencedBy(try document.components.lookup(reference))
                 case .b(let schema): try includeComponentsReferencedBy(schema)
                 case .none: continue
