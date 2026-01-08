@@ -70,10 +70,14 @@ func handleFileOperation<T>(
         return try operation()
     } catch {
         // Check if this is a file not found error
-        if let nsError = error as NSError?,
-           nsError.domain == NSPOSIXErrorDomain,
-           nsError.code == 2 {
-            throw ValidationError("\(fileDescription) not found at path: \(url.path). Please ensure the file exists and the path is correct.")
+        // On Linux, this is typically NSPOSIXErrorDomain with code 2 (ENOENT)
+        // On macOS, this can be either NSPOSIXErrorDomain code 2 or NSCocoaErrorDomain code 260
+        if let nsError = error as NSError? {
+            let isPOSIXFileNotFound = nsError.domain == NSPOSIXErrorDomain && nsError.code == 2
+            let isCocoaFileNotFound = nsError.domain == NSCocoaErrorDomain && nsError.code == 260
+            if isPOSIXFileNotFound || isCocoaFileNotFound {
+                throw ValidationError("\(fileDescription) not found at path: \(url.path). Please ensure the file exists and the path is correct.")
+            }
         }
         throw ValidationError("Failed to load \(fileDescription.lowercased()) at path \(url.path), error: \(error)")
     }
