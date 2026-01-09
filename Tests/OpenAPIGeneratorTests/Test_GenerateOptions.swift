@@ -63,7 +63,7 @@ final class Test_GenerateOptions: XCTestCase {
             }
             XCTFail("Expected handleFileOperation to throw a ValidationError for missing file")
         } catch let error as ArgumentParser.ValidationError {
-            let errorMessage = error.localizedDescription
+            let errorMessage = String(describing: error)
             XCTAssertTrue(
                 errorMessage.contains("Configuration file not found at path:"),
                 "Expected error message to contain 'Configuration file not found at path:', but got: \(errorMessage)"
@@ -112,7 +112,7 @@ final class Test_GenerateOptions: XCTestCase {
             _ = try handleFileOperation(at: testURL, fileDescription: "Test file") { throw customError }
             XCTFail("Expected handleFileOperation to throw an error")
         } catch let error as ArgumentParser.ValidationError {
-            let errorMessage = error.localizedDescription
+            let errorMessage = String(describing: error)
             XCTAssertTrue(
                 errorMessage.contains("Failed to load test file at path"),
                 "Expected error message to contain 'Failed to load test file at path', but got: \(errorMessage)"
@@ -134,7 +134,7 @@ final class Test_GenerateOptions: XCTestCase {
             }
             XCTFail("Expected handleFileOperation to throw a ValidationError for missing file")
         } catch let error as ArgumentParser.ValidationError {
-            let errorMessage = error.localizedDescription
+            let errorMessage = String(describing: error)
             XCTAssertTrue(
                 errorMessage.contains("OpenAPI document not found at path:"),
                 "Expected error message to contain 'OpenAPI document not found at path:', but got: \(errorMessage)"
