@@ -62,7 +62,7 @@ final class Test_GenerateOptions: XCTestCase {
                 try Data(contentsOf: nonExistentFile)
             }
             XCTFail("Expected handleFileOperation to throw a ValidationError for missing file")
-        } catch let error as ValidationError {
+        } catch let error as ArgumentParser.ValidationError {
             let errorMessage = error.localizedDescription
             XCTAssertTrue(
                 errorMessage.contains("Configuration file not found at path:"),
@@ -76,7 +76,7 @@ final class Test_GenerateOptions: XCTestCase {
                 errorMessage.contains("Please ensure the file exists and the path is correct"),
                 "Expected error message to contain helpful instructions, but got: \(errorMessage)"
             )
-        } catch { XCTFail("Expected ValidationError, but got: \(type(of: error)) - \(error)") }
+        } catch { XCTFail("Expected ArgumentParser.ValidationError, but got: \(type(of: error)) - \(error)") }
     }
 
     /// Tests that `handleFileOperation` correctly handles successful file operations.
@@ -111,7 +111,7 @@ final class Test_GenerateOptions: XCTestCase {
         do {
             _ = try handleFileOperation(at: testURL, fileDescription: "Test file") { throw customError }
             XCTFail("Expected handleFileOperation to throw an error")
-        } catch let error as ValidationError {
+        } catch let error as ArgumentParser.ValidationError {
             let errorMessage = error.localizedDescription
             XCTAssertTrue(
                 errorMessage.contains("Failed to load test file at path"),
@@ -121,7 +121,7 @@ final class Test_GenerateOptions: XCTestCase {
                 errorMessage.contains(testURL.path),
                 "Expected error message to contain the file path, but got: \(errorMessage)"
             )
-        } catch { XCTFail("Expected ValidationError, but got: \(type(of: error)) - \(error)") }
+        } catch { XCTFail("Expected ArgumentParser.ValidationError, but got: \(type(of: error)) - \(error)") }
     }
 
     /// Tests that `handleFileOperation` works with custom file descriptions.
@@ -133,13 +133,13 @@ final class Test_GenerateOptions: XCTestCase {
                 try Data(contentsOf: nonExistentFile)
             }
             XCTFail("Expected handleFileOperation to throw a ValidationError for missing file")
-        } catch let error as ValidationError {
+        } catch let error as ArgumentParser.ValidationError {
             let errorMessage = error.localizedDescription
             XCTAssertTrue(
                 errorMessage.contains("OpenAPI document not found at path:"),
                 "Expected error message to contain 'OpenAPI document not found at path:', but got: \(errorMessage)"
             )
-        } catch { XCTFail("Expected ValidationError, but got: \(type(of: error)) - \(error)") }
+        } catch { XCTFail("Expected ArgumentParser.ValidationError, but got: \(type(of: error)) - \(error)") }
     }
     #endif
 }
