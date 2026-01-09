@@ -76,9 +76,7 @@ final class Test_GenerateOptions: XCTestCase {
                 errorMessage.contains("Please ensure the file exists and the path is correct"),
                 "Expected error message to contain helpful instructions, but got: \(errorMessage)"
             )
-        } catch {
-            XCTFail("Expected ValidationError, but got: \(type(of: error)) - \(error)")
-        }
+        } catch { XCTFail("Expected ValidationError, but got: \(type(of: error)) - \(error)") }
     }
 
     /// Tests that `handleFileOperation` correctly handles successful file operations.
@@ -104,12 +102,14 @@ final class Test_GenerateOptions: XCTestCase {
         // On most systems, we can't easily simulate permission errors in tests,
         // so we'll test with a custom error to verify the wrapping behavior
         let testURL = URL(fileURLWithPath: "/some/path")
-        let customError = NSError(domain: "CustomDomain", code: 123, userInfo: [NSLocalizedDescriptionKey: "Custom error"])
+        let customError = NSError(
+            domain: "CustomDomain",
+            code: 123,
+            userInfo: [NSLocalizedDescriptionKey: "Custom error"]
+        )
 
         do {
-            _ = try handleFileOperation(at: testURL, fileDescription: "Test file") {
-                throw customError
-            }
+            _ = try handleFileOperation(at: testURL, fileDescription: "Test file") { throw customError }
             XCTFail("Expected handleFileOperation to throw an error")
         } catch let error as ValidationError {
             let errorMessage = error.localizedDescription
@@ -121,9 +121,7 @@ final class Test_GenerateOptions: XCTestCase {
                 errorMessage.contains(testURL.path),
                 "Expected error message to contain the file path, but got: \(errorMessage)"
             )
-        } catch {
-            XCTFail("Expected ValidationError, but got: \(type(of: error)) - \(error)")
-        }
+        } catch { XCTFail("Expected ValidationError, but got: \(type(of: error)) - \(error)") }
     }
 
     /// Tests that `handleFileOperation` works with custom file descriptions.
@@ -141,9 +139,7 @@ final class Test_GenerateOptions: XCTestCase {
                 errorMessage.contains("OpenAPI document not found at path:"),
                 "Expected error message to contain 'OpenAPI document not found at path:', but got: \(errorMessage)"
             )
-        } catch {
-            XCTFail("Expected ValidationError, but got: \(type(of: error)) - \(error)")
-        }
+        } catch { XCTFail("Expected ValidationError, but got: \(type(of: error)) - \(error)") }
     }
     #endif
 }

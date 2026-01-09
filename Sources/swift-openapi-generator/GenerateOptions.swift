@@ -61,14 +61,10 @@ extension NamingStrategy: ExpressibleByArgument {}
 ///   - operation: The throwing operation to execute.
 /// - Returns: The result of the operation.
 /// - Throws: A `ValidationError` with a user-friendly message if the file is not found, or the original error wrapped in a `ValidationError` for other errors.
-func handleFileOperation<T>(
-    at url: URL,
-    fileDescription: String = "Configuration file",
-    operation: () throws -> T
-) throws -> T {
-    do {
-        return try operation()
-    } catch {
+func handleFileOperation<T>(at url: URL, fileDescription: String = "Configuration file", operation: () throws -> T)
+    throws -> T
+{
+    do { return try operation() } catch {
         // Check if this is a file not found error
         // On Linux, this is typically NSPOSIXErrorDomain with code 2 (ENOENT)
         // On macOS, this can be either NSPOSIXErrorDomain code 2 or NSCocoaErrorDomain code 260
@@ -76,7 +72,9 @@ func handleFileOperation<T>(
             let isPOSIXFileNotFound = nsError.domain == NSPOSIXErrorDomain && nsError.code == 2
             let isCocoaFileNotFound = nsError.domain == NSCocoaErrorDomain && nsError.code == 260
             if isPOSIXFileNotFound || isCocoaFileNotFound {
-                throw ValidationError("\(fileDescription) not found at path: \(url.path). Please ensure the file exists and the path is correct.")
+                throw ValidationError(
+                    "\(fileDescription) not found at path: \(url.path). Please ensure the file exists and the path is correct."
+                )
             }
         }
         throw ValidationError("Failed to load \(fileDescription.lowercased()) at path \(url.path), error: \(error)")
@@ -173,18 +171,18 @@ extension _GenerateOptions {
     /// - Throws: A `ValidationError` if loading or parsing the configuration file encounters an error.
     func loadedConfig() throws -> _UserConfig? {
         guard let config else { return nil }
-        let data = try handleFileOperation(at: config, fileDescription: "Configuration file") {
-            try Data(contentsOf: config)
-        }
-        let configAsString = String(decoding: data, as: UTF8.self)
-        var yamlKeys: [String] = []
+        let userConfig = try handleFileOperation(at: config, fileDescription: "Configuration file") {
+            let data = try Data(contentsOf: config)
+            let configAsString = String(decoding: data, as: UTF8.self)
+            var yamlKeys: [String] = []
 
-        do { yamlKeys = try YamsParser.extractTopLevelKeys(fromYAMLString: configAsString) } catch {
-            throw ValidationError("The config isn't valid. \(error)")
-        }
-        try validateKeys(yamlKeys)
+            do { yamlKeys = try YamsParser.extractTopLevelKeys(fromYAMLString: configAsString) } catch {
+                throw ValidationError("The config isn't valid. \(error)")
+            }
+            try validateKeys(yamlKeys)
 
-        let config = try YAMLDecoder().decode(_UserConfig.self, from: data)
-        return config
+            return try YAMLDecoder().decode(_UserConfig.self, from: data)
+        }
+        return userConfig
     }
 }
