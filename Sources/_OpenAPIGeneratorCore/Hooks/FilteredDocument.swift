@@ -328,7 +328,8 @@ private extension FilteredDocumentBuilder {
         switch schema.value {
 
         case .reference(let reference, _):
-            guard requiredSchemaReferences.insert(try OpenAPI.ComponentKey(stringLiteral: reference.requiredName)).inserted else { return }
+            let referenceKey = try OpenAPI.ComponentKey(stringLiteral: reference.requiredName)
+            guard requiredSchemaReferences.insert(referenceKey).inserted else { return }
             try includeComponentsReferencedBy(document.components.lookup(reference))
 
         case .object(_, let object):
