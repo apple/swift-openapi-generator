@@ -128,6 +128,9 @@ struct FilteredDocumentBuilder {
             }
         }
         filteredDocument.components = components
+        // Always remove webhooks, as they may contain references to schemas that were not included.
+        // Webhooks are not supported for filtering, so whenever a filter is used, all webhooks are excluded.
+        filteredDocument.webhooks = [:]
         return filteredDocument
     }
 
