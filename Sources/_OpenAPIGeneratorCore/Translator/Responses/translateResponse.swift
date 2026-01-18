@@ -142,7 +142,12 @@ extension TypesFileTranslator {
         var bodyCases: [Declaration] = []
         let contentType = typedContent.content.contentType
         let identifier = context.safeNameGenerator.swiftContentTypeName(for: contentType)
-        let associatedType = typedContent.resolvedTypeUsage
+        let associatedType: TypeUsage
+        if contentType.lowercasedTypeAndSubtype == "*/*" {
+            associatedType = TypeName.undocumentedPayload.asUsage
+        } else {
+            associatedType = typedContent.resolvedTypeUsage
+        }
         let content = typedContent.content
         let schema = content.schema
         if typeMatcher.isInlinable(schema) || typeMatcher.isReferenceableMultipart(content) {

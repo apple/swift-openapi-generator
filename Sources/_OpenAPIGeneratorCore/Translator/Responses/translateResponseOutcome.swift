@@ -237,19 +237,47 @@ extension ClientFileTranslator {
             codeBlocks.append(.declaration(chosenContentTypeDecl))
 
             func makeCase(typedContent: TypedSchemaContent) throws -> SwitchCaseDescription {
+                let contentType = typedContent.content.contentType
                 let contentTypeUsage = typedContent.resolvedTypeUsage
-                let transformExpr: Expression = .closureInvocation(
-                    argumentNames: ["value"],
-                    body: [
-                        .expression(
-                            .dot(context.safeNameGenerator.swiftContentTypeName(for: typedContent.content.contentType))
-                                .call([.init(label: nil, expression: .identifierPattern("value"))])
-                        )
-                    ]
-                )
-                let codingStrategy = typedContent.content.contentType.codingStrategy
+                let codingStrategy = contentType.codingStrategy
+
+                let caseName = context.safeNameGenerator.swiftContentTypeName(for: contentType)
+                let transformExpr: Expression
+                if contentType.lowercasedTypeAndSubtype == "*/*" {
+                    transformExpr = .closureInvocation(
+                        argumentNames: ["value"],
+                        body: [
+                            .expression(
+                                .dot(caseName)
+                                    .call([
+                                        .init(
+                                            label: nil,
+                                            expression: .dot("init")
+                                                .call([
+                                                    .init(
+                                                        label: "headerFields",
+                                                        expression: .identifierPattern("response").dot("headerFields")
+                                                    ),
+                                                    .init(label: "body", expression: .identifierPattern("value")),
+                                                ])
+                                        )
+                                    ])
+                            )
+                        ]
+                    )
+                } else {
+                    transformExpr = .closureInvocation(
+                        argumentNames: ["value"],
+                        body: [
+                            .expression(
+                                .dot(caseName)
+                                    .call([.init(label: nil, expression: .identifierPattern("value"))])
+                            )
+                        ]
+                    )
+                }
                 let extraBodyAssignArgs: [FunctionArgumentDescription]
-                if typedContent.content.contentType.isMultipart {
+                if contentType.isMultipart {
                     extraBodyAssignArgs = try translateMultipartDeserializerExtraArgumentsInClient(typedContent)
                 } else {
                     extraBodyAssignArgs = []
@@ -404,7 +432,43 @@ extension ServerFileTranslator {
                 let contentType = typedContent.content.contentType
                 let isWildcardAnyContentType = contentType.lowercasedTypeAndSubtype == "*/*"
 
-                if !isWildcardAnyContentType {
+                if isWildcardAnyContentType {
+                    caseCodeBlocks.append(
+                        .expression(
+                            .identifierPattern("response").dot("headerFields").dot("append")
+                                .call([
+                                    .init(
+                                        label: "contentsOf",
+                                        expression: .identifierPattern("value").dot("headerFields")
+                                    )
+                                ])
+                        )
+                    )
+                    caseCodeBlocks.append(
+                        .expression(
+                            .assignment(
+                                left: .identifierPattern("body"),
+                                right: .try(
+                                    .identifierPattern("converter").dot("getResponseBodyAsBinary")
+                                        .call([
+                                            .init(
+                                                label: nil,
+                                                expression: .identifierType(TypeName.body.asUsage).dot("self")
+                                            ),
+                                            .init(label: "from", expression: .identifierPattern("value").dot("body")),
+                                            .init(
+                                                label: "transforming",
+                                                expression: .closureInvocation(
+                                                    argumentNames: ["value"],
+                                                    body: [.expression(.identifierPattern("value"))]
+                                                )
+                                            ),
+                                        ])
+                                )
+                            )
+                        )
+                    )
+                } else {
                     let contentTypeHeaderValue = contentType.headerValueForValidation
                     let validateAcceptHeader: Expression = .try(
                         .identifierPattern("converter").dot("validateAcceptIfPresent")
@@ -414,22 +478,14 @@ extension ServerFileTranslator {
                             ])
                     )
                     caseCodeBlocks.append(.expression(validateAcceptHeader))
-                }
 
-                let assignBodyExpr: Expression
-                if isWildcardAnyContentType {
-                    assignBodyExpr = .assignment(
-                        left: .identifierPattern("body"),
-                        right: .identifierPattern("value")
-                    )
-                } else {
                     let extraBodyAssignArgs: [FunctionArgumentDescription]
                     if contentType.isMultipart {
                         extraBodyAssignArgs = try translateMultipartSerializerExtraArgumentsInServer(typedContent)
                     } else {
                         extraBodyAssignArgs = []
                     }
-                    assignBodyExpr = .assignment(
+                    let assignBodyExpr: Expression = .assignment(
                         left: .identifierPattern("body"),
                         right: .try(
                             .identifierPattern("converter")
@@ -449,8 +505,8 @@ extension ServerFileTranslator {
                                 )
                         )
                     )
+                    caseCodeBlocks.append(.expression(assignBodyExpr))
                 }
-                caseCodeBlocks.append(.expression(assignBodyExpr))
 
                 return .init(
                     kind: .case(.dot(context.safeNameGenerator.swiftContentTypeName(for: contentType)), ["value"]),

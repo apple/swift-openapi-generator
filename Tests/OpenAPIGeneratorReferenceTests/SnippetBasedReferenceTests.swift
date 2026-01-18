@@ -3624,8 +3624,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 @frozen public enum Output: Sendable, Hashable {
                     public struct Ok: Sendable, Hashable {
                         @frozen public enum Body: Sendable, Hashable {
-                            case any(OpenAPIRuntime.HTTPBody)
-                            public var any: OpenAPIRuntime.HTTPBody {
+                            case any(OpenAPIRuntime.UndocumentedPayload)
+                            public var any: OpenAPIRuntime.UndocumentedPayload {
                                 get throws {
                                     switch self {
                                     case let .any(body):
@@ -3666,7 +3666,14 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         let body: OpenAPIRuntime.HTTPBody
                         switch value.body {
                         case let .any(value):
-                            body = value
+                            response.headerFields.append(contentsOf: value.headerFields)
+                            body = try converter.getResponseBodyAsBinary(
+                                OpenAPIRuntime.HTTPBody.self,
+                                from: value.body,
+                                transforming: { value in
+                                    value
+                                }
+                            )
                         }
                         return (response, body)
                     case let .undocumented(statusCode, _):
@@ -3692,7 +3699,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 OpenAPIRuntime.HTTPBody.self,
                                 from: responseBody,
                                 transforming: { value in
-                                    .any(value)
+                                    .any(.init(
+                                        headerFields: response.headerFields,
+                                        body: value
+                                    ))
                                 }
                             )
                         default:
