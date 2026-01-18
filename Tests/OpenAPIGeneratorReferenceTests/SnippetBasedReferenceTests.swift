@@ -3604,6 +3604,115 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+
+    func testResponseWildcardContentTypeDoesNotValidateAcceptOrEmitWildcardContentType() throws {
+        try self.assertResponseInTypesClientServerTranslation(
+            """
+            /download:
+              get:
+                operationId: download
+                responses:
+                  '200':
+                    description: ok
+                    content:
+                      '*/*':
+                        schema:
+                          type: string
+                          format: binary
+            """,
+            output: """
+                @frozen public enum Output: Sendable, Hashable {
+                    public struct Ok: Sendable, Hashable {
+                        @frozen public enum Body: Sendable, Hashable {
+                            case any(OpenAPIRuntime.HTTPBody)
+                            public var any: OpenAPIRuntime.HTTPBody {
+                                get throws {
+                                    switch self {
+                                    case let .any(body):
+                                        return body
+                                    }
+                                }
+                            }
+                        }
+                        public var body: Operations.download.Output.Ok.Body
+                        public init(body: Operations.download.Output.Ok.Body) {
+                            self.body = body
+                        }
+                    }
+                    case ok(Operations.download.Output.Ok)
+                    public var ok: Operations.download.Output.Ok {
+                        get throws {
+                            switch self {
+                            case let .ok(response):
+                                return response
+                            default:
+                                try throwUnexpectedResponseStatus(
+                                    expectedStatus: "ok",
+                                    response: self
+                                )
+                            }
+                        }
+                    }
+                    case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
+                }
+                """,
+            server: """
+                { output, request in
+                    switch output {
+                    case let .ok(value):
+                        suppressUnusedWarning(value)
+                        var response = HTTPTypes.HTTPResponse(soar_statusCode: 200)
+                        suppressMutabilityWarning(&response)
+                        let body: OpenAPIRuntime.HTTPBody
+                        switch value.body {
+                        case let .any(value):
+                            body = value
+                        }
+                        return (response, body)
+                    case let .undocumented(statusCode, _):
+                        return (.init(soar_statusCode: statusCode), nil)
+                    }
+                }
+                """,
+            client: """
+                { response, responseBody in
+                    switch response.status.code {
+                    case 200:
+                        let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                        let body: Operations.download.Output.Ok.Body
+                        let chosenContentType = try converter.bestContentType(
+                            received: contentType,
+                            options: [
+                                "*/*"
+                            ]
+                        )
+                        switch chosenContentType {
+                        case "*/*":
+                            body = try converter.getResponseBodyAsBinary(
+                                OpenAPIRuntime.HTTPBody.self,
+                                from: responseBody,
+                                transforming: { value in
+                                    .any(value)
+                                }
+                            )
+                        default:
+                            preconditionFailure("bestContentType chose an invalid content type.")
+                        }
+                        return .ok(.init(body: body))
+                    default:
+                        return .undocumented(
+                            statusCode: response.status.code,
+                            .init(
+                                headerFields: response.headerFields,
+                                body: responseBody
+                            )
+                        )
+                    }
+                }
+                """
+        )
+    }
+
     func testRequestMultipartBodyReferencedRequestBody() throws {
         try self.assertRequestInTypesClientServerTranslation(
             """
