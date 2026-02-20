@@ -11,6 +11,11 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+
+// https://github.com/swiftlang/swift/issues/77866
+#if canImport(Glibc)
+@preconcurrency import Glibc
+#endif
 import OpenAPIRuntime
 import OpenAPIURLSession
 import Foundation
