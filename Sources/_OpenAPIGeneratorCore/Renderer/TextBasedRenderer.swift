@@ -453,6 +453,7 @@ struct TextBasedRenderer: RendererProtocol {
                 write("\"\(string)\"")
             }
         case let .int(int): write("\(int)")
+        case let .double(double): write("\(double)")
         case let .bool(bool): write(bool ? "true" : "false")
         case .nil: write("nil")
         case .array(let items):
