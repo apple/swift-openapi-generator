@@ -85,6 +85,24 @@ public func runGenerator(input: InMemoryInputFile, config: Config, diagnostics: 
     -> InMemoryOutputFile
 { try makeGeneratorPipeline(config: config, diagnostics: diagnostics).run(input) }
 
+/// Runs the generator and returns multiple output files when sharding is configured.
+/// Falls back to a single-element array when sharding is not configured.
+public func runShardedGenerator(
+    input: InMemoryInputFile,
+    config: Config,
+    diagnostics: any DiagnosticCollector
+) throws -> [InMemoryOutputFile] {
+    let pipeline = makeGeneratorPipeline(config: config, diagnostics: diagnostics)
+    let parsed = try pipeline.parseOpenAPIFileStage.run(input)
+    let translated = try pipeline.translateOpenAPIToStructuredSwiftStage.run(parsed)
+    return translated.files.map { namedFile in
+        let renderer = TextBasedRenderer.default
+        renderer.renderFile(namedFile.contents)
+        let string = renderer.renderedContents()
+        return InMemoryOutputFile(baseName: namedFile.name, contents: Data(string.utf8))
+    }
+}
+
 /// Creates a new pipeline instance.
 /// - Parameters:
 ///   - parser: An OpenAPI document parser.
