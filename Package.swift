@@ -68,6 +68,7 @@ let package = Package(
                 .product(name: "OpenAPIKitCompat", package: "OpenAPIKit"),
                 .product(name: "Algorithms", package: "swift-algorithms"),
                 .product(name: "OrderedCollections", package: "swift-collections"),
+                .product(name: "HeapModule", package: "swift-collections"),
                 .product(name: "Yams", package: "Yams"),
             ],
             swiftSettings: swiftSettings
