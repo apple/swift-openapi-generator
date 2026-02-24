@@ -755,7 +755,7 @@ extension Test_TextBasedRenderer {
         _ input: Input,
         renderedBy renderClosure: (TextBasedRenderer) -> ((Input) -> String),
         rendersAs output: String,
-        file: StaticString = #file,
+        file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
         let renderer = TextBasedRenderer.default
