@@ -143,8 +143,8 @@ extension TypesFileTranslator {
         let contentType = typedContent.content.contentType
         let identifier = context.safeNameGenerator.swiftContentTypeName(for: contentType)
         let associatedType: TypeUsage
-        if contentType.lowercasedTypeAndSubtype == "*/*" {
-            associatedType = TypeName.undocumentedPayload.asUsage
+        if contentType.lowercasedTypeAndSubtype == "*/*" && hasConcreteWildcardResponseBodies {
+            associatedType = TypeName.contentTypedBody.asUsage
         } else {
             associatedType = typedContent.resolvedTypeUsage
         }
