@@ -3605,7 +3605,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
     }
 
 
-    func testResponseWildcardContentTypeDoesNotValidateAcceptOrEmitWildcardContentType() throws {
+    func testResponseWildcardContentTypeUsesApplicationOctetStreamInServer() throws {
         try self.assertResponseInTypesClientServerTranslation(
             """
             /download:
@@ -3666,7 +3666,15 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         let body: OpenAPIRuntime.HTTPBody
                         switch value.body {
                         case let .any(value):
-                            body = value
+                            try converter.validateAcceptIfPresent(
+                                "application/octet-stream",
+                                in: request.headerFields
+                            )
+                            body = try converter.setResponseBodyAsBinary(
+                                value,
+                                headerFields: &response.headerFields,
+                                contentType: "application/octet-stream"
+                            )
                         }
                         return (response, body)
                     case let .undocumented(statusCode, _):

@@ -402,54 +402,46 @@ extension ServerFileTranslator {
                 var caseCodeBlocks: [CodeBlock] = []
 
                 let contentType = typedContent.content.contentType
-                let isWildcardAnyContentType = contentType.lowercasedTypeAndSubtype == "*/*"
+                let contentTypeForServer = contentType.lowercasedTypeAndSubtype == "*/*"
+                    ? ContentType.applicationOctetStream
+                    : contentType
 
-                if !isWildcardAnyContentType {
-                    let contentTypeHeaderValue = contentType.headerValueForValidation
-                    let validateAcceptHeader: Expression = .try(
-                        .identifierPattern("converter").dot("validateAcceptIfPresent")
-                            .call([
-                                .init(label: nil, expression: .literal(contentTypeHeaderValue)),
-                                .init(label: "in", expression: .identifierPattern("request").dot("headerFields")),
-                            ])
-                    )
-                    caseCodeBlocks.append(.expression(validateAcceptHeader))
-                }
+                let contentTypeHeaderValue = contentTypeForServer.headerValueForValidation
+                let validateAcceptHeader: Expression = .try(
+                    .identifierPattern("converter").dot("validateAcceptIfPresent")
+                        .call([
+                            .init(label: nil, expression: .literal(contentTypeHeaderValue)),
+                            .init(label: "in", expression: .identifierPattern("request").dot("headerFields")),
+                        ])
+                )
+                caseCodeBlocks.append(.expression(validateAcceptHeader))
 
-                let assignBodyExpr: Expression
-                if isWildcardAnyContentType {
-                    assignBodyExpr = .assignment(
-                        left: .identifierPattern("body"),
-                        right: .identifierPattern("value")
-                    )
+                let extraBodyAssignArgs: [FunctionArgumentDescription]
+                if contentTypeForServer.isMultipart {
+                    extraBodyAssignArgs = try translateMultipartSerializerExtraArgumentsInServer(typedContent)
                 } else {
-                    let extraBodyAssignArgs: [FunctionArgumentDescription]
-                    if contentType.isMultipart {
-                        extraBodyAssignArgs = try translateMultipartSerializerExtraArgumentsInServer(typedContent)
-                    } else {
-                        extraBodyAssignArgs = []
-                    }
-                    assignBodyExpr = .assignment(
-                        left: .identifierPattern("body"),
-                        right: .try(
-                            .identifierPattern("converter")
-                                .dot("setResponseBodyAs\(contentType.codingStrategy.runtimeName)")
-                                .call(
-                                    [
-                                        .init(label: nil, expression: .identifierPattern("value")),
-                                        .init(
-                                            label: "headerFields",
-                                            expression: .inOut(.identifierPattern("response").dot("headerFields"))
-                                        ),
-                                        .init(
-                                            label: "contentType",
-                                            expression: .literal(contentType.headerValueForSending)
-                                        ),
-                                    ] + extraBodyAssignArgs
-                                )
-                        )
-                    )
+                    extraBodyAssignArgs = []
                 }
+                let assignBodyExpr: Expression = .assignment(
+                    left: .identifierPattern("body"),
+                    right: .try(
+                        .identifierPattern("converter")
+                            .dot("setResponseBodyAs\(contentTypeForServer.codingStrategy.runtimeName)")
+                            .call(
+                                [
+                                    .init(label: nil, expression: .identifierPattern("value")),
+                                    .init(
+                                        label: "headerFields",
+                                        expression: .inOut(.identifierPattern("response").dot("headerFields"))
+                                    ),
+                                    .init(
+                                        label: "contentType",
+                                        expression: .literal(contentTypeForServer.headerValueForSending)
+                                    ),
+                                ] + extraBodyAssignArgs
+                            )
+                    )
+                )
                 caseCodeBlocks.append(.expression(assignBodyExpr))
 
                 return .init(
