@@ -525,7 +525,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public enum CodingKeys: String, CodingKey {
                         case id
                     }
-                    public init(from decoder: any Decoder) throws {
+                    public init(from decoder: any Swift.Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
                         self.id = try container.decodeIfPresent(
                             Swift.String.self,
@@ -567,7 +567,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public enum CodingKeys: String, CodingKey {
                         case id
                     }
-                    public init(from decoder: any Decoder) throws {
+                    public init(from decoder: any Swift.Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
                         self.id = try container.decodeIfPresent(
                             Swift.String.self,
@@ -577,7 +577,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             "id"
                         ])
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         var container = encoder.container(keyedBy: CodingKeys.self)
                         try container.encodeIfPresent(
                             self.id,
@@ -608,10 +608,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(additionalProperties: [String: Swift.Int] = .init()) {
                         self.additionalProperties = additionalProperties
                     }
-                    public init(from decoder: any Decoder) throws {
+                    public init(from decoder: any Swift.Decoder) throws {
                         additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [])
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         try encoder.encodeAdditionalProperties(additionalProperties)
                     }
                 }
@@ -747,13 +747,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         self.value3 = value3
                         self.value4 = value4
                     }
-                    public init(from decoder: any Decoder) throws {
+                    public init(from decoder: any Swift.Decoder) throws {
                         self.value1 = try .init(from: decoder)
                         self.value2 = try .init(from: decoder)
                         self.value3 = try decoder.decodeFromSingleValueContainer()
                         self.value4 = try decoder.decodeFromSingleValueContainer()
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         try encoder.encodeToSingleValueContainer(self.value3)
                     }
                 }
@@ -797,8 +797,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         self.value3 = value3
                         self.value4 = value4
                     }
-                    public init(from decoder: any Decoder) throws {
-                        var errors: [any Error] = []
+                    public init(from decoder: any Swift.Decoder) throws {
+                        var errors: [any Swift.Error] = []
                         do {
                             self.value1 = try .init(from: decoder)
                         } catch {
@@ -831,7 +831,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             errors: errors
                         )
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         try encoder.encodeFirstNonNilValueToSingleValueContainer([
                             self.value3,
                             self.value4
@@ -897,7 +897,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public enum CodingKeys: String, CodingKey {
                         case which
                     }
-                    public init(from decoder: any Decoder) throws {
+                    public init(from decoder: any Swift.Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
                         let discriminator = try container.decode(
                             Swift.String.self,
@@ -916,7 +916,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             )
                         }
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         switch self {
                         case let .A(value):
                             try value.encode(to: encoder)
@@ -998,7 +998,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public enum CodingKeys: String, CodingKey {
                         case which
                     }
-                    public init(from decoder: any Decoder) throws {
+                    public init(from decoder: any Swift.Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
                         let discriminator = try container.decode(
                             Swift.String.self,
@@ -1021,7 +1021,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             )
                         }
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         switch self {
                         case let .a(value):
                             try value.encode(to: encoder)
@@ -1057,8 +1057,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     case case1(Swift.String)
                     case case2(Swift.Int)
                     case A(Components.Schemas.A)
-                    public init(from decoder: any Decoder) throws {
-                        var errors: [any Error] = []
+                    public init(from decoder: any Swift.Decoder) throws {
+                        var errors: [any Swift.Error] = []
                         do {
                             self = .case1(try decoder.decodeFromSingleValueContainer())
                             return
@@ -1083,7 +1083,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             errors: errors
                         )
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         switch self {
                         case let .case1(value):
                             try encoder.encodeToSingleValueContainer(value)
@@ -1118,7 +1118,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             public enum Schemas {
                 public struct A: Codable, Hashable, Sendable {
                     public init() {}
-                    public init(from decoder: any Decoder) throws {
+                    public init(from decoder: any Swift.Decoder) throws {
                         try decoder.ensureNoAdditionalProperties(knownKeys: [])
                     }
                 }
@@ -1127,8 +1127,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case case1(Swift.String)
                         case case2(Swift.Int)
                         case A(Components.Schemas.A)
-                        public init(from decoder: any Decoder) throws {
-                            var errors: [any Error] = []
+                        public init(from decoder: any Swift.Decoder) throws {
+                            var errors: [any Swift.Error] = []
                             do {
                                 self = .case1(try decoder.decodeFromSingleValueContainer())
                                 return
@@ -1153,7 +1153,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 errors: errors
                             )
                         }
-                        public func encode(to encoder: any Encoder) throws {
+                        public func encode(to encoder: any Swift.Encoder) throws {
                             switch self {
                             case let .case1(value):
                                 try encoder.encodeToSingleValueContainer(value)
@@ -1173,8 +1173,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         self.value1 = value1
                         self.value2 = value2
                     }
-                    public init(from decoder: any Decoder) throws {
-                        var errors: [any Error] = []
+                    public init(from decoder: any Swift.Decoder) throws {
+                        var errors: [any Swift.Error] = []
                         do {
                             self.value1 = try .init(from: decoder)
                         } catch {
@@ -1195,7 +1195,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             errors: errors
                         )
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         try self.value1?.encode(to: encoder)
                         try self.value2?.encode(to: encoder)
                     }
@@ -1223,10 +1223,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(value1: Components.Schemas.A) {
                         self.value1 = value1
                     }
-                    public init(from decoder: any Decoder) throws {
+                    public init(from decoder: any Swift.Decoder) throws {
                         self.value1 = try decoder.decodeFromSingleValueContainer()
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         try encoder.encodeToSingleValueContainer(self.value1)
                     }
                 }
@@ -1259,10 +1259,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         public init(value1: Components.Schemas.A) {
                             self.value1 = value1
                         }
-                        public init(from decoder: any Decoder) throws {
+                        public init(from decoder: any Swift.Decoder) throws {
                             self.value1 = try decoder.decodeFromSingleValueContainer()
                         }
-                        public func encode(to encoder: any Encoder) throws {
+                        public func encode(to encoder: any Swift.Encoder) throws {
                             try encoder.encodeToSingleValueContainer(self.value1)
                         }
                     }
@@ -1302,10 +1302,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         public init(value1: Components.Schemas.A) {
                             self.value1 = value1
                         }
-                        public init(from decoder: any Decoder) throws {
+                        public init(from decoder: any Swift.Decoder) throws {
                             self.value1 = try decoder.decodeFromSingleValueContainer()
                         }
-                        public func encode(to encoder: any Encoder) throws {
+                        public func encode(to encoder: any Swift.Encoder) throws {
                             try encoder.encodeToSingleValueContainer(self.value1)
                         }
                     }
@@ -1425,8 +1425,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         self.value1 = value1
                         self.value2 = value2
                     }
-                    public init(from decoder: any Decoder) throws {
-                        var errors: [any Error] = []
+                    public init(from decoder: any Swift.Decoder) throws {
+                        var errors: [any Swift.Error] = []
                         do {
                             self.value1 = try decoder.decodeFromSingleValueContainer()
                         } catch {
@@ -1447,7 +1447,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             errors: errors
                         )
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         try encoder.encodeFirstNonNilValueToSingleValueContainer([
                             self.value1,
                             self.value2
@@ -1474,7 +1474,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 @available(*, deprecated)
                 public struct MyObject: Codable, Hashable, Sendable {
                     public init() {}
-                    public init(from decoder: any Decoder) throws {
+                    public init(from decoder: any Swift.Decoder) throws {
                         try decoder.ensureNoAdditionalProperties(knownKeys: [])
                     }
                 }
@@ -1597,10 +1597,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public enum CodingKeys: String, CodingKey {
                         case parent
                     }
-                    public init(from decoder: any Decoder) throws {
+                    public init(from decoder: any Swift.Decoder) throws {
                         self.storage = try .init(from: decoder)
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         try self.storage.encode(to: encoder)
                     }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
@@ -1677,10 +1677,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case name
                         case parent
                     }
-                    public init(from decoder: any Decoder) throws {
+                    public init(from decoder: any Swift.Decoder) throws {
                         self.storage = try .init(from: decoder)
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         try self.storage.encode(to: encoder)
                     }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
@@ -1745,10 +1745,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public init(value1: Components.Schemas.Node.Value1Payload) {
                         self.storage = .init(value: .init(value1: value1))
                     }
-                    public init(from decoder: any Decoder) throws {
+                    public init(from decoder: any Swift.Decoder) throws {
                         self.storage = try .init(from: decoder)
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         try self.storage.encode(to: encoder)
                     }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
@@ -1766,10 +1766,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         init(value1: Components.Schemas.Node.Value1Payload) {
                             self.value1 = value1
                         }
-                        init(from decoder: any Decoder) throws {
+                        init(from decoder: any Swift.Decoder) throws {
                             self.value1 = try .init(from: decoder)
                         }
-                        func encode(to encoder: any Encoder) throws {
+                        func encode(to encoder: any Swift.Encoder) throws {
                             try self.value1.encode(to: encoder)
                         }
                     }
@@ -1816,10 +1816,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             value2: value2
                         ))
                     }
-                    public init(from decoder: any Decoder) throws {
+                    public init(from decoder: any Swift.Decoder) throws {
                         self.storage = try .init(from: decoder)
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         try self.storage.encode(to: encoder)
                     }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
@@ -1833,8 +1833,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             self.value1 = value1
                             self.value2 = value2
                         }
-                        init(from decoder: any Decoder) throws {
-                            var errors: [any Error] = []
+                        init(from decoder: any Swift.Decoder) throws {
+                            var errors: [any Swift.Error] = []
                             do {
                                 self.value1 = try .init(from: decoder)
                             } catch {
@@ -1855,7 +1855,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                                 errors: errors
                             )
                         }
-                        func encode(to encoder: any Encoder) throws {
+                        func encode(to encoder: any Swift.Encoder) throws {
                             try encoder.encodeFirstNonNilValueToSingleValueContainer([
                                 self.value2
                             ])
@@ -1882,8 +1882,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 @frozen public indirect enum Node: Codable, Hashable, Sendable {
                     case Node(Components.Schemas.Node)
                     case case2(Swift.String)
-                    public init(from decoder: any Decoder) throws {
-                        var errors: [any Error] = []
+                    public init(from decoder: any Swift.Decoder) throws {
+                        var errors: [any Swift.Error] = []
                         do {
                             self = .Node(try .init(from: decoder))
                             return
@@ -1902,7 +1902,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                             errors: errors
                         )
                     }
-                    public func encode(to encoder: any Encoder) throws {
+                    public func encode(to encoder: any Swift.Encoder) throws {
                         switch self {
                         case let .Node(value):
                             try value.encode(to: encoder)
@@ -4291,10 +4291,10 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         public enum CodingKeys: String, CodingKey {
                             case parent
                         }
-                        public init(from decoder: any Decoder) throws {
+                        public init(from decoder: any Swift.Decoder) throws {
                             self.storage = try .init(from: decoder)
                         }
-                        public func encode(to encoder: any Encoder) throws {
+                        public func encode(to encoder: any Swift.Encoder) throws {
                             try self.storage.encode(to: encoder)
                         }
                         private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
