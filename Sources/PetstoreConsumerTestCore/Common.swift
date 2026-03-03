@@ -11,19 +11,19 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIRuntime
-import Foundation
-import HTTPTypes
+package import OpenAPIRuntime
+package import Foundation
+package import HTTPTypes
 
 /// An error used by Petstore tests.
-public enum TestError: Swift.Error, LocalizedError, CustomStringConvertible, Sendable {
+package enum TestError: Swift.Error, LocalizedError, CustomStringConvertible, Sendable {
     case noHandlerFound(method: HTTPRequest.Method, path: String)
     case invalidURLString(String)
     case unexpectedValue(any Sendable)
     case unexpectedMissingRequestBody
 
     /// A human-readable description of the error.
-    public var description: String {
+    package var description: String {
         switch self {
         case .noHandlerFound(let method, let path): return "No handler found for method \(method) and path \(path)"
         case .invalidURLString(let string): return "Invalid URL string: \(string)"
@@ -33,16 +33,16 @@ public enum TestError: Swift.Error, LocalizedError, CustomStringConvertible, Sen
     }
 
     /// A localized description of the error suitable for presenting to the user.
-    public var errorDescription: String? { description }
+    package var errorDescription: String? { description }
 }
 
-public extension Date {
+package extension Date {
     static var test: Date { Date(timeIntervalSince1970: 1_674_036_251) }
 
     static var testString: String { "2023-01-18T10:04:11Z" }
 }
 
-public extension HTTPResponse {
+package extension HTTPResponse {
 
     func withEncodedBody(_ encodedBody: String) throws -> (HTTPResponse, HTTPBody) { (self, .init(encodedBody)) }
 
@@ -63,7 +63,7 @@ public extension HTTPResponse {
     }
 }
 
-public extension Data {
+package extension Data {
     var pretty: String { String(decoding: self, as: UTF8.self) }
 
     static var abcdString: String { "abcd" }
@@ -174,6 +174,6 @@ public extension Data {
     }
 }
 
-public extension HTTPRequest {
+package extension HTTPRequest {
     func withEncodedBody(_ encodedBody: String) -> (HTTPRequest, HTTPBody) { (self, .init(encodedBody)) }
 }
