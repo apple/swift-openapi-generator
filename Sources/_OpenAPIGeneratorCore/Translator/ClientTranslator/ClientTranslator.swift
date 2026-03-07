@@ -35,7 +35,8 @@ struct ClientFileTranslator: FileTranslator {
         let topComment = self.topComment
 
         let imports =
-            Constants.File.clientServerImports + config.additionalImports.map { ImportDescription(moduleName: $0) }
+            Constants.File.clientServerImports
+            + config.additionalImports.map { .always(ImportDescription(moduleName: $0)) }
 
         let clientMethodDecls = try OperationDescription.all(from: doc.paths, in: components, context: context)
             .map(translateClientMethod(_:))
@@ -67,7 +68,7 @@ struct ClientFileTranslator: FileTranslator {
                 accessModifier: config.access,
                 kind: .initializer,
                 parameters: [
-                    .init(label: "serverURL", type: .init(TypeName.url)),
+                    .init(label: "serverURL", type: .init(TypeName.foundationURLTypeAlias)),
                     .init(
                         label: "configuration",
                         type: .member(Constants.Configuration.typeName),
@@ -120,7 +121,11 @@ struct ClientFileTranslator: FileTranslator {
         return StructuredSwiftRepresentation(
             file: .init(
                 name: GeneratorMode.client.outputFileName,
-                contents: .init(topComment: topComment, imports: imports, codeBlocks: [.declaration(clientStructDecl)])
+                contents: .init(
+                    topComment: topComment,
+                    imports: imports,
+                    codeBlocks: [.declaration(clientStructDecl)]
+                )
             )
         )
     }

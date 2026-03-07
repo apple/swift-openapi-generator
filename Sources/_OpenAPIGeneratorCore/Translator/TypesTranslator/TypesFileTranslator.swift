@@ -34,7 +34,7 @@ struct TypesFileTranslator: FileTranslator {
 
         let topComment = self.topComment
 
-        let imports = Constants.File.imports + config.additionalImports.map { ImportDescription(moduleName: $0) }
+        let imports = Constants.File.imports + config.additionalImports.map { .always(ImportDescription(moduleName: $0)) }
 
         let apiProtocol = try translateAPIProtocol(doc.paths)
 
@@ -52,11 +52,44 @@ struct TypesFileTranslator: FileTranslator {
             topComment: topComment,
             imports: imports,
             codeBlocks: [
+                self.foundationTypealiasesCodeBlock,
                 .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl), components,
                 operations,
             ]
         )
 
         return StructuredSwiftRepresentation(file: .init(name: GeneratorMode.types.outputFileName, contents: typesFile))
+    }
+
+    private var foundationTypealiasesCodeBlock: CodeBlock {
+        .declaration(
+            .canImportConditional(
+                "FoundationEssentials",
+                then: [
+                    .typealias(
+                        accessModifier: self.config.access,
+                        name: TypeName.foundationURLTypeAlias.fullyQualifiedSwiftName,
+                        existingType: .init(.foundationEssentialsURL)
+                    ),
+                    .typealias(
+                        accessModifier: self.config.access,
+                        name: TypeName.foundationDateTypeAlias.fullyQualifiedSwiftName,
+                        existingType: .init(.foundationEssentialsDate)
+                    )
+                ],
+                else: [
+                    .typealias(
+                        accessModifier: self.config.access,
+                        name: TypeName.foundationURLTypeAlias.fullyQualifiedSwiftName,
+                        existingType: .init(.foundationURL)
+                    ),
+                    .typealias(
+                        accessModifier: self.config.access,
+                        name: TypeName.foundationDateTypeAlias.fullyQualifiedSwiftName,
+                        existingType: .init(.foundationDate)
+                    )
+                ]
+            )
+        )
     }
 }
