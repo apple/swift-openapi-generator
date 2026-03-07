@@ -11,9 +11,7 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "linkageTest",
-            dependencies: [
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")
-            ],
+            dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         )
     ]

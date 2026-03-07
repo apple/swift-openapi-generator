@@ -36,7 +36,9 @@ extension TypeName {
     /// FoundationEssentials module.
     /// - Parameter name: The name of the type.
     /// - Returns: A TypeName representing the specified type within the FoundationEssentials module.
-    static func foundationEssentials(_ name: String) -> TypeName { TypeName(swiftKeyPath: ["FoundationEssentials", name]) }
+    static func foundationEssentials(_ name: String) -> TypeName {
+        TypeName(swiftKeyPath: ["FoundationEssentials", name])
+    }
 
     /// Returns a type name for a type with the specified name in the
     /// OpenAPIRuntime module.

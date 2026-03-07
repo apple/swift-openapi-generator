@@ -114,7 +114,7 @@ struct TypesFileTranslator: FileTranslator {
                         accessModifier: self.config.access,
                         name: TypeName.foundationDateTypeAlias.fullyQualifiedSwiftName,
                         existingType: .init(.foundationEssentialsDate)
-                    )
+                    ),
                 ],
                 else: [
                     .typealias(
@@ -126,7 +126,7 @@ struct TypesFileTranslator: FileTranslator {
                         accessModifier: self.config.access,
                         name: TypeName.foundationDateTypeAlias.fullyQualifiedSwiftName,
                         existingType: .init(.foundationDate)
-                    )
+                    ),
                 ]
             )
         )
