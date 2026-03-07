@@ -24,6 +24,7 @@ enum DeclKind: String, Equatable, CustomStringConvertible {
     case `protocol`
     case function
     case enumCase
+    case canImportConditional
 
     var description: String { rawValue }
 }
@@ -116,6 +117,8 @@ extension Declaration {
             }
             return .init(name: name, kind: .function)
         case let .enumCase(description): return .init(name: description.name, kind: .enumCase)
+        case let .canImportConditional(condition, then: _, else: _):
+            return .init(name: condition, kind: .canImportConditional)
         case .commentable: fatalError("Unreachable")
         }
     }

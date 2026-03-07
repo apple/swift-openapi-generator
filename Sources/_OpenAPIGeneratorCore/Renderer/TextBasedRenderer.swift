@@ -170,7 +170,7 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     /// Renders the specified import statements.
-    func renderImports(_ imports: [ImportDescription]?) { (imports ?? []).forEach(renderImport) }
+    private func renderImports(_ imports: [ImportDescription]?) { (imports ?? []).forEach(renderImport) }
 
     /// Renders a single import statement.
     func renderImport(_ description: ImportDescription) {
