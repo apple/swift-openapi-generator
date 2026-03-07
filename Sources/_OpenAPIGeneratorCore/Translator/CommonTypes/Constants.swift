@@ -40,7 +40,10 @@ enum Constants {
                 condition: .canImport("FoundationEssentials"),
                 thenImportDescription: ImportDescription(
                     moduleName: "FoundationEssentials",
-                    moduleTypes: ["struct FoundationEssentials.URL", "struct FoundationEssentials.Data", "struct FoundationEssentials.Date"],
+                    moduleTypes: [
+                        "struct FoundationEssentials.URL", "struct FoundationEssentials.Data",
+                        "struct FoundationEssentials.Date",
+                    ],
                     preconcurrency: .onOS(["Linux"])
                 ),
                 elseImportDescription: ImportDescription(

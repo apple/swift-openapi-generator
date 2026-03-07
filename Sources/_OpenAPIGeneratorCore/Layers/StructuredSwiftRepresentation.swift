@@ -15,7 +15,11 @@
 /// A top-level import statement, that may be conditional based on a compile-time condition
 enum ImportStatement: Equatable, Codable {
     /// Imports based on compile time condition
-    case conditional(condition: Condition, thenImportDescription: ImportDescription, elseImportDescription: ImportDescription)
+    case conditional(
+        condition: Condition,
+        thenImportDescription: ImportDescription,
+        elseImportDescription: ImportDescription
+    )
 
     /// Always imported
     case always(ImportDescription)

@@ -34,7 +34,8 @@ struct TypesFileTranslator: FileTranslator {
 
         let topComment = self.topComment
 
-        let imports = Constants.File.imports + config.additionalImports.map { .always(ImportDescription(moduleName: $0)) }
+        let imports =
+            Constants.File.imports + config.additionalImports.map { .always(ImportDescription(moduleName: $0)) }
 
         let apiProtocol = try translateAPIProtocol(doc.paths)
 
@@ -52,9 +53,8 @@ struct TypesFileTranslator: FileTranslator {
             topComment: topComment,
             imports: imports,
             codeBlocks: [
-                self.foundationTypealiasesCodeBlock,
-                .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl), components,
-                operations,
+                self.foundationTypealiasesCodeBlock, .declaration(apiProtocol), .declaration(apiProtocolExtension),
+                .declaration(serversDecl), components, operations,
             ]
         )
 
@@ -75,7 +75,7 @@ struct TypesFileTranslator: FileTranslator {
                         accessModifier: self.config.access,
                         name: TypeName.foundationDateTypeAlias.fullyQualifiedSwiftName,
                         existingType: .init(.foundationEssentialsDate)
-                    )
+                    ),
                 ],
                 else: [
                     .typealias(
@@ -87,7 +87,7 @@ struct TypesFileTranslator: FileTranslator {
                         accessModifier: self.config.access,
                         name: TypeName.foundationDateTypeAlias.fullyQualifiedSwiftName,
                         existingType: .init(.foundationDate)
-                    )
+                    ),
                 ]
             )
         )

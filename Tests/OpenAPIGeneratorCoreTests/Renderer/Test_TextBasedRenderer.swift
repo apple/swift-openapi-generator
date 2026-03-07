@@ -118,10 +118,13 @@ final class Test_TextBasedRenderer: XCTestCase {
             [
                 .conditional(
                     condition: .canImport("MyModule"),
-                    thenImportDescription: ImportDescription(moduleName: "MyModule2", spi: "Secret", preconcurrency: .always),
+                    thenImportDescription: ImportDescription(
+                        moduleName: "MyModule2",
+                        spi: "Secret",
+                        preconcurrency: .always
+                    ),
                     elseImportDescription: ImportDescription(moduleName: "MyModule3")
-                ),
-                .always(ImportDescription(moduleName: "Bar", spi: "Secret", preconcurrency: .always)),
+                ), .always(ImportDescription(moduleName: "Bar", spi: "Secret", preconcurrency: .always)),
             ],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""

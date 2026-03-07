@@ -157,16 +157,14 @@ struct TextBasedRenderer: RendererProtocol {
             renderImport(elseImportDescription)
             writer.writeLine("#endif")
 
-        case .always(let importDescription):
-            self.renderImport(importDescription)
+        case .always(let importDescription): self.renderImport(importDescription)
         }
     }
 
     /// Renders a import condition
     func renderImportCondition(_ condition: ImportStatement.Condition) -> String {
         switch condition {
-        case .canImport(let argument):
-            "canImport(\(argument))"
+        case .canImport(let argument): "canImport(\(argument))"
         }
     }
 
@@ -739,7 +737,8 @@ struct TextBasedRenderer: RendererProtocol {
         case .typealias(let typealiasDescription): renderTypealias(typealiasDescription)
         case .function(let functionDescription): renderFunction(functionDescription)
         case .enumCase(let enumCase): renderEnumCase(enumCase)
-        case .canImportConditional(let condition, let thenDecls, let elseDecls): renderCanImportConditional(condition, thenDecls, elseDecls)
+        case .canImportConditional(let condition, let thenDecls, let elseDecls):
+            renderCanImportConditional(condition, thenDecls, elseDecls)
         }
     }
 
@@ -866,13 +865,9 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders a canImport with both then and else branches
     func renderCanImportConditional(_ module: String, _ thenDecls: [Declaration], _ elseDecls: [Declaration]) {
         writer.writeLine("#if canImport(\(module))")
-        for thenDecl in thenDecls {
-            renderDeclaration(thenDecl)
-        }
+        for thenDecl in thenDecls { renderDeclaration(thenDecl) }
         writer.writeLine("#else")
-        for elseDecl in elseDecls {
-            renderDeclaration(elseDecl)
-        }
+        for elseDecl in elseDecls { renderDeclaration(elseDecl) }
         writer.writeLine("#endif")
     }
 
