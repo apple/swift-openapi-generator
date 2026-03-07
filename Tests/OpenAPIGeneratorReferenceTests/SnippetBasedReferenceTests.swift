@@ -1521,7 +1521,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public typealias MyDate = Foundation.Date
+                public typealias MyDate = FoundationDate
             }
             """
         )
@@ -2288,8 +2288,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case log(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.multipartFormPayload.logPayload>)
                         public struct metadataPayload: Sendable, Hashable {
                             public struct bodyPayload: Codable, Hashable, Sendable {
-                                public var createdAt: Foundation.Date
-                                public init(createdAt: Foundation.Date) {
+                                public var createdAt: FoundationDate
+                                public init(createdAt: FoundationDate) {
                                     self.createdAt = createdAt
                                 }
                                 public enum CodingKeys: String, CodingKey {
@@ -2433,7 +2433,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public func registerHandlers(
                 on transport: any ServerTransport,
-                serverURL: Foundation.URL = .defaultOpenAPIServerURL,
+                serverURL: FoundationURL = .defaultOpenAPIServerURL,
                 configuration: Configuration = .init(),
                 middlewares: [any ServerMiddleware] = []
             ) throws {
@@ -2467,7 +2467,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public func registerHandlers(
                 on transport: any ServerTransport,
-                serverURL: Foundation.URL = .defaultOpenAPIServerURL,
+                serverURL: FoundationURL = .defaultOpenAPIServerURL,
                 configuration: Configuration = .init(),
                 middlewares: [any ServerMiddleware] = []
             ) throws {}
@@ -5918,16 +5918,16 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Servers {
                 public enum Server1 {
-                    public static func url() throws -> Foundation.URL {
-                        try Foundation.URL(
+                    public static func url() throws -> FoundationURL {
+                        try FoundationURL(
                             validatingOpenAPIServerURL: "https://example.com/api",
                             variables: []
                         )
                     }
                 }
                 @available(*, deprecated, renamed: "Servers.Server1.url")
-                public static func server1() throws -> Foundation.URL {
-                    try Foundation.URL(
+                public static func server1() throws -> FoundationURL {
+                    try FoundationURL(
                         validatingOpenAPIServerURL: "https://example.com/api",
                         variables: []
                     )
@@ -5950,8 +5950,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """
             public enum Servers {
                 public enum Server1 {
-                    public static func url(_protocol: Swift.String = "https") throws -> Foundation.URL {
-                        try Foundation.URL(
+                    public static func url(_protocol: Swift.String = "https") throws -> FoundationURL {
+                        try FoundationURL(
                             validatingOpenAPIServerURL: "{protocol}://example.com/api",
                             variables: [
                                 .init(
@@ -5963,8 +5963,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                 }
                 @available(*, deprecated, renamed: "Servers.Server1.url")
-                public static func server1(_protocol: Swift.String = "https") throws -> Foundation.URL {
-                    try Foundation.URL(
+                public static func server1(_protocol: Swift.String = "https") throws -> FoundationURL {
+                    try FoundationURL(
                         validatingOpenAPIServerURL: "{protocol}://example.com/api",
                         variables: [
                             .init(
@@ -6003,8 +6003,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public static func url(
                         environment: Environment = .production,
                         version: Swift.String = "v1"
-                    ) throws -> Foundation.URL {
-                        try Foundation.URL(
+                    ) throws -> FoundationURL {
+                        try FoundationURL(
                             validatingOpenAPIServerURL: "https://{environment}.example.com/api/{version}",
                             variables: [
                                 .init(
@@ -6023,8 +6023,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public static func server1(
                     environment: Swift.String = "production",
                     version: Swift.String = "v1"
-                ) throws -> Foundation.URL {
-                    try Foundation.URL(
+                ) throws -> FoundationURL {
+                    try FoundationURL(
                         validatingOpenAPIServerURL: "https://{environment}.example.com/api/{version}",
                         variables: [
                             .init(
@@ -6085,8 +6085,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public static func url(
                         environment: Environment = .production,
                         version: Swift.String = "v1"
-                    ) throws -> Foundation.URL {
-                        try Foundation.URL(
+                    ) throws -> FoundationURL {
+                        try FoundationURL(
                             validatingOpenAPIServerURL: "https://{environment}.example.com/api/{version}",
                             variables: [
                                 .init(
@@ -6105,8 +6105,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                 public static func server1(
                     environment: Swift.String = "production",
                     version: Swift.String = "v1"
-                ) throws -> Foundation.URL {
-                    try Foundation.URL(
+                ) throws -> FoundationURL {
+                    try FoundationURL(
                         validatingOpenAPIServerURL: "https://{environment}.example.com/api/{version}",
                         variables: [
                             .init(
@@ -6129,8 +6129,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case sandbox
                         case develop
                     }
-                    public static func url(environment: Environment = .develop) throws -> Foundation.URL {
-                        try Foundation.URL(
+                    public static func url(environment: Environment = .develop) throws -> FoundationURL {
+                        try FoundationURL(
                             validatingOpenAPIServerURL: "https://{environment}.api.example.com/",
                             variables: [
                                 .init(
@@ -6142,8 +6142,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                 }
                 @available(*, deprecated, renamed: "Servers.Server2.url")
-                public static func server2(environment: Swift.String = "develop") throws -> Foundation.URL {
-                    try Foundation.URL(
+                public static func server2(environment: Swift.String = "develop") throws -> FoundationURL {
+                    try FoundationURL(
                         validatingOpenAPIServerURL: "https://{environment}.api.example.com/",
                         variables: [
                             .init(
@@ -6158,8 +6158,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     )
                 }
                 public enum Server3 {
-                    public static func url(version: Swift.String = "v1") throws -> Foundation.URL {
-                        try Foundation.URL(
+                    public static func url(version: Swift.String = "v1") throws -> FoundationURL {
+                        try FoundationURL(
                             validatingOpenAPIServerURL: "https://example.com/api/{version}",
                             variables: [
                                 .init(
@@ -6171,8 +6171,8 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                 }
                 @available(*, deprecated, renamed: "Servers.Server3.url")
-                public static func server3(version: Swift.String = "v1") throws -> Foundation.URL {
-                    try Foundation.URL(
+                public static func server3(version: Swift.String = "v1") throws -> FoundationURL {
+                    try FoundationURL(
                         validatingOpenAPIServerURL: "https://example.com/api/{version}",
                         variables: [
                             .init(
@@ -6183,16 +6183,16 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     )
                 }
                 public enum Server4 {
-                    public static func url() throws -> Foundation.URL {
-                        try Foundation.URL(
+                    public static func url() throws -> FoundationURL {
+                        try FoundationURL(
                             validatingOpenAPIServerURL: "https://api.example.com/",
                             variables: []
                         )
                     }
                 }
                 @available(*, deprecated, renamed: "Servers.Server4.url")
-                public static func server4() throws -> Foundation.URL {
-                    try Foundation.URL(
+                public static func server4() throws -> FoundationURL {
+                    try FoundationURL(
                         validatingOpenAPIServerURL: "https://api.example.com/",
                         variables: []
                     )
@@ -6683,6 +6683,12 @@ fileprivate extension Declaration {
             return .variable(v)
         case let .typealias(t): return .typealias(t)
         case let .enumCase(e): return .enumCase(e)
+        case .canImportConditional(let condition, let thenDecls, let elseDecls):
+            return .canImportConditional(
+                condition,
+                then: thenDecls.map(stripComments(_:)),
+                else: elseDecls.map(stripComments(_:))
+            )
         }
     }
 

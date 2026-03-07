@@ -27,7 +27,7 @@ final class Test_TypeMatcher: Test_Core {
         (.string, "Swift.String"), (.string(contentEncoding: .binary), "OpenAPIRuntime.HTTPBody"),
         (.string(contentEncoding: .base64), "OpenAPIRuntime.Base64EncodedData"),
         (.string(.init(format: .date), .init()), "Swift.String"),
-        (.string(.init(format: .dateTime), .init()), "Foundation.Date"),
+        (.string(.init(format: .dateTime), .init()), "FoundationDate"),
 
         (.integer, "Swift.Int"), (.integer(.init(format: .int32), .init()), "Swift.Int32"),
         (.integer(.init(format: .int64), .init()), "Swift.Int64"),

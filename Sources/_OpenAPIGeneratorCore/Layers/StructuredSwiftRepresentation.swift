@@ -12,6 +12,24 @@
 //
 //===----------------------------------------------------------------------===//
 
+/// A top-level import statement, that may be conditional based on a compile-time condition
+enum ImportStatement: Equatable, Codable {
+    /// Imports based on compile time condition
+    case conditional(
+        condition: Condition,
+        thenImportDescription: ImportDescription,
+        elseImportDescription: ImportDescription
+    )
+
+    /// Always imported
+    case always(ImportDescription)
+
+    enum Condition: Equatable, Codable {
+        /// A condition on whether we can import a specific module
+        case canImport(String)
+    }
+}
+
 /// A description of an import declaration.
 ///
 /// For example: `import Foo`.
@@ -678,6 +696,9 @@ indirect enum Declaration: Equatable, Codable {
 
     /// An enum case declaration.
     case enumCase(EnumCaseDescription)
+
+    /// A #if canImport declaration
+    case canImportConditional(String, then: [Declaration], else: [Declaration])
 }
 
 /// A description of a deprecation notice.
@@ -1052,7 +1073,7 @@ struct FileDescription: Equatable, Codable {
 
     /// Import statements placed below the top comment, but before the code
     /// blocks.
-    var imports: [ImportDescription]?
+    var imports: [ImportStatement]?
 
     /// The code blocks that represent the main contents of the file.
     var codeBlocks: [CodeBlock]
@@ -1675,6 +1696,7 @@ extension Declaration {
             case .protocol(let protocolDescription): return protocolDescription.accessModifier
             case .function(let functionDescription): return functionDescription.signature.accessModifier
             case .enumCase: return nil
+            case .canImportConditional: return nil
             }
         }
         set {
@@ -1707,6 +1729,7 @@ extension Declaration {
                 functionDescription.signature.accessModifier = newValue
                 self = .function(functionDescription)
             case .enumCase: break
+            case .canImportConditional: break
             }
         }
     }
