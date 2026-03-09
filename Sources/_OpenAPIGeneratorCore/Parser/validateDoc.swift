@@ -124,21 +124,30 @@ func validateReferences(in doc: ParsedOpenAPIRepresentation) throws {
 
     func validateReferencesInContentTypes(_ content: OpenAPI.Content.Map, location: String) throws {
         for (contentKey, contentType) in content {
-            if let reference = contentType.schema?.reference {
+            switch contentType {
+            case .a(let ref):
                 try validateReference(
-                    reference,
+                    ref,
                     in: doc.components,
-                    location: location + "/content/\(contentKey.rawValue)/schema"
+                    location: location + "/content/\(contentKey.rawValue)"
                 )
-            }
-            if let eitherExamples = contentType.examples?.values {
-                for example in eitherExamples {
-                    if let reference = example.reference {
-                        try validateReference(
-                            reference,
-                            in: doc.components,
-                            location: location + "/content/\(contentKey.rawValue)/examples"
-                        )
+            case .b(let contentType):
+                if let reference: JSONReference<JSONSchema> = contentType.schema?.reference {
+                    try validateReference(
+                        .init(reference),
+                        in: doc.components,
+                        location: location + "/content/\(contentKey.rawValue)/schema"
+                    )
+                }
+                if let eitherExamples = contentType.examples?.values {
+                    for example in eitherExamples {
+                        if let reference = example.reference {
+                            try validateReference(
+                                reference,
+                                in: doc.components,
+                                location: location + "/content/\(contentKey.rawValue)/examples"
+                            )
+                        }
                     }
                 }
             }
