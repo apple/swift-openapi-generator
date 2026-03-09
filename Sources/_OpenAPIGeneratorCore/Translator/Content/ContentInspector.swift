@@ -201,7 +201,7 @@ extension FileTranslator {
                 )
                 return nil
             }
-            return .init(contentType: contentType, schema: contentValue.schema, encoding: contentValue.encoding)
+            return .init(contentType: contentType, schema: contentValue.schema, encoding: contentValue.encodingMap)
         }
         if !excludeBinary, contentType.isBinary {
             return .init(contentType: contentType, schema: .b(.string(contentEncoding: .binary)))

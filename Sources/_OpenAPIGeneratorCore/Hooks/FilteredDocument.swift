@@ -403,7 +403,7 @@ private extension FilteredDocumentBuilder {
 
     mutating func includeComponentsReferencedBy(_ content: OpenAPI.Content) throws {
         if let schema = content.schema { try includeSchema(schema) }
-        if let encoding = content.encoding {
+        if let encoding = content.encodingMap {
             for encoding in encoding.values {
                 if let headers = encoding.headers { for header in headers.values { try includeHeader(header) } }
             }
