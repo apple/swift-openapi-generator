@@ -383,16 +383,20 @@ private extension FilteredDocumentBuilder {
             case .b(let schema): try includeComponentsReferencedBy(schema)
             }
         case .b(let contentMap):
-            for value in contentMap.values {
-                switch value.schema {
-                case .a(let reference):
-                    guard requiredSchemaReferences.insert(reference).inserted else { return }
-                    try includeComponentsReferencedBy(try document.components.lookup(reference))
-                case .b(let schema): try includeComponentsReferencedBy(schema)
-                case .none: continue
-                }
-            }
+            for value in contentMap.values { try includeComponentsReferencedBy(value) }
         }
+    }
+
+    mutating func includeComponentsReferencedBy(
+        _ contentMapEntry: Either<OpenAPI.Reference<OpenAPI.Content>, OpenAPI.Content>
+    ) throws {
+        let content: OpenAPI.Content
+        switch contentMapEntry {
+            case .a(let ref): content = try document.components.lookup(ref)
+            case .b(let value): content = value
+        }
+        guard let schema = content.schema else { return }
+        try includeComponentsReferencedBy(schema)
     }
 
     mutating func includeComponentsReferencedBy(_ response: OpenAPI.Response) throws {
@@ -402,7 +406,7 @@ private extension FilteredDocumentBuilder {
     }
 
     mutating func includeComponentsReferencedBy(_ content: OpenAPI.Content) throws {
-        if let schema = content.schema { try includeSchema(schema) }
+        if let schema = content.schema { try includeComponentsReferencedBy(schema) }
         if let encoding = content.encodingMap {
             for encoding in encoding.values {
                 if let headers = encoding.headers { for header in headers.values { try includeHeader(header) } }

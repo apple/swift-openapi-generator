@@ -365,7 +365,12 @@ extension FileTranslator {
         func visitContentMap(_ contentMap: OpenAPI.Content.Map) throws {
             for (key, value) in contentMap {
                 guard try key.asGeneratorContentType.isMultipart else { continue }
-                guard let schema = value.schema, case let .a(ref) = schema, let name = ref.name,
+                let content: OpenAPI.Content
+                switch value {
+                case .a(let ref): content = try components.lookup(ref)
+                case .b(let value): content = value
+                }
+                guard let ref = content.schema?.reference, let name = ref.name,
                     let componentKey = OpenAPI.ComponentKey(rawValue: name)
                 else { continue }
                 refs.insert(componentKey)
