@@ -151,6 +151,9 @@ extension FileTranslator {
             case .cookie:
                 try diagnostics.emitUnsupported("Cookie params", foundIn: foundIn)
                 return nil
+            case .querystring:
+                try diagnostics.emitUnsupported("QueryString params", foundIn: foundIn)
+                return nil
             }
 
         case let .b(contentMap):
@@ -165,13 +168,12 @@ extension FileTranslator {
             codingStrategy = typedContent.content.contentType.codingStrategy
 
             // Defaults are defined by the OpenAPI specification:
-            // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#fixed-fields-10
-            switch parameter.location {
-            case .query, .cookie:
-                style = .form
+            // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#fixed-fields-10
+            style = OpenAPI.Parameter.SchemaContext.Style.default(for: parameter.location)
+            switch style {
+            case .form:
                 explode = true
-            case .path, .header:
-                style = .simple
+            default:
                 explode = false
             }
         }
@@ -221,6 +223,7 @@ extension OpenAPI.Parameter.Context.Location {
         case .header: return "Headers"
         case .query: return "Query"
         case .cookie: return "Cookies"
+        case .querystring: return "QueryString"
         }
     }
 
@@ -236,6 +239,7 @@ extension OpenAPI.Parameter.Context.Location {
         case .header: return "headers"
         case .query: return "query"
         case .cookie: return "cookies"
+        case .querystring: return "querystring"
         }
     }
 }
