@@ -6321,7 +6321,9 @@ extension SnippetBasedReferenceTests {
         line: UInt = #line
     ) throws {
         let translator = try makeTypesTranslator(componentsYAML: componentsYAML)
-        let translation = try translator.translateComponentHeaders(translator.components.headers)
+        let components = translator.components
+        let componentHeaders = try components.headers.mapValues { try components.assumeLookupOnce($0) }
+        let translation = try translator.translateComponentHeaders(componentHeaders)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 
@@ -6333,7 +6335,9 @@ extension SnippetBasedReferenceTests {
         line: UInt = #line
     ) throws {
         let translator = try makeTypesTranslator(accessModifier: accessModifier, componentsYAML: componentsYAML)
-        let translation = try translator.translateComponentParameters(translator.components.parameters)
+        let components = translator.components
+        let componentParameters = try components.parameters.mapValues { try components.assumeLookupOnce($0) }
+        let translation = try translator.translateComponentParameters(componentParameters)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 
@@ -6379,8 +6383,9 @@ extension SnippetBasedReferenceTests {
             try XCTAssertSwiftEquivalent(generatedSchemasStructuredSwift, expectedSchemasSwift, file: file, line: line)
         }
         if let expectedRequestBodiesSwift {
+            let componentRequestBodies = try components.requestBodies.mapValues { try components.assumeLookupOnce($0) }
             let generatedRequestBodiesStructuredSwift = try types.translateComponentRequestBodies(
-                document.components.requestBodies
+                componentRequestBodies
             )
             try XCTAssertSwiftEquivalent(
                 generatedRequestBodiesStructuredSwift,
@@ -6438,8 +6443,10 @@ extension SnippetBasedReferenceTests {
             try XCTAssertSwiftEquivalent(generatedSchemasStructuredSwift, expectedSchemasSwift, file: file, line: line)
         }
         if let expectedResponsesSwift {
+            let components = document.components
+            let componentResponses = try components.responses.mapValues { try components.assumeLookupOnce($0) }
             let generatedRequestBodiesStructuredSwift = try types.translateComponentResponses(
-                document.components.responses
+                componentResponses
             )
             try XCTAssertSwiftEquivalent(
                 generatedRequestBodiesStructuredSwift,
@@ -6496,7 +6503,9 @@ extension SnippetBasedReferenceTests {
             ignoredDiagnosticMessages: ignoredDiagnosticMessages,
             componentsYAML: componentsYAML
         )
-        let translation = try translator.translateComponentResponses(translator.components.responses)
+        let components = translator.components
+        let componentResponses = try components.responses.mapValues { try components.assumeLookupOnce($0) }
+        let translation = try translator.translateComponentResponses(componentResponses)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 
@@ -6513,7 +6522,9 @@ extension SnippetBasedReferenceTests {
             ignoredDiagnosticMessages: ignoredDiagnosticMessages,
             componentsYAML: componentsYAML
         )
-        let translation = try translator.translateComponentRequestBodies(translator.components.requestBodies)
+        let components = translator.components
+        let componentRequestBodies = try components.requestBodies.mapValues { try components.assumeLookupOnce($0) }
+        let translation = try translator.translateComponentRequestBodies(componentRequestBodies)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
     }
 

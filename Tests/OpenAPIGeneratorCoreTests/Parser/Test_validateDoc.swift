@@ -81,13 +81,13 @@ final class Test_validateDoc: Test_Core {
                     .init(
                         get: .init(
                             requestBody: .b(
-                                .init(content: [.init(rawValue: "application/xml")!: .init(schema: .string)])
+                                .init(content: [.init(rawValue: "application/xml")!: .content(.init(schema: .string))])
                             ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                        content: [.init(rawValue: "application/json")!: .content(.init(schema: .string))]
                                     )
                                 )
                             ]
@@ -97,12 +97,12 @@ final class Test_validateDoc: Test_Core {
                 "/path2": .b(
                     .init(
                         get: .init(
-                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .init(schema: .string)])),
+                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .content(.init(schema: .string))])),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 2",
-                                        content: [.init(rawValue: "text/plain")!: .init(schema: .string)]
+                                        content: [.init(rawValue: "text/plain")!: .content(.init(schema: .string))]
                                     )
                                 )
                             ]
@@ -127,12 +127,12 @@ final class Test_validateDoc: Test_Core {
                 "/path1": .b(
                     .init(
                         get: .init(
-                            requestBody: .b(.init(content: [.init(rawValue: "application/")!: .init(schema: .string)])),
+                            requestBody: .b(.init(content: [.init(rawValue: "application/")!: .content(.init(schema: .string))])),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                        content: [.init(rawValue: "application/json")!: .content(.init(schema: .string))]
                                     )
                                 )
                             ]
@@ -142,12 +142,12 @@ final class Test_validateDoc: Test_Core {
                 "/path2": .b(
                     .init(
                         get: .init(
-                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .init(schema: .string)])),
+                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .content(.init(schema: .string))])),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 2",
-                                        content: [.init(rawValue: "text/plain")!: .init(schema: .string)]
+                                        content: [.init(rawValue: "text/plain")!: .content(.init(schema: .string))]
                                     )
                                 )
                             ]
@@ -179,13 +179,13 @@ final class Test_validateDoc: Test_Core {
                     .init(
                         get: .init(
                             requestBody: .b(
-                                .init(content: [.init(rawValue: "application/xml")!: .init(schema: .string)])
+                                .init(content: [.init(rawValue: "application/xml")!: .content(.init(schema: .string))])
                             ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                        content: [.init(rawValue: "application/json")!: .content(.init(schema: .string))]
                                     )
                                 )
                             ]
@@ -195,12 +195,12 @@ final class Test_validateDoc: Test_Core {
                 "/path2": .b(
                     .init(
                         get: .init(
-                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .init(schema: .string)])),
+                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .content(.init(schema: .string))])),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 2",
-                                        content: [.init(rawValue: "/plain")!: .init(schema: .string)]
+                                        content: [.init(rawValue: "/plain")!: .content(.init(schema: .string))]
                                     )
                                 )
                             ]
@@ -232,13 +232,13 @@ final class Test_validateDoc: Test_Core {
                     .init(
                         get: .init(
                             requestBody: .b(
-                                .init(content: [.init(rawValue: "application/xml")!: .init(schema: .string)])
+                                .init(content: [.init(rawValue: "application/xml")!: .content(.init(schema: .string))])
                             ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                        content: [.init(rawValue: "application/json")!: .content(.init(schema: .string))]
                                     )
                                 )
                             ]
@@ -246,9 +246,9 @@ final class Test_validateDoc: Test_Core {
                     )
                 )
             ],
-            components: .init(requestBodies: [
-                "exampleRequestBody1": .init(content: [.init(rawValue: "application/pdf")!: .init(schema: .string)]),
-                "exampleRequestBody2": .init(content: [.init(rawValue: "image/")!: .init(schema: .string)]),
+            components: .direct(requestBodies: [
+                "exampleRequestBody1": .init(content: [.init(rawValue: "application/pdf")!: .content(.init(schema: .string))]),
+                "exampleRequestBody2": .init(content: [.init(rawValue: "image/")!: .content(.init(schema: .string))]),
             ])
         )
         XCTAssertThrowsError(
@@ -273,13 +273,13 @@ final class Test_validateDoc: Test_Core {
                     .init(
                         get: .init(
                             requestBody: .b(
-                                .init(content: [.init(rawValue: "application/xml")!: .init(schema: .string)])
+                                .init(content: [.init(rawValue: "application/xml")!: .content(.init(schema: .string))])
                             ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                        content: [.init(rawValue: "application/json")!: .content(.init(schema: .string))]
                                     )
                                 )
                             ]
@@ -287,14 +287,14 @@ final class Test_validateDoc: Test_Core {
                     )
                 )
             ],
-            components: .init(responses: [
+            components: .direct(responses: [
                 "exampleRequestBody1": .init(
                     description: "Test description 1",
-                    content: [.init(rawValue: "application/pdf")!: .init(schema: .string)]
+                    content: [.init(rawValue: "application/pdf")!: .content(.init(schema: .string))]
                 ),
                 "exampleRequestBody2": .init(
                     description: "Test description 2",
-                    content: [.init(rawValue: "")!: .init(schema: .string)]
+                    content: [.init(rawValue: "")!: .content(.init(schema: .string))]
                 ),
             ])
         )
@@ -321,13 +321,12 @@ final class Test_validateDoc: Test_Core {
                         get: .init(
                             parameters: .init(
                                 arrayLiteral: .b(
-                                    .init(
+                                    .path(
                                         name: "ID",
-                                        context: .path,
                                         content: [
-                                            .init(rawValue: "text/plain")!: .init(
-                                                schema: .a(.component(named: "Path1ParametersContentSchemaReference"))
-                                            )
+                                            .init(rawValue: "text/plain")!: .content(.init(
+                                                schema: .reference(.component(named: "Path1ParametersContentSchemaReference"))
+                                            ))
                                         ]
                                     )
                                 ),
@@ -340,9 +339,9 @@ final class Test_validateDoc: Test_Core {
                                     .init(
                                         description: "ResponseDescription",
                                         content: [
-                                            .init(rawValue: "text/plain")!: .init(
-                                                schema: .a(.component(named: "ResponsesContentSchemaReference"))
-                                            )
+                                            .init(rawValue: "text/plain")!: .content(.init(
+                                                schema: .reference(.component(named: "ResponsesContentSchemaReference"))
+                                            ))
                                         ]
                                     )
                                 ),
@@ -360,9 +359,9 @@ final class Test_validateDoc: Test_Core {
                             parameters: .init(arrayLiteral: .a(.component(named: "Path3ExampleID"))),
                             requestBody: .b(
                                 .init(content: [
-                                    .init(rawValue: "text/html")!: .init(
-                                        schema: .a(.component(named: "RequestBodyContentSchemaReference"))
-                                    )
+                                    .init(rawValue: "text/html")!: .content(.init(
+                                        schema: .reference(.component(named: "RequestBodyContentSchemaReference"))
+                                    ))
                                 ])
                             ),
                             responses: [:],
@@ -371,7 +370,7 @@ final class Test_validateDoc: Test_Core {
                     )
                 ),
             ],
-            components: .init(
+            components: .direct(
                 schemas: [
                     "ResponsesContentSchemaReference": .init(schema: .string(.init(), .init())),
                     "RequestBodyContentSchemaReference": .init(schema: .integer(.init(), .init())),
@@ -379,8 +378,8 @@ final class Test_validateDoc: Test_Core {
                 ],
                 responses: ["ResponsesReference": .init(description: "Description")],
                 parameters: [
-                    "Path3ExampleID": .init(name: "ID", context: .path, content: .init()),
-                    "Path1ParametersReference": .init(name: "Schema", context: .path, schema: .array),
+                    "Path3ExampleID": .path(name: "ID", content: .init()),
+                    "Path1ParametersReference": .path(name: "Schema", schema: .array),
                 ],
                 requestBodies: [
                     "RequestBodyReference": .init(content: .init())
@@ -404,9 +403,9 @@ final class Test_validateDoc: Test_Core {
                         get: .init(
                             requestBody: .b(
                                 .init(content: [
-                                    .init(rawValue: "text/html")!: .init(
-                                        schema: .a(.component(named: "RequestBodyContentSchemaReference"))
-                                    )
+                                    .init(rawValue: "text/html")!: .content(.init(
+                                        schema: .reference(.component(named: "RequestBodyContentSchemaReference"))
+                                    ))
                                 ])
                             ),
                             responses: [:]
