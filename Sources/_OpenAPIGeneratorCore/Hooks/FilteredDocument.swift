@@ -169,7 +169,7 @@ struct FilteredDocumentBuilder {
     /// - Parameter name: The key in the `#/components/schemas` map in the OpenAPI document.
     /// - Throws: If the named schema does not exist in original OpenAPI document.
     mutating func includeSchema(_ name: String) throws {
-        try includeSchema(.a(OpenAPI.Reference<JSONSchema>.component(named: name)))
+        try includeComponentsReferencedBy(.reference(.component(named: name)))
     }
 }
 
@@ -198,15 +198,6 @@ private extension FilteredDocumentBuilder {
         switch maybeReference {
         case .a(let reference):
             guard try requiredPathItemReferences.insert(reference.internalComponentKey).inserted else { return }
-            try includeComponentsReferencedBy(try document.components.lookup(reference))
-        case .b(let value): try includeComponentsReferencedBy(value)
-        }
-    }
-
-    mutating func includeSchema(_ maybeReference: Either<OpenAPI.Reference<JSONSchema>, JSONSchema>) throws {
-        switch maybeReference {
-        case .a(let reference):
-            guard try requiredSchemaReferences.insert(reference.internalComponentKey).inserted else { return }
             try includeComponentsReferencedBy(try document.components.lookup(reference))
         case .b(let value): try includeComponentsReferencedBy(value)
         }
@@ -330,7 +321,7 @@ private extension FilteredDocumentBuilder {
         case .reference(let reference, _):
             let referenceKey = try OpenAPI.ComponentKey(stringLiteral: reference.requiredName)
             guard requiredSchemaReferences.insert(referenceKey).inserted else { return }
-            try includeComponentsReferencedBy(document.components.lookup(reference))
+            try includeComponentsReferencedBy(document.components.lookupOnce(reference).flattenToJsonSchema())
 
         case .object(_, let object):
             for schema in object.properties.values { try includeComponentsReferencedBy(schema) }

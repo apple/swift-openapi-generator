@@ -29,10 +29,14 @@ extension TypesFileTranslator {
     {
 
         let schemas = try translateSchemas(components.schemas, multipartSchemaNames: multipartSchemaNames)
-        let parameters = try translateComponentParameters(components.parameters)
-        let requestBodies = try translateComponentRequestBodies(components.requestBodies)
-        let responses = try translateComponentResponses(components.responses)
-        let headers = try translateComponentHeaders(components.headers)
+        let resolvedParameters = try components.parameters.mapValues { try components.lookup($0) }
+        let parameters = try translateComponentParameters(resolvedParameters)
+        let resolvedRequestBodies = try components.requestBodies.mapValues { try components.lookup($0) }
+        let requestBodies = try translateComponentRequestBodies(resolvedRequestBodies)
+        let resolvedResponses = try components.responses.mapValues { try components.lookup($0) }
+        let responses = try translateComponentResponses(resolvedResponses)
+        let resolvedHeaders = try components.headers.mapValues { try components.lookup($0) }
+        let headers = try translateComponentHeaders(resolvedHeaders)
 
         let componentsDecl: Declaration = .commentable(
             .doc(
