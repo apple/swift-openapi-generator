@@ -22,10 +22,34 @@ extension Either {
     /// - Throws: An error if there's an issue looking up the value in the components.
     func resolve(in components: OpenAPI.Components) throws -> B where A == OpenAPI.Reference<B> {
         switch self {
-        case let .a(a): return try components.lookup(a)
+        case let .a(a): return try components.assumeLookupOnce(a)
         case let .b(b): return b
         }
     }
+}
+
+extension OpenAPI.Components {
+    func assumeLookupOnce<ReferenceType: ComponentDictionaryLocatable>(_ reference: OpenAPI.Reference<ReferenceType>) throws -> ReferenceType{
+        guard let result = try lookupOnce(reference).b else {
+                throw JSONReferenceParsingError.componentsReferenceEntryUnsupported(reference.absoluteString)
+        }
+        return result
+    }
+
+    func assumeLookupOnce<ReferenceType: ComponentDictionaryLocatable>(_ reference: JSONReference<ReferenceType>) throws -> ReferenceType{
+        guard let result = try lookupOnce(reference).b else {
+                throw JSONReferenceParsingError.componentsReferenceEntryUnsupported(reference.absoluteString)
+        }
+        return result
+    }
+
+    func assumeLookupOnce<ReferenceType: ComponentDictionaryLocatable>(_ maybeReference: Either<OpenAPI.Reference<ReferenceType>, ReferenceType>) throws -> ReferenceType{
+        guard let result = try lookupOnce(maybeReference).b else {
+                throw JSONReferenceParsingError.componentsReferenceEntryUnsupported(maybeReference.a?.absoluteString)
+        }
+        return result
+    }
+
 }
 
 extension JSONSchema.Schema {

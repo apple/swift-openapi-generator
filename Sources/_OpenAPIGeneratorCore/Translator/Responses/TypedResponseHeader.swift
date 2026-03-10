@@ -105,7 +105,7 @@ extension FileTranslator {
         // Collect the header
         let header: OpenAPI.Header
         switch unresolvedResponseHeader {
-        case let .a(ref): header = try components.lookup(ref)
+        case let .a(ref): header = try components.assumeLookupOnce(ref)
         case let .b(_header): header = _header
         }
 

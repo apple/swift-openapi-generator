@@ -67,7 +67,7 @@ func validateContentTypes(in doc: ParsedOpenAPIRepresentation, validate: (String
     }
 
     for (key, component) in doc.components.requestBodies {
-        let component = try doc.components.lookup(component)
+        let component = try doc.components.assumeLookupOnce(component)
         for contentType in component.content.keys {
             if !validate(contentType.rawValue) {
                 throw Diagnostic.error(
@@ -82,7 +82,7 @@ func validateContentTypes(in doc: ParsedOpenAPIRepresentation, validate: (String
     }
 
     for (key, component) in doc.components.responses {
-        let component = try doc.components.lookup(component)
+        let component = try doc.components.assumeLookupOnce(component)
         for contentType in component.content.keys {
             if !validate(contentType.rawValue) {
                 throw Diagnostic.error(

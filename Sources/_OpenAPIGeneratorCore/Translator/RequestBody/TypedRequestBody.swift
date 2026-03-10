@@ -73,7 +73,7 @@ extension FileTranslator {
         let isInlined: Bool
         switch unresolvedRequest {
         case .a(let reference):
-            request = try components.lookup(reference)
+            request = try components.assumeLookupOnce(reference)
             isInlined = false
         case .b(let _request):
             request = _request
