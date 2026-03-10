@@ -135,12 +135,16 @@ extension FileTranslator {
             switch schema {
             case let .a(reference): type = try typeAssigner.typeName(for: reference).asUsage
             case let .b(schema):
-                type = try typeAssigner.typeUsage(
-                    forParameterNamed: name,
-                    withSchema: schema,
-                    components: components,
-                    inParent: parent
-                )
+                switch schema.value {
+                case let .reference(reference, _): type = try typeAssigner.typeName(for: reference).asUsage
+                default:
+                    type = try typeAssigner.typeUsage(
+                        forParameterNamed: name,
+                        withSchema: schema,
+                        components: components,
+                        inParent: parent
+                    )
+                }
             }
         }
         let isOptional = try !header.required || typeMatcher.isOptional(schema, components: components)

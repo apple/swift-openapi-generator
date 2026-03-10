@@ -196,7 +196,14 @@ extension FileTranslator {
         case .a:
             // references are supported
             return .supported
-        case let .b(schema): return try isSchemaSupported(schema, referenceStack: &referenceStack)
+        case let .b(schema):
+            switch schema.value {
+            case .reference:
+                // references are supported
+                return .supported
+            default:
+                return try isSchemaSupported(schema, referenceStack: &referenceStack)
+            }
         }
     }
 

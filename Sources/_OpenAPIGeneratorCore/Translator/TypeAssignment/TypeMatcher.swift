@@ -156,8 +156,19 @@ struct TypeMatcher {
     ) -> OpenAPI.Reference<JSONSchema>? {
         // If the schema is a ref AND no encoding is provided, we can reference the type.
         // Otherwise, we must inline.
-        guard case .a(let ref) = schema, encoding == nil || encoding!.isEmpty else { return nil }
-        return ref
+        guard let schema, encoding == nil || encoding!.isEmpty else { return nil }
+
+        switch schema {
+        case .a(let ref):
+            return ref
+        case .b(let schema):
+            switch schema.value {
+            case let .reference(ref, _):
+                return .init(ref)
+            default:
+                return nil
+            }
+        }
     }
 
     /// Returns a Boolean value that indicates whether the schema
