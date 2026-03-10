@@ -94,13 +94,17 @@ struct TypeAssigner {
             switch schema {
             case let .a(reference): associatedType = try typeName(for: reference).asUsage
             case let .b(schema):
-                associatedType = try _typeUsage(
-                    forPotentiallyInlinedValueNamed: hint,
-                    withSchema: schema,
-                    components: components,
-                    inParent: parent,
-                    subtype: .appendScope
-                )
+                switch schema.value {
+                case let .reference(reference, _): associatedType = try typeName(for: reference).asUsage
+                default:
+                    associatedType = try _typeUsage(
+                        forPotentiallyInlinedValueNamed: hint,
+                        withSchema: schema,
+                        components: components,
+                        inParent: parent,
+                        subtype: .appendScope
+                    )
+                }
             }
         } else {
             associatedType = nil
