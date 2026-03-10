@@ -97,7 +97,7 @@ extension FileTranslator {
         return try contents.compactMap { key, value in
             try parseContentIfSupported(
                 contentKey: key,
-                contentValue: try components.lookup(value),
+                contentValue: try components.assumeLookupOnce(value),
                 excludeBinary: excludeBinary,
                 isRequired: isRequired,
                 foundIn: foundIn + "/\(key.rawValue)"
@@ -129,12 +129,12 @@ extension FileTranslator {
 
         let chosenContent: (type: ContentType, schema: SchemaContent, content: OpenAPI.Content)?
         if let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isJSON }) {
-            let contentValue = try components.lookup(contentValue)
+            let contentValue = try components.assumeLookupOnce(contentValue)
             chosenContent = (contentType, .init(contentType: contentType, schema: contentValue.schema.map(Either.schema)), contentValue)
         } else if !excludeBinary,
             let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isBinary })
         {
-            let contentValue = try components.lookup(contentValue)
+            let contentValue = try components.assumeLookupOnce(contentValue)
             chosenContent = (
                 contentType, .init(contentType: contentType, schema: .schema(.string(contentEncoding: .binary))),
                 contentValue

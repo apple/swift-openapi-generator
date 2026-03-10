@@ -99,7 +99,7 @@ extension FileTranslator {
         // Collect the parameter
         let parameter: OpenAPI.Parameter
         switch unresolvedParameter {
-        case let .a(ref): parameter = try components.lookup(ref)
+        case let .a(ref): parameter = try components.assumeLookupOnce(ref)
         case let .b(_parameter): parameter = _parameter
         }
 

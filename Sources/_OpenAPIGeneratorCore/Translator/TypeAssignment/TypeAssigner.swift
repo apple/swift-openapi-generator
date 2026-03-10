@@ -534,6 +534,10 @@ enum JSONReferenceParsingError: Swift.Error {
     /// An error thrown when parsing a JSON reference that points to
     /// other OpenAPI documents.
     case externalPathsUnsupported(String)
+
+    // An error thrown when following a reference leads to a component entry
+    // that is itself a reference.
+    case componentsReferenceEntryUnsupported(String?)
 }
 
 extension JSONReferenceParsingError: CustomStringConvertible {
@@ -543,6 +547,8 @@ extension JSONReferenceParsingError: CustomStringConvertible {
             return "JSON references outside of #/components are not supported, found: \(string ?? "<nil>")"
         case let .externalPathsUnsupported(string):
             return "External JSON references are not supported, found: \(string)"
+        case let .componentsReferenceEntryUnsupported(string):
+            return "#/components entries that are themselves references are not supported, found: \(string ?? "<nil>")"
         }
     }
 }
