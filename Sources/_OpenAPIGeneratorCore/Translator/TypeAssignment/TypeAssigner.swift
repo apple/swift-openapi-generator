@@ -91,20 +91,20 @@ struct TypeAssigner {
     ) throws -> TypeUsage? {
         let associatedType: TypeUsage?
         if let schema {
-            switch schema {
-            case let .a(reference): associatedType = try typeName(for: reference).asUsage
-            case let .b(schema):
-                switch schema.value {
-                case let .reference(reference, _): associatedType = try typeName(for: reference).asUsage
-                default:
-                    associatedType = try _typeUsage(
-                        forPotentiallyInlinedValueNamed: hint,
-                        withSchema: schema,
-                        components: components,
-                        inParent: parent,
-                        subtype: .appendScope
-                    )
-                }
+            // we want to look under both OpenAPI.Reference and
+            // JSONSchema.reference so we flatten the value before inspecting
+            // it:
+            let unboxedSchema = schema.flattenToJsonSchema()
+            switch unboxedSchema.value {
+            case let .reference(reference, _): associatedType = try typeName(for: reference).asUsage
+            default:
+                associatedType = try _typeUsage(
+                    forPotentiallyInlinedValueNamed: hint,
+                    withSchema: unboxedSchema,
+                    components: components,
+                    inParent: parent,
+                    subtype: .appendScope
+                )
             }
         } else {
             associatedType = nil

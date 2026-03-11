@@ -192,18 +192,16 @@ extension FileTranslator {
             // fragment type is supported
             return .supported
         }
-        switch schema {
-        case .a:
+        // we want to look under both OpenAPI.Reference and
+        // JSONSchema.reference so we flatten the value before inspecting
+        // it:
+        let unboxedSchema = schema.flattenToJsonSchema()
+        switch unboxedSchema.value {
+        case .reference:
             // references are supported
             return .supported
-        case let .b(schema):
-            switch schema.value {
-            case .reference:
-                // references are supported
-                return .supported
-            default:
-                return try isSchemaSupported(schema, referenceStack: &referenceStack)
-            }
+        default:
+            return try isSchemaSupported(unboxedSchema, referenceStack: &referenceStack)
         }
     }
 

@@ -158,16 +158,15 @@ struct TypeMatcher {
         // Otherwise, we must inline.
         guard let schema, encoding == nil || encoding!.isEmpty else { return nil }
 
-        switch schema {
-        case .a(let ref):
-            return ref
-        case .b(let schema):
-            switch schema.value {
-            case let .reference(ref, _):
-                return .init(ref)
-            default:
-                return nil
-            }
+        // we want to look under both OpenAPI.Reference and
+        // JSONSchema.reference so we flatten the value before inspecting
+        // it:
+        let unboxedSchema = schema.flattenToJsonSchema()
+        switch unboxedSchema.value {
+        case let .reference(ref, _):
+            return .init(ref)
+        default:
+            return nil
         }
     }
 

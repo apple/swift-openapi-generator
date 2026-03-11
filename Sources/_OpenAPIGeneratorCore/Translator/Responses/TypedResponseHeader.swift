@@ -132,19 +132,19 @@ extension FileTranslator {
         switch unresolvedResponseHeader {
         case let .a(ref): type = try typeAssigner.typeName(for: ref).asUsage
         case .b:
-            switch schema {
-            case let .a(reference): type = try typeAssigner.typeName(for: reference).asUsage
-            case let .b(schema):
-                switch schema.value {
-                case let .reference(reference, _): type = try typeAssigner.typeName(for: reference).asUsage
-                default:
-                    type = try typeAssigner.typeUsage(
-                        forParameterNamed: name,
-                        withSchema: schema,
-                        components: components,
-                        inParent: parent
-                    )
-                }
+            // we want to look under both OpenAPI.Reference and
+            // JSONSchema.reference so we flatten the value before inspecting
+            // it:
+            let unboxedSchema = schema.flattenToJsonSchema()
+            switch unboxedSchema.value {
+            case let .reference(reference, _): type = try typeAssigner.typeName(for: reference).asUsage
+            default:
+                type = try typeAssigner.typeUsage(
+                    forParameterNamed: name,
+                    withSchema: unboxedSchema,
+                    components: components,
+                    inParent: parent
+                )
             }
         }
         let isOptional = try !header.required || typeMatcher.isOptional(schema, components: components)
