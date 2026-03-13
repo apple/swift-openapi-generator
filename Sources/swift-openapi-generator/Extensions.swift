@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import Foundation
-import ArgumentParser
+public import ArgumentParser
 import _OpenAPIGeneratorCore
 import Yams
 
@@ -30,7 +30,7 @@ extension URL {
     ///
     /// Initializes a `URL` instance using the path provided as an argument string.
     /// - Parameter argument: The string argument representing the path for the URL.
-    public init?(argument: String) { self.init(fileURLWithPath: argument) }
+    init?(argument: String) { self.init(fileURLWithPath: argument) }
 }
 
 extension CaseIterable where Self: RawRepresentable, Self.RawValue == String {

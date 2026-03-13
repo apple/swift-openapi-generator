@@ -11,8 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import Foundation
-import OpenAPIKit
+public import Foundation
+public import OpenAPIKit
 
 /// A message emitted by the generator.
 public struct Diagnostic: Error, Codable, Sendable {

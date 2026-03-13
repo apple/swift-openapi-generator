@@ -113,7 +113,7 @@ class Test_RecursionDetector_Generic: Test_Core {
         rootNodes: [String],
         putIntoContainer nodesForContainer: [TestNode],
         expected expectedRecursed: Set<String>,
-        file: StaticString = #file,
+        file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
         precondition(Set(rootNodes).count == nodesForContainer.count, "Not all nodes are mentioned in rootNodes")

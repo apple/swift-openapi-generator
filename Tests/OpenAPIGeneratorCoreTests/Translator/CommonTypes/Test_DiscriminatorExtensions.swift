@@ -30,7 +30,7 @@ final class Test_DiscriminatorExtensions: Test_Core {
             mapping: OrderedDictionary<String, String>?,
             schemaNames: [String],
             expectedOutputs: [Output],
-            file: StaticString = #file,
+            file: StaticString = #filePath,
             line: UInt = #line
         ) throws {
             let discriminator = OpenAPI.Discriminator(propertyName: "which", mapping: mapping)
