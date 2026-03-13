@@ -11,49 +11,30 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import XCTest
+import Testing
 @preconcurrency import OpenAPIKit
 @testable import _OpenAPIGeneratorCore
 
-final class Test_TypeMatcher: Test_Core {
 
-    /// Setup method called before the invocation of each test method in the class.
-    override func setUp() async throws {
-        try await super.setUp()
-        continueAfterFailure = false
-    }
+@Suite("Type Matcher Tests")
+struct Test_TypeMatcher {
 
     static let builtinTypes: [(JSONSchema, String)] = [
         (.string, "Swift.String"), (.string(contentEncoding: .binary), "OpenAPIRuntime.HTTPBody"),
         (.string(contentEncoding: .base64), "OpenAPIRuntime.Base64EncodedData"),
         (.string(.init(format: .date), .init()), "Swift.String"),
         (.string(.init(format: .dateTime), .init()), "Foundation.Date"),
-
         (.integer, "Swift.Int"), (.integer(.init(format: .int32), .init()), "Swift.Int32"),
         (.integer(.init(format: .int64), .init()), "Swift.Int64"),
-
         (.number, "Swift.Double"), (.number(.init(format: .float), .init()), "Swift.Float"),
         (.number(.init(format: .double), .init()), "Swift.Double"),
-
         (.boolean, "Swift.Bool"),
-
         (.fragment, "OpenAPIRuntime.OpenAPIValueContainer"),
-
-        // array with a single level of nesting that contains a builtin
         (.array(.init(), .init(items: .string)), "[Swift.String]"),
-
-        // Only an object without any properties is mapped this way
         (.object, "OpenAPIRuntime.OpenAPIObjectContainer"),
-
-        // an array with double nested string
         (.array(.init(), .init(items: .array(.init(), .init(items: .string)))), "[[Swift.String]]"),
     ]
-    func testBuiltinTypes() {
-        for (schema, name) in Self.builtinTypes {
-            XCTAssertEqual(typeMatcher.tryMatchBuiltinType(for: schema.value)?.fullyQualifiedSwiftName, name)
-        }
-    }
-
+    
     static let nonBuiltinTypes: [JSONSchema] = [
         // a string enum
         .string(allowedValues: [AnyCodable("Foo")]),
@@ -97,56 +78,66 @@ final class Test_TypeMatcher: Test_Core {
         // a oneof
         .one(of: []),
     ]
-    func testNonBuiltinTypes() {
-        for schema in Self.nonBuiltinTypes {
-            XCTAssertNil(
-                typeMatcher.tryMatchBuiltinType(for: schema.value),
-                "Type is expected to not match a builtin type: \(schema)"
-            )
-        }
-    }
-
-    static let referenceableTypes: [(JSONSchema, String)] =
-        builtinTypes + [
-            // soundness check – calls out to builtin types
-            (.string, "Swift.String"),
-
-            // reference
-            (.reference(.component(named: "Foo")), "Components.Schemas.Foo"),
-
-            // an array of referenceable types
-            (.array(.init(), .init(items: .reference(.component(named: "Foo")))), "[Components.Schemas.Foo]"),
-        ]
-    func testReferenceableTypes() {
-        for (schema, name) in Self.referenceableTypes {
-            try XCTAssertEqual(
-                XCTUnwrap(
-                    typeMatcher.tryMatchReferenceableType(for: schema, components: components),
-                    "Expected schema to be referenceable: \(schema)"
-                )
-                .fullyQualifiedSwiftName,
-                name
-            )
-            XCTAssertTrue(typeMatcher.isReferenceable(schema))
-            XCTAssertFalse(typeMatcher.isInlinable(schema))
-        }
-    }
-
+    
+    static let referenceableTypes: [(JSONSchema, String)] = builtinTypes + [
+        (.string, "Swift.String"),
+        (.reference(.component(named: "Foo")), "Components.Schemas.Foo"),
+        (.array(.init(), .init(items: .reference(.component(named: "Foo")))), "[Components.Schemas.Foo]"),
+    ]
+    
     static let nonReferenceableTypes: [JSONSchema] = [
-        // a soundness check – string enum
         .string(allowedValues: ["Foo"]),
-
-        // an array with a nested enum
         .array(.init(), .init(items: .string(.init(allowedValues: ["a", "b"]), .init()))),
     ]
+    
+    @Test("Builtin types have correct fully qualified Swift names")
+    func testBuiltinTypes() {
+        for (schema, name) in Self.builtinTypes {
+            #expect(TestFixtures.typeMatcher.tryMatchBuiltinType(for: schema.value)?.fullyQualifiedSwiftName == name)
+        }
+    }
+    
+    @Test("Non-builtin types do not match builtin types")
+    func testNonBuiltinTypes() {
+        for schema in Self.nonBuiltinTypes {
+            #expect(
+                TestFixtures.typeMatcher.tryMatchBuiltinType(for: schema.value) == nil,
+                "Type is expected to not match a builtin type: (schema)"
+            )
+        }
+    }
+    
+    @Test("Referenceable types are properly matched")
+    func testReferenceableTypes() throws {
+        for (schema, name) in Self.referenceableTypes {
+            let optionalType = try TestFixtures.typeMatcher.tryMatchReferenceableType(
+                for: schema,
+                components: components
+            )
+
+            let matchedType = try #require(optionalType, "Expected schema to be referenceable: \(schema)")
+
+            #expect(matchedType.fullyQualifiedSwiftName == name)
+            #expect(TestFixtures.typeMatcher.isReferenceable(schema))
+            #expect(!TestFixtures.typeMatcher.isInlinable(schema))
+        }
+    }
+    
+    @Test("Non-referenceable types are not referenceable and are inlinable")
     func testNonReferenceableTypes() {
         for schema in Self.nonReferenceableTypes {
-            XCTAssertNil(
-                typeMatcher.tryMatchBuiltinType(for: schema.value),
-                "Type is expected to not match a builtin type: \(schema)"
+            #expect(
+                TestFixtures.typeMatcher.tryMatchBuiltinType(for: schema.value) == nil,
+                "Type is expected to not match a builtin type: (schema)"
             )
-            XCTAssertFalse(typeMatcher.isReferenceable(schema), "Expected schema not to be referenceable: \(schema)")
-            XCTAssertTrue(typeMatcher.isInlinable(schema), "Expected schema to be inlinable: \(schema)")
+            #expect(
+                !TestFixtures.typeMatcher.isReferenceable(schema),
+                "Expected schema not to be referenceable: (schema)"
+            )
+            #expect(
+                TestFixtures.typeMatcher.isInlinable(schema),
+                "Expected schema to be inlinable: (schema)"
+            )
         }
     }
 
@@ -171,12 +162,14 @@ final class Test_TypeMatcher: Test_Core {
         // a reference to an object
         .reference(.component(named: "MyObj")),
     ]
-    func testKeyValuePairTypes() {
+   
+    @Test("KeyValuePair types are recognized as key-value pair schemas")
+    func testKeyValuePairTypes() throws {
         for schema in Self.keyValuePairTypes {
             var referenceStack = ReferenceStack.empty
-            XCTAssertTrue(
-                try typeMatcher.isKeyValuePair(schema, referenceStack: &referenceStack, components: components),
-                "Type is expected to be a key-value pair schema: \(schema)"
+            #expect(
+                try TestFixtures.typeMatcher.isKeyValuePair(schema, referenceStack: &referenceStack, components: components),
+                "Type is expected to be a key-value pair schema: (schema)"
             )
         }
     }
@@ -206,55 +199,50 @@ final class Test_TypeMatcher: Test_Core {
         // a not
         .not(.string),
     ]
+    
+    @Test("Non-key-value pair types do not match builtin types")
     func testNonkeyValuePairTypes() {
         for schema in Self.nonKeyValuePairTypes {
-            XCTAssertNil(
-                typeMatcher.tryMatchBuiltinType(for: schema.value),
-                "Type is expected to not match a builtin type: \(schema)"
+            #expect(
+                TestFixtures.typeMatcher.tryMatchBuiltinType(for: schema.value) == nil,
+                "Type is expected to not match a builtin type: (schema)"
             )
         }
     }
 
     static let optionalTestCases: [(JSONSchema, Bool)] = [
-
-        // A required string.
         (.string, false), (.string(required: true, nullable: false), false),
-
-        // An optional string.
         (.string(required: false, nullable: false), true), (.string(required: true, nullable: true), true),
         (.string(required: false, nullable: true), true),
-
-        // A reference pointing to a required schema.
         (.reference(.component(named: "RequiredString")), false),
         (.reference(.component(named: "NullableString")), true),
     ]
+    
+    @Test("Optional schemas are identified correctly")
     func testOptionalSchemas() throws {
         let components = OpenAPI.Components(schemas: [
             "RequiredString": .string, "NullableString": .string(nullable: true),
         ])
         for (schema, expectedIsOptional) in Self.optionalTestCases {
-            let actualIsOptional = try typeMatcher.isOptional(schema, components: components)
-            XCTAssertEqual(
-                actualIsOptional,
-                expectedIsOptional,
-                "Schema optionaly mismatch: \(schema.prettyDescription), expected: \(expectedIsOptional), actual: \(actualIsOptional)"
-            )
+            let actualIsOptional = try TestFixtures.typeMatcher.isOptional(schema, components: components)
+            #expect(actualIsOptional == expectedIsOptional, "Schema optionaly mismatch: (schema.prettyDescription), expected: (expectedIsOptional), actual: (actualIsOptional)")
         }
     }
 
-    static let multipartElementTypeReferenceIfReferenceableTypes:
-        [(UnresolvedSchema?, OrderedDictionary<String, OpenAPI.Content.Encoding>?, String?)] = [
-            (nil, nil, nil), (.b(.string), nil, nil), (.a(.component(named: "Foo")), nil, "Foo"),
-            (.a(.component(named: "Foo")), ["foo": .init(contentType: .json)], nil),
-        ]
+    static let multipartElementTypeReferenceIfReferenceableTypes: [(UnresolvedSchema?, OrderedDictionary<String, OpenAPI.Content.Encoding>?, String?)] = [
+        (nil, nil, nil), (.b(.string), nil, nil), (.a(.component(named: "Foo")), nil, "Foo"),
+        (.a(.component(named: "Foo")), ["foo": .init(contentType: .json)], nil),
+    ]
+    
+    @Test("Multipart element type reference matches expected names for referenceable types")
     func testMultipartElementTypeReferenceIfReferenceableTypes() throws {
         for (schema, encoding, name) in Self.multipartElementTypeReferenceIfReferenceableTypes {
-            let actualName = typeMatcher.multipartElementTypeReferenceIfReferenceable(
+            let actualName = TestFixtures.typeMatcher.multipartElementTypeReferenceIfReferenceable(
                 schema: schema,
                 encoding: encoding
             )?
-            .name
-            XCTAssertEqual(actualName, name)
+                .name
+            #expect(actualName == name)
         }
     }
 }

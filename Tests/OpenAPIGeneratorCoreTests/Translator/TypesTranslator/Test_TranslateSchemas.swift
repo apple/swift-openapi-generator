@@ -11,17 +11,20 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import XCTest
+import Testing
 import OpenAPIKit
 import Yams
 @testable import _OpenAPIGeneratorCore
 
-class Test_translateSchemas: Test_Core {
 
+@Suite("Traslation Schemas Tests")
+struct TranslateSchemaTests {
+    
+    @Test("Schema warnings are forwarded to generator diagnostics")
     func testSchemaWarningsForwardedToGeneratorDiagnostics() throws {
         let typeName = TypeName(swiftKeyPath: ["Foo"])
 
-        let schemaWithWarnings = try loadSchemaFromYAML(
+        let schemaWithWarnings = try TestFixtures.loadSchemaFromYAML(
             #"""
             type: string
             items:
@@ -31,7 +34,6 @@ class Test_translateSchemas: Test_Core {
 
         let cases: [(JSONSchema, [String])] = [
             (.string, []),
-
             (
                 schemaWithWarnings,
                 [
@@ -42,9 +44,10 @@ class Test_translateSchemas: Test_Core {
 
         for (schema, diagnosticDescriptions) in cases {
             let collector = AccumulatingDiagnosticCollector()
-            let translator = makeTranslator(diagnostics: collector)
+            
+            let translator = TestFixtures.makeTranslator(diagnostics: collector)
             _ = try translator.translateSchema(typeName: typeName, schema: schema, overrides: .none)
-            XCTAssertEqual(collector.diagnostics.map(\.description), diagnosticDescriptions)
+            #expect(collector.diagnostics.map(\.description) == diagnosticDescriptions)
         }
     }
 }

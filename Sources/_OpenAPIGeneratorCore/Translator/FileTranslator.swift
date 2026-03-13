@@ -68,6 +68,7 @@ struct OverridableSafeNameGenerator: SafeNameGenerator {
     }
 }
 
+///
 extension FileTranslator {
 
     /// A new context from the file translator.
@@ -87,7 +88,9 @@ extension FileTranslator {
     /// Creates a top comment that includes the default "do not modify" comment
     /// and any additional file comments from the configuration.
     var topComment: Comment {
-        .inline(([Constants.File.topComment] + config.additionalFileComments).joined(separator: "\n"))
+        .inline((
+            [Constants.File.topComment] + config.additionalFileComments
+        ).joined(separator: "\n"))
     }
 }
 

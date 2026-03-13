@@ -11,12 +11,22 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import XCTest
+import Testing
 import OpenAPIKit
 @testable import _OpenAPIGeneratorCore
 
-final class Test_Config: Test_Core {
-    func testDefaultAccessModifier() { XCTAssertEqual(Config.defaultAccessModifier, .internal) }
+
+// Tests the Config struct initialization, default values, and property storage
+// specifically focusing on access modifiers and additional file comments configuration
+@Suite("Config Tests")
+struct ConfigTests {
+    
+    @Test("Default access modifier is internal")
+    func testDefaultAccessModifier() {
+        #expect(Config.defaultAccessModifier == .internal)
+    }
+    
+    @Test("Additional file comments are stored correctly")
     func testAdditionalFileComments() {
         let config = Config(
             mode: .types,
@@ -24,10 +34,13 @@ final class Test_Config: Test_Core {
             additionalFileComments: ["swift-format-ignore-file", "swiftlint:disable all"],
             namingStrategy: .defensive
         )
-        XCTAssertEqual(config.additionalFileComments, ["swift-format-ignore-file", "swiftlint:disable all"])
+        #expect(config.additionalFileComments == ["swift-format-ignore-file", "swiftlint:disable all"])
     }
+    
+    @Test("Additional file comments default to empty array")
     func testEmptyAdditionalFileComments() {
         let config = Config(mode: .types, access: .public, namingStrategy: .defensive)
-        XCTAssertEqual(config.additionalFileComments, [])
+        
+        #expect(config.additionalFileComments == [])
     }
 }

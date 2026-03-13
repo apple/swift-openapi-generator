@@ -11,26 +11,32 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import XCTest
+import Foundation
 import OpenAPIKit
+import Testing
 @testable import _OpenAPIGeneratorCore
 
-final class Test_validateDoc: Test_Core {
 
+@Suite("ValidateDoc Tests")
+struct ValidateDocTests {
+    
+    @Test("Schema warning is not fatal")
     func testSchemaWarningIsNotFatal() throws {
-        let schemaWithWarnings = try loadSchemaFromYAML(
+        let schemaWithWarnings = try TestFixtures.loadSchemaFromYAML(
             #"""
             type: string
             items:
               type: integer
             """#
         )
+            
         let doc = OpenAPI.Document(
             info: .init(title: "Test", version: "1.0.0"),
             servers: [],
             paths: [:],
             components: .init(schemas: ["myImperfectSchema": schemaWithWarnings])
         )
+            
         let diagnostics = try validateDoc(
             doc,
             config: .init(
@@ -39,9 +45,12 @@ final class Test_validateDoc: Test_Core {
                 namingStrategy: Config.defaultNamingStrategy
             )
         )
-        XCTAssertEqual(diagnostics.count, 1)
+            
+        #expect(diagnostics.count == 1, "Expected exactly 1 diagnostic for schema warning")
     }
-
+    
+    
+    @Test("Schema warning is fatal")
     func testStructuralWarningIsFatal() throws {
         let doc = OpenAPI.Document(
             info: .init(title: "Test", version: "1.0.0"),
@@ -51,7 +60,6 @@ final class Test_validateDoc: Test_Core {
                     .init(
                         get: .init(
                             requestBody: nil,
-
                             // Fatal error: missing at least one response.
                             responses: [:]
                         )
@@ -60,19 +68,17 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        XCTAssertThrowsError(
-            try validateDoc(
-                doc,
-                config: .init(
-                    mode: .types,
-                    access: Config.defaultAccessModifier,
-                    namingStrategy: Config.defaultNamingStrategy
-                )
+        
+        #expect(throws: (any Error).self) {
+            try validateDoc(doc, config:
+                    .init(mode: .types, access: Config.defaultAccessModifier, namingStrategy: Config.defaultNamingStrategy)
             )
-        )
+        }
     }
-
-    func testValidateContentTypes_validContentTypes() throws {
+    
+    
+    @Test("Validates valid content types pass without throwing")
+    func testValidateContentTypes_validContentTypes() {
         let doc = OpenAPI.Document(
             info: .init(title: "Test", version: "1.0.0"),
             servers: [],
@@ -112,13 +118,15 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        XCTAssertNoThrow(
+        #expect(throws: Never.self) {
             try validateContentTypes(in: doc) { contentType in
                 (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
             }
-        )
+        }
     }
+    
 
+    @Test("Invalid content types in request body fail validation")
     func testValidateContentTypes_invalidContentTypesInRequestBody() throws {
         let doc = OpenAPI.Document(
             info: .init(title: "Test", version: "1.0.0"),
@@ -157,19 +165,17 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        XCTAssertThrowsError(
+        
+        let error = try #require(throws: Diagnostic.self) {
             try validateContentTypes(in: doc) { contentType in
                 (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
             }
-        ) { error in
-            XCTAssertTrue(error is Diagnostic)
-            XCTAssertEqual(
-                error.localizedDescription,
-                "error: Invalid content type string. [context: contentType=application/, location=/path1/GET/requestBody, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
-            )
         }
+        #expect(error.localizedDescription == "error: Invalid content type string. [context: contentType=application/, location=/path1/GET/requestBody, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]")
     }
-
+    
+    
+    @Test("Invalid content types in responses fail validation")
     func testValidateContentTypes_invalidContentTypesInResponses() throws {
         let doc = OpenAPI.Document(
             info: .init(title: "Test", version: "1.0.0"),
@@ -210,20 +216,18 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        XCTAssertThrowsError(
+        
+        let error = try #require(throws: Diagnostic.self) {
             try validateContentTypes(in: doc) { contentType in
                 (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
             }
-        ) { error in
-            XCTAssertTrue(error is Diagnostic)
-            XCTAssertEqual(
-                error.localizedDescription,
-                "error: Invalid content type string. [context: contentType=/plain, location=/path2/GET/responses, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
-            )
         }
+        #expect(error.localizedDescription == "error: Invalid content type string. [context: contentType=/plain, location=/path2/GET/responses, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]")
     }
-
-    func testValidateContentTypes_invalidContentTypesInComponentsRequestBodies() throws {
+    
+    
+    @Test("Validate content types throws error for invalid content types in components request bodies")
+    func validateContentTypes_invalidContentTypesInComponentsRequestBodies() throws {
         let doc = OpenAPI.Document(
             info: .init(title: "Test", version: "1.0.0"),
             servers: [],
@@ -232,13 +236,17 @@ final class Test_validateDoc: Test_Core {
                     .init(
                         get: .init(
                             requestBody: .b(
-                                .init(content: [.init(rawValue: "application/xml")!: .init(schema: .string)])
+                                .init(content: [
+                                    .init(rawValue: "application/xml")!: .init(schema: .string)
+                                ])
                             ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                        content: [
+                                            .init(rawValue: "application/json")!: .init(schema: .string)
+                                        ]
                                     )
                                 )
                             ]
@@ -247,23 +255,25 @@ final class Test_validateDoc: Test_Core {
                 )
             ],
             components: .init(requestBodies: [
-                "exampleRequestBody1": .init(content: [.init(rawValue: "application/pdf")!: .init(schema: .string)]),
-                "exampleRequestBody2": .init(content: [.init(rawValue: "image/")!: .init(schema: .string)]),
+                "exampleRequestBody1": .init(content: [
+                    .init(rawValue: "application/pdf")!: .init(schema: .string)
+                ]),
+                "exampleRequestBody2": .init(content: [
+                    .init(rawValue: "image/")!: .init(schema: .string)
+                ]),
             ])
         )
-        XCTAssertThrowsError(
+        
+        let error = try #require(throws: Diagnostic.self) {
             try validateContentTypes(in: doc) { contentType in
                 (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
             }
-        ) { error in
-            XCTAssertTrue(error is Diagnostic)
-            XCTAssertEqual(
-                error.localizedDescription,
-                "error: Invalid content type string. [context: contentType=image/, location=#/components/requestBodies/exampleRequestBody2, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
-            )
         }
+        #expect(error.localizedDescription == "error: Invalid content type string. [context: contentType=image/, location=#/components/requestBodies/exampleRequestBody2, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]")
     }
 
+
+    @Test("Invalid content types in components responses fail validation")
     func testValidateContentTypes_invalidContentTypesInComponentsResponses() throws {
         let doc = OpenAPI.Document(
             info: .init(title: "Test", version: "1.0.0"),
@@ -298,20 +308,19 @@ final class Test_validateDoc: Test_Core {
                 ),
             ])
         )
-        XCTAssertThrowsError(
+        
+        let error = try #require(throws: Diagnostic.self) {
             try validateContentTypes(in: doc) { contentType in
                 (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
             }
-        ) { error in
-            XCTAssertTrue(error is Diagnostic)
-            XCTAssertEqual(
-                error.localizedDescription,
-                "error: Invalid content type string. [context: contentType=, location=#/components/responses/exampleRequestBody2, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
-            )
         }
+        #expect(error.localizedDescription == "error: Invalid content type string. [context: contentType=, location=#/components/responses/exampleRequestBody2, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
+        )
     }
+    
 
-    func testValidateReferences_validReferences() throws {
+    @Test("Validates that valid references do not throw errors")
+    func testValidateReferences_validReferences() {
         let doc = OpenAPI.Document(
             info: .init(title: "Test", version: "1.0.0"),
             servers: [],
@@ -353,7 +362,8 @@ final class Test_validateDoc: Test_Core {
                             ]
                         )
                     )
-                ), "/path2": .a(.component(named: "Path2Reference")),
+                ),
+                "/path2": .a(.component(named: "Path2Reference")),
                 "/path3": .b(
                     .init(
                         get: .init(
@@ -384,16 +394,18 @@ final class Test_validateDoc: Test_Core {
                 ],
                 requestBodies: [
                     "RequestBodyReference": .init(content: .init())
-
                 ],
                 headers: ["ResponsesHeaderReference": .init(schema: .array)],
                 callbacks: ["CallbackReference": .init()],
                 pathItems: ["Path2Reference": .init()]
             )
         )
-        XCTAssertNoThrow(try validateReferences(in: doc))
+        
+        #expect(throws: Never.self) { try validateReferences(in: doc) }
     }
-
+    
+    
+    @Test("Reference not found in components should throw diagnostic error")
     func testValidateReferences_referenceNotFoundInComponents() throws {
         let doc = OpenAPI.Document(
             info: .init(title: "Test", version: "1.0.0"),
@@ -416,15 +428,14 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .init(schemas: ["RequestBodyContentSchema": .init(schema: .integer(.init(), .init()))])
         )
-        XCTAssertThrowsError(try validateReferences(in: doc)) { error in
-            XCTAssertTrue(error is Diagnostic)
-            XCTAssertEqual(
-                error.localizedDescription,
-                "error: Reference not found in components. [context: location=/path/GET/requestBody/content/text/html/schema, reference=#/components/schemas/RequestBodyContentSchemaReference]"
-            )
-        }
+        
+        
+        let error = try #require(throws: Diagnostic.self) { try validateReferences(in: doc) }
+        #expect(error.localizedDescription == "error: Reference not found in components. [context: location=/path/GET/requestBody/content/text/html/schema, reference=#/components/schemas/RequestBodyContentSchemaReference]")
     }
-
+    
+    
+    @Test("External references should throw diagnostic error")
     func testValidateReferences_foundExternalReference() throws {
         let doc = OpenAPI.Document(
             info: .init(title: "Test", version: "1.0.0"),
@@ -441,26 +452,27 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        XCTAssertThrowsError(try validateReferences(in: doc)) { error in
-            XCTAssertTrue(error is Diagnostic)
-            XCTAssertEqual(
-                error.localizedDescription,
-                "error: External references are not suppported. [context: location=/path/GET/responses/200, reference=ExternalURL]"
-            )
-        }
+        
+        let error = try #require(throws: Diagnostic.self) { try validateReferences(in: doc) }
+        #expect(error.localizedDescription == "error: External references are not suppported. [context: location=/path/GET/responses/200, reference=ExternalURL]")
     }
+
+    
+    @Test("Validates type overrides")
     func testValidateTypeOverrides() throws {
-        let schema = try loadSchemaFromYAML(
+        let schema = try TestFixtures.loadSchemaFromYAML(
             #"""
             type: string
             """#
         )
+        
         let doc = OpenAPI.Document(
             info: .init(title: "Test", version: "1.0.0"),
             servers: [],
             paths: [:],
             components: .init(schemas: ["MyType": schema])
         )
+        
         let diagnostics = validateTypeOverrides(
             doc,
             config: .init(
@@ -468,13 +480,10 @@ final class Test_validateDoc: Test_Core {
                 access: Config.defaultAccessModifier,
                 namingStrategy: Config.defaultNamingStrategy,
                 typeOverrides: TypeOverrides(schemas: ["NonExistent": "NonExistent"])
-            )
+           )
         )
-        XCTAssertEqual(diagnostics.count, 1)
-        XCTAssertEqual(
-            diagnostics.first?.message,
-            "A type override defined for schema 'NonExistent' is not defined in the OpenAPI document."
-        )
+        
+        #expect(diagnostics.count == 1, "Expected exactly one diagnostic")
+        #expect(diagnostics.first?.message == "A type override defined for schema 'NonExistent' is not defined in the OpenAPI document.")
     }
-
 }

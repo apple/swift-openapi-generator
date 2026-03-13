@@ -6237,6 +6237,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 }
+
 extension SnippetBasedReferenceTests {
     func makeTypesTranslator(openAPIDocumentYAML: String) throws -> TypesFileTranslator {
         let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: openAPIDocumentYAML)

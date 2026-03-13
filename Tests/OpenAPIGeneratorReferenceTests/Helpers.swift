@@ -33,6 +33,7 @@ func resolveExecutable(_ name: String) throws -> URL {
             }
         }
     }
+    
     let env = Dictionary(
         uniqueKeysWithValues: ProcessInfo.processInfo.environment.map { (k, v) in
             #if os(Windows)
@@ -42,6 +43,7 @@ func resolveExecutable(_ name: String) throws -> URL {
             #endif
         }
     )
+    
     let paths = (env["PATH"] ?? "").split(separator: Static.separator).map(String.init)
     for path in paths {
         let fullPath = path + "/" + name + Static.suffix

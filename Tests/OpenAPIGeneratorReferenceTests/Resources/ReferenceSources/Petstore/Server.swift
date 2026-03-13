@@ -10,6 +10,8 @@ import struct Foundation.Data
 import struct Foundation.Date
 #endif
 import HTTPTypes
+
+
 extension APIProtocol {
     /// Registers each operation handler with the provided transport.
     /// - Parameters:

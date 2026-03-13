@@ -11,18 +11,22 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import XCTest
 @preconcurrency import OpenAPIKit
+import Testing
 @testable import _OpenAPIGeneratorCore
 
-class Test_MultipartAdditionalProperties: XCTestCase {
+
+@Suite("Multipart Additional Properties Tests")
+struct Test_MultipartAdditionalProperties {
 
     static let cases: [(Either<Bool, JSONSchema>?, MultipartAdditionalPropertiesStrategy)] = [
         (nil, .allowed), (.a(true), .any), (.a(false), .disallowed), (.b(.string), .typed(.string)),
     ]
-    func test() throws {
+    
+    @Test("MultipartAdditionalPropertiesStrategy initializes correctly from additionalProperties")
+    func test() {
         for (additionalProperties, expectedStrategy) in Self.cases {
-            XCTAssertEqual(MultipartAdditionalPropertiesStrategy(additionalProperties), expectedStrategy)
+            #expect(MultipartAdditionalPropertiesStrategy(additionalProperties) == expectedStrategy)
         }
     }
 }

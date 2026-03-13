@@ -171,6 +171,7 @@ extension TypesFileTranslator {
                 body: [.expression(.return(.identifierPattern("body")))]
             )
         ]
+        
         // We only generate the default branch if there is more than one case to prevent
         // a warning when compiling the generated code.
         if hasMultipleContentTypes {

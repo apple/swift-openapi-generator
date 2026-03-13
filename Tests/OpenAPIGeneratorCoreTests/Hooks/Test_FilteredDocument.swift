@@ -12,12 +12,80 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
-import XCTest
+import Testing
 import Yams
 @testable import _OpenAPIGeneratorCore
 
-final class Test_FilteredDocument: XCTestCase {
 
+@Suite("Filtered Document Tests")
+struct Test_FilteredDocument {
+    
+    // Helper function to perform unsorted array equality checks
+    // We use Set() to ignore order while ensuring content matches
+    func expectUnsortedEqual<T: Hashable>(_ actual: [T], _ expected: [T], _ message: String) {
+        #expect(Set(actual) == Set(expected), "\(message)")
+    }
+    
+    /// Verifies that a filtered OpenAPI document matches expected paths, operations, schemas, etc.
+    ///
+    /// This helper function encapsulates multiple assertions to reduce boilerplate in test cases.
+    func verifyDocumentMatches(
+        filtering document: OpenAPI.Document,
+        filter: DocumentFilter,
+        hasPaths paths: [OpenAPI.Path.RawValue],
+        hasOperations operationIDs: [String],
+        hasSchemas schemas: [String],
+        hasParameters parameters: [String] = [],
+        hasHeaders headers: [String] = [],
+        hasExamples examples: [String] = []
+    ) throws {
+        let filteredDocument: OpenAPI.Document
+        filteredDocument = try filter.filter(document)
+
+        // Paths
+        expectUnsortedEqual(
+            filteredDocument.paths.keys.map(\.rawValue),
+            paths,
+            "Paths don't match"
+        )
+
+        // Operations
+        expectUnsortedEqual(
+            filteredDocument.allOperationIds,
+            operationIDs,
+            "Operations don't match"
+        )
+
+        // Schemas
+        expectUnsortedEqual(
+            filteredDocument.components.schemas.keys.map(\.rawValue),
+            schemas,
+            "Schemas don't match"
+        )
+
+        // Parameters
+        expectUnsortedEqual(
+            filteredDocument.components.parameters.keys.map(\.rawValue),
+            parameters,
+            "Parameters don't match"
+        )
+
+        // Headers
+        expectUnsortedEqual(
+            filteredDocument.components.headers.keys.map(\.rawValue),
+            headers,
+            "Headers don't match"
+        )
+
+        // Examples
+        expectUnsortedEqual(
+            filteredDocument.components.examples.keys.map(\.rawValue),
+            examples,
+            "Examples don't match"
+        )
+    }
+    
+    @Test("DocumentFilter works correctly with various configurations")
     func testDocumentFilter() throws {
         let documentYAML = """
             openapi: 3.1.0
@@ -135,8 +203,9 @@ final class Test_FilteredDocument: XCTestCase {
                       deepValue: "nested test"
             """
         let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: documentYAML)
-        assert(filtering: document, filter: DocumentFilter(), hasPaths: [], hasOperations: [], hasSchemas: [])
-        assert(
+        
+        try verifyDocumentMatches(filtering: document, filter: DocumentFilter(), hasPaths: [], hasOperations: [], hasSchemas: [])
+        try verifyDocumentMatches(
             filtering: document,
             filter: DocumentFilter(tags: ["t"]),
             hasPaths: ["/things/a"],
@@ -144,7 +213,7 @@ final class Test_FilteredDocument: XCTestCase {
             hasSchemas: ["A"],
             hasParameters: ["A"]
         )
-        assert(
+        try verifyDocumentMatches(
             filtering: document,
             filter: DocumentFilter(paths: ["/things/a"]),
             hasPaths: ["/things/a"],
@@ -152,14 +221,14 @@ final class Test_FilteredDocument: XCTestCase {
             hasSchemas: ["A"],
             hasParameters: ["A"]
         )
-        assert(
+        try verifyDocumentMatches(
             filtering: document,
             filter: DocumentFilter(paths: ["/things/b"]),
             hasPaths: ["/things/b"],
             hasOperations: ["getB"],
             hasSchemas: ["A", "B"]
         )
-        assert(
+        try verifyDocumentMatches(
             filtering: document,
             filter: DocumentFilter(paths: ["/things/a", "/things/b"]),
             hasPaths: ["/things/a", "/things/b"],
@@ -167,21 +236,21 @@ final class Test_FilteredDocument: XCTestCase {
             hasSchemas: ["A", "B"],
             hasParameters: ["A"]
         )
-        assert(
+        try verifyDocumentMatches(
             filtering: document,
             filter: DocumentFilter(schemas: ["A"]),
             hasPaths: [],
             hasOperations: [],
             hasSchemas: ["A"]
         )
-        assert(
+        try verifyDocumentMatches(
             filtering: document,
             filter: DocumentFilter(schemas: ["B"]),
             hasPaths: [],
             hasOperations: [],
             hasSchemas: ["A", "B"]
         )
-        assert(
+        try verifyDocumentMatches(
             filtering: document,
             filter: DocumentFilter(paths: ["/things/a"], schemas: ["B"]),
             hasPaths: ["/things/a"],
@@ -189,7 +258,7 @@ final class Test_FilteredDocument: XCTestCase {
             hasSchemas: ["A", "B"],
             hasParameters: ["A"]
         )
-        assert(
+        try verifyDocumentMatches(
             filtering: document,
             filter: DocumentFilter(tags: ["t"], schemas: ["B"]),
             hasPaths: ["/things/a"],
@@ -197,7 +266,7 @@ final class Test_FilteredDocument: XCTestCase {
             hasSchemas: ["A", "B"],
             hasParameters: ["A"]
         )
-        assert(
+        try verifyDocumentMatches(
             filtering: document,
             filter: DocumentFilter(operations: ["deleteA"]),
             hasPaths: ["/things/a"],
@@ -205,7 +274,7 @@ final class Test_FilteredDocument: XCTestCase {
             hasSchemas: [],
             hasParameters: ["A"]
         )
-        assert(
+        try verifyDocumentMatches(
             filtering: document,
             filter: DocumentFilter(paths: ["/things/c"]),
             hasPaths: ["/things/c"],
@@ -214,67 +283,6 @@ final class Test_FilteredDocument: XCTestCase {
             hasParameters: ["C", "D"],
             hasHeaders: ["C"],
             hasExamples: ["C"]
-        )
-    }
-
-    func assert(
-        filtering document: OpenAPI.Document,
-        filter: DocumentFilter,
-        hasPaths paths: [OpenAPI.Path.RawValue],
-        hasOperations operationIDs: [String],
-        hasSchemas schemas: [String],
-        hasParameters parameters: [String] = [],
-        hasHeaders headers: [String] = [],
-        hasExamples examples: [String] = [],
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        let filteredDocument: OpenAPI.Document
-        do { filteredDocument = try filter.filter(document) } catch {
-            XCTFail("Filter threw error: \(error)", file: file, line: line)
-            return
-        }
-        XCTAssertUnsortedEqual(
-            filteredDocument.paths.keys.map(\.rawValue),
-            paths,
-            "Paths don't match",
-            file: file,
-            line: line
-        )
-        XCTAssertUnsortedEqual(
-            filteredDocument.allOperationIds,
-            operationIDs,
-            "Operations don't match",
-            file: file,
-            line: line
-        )
-        XCTAssertUnsortedEqual(
-            filteredDocument.components.schemas.keys.map(\.rawValue),
-            schemas,
-            "Schemas don't match",
-            file: file,
-            line: line
-        )
-        XCTAssertUnsortedEqual(
-            filteredDocument.components.parameters.keys.map(\.rawValue),
-            parameters,
-            "Parameters don't match",
-            file: file,
-            line: line
-        )
-        XCTAssertUnsortedEqual(
-            filteredDocument.components.headers.keys.map(\.rawValue),
-            headers,
-            "Headers don't match",
-            file: file,
-            line: line
-        )
-        XCTAssertUnsortedEqual(
-            filteredDocument.components.examples.keys.map(\.rawValue),
-            examples,
-            "Examples don't match",
-            file: file,
-            line: line
         )
     }
 }

@@ -11,8 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-@testable import _OpenAPIGeneratorCore
 import Foundation
+@testable import _OpenAPIGeneratorCore
 
 enum DeclKind: String, Equatable, CustomStringConvertible {
     case deprecated

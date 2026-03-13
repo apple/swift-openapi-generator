@@ -11,32 +11,17 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import XCTest
+import Foundation
+import Testing
 @testable import _OpenAPIGeneratorCore
 
-final class Test_YamsParser: Test_Core {
 
-    func testVersionValidation() throws {
-        XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.0"))
-        XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.1"))
-        XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.2"))
-        XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.3"))
-        XCTAssertNoThrow(try _test(openAPIVersionString: "3.0.4"))
-        XCTAssertNoThrow(try _test(openAPIVersionString: "3.1.0"))
-        XCTAssertNoThrow(try _test(openAPIVersionString: "3.1.1"))
-        XCTAssertNoThrow(try _test(openAPIVersionString: "3.1.2"))
-        XCTAssertNoThrow(try _test(openAPIVersionString: "3.2.0"))
-
-        let expected1 =
-            "/foo.yaml: error: Unsupported document version: openapi: 3.3.0. Please provide a document with OpenAPI versions in the 3.0.x, 3.1.x, or 3.2.x sets."
-        assertThrownError(try _test(openAPIVersionString: "3.3.0"), expectedDiagnostic: expected1)
-
-        let expected2 =
-            "/foo.yaml: error: Unsupported document version: openapi: 2.0. Please provide a document with OpenAPI versions in the 3.0.x, 3.1.x, or 3.2.x sets."
-        assertThrownError(try _test(openAPIVersionString: "2.0"), expectedDiagnostic: expected2)
-    }
-
-    private func _test(openAPIVersionString: String) throws -> ParsedOpenAPIRepresentation {
+@Suite("Yams Parser Tests")
+struct YamsParserTests {
+    
+    private func _test(
+        openAPIVersionString: String
+    ) throws -> ParsedOpenAPIRepresentation {
         try _test(
             """
             openapi: "\(openAPIVersionString)"
@@ -47,9 +32,60 @@ final class Test_YamsParser: Test_Core {
             """
         )
     }
+    
+    private func _test(
+        _ yaml: String
+    ) throws -> ParsedOpenAPIRepresentation {
+        try YamsParser()
+            .parseOpenAPI(
+                .init(absolutePath: URL(fileURLWithPath: "/foo.yaml"), contents: Data(yaml.utf8)),
+                config: .init(
+                    mode: .types,
+                    access: Config.defaultAccessModifier,
+                    namingStrategy: Config.defaultNamingStrategy
+                ),
+                diagnostics: PrintingDiagnosticCollector()
+            )
+    }
+        
+    private func assertThrownError(
+        _ closure: @autoclosure () throws -> ParsedOpenAPIRepresentation,
+        expectedDiagnostic: String
+    ) {
+        do {
+            let _ = try closure()
+            #expect(Bool(false), "Expected Diagnostic error to be thrown")
+        } catch let error as Diagnostic {
+            #expect(error.localizedDescription == expectedDiagnostic)
+        } catch {
+            #expect(Bool(false), "Thrown error is \(type(of: error)) but should be Diagnostic")
+        }
+    }
+    
+    @Test("Validates OpenAPI version strings")
+    func testVersionValidation() throws {
+        let _ = try _test(openAPIVersionString: "3.0.0")
+        let _ = try _test(openAPIVersionString: "3.0.1")
+        let _ = try _test(openAPIVersionString: "3.0.2")
+        let _ = try _test(openAPIVersionString: "3.0.3")
+        let _ = try _test(openAPIVersionString: "3.0.4")
+        let _ = try _test(openAPIVersionString: "3.1.0")
+        let _ = try _test(openAPIVersionString: "3.1.1")
+        let _ = try _test(openAPIVersionString: "3.1.2")
+        let _ = try _test(openAPIVersionString: "3.2.0")
 
+        let expected1 =
+            "/foo.yaml: error: Unsupported document version: openapi: 3.3.0. Please provide a document with OpenAPI versions in the 3.0.x, 3.1.x, or 3.2.x sets."
+        assertThrownError(try _test(openAPIVersionString: "3.3.0"), expectedDiagnostic: expected1)
+
+        let expected2 =
+            "/foo.yaml: error: Unsupported document version: openapi: 2.0. Please provide a document with OpenAPI versions in the 3.0.x, 3.1.x, or 3.2.x sets."
+        assertThrownError(try _test(openAPIVersionString: "2.0"), expectedDiagnostic: expected2)
+    }
+
+    
+    @Test("Emits OpenAPI parsing error for missing openapi key")
     func testMissingOpenAPIVersionError() throws {
-        // No `openapi` key in the YAML
         let yaml = """
             info:
               title: "Test"
@@ -62,8 +98,9 @@ final class Test_YamsParser: Test_Core {
         assertThrownError(try _test(yaml), expectedDiagnostic: expected)
     }
 
+    
+    @Test("Emits Yams parsing error for invalid YAML")
     func testEmitsYamsParsingError() throws {
-        // The `title: "Test"` line is indented the wrong amount to make the YAML invalid for the parser
         let yaml = """
             openapi: "3.1.0"
             info:
@@ -77,8 +114,9 @@ final class Test_YamsParser: Test_Core {
         assertThrownError(try _test(yaml), expectedDiagnostic: expected)
     }
 
+    
+    @Test("Emits Yams scanning error for invalid YAML")
     func testEmitsYamsScanningError() throws {
-        // The `version:"1.0.0"` line is missing a space after the colon to make it invalid YAML for the scanner
         let yaml = """
             openapi: "3.1.0"
             info:
@@ -92,8 +130,9 @@ final class Test_YamsParser: Test_Core {
         assertThrownError(try _test(yaml), expectedDiagnostic: expected)
     }
 
+ 
+    @Test("Emits OpenAPI parsing error for missing info key")
     func testEmitsMissingInfoKeyOpenAPIParsingError() throws {
-        // The `smurf` line should be `info` in a real OpenAPI document.
         let yaml = """
             openapi: "3.1.0"
             smurf:
@@ -106,8 +145,9 @@ final class Test_YamsParser: Test_Core {
         assertThrownError(try _test(yaml), expectedDiagnostic: expected)
     }
 
+    
+    @Test("Emits complex OpenAPI parsing errors")
     func testEmitsComplexOpenAPIParsingError() throws {
-        // The `resonance` line should be `response` in a real OpenAPI document.
         let yaml = """
             openapi: "3.1.0"
             info:
@@ -131,7 +171,9 @@ final class Test_YamsParser: Test_Core {
         assertThrownError(try _test(yaml), expectedDiagnostic: expected)
     }
 
-    func testExtractTopLevelKeysWithValidYAML() {
+    
+    @Test("Extracts top-level keys from valid YAML")
+    func extractTopLevelKeysWithValidYAML() async throws {
         let yaml = """
             generate:
               - types
@@ -143,12 +185,14 @@ final class Test_YamsParser: Test_Core {
             additionalImports:
               - Foundation
             """
-        let keys = try? YamsParser.extractTopLevelKeys(fromYAMLString: yaml)
-        XCTAssertEqual(keys, ["generate", "featureFlags", "additionalImports"])
+        
+        let keys = try YamsParser.extractTopLevelKeys(fromYAMLString: yaml)
+        #expect(keys == ["generate", "featureFlags", "additionalImports"])
     }
-
-    func testExtractTopLevelKeysWithInvalidYAML() {
-        // `additionalImports` is missing `:` at the end.
+    
+    
+    @Test("Extracts top-level keys from invalid YAML")
+    func testExtractTopLevelKeysWithInvalidYAML() throws {
         let yaml = """
             generate:
               - types
@@ -160,36 +204,9 @@ final class Test_YamsParser: Test_Core {
             additionalImports
               - Foundation
             """
-        XCTAssertThrowsError(try YamsParser.extractTopLevelKeys(fromYAMLString: yaml))
-    }
-
-    private func _test(_ yaml: String) throws -> ParsedOpenAPIRepresentation {
-        try YamsParser()
-            .parseOpenAPI(
-                .init(absolutePath: URL(fileURLWithPath: "/foo.yaml"), contents: Data(yaml.utf8)),
-                config: .init(
-                    mode: .types,
-                    access: Config.defaultAccessModifier,
-                    namingStrategy: Config.defaultNamingStrategy
-                ),
-                diagnostics: PrintingDiagnosticCollector()
-            )
-    }
-
-    private func assertThrownError(
-        _ closure: @autoclosure () throws -> ParsedOpenAPIRepresentation,
-        expectedDiagnostic: String,
-        file: StaticString = #file,
-        line: UInt = #line
-    ) {
-        XCTAssertThrowsError(try closure(), file: file, line: line) { error in
-            if let exitError = error as? Diagnostic {
-                let actualDiagnostic = exitError.localizedDescription
-                XCTAssertEqual(actualDiagnostic, expectedDiagnostic, file: file, line: line)
-            } else {
-                XCTFail("Thrown error is \(type(of: error)) but should be Diagnostic", file: file, line: line)
-            }
+        
+        #expect(throws: (any Error).self) {
+            try YamsParser.extractTopLevelKeys(fromYAMLString: yaml)
         }
     }
-
 }
