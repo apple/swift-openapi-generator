@@ -421,7 +421,7 @@ final class Test_validateDoc: Test_Core {
                                     )
                                 ])
                             ),
-                            responses: [:],
+                            responses: [200: .response()],
                             callbacks: [.init("Callback"): .a(.component(named: "CallbackReference"))]
                         )
                     )
@@ -447,7 +447,16 @@ final class Test_validateDoc: Test_Core {
                 pathItems: ["Path2Reference": .init()]
             )
         )
-        XCTAssertNoThrow(try validateReferences(in: doc))
+        XCTAssertNoThrow(
+            try validateDoc(
+                doc,
+                config: .init(
+                    mode: .types,
+                    access: Config.defaultAccessModifier,
+                    namingStrategy: Config.defaultNamingStrategy
+                )
+            )
+        )
     }
 
     func testValidateReferences_referenceNotFoundInComponents() throws {
@@ -467,18 +476,27 @@ final class Test_validateDoc: Test_Core {
                                     )
                                 ])
                             ),
-                            responses: [:]
+                            responses: [200: .response()]
                         )
                     )
                 )
             ],
             components: .init(schemas: ["RequestBodyContentSchema": .init(schema: .integer(.init(), .init()))])
         )
-        XCTAssertThrowsError(try validateReferences(in: doc)) { error in
-            XCTAssertTrue(error is Diagnostic)
+        XCTAssertThrowsError(
+            try validateDoc(
+                doc,
+                config: .init(
+                    mode: .types,
+                    access: Config.defaultAccessModifier,
+                    namingStrategy: Config.defaultNamingStrategy
+                )
+            )
+        ) { error in
+            XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
-                error.localizedDescription,
-                "error: Reference not found in components. [context: location=/path/GET/requestBody/content/text/html/schema, reference=#/components/schemas/RequestBodyContentSchemaReference]"
+                OpenAPI.Error(from: error).localizedDescription,
+                "Failed to satisfy: JSONSchema reference points to this document and can be found in components/schemas at path: .paths['/path'].get.requestBody.content['text/html'].schema"
             )
         }
     }
@@ -499,11 +517,20 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        XCTAssertThrowsError(try validateReferences(in: doc)) { error in
-            XCTAssertTrue(error is Diagnostic)
+        XCTAssertThrowsError(
+            try validateDoc(
+                doc,
+                config: .init(
+                    mode: .types,
+                    access: Config.defaultAccessModifier,
+                    namingStrategy: Config.defaultNamingStrategy
+                )
+            )
+        ) { error in
+            XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
-                error.localizedDescription,
-                "error: External references are not suppported. [context: location=/path/GET/responses/200, reference=ExternalURL]"
+                OpenAPI.Error(from: error).localizedDescription,
+                "Failed to satisfy: Response reference points to this document and can be found in components/responses at path: .paths['/path'].get.responses.200"
             )
         }
     }
