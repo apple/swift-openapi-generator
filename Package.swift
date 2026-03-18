@@ -165,4 +165,4 @@ for target in package.targets {
     case .macro, .plugin, .system, .binary: ()  // not applicable
     @unknown default: ()  // we don't know what to do here, do nothing
     }
-}  // --- END: STANDARD CROSS-REPO SETTINGS DO NOT EDIT --- //
+}// --- END: STANDARD CROSS-REPO SETTINGS DO NOT EDIT --- //
