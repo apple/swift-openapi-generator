@@ -21,6 +21,7 @@ docker/*
 **/*.docc/*
 **/.gitignore
 **/Package.swift
+**/Package@-*.swift
 **/Package.resolved
 **/README.md
 **/openapi.yaml
