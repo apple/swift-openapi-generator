@@ -112,10 +112,11 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
+        let validator = Validator.blank.validating(validateContentTypes() { contentType in
+            (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
+        })
         XCTAssertNoThrow(
-            try validateContentTypes(in: doc) { contentType in
-                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-            }
+            try doc.validate(using: validator, strict: false)
         )
     }
 
@@ -157,15 +158,16 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
+        let validator = Validator.blank.validating(validateContentTypes() { contentType in
+            (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
+        })
         XCTAssertThrowsError(
-            try validateContentTypes(in: doc) { contentType in
-                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-            }
+            try doc.validate(using: validator, strict: false)
         ) { error in
-            XCTAssertTrue(error is Diagnostic)
+            XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
-                error.localizedDescription,
-                "error: Invalid content type string. [context: contentType=application/, location=/path1/GET/requestBody, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
+                OpenAPI.Error(from: error).localizedDescription,
+                "Failed to satisfy: Content type is of form '<type>/<subtype>' at path: .paths['/path1'].get.requestBody.content['application/']"
             )
         }
     }
@@ -210,15 +212,16 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
+        let validator = Validator.blank.validating(validateContentTypes() { contentType in
+            (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
+        })
         XCTAssertThrowsError(
-            try validateContentTypes(in: doc) { contentType in
-                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-            }
+            try doc.validate(using: validator, strict: true)
         ) { error in
-            XCTAssertTrue(error is Diagnostic)
+            XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
-                error.localizedDescription,
-                "error: Invalid content type string. [context: contentType=/plain, location=/path2/GET/responses, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
+                OpenAPI.Error(from: error).localizedDescription,
+                "Failed to satisfy: Content type is of form '<type>/<subtype>' at path: .paths['/path2'].get.responses.200.content['/plain']"
             )
         }
     }
@@ -251,15 +254,16 @@ final class Test_validateDoc: Test_Core {
                 "exampleRequestBody2": .init(content: [.init(rawValue: "image/")!: .content(.init(schema: .string))]),
             ])
         )
+        let validator = Validator.blank.validating(validateContentTypes() { contentType in
+            return (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
+        })
         XCTAssertThrowsError(
-            try validateContentTypes(in: doc) { contentType in
-                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-            }
+            try doc.validate(using: validator, strict: false)
         ) { error in
-            XCTAssertTrue(error is Diagnostic)
+            XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
-                error.localizedDescription,
-                "error: Invalid content type string. [context: contentType=image/, location=#/components/requestBodies/exampleRequestBody2, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
+                OpenAPI.Error(from: error).localizedDescription,
+                "Failed to satisfy: Content type is of form '<type>/<subtype>' at path: .components.requestBodies.exampleRequestBody2.content['image/']"
             )
         }
     }
@@ -298,15 +302,16 @@ final class Test_validateDoc: Test_Core {
                 ),
             ])
         )
+        let validator = Validator.blank.validating(validateContentTypes() { contentType in
+            (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
+        })
         XCTAssertThrowsError(
-            try validateContentTypes(in: doc) { contentType in
-                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-            }
+            try doc.validate(using: validator, strict: false)
         ) { error in
-            XCTAssertTrue(error is Diagnostic)
+            XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
-                error.localizedDescription,
-                "error: Invalid content type string. [context: contentType=, location=#/components/responses/exampleRequestBody2, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
+                OpenAPI.Error(from: error).localizedDescription,
+                "Failed to satisfy: Content type is of form '<type>/<subtype>' at path: .components.responses.exampleRequestBody2.content."
             )
         }
     }
