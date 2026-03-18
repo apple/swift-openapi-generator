@@ -14,89 +14,6 @@
 
 import OpenAPIKit
 
-/// Validates all content types from an OpenAPI document represented by a ParsedOpenAPIRepresentation.
-///
-/// This function iterates through the paths, endpoints, and components of the OpenAPI document,
-/// checking and reporting any invalid content types using the provided validation closure.
-///
-/// - Parameters:
-///   - doc: The OpenAPI document representation.
-///   - validate: A closure to validate each content type.
-/// - Throws: An error with diagnostic information if any invalid content types are found.
-func validateContentTypes(in doc: ParsedOpenAPIRepresentation, validate: (String) -> Bool) throws {
-    for (path, pathValue) in doc.paths {
-        guard let pathItem = pathValue.pathItemValue else { continue }
-        for endpoint in pathItem.endpoints {
-
-            if let eitherRequest = endpoint.operation.requestBody {
-                if let actualRequest = eitherRequest.requestValue {
-                    for contentType in actualRequest.content.keys {
-                        if !validate(contentType.rawValue) {
-                            throw Diagnostic.error(
-                                message: "Invalid content type string.",
-                                context: [
-                                    "contentType": contentType.rawValue,
-                                    "location": "\(path.rawValue)/\(endpoint.method.rawValue)/requestBody",
-                                    "recoverySuggestion":
-                                        "Must have 2 components separated by a slash '<type>/<subtype>'.",
-                                ]
-                            )
-                        }
-                    }
-                }
-            }
-
-            for eitherResponse in endpoint.operation.responses.values {
-                if let actualResponse = eitherResponse.responseValue {
-                    for contentType in actualResponse.content.keys {
-                        if !validate(contentType.rawValue) {
-                            throw Diagnostic.error(
-                                message: "Invalid content type string.",
-                                context: [
-                                    "contentType": contentType.rawValue,
-                                    "location": "\(path.rawValue)/\(endpoint.method.rawValue)/responses",
-                                    "recoverySuggestion":
-                                        "Must have 2 components separated by a slash '<type>/<subtype>'.",
-                                ]
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    for (key, component) in doc.components.requestBodies {
-        let component = try doc.components.assumeLookupOnce(component)
-        for contentType in component.content.keys {
-            if !validate(contentType.rawValue) {
-                throw Diagnostic.error(
-                    message: "Invalid content type string.",
-                    context: [
-                        "contentType": contentType.rawValue, "location": "#/components/requestBodies/\(key.rawValue)",
-                        "recoverySuggestion": "Must have 2 components separated by a slash '<type>/<subtype>'.",
-                    ]
-                )
-            }
-        }
-    }
-
-    for (key, component) in doc.components.responses {
-        let component = try doc.components.assumeLookupOnce(component)
-        for contentType in component.content.keys {
-            if !validate(contentType.rawValue) {
-                throw Diagnostic.error(
-                    message: "Invalid content type string.",
-                    context: [
-                        "contentType": contentType.rawValue, "location": "#/components/responses/\(key.rawValue)",
-                        "recoverySuggestion": "Must have 2 components separated by a slash '<type>/<subtype>'.",
-                    ]
-                )
-            }
-        }
-    }
-}
-
 /// Validates all type overrides from a Config are present in the components of a ParsedOpenAPIRepresentation.
 ///
 /// This method iterates through the type overrides defined in the config and checks that for each of them a named schema is defined in the OpenAPI document.
@@ -126,14 +43,12 @@ func validateTypeOverrides(_ doc: ParsedOpenAPIRepresentation, config: Config) -
 /// - Returns: An array of diagnostic messages representing validation warnings.
 /// - Throws: An error if a fatal issue is found.
 func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [Diagnostic] {
-    try validateContentTypes(in: doc) { contentType in
-        (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-    }
     let typeOverrideDiagnostics = validateTypeOverrides(doc, config: config)
 
     // Run OpenAPIKit's default built-in validations and additionally check
-    // that all references point to entries in the Components Object and all
-    // operations contain responses.
+    // that all references point to entries in the Components Object, all
+    // operations contain responses, and all content types parse by this
+    // library's code.
     //
     // Pass `false` to `strict`, however, because we don't
     // want to turn schema loading warnings into errors.
@@ -158,7 +73,13 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [
 
 extension OpenAPIKit.Validator {
     static var swiftOpenAPICustomValidator: Validator {
-        Validator().validatingAllReferencesFoundInComponents().validating(\.operationsContainResponses)
+        let contentTypesValidation: Validation<OpenAPI.ContentType> = .init(
+            description: "Content type is of form '<type>/<subtype>'.",
+            check: { context in (try? _OpenAPIGeneratorCore.ContentType(string: context.subject.rawValue)) != nil }
+        )
+
+        return Validator().validatingAllReferencesFoundInComponents().validating(\.operationsContainResponses)
+            .validating(contentTypesValidation)
             // Skip this one to be backwards compatible with previous versions of Swift OpenAPI Generator.
             // Even when run with strict=false, this one will cause OpenAPIKit to throw an error. Previous verions were more
             // lenient and Swift OpenAPI Generator would later emit a warning that it's unsupported.
