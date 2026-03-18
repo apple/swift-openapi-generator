@@ -4,4 +4,4 @@ Examples/**/Generated/*
 Examples/**/GeneratedSources/*
 Examples/streaming-chatgpt-proxy/**
 **Package.swift
-**/Package@-*.swift
+**Package@-*.swift

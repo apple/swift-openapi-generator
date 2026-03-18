@@ -11,6 +11,7 @@ CONTRIBUTORS.txt
 LICENSE.txt
 NOTICE.txt
 Package.swift
+Package@-*.swift
 Package.resolved
 README.md
 SECURITY.md
