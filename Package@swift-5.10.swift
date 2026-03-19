@@ -1,4 +1,4 @@
-// swift-tools-version:6.1
+// swift-tools-version:5.10
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
@@ -20,7 +20,6 @@ var swiftSettings: [SwiftSetting] = [
     // https://github.com/apple/swift-evolution/blob/main/proposals/0335-existential-any.md
     // Require `any` for existential types.
     .enableUpcomingFeature("ExistentialAny"), .enableExperimentalFeature("StrictConcurrency=complete"),
-    .swiftLanguageMode(.v5),
 ]
 
 let package = Package(
@@ -55,7 +54,7 @@ let package = Package(
         // Tests-only: Runtime library linked by generated code, and also
         // helps keep the runtime library new enough to work with the generated
         // code.
-        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.11.0", traits: []),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.11.0"),
         .package(url: "https://github.com/apple/swift-http-types", from: "1.0.2"),
     ],
     targets: [
