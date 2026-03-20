@@ -77,9 +77,7 @@ struct FileError: Swift.Error, Equatable, CustomStringConvertible, LocalizedErro
         /// File wasn't found.
         case noFilesFound
         /// More than 1 file found.
-        case multipleFilesFound(files: [String])
-
-        static func multipleFilesFound(files: [Path]) -> Self { .multipleFilesFound(files: files.map(\.description)) }
+        case multipleFilesFound(files: [URL])
 
         /// The error is definitely due to misconfiguration of a target.
         var isMisconfigurationError: Bool {
