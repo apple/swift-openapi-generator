@@ -45,7 +45,7 @@ enum PluginUtils {
         let genSourcesDir = workingDirectory.appending(component: "GeneratedSources")
 
         let arguments = [
-            "generate", "\(doc)", "--config", "\(config)", "--output-directory", "\(genSourcesDir)", "--plugin-source",
+            "generate", doc.path(), "--config", config.path(), "--output-directory", genSourcesDir.path(), "--plugin-source",
             "\(pluginSource.rawValue)",
         ]
 
