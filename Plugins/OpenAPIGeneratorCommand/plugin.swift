@@ -65,7 +65,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
 
         for target in targets {
             log("Considering target '\(target.name)':")
-            guard let swiftTarget = target as? SwiftSourceModuleTarget else {
+            guard let target = target as? SwiftSourceModuleTarget else {
                 log("- Not a swift source module. Can't generate OpenAPI code.")
                 continue
             }
@@ -74,7 +74,7 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
                 try runCommand(
                     targetWorkingDirectory: target.directoryURL,
                     tool: context.tool,
-                    sourceFiles: swiftTarget.sourceFiles,
+                    sourceFiles: target.sourceFiles,
                     targetName: target.name
                 )
                 log("- ✅ OpenAPI code generation for target '\(target.name)' successfully completed.")
