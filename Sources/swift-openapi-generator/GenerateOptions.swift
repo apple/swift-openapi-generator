@@ -73,11 +73,11 @@ func handleFileOperation<T>(at url: URL, fileDescription: String = "Configuratio
             let isCocoaFileNotFound = nsError.domain == NSCocoaErrorDomain && nsError.code == 260
             if isPOSIXFileNotFound || isCocoaFileNotFound {
                 throw ValidationError(
-                    "\(fileDescription) not found at path: \(url.path). Please ensure the file exists and the path is correct."
+                    "\(fileDescription) not found at path: \(url.path()). Please ensure the file exists and the path is correct."
                 )
             }
         }
-        throw ValidationError("Failed to load \(fileDescription.lowercased()) at path \(url.path), error: \(error)")
+        throw ValidationError("Failed to load \(fileDescription.lowercased()) at path \(url.path()), error: \(error)")
     }
 }
 
@@ -186,3 +186,9 @@ extension _GenerateOptions {
         return userConfig
     }
 }
+
+#if swift(<6.1)
+extension URL {
+    func path() -> String { self.path }
+}
+#endif
