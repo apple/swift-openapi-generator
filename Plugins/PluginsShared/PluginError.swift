@@ -100,7 +100,8 @@ struct FileError: Swift.Error, Equatable, CustomStringConvertible, LocalizedErro
                 return
                     "No config file found in the target named '\(targetName)'. Add a file called 'openapi-generator-config.yaml' or 'openapi-generator-config.yml' to the target's source directory. See documentation for details."
             case .multipleFilesFound(let files):
-                return "Multiple config files found in the target named '\(targetName)', but exactly one is expected. Found \(files.map { $0.path() }.joined(separator: " "))."
+                return
+                    "Multiple config files found in the target named '\(targetName)', but exactly one is expected. Found \(files.map { $0.path() }.joined(separator: " "))."
             }
         case .document:
             switch issue {
@@ -108,7 +109,8 @@ struct FileError: Swift.Error, Equatable, CustomStringConvertible, LocalizedErro
                 return
                     "No OpenAPI document found in the target named '\(targetName)'. Add a file called 'openapi.yaml', 'openapi.yml' or 'openapi.json' (can also be a symlink) to the target's source directory. See documentation for details."
             case .multipleFilesFound(let files):
-                return "Multiple OpenAPI documents found in the target named '\(targetName)', but exactly one is expected. Found \(files.map { $0.path() }.joined(separator: " "))."
+                return
+                    "Multiple OpenAPI documents found in the target named '\(targetName)', but exactly one is expected. Found \(files.map { $0.path() }.joined(separator: " "))."
             }
         }
     }

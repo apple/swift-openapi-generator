@@ -188,7 +188,5 @@ extension _GenerateOptions {
 }
 
 #if swift(<6.1)
-extension URL {
-    func path() -> String { self.path }
-}
+extension URL { func path() -> String { self.path } }
 #endif
