@@ -73,11 +73,11 @@ func handleFileOperation<T>(at url: URL, fileDescription: String = "Configuratio
             let isCocoaFileNotFound = nsError.domain == NSCocoaErrorDomain && nsError.code == 260
             if isPOSIXFileNotFound || isCocoaFileNotFound {
                 throw ValidationError(
-                    "\(fileDescription) not found at path: \(url.path). Please ensure the file exists and the path is correct."
+                    "\(fileDescription) not found at path: \(url.path()). Please ensure the file exists and the path is correct."
                 )
             }
         }
-        throw ValidationError("Failed to load \(fileDescription.lowercased()) at path \(url.path), error: \(error)")
+        throw ValidationError("Failed to load \(fileDescription.lowercased()) at path \(url.path()), error: \(error)")
     }
 }
 
@@ -184,5 +184,15 @@ extension _GenerateOptions {
             return try YAMLDecoder().decode(_UserConfig.self, from: data)
         }
         return userConfig
+    }
+}
+
+extension URL {
+    func path() -> String {
+        if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+            self.path(percentEncoded: false)
+        } else {
+            self.path
+        }
     }
 }
