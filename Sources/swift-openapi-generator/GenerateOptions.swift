@@ -187,6 +187,12 @@ extension _GenerateOptions {
     }
 }
 
-#if swift(<6.1)
-extension URL { func path() -> String { self.path } }
-#endif
+extension URL {
+    func path() -> String {
+        if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+            self.path(percentEncoded: false)
+        } else {
+            self.path
+        }
+    }
+}
