@@ -119,3 +119,31 @@ The returned binary body contains the raw events, and the stream can be split up
     - encode (for other data): `AsyncSequence<some Encodable>.asEncodedServerSentEvents()`
 
 See the `event-streams-*` client and server examples in <doc:Checking-out-an-example-project> to learn how to produce and consume these sequences.
+
+### Represent dates and times
+
+OpenAPI defines `date-time` as a standard format value for string schemas.
+Swift OpenAPI Generator maps the `date-time` format to `Foundation.Date`
+when generating Swift code.
+
+```yaml
+components:
+  schemas:
+    MyEvent:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+```
+
+In the example above, the property `createdAt` has the type `Foundation.Date`.
+
+By default, dates encode and decode using the ISO 8601 format.
+Customize this behavior by providing a custom `DateTranscoder`
+in the transport configuration.
+
+> Note: The `date` format and other string formats like `uuid` and `email`
+> map to `Swift.String` by default. To use a different Swift type for
+> these formats, configure a type override. For more information, see
+> <doc:Configuring-the-generator>.
