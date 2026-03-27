@@ -11,6 +11,7 @@ CONTRIBUTORS.txt
 LICENSE.txt
 NOTICE.txt
 Package.swift
+Package@swift-*.swift
 Package.resolved
 README.md
 SECURITY.md
@@ -21,6 +22,7 @@ docker/*
 **/*.docc/*
 **/.gitignore
 **/Package.swift
+**/Package@-*.swift
 **/Package.resolved
 **/README.md
 **/openapi.yaml
