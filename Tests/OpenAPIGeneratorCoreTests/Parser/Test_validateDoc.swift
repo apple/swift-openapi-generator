@@ -87,7 +87,9 @@ final class Test_validateDoc: Test_Core {
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .content(.init(schema: .string))]
+                                        content: [
+                                            .init(rawValue: "application/json")!: .content(.init(schema: .string))
+                                        ]
                                     )
                                 )
                             ]
@@ -97,7 +99,9 @@ final class Test_validateDoc: Test_Core {
                 "/path2": .b(
                     .init(
                         get: .init(
-                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .content(.init(schema: .string))])),
+                            requestBody: .b(
+                                .init(content: [.init(rawValue: "text/html")!: .content(.init(schema: .string))])
+                            ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
@@ -127,12 +131,16 @@ final class Test_validateDoc: Test_Core {
                 "/path1": .b(
                     .init(
                         get: .init(
-                            requestBody: .b(.init(content: [.init(rawValue: "application/")!: .content(.init(schema: .string))])),
+                            requestBody: .b(
+                                .init(content: [.init(rawValue: "application/")!: .content(.init(schema: .string))])
+                            ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .content(.init(schema: .string))]
+                                        content: [
+                                            .init(rawValue: "application/json")!: .content(.init(schema: .string))
+                                        ]
                                     )
                                 )
                             ]
@@ -142,7 +150,9 @@ final class Test_validateDoc: Test_Core {
                 "/path2": .b(
                     .init(
                         get: .init(
-                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .content(.init(schema: .string))])),
+                            requestBody: .b(
+                                .init(content: [.init(rawValue: "text/html")!: .content(.init(schema: .string))])
+                            ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
@@ -185,7 +195,9 @@ final class Test_validateDoc: Test_Core {
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .content(.init(schema: .string))]
+                                        content: [
+                                            .init(rawValue: "application/json")!: .content(.init(schema: .string))
+                                        ]
                                     )
                                 )
                             ]
@@ -195,7 +207,9 @@ final class Test_validateDoc: Test_Core {
                 "/path2": .b(
                     .init(
                         get: .init(
-                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .content(.init(schema: .string))])),
+                            requestBody: .b(
+                                .init(content: [.init(rawValue: "text/html")!: .content(.init(schema: .string))])
+                            ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
@@ -238,7 +252,9 @@ final class Test_validateDoc: Test_Core {
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .content(.init(schema: .string))]
+                                        content: [
+                                            .init(rawValue: "application/json")!: .content(.init(schema: .string))
+                                        ]
                                     )
                                 )
                             ]
@@ -247,7 +263,9 @@ final class Test_validateDoc: Test_Core {
                 )
             ],
             components: .direct(requestBodies: [
-                "exampleRequestBody1": .init(content: [.init(rawValue: "application/pdf")!: .content(.init(schema: .string))]),
+                "exampleRequestBody1": .init(content: [
+                    .init(rawValue: "application/pdf")!: .content(.init(schema: .string))
+                ]),
                 "exampleRequestBody2": .init(content: [.init(rawValue: "image/")!: .content(.init(schema: .string))]),
             ])
         )
@@ -279,7 +297,9 @@ final class Test_validateDoc: Test_Core {
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .content(.init(schema: .string))]
+                                        content: [
+                                            .init(rawValue: "application/json")!: .content(.init(schema: .string))
+                                        ]
                                     )
                                 )
                             ]
@@ -324,9 +344,13 @@ final class Test_validateDoc: Test_Core {
                                     .path(
                                         name: "ID",
                                         content: [
-                                            .init(rawValue: "text/plain")!: .content(.init(
-                                                schema: .reference(.component(named: "Path1ParametersContentSchemaReference"))
-                                            ))
+                                            .init(rawValue: "text/plain")!: .content(
+                                                .init(
+                                                    schema: .reference(
+                                                        .component(named: "Path1ParametersContentSchemaReference")
+                                                    )
+                                                )
+                                            )
                                         ]
                                     )
                                 ),
@@ -339,9 +363,13 @@ final class Test_validateDoc: Test_Core {
                                     .init(
                                         description: "ResponseDescription",
                                         content: [
-                                            .init(rawValue: "text/plain")!: .content(.init(
-                                                schema: .reference(.component(named: "ResponsesContentSchemaReference"))
-                                            ))
+                                            .init(rawValue: "text/plain")!: .content(
+                                                .init(
+                                                    schema: .reference(
+                                                        .component(named: "ResponsesContentSchemaReference")
+                                                    )
+                                                )
+                                            )
                                         ]
                                     )
                                 ),
@@ -359,9 +387,11 @@ final class Test_validateDoc: Test_Core {
                             parameters: .init(arrayLiteral: .a(.component(named: "Path3ExampleID"))),
                             requestBody: .b(
                                 .init(content: [
-                                    .init(rawValue: "text/html")!: .content(.init(
-                                        schema: .reference(.component(named: "RequestBodyContentSchemaReference"))
-                                    ))
+                                    .init(rawValue: "text/html")!: .content(
+                                        .init(
+                                            schema: .reference(.component(named: "RequestBodyContentSchemaReference"))
+                                        )
+                                    )
                                 ])
                             ),
                             responses: [:],
@@ -403,9 +433,11 @@ final class Test_validateDoc: Test_Core {
                         get: .init(
                             requestBody: .b(
                                 .init(content: [
-                                    .init(rawValue: "text/html")!: .content(.init(
-                                        schema: .reference(.component(named: "RequestBodyContentSchemaReference"))
-                                    ))
+                                    .init(rawValue: "text/html")!: .content(
+                                        .init(
+                                            schema: .reference(.component(named: "RequestBodyContentSchemaReference"))
+                                        )
+                                    )
                                 ])
                             ),
                             responses: [:]

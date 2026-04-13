@@ -163,10 +163,8 @@ struct TypeMatcher {
         // it:
         let unboxedSchema = schema.flattenToJsonSchema()
         switch unboxedSchema.value {
-        case let .reference(ref, _):
-            return .init(ref)
-        default:
-            return nil
+        case let .reference(ref, _): return .init(ref)
+        default: return nil
         }
     }
 

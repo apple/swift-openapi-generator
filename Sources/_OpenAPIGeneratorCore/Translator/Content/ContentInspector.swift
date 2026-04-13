@@ -130,7 +130,10 @@ extension FileTranslator {
         let chosenContent: (type: ContentType, schema: SchemaContent, content: OpenAPI.Content)?
         if let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isJSON }) {
             let contentValue = try components.assumeLookupOnce(contentValue)
-            chosenContent = (contentType, .init(contentType: contentType, schema: contentValue.schema.map(Either.schema)), contentValue)
+            chosenContent = (
+                contentType, .init(contentType: contentType, schema: contentValue.schema.map(Either.schema)),
+                contentValue
+            )
         } else if !excludeBinary,
             let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isBinary })
         {
@@ -191,7 +194,9 @@ extension FileTranslator {
             )
         }
         if contentType.isJSON { return .init(contentType: contentType, schema: contentValue.schema.map(Either.schema)) }
-        if contentType.isUrlEncodedForm { return .init(contentType: contentType, schema: contentValue.schema.map(Either.schema)) }
+        if contentType.isUrlEncodedForm {
+            return .init(contentType: contentType, schema: contentValue.schema.map(Either.schema))
+        }
         if contentType.isMultipart {
             guard isRequired else {
                 try diagnostics.emit(
@@ -203,7 +208,11 @@ extension FileTranslator {
                 )
                 return nil
             }
-            return .init(contentType: contentType, schema: contentValue.schema.map(Either.schema), encoding: contentValue.encodingMap)
+            return .init(
+                contentType: contentType,
+                schema: contentValue.schema.map(Either.schema),
+                encoding: contentValue.encodingMap
+            )
         }
         if !excludeBinary, contentType.isBinary {
             return .init(contentType: contentType, schema: .schema(.string(contentEncoding: .binary)))

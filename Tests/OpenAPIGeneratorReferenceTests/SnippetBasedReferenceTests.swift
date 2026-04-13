@@ -6445,9 +6445,7 @@ extension SnippetBasedReferenceTests {
         if let expectedResponsesSwift {
             let components = document.components
             let componentResponses = try components.responses.mapValues { try components.assumeLookupOnce($0) }
-            let generatedRequestBodiesStructuredSwift = try types.translateComponentResponses(
-                componentResponses
-            )
+            let generatedRequestBodiesStructuredSwift = try types.translateComponentResponses(componentResponses)
             try XCTAssertSwiftEquivalent(
                 generatedRequestBodiesStructuredSwift,
                 expectedResponsesSwift,

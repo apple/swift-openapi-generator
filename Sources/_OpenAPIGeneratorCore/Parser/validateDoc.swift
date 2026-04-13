@@ -128,11 +128,7 @@ func validateReferences(in doc: ParsedOpenAPIRepresentation) throws {
         for (contentKey, contentType) in content {
             switch contentType {
             case .a(let ref):
-                try validateReference(
-                    ref,
-                    in: doc.components,
-                    location: location + "/content/\(contentKey.rawValue)"
-                )
+                try validateReference(ref, in: doc.components, location: location + "/content/\(contentKey.rawValue)")
             case .b(let contentType):
                 if let reference: JSONReference<JSONSchema> = contentType.schema?.reference {
                     try validateReference(

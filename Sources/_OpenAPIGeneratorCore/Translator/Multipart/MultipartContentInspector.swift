@@ -304,9 +304,8 @@ extension FileTranslator {
                     candidateSource = .infer(.complex)
                 }
             case .reference(let ref, _):
-                guard let (refRepetitionKind, refCandidateSource) = try inferSchema(components.assumeLookupOnce(ref)) else {
-                    return nil
-                }
+                guard let (refRepetitionKind, refCandidateSource) = try inferSchema(components.assumeLookupOnce(ref))
+                else { return nil }
                 repetitionKind = refRepetitionKind
                 candidateSource = refCandidateSource
             }

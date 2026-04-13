@@ -29,23 +29,29 @@ extension Either {
 }
 
 extension OpenAPI.Components {
-    func assumeLookupOnce<ReferenceType: ComponentDictionaryLocatable>(_ reference: OpenAPI.Reference<ReferenceType>) throws -> ReferenceType{
+    func assumeLookupOnce<ReferenceType: ComponentDictionaryLocatable>(_ reference: OpenAPI.Reference<ReferenceType>)
+        throws -> ReferenceType
+    {
         guard let result = try lookupOnce(reference).b else {
-                throw JSONReferenceParsingError.componentsReferenceEntryUnsupported(reference.absoluteString)
+            throw JSONReferenceParsingError.componentsReferenceEntryUnsupported(reference.absoluteString)
         }
         return result
     }
 
-    func assumeLookupOnce<ReferenceType: ComponentDictionaryLocatable>(_ reference: JSONReference<ReferenceType>) throws -> ReferenceType{
+    func assumeLookupOnce<ReferenceType: ComponentDictionaryLocatable>(_ reference: JSONReference<ReferenceType>) throws
+        -> ReferenceType
+    {
         guard let result = try lookupOnce(reference).b else {
-                throw JSONReferenceParsingError.componentsReferenceEntryUnsupported(reference.absoluteString)
+            throw JSONReferenceParsingError.componentsReferenceEntryUnsupported(reference.absoluteString)
         }
         return result
     }
 
-    func assumeLookupOnce<ReferenceType: ComponentDictionaryLocatable>(_ maybeReference: Either<OpenAPI.Reference<ReferenceType>, ReferenceType>) throws -> ReferenceType{
+    func assumeLookupOnce<ReferenceType: ComponentDictionaryLocatable>(
+        _ maybeReference: Either<OpenAPI.Reference<ReferenceType>, ReferenceType>
+    ) throws -> ReferenceType {
         guard let result = try lookupOnce(maybeReference).b else {
-                throw JSONReferenceParsingError.componentsReferenceEntryUnsupported(maybeReference.a?.absoluteString)
+            throw JSONReferenceParsingError.componentsReferenceEntryUnsupported(maybeReference.a?.absoluteString)
         }
         return result
     }

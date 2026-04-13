@@ -39,9 +39,7 @@ final class Test_OperationDescription: Test_Core {
         let pathLevelParameter = UnresolvedParameter.b(
             OpenAPI.Parameter.query(name: "test", required: false, schema: .integer)
         )
-        let operationLevelParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter.path(name: "test", schema: .string)
-        )
+        let operationLevelParameter = UnresolvedParameter.b(OpenAPI.Parameter.path(name: "test", schema: .string))
 
         let pathItem = OpenAPI.PathItem(
             parameters: [pathLevelParameter],

@@ -75,8 +75,7 @@ public struct YamsParser: ParserProtocol {
                 document = openAPI30Document.convert(to: .v3_1_0)
             case "3.1.0", "3.1.1", "3.1.2":
                 document = try decoder.decode(OpenAPIKit.OpenAPI.Document.self, from: input.contents)
-            case "3.2.0":
-                document = try decoder.decode(OpenAPIKit.OpenAPI.Document.self, from: input.contents)
+            case "3.2.0": document = try decoder.decode(OpenAPIKit.OpenAPI.Document.self, from: input.contents)
             default:
                 throw Diagnostic.openAPIVersionError(
                     versionString: "openapi: \(openAPIVersion)",

@@ -200,8 +200,7 @@ extension FileTranslator {
         case .reference:
             // references are supported
             return .supported
-        default:
-            return try isSchemaSupported(unboxedSchema, referenceStack: &referenceStack)
+        default: return try isSchemaSupported(unboxedSchema, referenceStack: &referenceStack)
         }
     }
 

@@ -103,8 +103,8 @@ struct FilteredDocumentBuilder {
             guard let methods = requiredEndpoints[path] else { continue }
             switch pathItem {
             case .a(let reference):
-                components.pathItems[try reference.internalComponentKey] = try document.components.assumeLookupOnce(reference)
-                    .filteringEndpoints { methods.contains($0.method) }
+                components.pathItems[try reference.internalComponentKey] = try document.components
+                    .assumeLookupOnce(reference).filteringEndpoints { methods.contains($0.method) }
             case .b(let pathItem):
                 filteredDocument.paths[path] = .b(pathItem.filteringEndpoints { methods.contains($0.method) })
             }
@@ -356,8 +356,7 @@ private extension FilteredDocumentBuilder {
                 try includeComponentsReferencedBy(try document.components.assumeLookupOnce(reference))
             case .b(let schema): try includeComponentsReferencedBy(schema)
             }
-        case .b(let contentMap):
-            for value in contentMap.values { try includeComponentsReferencedBy(value) }
+        case .b(let contentMap): for value in contentMap.values { try includeComponentsReferencedBy(value) }
         }
     }
 
@@ -366,8 +365,8 @@ private extension FilteredDocumentBuilder {
     ) throws {
         let content: OpenAPI.Content
         switch contentMapEntry {
-            case .a(let ref): content = try document.components.assumeLookupOnce(ref)
-            case .b(let value): content = value
+        case .a(let ref): content = try document.components.assumeLookupOnce(ref)
+        case .b(let value): content = value
         }
         try includeComponentsReferencedBy(content)
     }

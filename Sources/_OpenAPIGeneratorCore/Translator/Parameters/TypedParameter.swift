@@ -171,10 +171,8 @@ extension FileTranslator {
             // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#fixed-fields-10
             style = OpenAPI.Parameter.SchemaContext.Style.default(for: parameter.location)
             switch style {
-            case .form:
-                explode = true
-            default:
-                explode = false
+            case .form: explode = true
+            default: explode = false
             }
         }
 
