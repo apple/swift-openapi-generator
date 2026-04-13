@@ -35,7 +35,10 @@ extension TypesFileTranslator {
         let requestBodies = try translateComponentRequestBodies(resolvedRequestBodies)
         let resolvedResponses = try components.responses.mapValues { try components.assumeLookupOnce($0) }
         let responses = try translateComponentResponses(resolvedResponses)
-        let resolvedHeaders = try components.headers.mapValues { try components.assumeLookupOnce($0) }
+        let resolvedHeaders = try components.headers.mapValues {
+            (header: Either<OpenAPI.Reference<OpenAPI.Header>, OpenAPI.Header>) in
+            try components.assumeLookupOnce(header)
+        }
         let headers = try translateComponentHeaders(resolvedHeaders)
 
         let componentsDecl: Declaration = .commentable(
