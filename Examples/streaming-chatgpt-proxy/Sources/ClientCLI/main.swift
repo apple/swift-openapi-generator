@@ -11,6 +11,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+#if canImport(Glibc)
+@preconcurrency import Glibc
+#endif
 import OpenAPIRuntime
 import OpenAPIURLSession
 import Foundation
