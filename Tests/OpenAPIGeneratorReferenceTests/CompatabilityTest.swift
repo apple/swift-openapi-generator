@@ -88,7 +88,7 @@ final class CompatibilityTest: XCTestCase {
             "https://raw.githubusercontent.com/discourse/discourse_api_docs/8182f1b21ca62cc9ac85fd3a82cae8304033a672/openapi.yml",
             license: .apache,
             expectedDiagnostics: [
-                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found nothing but unsupported attributes..",
+                "Validation warning: Problem encountered when parsing `OpenAPI Schema`: Found nothing but unsupported attributes..",
                 "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated.",
             ],
             skipBuild: compatibilityTestSkipBuild
@@ -100,15 +100,15 @@ final class CompatibilityTest: XCTestCase {
             "https://raw.githubusercontent.com/github/rest-api-description/322663c9c909974af16363b4dc0873c428bdbe34/descriptions-next/api.github.com/api.github.com.yaml",
             license: .mit,
             expectedDiagnostics: [
-                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: array. Specifically, attributes for these other types: [\"object\"].",
-                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"object\"].",
-                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found nothing but unsupported attributes..",
-                "Schema warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"].",
-                "Validation warning: Inconsistency encountered when parsing `Schema`: A schema contains properties for multiple types of schemas, namely: [\"array\", \"object\"]..",
-                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"].",
+                "Validation warning: Problem encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: array. Specifically, attributes for these other types: [\"object\"].",
+                "Validation warning: Problem encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"object\"].",
+                "Validation warning: Problem encountered when parsing `OpenAPI Schema`: Found nothing but unsupported attributes..",
+                "Schema warning: Problem encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"].",
+                "Validation warning: Problem encountered when parsing `Schema`: A schema contains properties for multiple types of schemas, namely: [\"array\", \"object\"]..",
+                "Validation warning: Problem encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"].",
                 "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property.",
-                "Schema warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: array. Specifically, attributes for these other types: [\"object\"].",
-                "Schema warning: Inconsistency encountered when parsing `Schema`: A schema contains properties for multiple types of schemas, namely: [\"array\", \"object\"]..",
+                "Schema warning: Problem encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: array. Specifically, attributes for these other types: [\"object\"].",
+                "Schema warning: Problem encountered when parsing `Schema`: A schema contains properties for multiple types of schemas, namely: [\"array\", \"object\"]..",
                 "Schema \"null\" is not supported, reason: \"schema type\", skipping",
             ],
             skipBuild: true
@@ -121,11 +121,11 @@ final class CompatibilityTest: XCTestCase {
             license: .mit,
             expectedDiagnostics: [
                 "Multipart request bodies must always be required, but found an optional one - skipping. Mark as `required: true` to get this body generated.",
-                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found nothing but unsupported attributes..",
-                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"].",
+                "Validation warning: Problem encountered when parsing `OpenAPI Schema`: Found nothing but unsupported attributes..",
+                "Validation warning: Problem encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"].",
                 "A property name only appears in the required list, but not in the properties map - this is likely a typo; skipping this property.",
-                "Validation warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"object\"].",
-                "Schema warning: Inconsistency encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"].",
+                "Validation warning: Problem encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"object\"].",
+                "Schema warning: Problem encountered when parsing `OpenAPI Schema`: Found schema attributes not consistent with the type specified: string. Specifically, attributes for these other types: [\"array\"].",
                 "Schema \"null\" is not supported, reason: \"schema type\", skipping",
             ],
             skipBuild: true
