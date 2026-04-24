@@ -20,7 +20,7 @@ let package = Package(
     products: [
         .library(
             name: "IntegrationTestLibrary",
-            targets: ["Types Only", "Client", "Server", "MockTransportClient", "MockTransportServer"]
+            targets: ["Types", "Client", "Server", "MockTransportClient", "MockTransportServer"]
         )
     ],
     dependencies: [
@@ -29,18 +29,19 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "Types Only",
+            name: "Types",
             dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
+            path: "Sources/Types Only",
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         ),
         .target(
             name: "Client",
-            dependencies: ["Types Only", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
+            dependencies: ["Types", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         ),
         .target(
             name: "Server",
-            dependencies: ["Types Only", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
+            dependencies: ["Types", .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         ),
         .target(

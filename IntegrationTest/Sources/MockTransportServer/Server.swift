@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import Types_Only
+import Types
 import Server
 import OpenAPIRuntime
 import HTTPTypes
