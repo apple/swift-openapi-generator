@@ -1,6 +1,6 @@
 generate:
   - server
 additionalImports:
-  - Types
+  - Types_Only
 accessModifier: package
 namingStrategy: idiomatic
