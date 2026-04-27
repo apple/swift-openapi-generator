@@ -33,6 +33,12 @@ struct ImportDescription: Equatable, Codable {
     /// would be `@_spi(Secret) import Foo`.
     var spi: String? = nil
 
+    /// The access modifier to apply to the import statement.
+    ///
+    /// When set to `.public` or `.package`, the modifier is prepended to the
+    /// import statement (e.g. `public import Foo`).
+    var accessModifier: AccessModifier? = nil
+
     /// Requirements for the `@preconcurrency` attribute.
     var preconcurrency: PreconcurrencyRequirement = .never
 
