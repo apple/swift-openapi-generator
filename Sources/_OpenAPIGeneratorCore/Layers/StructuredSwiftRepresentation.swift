@@ -27,6 +27,9 @@ struct ImportDescription: Equatable, Codable {
     /// For example, if there are type imports like `import Foo.Bar`, they would be listed here.
     var moduleTypes: [String]?
 
+    /// Whether this is an `@_exported` import (re-export).
+    var exported: Bool = false
+
     /// The name of the private interface for an `@_spi` import.
     ///
     /// For example, if `spi` was "Secret" and the module name was "Foo" then the import
@@ -1073,8 +1076,17 @@ struct NamedFileDescription: Equatable, Codable {
 /// A file with contents made up of structured Swift code.
 struct StructuredSwiftRepresentation: Equatable, Codable {
 
-    /// The contents of the file.
-    var file: NamedFileDescription
+    /// All output files. For non-sharded output this contains a single file.
+    /// For sharded output this contains the root file plus all shard files.
+    var files: [NamedFileDescription]
+
+    init(file: NamedFileDescription) {
+        self.files = [file]
+    }
+
+    init(files: [NamedFileDescription]) {
+        self.files = files
+    }
 }
 
 // MARK: - Conveniences

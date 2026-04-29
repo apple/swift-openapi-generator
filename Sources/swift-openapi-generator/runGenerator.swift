@@ -105,19 +105,35 @@ extension _Tool {
         isDryRun: Bool,
         diagnostics: any DiagnosticCollector
     ) throws {
-        try replaceFileContents(
-            inDirectory: outputDirectory,
-            fileName: outputFileName,
-            with: {
-                let output = try _OpenAPIGeneratorCore.runGenerator(
-                    input: .init(absolutePath: doc, contents: docData),
-                    config: config,
-                    diagnostics: diagnostics
+        if config.sharding != nil {
+            let outputs = try _OpenAPIGeneratorCore.runShardedGenerator(
+                input: .init(absolutePath: doc, contents: docData),
+                config: config,
+                diagnostics: diagnostics
+            )
+            for output in outputs {
+                try replaceFileContents(
+                    inDirectory: outputDirectory,
+                    fileName: output.baseName,
+                    with: { output.contents },
+                    isDryRun: isDryRun
                 )
-                return output.contents
-            },
-            isDryRun: isDryRun
-        )
+            }
+        } else {
+            try replaceFileContents(
+                inDirectory: outputDirectory,
+                fileName: outputFileName,
+                with: {
+                    let output = try _OpenAPIGeneratorCore.runGenerator(
+                        input: .init(absolutePath: doc, contents: docData),
+                        config: config,
+                        diagnostics: diagnostics
+                    )
+                    return output.contents
+                },
+                isDryRun: isDryRun
+            )
+        }
     }
 
     /// Evaluates a closure to generate file data and writes the data to disk
