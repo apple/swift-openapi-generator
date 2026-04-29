@@ -31,6 +31,7 @@ let package = Package(
         .target(
             name: "Types",
             dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
+            path: "Sources/Types Only",
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         ),
         .target(
