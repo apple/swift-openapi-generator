@@ -149,13 +149,26 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders a single import statement.
     func renderImport(_ description: ImportDescription) {
+        let accessModifierPrefix: String
+        switch description.accessModifier {
+        case .public:
+            accessModifierPrefix = renderedAccessModifier(.public) + " "
+        case .package:
+            accessModifierPrefix = renderedAccessModifier(.package) + " "
+        default:
+            accessModifierPrefix = ""
+        }
+
         func render(preconcurrency: Bool) {
             let spiPrefix = description.spi.map { "@_spi(\($0)) " } ?? ""
             let preconcurrencyPrefix = preconcurrency ? "@preconcurrency " : ""
+            let attributePrefix = "\(preconcurrencyPrefix)\(spiPrefix)"
             if let moduleTypes = description.moduleTypes {
-                for type in moduleTypes { writer.writeLine("\(preconcurrencyPrefix)\(spiPrefix)import \(type)") }
+                for type in moduleTypes {
+                    writer.writeLine("\(attributePrefix)\(accessModifierPrefix)import \(type)")
+                }
             } else {
-                writer.writeLine("\(preconcurrencyPrefix)\(spiPrefix)import \(description.moduleName)")
+                writer.writeLine("\(attributePrefix)\(accessModifierPrefix)import \(description.moduleName)")
             }
         }
 

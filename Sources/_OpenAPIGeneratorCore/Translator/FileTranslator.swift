@@ -89,6 +89,33 @@ extension FileTranslator {
     var topComment: Comment {
         .inline(([Constants.File.topComment] + config.additionalFileComments).joined(separator: "\n"))
     }
+
+    /// Returns the imports for the generated file, with access modifiers applied.
+    ///
+    /// The configured access modifier is propagated to the built-in imports so
+    /// that, under Swift 6's `InternalImportsByDefault` flag, generated
+    /// declarations can re-export the symbols they depend on.
+    /// `additionalImports` from the configuration are also given the same
+    /// access modifier so they are visible to consumers of the generated code.
+    /// - Parameter baseImports: the base set of imports for the file (e.g.
+    /// ``Constants/File/imports`` or ``Constants/File/clientServerImports``).
+    /// - Returns: An array of ``ImportDescription`` values with appropriate
+    /// access modifier set.
+    func importDescriptions(adding baseImports: [ImportDescription]) -> [ImportDescription] {
+        let accessModifier: AccessModifier? 
+        switch config.access {
+            case .public, .package:
+            accessModifier = config.access
+            default: 
+            accessModifier = nil
+        }
+        let allImports: [ImportDescription] = baseImports + config.additionalImports.map { ImportDescription(moduleName: $0) }
+        return allImports.map { original in 
+            var description = original
+            description.accessModifier = accessModifier
+            return description
+        }
+    }
 }
 
 /// A set of configuration values for concrete file translators.
