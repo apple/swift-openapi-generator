@@ -54,13 +54,6 @@ public struct YamsParser: ParserProtocol {
         let decoder = YAMLDecoder()
         let openapiData = input.contents
 
-        let decodingOptions = [
-            DocumentConfiguration.versionMapKey: [
-                // Until we move to OpenAPIKit v5.0+ we will parse OAS 3.2.0 as if it were OAS 3.1.2
-                "3.2.0": OpenAPI.Document.Version.v3_1_2
-            ]
-        ]
-
         struct OpenAPIVersionedDocument: Decodable { var openapi: String? }
 
         let versionedDocument: OpenAPIVersionedDocument
@@ -82,12 +75,7 @@ public struct YamsParser: ParserProtocol {
                 document = openAPI30Document.convert(to: .v3_1_0)
             case "3.1.0", "3.1.1", "3.1.2":
                 document = try decoder.decode(OpenAPIKit.OpenAPI.Document.self, from: input.contents)
-            case "3.2.0":
-                document = try decoder.decode(
-                    OpenAPIKit.OpenAPI.Document.self,
-                    from: input.contents,
-                    userInfo: decodingOptions
-                )
+            case "3.2.0": document = try decoder.decode(OpenAPIKit.OpenAPI.Document.self, from: input.contents)
             default:
                 throw Diagnostic.openAPIVersionError(
                     versionString: "openapi: \(openAPIVersion)",

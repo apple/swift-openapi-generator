@@ -297,16 +297,15 @@ extension FileTranslator {
                     case .string(_, let context): candidateSource = try inferStringContent(context)
                     case .object, .all, .one, .any, .fragment, .array: candidateSource = .infer(.complex)
                     case .reference(let ref, _):
-                        guard let source = try inferSchema(components.lookup(ref))?.1 else { return nil }
+                        guard let source = try inferSchema(components.assumeLookupOnce(ref))?.1 else { return nil }
                         candidateSource = source
                     }
                 } else {
                     candidateSource = .infer(.complex)
                 }
             case .reference(let ref, _):
-                guard let (refRepetitionKind, refCandidateSource) = try inferSchema(components.lookup(ref)) else {
-                    return nil
-                }
+                guard let (refRepetitionKind, refCandidateSource) = try inferSchema(components.assumeLookupOnce(ref))
+                else { return nil }
                 repetitionKind = refRepetitionKind
                 candidateSource = refCandidateSource
             }
@@ -365,7 +364,12 @@ extension FileTranslator {
         func visitContentMap(_ contentMap: OpenAPI.Content.Map) throws {
             for (key, value) in contentMap {
                 guard try key.asGeneratorContentType.isMultipart else { continue }
-                guard let schema = value.schema, case let .a(ref) = schema, let name = ref.name,
+                let content: OpenAPI.Content
+                switch value {
+                case .a(let ref): content = try components.assumeLookupOnce(ref)
+                case .b(let value): content = value
+                }
+                guard let ref = content.schema?.reference, let name = ref.name,
                     let componentKey = OpenAPI.ComponentKey(rawValue: name)
                 else { continue }
                 refs.insert(componentKey)
@@ -377,7 +381,7 @@ extension FileTranslator {
                 if let requestBodyEither = operation.requestBody {
                     let requestBody: OpenAPI.Request
                     switch requestBodyEither {
-                    case .a(let ref): requestBody = try components.lookup(ref)
+                    case .a(let ref): requestBody = try components.assumeLookupOnce(ref)
                     case .b(let value): requestBody = value
                     }
                     try visitContentMap(requestBody.content)
@@ -385,7 +389,7 @@ extension FileTranslator {
                 for responseOutcome in operation.responseOutcomes {
                     let response: OpenAPI.Response
                     switch responseOutcome.response {
-                    case .a(let ref): response = try components.lookup(ref)
+                    case .a(let ref): response = try components.assumeLookupOnce(ref)
                     case .b(let value): response = value
                     }
                     try visitContentMap(response.content)
@@ -395,7 +399,7 @@ extension FileTranslator {
         for (_, value) in paths {
             let pathItem: OpenAPI.PathItem
             switch value {
-            case .a(let ref): pathItem = try components.lookup(ref)
+            case .a(let ref): pathItem = try components.assumeLookupOnce(ref)
             case .b(let value): pathItem = value
             }
             try visitPath(pathItem)

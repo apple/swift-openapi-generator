@@ -19,10 +19,10 @@ final class Test_OperationDescription: Test_Core {
 
     func testAllParameters_duplicates_retainOnlyOperationParameters() throws {
         let pathLevelParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(name: "test", context: .query(required: false), schema: .integer)
+            OpenAPI.Parameter.query(name: "test", required: false, schema: .integer)
         )
         let operationLevelParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(name: "test", context: .query(required: false), schema: .string)
+            OpenAPI.Parameter.query(name: "test", required: false, schema: .string)
         )
 
         let pathItem = OpenAPI.PathItem(
@@ -37,11 +37,9 @@ final class Test_OperationDescription: Test_Core {
 
     func testAllParameters_duplicates_keepsDuplicatesFromDifferentLocation() throws {
         let pathLevelParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(name: "test", context: .query(required: false), schema: .integer)
+            OpenAPI.Parameter.query(name: "test", required: false, schema: .integer)
         )
-        let operationLevelParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(name: "test", context: .path, schema: .string)
-        )
+        let operationLevelParameter = UnresolvedParameter.b(OpenAPI.Parameter.path(name: "test", schema: .string))
 
         let pathItem = OpenAPI.PathItem(
             parameters: [pathLevelParameter],
@@ -55,13 +53,13 @@ final class Test_OperationDescription: Test_Core {
 
     func testAllParameters_duplicates_ordering() throws {
         let pathLevelParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(name: "test1", context: .query(required: false), schema: .integer)
+            OpenAPI.Parameter.query(name: "test1", required: false, schema: .integer)
         )
         let duplicatedParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(name: "test2", context: .query(required: false), schema: .integer)
+            OpenAPI.Parameter.query(name: "test2", required: false, schema: .integer)
         )
         let operationLevelParameter = UnresolvedParameter.b(
-            OpenAPI.Parameter(name: "test3", context: .query(required: false), schema: .string)
+            OpenAPI.Parameter.query(name: "test3", required: false, schema: .string)
         )
 
         let pathItem = OpenAPI.PathItem(
