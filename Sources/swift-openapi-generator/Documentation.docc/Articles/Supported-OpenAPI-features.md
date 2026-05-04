@@ -24,7 +24,9 @@ For any other formats, the payload is provided as raw bytes (using the `HTTPBody
     - when content type is `application/x-www-form-urlencoded`
 - [x] multipart
     - for details, see [SOAR-0009](https://swiftpackageindex.com/apple/swift-openapi-generator/main/documentation/swift-openapi-generator/soar-0009)
-- [ ] XML
+- [X] XML
+    - when content type is `application/xml` or ends with `+xml`
+    - xmlCoder must be provided to `OpenAPIRuntime.Configuration`
 
 ### OpenAPI specification features
 
