@@ -54,16 +54,17 @@ for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name 
     log "Overriding swift-openapi-generator dependency in ${EXAMPLE_PACKAGE_NAME} to use ${PACKAGE_PATH}"
     cat >> "${SHARED_EXAMPLE_HARNESS_PACKAGE_PATH}/Package.swift" << EOF
 // BEGIN: Local override for example package testing
-guard let dependencyToOverride = package.dependencies.firstIndex(where: { dependency in
+if let dependencyToOverride = package.dependencies.firstIndex(where: { dependency in
     switch dependency.kind {
         case .sourceControl(_, let location, _) where location.hasSuffix("/swift-openapi-generator"): true
         case .registry("swift-openapi-generator", _): true
         case .fileSystem("swift-openapi-generator", _): true
         default: false
     }
-}) else { fatalError("Failed to find dependency to override") }
-package.dependencies.remove(at: dependencyToOverride)
-package.dependencies.append(.package(name: "swift-openapi-generator", path: "${PACKAGE_PATH}"))
+}) {
+    package.dependencies.remove(at: dependencyToOverride)
+    package.dependencies.append(.package(name: "swift-openapi-generator", path: "${PACKAGE_PATH}"))
+}
 // END: Local override for example package testing
 EOF
 
