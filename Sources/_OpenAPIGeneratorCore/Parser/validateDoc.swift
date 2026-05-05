@@ -67,6 +67,7 @@ func validateContentTypes(in doc: ParsedOpenAPIRepresentation, validate: (String
     }
 
     for (key, component) in doc.components.requestBodies {
+        let component = try doc.components.assumeLookupOnce(component)
         for contentType in component.content.keys {
             if !validate(contentType.rawValue) {
                 throw Diagnostic.error(
@@ -81,6 +82,7 @@ func validateContentTypes(in doc: ParsedOpenAPIRepresentation, validate: (String
     }
 
     for (key, component) in doc.components.responses {
+        let component = try doc.components.assumeLookupOnce(component)
         for contentType in component.content.keys {
             if !validate(contentType.rawValue) {
                 throw Diagnostic.error(
@@ -124,21 +126,26 @@ func validateReferences(in doc: ParsedOpenAPIRepresentation) throws {
 
     func validateReferencesInContentTypes(_ content: OpenAPI.Content.Map, location: String) throws {
         for (contentKey, contentType) in content {
-            if let reference = contentType.schema?.reference {
-                try validateReference(
-                    reference,
-                    in: doc.components,
-                    location: location + "/content/\(contentKey.rawValue)/schema"
-                )
-            }
-            if let eitherExamples = contentType.examples?.values {
-                for example in eitherExamples {
-                    if let reference = example.reference {
-                        try validateReference(
-                            reference,
-                            in: doc.components,
-                            location: location + "/content/\(contentKey.rawValue)/examples"
-                        )
+            switch contentType {
+            case .a(let ref):
+                try validateReference(ref, in: doc.components, location: location + "/content/\(contentKey.rawValue)")
+            case .b(let contentType):
+                if let reference: JSONReference<JSONSchema> = contentType.schema?.reference {
+                    try validateReference(
+                        .init(reference),
+                        in: doc.components,
+                        location: location + "/content/\(contentKey.rawValue)/schema"
+                    )
+                }
+                if let eitherExamples = contentType.examples?.values {
+                    for example in eitherExamples {
+                        if let reference = example.reference {
+                            try validateReference(
+                                reference,
+                                in: doc.components,
+                                location: location + "/content/\(contentKey.rawValue)/examples"
+                            )
+                        }
                     }
                 }
             }

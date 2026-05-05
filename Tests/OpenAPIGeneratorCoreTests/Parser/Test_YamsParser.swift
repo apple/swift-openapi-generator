@@ -126,7 +126,7 @@ final class Test_YamsParser: Test_Core {
             /foo.yaml: error: Found neither a $ref nor a PathItem in Document.paths['/system']. 
 
             PathItem could not be decoded because:
-            Inconsistency encountered when parsing `Vendor Extension` for the **GET** endpoint under `/system`: Found at least one vendor extension property that does not begin with the required 'x-' prefix. Invalid properties: [ resonance ]..
+            Problem encountered when parsing `Vendor Extension` for the **GET** endpoint under `/system`: Found at least one vendor extension property that does not begin with the required 'x-' prefix. Invalid properties: [ resonance ]..
             """
         assertThrownError(try _test(yaml), expectedDiagnostic: expected)
     }
