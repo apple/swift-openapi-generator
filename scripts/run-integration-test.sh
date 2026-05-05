@@ -39,8 +39,20 @@ log "Extracting name for Swift package: ${PACKAGE_PATH}"
 PACKAGE_NAME=$(swift package --package-path "${PACKAGE_PATH}" describe --type json | "${JQ_BIN}" -r .name)
 
 log "Overriding dependency in ${INTEGRATION_TEST_PACKAGE_PATH} on ${PACKAGE_NAME} to use ${PACKAGE_PATH}"
-swift package --package-path "${INTEGRATION_TEST_PACKAGE_PATH}" \
-    edit "${PACKAGE_NAME}" --path "${PACKAGE_PATH}"
+cat >> "${INTEGRATION_TEST_PACKAGE_PATH}/Package.swift" << EOF
+// BEGIN: Local override for integration testing
+guard let dependencyToOverride = package.dependencies.firstIndex(where: { dependency in
+    switch dependency.kind {
+        case .sourceControl(_, let location, _) where location.hasSuffix("/${PACKAGE_NAME}"): true
+        case .registry("${PACKAGE_NAME}", _): true
+        case .fileSystem("${PACKAGE_NAME}", _): true
+        default: false
+    }
+}) else { fatalError("Failed to find dependency to override") }
+package.dependencies.remove(at: dependencyToOverride)
+package.dependencies.append(.package(name: "${PACKAGE_NAME}", path: "${PACKAGE_PATH}"))
+// END: Local override for integration testing
+EOF
 
 log "Building integration test package: ${INTEGRATION_TEST_PACKAGE_PATH}"
 swift build --package-path "${INTEGRATION_TEST_PACKAGE_PATH}"
