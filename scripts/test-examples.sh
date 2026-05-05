@@ -51,26 +51,27 @@ for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name 
     log "Updating mtime of example contents..."
     find "${SHARED_EXAMPLE_HARNESS_PACKAGE_PATH}" -print0 | xargs -0 -n1 touch -m
 
-    log "Re-overriding dependency in ${EXAMPLE_PACKAGE_NAME} to use ${PACKAGE_PATH}"
-    "${SWIFT_BIN}" package \
-        --package-path "${SHARED_EXAMPLE_HARNESS_PACKAGE_PATH}" \
-        --cache-path "${SHARED_PACKAGE_CACHE_PATH}" \
-        --skip-update \
-        --scratch-path "${SHARED_PACKAGE_SCRATCH_PATH}" \
-        unedit swift-openapi-generator || :
-    "${SWIFT_BIN}" package \
-        --package-path "${SHARED_EXAMPLE_HARNESS_PACKAGE_PATH}" \
-        --cache-path "${SHARED_PACKAGE_CACHE_PATH}" \
-        --skip-update \
-        --scratch-path "${SHARED_PACKAGE_SCRATCH_PATH}" \
-        edit swift-openapi-generator \
-        --path "${PACKAGE_PATH}"
+    log "Overriding swift-openapi-generator dependency in ${EXAMPLE_PACKAGE_NAME} to use ${PACKAGE_PATH}"
+    cat >> "${SHARED_EXAMPLE_HARNESS_PACKAGE_PATH}/Package.swift" << EOF
+// BEGIN: Local override for example package testing
+if let dependencyToOverride = package.dependencies.firstIndex(where: { dependency in
+    switch dependency.kind {
+        case .sourceControl(_, let location, _) where location.hasSuffix("/swift-openapi-generator"): true
+        case .registry("swift-openapi-generator", _): true
+        case .fileSystem("swift-openapi-generator", _): true
+        default: false
+    }
+}) {
+    package.dependencies.remove(at: dependencyToOverride)
+    package.dependencies.append(.package(name: "swift-openapi-generator", path: "${PACKAGE_PATH}"))
+}
+// END: Local override for example package testing
+EOF
 
     log "Building example package: ${EXAMPLE_PACKAGE_NAME}"
     "${SWIFT_BIN}" build --build-tests \
         --package-path "${SHARED_EXAMPLE_HARNESS_PACKAGE_PATH}" \
         --cache-path "${SHARED_PACKAGE_CACHE_PATH}" \
-        --skip-update \
         --scratch-path "${SHARED_PACKAGE_SCRATCH_PATH}"
     log "✅ Successfully built the example package ${EXAMPLE_PACKAGE_NAME}."
 
@@ -79,7 +80,6 @@ for EXAMPLE_PACKAGE_PATH in $(find "${EXAMPLES_PACKAGE_PATH}" -maxdepth 2 -name 
         "${SWIFT_BIN}" test \
             --package-path "${SHARED_EXAMPLE_HARNESS_PACKAGE_PATH}" \
             --cache-path "${SHARED_PACKAGE_CACHE_PATH}" \
-            --skip-update \
             --scratch-path "${SHARED_PACKAGE_SCRATCH_PATH}"
         log "✅ Passed the tests for the example package ${EXAMPLE_PACKAGE_NAME}."
     fi
