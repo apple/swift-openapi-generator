@@ -480,6 +480,38 @@ final class Test_validateDoc: Test_Core {
             )
         }
     }
+    func testParameterStyleLocationMismatchIsNotFatal() throws {
+        let yaml = """
+            openapi: "3.0.0"
+            info:
+              title: "Test"
+              version: "1.0.0"
+            paths:
+              /foo:
+                parameters:
+                  - name: foo
+                    in: query
+                    style: simple
+                    explode: false
+                    schema:
+                      type: string
+            """
+        let doc = try YamsParser.parseOpenAPIDocument(
+            .init(absolutePath: URL(fileURLWithPath: "/foo.yaml"), contents: Data(yaml.utf8)),
+            diagnostics: PrintingDiagnosticCollector()
+        )
+        XCTAssertNoThrow(
+            try validateDoc(
+                doc,
+                config: .init(
+                    mode: .types,
+                    access: Config.defaultAccessModifier,
+                    namingStrategy: Config.defaultNamingStrategy
+                )
+            )
+        )
+    }
+
     func testValidateTypeOverrides() throws {
         let schema = try loadSchemaFromYAML(
             #"""
