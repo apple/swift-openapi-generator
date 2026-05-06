@@ -303,7 +303,7 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [
     // block the generator from running.
     // Validation errors continue to be fatal, such as
     // structural issues, like non-unique operationIds, etc.
-    let warnings = try doc.validate(using: Validator().validating(.operationsContainResponses), strict: false)
+    let warnings = try doc.validate(using: .swiftOpenAPICustomValidator, strict: false)
     let diagnostics: [Diagnostic] = warnings.map { warning in
         .warning(
             message: "Validation warning: \(warning.description)",
@@ -314,4 +314,28 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [
         )
     }
     return typeOverrideDiagnostics + diagnostics
+}
+
+extension OpenAPIKit.Validator {
+    static var swiftOpenAPICustomValidator: Validator {
+        // Start with blank.
+        .blank
+            // Add defaults as of OpenAPIKit 6.0.0
+            // https://github.com/mattpolzin/OpenAPIKit/blob/118d039/Sources/OpenAPIKit/Validator/Validator.swift#L184-L186
+            .validating(.documentTagNamesAreUnique).validating(.documentServerNamesAreUnique)
+            .validating(.pathItemParametersAreUnique).validating(.operationParametersAreUnique)
+            .validating(.querystringParametersAreCompatible).validating(.operationIdsAreUnique)
+            .validating(.serverVariableEnumIsValid).validating(.serverVariableDefaultExistsInEnum)
+            // Without this one to be backwards compatible with previous versions of Swift OpenAPI Generator.
+            // Even when run with strict=false, this one will cause OpenAPIKit to throw an error. Previous verions were more
+            // lenient and Swift OpenAPI Generator would later emit a warning that it's unsupported.
+            // .validating(.parameterStyleAndLocationAreCompatible)
+            .validating(.schemaReferencesAreValid).validating(.jsonSchemaReferencesAreValid)
+            .validating(.responseReferencesAreValid).validating(.parameterReferencesAreValid)
+            .validating(.exampleReferencesAreValid).validating(.requestReferencesAreValid)
+            .validating(.headerReferencesAreValid).validating(.linkReferencesAreValid)
+            .validating(.callbacksReferencesAreValid).validating(.pathItemReferencesAreValid)
+            // And also add in this one.
+            .validating(.operationsContainResponses)
+    }
 }
