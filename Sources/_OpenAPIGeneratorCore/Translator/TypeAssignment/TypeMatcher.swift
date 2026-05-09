@@ -156,8 +156,16 @@ struct TypeMatcher {
     ) -> OpenAPI.Reference<JSONSchema>? {
         // If the schema is a ref AND no encoding is provided, we can reference the type.
         // Otherwise, we must inline.
-        guard case .a(let ref) = schema, encoding == nil || encoding!.isEmpty else { return nil }
-        return ref
+        guard let schema, encoding == nil || encoding!.isEmpty else { return nil }
+
+        // we want to look under both OpenAPI.Reference and
+        // JSONSchema.reference so we flatten the value before inspecting
+        // it:
+        let unboxedSchema = schema.flattenToJsonSchema()
+        switch unboxedSchema.value {
+        case let .reference(ref, _): return .init(ref)
+        default: return nil
+        }
     }
 
     /// Returns a Boolean value that indicates whether the schema
@@ -199,7 +207,7 @@ struct TypeMatcher {
                 // only key-value pair schemas can be valid recursive types.
                 return true
             }
-            let targetSchema = try components.lookup(ref)
+            let targetSchema = try components.assumeLookupOnce(ref)
             try referenceStack.push(ref)
             defer { referenceStack.pop() }
             return try isKeyValuePair(targetSchema, referenceStack: &referenceStack, components: components)
@@ -231,7 +239,7 @@ struct TypeMatcher {
         }
         let schemaToCheck: JSONSchema
         switch schema {
-        case .a(let ref): schemaToCheck = try components.lookup(ref)
+        case .a(let ref): schemaToCheck = try components.assumeLookupOnce(ref)
         case let .b(schema): schemaToCheck = schema
         }
         return try isKeyValuePair(schemaToCheck, referenceStack: &referenceStack, components: components)
@@ -246,7 +254,7 @@ struct TypeMatcher {
     func isOptional(_ schema: JSONSchema, components: OpenAPI.Components) throws -> Bool {
         if schema.nullable || !schema.required { return true }
         guard case .reference(let ref, _) = schema.value else { return false }
-        let targetSchema = try components.lookup(ref)
+        let targetSchema = try components.assumeLookupOnce(ref)
         return try isOptional(targetSchema, components: components)
     }
 
@@ -263,7 +271,7 @@ struct TypeMatcher {
         }
         switch schema {
         case .a(let ref):
-            let targetSchema = try components.lookup(ref)
+            let targetSchema = try components.assumeLookupOnce(ref)
             return try isOptional(targetSchema, components: components)
         case .b(let schema): return try isOptional(schema, components: components)
         }

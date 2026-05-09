@@ -97,7 +97,7 @@ extension FileTranslator {
         return try contents.compactMap { key, value in
             try parseContentIfSupported(
                 contentKey: key,
-                contentValue: value,
+                contentValue: try components.assumeLookupOnce(value),
                 excludeBinary: excludeBinary,
                 isRequired: isRequired,
                 foundIn: foundIn + "/\(key.rawValue)"
@@ -129,12 +129,17 @@ extension FileTranslator {
 
         let chosenContent: (type: ContentType, schema: SchemaContent, content: OpenAPI.Content)?
         if let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isJSON }) {
-            chosenContent = (contentType, .init(contentType: contentType, schema: contentValue.schema), contentValue)
+            let contentValue = try components.assumeLookupOnce(contentValue)
+            chosenContent = (
+                contentType, .init(contentType: contentType, schema: contentValue.schema.map(Either.schema)),
+                contentValue
+            )
         } else if !excludeBinary,
             let (contentType, contentValue) = mapWithContentTypes.first(where: { $0.type.isBinary })
         {
+            let contentValue = try components.assumeLookupOnce(contentValue)
             chosenContent = (
-                contentType, .init(contentType: contentType, schema: .b(.string(contentEncoding: .binary))),
+                contentType, .init(contentType: contentType, schema: .schema(.string(contentEncoding: .binary))),
                 contentValue
             )
         } else {
@@ -188,8 +193,10 @@ extension FileTranslator {
                 foundIn: "\(foundIn), content \(contentType.originallyCasedTypeAndSubtype)"
             )
         }
-        if contentType.isJSON { return .init(contentType: contentType, schema: contentValue.schema) }
-        if contentType.isUrlEncodedForm { return .init(contentType: contentType, schema: contentValue.schema) }
+        if contentType.isJSON { return .init(contentType: contentType, schema: contentValue.schema.map(Either.schema)) }
+        if contentType.isUrlEncodedForm {
+            return .init(contentType: contentType, schema: contentValue.schema.map(Either.schema))
+        }
         if contentType.isMultipart {
             guard isRequired else {
                 try diagnostics.emit(
@@ -201,10 +208,14 @@ extension FileTranslator {
                 )
                 return nil
             }
-            return .init(contentType: contentType, schema: contentValue.schema, encoding: contentValue.encoding)
+            return .init(
+                contentType: contentType,
+                schema: contentValue.schema.map(Either.schema),
+                encoding: contentValue.encodingMap
+            )
         }
         if !excludeBinary, contentType.isBinary {
-            return .init(contentType: contentType, schema: .b(.string(contentEncoding: .binary)))
+            return .init(contentType: contentType, schema: .schema(.string(contentEncoding: .binary)))
         }
         try diagnostics.emitUnsupported("Unsupported content", foundIn: foundIn)
         return nil

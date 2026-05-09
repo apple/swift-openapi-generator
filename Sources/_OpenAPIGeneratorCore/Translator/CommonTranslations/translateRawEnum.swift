@@ -100,7 +100,9 @@ extension FileTranslator {
                 // In nullable enum schemas, empty strings are parsed as Void.
                 // This is unlikely to be fixed, so handling that case here.
                 // https://github.com/apple/swift-openapi-generator/issues/118
-                if isNullable && anyValue is Void {
+                // Also handle nil values in nullable schemas.
+                let isNullValue = anyValue is Void || (anyValue as? String) == nil
+                if isNullable && isNullValue {
                     try addIfUnique(id: .string(""), caseName: context.safeNameGenerator.swiftMemberName(for: ""))
                 } else {
                     guard let rawValue = anyValue as? String else {
