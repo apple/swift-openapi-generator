@@ -17,6 +17,33 @@ import OpenAPIKit
 
 final class Test_validateDoc: Test_Core {
 
+    func testExpectedValidationsAreUsed() {
+        let validator = Validator.swiftOpenAPICustomValidator
+
+        XCTAssertEqual(
+            validator.validationDescriptions,
+            [
+                "The names of Tags in the Document are unique", "The names of Servers in the Document are unique",
+                "Path Item parameters are unique (identity is defined by the \'name\' and \'location\')",
+                "Operation parameters are unique (identity is defined by the \'name\' and \'location\')",
+                "Querystring parameters are unique and do not coexist with query parameters",
+                "All Operation Ids in Document are unique",
+                "Server Variable\'s enum is either not defined or is non-empty (if defined).",
+                "Server Variable\'s default must exist in enum, if enum is defined.",
+                "JSONSchema reference can be found in components/schemas",
+                "JSONSchema reference can be found in components/schemas",
+                "Response reference can be found in components/responses",
+                "Parameter reference can be found in components/parameters",
+                "Example reference can be found in components/examples",
+                "Request reference can be found in components/requestBodies",
+                "Header reference can be found in components/headers",
+                "Link reference can be found in components/links",
+                "Callbacks reference can be found in components/callbacks",
+                "PathItem reference can be found in components/pathItems", "Operations contain at least one response",
+            ]
+        )
+    }
+
     func testSchemaWarningIsNotFatal() throws {
         let schemaWithWarnings = try loadSchemaFromYAML(
             #"""
