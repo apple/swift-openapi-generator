@@ -318,8 +318,7 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [
 
 extension OpenAPIKit.Validator {
     static var swiftOpenAPICustomValidator: Validator {
-        Validator()
-            .validating(\.operationsContainResponses)
+        Validator().validating(\.operationsContainResponses)
             // Skip this one to be backwards compatible with previous versions of Swift OpenAPI Generator.
             // Even when run with strict=false, this one will cause OpenAPIKit to throw an error. Previous verions were more
             // lenient and Swift OpenAPI Generator would later emit a warning that it's unsupported.
