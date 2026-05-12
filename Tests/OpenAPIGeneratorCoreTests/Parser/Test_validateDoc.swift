@@ -30,16 +30,17 @@ final class Test_validateDoc: Test_Core {
                 "All Operation Ids in Document are unique",
                 "Server Variable\'s enum is either not defined or is non-empty (if defined).",
                 "Server Variable\'s default must exist in enum, if enum is defined.",
-                "JSONSchema reference can be found in components/schemas",
-                "JSONSchema reference can be found in components/schemas",
-                "Response reference can be found in components/responses",
-                "Parameter reference can be found in components/parameters",
-                "Example reference can be found in components/examples",
-                "Request reference can be found in components/requestBodies",
-                "Header reference can be found in components/headers",
-                "Link reference can be found in components/links",
-                "Callbacks reference can be found in components/callbacks",
-                "PathItem reference can be found in components/pathItems", "Operations contain at least one response",
+                "JSONSchema reference points to this document and can be found in components/schemas",
+                "JSONSchema reference points to this document and can be found in components/schemas",
+                "Response reference points to this document and can be found in components/responses",
+                "Parameter reference points to this document and can be found in components/parameters",
+                "Example reference points to this document and can be found in components/examples",
+                "Request reference points to this document and can be found in components/requestBodies",
+                "Header reference points to this document and can be found in components/headers",
+                "Link reference points to this document and can be found in components/links",
+                "Callbacks reference points to this document and can be found in components/callbacks",
+                "PathItem reference points to this document and can be found in components/pathItems",
+                "Operations contain at least one response", "Content type is of form \'<type>/<subtype>\'.",
             ]
         )
     }
@@ -144,9 +145,7 @@ final class Test_validateDoc: Test_Core {
             components: .noComponents
         )
         let validator = Validator.blank.validating(contentTypesValidation)
-        XCTAssertNoThrow(
-            try doc.validate(using: validator, strict: false)
-        )
+        XCTAssertNoThrow(try doc.validate(using: validator, strict: false))
     }
 
     func testValidateContentTypes_invalidContentTypesInRequestBody() throws {
@@ -194,9 +193,7 @@ final class Test_validateDoc: Test_Core {
             components: .noComponents
         )
         let validator = Validator.blank.validating(contentTypesValidation)
-        XCTAssertThrowsError(
-            try doc.validate(using: validator, strict: false)
-        ) { error in
+        XCTAssertThrowsError(try doc.validate(using: validator, strict: false)) { error in
             XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
                 OpenAPI.Error(from: error).localizedDescription,
@@ -250,9 +247,7 @@ final class Test_validateDoc: Test_Core {
             components: .noComponents
         )
         let validator = Validator.blank.validating(contentTypesValidation)
-        XCTAssertThrowsError(
-            try doc.validate(using: validator, strict: true)
-        ) { error in
+        XCTAssertThrowsError(try doc.validate(using: validator, strict: true)) { error in
             XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
                 OpenAPI.Error(from: error).localizedDescription,
@@ -294,9 +289,7 @@ final class Test_validateDoc: Test_Core {
             ])
         )
         let validator = Validator.blank.validating(contentTypesValidation)
-        XCTAssertThrowsError(
-            try doc.validate(using: validator, strict: false)
-        ) { error in
+        XCTAssertThrowsError(try doc.validate(using: validator, strict: false)) { error in
             XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
                 OpenAPI.Error(from: error).localizedDescription,
@@ -342,9 +335,7 @@ final class Test_validateDoc: Test_Core {
             ])
         )
         let validator = Validator.blank.validating(contentTypesValidation)
-        XCTAssertThrowsError(
-            try doc.validate(using: validator, strict: false)
-        ) { error in
+        XCTAssertThrowsError(try doc.validate(using: validator, strict: false)) { error in
             XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
                 OpenAPI.Error(from: error).localizedDescription,
