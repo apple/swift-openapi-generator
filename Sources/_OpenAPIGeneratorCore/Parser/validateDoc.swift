@@ -14,6 +14,14 @@
 
 import OpenAPIKit
 
+/// Validates all content types from an OpenAPI document can be parsed as a ContentType.
+var contentTypesValidation: Validation<OpenAPI.ContentType> {
+    .init(
+        description: "Content type is of form '<type>/<subtype>'.",
+        check: { context in (try? _OpenAPIGeneratorCore.ContentType(string: context.subject.rawValue)) != nil }
+    )
+}
+
 /// Validates all type overrides from a Config are present in the components of a ParsedOpenAPIRepresentation.
 ///
 /// This method iterates through the type overrides defined in the config and checks that for each of them a named schema is defined in the OpenAPI document.
@@ -73,12 +81,7 @@ func validateDoc(_ doc: ParsedOpenAPIRepresentation, config: Config) throws -> [
 
 extension OpenAPIKit.Validator {
     static var swiftOpenAPICustomValidator: Validator {
-        let contentTypesValidation: Validation<OpenAPI.ContentType> = .init(
-            description: "Content type is of form '<type>/<subtype>'.",
-            check: { context in (try? _OpenAPIGeneratorCore.ContentType(string: context.subject.rawValue)) != nil }
-        )
-
-        return Validator().validatingAllReferencesFoundInComponents().validating(\.operationsContainResponses)
+        Validator().validatingAllReferencesFoundInComponents().validating(\.operationsContainResponses)
             .validating(contentTypesValidation)
             // Skip this one to be backwards compatible with previous versions of Swift OpenAPI Generator.
             // Even when run with strict=false, this one will cause OpenAPIKit to throw an error. Previous verions were more

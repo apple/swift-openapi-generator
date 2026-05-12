@@ -143,9 +143,7 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        let validator = Validator.blank.validating(validateContentTypes() { contentType in
-            (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-        })
+        let validator = Validator.blank.validating(contentTypesValidation)
         XCTAssertNoThrow(
             try doc.validate(using: validator, strict: false)
         )
@@ -195,9 +193,7 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        let validator = Validator.blank.validating(validateContentTypes() { contentType in
-            (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-        })
+        let validator = Validator.blank.validating(contentTypesValidation)
         XCTAssertThrowsError(
             try doc.validate(using: validator, strict: false)
         ) { error in
@@ -253,9 +249,7 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        let validator = Validator.blank.validating(validateContentTypes() { contentType in
-            (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-        })
+        let validator = Validator.blank.validating(contentTypesValidation)
         XCTAssertThrowsError(
             try doc.validate(using: validator, strict: true)
         ) { error in
@@ -299,9 +293,7 @@ final class Test_validateDoc: Test_Core {
                 "exampleRequestBody2": .init(content: [.init(rawValue: "image/")!: .content(.init(schema: .string))]),
             ])
         )
-        let validator = Validator.blank.validating(validateContentTypes() { contentType in
-            return (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-        })
+        let validator = Validator.blank.validating(contentTypesValidation)
         XCTAssertThrowsError(
             try doc.validate(using: validator, strict: false)
         ) { error in
@@ -349,9 +341,7 @@ final class Test_validateDoc: Test_Core {
                 ),
             ])
         )
-        let validator = Validator.blank.validating(validateContentTypes() { contentType in
-            (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-        })
+        let validator = Validator.blank.validating(contentTypesValidation)
         XCTAssertThrowsError(
             try doc.validate(using: validator, strict: false)
         ) { error in
