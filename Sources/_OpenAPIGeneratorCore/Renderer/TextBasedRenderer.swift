@@ -151,12 +151,9 @@ struct TextBasedRenderer: RendererProtocol {
     func renderImport(_ description: ImportDescription) {
         let accessModifierPrefix: String
         switch description.accessModifier {
-        case .public:
-            accessModifierPrefix = renderedAccessModifier(.public) + " "
-        case .package:
-            accessModifierPrefix = renderedAccessModifier(.package) + " "
-        default:
-            accessModifierPrefix = ""
+        case .public: accessModifierPrefix = renderedAccessModifier(.public) + " "
+        case .package: accessModifierPrefix = renderedAccessModifier(.package) + " "
+        default: accessModifierPrefix = ""
         }
 
         func render(preconcurrency: Bool) {
@@ -164,9 +161,7 @@ struct TextBasedRenderer: RendererProtocol {
             let preconcurrencyPrefix = preconcurrency ? "@preconcurrency " : ""
             let attributePrefix = "\(preconcurrencyPrefix)\(spiPrefix)"
             if let moduleTypes = description.moduleTypes {
-                for type in moduleTypes {
-                    writer.writeLine("\(attributePrefix)\(accessModifierPrefix)import \(type)")
-                }
+                for type in moduleTypes { writer.writeLine("\(attributePrefix)\(accessModifierPrefix)import \(type)") }
             } else {
                 writer.writeLine("\(attributePrefix)\(accessModifierPrefix)import \(description.moduleName)")
             }

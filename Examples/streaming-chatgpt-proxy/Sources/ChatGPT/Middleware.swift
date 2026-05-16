@@ -11,9 +11,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import Foundation
+package import Foundation
 import HTTPTypes
-import OpenAPIRuntime
+package import OpenAPIRuntime
 
 package struct HeaderFieldMiddleware: ClientMiddleware {
     var name: HTTPField.Name

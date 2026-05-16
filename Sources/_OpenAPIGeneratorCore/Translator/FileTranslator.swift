@@ -102,17 +102,15 @@ extension FileTranslator {
     /// - Returns: An array of ``ImportDescription`` values with appropriate
     /// access modifier set.
     func importDescriptions(adding baseImports: [ImportDescription]) -> [ImportDescription] {
-        let accessModifier: AccessModifier? 
+        let accessModifier: AccessModifier?
         switch config.access {
-            case .public, .package:
-            accessModifier = config.access
-            default: 
-            accessModifier = nil
+        case .public, .package: accessModifier = config.access
+        default: accessModifier = nil
         }
-        let allImports: [ImportDescription] = baseImports + config.additionalImports.map { ImportDescription(moduleName: $0) }
-        return allImports.map { original in 
+        let allImports = baseImports + config.additionalImports.map { ImportDescription(moduleName: $0) }
+        return allImports.map { original in
             var description = original
-            description.accessModifier = accessModifier
+            description.accessModifier = original.setsAccessModifier ? accessModifier : nil
             return description
         }
     }

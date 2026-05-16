@@ -158,7 +158,13 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testImportsWithAccessModifierAndModuleTypes() throws {
         try _test(
-            [ImportDescription(moduleName: "Foundation", moduleTypes: ["struct Foundation.URL"], accessModifier: .public)],
+            [
+                ImportDescription(
+                    moduleName: "Foundation",
+                    moduleTypes: ["struct Foundation.URL"],
+                    accessModifier: .public
+                )
+            ],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 public import struct Foundation.URL
