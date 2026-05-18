@@ -45,7 +45,7 @@ extension FileTranslator {
         switch unresolvedResponse {
         case .a(let reference):
             typeName = try typeAssigner.typeName(for: reference)
-            response = try components.lookup(reference)
+            response = try components.assumeLookupOnce(reference)
             isInlined = false
         case .b(let _response):
             let responseKind = outcome.status.value.asKind

@@ -17,6 +17,34 @@ import OpenAPIKit
 
 final class Test_validateDoc: Test_Core {
 
+    func testExpectedValidationsAreUsed() {
+        let validator = Validator.swiftOpenAPICustomValidator
+
+        XCTAssertEqual(
+            validator.validationDescriptions,
+            [
+                "The names of Tags in the Document are unique", "The names of Servers in the Document are unique",
+                "Path Item parameters are unique (identity is defined by the \'name\' and \'location\')",
+                "Operation parameters are unique (identity is defined by the \'name\' and \'location\')",
+                "Querystring parameters are unique and do not coexist with query parameters",
+                "All Operation Ids in Document are unique",
+                "Server Variable\'s enum is either not defined or is non-empty (if defined).",
+                "Server Variable\'s default must exist in enum, if enum is defined.",
+                "JSONSchema reference points to this document and can be found in components/schemas",
+                "JSONSchema reference points to this document and can be found in components/schemas",
+                "Response reference points to this document and can be found in components/responses",
+                "Parameter reference points to this document and can be found in components/parameters",
+                "Example reference points to this document and can be found in components/examples",
+                "Request reference points to this document and can be found in components/requestBodies",
+                "Header reference points to this document and can be found in components/headers",
+                "Link reference points to this document and can be found in components/links",
+                "Callbacks reference points to this document and can be found in components/callbacks",
+                "PathItem reference points to this document and can be found in components/pathItems",
+                "Operations contain at least one response", "Content type is of form \'<type>/<subtype>\'.",
+            ]
+        )
+    }
+
     func testSchemaWarningIsNotFatal() throws {
         let schemaWithWarnings = try loadSchemaFromYAML(
             #"""
@@ -81,13 +109,15 @@ final class Test_validateDoc: Test_Core {
                     .init(
                         get: .init(
                             requestBody: .b(
-                                .init(content: [.init(rawValue: "application/xml")!: .init(schema: .string)])
+                                .init(content: [.init(rawValue: "application/xml")!: .content(.init(schema: .string))])
                             ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                        content: [
+                                            .init(rawValue: "application/json")!: .content(.init(schema: .string))
+                                        ]
                                     )
                                 )
                             ]
@@ -97,12 +127,14 @@ final class Test_validateDoc: Test_Core {
                 "/path2": .b(
                     .init(
                         get: .init(
-                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .init(schema: .string)])),
+                            requestBody: .b(
+                                .init(content: [.init(rawValue: "text/html")!: .content(.init(schema: .string))])
+                            ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 2",
-                                        content: [.init(rawValue: "text/plain")!: .init(schema: .string)]
+                                        content: [.init(rawValue: "text/plain")!: .content(.init(schema: .string))]
                                     )
                                 )
                             ]
@@ -112,11 +144,8 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        XCTAssertNoThrow(
-            try validateContentTypes(in: doc) { contentType in
-                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-            }
-        )
+        let validator = Validator.blank.validating(contentTypesValidation)
+        XCTAssertNoThrow(try doc.validate(using: validator, strict: false))
     }
 
     func testValidateContentTypes_invalidContentTypesInRequestBody() throws {
@@ -127,12 +156,16 @@ final class Test_validateDoc: Test_Core {
                 "/path1": .b(
                     .init(
                         get: .init(
-                            requestBody: .b(.init(content: [.init(rawValue: "application/")!: .init(schema: .string)])),
+                            requestBody: .b(
+                                .init(content: [.init(rawValue: "application/")!: .content(.init(schema: .string))])
+                            ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                        content: [
+                                            .init(rawValue: "application/json")!: .content(.init(schema: .string))
+                                        ]
                                     )
                                 )
                             ]
@@ -142,12 +175,14 @@ final class Test_validateDoc: Test_Core {
                 "/path2": .b(
                     .init(
                         get: .init(
-                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .init(schema: .string)])),
+                            requestBody: .b(
+                                .init(content: [.init(rawValue: "text/html")!: .content(.init(schema: .string))])
+                            ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 2",
-                                        content: [.init(rawValue: "text/plain")!: .init(schema: .string)]
+                                        content: [.init(rawValue: "text/plain")!: .content(.init(schema: .string))]
                                     )
                                 )
                             ]
@@ -157,15 +192,12 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        XCTAssertThrowsError(
-            try validateContentTypes(in: doc) { contentType in
-                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-            }
-        ) { error in
-            XCTAssertTrue(error is Diagnostic)
+        let validator = Validator.blank.validating(contentTypesValidation)
+        XCTAssertThrowsError(try doc.validate(using: validator, strict: false)) { error in
+            XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
-                error.localizedDescription,
-                "error: Invalid content type string. [context: contentType=application/, location=/path1/GET/requestBody, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
+                OpenAPI.Error(from: error).localizedDescription,
+                "Failed to satisfy: Content type is of form '<type>/<subtype>' at path: .paths['/path1'].get.requestBody.content['application/']"
             )
         }
     }
@@ -179,13 +211,15 @@ final class Test_validateDoc: Test_Core {
                     .init(
                         get: .init(
                             requestBody: .b(
-                                .init(content: [.init(rawValue: "application/xml")!: .init(schema: .string)])
+                                .init(content: [.init(rawValue: "application/xml")!: .content(.init(schema: .string))])
                             ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                        content: [
+                                            .init(rawValue: "application/json")!: .content(.init(schema: .string))
+                                        ]
                                     )
                                 )
                             ]
@@ -195,12 +229,14 @@ final class Test_validateDoc: Test_Core {
                 "/path2": .b(
                     .init(
                         get: .init(
-                            requestBody: .b(.init(content: [.init(rawValue: "text/html")!: .init(schema: .string)])),
+                            requestBody: .b(
+                                .init(content: [.init(rawValue: "text/html")!: .content(.init(schema: .string))])
+                            ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 2",
-                                        content: [.init(rawValue: "/plain")!: .init(schema: .string)]
+                                        content: [.init(rawValue: "/plain")!: .content(.init(schema: .string))]
                                     )
                                 )
                             ]
@@ -210,15 +246,12 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        XCTAssertThrowsError(
-            try validateContentTypes(in: doc) { contentType in
-                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-            }
-        ) { error in
-            XCTAssertTrue(error is Diagnostic)
+        let validator = Validator.blank.validating(contentTypesValidation)
+        XCTAssertThrowsError(try doc.validate(using: validator, strict: true)) { error in
+            XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
-                error.localizedDescription,
-                "error: Invalid content type string. [context: contentType=/plain, location=/path2/GET/responses, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
+                OpenAPI.Error(from: error).localizedDescription,
+                "Failed to satisfy: Content type is of form '<type>/<subtype>' at path: .paths['/path2'].get.responses.200.content['/plain']"
             )
         }
     }
@@ -232,13 +265,15 @@ final class Test_validateDoc: Test_Core {
                     .init(
                         get: .init(
                             requestBody: .b(
-                                .init(content: [.init(rawValue: "application/xml")!: .init(schema: .string)])
+                                .init(content: [.init(rawValue: "application/xml")!: .content(.init(schema: .string))])
                             ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                        content: [
+                                            .init(rawValue: "application/json")!: .content(.init(schema: .string))
+                                        ]
                                     )
                                 )
                             ]
@@ -246,20 +281,19 @@ final class Test_validateDoc: Test_Core {
                     )
                 )
             ],
-            components: .init(requestBodies: [
-                "exampleRequestBody1": .init(content: [.init(rawValue: "application/pdf")!: .init(schema: .string)]),
-                "exampleRequestBody2": .init(content: [.init(rawValue: "image/")!: .init(schema: .string)]),
+            components: .direct(requestBodies: [
+                "exampleRequestBody1": .init(content: [
+                    .init(rawValue: "application/pdf")!: .content(.init(schema: .string))
+                ]),
+                "exampleRequestBody2": .init(content: [.init(rawValue: "image/")!: .content(.init(schema: .string))]),
             ])
         )
-        XCTAssertThrowsError(
-            try validateContentTypes(in: doc) { contentType in
-                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-            }
-        ) { error in
-            XCTAssertTrue(error is Diagnostic)
+        let validator = Validator.blank.validating(contentTypesValidation)
+        XCTAssertThrowsError(try doc.validate(using: validator, strict: false)) { error in
+            XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
-                error.localizedDescription,
-                "error: Invalid content type string. [context: contentType=image/, location=#/components/requestBodies/exampleRequestBody2, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
+                OpenAPI.Error(from: error).localizedDescription,
+                "Failed to satisfy: Content type is of form '<type>/<subtype>' at path: .components.requestBodies.exampleRequestBody2.content['image/']"
             )
         }
     }
@@ -273,13 +307,15 @@ final class Test_validateDoc: Test_Core {
                     .init(
                         get: .init(
                             requestBody: .b(
-                                .init(content: [.init(rawValue: "application/xml")!: .init(schema: .string)])
+                                .init(content: [.init(rawValue: "application/xml")!: .content(.init(schema: .string))])
                             ),
                             responses: [
                                 .init(integerLiteral: 200): .b(
                                     .init(
                                         description: "Test description 1",
-                                        content: [.init(rawValue: "application/json")!: .init(schema: .string)]
+                                        content: [
+                                            .init(rawValue: "application/json")!: .content(.init(schema: .string))
+                                        ]
                                     )
                                 )
                             ]
@@ -287,26 +323,23 @@ final class Test_validateDoc: Test_Core {
                     )
                 )
             ],
-            components: .init(responses: [
+            components: .direct(responses: [
                 "exampleRequestBody1": .init(
                     description: "Test description 1",
-                    content: [.init(rawValue: "application/pdf")!: .init(schema: .string)]
+                    content: [.init(rawValue: "application/pdf")!: .content(.init(schema: .string))]
                 ),
                 "exampleRequestBody2": .init(
                     description: "Test description 2",
-                    content: [.init(rawValue: "")!: .init(schema: .string)]
+                    content: [.init(rawValue: "")!: .content(.init(schema: .string))]
                 ),
             ])
         )
-        XCTAssertThrowsError(
-            try validateContentTypes(in: doc) { contentType in
-                (try? _OpenAPIGeneratorCore.ContentType(string: contentType)) != nil
-            }
-        ) { error in
-            XCTAssertTrue(error is Diagnostic)
+        let validator = Validator.blank.validating(contentTypesValidation)
+        XCTAssertThrowsError(try doc.validate(using: validator, strict: false)) { error in
+            XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
-                error.localizedDescription,
-                "error: Invalid content type string. [context: contentType=, location=#/components/responses/exampleRequestBody2, recoverySuggestion=Must have 2 components separated by a slash '<type>/<subtype>'.]"
+                OpenAPI.Error(from: error).localizedDescription,
+                "Failed to satisfy: Content type is of form '<type>/<subtype>' at path: .components.responses.exampleRequestBody2.content."
             )
         }
     }
@@ -321,12 +354,15 @@ final class Test_validateDoc: Test_Core {
                         get: .init(
                             parameters: .init(
                                 arrayLiteral: .b(
-                                    .init(
+                                    .path(
                                         name: "ID",
-                                        context: .path,
                                         content: [
-                                            .init(rawValue: "text/plain")!: .init(
-                                                schema: .a(.component(named: "Path1ParametersContentSchemaReference"))
+                                            .init(rawValue: "text/plain")!: .content(
+                                                .init(
+                                                    schema: .reference(
+                                                        .component(named: "Path1ParametersContentSchemaReference")
+                                                    )
+                                                )
                                             )
                                         ]
                                     )
@@ -340,8 +376,12 @@ final class Test_validateDoc: Test_Core {
                                     .init(
                                         description: "ResponseDescription",
                                         content: [
-                                            .init(rawValue: "text/plain")!: .init(
-                                                schema: .a(.component(named: "ResponsesContentSchemaReference"))
+                                            .init(rawValue: "text/plain")!: .content(
+                                                .init(
+                                                    schema: .reference(
+                                                        .component(named: "ResponsesContentSchemaReference")
+                                                    )
+                                                )
                                             )
                                         ]
                                     )
@@ -360,18 +400,20 @@ final class Test_validateDoc: Test_Core {
                             parameters: .init(arrayLiteral: .a(.component(named: "Path3ExampleID"))),
                             requestBody: .b(
                                 .init(content: [
-                                    .init(rawValue: "text/html")!: .init(
-                                        schema: .a(.component(named: "RequestBodyContentSchemaReference"))
+                                    .init(rawValue: "text/html")!: .content(
+                                        .init(
+                                            schema: .reference(.component(named: "RequestBodyContentSchemaReference"))
+                                        )
                                     )
                                 ])
                             ),
-                            responses: [:],
+                            responses: [200: .response()],
                             callbacks: [.init("Callback"): .a(.component(named: "CallbackReference"))]
                         )
                     )
                 ),
             ],
-            components: .init(
+            components: .direct(
                 schemas: [
                     "ResponsesContentSchemaReference": .init(schema: .string(.init(), .init())),
                     "RequestBodyContentSchemaReference": .init(schema: .integer(.init(), .init())),
@@ -379,8 +421,8 @@ final class Test_validateDoc: Test_Core {
                 ],
                 responses: ["ResponsesReference": .init(description: "Description")],
                 parameters: [
-                    "Path3ExampleID": .init(name: "ID", context: .path, content: .init()),
-                    "Path1ParametersReference": .init(name: "Schema", context: .path, schema: .array),
+                    "Path3ExampleID": .path(name: "ID", content: .init()),
+                    "Path1ParametersReference": .path(name: "Schema", schema: .array),
                 ],
                 requestBodies: [
                     "RequestBodyReference": .init(content: .init())
@@ -391,7 +433,16 @@ final class Test_validateDoc: Test_Core {
                 pathItems: ["Path2Reference": .init()]
             )
         )
-        XCTAssertNoThrow(try validateReferences(in: doc))
+        XCTAssertNoThrow(
+            try validateDoc(
+                doc,
+                config: .init(
+                    mode: .types,
+                    access: Config.defaultAccessModifier,
+                    namingStrategy: Config.defaultNamingStrategy
+                )
+            )
+        )
     }
 
     func testValidateReferences_referenceNotFoundInComponents() throws {
@@ -404,23 +455,34 @@ final class Test_validateDoc: Test_Core {
                         get: .init(
                             requestBody: .b(
                                 .init(content: [
-                                    .init(rawValue: "text/html")!: .init(
-                                        schema: .a(.component(named: "RequestBodyContentSchemaReference"))
+                                    .init(rawValue: "text/html")!: .content(
+                                        .init(
+                                            schema: .reference(.component(named: "RequestBodyContentSchemaReference"))
+                                        )
                                     )
                                 ])
                             ),
-                            responses: [:]
+                            responses: [200: .response()]
                         )
                     )
                 )
             ],
             components: .init(schemas: ["RequestBodyContentSchema": .init(schema: .integer(.init(), .init()))])
         )
-        XCTAssertThrowsError(try validateReferences(in: doc)) { error in
-            XCTAssertTrue(error is Diagnostic)
+        XCTAssertThrowsError(
+            try validateDoc(
+                doc,
+                config: .init(
+                    mode: .types,
+                    access: Config.defaultAccessModifier,
+                    namingStrategy: Config.defaultNamingStrategy
+                )
+            )
+        ) { error in
+            XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
-                error.localizedDescription,
-                "error: Reference not found in components. [context: location=/path/GET/requestBody/content/text/html/schema, reference=#/components/schemas/RequestBodyContentSchemaReference]"
+                OpenAPI.Error(from: error).localizedDescription,
+                "Failed to satisfy: JSONSchema reference points to this document and can be found in components/schemas at path: .paths['/path'].get.requestBody.content['text/html'].schema"
             )
         }
     }
@@ -441,14 +503,55 @@ final class Test_validateDoc: Test_Core {
             ],
             components: .noComponents
         )
-        XCTAssertThrowsError(try validateReferences(in: doc)) { error in
-            XCTAssertTrue(error is Diagnostic)
+        XCTAssertThrowsError(
+            try validateDoc(
+                doc,
+                config: .init(
+                    mode: .types,
+                    access: Config.defaultAccessModifier,
+                    namingStrategy: Config.defaultNamingStrategy
+                )
+            )
+        ) { error in
+            XCTAssertTrue(error is ValidationErrorCollection)
             XCTAssertEqual(
-                error.localizedDescription,
-                "error: External references are not suppported. [context: location=/path/GET/responses/200, reference=ExternalURL]"
+                OpenAPI.Error(from: error).localizedDescription,
+                "Failed to satisfy: Response reference points to this document and can be found in components/responses at path: .paths['/path'].get.responses.200"
             )
         }
     }
+    func testParameterStyleLocationMismatchIsNotFatal() throws {
+        let yaml = """
+            openapi: "3.0.0"
+            info:
+              title: "Test"
+              version: "1.0.0"
+            paths:
+              /foo:
+                parameters:
+                  - name: foo
+                    in: query
+                    style: simple
+                    explode: false
+                    schema:
+                      type: string
+            """
+        let doc = try YamsParser.parseOpenAPIDocument(
+            .init(absolutePath: URL(fileURLWithPath: "/foo.yaml"), contents: Data(yaml.utf8)),
+            diagnostics: PrintingDiagnosticCollector()
+        )
+        XCTAssertNoThrow(
+            try validateDoc(
+                doc,
+                config: .init(
+                    mode: .types,
+                    access: Config.defaultAccessModifier,
+                    namingStrategy: Config.defaultNamingStrategy
+                )
+            )
+        )
+    }
+
     func testValidateTypeOverrides() throws {
         let schema = try loadSchemaFromYAML(
             #"""

@@ -145,7 +145,7 @@ extension FileTranslator {
                 return .supported
             }
             // reference is supported iff the existing type is supported
-            let existingSchema = try components.lookup(ref)
+            let existingSchema = try components.assumeLookupOnce(ref)
             try referenceStack.push(ref)
             defer { referenceStack.pop() }
             return try isSchemaSupported(existingSchema, referenceStack: &referenceStack)
@@ -192,11 +192,15 @@ extension FileTranslator {
             // fragment type is supported
             return .supported
         }
-        switch schema {
-        case .a:
+        // we want to look under both OpenAPI.Reference and
+        // JSONSchema.reference so we flatten the value before inspecting
+        // it:
+        let unboxedSchema = schema.flattenToJsonSchema()
+        switch unboxedSchema.value {
+        case .reference:
             // references are supported
             return .supported
-        case let .b(schema): return try isSchemaSupported(schema, referenceStack: &referenceStack)
+        default: return try isSchemaSupported(unboxedSchema, referenceStack: &referenceStack)
         }
     }
 
@@ -315,7 +319,7 @@ extension FileTranslator {
                 return .supported
             }
             // reference is supported iff the existing type is supported
-            let referencedSchema = try components.lookup(ref)
+            let referencedSchema = try components.assumeLookupOnce(ref)
             try referenceStack.push(ref)
             defer { referenceStack.pop() }
             return try isObjectishSchemaAndSupported(referencedSchema, referenceStack: &referenceStack)
@@ -365,7 +369,7 @@ extension FileTranslator {
                 return .supported
             }
             // reference is supported iff the existing type is supported
-            let referencedSchema = try components.lookup(ref)
+            let referencedSchema = try components.assumeLookupOnce(ref)
             try referenceStack.push(ref)
             defer { referenceStack.pop() }
             return try isObjectOrRefToObjectSchemaAndSupported(referencedSchema, referenceStack: &referenceStack)
@@ -391,7 +395,7 @@ extension FileTranslator {
                 return nil
             }
             // reference is supported iff the existing type is supported
-            let referencedSchema = try components.lookup(ref)
+            let referencedSchema = try components.assumeLookupOnce(ref)
             try referenceStack.push(ref)
             defer { referenceStack.pop() }
             return try flattenedTopLevelMultipartObject(referencedSchema, referenceStack: &referenceStack)

@@ -245,7 +245,7 @@ final class Test_TypeMatcher: Test_Core {
     static let multipartElementTypeReferenceIfReferenceableTypes:
         [(UnresolvedSchema?, OrderedDictionary<String, OpenAPI.Content.Encoding>?, String?)] = [
             (nil, nil, nil), (.b(.string), nil, nil), (.a(.component(named: "Foo")), nil, "Foo"),
-            (.a(.component(named: "Foo")), ["foo": .init(contentType: .json)], nil),
+            (.a(.component(named: "Foo")), ["foo": .init(contentTypes: [.json])], nil),
         ]
     func testMultipartElementTypeReferenceIfReferenceableTypes() throws {
         for (schema, encoding, name) in Self.multipartElementTypeReferenceIfReferenceableTypes {

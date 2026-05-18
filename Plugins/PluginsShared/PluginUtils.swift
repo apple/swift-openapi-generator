@@ -45,8 +45,9 @@ enum PluginUtils {
         let genSourcesDir = workingDirectory.appending(component: "GeneratedSources")
 
         let arguments = [
-            "generate", doc.path(), "--config", config.path(), "--output-directory", genSourcesDir.path(),
-            "--plugin-source", "\(pluginSource.rawValue)",
+            "generate", doc.path(percentEncoded: false), "--config", config.path(percentEncoded: false),
+            "--output-directory", genSourcesDir.path(percentEncoded: false), "--plugin-source",
+            "\(pluginSource.rawValue)",
         ]
 
         let tool = try tool("swift-openapi-generator")
