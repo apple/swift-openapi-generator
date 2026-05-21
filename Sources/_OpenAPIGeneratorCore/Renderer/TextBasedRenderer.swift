@@ -145,10 +145,34 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     /// Renders the specified import statements.
-    func renderImports(_ imports: [ImportDescription]?) { (imports ?? []).forEach(renderImport) }
+    func renderImports(_ imports: [ImportStatement]?) { (imports ?? []).forEach(renderImport) }
 
     /// Renders a single import statement.
-    func renderImport(_ description: ImportDescription) {
+    func renderImport(_ importStatement: ImportStatement) {
+        switch importStatement {
+        case .conditional(let condition, let thenImportDescription, let elseImportDescription):
+            writer.writeLine("#if \(renderImportCondition(condition))")
+            renderImport(thenImportDescription)
+            writer.writeLine("#else")
+            renderImport(elseImportDescription)
+            writer.writeLine("#endif")
+
+        case .always(let importDescription): self.renderImport(importDescription)
+        }
+    }
+
+    /// Renders a import condition
+    func renderImportCondition(_ condition: ImportStatement.Condition) -> String {
+        switch condition {
+        case .canImport(let argument): "canImport(\(argument))"
+        }
+    }
+
+    /// Renders the specified import statements.
+    private func renderImports(_ imports: [ImportDescription]?) { (imports ?? []).forEach(renderImport) }
+
+    /// Renders a single import statement.
+    private func renderImport(_ description: ImportDescription) {
         func render(preconcurrency: Bool) {
             let spiPrefix = description.spi.map { "@_spi(\($0)) " } ?? ""
             let preconcurrencyPrefix = preconcurrency ? "@preconcurrency " : ""
@@ -721,6 +745,8 @@ struct TextBasedRenderer: RendererProtocol {
         case .typealias(let typealiasDescription): renderTypealias(typealiasDescription)
         case .function(let functionDescription): renderFunction(functionDescription)
         case .enumCase(let enumCase): renderEnumCase(enumCase)
+        case .canImportConditional(let condition, let thenDecls, let elseDecls):
+            renderCanImportConditional(condition, thenDecls, elseDecls)
         }
     }
 
@@ -842,6 +868,15 @@ struct TextBasedRenderer: RendererProtocol {
         .compactMap({ $0 })
         let line = "@available(\(things.joined(separator: ", ")))"
         writer.writeLine(line)
+    }
+
+    /// Renders a canImport with both then and else branches
+    func renderCanImportConditional(_ module: String, _ thenDecls: [Declaration], _ elseDecls: [Declaration]) {
+        writer.writeLine("#if canImport(\(module))")
+        for thenDecl in thenDecls { renderDeclaration(thenDecl) }
+        writer.writeLine("#else")
+        for elseDecl in elseDecls { renderDeclaration(elseDecl) }
+        writer.writeLine("#endif")
     }
 
     /// Renders the specified code block item.
