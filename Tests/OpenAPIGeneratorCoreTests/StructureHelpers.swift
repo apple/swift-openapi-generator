@@ -126,6 +126,7 @@ extension LiteralDescription {
         switch self {
         case .string: return "string"
         case .int: return "int"
+        case .double: return "double"
         case .bool: return "bool"
         case .nil: return "nil"
         case .array: return "array"
