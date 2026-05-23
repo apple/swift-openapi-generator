@@ -116,6 +116,7 @@ struct ClientFileTranslator: FileTranslator {
                 )
             )
         )
+        .annotate(with: config.macroAnnotations.client.map(AttributeDescription.init(text:)))
 
         return StructuredSwiftRepresentation(
             file: .init(

@@ -655,6 +655,11 @@ indirect enum Declaration: Equatable, Codable {
     /// A declaration that adds a comment on top of the provided declaration.
     case deprecated(DeprecationDescription, Declaration)
 
+    /// A declaration that prefixes the provided declaration with one or more attribute annotations.
+    ///
+    /// For example: `@MyMacro\nstruct Foo {}`.
+    case annotated([AttributeDescription], Declaration)
+
     /// A variable declaration.
     case variable(VariableDescription)
 
@@ -690,6 +695,18 @@ struct DeprecationDescription: Equatable, Codable {
 
     /// A new name of the symbol, allowing the user to get a fix-it.
     var renamed: String?
+}
+
+/// A description of an attribute annotation to apply to a declaration.
+///
+/// The text is emitted verbatim on the line immediately preceding the declaration.
+/// For example: `@MyMacro` or `@MyMacro(param: value)`.
+struct AttributeDescription: Equatable, Codable {
+
+    /// The raw text of the attribute, including the leading `@`.
+    ///
+    /// For example: `"@MyMacro"` or `"@MyMacro(param: value)"`.
+    var text: String
 }
 
 /// A description of an assignment expression.
@@ -1651,6 +1668,23 @@ extension Declaration {
         return self
     }
 
+    /// Returns the declaration wrapped with the provided attribute annotations.
+    ///
+    /// If `attributes` is empty, returns `self` unchanged.
+    /// - Parameter attributes: A list of attribute annotations to place before the declaration.
+    /// - Returns: The declaration with the attributes inserted after any leading doc comment,
+    ///   so the attribute sits between the `///` lines and the `public struct/enum/...` keyword.
+    func annotate(with attributes: [AttributeDescription]) -> Self {
+        if attributes.isEmpty { return self }
+        // Drill through a leading doc comment so the attribute sits between
+        // the `///` lines and the `public struct/enum/...` keyword — the
+        // conventional Swift placement.
+        if case .commentable(let comment, let inner) = self {
+            return .commentable(comment, .annotated(attributes, inner))
+        }
+        return .annotated(attributes, self)
+    }
+
     /// Returns the declaration one level deeper, nested inside the commentable
     /// declaration, if present.
     var strippingTopComment: Self {
@@ -1667,6 +1701,7 @@ extension Declaration {
             switch self {
             case .commentable(_, let declaration): return declaration.accessModifier
             case .deprecated(_, let declaration): return declaration.accessModifier
+            case .annotated(_, let declaration): return declaration.accessModifier
             case .variable(let variableDescription): return variableDescription.accessModifier
             case .extension(let extensionDescription): return extensionDescription.accessModifier
             case .struct(let structDescription): return structDescription.accessModifier
@@ -1685,6 +1720,9 @@ extension Declaration {
             case .deprecated(let deprecationDescription, var declaration):
                 declaration.accessModifier = newValue
                 self = .deprecated(deprecationDescription, declaration)
+            case .annotated(let attributes, var declaration):
+                declaration.accessModifier = newValue
+                self = .annotated(attributes, declaration)
             case .variable(var variableDescription):
                 variableDescription.accessModifier = newValue
                 self = .variable(variableDescription)

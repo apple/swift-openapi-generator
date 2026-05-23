@@ -37,12 +37,18 @@ extension TypesFileTranslator {
             return []
         }
         let typeName = typeAssigner.typeName(for: (componentKey, schema))
-        return try translateSchema(
+        var decls = try translateSchema(
             typeName: typeName,
             schema: schema,
             overrides: .none,
             isMultipartContent: isMultipartContent
         )
+        let attributes = config.macroAnnotations.attributes(forSchema: componentKey.rawValue)
+            .map(AttributeDescription.init(text:))
+        if !attributes.isEmpty, !decls.isEmpty {
+            decls[decls.count - 1] = decls[decls.count - 1].annotate(with: attributes)
+        }
+        return decls
     }
 
     /// Returns a declaration of the namespace that contains all the reusable

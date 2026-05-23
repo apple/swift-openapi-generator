@@ -37,6 +37,7 @@ extension _GenerateOptions {
         let resolvedNameOverrides = resolvedNameOverrides(config)
         let resolvedTypeOverrides = resolvedTypeOverrides(config)
         let resolvedFeatureFlags = resolvedFeatureFlags(config)
+        let resolvedMacros = resolvedMacroAnnotations(config)
         let configs: [Config] = sortedModes.map {
             .init(
                 mode: $0,
@@ -47,7 +48,8 @@ extension _GenerateOptions {
                 namingStrategy: resolvedNamingStragy,
                 nameOverrides: resolvedNameOverrides,
                 typeOverrides: resolvedTypeOverrides,
-                featureFlags: resolvedFeatureFlags
+                featureFlags: resolvedFeatureFlags,
+                macroAnnotations: resolvedMacros
             )
         }
         let (diagnostics, finalizeDiagnostics) = preparedDiagnosticsCollector(outputPath: diagnosticsOutputPath)

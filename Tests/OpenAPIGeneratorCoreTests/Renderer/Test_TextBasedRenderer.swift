@@ -586,6 +586,58 @@ final class Test_TextBasedRenderer: XCTestCase {
         )
     }
 
+    func testAnnotated() throws {
+        // Single attribute on a struct
+        try _test(
+            Declaration.annotated(
+                [.init(text: "@MyMacro")],
+                .struct(.init(name: "Foo"))
+            ),
+            renderedBy: TextBasedRenderer.renderDeclaration,
+            rendersAs: #"""
+                @MyMacro
+                struct Foo {}
+                """#
+        )
+        // Multiple attributes are emitted in order
+        try _test(
+            Declaration.annotated(
+                [.init(text: "@First"), .init(text: "@Second(param: true)")],
+                .enum(.init(name: "Bar"))
+            ),
+            renderedBy: TextBasedRenderer.renderDeclaration,
+            rendersAs: #"""
+                @First
+                @Second(param: true)
+                enum Bar {}
+                """#
+        )
+        // Empty attributes list → no annotation lines
+        try _test(
+            Declaration.annotated(
+                [],
+                .struct(.init(name: "Empty"))
+            ),
+            renderedBy: TextBasedRenderer.renderDeclaration,
+            rendersAs: #"""
+                struct Empty {}
+                """#
+        )
+        // Composable with .commentable
+        try _test(
+            Declaration.commentable(
+                .doc("A documented type."),
+                .annotated([.init(text: "@MyMacro")], .struct(.init(name: "Documented")))
+            ),
+            renderedBy: TextBasedRenderer.renderDeclaration,
+            rendersAs: #"""
+                /// A documented type.
+                @MyMacro
+                struct Documented {}
+                """#
+        )
+    }
+
     func testBindingKind() throws {
         try _test(
             .var,

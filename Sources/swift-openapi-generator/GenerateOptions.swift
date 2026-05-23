@@ -143,6 +143,17 @@ extension _GenerateOptions {
         return TypeOverrides(schemas: schemaOverrides)
     }
 
+    /// Returns the macro annotations configuration requested by the user.
+    /// - Parameter config: The configuration specified by the user.
+    /// - Returns: The macro annotations configuration, or the default empty configuration.
+    func resolvedMacroAnnotations(_ config: _UserConfig?) -> MacroConfiguration {
+        guard let raw = config?.macroAnnotations else { return .default }
+        return MacroConfiguration(
+            schemas: raw.schemas ?? [:],
+            client: raw.client ?? []
+        )
+    }
+
     /// Returns a list of the feature flags requested by the user.
     /// - Parameter config: The configuration specified by the user.
     /// - Returns: A set of feature flags requested by the user.

@@ -713,6 +713,8 @@ struct TextBasedRenderer: RendererProtocol {
             renderCommentableDeclaration(comment: comment, declaration: nestedDeclaration)
         case let .deprecated(deprecation, nestedDeclaration):
             renderDeprecatedDeclaration(deprecation: deprecation, declaration: nestedDeclaration)
+        case let .annotated(attributes, nestedDeclaration):
+            renderAnnotatedDeclaration(attributes: attributes, declaration: nestedDeclaration)
         case .variable(let variableDescription): renderVariable(variableDescription)
         case .extension(let extensionDescription): renderExtension(extensionDescription)
         case .struct(let structDescription): renderStruct(structDescription)
@@ -831,6 +833,12 @@ struct TextBasedRenderer: RendererProtocol {
     /// Renders the specified declaration with a deprecation annotation.
     func renderDeprecatedDeclaration(deprecation: DeprecationDescription, declaration: Declaration) {
         renderDeprecation(deprecation)
+        renderDeclaration(declaration)
+    }
+
+    /// Renders the specified declaration prefixed with one or more attribute annotations.
+    func renderAnnotatedDeclaration(attributes: [AttributeDescription], declaration: Declaration) {
+        for attribute in attributes { writer.writeLine(attribute.text) }
         renderDeclaration(declaration)
     }
 

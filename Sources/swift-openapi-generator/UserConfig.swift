@@ -51,6 +51,9 @@ struct _UserConfig: Codable {
     /// A set of features to explicitly enable.
     var featureFlags: FeatureFlags?
 
+    /// Macro and attribute annotations to attach to generated declarations.
+    var macroAnnotations: _MacroAnnotationsConfig?
+
     /// A set of raw values corresponding to the coding keys of this struct.
     static let codingKeysRawValues = Set(CodingKeys.allCases.map({ $0.rawValue }))
 
@@ -64,11 +67,20 @@ struct _UserConfig: Codable {
         case nameOverrides
         case typeOverrides
         case featureFlags
+        case macroAnnotations
     }
 
     /// A container of type overrides.
     struct TypeOverrides: Codable {
         /// A dictionary of overrides for replacing the types generated from schemas with manually provided types.
         var schemas: [String: String]?
+    }
+
+    /// User-facing representation of ``MacroConfiguration``.
+    struct _MacroAnnotationsConfig: Codable {
+        /// Per-schema attribute rules, keyed by OpenAPI schema name or `"*"` for all schemas.
+        var schemas: [String: [String]]?
+        /// Attribute annotations applied to the generated `Client` struct.
+        var client: [String]?
     }
 }

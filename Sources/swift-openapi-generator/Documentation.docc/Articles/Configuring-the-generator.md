@@ -47,6 +47,9 @@ The configuration file has the following keys:
 - `nameOverrides` (optional): a string to string dictionary. Allows customizing how individual OpenAPI identifiers get converted to Swift identifiers.
 - `typeOverrides` (optional): Allows replacing a generated type with a custom type.
     - `schemas` (optional): a string to string dictionary. The key is the name of the schema, the last component of `#/components/schemas/Foo` (here, `Foo`). The value is the custom type name, such as `CustomFoo`. Check out details in [SOAR-0014](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0014).
+- `macroAnnotations` (optional): Allows attaching Swift attributes or attached macros to generated declarations. Each string value is emitted verbatim on its own line before the declaration, so any module it requires must also be listed in `additionalImports`.
+    - `schemas` (optional): a dictionary from a schema name (for example, `Foo` for `#/components/schemas/Foo`) to an array of attributes. The special key `*` applies to every schema; attributes from `*` are emitted first, followed by those of the matching schema name.
+    - `client` (optional): an array of attributes applied to the generated `Client` struct.
 - `featureFlags` (optional): array of strings. Each string must be a valid feature flag to enable. For a list of currently supported feature flags, check out [FeatureFlags.swift](https://github.com/apple/swift-openapi-generator/blob/main/Sources/_OpenAPIGeneratorCore/FeatureFlags.swift).
 
 ### Example config files
@@ -159,3 +162,22 @@ typeOverrides:
 ```
 
 Check out [SOAR-0014](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0014) for details.
+
+### Macro annotations
+
+Macro annotations can be used to attach attributes or attached macros to generated types, for example:
+
+```yaml
+additionalImports:
+  - MyMacros
+macroAnnotations:
+  schemas:
+    "*":
+      - "@MyMacro"
+    Pet:
+      - "@MyOtherMacro(option: true)"
+  client:
+    - "@MyClientMacro"
+```
+
+Generated schema types are structs, enums, or typealiases, so make sure each attribute is valid on the declaration it's applied to. Attributes aren't validated by the generator; an invalid attribute results in a compilation error in the generated code.

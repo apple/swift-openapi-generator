@@ -1977,6 +1977,70 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testMacroAnnotationsSchemas() throws {
+        try assertSchemasTranslation(
+            macroAnnotations: MacroConfiguration(schemas: ["*": ["@AllMacro"], "Pet": ["@PetMacro(option: true)"]]),
+            """
+            schemas:
+              Pet:
+                type: object
+                properties:
+                  name:
+                    type: string
+              Status:
+                type: string
+                enum:
+                  - available
+            """,
+            """
+            public enum Schemas {
+                @AllMacro
+                @PetMacro(option: true)
+                public struct Pet: Codable, Hashable, Sendable {
+                    public var name: Swift.String?
+                    public init(name: Swift.String? = nil) {
+                        self.name = name
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case name
+                    }
+                }
+                @AllMacro
+                @frozen public enum Status: String, Codable, Hashable, Sendable, CaseIterable {
+                    case available = "available"
+                }
+            }
+            """
+        )
+    }
+
+    func testMacroAnnotationsClient() throws {
+        let translator = ClientFileTranslator(
+            config: Config(
+                mode: .client,
+                access: .public,
+                namingStrategy: .defensive,
+                macroAnnotations: MacroConfiguration(client: ["@ClientMacro"])
+            ),
+            diagnostics: XCTestDiagnosticCollector(test: self),
+            components: OpenAPI.Components()
+        )
+        let documentYAML = """
+            openapi: 3.1.0
+            info:
+              title: Minimal API
+              version: 1.0.0
+            paths: {}
+            """
+        let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: documentYAML)
+        let translation = try translator.translateFile(parsedOpenAPI: document)
+        guard case .declaration(let declaration) = try XCTUnwrap(translation.file.contents.codeBlocks.first).item,
+            case .annotated(let attributes, .struct(let structDescription)) = declaration.strippingTopComment
+        else { return XCTFail("Expected an annotated Client struct declaration") }
+        XCTAssertEqual(attributes, [.init(text: "@ClientMacro")])
+        XCTAssertEqual(structDescription.name, "Client")
+    }
+
     func testComponentsResponsesResponseNoBody() throws {
         try self.assertResponsesTranslation(
             """
@@ -6253,6 +6317,7 @@ extension SnippetBasedReferenceTests {
         nameOverrides: [String: String] = [:],
         typeOverrides: TypeOverrides = .init(),
         featureFlags: FeatureFlags = [],
+        macroAnnotations: MacroConfiguration = .default,
         ignoredDiagnosticMessages: Set<String> = [],
         componentsYAML: String
     ) throws -> TypesFileTranslator {
@@ -6264,7 +6329,8 @@ extension SnippetBasedReferenceTests {
                 namingStrategy: namingStrategy,
                 nameOverrides: nameOverrides,
                 typeOverrides: typeOverrides,
-                featureFlags: featureFlags
+                featureFlags: featureFlags,
+                macroAnnotations: macroAnnotations
             ),
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
             components: components
@@ -6464,6 +6530,7 @@ extension SnippetBasedReferenceTests {
         featureFlags: FeatureFlags = [],
         nameOverrides: [String: String] = [:],
         typeOverrides: TypeOverrides = .init(),
+        macroAnnotations: MacroConfiguration = .default,
         ignoredDiagnosticMessages: Set<String> = [],
         _ componentsYAML: String,
         _ expectedSwift: String,
@@ -6476,6 +6543,7 @@ extension SnippetBasedReferenceTests {
             nameOverrides: nameOverrides,
             typeOverrides: typeOverrides,
             featureFlags: featureFlags,
+            macroAnnotations: macroAnnotations,
             ignoredDiagnosticMessages: ignoredDiagnosticMessages,
             componentsYAML: componentsYAML
         )
@@ -6692,6 +6760,7 @@ fileprivate extension Declaration {
             return .variable(v)
         case let .typealias(t): return .typealias(t)
         case let .enumCase(e): return .enumCase(e)
+        case let .annotated(attrs, d): return .annotated(attrs, stripComments(d))
         }
     }
 
