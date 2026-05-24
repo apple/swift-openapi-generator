@@ -14,5 +14,8 @@
 import OpenAPIKit
 
 extension FileTranslator {
-    // Add helpers for reading feature flags below.
+    /// Whether wildcard response bodies should use content-typed payloads.
+    var hasConcreteWildcardResponseBodies: Bool {
+        config.featureFlags.contains(.concreteWildcardResponseBodies)
+    }
 }
