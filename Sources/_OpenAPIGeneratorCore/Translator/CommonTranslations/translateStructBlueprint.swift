@@ -28,8 +28,12 @@ extension FileTranslator {
         let propertyDecls = allProperties.flatMap(translatePropertyBlueprint)
 
         var members = propertyDecls
-        let initDecl = translateStructBlueprintInitializer(typeName: typeName, properties: allProperties)
-        members.append(initDecl)
+        let initializers = translateStructBlueprintInitializers(
+            typeName: typeName,
+            properties: allProperties,
+            initializerContext: blueprint.initializerContext
+        )
+        members.append(contentsOf: initializers)
 
         if blueprint.shouldGenerateCodingKeys && !serializableProperties.isEmpty {
             let codingKeysDecl = translateStructBlueprintCodingKeys(properties: serializableProperties)
@@ -60,13 +64,46 @@ extension FileTranslator {
         return .commentable(blueprint.comment, .struct(structDesc).deprecate(if: blueprint.isDeprecated))
     }
 
-    /// Returns a declaration of an initializer declared in a structure.
+    /// Returns declarations of initializers for a structure.
     /// - Parameters:
     ///   - typeName: The type name of the structure.
     ///   - properties: The properties to include in the initializer.
-    /// - Returns: A `Declaration` representing the translated struct.
-    func translateStructBlueprintInitializer(typeName: TypeName, properties: [PropertyBlueprint]) -> Declaration {
+    ///   - initializerContext: Context that determines what initializers to generate.
+    /// - Returns: An array of `Declaration` representing the initializers.
+    func translateStructBlueprintInitializers(
+        typeName: TypeName,
+        properties: [PropertyBlueprint],
+        initializerContext: StructBlueprint.InitializerContext
+    ) -> [Declaration] {
+        var initializers: [Declaration] = []
 
+        // Always include the memberwise initializer
+        let memberwiseInit = translateMemberwiseInitializer(typeName: typeName, properties: properties)
+        initializers.append(memberwiseInit)
+
+        // Add context-specific initializers
+        switch initializerContext {
+        case .memberwise:
+            break // No additional initializers
+        case .multipartPayload(let originalSchema):
+            if let valueInit = translateMultipartValueInitializer(
+                typeName: typeName,
+                properties: properties,
+                originalSchema: originalSchema
+            ) {
+                initializers.append(valueInit)
+            }
+        }
+
+        return initializers
+    }
+
+    /// Returns a declaration of the memberwise initializer for a structure.
+    /// - Parameters:
+    ///   - typeName: The type name of the structure.
+    ///   - properties: The properties to include in the initializer.
+    /// - Returns: A `Declaration` representing the memberwise initializer.
+    func translateMemberwiseInitializer(typeName: TypeName, properties: [PropertyBlueprint]) -> Declaration {
         let comment: Comment = properties.initializerComment(typeName: typeName.shortSwiftName)
 
         let decls: [(ParameterDescription, String)] = properties.map { property in
@@ -92,6 +129,110 @@ extension FileTranslator {
         return .commentable(
             comment,
             .function(accessModifier: config.access, kind: .initializer, parameters: parameters, body: assignments)
+        )
+    }
+
+    /// Returns a value initializer for multipart payload structs with primitive types.
+    /// - Parameters:
+    ///   - typeName: The type name of the structure.
+    ///   - properties: The properties of the structure.
+    ///   - originalSchema: The original schema before any transformations.
+    /// - Returns: A value initializer declaration if applicable, nil otherwise.
+    func translateMultipartValueInitializer(
+        typeName: TypeName,
+        properties: [PropertyBlueprint],
+        originalSchema: JSONSchema
+    ) -> Declaration? {
+        let typeMatcher = TypeMatcher(context: context)
+        guard let matchedType = typeMatcher.tryMatchBuiltinType(for: originalSchema.value) else {
+            return nil
+        }
+
+        let valueTypeName = matchedType.typeName
+        let needsStringConversion: Bool
+
+        switch originalSchema.value {
+        case .integer, .boolean, .number:
+            // For these types, if tryMatchBuiltinType succeeded, it means they are
+            // simple primitive types (e.g., Int, Bool, Double) and not enums.
+            // They will be converted to String for the HTTPBody.
+            needsStringConversion = true
+        case .string:
+            // For string schemas, we must ensure it's a plain Swift.String.
+            // Other string-based formats (Date, binary Data, base64 Data)
+            // are not handled by this specific "value" initializer.
+            guard valueTypeName == .string else { return nil }
+            needsStringConversion = false
+        case .object, .array, .all, .one, .any, .not, .reference, .fragment, .null:
+            // Other schema types are not supported for this value initializer,
+            // even if they might be considered "built-in" by the TypeMatcher
+            // for other purposes.
+            return nil
+        }
+
+        // Find headers and body properties
+        let headersProperty = properties.first { $0.originalName == Constants.Operation.Output.Payload.Headers.variableName }
+        let bodyProperty = properties.first { $0.originalName == Constants.Operation.Body.variableName }
+
+        // This initializer requires a body part to set the value.
+        guard bodyProperty != nil else { return nil }
+
+        var parameters: [ParameterDescription] = []
+
+        // Add headers parameter if a headers property exists
+        if let headersProperty {
+            parameters.append(ParameterDescription(
+                label: headersProperty.swiftSafeName,
+                type: .init(headersProperty.typeUsage),
+                defaultValue: nil
+            ))
+        }
+
+        // Add the main value parameter
+        parameters.append(ParameterDescription(
+            label: "value",
+            type: .init(valueTypeName.asUsage),
+            defaultValue: nil
+        ))
+
+        let bodyContentExpression: Expression
+        if needsStringConversion {
+            bodyContentExpression = .functionCall(
+                calledExpression: .identifierType(TypeName.string),
+                arguments: [.init(label: nil, expression: .identifierPattern("value"))]
+            )
+        } else {
+            bodyContentExpression = .identifierPattern("value")
+        }
+
+        var bodyStatements: [CodeBlock] = []
+
+        // Assign headers if provided
+        if let headersProperty {
+            bodyStatements.append(.expression(
+                .assignment(
+                    left: .identifierPattern("self").dot(headersProperty.swiftSafeName),
+                    right: .identifierPattern(headersProperty.swiftSafeName)
+                )
+            ))
+        }
+
+        // Initialize the body property using the value
+        bodyStatements.append(.expression(
+            .assignment(
+                left: .identifierPattern("self").dot(Constants.Operation.Body.variableName),
+                right: .functionCall(
+                    calledExpression: .identifierType(TypeName.runtime("HTTPBody")),
+                    arguments: [.init(label: nil, expression: bodyContentExpression)]
+                )
+            )
+        ))
+
+        return .function(
+            accessModifier: config.access,
+            kind: .initializer(failable: false),
+            parameters: parameters,
+            body: bodyStatements
         )
     }
 

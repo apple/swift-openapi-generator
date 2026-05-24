@@ -1626,6 +1626,13 @@ public enum Components {
                         self.headers = headers
                         self.body = body
                     }
+                    public init(
+                        headers: Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.LogPayload.Headers,
+                        value: Swift.String
+                    ) {
+                        self.headers = headers
+                        self.body = OpenAPIRuntime.HTTPBody(value)
+                    }
                 }
                 case log(OpenAPIRuntime.MultipartPart<Components.RequestBodies.MultipartUploadTypedRequest.MultipartFormPayload.LogPayload>)
                 /// - Remark: Generated from `#/components/requestBodies/MultipartUploadTypedRequest/multipartForm/metadata`.
@@ -1779,6 +1786,13 @@ public enum Components {
                         ) {
                             self.headers = headers
                             self.body = body
+                        }
+                        public init(
+                            headers: Components.Responses.MultipartDownloadTypedResponse.Body.MultipartFormPayload.LogPayload.Headers,
+                            value: Swift.String
+                        ) {
+                            self.headers = headers
+                            self.body = OpenAPIRuntime.HTTPBody(value)
                         }
                     }
                     case log(OpenAPIRuntime.MultipartPart<Components.Responses.MultipartDownloadTypedResponse.Body.MultipartFormPayload.LogPayload>)
