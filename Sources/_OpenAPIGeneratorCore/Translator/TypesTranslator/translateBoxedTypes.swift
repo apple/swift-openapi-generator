@@ -25,7 +25,16 @@ extension TypesFileTranslator {
     func boxRecursiveTypes(_ decls: [Declaration]) throws -> [Declaration] {
 
         let nodes = decls.compactMap(DeclarationRecursionDetector.Node.init)
-        let nodeLookup = Dictionary(uniqueKeysWithValues: nodes.map { ($0.name, $0) })
+        if let duplicateName = nodes.firstDuplicateName {
+            try diagnostics.emit(
+                .error(
+                    message:
+                        "Multiple schemas in '#/components/schemas' map to the same generated Swift type name '\(duplicateName)', which is not supported. This usually happens when the naming strategy collapses two distinct OpenAPI names into one. Switch the namingStrategy to 'defensive', or add a 'nameOverrides' entry to give one of the schemas a different name.",
+                    context: ["name": duplicateName]
+                )
+            )
+        }
+        let nodeLookup = Dictionary(nodes.map { ($0.name, $0) }, uniquingKeysWith: { first, _ in first })
         let container = DeclarationRecursionDetector.Container(lookupMap: nodeLookup)
 
         let boxedNames = try RecursionDetector.computeBoxedTypes(rootNodes: nodes, container: container)
@@ -215,5 +224,16 @@ extension TypesFileTranslator {
         var desc = desc
         desc.isIndirect = true
         return desc
+    }
+}
+
+extension Array where Element == DeclarationRecursionDetector.Node {
+
+    /// The name of the first node whose name was already used by an earlier
+    /// node in the array, or `nil` if all node names are unique.
+    var firstDuplicateName: String? {
+        var seen = Set<String>()
+        for node in self where !seen.insert(node.name).inserted { return node.name }
+        return nil
     }
 }

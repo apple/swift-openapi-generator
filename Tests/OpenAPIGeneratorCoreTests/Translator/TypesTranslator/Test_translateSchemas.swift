@@ -47,4 +47,40 @@ class Test_translateSchemas: Test_Core {
             XCTAssertEqual(collector.diagnostics.map(\.description), diagnosticDescriptions)
         }
     }
+
+    func testDuplicateGeneratedNameEmitsErrorInsteadOfCrashing() throws {
+        // Two distinct OpenAPI schema names that the idiomatic naming strategy
+        // collapses to the same Swift type name ("NullTime"). Previously this
+        // trapped in `Dictionary(uniqueKeysWithValues:)` while boxing recursive
+        // types; now it should surface as a clear error diagnostic instead.
+        let components = OpenAPI.Components(schemas: [
+            "NullTime": .object(properties: ["value": .string]), "nullTime": .object(properties: ["value": .string]),
+        ])
+        let collector = AccumulatingDiagnosticCollector()
+        let translator = makeTranslator(components: components, diagnostics: collector, namingStrategy: .idiomatic)
+        _ = try translator.translateSchemas(components.schemas, multipartSchemaNames: [])
+        let errors = collector.diagnostics.filter { $0.severity == .error }
+        XCTAssertEqual(errors.count, 1)
+        let error = try XCTUnwrap(errors.first)
+        XCTAssertEqual(error.context["name"], "NullTime")
+        XCTAssertTrue(
+            error.message.contains("map to the same generated Swift type name 'NullTime'"),
+            "Unexpected error message: \(error.message)"
+        )
+    }
+
+    func testDistinctGeneratedNamesEmitNoErrorWithIdiomaticNaming() throws {
+        // Two schema names that the idiomatic naming strategy maps to distinct
+        // Swift type names must not trigger the duplicate-name error.
+        let components = OpenAPI.Components(schemas: [
+            "null_time": .object(properties: ["value": .string]), "other_time": .object(properties: ["value": .string]),
+        ])
+        let collector = AccumulatingDiagnosticCollector()
+        let translator = makeTranslator(components: components, diagnostics: collector, namingStrategy: .idiomatic)
+        _ = try translator.translateSchemas(components.schemas, multipartSchemaNames: [])
+        XCTAssertTrue(
+            collector.diagnostics.filter { $0.severity == .error }.isEmpty,
+            "Expected no error diagnostics, got: \(collector.diagnostics.map(\.description))"
+        )
+    }
 }
