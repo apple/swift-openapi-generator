@@ -235,6 +235,54 @@ final class Test_TextBasedRenderer: XCTestCase {
         )
     }
 
+    // MARK: - Line breaks in string literals
+
+    func testStringLiteral_contentContainsNewline() throws {
+        // A single-line literal cannot contain a line break, so the renderer
+        // must escape it rather than emit an unterminated string literal.
+        try _test(
+            .string("first line\nsecond line"),
+            renderedBy: TextBasedRenderer.renderLiteral,
+            rendersAs: #"""
+                "first line\nsecond line"
+                """#
+        )
+    }
+
+    func testStringLiteral_contentContainsNewlineAndQuote() throws {
+        // When the content has both a quote and a line break, escaping is
+        // required because a raw literal still cannot span lines.
+        try _test(
+            .string("a\"b\nc"),
+            renderedBy: TextBasedRenderer.renderLiteral,
+            rendersAs: #"""
+                "a\"b\nc"
+                """#
+        )
+    }
+
+    func testStringLiteral_contentContainsCarriageReturn() throws {
+        try _test(
+            .string("a\rb"),
+            renderedBy: TextBasedRenderer.renderLiteral,
+            rendersAs: #"""
+                "a\rb"
+                """#
+        )
+    }
+
+    func testStringLiteral_contentContainsBackslashAndNewline() throws {
+        // The backslash must be escaped too, otherwise it would consume the
+        // escaped newline that follows it.
+        try _test(
+            .string("a\\\nb"),
+            renderedBy: TextBasedRenderer.renderLiteral,
+            rendersAs: #"""
+                "a\\\nb"
+                """#
+        )
+    }
+
     func testExpression() throws {
         try _test(
             .literal(.nil),

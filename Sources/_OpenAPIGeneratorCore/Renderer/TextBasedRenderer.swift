@@ -446,11 +446,16 @@ struct TextBasedRenderer: RendererProtocol {
         func write(_ string: String) { writer.writeLine(string) }
         switch literal {
         case let .string(string):
-            // Use a raw literal if the string contains a quote or backslash.
-            // Pick the minimum number of `#` delimiters so that neither the
-            // closing delimiter (`"` + N×`#`) nor the escape prefix
-            // (`\` + N×`#`) appears in the string content.
-            if string.contains("\"") || string.contains("\\") {
+            // A single-line string literal, raw or not, cannot contain a line
+            // break. When the content has one, fall back to an escaped regular
+            // literal that represents the line break with `\n` or `\r`.
+            if string.contains(where: \.isNewlineForStringLiteral) {
+                write("\"\(string.escapedForSwiftStringLiteral)\"")
+            } else if string.contains("\"") || string.contains("\\") {
+                // Use a raw literal if the string contains a quote or backslash.
+                // Pick the minimum number of `#` delimiters so that neither the
+                // closing delimiter (`"` + N×`#`) nor the escape prefix
+                // (`\` + N×`#`) appears in the string content.
                 var hashCount = 1
                 while string.contains("\"" + String(repeating: "#", count: hashCount))
                     || string.contains("\\" + String(repeating: "#", count: hashCount))
@@ -894,6 +899,35 @@ fileprivate extension String {
     /// - Parameter work: The closure that transforms each line.
     /// - Returns: A new string where each line has been transformed using the given closure.
     func transformingLines(_ work: (String) -> String) -> [String] { asLines().map(work) }
+
+    /// The string with characters escaped so it can be embedded inside a
+    /// regular (non-raw) single-line Swift string literal.
+    ///
+    /// Backslashes and double quotes are escaped, and line breaks are turned
+    /// into their `\n` and `\r` escape sequences, so a value containing a line
+    /// break can be represented on a single line.
+    var escapedForSwiftStringLiteral: String {
+        var result = ""
+        result.reserveCapacity(count)
+        for character in self {
+            switch character {
+            case "\\": result += #"\\"#
+            case "\"": result += #"\""#
+            case "\n": result += #"\n"#
+            case "\r": result += #"\r"#
+            case "\t": result += #"\t"#
+            default: result.append(character)
+            }
+        }
+        return result
+    }
+}
+
+fileprivate extension Character {
+
+    /// Whether the character is a line break that cannot appear in a
+    /// single-line Swift string literal, namely line feed or carriage return.
+    var isNewlineForStringLiteral: Bool { self == "\n" || self == "\r" }
 }
 
 extension TextBasedRenderer {
