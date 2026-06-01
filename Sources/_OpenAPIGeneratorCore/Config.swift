@@ -26,6 +26,85 @@ public enum NamingStrategy: String, Sendable, Codable, Equatable, CaseIterable {
     case idiomatic
 }
 
+/// Configuration for sharding the generated Types file into multiple files
+/// organized by dependency layers.
+public struct ShardingConfig: Sendable, Equatable {
+    /// The number of type shards per layer (index 0 = component/leaf layer,
+    /// index 1+ = dependent layers).
+    public var typeShardCounts: [Int]
+    /// Maximum Swift files per shard for type schemas.
+    public var maxFilesPerShard: Int
+    /// Maximum Swift files per shard for operations.
+    public var maxFilesPerShardOps: Int
+    /// The number of shards per operation layer (index = layer number).
+    /// Must have exactly `layerCount` entries.
+    public var operationLayerShardCounts: [Int]
+    /// Module prefix for deterministic file naming (e.g., "MyServiceAPI").
+    /// When set, produces deterministic file names suitable for build-system integration.
+    public var modulePrefix: String?
+
+    /// The total number of dependency layers.
+    public var layerCount: Int { typeShardCounts.count }
+
+    /// Returns the number of type shards for the given layer index.
+    public func typeShardCount(forLayer layerIndex: Int) -> Int {
+        typeShardCounts[layerIndex]
+    }
+
+    public init(
+        typeShardCounts: [Int],
+        maxFilesPerShard: Int = 25,
+        maxFilesPerShardOps: Int = 16,
+        operationLayerShardCounts: [Int],
+        modulePrefix: String? = nil
+    ) {
+        self.typeShardCounts = typeShardCounts
+        self.maxFilesPerShard = maxFilesPerShard
+        self.maxFilesPerShardOps = maxFilesPerShardOps
+        self.operationLayerShardCounts = operationLayerShardCounts
+        self.modulePrefix = modulePrefix
+    }
+
+    public enum ValidationError: Error, CustomStringConvertible {
+        case nonPositiveShardCount(field: String, value: Int)
+        case shardCountMismatch(field: String, expected: Int, got: Int)
+
+        public var description: String {
+            switch self {
+            case .nonPositiveShardCount(let field, let value):
+                return "\(field) must be > 0, got \(value)"
+            case .shardCountMismatch(let field, let expected, let got):
+                return "\(field) count (\(got)) must equal layerCount (\(expected))"
+            }
+        }
+    }
+
+    public func validate() throws {
+        func requirePositive(_ value: Int, field: String) throws {
+            guard value > 0 else {
+                throw ValidationError.nonPositiveShardCount(field: field, value: value)
+            }
+        }
+        for (index, count) in typeShardCounts.enumerated() {
+            try requirePositive(count, field: "typeShardCounts[\(index)]")
+        }
+        try requirePositive(maxFilesPerShard, field: "maxFilesPerShard")
+        try requirePositive(maxFilesPerShardOps, field: "maxFilesPerShardOps")
+        for (index, count) in operationLayerShardCounts.enumerated() {
+            try requirePositive(count, field: "operationLayerShardCounts[\(index)]")
+        }
+        if operationLayerShardCounts.count != layerCount {
+            throw ValidationError.shardCountMismatch(
+                field: "operationLayerShardCounts",
+                expected: layerCount,
+                got: operationLayerShardCounts.count
+            )
+        }
+    }
+}
+
+extension ShardingConfig: Codable {}
+
 /// A structure that contains configuration options for a single execution
 /// of the generator pipeline run.
 ///
@@ -68,6 +147,9 @@ public struct Config: Sendable {
     /// Additional pre-release features to enable.
     public var featureFlags: FeatureFlags
 
+    /// Optional sharding configuration for splitting Types output into multiple files.
+    public var sharding: ShardingConfig?
+
     /// Creates a configuration with the specified generator mode and imports.
     /// - Parameters:
     ///   - mode: The mode to use for generation.
@@ -90,7 +172,8 @@ public struct Config: Sendable {
         namingStrategy: NamingStrategy,
         nameOverrides: [String: String] = [:],
         typeOverrides: TypeOverrides = .init(),
-        featureFlags: FeatureFlags = []
+        featureFlags: FeatureFlags = [],
+        sharding: ShardingConfig? = nil
     ) {
         self.mode = mode
         self.access = access
@@ -101,5 +184,6 @@ public struct Config: Sendable {
         self.nameOverrides = nameOverrides
         self.typeOverrides = typeOverrides
         self.featureFlags = featureFlags
+        self.sharding = sharding
     }
 }
