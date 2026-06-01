@@ -1617,6 +1617,74 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasRecursive_throughArray() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              Node:
+                type: object
+                properties:
+                  children:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Node'
+            """,
+            """
+            public enum Schemas {
+                public struct Node: Codable, Hashable, Sendable {
+                    public var children: [Components.Schemas.Node]?
+                    public init(children: [Components.Schemas.Node]? = nil) {
+                        self.children = children
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case children
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasRecursive_throughDictionary() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              Node:
+                type: object
+                properties:
+                  children:
+                    type: object
+                    additionalProperties:
+                      $ref: '#/components/schemas/Node'
+            """,
+            """
+            public enum Schemas {
+                public struct Node: Codable, Hashable, Sendable {
+                    public struct childrenPayload: Codable, Hashable, Sendable {
+                        public var additionalProperties: [String: Components.Schemas.Node]
+                        public init(additionalProperties: [String: Components.Schemas.Node] = .init()) {
+                            self.additionalProperties = additionalProperties
+                        }
+                        public init(from decoder: any Swift.Decoder) throws {
+                            additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [])
+                        }
+                        public func encode(to encoder: any Swift.Encoder) throws {
+                            try encoder.encodeAdditionalProperties(additionalProperties)
+                        }
+                    }
+                    public var children: Components.Schemas.Node.childrenPayload?
+                    public init(children: Components.Schemas.Node.childrenPayload? = nil) {
+                        self.children = children
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case children
+                    }
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsSchemasRecursive_objectNested() throws {
         try self.assertSchemasTranslation(
             """
