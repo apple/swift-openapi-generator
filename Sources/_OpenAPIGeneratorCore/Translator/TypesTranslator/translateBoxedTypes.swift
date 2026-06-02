@@ -25,16 +25,31 @@ extension TypesFileTranslator {
     func boxRecursiveTypes(_ decls: [Declaration]) throws -> [Declaration] {
 
         let nodes = decls.compactMap(DeclarationRecursionDetector.Node.init)
-        if let duplicateName = nodes.firstDuplicateName {
-            try diagnostics.emit(
-                .error(
-                    message:
-                        "Multiple schemas in '#/components/schemas' map to the same generated Swift type name '\(duplicateName)', which is not supported. This usually happens when the naming strategy collapses two distinct OpenAPI names into one. Switch the namingStrategy to 'defensive', or add a 'nameOverrides' entry to give one of the schemas a different name.",
-                    context: ["name": duplicateName]
-                )
-            )
+        var duplicateNames: Set<String> = []
+        let nodeLookup = Dictionary(
+            nodes.map { ($0.name, $0) },
+            uniquingKeysWith: { existing, _ in
+                duplicateNames.insert(existing.name)
+                return existing
+            }
+        )
+        if !duplicateNames.isEmpty {
+            let sortedNames = duplicateNames.sorted()
+            let message: String
+            let context: [String: String]
+            if sortedNames.count == 1 {
+                let duplicateName = sortedNames[0]
+                message =
+                    "Multiple schemas in '#/components/schemas' map to the same generated Swift type name '\(duplicateName)', which is not supported. This usually happens when the naming strategy collapses two distinct OpenAPI names into one. Switch the namingStrategy to 'defensive', or add a 'nameOverrides' entry to give one of the schemas a different name."
+                context = ["name": duplicateName]
+            } else {
+                let nameList = sortedNames.map { "'\($0)'" }.joined(separator: ", ")
+                message =
+                    "Multiple schemas in '#/components/schemas' map to the same generated Swift type names \(nameList), which is not supported. This usually happens when the naming strategy collapses distinct OpenAPI names into one. Switch the namingStrategy to 'defensive', or add 'nameOverrides' entries to give the schemas different names."
+                context = ["names": nameList]
+            }
+            try diagnostics.emit(.error(message: message, context: context))
         }
-        let nodeLookup = Dictionary(nodes.map { ($0.name, $0) }, uniquingKeysWith: { first, _ in first })
         let container = DeclarationRecursionDetector.Container(lookupMap: nodeLookup)
 
         let boxedNames = try RecursionDetector.computeBoxedTypes(rootNodes: nodes, container: container)
@@ -224,16 +239,5 @@ extension TypesFileTranslator {
         var desc = desc
         desc.isIndirect = true
         return desc
-    }
-}
-
-extension Array where Element == DeclarationRecursionDetector.Node {
-
-    /// The name of the first node whose name was already used by an earlier
-    /// node in the array, or `nil` if all node names are unique.
-    var firstDuplicateName: String? {
-        var seen = Set<String>()
-        for node in self where !seen.insert(node.name).inserted { return node.name }
-        return nil
     }
 }

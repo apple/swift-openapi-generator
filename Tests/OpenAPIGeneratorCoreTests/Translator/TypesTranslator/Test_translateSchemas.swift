@@ -69,6 +69,27 @@ class Test_translateSchemas: Test_Core {
         )
     }
 
+    func testMultipleDuplicateGeneratedNamesAreReportedInASingleError() throws {
+        // Two independent pairs of OpenAPI schema names each collapse to the
+        // same Swift type name ("FullName" and "NullTime"). A single error
+        // should list both colliding names rather than stopping at the first.
+        let components = OpenAPI.Components(schemas: [
+            "NullTime": .object(properties: ["value": .string]), "nullTime": .object(properties: ["value": .string]),
+            "FullName": .object(properties: ["value": .string]), "fullName": .object(properties: ["value": .string]),
+        ])
+        let collector = AccumulatingDiagnosticCollector()
+        let translator = makeTranslator(components: components, diagnostics: collector, namingStrategy: .idiomatic)
+        _ = try translator.translateSchemas(components.schemas, multipartSchemaNames: [])
+        let errors = collector.diagnostics.filter { $0.severity == .error }
+        XCTAssertEqual(errors.count, 1)
+        let error = try XCTUnwrap(errors.first)
+        XCTAssertEqual(error.context["names"], "'FullName', 'NullTime'")
+        XCTAssertTrue(
+            error.message.contains("map to the same generated Swift type names 'FullName', 'NullTime'"),
+            "Unexpected error message: \(error.message)"
+        )
+    }
+
     func testDistinctGeneratedNamesEmitNoErrorWithIdiomaticNaming() throws {
         // Two schema names that the idiomatic naming strategy maps to distinct
         // Swift type names must not trigger the duplicate-name error.
