@@ -34,7 +34,7 @@ struct TypesFileTranslator: FileTranslator {
 
         let topComment = self.topComment
 
-        let imports = Constants.File.imports + config.additionalImports.map { ImportDescription(moduleName: $0) }
+        let imports = importDescriptions(adding: Constants.File.imports)
 
         let apiProtocol = try translateAPIProtocol(doc.paths)
 
