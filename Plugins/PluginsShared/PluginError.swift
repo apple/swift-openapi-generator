@@ -73,9 +73,7 @@ struct FileError: Swift.Error, Equatable, CustomStringConvertible, LocalizedErro
     }
 
     /// Encountered issue.
-    enum Issue: Equatable, /* remove unchecked when 6.1 is minimum version and we migrate from Path to URL */
-        @unchecked Sendable
-    {
+    enum Issue: Equatable {
         /// File wasn't found.
         case noFilesFound
         /// More than 1 file found.
