@@ -475,7 +475,12 @@ fileprivate extension Declaration {
     /// Creates a new declaration that creates a local array of errors.
     /// - Returns: The declaration.
     static func createErrorArrayDecl() -> Declaration {
-        .variable(kind: .var, left: "errors", type: .array(.any(.member("Error"))), right: .literal(.array([])))
+        .variable(
+            kind: .var,
+            left: "errors",
+            type: .array(.any(.member(["Swift", "Error"]))),
+            right: .literal(.array([]))
+        )
     }
 }
 
@@ -488,7 +493,7 @@ fileprivate extension FileTranslator {
         .function(
             accessModifier: config.access,
             kind: .function(name: "encode"),
-            parameters: [.init(label: "to", name: "encoder", type: .any(.member("Encoder")))],
+            parameters: [.init(label: "to", name: "encoder", type: .any(.member(["Swift", "Encoder"])))],
             keywords: [.throws],
             body: body
         )
@@ -501,7 +506,7 @@ fileprivate extension FileTranslator {
         .function(
             accessModifier: config.access,
             kind: .initializer,
-            parameters: [.init(label: "from", name: "decoder", type: .any(.member("Decoder")))],
+            parameters: [.init(label: "from", name: "decoder", type: .any(.member(["Swift", "Decoder"])))],
             keywords: [.throws],
             body: body
         )

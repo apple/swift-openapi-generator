@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.1
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
@@ -31,6 +31,7 @@ let package = Package(
         .target(
             name: "Types",
             dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
+            path: "Sources/Types Only",
             plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
         ),
         .target(

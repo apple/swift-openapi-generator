@@ -16,7 +16,7 @@ import Foundation
 
 @main struct SwiftOpenAPIGeneratorPlugin {
     func createBuildCommands(
-        pluginWorkDirectory: Path,
+        pluginWorkDirectory: URL,
         tool: (String) throws -> PluginContext.Tool,
         sourceFiles: FileList,
         targetName: String
@@ -29,11 +29,11 @@ import Foundation
             pluginSource: .build
         )
 
-        let outputFiles: [Path] = GeneratorMode.allCases.map { inputs.genSourcesDir.appending($0.outputFileName) }
+        let outputFiles = GeneratorMode.allCases.map { inputs.genSourcesDir.appending(component: $0.outputFileName) }
         return [
             .buildCommand(
                 displayName: "Running swift-openapi-generator",
-                executable: inputs.tool.path,
+                executable: inputs.tool.url,
                 arguments: inputs.arguments,
                 environment: [:],
                 inputFiles: [inputs.config, inputs.doc],
@@ -49,7 +49,7 @@ extension SwiftOpenAPIGeneratorPlugin: BuildToolPlugin {
             throw PluginError.incompatibleTarget(name: target.name)
         }
         return try createBuildCommands(
-            pluginWorkDirectory: context.pluginWorkDirectory,
+            pluginWorkDirectory: context.pluginWorkDirectoryURL,
             tool: context.tool,
             sourceFiles: swiftTarget.sourceFiles,
             targetName: target.name
@@ -63,7 +63,7 @@ import XcodeProjectPlugin
 extension SwiftOpenAPIGeneratorPlugin: XcodeBuildToolPlugin {
     func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
         try createBuildCommands(
-            pluginWorkDirectory: context.pluginWorkDirectory,
+            pluginWorkDirectory: context.pluginWorkDirectoryURL,
             tool: context.tool,
             sourceFiles: target.inputFiles,
             targetName: target.displayName

@@ -446,9 +446,17 @@ struct TextBasedRenderer: RendererProtocol {
         func write(_ string: String) { writer.writeLine(string) }
         switch literal {
         case let .string(string):
-            // Use a raw literal if the string contains a quote/backslash.
+            // Use a raw literal if the string contains a quote or backslash.
+            // Pick the minimum number of `#` delimiters so that neither the
+            // closing delimiter (`"` + N×`#`) nor the escape prefix
+            // (`\` + N×`#`) appears in the string content.
             if string.contains("\"") || string.contains("\\") {
-                write("#\"\(string)\"#")
+                var hashCount = 1
+                while string.contains("\"" + String(repeating: "#", count: hashCount))
+                    || string.contains("\\" + String(repeating: "#", count: hashCount))
+                { hashCount += 1 }
+                let hashes = String(repeating: "#", count: hashCount)
+                write("\(hashes)\"\(string)\"\(hashes)")
             } else {
                 write("\"\(string)\"")
             }

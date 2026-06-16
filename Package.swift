@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.1
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the SwiftOpenAPIGenerator open source project
@@ -38,7 +38,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-collections", from: "1.1.4"),
 
         // Read OpenAPI documents
-        .package(url: "https://github.com/mattpolzin/OpenAPIKit", from: "3.9.0"),
+        .package(url: "https://github.com/mattpolzin/OpenAPIKit", from: "6.1.0", traits: []),
         .package(url: "https://github.com/jpsim/Yams", "4.0.0"..<"7.0.0"),
 
         // CLI Tool
@@ -47,7 +47,7 @@ let package = Package(
         // Tests-only: Runtime library linked by generated code, and also
         // helps keep the runtime library new enough to work with the generated
         // code.
-        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.10.1"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.11.0", traits: []),
         .package(url: "https://github.com/apple/swift-http-types", from: "1.0.2"),
     ],
     targets: [

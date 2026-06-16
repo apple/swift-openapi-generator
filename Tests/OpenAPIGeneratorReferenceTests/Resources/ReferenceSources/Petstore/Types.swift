@@ -352,8 +352,8 @@ public enum Components {
                 self.value3 = value3
                 self.value4 = value4
             }
-            public init(from decoder: any Decoder) throws {
-                var errors: [any Error] = []
+            public init(from decoder: any Swift.Decoder) throws {
+                var errors: [any Swift.Error] = []
                 do {
                     self.value1 = try decoder.decodeFromSingleValueContainer()
                 } catch {
@@ -386,7 +386,7 @@ public enum Components {
                     errors: errors
                 )
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 try encoder.encodeFirstNonNilValueToSingleValueContainer([
                     self.value1,
                     self.value2,
@@ -403,8 +403,8 @@ public enum Components {
             case PetKind(Components.Schemas.PetKind)
             /// - Remark: Generated from `#/components/schemas/MixedOneOf/case3`.
             case Pet(Components.Schemas.Pet)
-            public init(from decoder: any Decoder) throws {
-                var errors: [any Error] = []
+            public init(from decoder: any Swift.Decoder) throws {
+                var errors: [any Swift.Error] = []
                 do {
                     self = .case1(try decoder.decodeFromSingleValueContainer())
                     return
@@ -429,7 +429,7 @@ public enum Components {
                     errors: errors
                 )
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 switch self {
                 case let .case1(value):
                     try encoder.encodeToSingleValueContainer(value)
@@ -458,11 +458,11 @@ public enum Components {
                 self.value1 = value1
                 self.value2 = value2
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 self.value1 = try decoder.decodeFromSingleValueContainer()
                 self.value2 = try decoder.decodeFromSingleValueContainer()
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 try encoder.encodeToSingleValueContainer(self.value1)
             }
         }
@@ -592,7 +592,7 @@ public enum Components {
             public enum CodingKeys: String, CodingKey {
                 case foo
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 self.foo = try container.decodeIfPresent(
                     Swift.String.self,
@@ -624,7 +624,7 @@ public enum Components {
             public enum CodingKeys: String, CodingKey {
                 case foo
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 self.foo = try container.decodeIfPresent(
                     Swift.String.self,
@@ -634,7 +634,7 @@ public enum Components {
                     "foo"
                 ])
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encodeIfPresent(
                     self.foo,
@@ -664,7 +664,7 @@ public enum Components {
             public enum CodingKeys: String, CodingKey {
                 case foo
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 self.foo = try container.decodeIfPresent(
                     Swift.String.self,
@@ -674,7 +674,7 @@ public enum Components {
                     "foo"
                 ])
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encodeIfPresent(
                     self.foo,
@@ -719,7 +719,7 @@ public enum Components {
             public enum CodingKeys: String, CodingKey {
                 case container
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 self.container = try container.decodeIfPresent(
                     Swift.String.self,
@@ -729,7 +729,7 @@ public enum Components {
                     "container"
                 ])
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
                 try container.encodeIfPresent(
                     self.container,
@@ -786,11 +786,11 @@ public enum Components {
                 self.value1 = value1
                 self.value2 = value2
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 self.value1 = try .init(from: decoder)
                 self.value2 = try .init(from: decoder)
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 try self.value1.encode(to: encoder)
                 try self.value2.encode(to: encoder)
             }
@@ -828,8 +828,8 @@ public enum Components {
                 self.value1 = value1
                 self.value2 = value2
             }
-            public init(from decoder: any Decoder) throws {
-                var errors: [any Error] = []
+            public init(from decoder: any Swift.Decoder) throws {
+                var errors: [any Swift.Error] = []
                 do {
                     self.value1 = try .init(from: decoder)
                 } catch {
@@ -850,7 +850,7 @@ public enum Components {
                     errors: errors
                 )
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 try self.value1?.encode(to: encoder)
                 try self.value2?.encode(to: encoder)
             }
@@ -880,8 +880,8 @@ public enum Components {
             }
             /// - Remark: Generated from `#/components/schemas/OneOfAny/case4`.
             case case4(Components.Schemas.OneOfAny.Case4Payload)
-            public init(from decoder: any Decoder) throws {
-                var errors: [any Error] = []
+            public init(from decoder: any Swift.Decoder) throws {
+                var errors: [any Swift.Error] = []
                 do {
                     self = .case1(try decoder.decodeFromSingleValueContainer())
                     return
@@ -912,7 +912,7 @@ public enum Components {
                     errors: errors
                 )
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 switch self {
                 case let .case1(value):
                     try encoder.encodeToSingleValueContainer(value)
@@ -996,11 +996,11 @@ public enum Components {
                 self.value1 = value1
                 self.value2 = value2
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 self.value1 = try .init(from: decoder)
                 self.value2 = try .init(from: decoder)
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 try self.value1.encode(to: encoder)
                 try self.value2.encode(to: encoder)
             }
@@ -1014,7 +1014,7 @@ public enum Components {
             public enum CodingKeys: String, CodingKey {
                 case kind
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 let discriminator = try container.decode(
                     Swift.String.self,
@@ -1033,7 +1033,7 @@ public enum Components {
                     )
                 }
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 switch self {
                 case let .walk(value):
                     try value.encode(to: encoder)
@@ -1095,10 +1095,10 @@ public enum Components {
                 case name
                 case parent
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 self.storage = try .init(from: decoder)
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 try self.storage.encode(to: encoder)
             }
             /// Internal reference storage to allow type recursion.
@@ -1171,10 +1171,10 @@ public enum Components {
                 case name
                 case parent
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 self.storage = try .init(from: decoder)
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 try self.storage.encode(to: encoder)
             }
             /// Internal reference storage to allow type recursion.
@@ -1258,10 +1258,10 @@ public enum Components {
                     value2: value2
                 ))
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 self.storage = try .init(from: decoder)
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 try self.storage.encode(to: encoder)
             }
             /// Internal reference storage to allow type recursion.
@@ -1293,11 +1293,11 @@ public enum Components {
                     self.value1 = value1
                     self.value2 = value2
                 }
-                init(from decoder: any Decoder) throws {
+                init(from decoder: any Swift.Decoder) throws {
                     self.value1 = try .init(from: decoder)
                     self.value2 = try .init(from: decoder)
                 }
-                func encode(to encoder: any Encoder) throws {
+                func encode(to encoder: any Swift.Encoder) throws {
                     try self.value1.encode(to: encoder)
                     try self.value2.encode(to: encoder)
                 }
@@ -1336,11 +1336,11 @@ public enum Components {
                 self.value1 = value1
                 self.value2 = value2
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 self.value1 = try .init(from: decoder)
                 self.value2 = try .init(from: decoder)
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 try self.value1.encode(to: encoder)
                 try self.value2.encode(to: encoder)
             }
@@ -1354,7 +1354,7 @@ public enum Components {
             public enum CodingKeys: String, CodingKey {
                 case _type = "type"
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 let discriminator = try container.decode(
                     Swift.String.self,
@@ -1373,7 +1373,7 @@ public enum Components {
                     )
                 }
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 switch self {
                 case let .recursivePetOneOfFirst(value):
                     try value.encode(to: encoder)
@@ -1416,10 +1416,10 @@ public enum Components {
                     value2: value2
                 ))
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 self.storage = try .init(from: decoder)
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 try self.storage.encode(to: encoder)
             }
             /// Internal reference storage to allow type recursion.
@@ -1436,8 +1436,8 @@ public enum Components {
                     self.value1 = value1
                     self.value2 = value2
                 }
-                init(from decoder: any Decoder) throws {
-                    var errors: [any Error] = []
+                init(from decoder: any Swift.Decoder) throws {
+                    var errors: [any Swift.Error] = []
                     do {
                         self.value1 = try .init(from: decoder)
                     } catch {
@@ -1458,7 +1458,7 @@ public enum Components {
                         errors: errors
                     )
                 }
-                func encode(to encoder: any Encoder) throws {
+                func encode(to encoder: any Swift.Encoder) throws {
                     try encoder.encodeFirstNonNilValueToSingleValueContainer([
                         self.value2
                     ])
@@ -1499,10 +1499,10 @@ public enum Components {
             public init(value1: Components.Schemas.RecursivePetAllOf.Value1Payload) {
                 self.storage = .init(value: .init(value1: value1))
             }
-            public init(from decoder: any Decoder) throws {
+            public init(from decoder: any Swift.Decoder) throws {
                 self.storage = try .init(from: decoder)
             }
-            public func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Swift.Encoder) throws {
                 try self.storage.encode(to: encoder)
             }
             /// Internal reference storage to allow type recursion.
@@ -1528,10 +1528,10 @@ public enum Components {
                 init(value1: Components.Schemas.RecursivePetAllOf.Value1Payload) {
                     self.value1 = value1
                 }
-                init(from decoder: any Decoder) throws {
+                init(from decoder: any Swift.Decoder) throws {
                     self.value1 = try .init(from: decoder)
                 }
-                func encode(to encoder: any Encoder) throws {
+                func encode(to encoder: any Swift.Encoder) throws {
                     try self.value1.encode(to: encoder)
                 }
             }

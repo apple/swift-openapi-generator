@@ -197,6 +197,44 @@ final class Test_TextBasedRenderer: XCTestCase {
         )
     }
 
+    // MARK: - Extended string delimiter edge cases
+
+    func testStringLiteral_contentContainsQuoteHash() throws {
+        // When the string contains `"#`, a single-hash raw literal `#"..."#`
+        // would be terminated early. The renderer must use `##"..."##`.
+        try _test(
+            .string(##"foo"# + unexpected + #""##),
+            renderedBy: TextBasedRenderer.renderLiteral,
+            rendersAs: ##"""
+                ##"foo"# + unexpected + #""##
+                """##
+        )
+    }
+
+    func testStringLiteral_contentContainsBackslashHash() throws {
+        // When the string contains `\#(`, a single-hash raw literal would
+        // treat it as string interpolation. The renderer must use `##"..."##`.
+        try _test(
+            .string(##"hello\#(unexpected)world"##),
+            renderedBy: TextBasedRenderer.renderLiteral,
+            rendersAs: ##"""
+                ##"hello\#(unexpected)world"##
+                """##
+        )
+    }
+
+    func testStringLiteral_multipleHashesNeeded() throws {
+        // When the string contains both `"#` and `"##`, the renderer must
+        // use three hashes.
+        try _test(
+            .string(###"a"# b"## c"###),
+            renderedBy: TextBasedRenderer.renderLiteral,
+            rendersAs: ###"""
+                ###"a"# b"## c"###
+                """###
+        )
+    }
+
     func testExpression() throws {
         try _test(
             .literal(.nil),

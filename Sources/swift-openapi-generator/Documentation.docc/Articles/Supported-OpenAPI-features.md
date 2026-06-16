@@ -168,6 +168,12 @@ For any other formats, the payload is provided as raw bytes (using the `HTTPBody
 - [x] additionalProperties
 - [x] description
 - [x] format
+    - `date-time` maps to `Foundation.Date`
+    - `int32` maps to `Swift.Int32`
+    - `int64` maps to `Swift.Int64`
+    - `float` maps to `Swift.Float`
+    - `double` maps to `Swift.Double`
+    - Other format values don't change the generated Swift type
 - [ ] default
 - [x] nullable (only in 3.0, removed in 3.1, add `null` in `types` instead)
 - [x] discriminator

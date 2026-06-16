@@ -91,12 +91,16 @@ struct TypeAssigner {
     ) throws -> TypeUsage? {
         let associatedType: TypeUsage?
         if let schema {
-            switch schema {
-            case let .a(reference): associatedType = try typeName(for: reference).asUsage
-            case let .b(schema):
+            // we want to look under both OpenAPI.Reference and
+            // JSONSchema.reference so we flatten the value before inspecting
+            // it:
+            let unboxedSchema = schema.flattenToJsonSchema()
+            switch unboxedSchema.value {
+            case let .reference(reference, _): associatedType = try typeName(for: reference).asUsage
+            default:
                 associatedType = try _typeUsage(
                     forPotentiallyInlinedValueNamed: hint,
-                    withSchema: schema,
+                    withSchema: unboxedSchema,
                     components: components,
                     inParent: parent,
                     subtype: .appendScope
@@ -534,6 +538,10 @@ enum JSONReferenceParsingError: Swift.Error {
     /// An error thrown when parsing a JSON reference that points to
     /// other OpenAPI documents.
     case externalPathsUnsupported(String)
+
+    // An error thrown when following a reference leads to a component entry
+    // that is itself a reference.
+    case componentsReferenceEntryUnsupported(String?)
 }
 
 extension JSONReferenceParsingError: CustomStringConvertible {
@@ -543,6 +551,8 @@ extension JSONReferenceParsingError: CustomStringConvertible {
             return "JSON references outside of #/components are not supported, found: \(string ?? "<nil>")"
         case let .externalPathsUnsupported(string):
             return "External JSON references are not supported, found: \(string)"
+        case let .componentsReferenceEntryUnsupported(string):
+            return "#/components entries that are themselves references are not supported, found: \(string ?? "<nil>")"
         }
     }
 }

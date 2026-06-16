@@ -160,7 +160,7 @@ extension TypesFileTranslator {
             .function(
                 accessModifier: desc.accessModifier,
                 kind: .initializer(failable: false),
-                parameters: [.init(label: "from", name: "decoder", type: .any(.member("Decoder")))],
+                parameters: [.init(label: "from", name: "decoder", type: .any(.member(["Swift", "Decoder"])))],
                 keywords: [.throws],
                 body: [
                     .expression(
@@ -178,7 +178,7 @@ extension TypesFileTranslator {
             .function(
                 accessModifier: desc.accessModifier,
                 kind: .function(name: "encode"),
-                parameters: [.init(label: "to", name: "encoder", type: .any(.member("Encoder")))],
+                parameters: [.init(label: "to", name: "encoder", type: .any(.member(["Swift", "Encoder"])))],
                 keywords: [.throws],
                 body: [
                     .expression(

@@ -16,7 +16,7 @@ import Foundation
 
 @main struct SwiftOpenAPIGeneratorPlugin {
     func runCommand(
-        targetWorkingDirectory: Path,
+        targetWorkingDirectory: URL,
         tool: (String) throws -> PluginContext.Tool,
         sourceFiles: FileList,
         targetName: String
@@ -29,9 +29,8 @@ import Foundation
             pluginSource: .command
         )
 
-        let toolUrl = URL(fileURLWithPath: inputs.tool.path.string)
         let process = Process()
-        process.executableURL = toolUrl
+        process.executableURL = inputs.tool.url
         process.arguments = inputs.arguments
         process.environment = [:]
         try process.run()
@@ -66,16 +65,16 @@ extension SwiftOpenAPIGeneratorPlugin: CommandPlugin {
 
         for target in targets {
             log("Considering target '\(target.name)':")
-            guard let swiftTarget = target as? SwiftSourceModuleTarget else {
+            guard let target = target as? SwiftSourceModuleTarget else {
                 log("- Not a swift source module. Can't generate OpenAPI code.")
                 continue
             }
             do {
                 log("- Trying OpenAPI code generation.")
                 try runCommand(
-                    targetWorkingDirectory: target.directory,
+                    targetWorkingDirectory: target.directoryURL,
                     tool: context.tool,
-                    sourceFiles: swiftTarget.sourceFiles,
+                    sourceFiles: target.sourceFiles,
                     targetName: target.name
                 )
                 log("- ✅ OpenAPI code generation for target '\(target.name)' successfully completed.")
