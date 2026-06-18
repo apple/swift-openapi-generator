@@ -179,7 +179,7 @@ final class Test_YamsParser: Test_Core {
     private func assertThrownError(
         _ closure: @autoclosure () throws -> ParsedOpenAPIRepresentation,
         expectedDiagnostic: String,
-        file: StaticString = #file,
+        file: StaticString = #filePath,
         line: UInt = #line
     ) {
         XCTAssertThrowsError(try closure(), file: file, line: line) { error in
