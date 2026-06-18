@@ -139,6 +139,7 @@ let package = Package(
     ]
 )
 
+// ---    STANDARD CROSS-REPO SETTINGS DO NOT EDIT   --- //
 for target in package.targets {
     switch target.type {
     case .executable, .regular, .test:
@@ -163,3 +164,4 @@ for target in package.targets {
 
     target.swiftSettings = settings
 }
+// --- END: STANDARD CROSS-REPO SETTINGS DO NOT EDIT --- //
