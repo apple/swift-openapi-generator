@@ -151,6 +151,11 @@ extension _GenerateOptions {
         return config?.featureFlags ?? []
     }
 
+    /// Returns the attribute configuration requested by the user.
+    /// - Parameter config: The configuration specified by the user.
+    /// - Returns: The attribute configuration requested by the user.
+    func resolvedAttributes(_ config: _UserConfig?) -> AttributeConfiguration { config?.attributes ?? .default }
+
     /// Validates a collection of keys against a predefined set of allowed keys.
     ///
     /// - Parameter keys: A collection of keys to be validated.

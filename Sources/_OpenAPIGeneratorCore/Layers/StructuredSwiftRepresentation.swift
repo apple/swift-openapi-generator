@@ -652,8 +652,11 @@ indirect enum Declaration: Equatable, Codable {
     /// A declaration that adds a comment on top of the provided declaration.
     case commentable(Comment?, Declaration)
 
-    /// A declaration that adds a comment on top of the provided declaration.
+    /// A declaration that adds a deprecation annotation on top of the provided declaration.
     case deprecated(DeprecationDescription, Declaration)
+
+    /// A declaration that adds Swift attributes on top of the provided declaration.
+    case attributes([AttributeDescription], Declaration)
 
     /// A variable declaration.
     case variable(VariableDescription)
@@ -678,6 +681,35 @@ indirect enum Declaration: Equatable, Codable {
 
     /// An enum case declaration.
     case enumCase(EnumCaseDescription)
+}
+
+/// A description of a Swift attribute applied to a generated declaration.
+///
+/// For example: `@MainActor` or `@Mockable`.
+public struct AttributeDescription: Sendable, Equatable, Codable {
+
+    /// The attribute name and arguments without the leading `@` character.
+    ///
+    /// For example, `"MainActor"` or `"Mockable"`.
+    public var name: String
+
+    /// Creates a new attribute description.
+    /// - Parameter name: The attribute name and arguments without the leading `@` character.
+    public init(name: String) { self.name = name }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        self.name = try container.decode(String.self)
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(name)
+    }
+}
+
+extension AttributeDescription: ExpressibleByStringLiteral {
+    public init(stringLiteral value: String) { self.init(name: value) }
 }
 
 /// A description of a deprecation notice.
@@ -1651,6 +1683,12 @@ extension Declaration {
         return self
     }
 
+    /// Returns a new variant of the declaration with the provided attributes applied.
+    func withAttributes(_ attributes: [AttributeDescription]) -> Self {
+        guard !attributes.isEmpty else { return self }
+        return .attributes(attributes, self)
+    }
+
     /// Returns the declaration one level deeper, nested inside the commentable
     /// declaration, if present.
     var strippingTopComment: Self {
@@ -1667,6 +1705,7 @@ extension Declaration {
             switch self {
             case .commentable(_, let declaration): return declaration.accessModifier
             case .deprecated(_, let declaration): return declaration.accessModifier
+            case .attributes(_, let declaration): return declaration.accessModifier
             case .variable(let variableDescription): return variableDescription.accessModifier
             case .extension(let extensionDescription): return extensionDescription.accessModifier
             case .struct(let structDescription): return structDescription.accessModifier
@@ -1685,6 +1724,9 @@ extension Declaration {
             case .deprecated(let deprecationDescription, var declaration):
                 declaration.accessModifier = newValue
                 self = .deprecated(deprecationDescription, declaration)
+            case .attributes(let attributes, var declaration):
+                declaration.accessModifier = newValue
+                self = .attributes(attributes, declaration)
             case .variable(var variableDescription):
                 variableDescription.accessModifier = newValue
                 self = .variable(variableDescription)

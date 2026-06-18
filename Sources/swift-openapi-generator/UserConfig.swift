@@ -51,6 +51,9 @@ struct _UserConfig: Codable {
     /// A set of features to explicitly enable.
     var featureFlags: FeatureFlags?
 
+    /// Swift attributes to add to generated API protocol declarations.
+    var attributes: AttributeConfiguration?
+
     /// A set of raw values corresponding to the coding keys of this struct.
     static let codingKeysRawValues = Set(CodingKeys.allCases.map({ $0.rawValue }))
 
@@ -64,6 +67,7 @@ struct _UserConfig: Codable {
         case nameOverrides
         case typeOverrides
         case featureFlags
+        case attributes
     }
 
     /// A container of type overrides.

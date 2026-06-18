@@ -30,4 +30,9 @@ final class Test_Config: Test_Core {
         let config = Config(mode: .types, access: .public, namingStrategy: .defensive)
         XCTAssertEqual(config.additionalFileComments, [])
     }
+
+    func testDefaultAttributeConfiguration() {
+        let config = Config(mode: .types, access: .public, namingStrategy: .defensive)
+        XCTAssertEqual(config.attributes, .default)
+    }
 }

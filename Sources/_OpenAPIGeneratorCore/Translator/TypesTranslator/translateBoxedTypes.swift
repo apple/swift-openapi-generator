@@ -53,6 +53,8 @@ extension TypesFileTranslator {
         case .commentable(let comment, let declaration): return .commentable(comment, boxedType(declaration))
         case .deprecated(let deprecationDescription, let declaration):
             return .deprecated(deprecationDescription, boxedType(declaration))
+        case .attributes(let attributes, let declaration):
+            return .attributes(attributes, boxedType(declaration))
         case .struct(let structDescription): return .struct(boxedStruct(structDescription))
         case .enum(let enumDescription): return .enum(boxedEnum(enumDescription))
         case .variable, .extension, .typealias, .protocol, .function, .enumCase:

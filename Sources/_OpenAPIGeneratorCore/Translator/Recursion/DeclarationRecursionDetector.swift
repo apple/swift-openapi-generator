@@ -89,7 +89,7 @@ extension Declaration {
         case .struct(let desc): return desc.name
         case .enum(let desc): return desc.name
         case .typealias(let desc): return desc.name
-        case .commentable(_, let decl), .deprecated(_, let decl): return decl.name
+        case .commentable(_, let decl), .deprecated(_, let decl), .attributes(_, let decl): return decl.name
         case .variable, .extension, .protocol, .function, .enumCase: return nil
         }
     }
@@ -98,7 +98,7 @@ extension Declaration {
     var isBoxable: Bool {
         switch self {
         case .struct, .enum: return true
-        case .commentable(_, let decl), .deprecated(_, let decl): return decl.isBoxable
+        case .commentable(_, let decl), .deprecated(_, let decl), .attributes(_, let decl): return decl.isBoxable
         case .typealias, .variable, .extension, .protocol, .function, .enumCase: return false
         }
     }
@@ -126,7 +126,7 @@ extension Declaration {
                     return member.schemaComponentNamesOfUnbreakableReferences
                 }
                 .flatMap { $0 }
-        case .commentable(_, let decl), .deprecated(_, let decl):
+        case .commentable(_, let decl), .deprecated(_, let decl), .attributes(_, let decl):
             return decl.schemaComponentNamesOfUnbreakableReferences
         case .typealias(let desc): return desc.existingType.referencedSchemaComponentName.map { [$0] } ?? []
         case .variable(let desc): return desc.type?.referencedSchemaComponentName.map { [$0] } ?? []

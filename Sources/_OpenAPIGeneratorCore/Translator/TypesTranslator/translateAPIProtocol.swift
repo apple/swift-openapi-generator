@@ -33,7 +33,8 @@ extension TypesFileTranslator {
         )
         let protocolComment: Comment = .doc("A type that performs HTTP operations defined by the OpenAPI document.")
 
-        return .commentable(protocolComment, .protocol(protocolDescription))
+        let protocolDecl: Declaration = .protocol(protocolDescription)
+        return .commentable(protocolComment, protocolDecl.withAttributes(config.attributes.protocolAttributes))
     }
 
     /// Returns an extension to the `APIProtocol` protocol, with some syntactic sugar APIs.
@@ -102,6 +103,11 @@ extension TypesFileTranslator {
         let operationComment = description.comment
         let signature = description.protocolSignatureDescription
         let function = FunctionDescription(signature: signature)
-        return .commentable(operationComment, .function(function).deprecate(if: description.operation.deprecated))
+        let functionDecl: Declaration = .function(function)
+        return .commentable(
+            operationComment,
+            functionDecl.withAttributes(config.attributes.methodAttributes)
+                .deprecate(if: description.operation.deprecated)
+        )
     }
 }

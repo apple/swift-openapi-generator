@@ -2368,6 +2368,35 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testPaths_withConfiguredAttributes() throws {
+        let paths = """
+            /health:
+              get:
+                operationId: getHealth
+                responses:
+                  '200':
+                    description: A success response with a greeting.
+                    content:
+                      text/plain:
+                        schema:
+                          type: string
+            """
+        try self.assertPathsTranslation(
+            paths,
+            attributes: AttributeConfiguration(
+                protocolAttributes: ["MainActor"],
+                methodAttributes: ["MainActor"]
+            ),
+            """
+            @MainActor
+            public protocol APIProtocol: Sendable {
+                @MainActor
+                func getHealth(_ input: Operations.getHealth.Input) async throws -> Operations.getHealth.Output
+            }
+            """
+        )
+    }
+
     func testSynthesizedOperationId_defensive() throws {
         let paths = """
             /pets/{petId}/notifications:
@@ -6253,6 +6282,7 @@ extension SnippetBasedReferenceTests {
         nameOverrides: [String: String] = [:],
         typeOverrides: TypeOverrides = .init(),
         featureFlags: FeatureFlags = [],
+        attributes: AttributeConfiguration = .default,
         ignoredDiagnosticMessages: Set<String> = [],
         componentsYAML: String
     ) throws -> TypesFileTranslator {
@@ -6264,7 +6294,8 @@ extension SnippetBasedReferenceTests {
                 namingStrategy: namingStrategy,
                 nameOverrides: nameOverrides,
                 typeOverrides: typeOverrides,
-                featureFlags: featureFlags
+                featureFlags: featureFlags,
+                attributes: attributes
             ),
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
             components: components
@@ -6530,11 +6561,16 @@ extension SnippetBasedReferenceTests {
         _ pathsYAML: String,
         componentsYAML: String = "{}",
         namingStrategy: NamingStrategy = .defensive,
+        attributes: AttributeConfiguration = .default,
         _ expectedSwift: String,
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
-        let translator = try makeTypesTranslator(namingStrategy: namingStrategy, componentsYAML: componentsYAML)
+        let translator = try makeTypesTranslator(
+            namingStrategy: namingStrategy,
+            attributes: attributes,
+            componentsYAML: componentsYAML
+        )
         let paths = try YAMLDecoder().decode(OpenAPI.PathItem.Map.self, from: pathsYAML)
         let translation = try translator.translateAPIProtocol(paths)
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
@@ -6672,6 +6708,7 @@ fileprivate extension Declaration {
         switch decl {
         case let .commentable(_, d): return stripComments(d)
         case let .deprecated(a, b): return .deprecated(a, stripComments(b))
+        case let .attributes(a, b): return .attributes(a, stripComments(b))
         case var .protocol(p):
             p.members = p.members.map(stripComments(_:))
             return .protocol(p)
