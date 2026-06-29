@@ -48,6 +48,10 @@ struct _GenerateOptions: ParsableArguments {
     @Option(
         help: "When specified, writes out the diagnostics into a YAML file instead of emitting them to standard error."
     ) var diagnosticsOutputPath: URL?
+
+    @Option(
+        help: "Shard the Types output into multiple files by dependency layer. Format: comma-separated shards per layer (e.g. 4,4,2,2,1)"
+    ) var sharding: String?
 }
 
 extension AccessModifier: ExpressibleByArgument {}
@@ -149,6 +153,26 @@ extension _GenerateOptions {
     func resolvedFeatureFlags(_ config: _UserConfig?) -> FeatureFlags {
         if !featureFlag.isEmpty { return Set(featureFlag) }
         return config?.featureFlags ?? []
+    }
+
+    func resolvedShardingConfig(_ config: _UserConfig?) throws -> ShardingConfig? {
+        if let sharding {
+            let shardCounts = try sharding.split(separator: ",").map { token -> Int in
+                guard let value = Int(token) else {
+                    throw ValidationError("Invalid --sharding token '\(token)'. Expected comma-separated integers (e.g. 4,4,2,2,1)")
+                }
+                return value
+            }
+            guard !shardCounts.isEmpty else {
+                throw ValidationError("Invalid --sharding format. Expected comma-separated shards per layer (e.g. 4,4,2,2,1)")
+            }
+            let resolved = ShardingConfig(typeShardCounts: shardCounts, operationLayerShardCounts: shardCounts)
+            try resolved.validate()
+            return resolved
+        }
+        let resolved = config?.sharding
+        try resolved?.validate()
+        return resolved
     }
 
     /// Validates a collection of keys against a predefined set of allowed keys.
