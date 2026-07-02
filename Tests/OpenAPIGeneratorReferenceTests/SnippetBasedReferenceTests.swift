@@ -1685,6 +1685,172 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasRecursive_directAndThroughArray() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              Node:
+                type: object
+                properties:
+                  parent:
+                    $ref: '#/components/schemas/Node'
+                  children:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Node'
+            """,
+            """
+            public enum Schemas {
+                public struct Node: Codable, Hashable, Sendable {
+                    public var parent: Components.Schemas.Node? {
+                        get  {
+                            self.storage.value.parent
+                        }
+                        _modify {
+                            yield &self.storage.value.parent
+                        }
+                    }
+                    public var children: [Components.Schemas.Node]? {
+                        get  {
+                            self.storage.value.children
+                        }
+                        _modify {
+                            yield &self.storage.value.children
+                        }
+                    }
+                    public init(
+                        parent: Components.Schemas.Node? = nil,
+                        children: [Components.Schemas.Node]? = nil
+                    ) {
+                        self.storage = .init(value: .init(
+                            parent: parent,
+                            children: children
+                        ))
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case parent
+                        case children
+                    }
+                    public init(from decoder: any Swift.Decoder) throws {
+                        self.storage = try .init(from: decoder)
+                    }
+                    public func encode(to encoder: any Swift.Encoder) throws {
+                        try self.storage.encode(to: encoder)
+                    }
+                    private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
+                    private struct Storage: Codable, Hashable, Sendable {
+                        var parent: Components.Schemas.Node?
+                        var children: [Components.Schemas.Node]?
+                        init(
+                            parent: Components.Schemas.Node? = nil,
+                            children: [Components.Schemas.Node]? = nil
+                        ) {
+                            self.parent = parent
+                            self.children = children
+                        }
+                        typealias CodingKeys = Components.Schemas.Node.CodingKeys
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasRecursive_directAndThroughDictionary() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              Node:
+                type: object
+                properties:
+                  parent:
+                    $ref: '#/components/schemas/Node'
+                  children:
+                    type: object
+                    additionalProperties:
+                      $ref: '#/components/schemas/Node'
+            """,
+            """
+            public enum Schemas {
+                public struct Node: Codable, Hashable, Sendable {
+                    public var parent: Components.Schemas.Node? {
+                        get  {
+                            self.storage.value.parent
+                        }
+                        _modify {
+                            yield &self.storage.value.parent
+                        }
+                    }
+                    public struct childrenPayload: Codable, Hashable, Sendable {
+                        public var additionalProperties: [String: Components.Schemas.Node]
+                        public init(additionalProperties: [String: Components.Schemas.Node] = .init()) {
+                            self.additionalProperties = additionalProperties
+                        }
+                        public init(from decoder: any Swift.Decoder) throws {
+                            additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [])
+                        }
+                        public func encode(to encoder: any Swift.Encoder) throws {
+                            try encoder.encodeAdditionalProperties(additionalProperties)
+                        }
+                    }
+                    public var children: Components.Schemas.Node.childrenPayload? {
+                        get  {
+                            self.storage.value.children
+                        }
+                        _modify {
+                            yield &self.storage.value.children
+                        }
+                    }
+                    public init(
+                        parent: Components.Schemas.Node? = nil,
+                        children: Components.Schemas.Node.childrenPayload? = nil
+                    ) {
+                        self.storage = .init(value: .init(
+                            parent: parent,
+                            children: children
+                        ))
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case parent
+                        case children
+                    }
+                    public init(from decoder: any Swift.Decoder) throws {
+                        self.storage = try .init(from: decoder)
+                    }
+                    public func encode(to encoder: any Swift.Encoder) throws {
+                        try self.storage.encode(to: encoder)
+                    }
+                    private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
+                    private struct Storage: Codable, Hashable, Sendable {
+                        var parent: Components.Schemas.Node?
+                        struct childrenPayload: Codable, Hashable, Sendable {
+                            public var additionalProperties: [String: Components.Schemas.Node]
+                            public init(additionalProperties: [String: Components.Schemas.Node] = .init()) {
+                                self.additionalProperties = additionalProperties
+                            }
+                            public init(from decoder: any Swift.Decoder) throws {
+                                additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [])
+                            }
+                            public func encode(to encoder: any Swift.Encoder) throws {
+                                try encoder.encodeAdditionalProperties(additionalProperties)
+                            }
+                        }
+                        var children: Components.Schemas.Node.childrenPayload?
+                        init(
+                            parent: Components.Schemas.Node? = nil,
+                            children: Components.Schemas.Node.childrenPayload? = nil
+                        ) {
+                            self.parent = parent
+                            self.children = children
+                        }
+                        typealias CodingKeys = Components.Schemas.Node.CodingKeys
+                    }
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsSchemasRecursive_objectNested() throws {
         try self.assertSchemasTranslation(
             """
