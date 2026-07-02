@@ -12,7 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
-import OrderedCollections
 
 /// The backing type of a raw enum.
 enum RawEnumBackingType {
@@ -54,10 +53,6 @@ private struct EnumCase {
     var literal: LiteralDescription
 }
 
-extension EnumCase: Equatable { static func == (lhs: EnumCase, rhs: EnumCase) -> Bool { lhs.id == rhs.id } }
-
-extension EnumCase: Hashable { func hash(into hasher: inout Hasher) { hasher.combine(id) } }
-
 extension FileTranslator {
 
     /// Returns a declaration of the specified raw value-based enum schema.
@@ -77,14 +72,15 @@ extension FileTranslator {
         isNullable: Bool,
         allowedValues: [AnyCodable]
     ) throws -> Declaration {
-        var cases: OrderedSet<EnumCase> = []
+        var cases: [EnumCase] = []
+        var seenIDs: Set<EnumCaseID> = []
         func addIfUnique(id: EnumCaseID, caseName: String) throws {
             let literal: LiteralDescription
             switch id {
             case .string(let string): literal = .string(string)
             case .integer(let int): literal = .int(int)
             }
-            guard cases.append(.init(id: id, caseName: caseName, literal: literal)).inserted else {
+            guard seenIDs.insert(id).inserted else {
                 try diagnostics.emit(
                     .warning(
                         message: "Duplicate enum value, skipping",
@@ -93,6 +89,7 @@ extension FileTranslator {
                 )
                 return
             }
+            cases.append(.init(id: id, caseName: caseName, literal: literal))
         }
         for anyValue in allowedValues.map(\.value) {
             switch backingType {
