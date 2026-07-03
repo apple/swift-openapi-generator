@@ -33,6 +33,14 @@ extension TypeName {
     static func foundation(_ name: String) -> TypeName { TypeName(swiftKeyPath: ["Foundation", name]) }
 
     /// Returns a type name for a type with the specified name in the
+    /// FoundationEssentials module.
+    /// - Parameter name: The name of the type.
+    /// - Returns: A TypeName representing the specified type within the FoundationEssentials module.
+    static func foundationEssentials(_ name: String) -> TypeName {
+        TypeName(swiftKeyPath: ["FoundationEssentials", name])
+    }
+
+    /// Returns a type name for a type with the specified name in the
     /// OpenAPIRuntime module.
     /// - Parameter name: The name of the type.
     /// - Returns: A TypeName representing the specified type within the OpenAPIRuntime module.
@@ -44,11 +52,23 @@ extension TypeName {
     /// - Returns: A TypeName representing the type with the given name in the HTTPTypes module.
     static func httpTypes(_ name: String) -> TypeName { TypeName(swiftKeyPath: [Constants.Import.httpTypes, name]) }
 
-    /// Returns the type name for the Date type.
-    static var date: Self { .foundation("Date") }
+    /// Returns the type name for the Foundation Date type.
+    static var foundationDate: Self { .foundation("Date") }
 
-    /// Returns the type name for the URL type.
-    static var url: Self { .foundation("URL") }
+    /// Returns the type name for the FoundationEssentials Date type.
+    static var foundationEssentialsDate: Self { .foundationEssentials("Date") }
+
+    /// Returns the type name for the alias of the current Foundation URL type.
+    static var foundationURLTypeAlias: Self { TypeName(swiftKeyPath: ["FoundationURL"]) }
+
+    /// Returns the type name for the alias of the current Foundation Date type.
+    static var foundationDateTypeAlias: Self { TypeName(swiftKeyPath: ["FoundationDate"]) }
+
+    /// Returns the type name for the Foundation URL type.
+    static var foundationURL: Self { .foundation("URL") }
+
+    /// Returns the type name for the FoundationEssentials URL type.
+    static var foundationEssentialsURL: Self { .foundationEssentials("URL") }
 
     /// Returns the type name for the DecodingError type.
     static var decodingError: Self { .swift("DecodingError") }

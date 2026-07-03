@@ -33,7 +33,8 @@ struct ServerFileTranslator: FileTranslator {
         let topComment = self.topComment
 
         let imports =
-            Constants.File.clientServerImports + config.additionalImports.map { ImportDescription(moduleName: $0) }
+            Constants.File.clientServerImports
+            + config.additionalImports.map { .always(ImportDescription(moduleName: $0)) }
 
         let allOperations = try OperationDescription.all(from: doc.paths, in: components, context: context)
 
@@ -117,7 +118,11 @@ struct ServerFileTranslator: FileTranslator {
                 kind: .function(name: "registerHandlers"),
                 parameters: [
                     .init(label: "on", name: "transport", type: .member(Constants.Server.Transport.typeName)),
-                    .init(label: "serverURL", type: .init(TypeName.url), defaultValue: .dot("defaultOpenAPIServerURL")),
+                    .init(
+                        label: "serverURL",
+                        type: .init(TypeName.foundationURLTypeAlias),
+                        defaultValue: .dot("defaultOpenAPIServerURL")
+                    ),
                     .init(
                         label: "configuration",
                         type: .member(Constants.Configuration.typeName),
