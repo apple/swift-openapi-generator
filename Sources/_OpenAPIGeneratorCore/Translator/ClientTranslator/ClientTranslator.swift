@@ -34,8 +34,7 @@ struct ClientFileTranslator: FileTranslator {
 
         let topComment = self.topComment
 
-        let imports =
-            Constants.File.clientServerImports + config.additionalImports.map { ImportDescription(moduleName: $0) }
+        let imports = importDescriptions(adding: Constants.File.clientServerImports)
 
         let clientMethodDecls = try OperationDescription.all(from: doc.paths, in: components, context: context)
             .map(translateClientMethod(_:))

@@ -45,7 +45,7 @@ enum Constants {
 
         /// The descriptions of modules imported by client and server files.
         static let clientServerImports: [ImportDescription] =
-            imports + [ImportDescription(moduleName: Constants.Import.httpTypes)]
+            imports + [ImportDescription(moduleName: Constants.Import.httpTypes, setsAccessModifier: false)]
     }
 
     /// Constants related to the OpenAPI server object.

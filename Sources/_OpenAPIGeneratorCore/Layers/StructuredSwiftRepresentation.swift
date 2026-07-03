@@ -33,6 +33,20 @@ struct ImportDescription: Equatable, Codable {
     /// would be `@_spi(Secret) import Foo`.
     var spi: String? = nil
 
+    /// The access modifier to apply to the import statement.
+    ///
+    /// When set to `.public` or `.package`, the modifier is prepended to the
+    /// import statement (e.g. `public import Foo`).
+    var accessModifier: AccessModifier? = nil
+
+    /// Whether the global access modifier from the generator config should be
+    /// applied to this import.
+    ///
+    /// Set to `false` for modules whose types don't appear in public
+    /// declarations (e.g. implementation-only imports), so that
+    /// `public import` or `package import` is not incorrectly emitted.
+    var setsAccessModifier: Bool = true
+
     /// Requirements for the `@preconcurrency` attribute.
     var preconcurrency: PreconcurrencyRequirement = .never
 
