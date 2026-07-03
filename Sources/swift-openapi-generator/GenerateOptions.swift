@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import ArgumentParser
+public import ArgumentParser
 import Foundation
 import Yams
 import OpenAPIKit

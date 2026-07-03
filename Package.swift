@@ -15,14 +15,6 @@
 import Foundation
 import PackageDescription
 
-// General Swift-settings for all targets.
-var swiftSettings: [SwiftSetting] = [
-    // https://github.com/apple/swift-evolution/blob/main/proposals/0335-existential-any.md
-    // Require `any` for existential types.
-    .enableUpcomingFeature("ExistentialAny"), .enableExperimentalFeature("StrictConcurrency=complete"),
-    .swiftLanguageMode(.v5),
-]
-
 let package = Package(
     name: "swift-openapi-generator",
     platforms: [
@@ -43,7 +35,6 @@ let package = Package(
 
         // General algorithms
         .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
-        .package(url: "https://github.com/apple/swift-collections", from: "1.1.4"),
 
         // Read OpenAPI documents
         .package(url: "https://github.com/mattpolzin/OpenAPIKit", from: "6.1.0", traits: []),
@@ -68,25 +59,21 @@ let package = Package(
                 .product(name: "OpenAPIKit30", package: "OpenAPIKit"),
                 .product(name: "OpenAPIKitCompat", package: "OpenAPIKit"),
                 .product(name: "Algorithms", package: "swift-algorithms"),
-                .product(name: "OrderedCollections", package: "swift-collections"),
                 .product(name: "Yams", package: "Yams"),
-            ],
-            swiftSettings: swiftSettings
+            ]
         ),
 
         // Generator Core Tests
         .testTarget(
             name: "OpenAPIGeneratorCoreTests",
-            dependencies: ["_OpenAPIGeneratorCore"],
-            swiftSettings: swiftSettings
+            dependencies: ["_OpenAPIGeneratorCore"]
         ),
 
         // GeneratorReferenceTests
         .testTarget(
             name: "OpenAPIGeneratorReferenceTests",
             dependencies: ["_OpenAPIGeneratorCore"],
-            resources: [.copy("Resources")],
-            swiftSettings: swiftSettings
+            resources: [.copy("Resources")]
         ),
 
         // Common types for concrete PetstoreConsumer*Tests test targets.
@@ -95,8 +82,7 @@ let package = Package(
             dependencies: [
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "HTTPTypes", package: "swift-http-types"),
-            ],
-            swiftSettings: swiftSettings
+            ]
         ),
 
         // PetstoreConsumerTests
@@ -104,8 +90,7 @@ let package = Package(
         // to ensure it actually works correctly at runtime.
         .testTarget(
             name: "PetstoreConsumerTests",
-            dependencies: ["PetstoreConsumerTestCore"],
-            swiftSettings: swiftSettings
+            dependencies: ["PetstoreConsumerTestCore"]
         ),
 
         // Test Target for swift-openapi-generator
@@ -119,8 +104,7 @@ let package = Package(
                     condition: .when(platforms: [.android, .linux, .macOS, .openbsd, .wasi, .custom("freebsd")])
                 ), .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
-            resources: [.copy("Resources")],
-            swiftSettings: swiftSettings
+            resources: [.copy("Resources")]
         ),
 
         // Generator CLI
@@ -128,8 +112,7 @@ let package = Package(
             name: "swift-openapi-generator",
             dependencies: [
                 "_OpenAPIGeneratorCore", .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ],
-            swiftSettings: swiftSettings
+            ]
         ),
 
         // Build Plugin
@@ -162,7 +145,32 @@ for target in package.targets {
         // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0444-member-import-visibility.md
         settings.append(.enableUpcomingFeature("MemberImportVisibility"))
         target.swiftSettings = settings
-    case .macro, .plugin, .system, .binary: ()  // not applicable
-    @unknown default: ()  // we don't know what to do here, do nothing
+    case .macro, .plugin, .system, .binary:
+        ()  // not applicable
+    @unknown default:
+        ()  // we don't know what to do here, do nothing
     }
-}  // --- END: STANDARD CROSS-REPO SETTINGS DO NOT EDIT --- //
+}
+// --- END: STANDARD CROSS-REPO SETTINGS DO NOT EDIT --- //
+
+for target in package.targets {
+    switch target.type {
+    case .executable, .regular, .test:
+        break
+    default:
+        continue
+    }
+
+    var settings = target.swiftSettings ?? []
+
+    // https://github.com/apple/swift-evolution/blob/main/proposals/0335-existential-any.md
+    // Require `any` for existential types.
+    settings.append(.enableUpcomingFeature("ExistentialAny"))
+
+    if target.name != "PetstoreConsumerTests" {
+        // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0409-access-level-on-imports.md
+        settings.append(.enableUpcomingFeature("InternalImportsByDefault"))
+    }
+
+    target.swiftSettings = settings
+}

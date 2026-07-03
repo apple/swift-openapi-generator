@@ -12,11 +12,11 @@
 //
 //===----------------------------------------------------------------------===//
 import Foundation
-import XCTest
-import OpenAPIRuntime
+package import XCTest
+package import OpenAPIRuntime
 
 /// Asserts that the stringified data matches the expected string value.
-public func XCTAssertEqualStringifiedData(
+package func XCTAssertEqualStringifiedData(
     _ expression1: @autoclosure () throws -> Data?,
     _ expression2: @autoclosure () throws -> String,
     _ message: @autoclosure () -> String = "",
@@ -50,7 +50,7 @@ public func XCTAssertEqualStringifiedData<S: Sequence>(
     } catch { XCTFail(error.localizedDescription, file: file, line: line) }
 }
 /// Asserts that the stringified data matches the expected string value.
-public func XCTAssertEqualStringifiedData(
+package func XCTAssertEqualStringifiedData(
     _ expression1: @autoclosure () throws -> HTTPBody?,
     _ expression2: @autoclosure () throws -> String,
     _ message: @autoclosure () -> String = "",
@@ -120,7 +120,7 @@ public func XCTAssertEqualData<C1: Collection, C2: Collection>(
     } catch { XCTFail(error.localizedDescription, file: file, line: line) }
 }
 /// Asserts that the data matches the expected value.
-public func XCTAssertEqualData<C: Collection>(
+package func XCTAssertEqualData<C: Collection>(
     _ expression1: @autoclosure () throws -> HTTPBody?,
     _ expression2: @autoclosure () throws -> C,
     _ message: @autoclosure () -> String = "Data doesn't match.",

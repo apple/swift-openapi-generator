@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 import Foundation
-import OpenAPIKit
+public import OpenAPIKit
 import OpenAPIKit30
 import OpenAPIKitCompat
 import Yams

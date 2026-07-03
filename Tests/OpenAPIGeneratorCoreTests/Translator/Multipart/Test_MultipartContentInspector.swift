@@ -24,7 +24,7 @@ class Test_MultipartContentInspector: Test_Core {
             source: MultipartPartInfo.ContentTypeSource,
             repetition: MultipartPartInfo.RepetitionKind,
             schemaOut: JSONSchema,
-            file: StaticString = #file,
+            file: StaticString = #filePath,
             line: UInt = #line
         ) throws {
             let (info, actualSchemaOut) = try XCTUnwrap(
