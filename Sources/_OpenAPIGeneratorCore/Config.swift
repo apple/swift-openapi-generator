@@ -68,6 +68,9 @@ public struct Config: Sendable {
     /// Additional pre-release features to enable.
     public var featureFlags: FeatureFlags
 
+    /// Options that affect generated output files.
+    public var output: OutputOptions
+
     /// Creates a configuration with the specified generator mode and imports.
     /// - Parameters:
     ///   - mode: The mode to use for generation.
@@ -81,6 +84,7 @@ public struct Config: Sendable {
     ///     of the naming strategy.
     ///   - typeOverrides: A map of OpenAPI schema names to desired custom type names.
     ///   - featureFlags: Additional pre-release features to enable.
+    ///   - output: Options that affect generated output files.
     public init(
         mode: GeneratorMode,
         access: AccessModifier,
@@ -90,7 +94,8 @@ public struct Config: Sendable {
         namingStrategy: NamingStrategy,
         nameOverrides: [String: String] = [:],
         typeOverrides: TypeOverrides = .init(),
-        featureFlags: FeatureFlags = []
+        featureFlags: FeatureFlags = [],
+        output: OutputOptions = .init()
     ) {
         self.mode = mode
         self.access = access
@@ -101,5 +106,6 @@ public struct Config: Sendable {
         self.nameOverrides = nameOverrides
         self.typeOverrides = typeOverrides
         self.featureFlags = featureFlags
+        self.output = output
     }
 }

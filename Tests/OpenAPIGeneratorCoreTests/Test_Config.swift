@@ -30,4 +30,29 @@ final class Test_Config: Test_Core {
         let config = Config(mode: .types, access: .public, namingStrategy: .defensive)
         XCTAssertEqual(config.additionalFileComments, [])
     }
+
+    func testOutputOptionsDefaultToEmpty() {
+        let config = Config(mode: .types, access: .public, namingStrategy: .defensive)
+        XCTAssertNil(config.output.types)
+    }
+
+    func testTypesFileSplittingConfig() {
+        let config = Config(
+            mode: .types,
+            access: .public,
+            namingStrategy: .defensive,
+            output: .init(types: .init(fileSplitting: .init(strategy: .namespace)))
+        )
+        XCTAssertEqual(config.output.types?.fileSplitting?.strategy, .namespace)
+    }
+
+    func testTypesFileSplittingConfigOptions() {
+        let config = TypesFileSplittingConfig(
+            strategy: .namespace,
+            namespace: .init()
+        )
+
+        XCTAssertEqual(config.strategy, .namespace)
+        XCTAssertEqual(config.namespace, .init())
+    }
 }

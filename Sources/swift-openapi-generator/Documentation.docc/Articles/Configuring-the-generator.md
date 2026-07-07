@@ -48,6 +48,12 @@ The configuration file has the following keys:
 - `typeOverrides` (optional): Allows replacing a generated type with a custom type.
     - `schemas` (optional): a string to string dictionary. The key is the name of the schema, the last component of `#/components/schemas/Foo` (here, `Foo`). The value is the custom type name, such as `CustomFoo`. Check out details in [SOAR-0014](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0014).
 - `featureFlags` (optional): array of strings. Each string must be a valid feature flag to enable. For a list of currently supported feature flags, check out [FeatureFlags.swift](https://github.com/apple/swift-openapi-generator/blob/main/Sources/_OpenAPIGeneratorCore/FeatureFlags.swift).
+- `output` (optional): Options that affect generated output files.
+    - `types` (optional): Options that only affect `types` generation.
+        - `fileSplitting` (optional): Splits generated types across multiple files.
+            - `strategy` (required): The file splitting strategy. Known values:
+                - `namespace`: Split generated types into a small fixed set of files by top-level namespace.
+            - `namespace` (optional): Options for the `namespace` strategy.
 
 ### Example config files
 
@@ -109,6 +115,21 @@ additionalFileComments:
   - "swift-format-ignore-file"
   - "swiftlint:disable all"
 ```
+
+To split generated types across multiple Swift files:
+
+```yaml
+generate:
+  - types
+namingStrategy: idiomatic
+output:
+  types:
+    fileSplitting:
+      strategy: namespace
+      namespace: {}
+```
+
+The same strategy can be enabled from the command line with `--types-file-splitting namespace`.
 
 ### Document filtering
 

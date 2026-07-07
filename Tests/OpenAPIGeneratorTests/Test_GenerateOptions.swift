@@ -141,5 +141,40 @@ final class Test_GenerateOptions: XCTestCase {
             )
         } catch { XCTFail("Expected ArgumentParser.ValidationError, but got: \(type(of: error)) - \(error)") }
     }
+
+    func testLoadedConfigDecodesOutputOptions() throws {
+        let configURL = try makeTemporaryConfig(
+            """
+            generate:
+              - types
+            output:
+              types:
+                fileSplitting:
+                  strategy: namespace
+                  namespace: {}
+            """
+        )
+        let options = try _GenerateOptions.parse(["openapi.yaml", "--config", configURL.path])
+        let config = try XCTUnwrap(options.loadedConfig())
+
+        XCTAssertEqual(config.output?.types?.fileSplitting?.strategy, .namespace)
+        XCTAssertEqual(config.output?.types?.fileSplitting?.namespace, .init())
+    }
+
+    func testTypesFileSplittingOptionResolvesOutputOptions() throws {
+        let options = try _GenerateOptions.parse([
+            "openapi.yaml", "--mode", "types", "--types-file-splitting", "namespace",
+        ])
+
+        XCTAssertEqual(options.resolvedOutputOptions(nil).types?.fileSplitting?.strategy, .namespace)
+    }
     #endif
+
+    private func makeTemporaryConfig(_ contents: String) throws -> URL {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        let configURL = tempDir.appendingPathComponent("openapi-generator-config.yaml")
+        try contents.write(to: configURL, atomically: true, encoding: .utf8)
+        return configURL
+    }
 }
