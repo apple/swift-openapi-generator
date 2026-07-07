@@ -1087,8 +1087,25 @@ struct NamedFileDescription: Equatable, Codable {
 /// A file with contents made up of structured Swift code.
 struct StructuredSwiftRepresentation: Equatable, Codable {
 
-    /// The contents of the file.
-    var file: NamedFileDescription
+    /// The contents of the files.
+    var files: [NamedFileDescription]
+
+    /// The contents of the only file in the representation.
+    var file: NamedFileDescription {
+        get {
+            precondition(files.count == 1, "Expected a single structured Swift file, got \(files.count).")
+            return files[0]
+        }
+        set { files = [newValue] }
+    }
+
+    /// Creates a structured representation containing one file.
+    /// - Parameter file: The file emitted by the translator.
+    init(file: NamedFileDescription) { self.files = [file] }
+
+    /// Creates a structured representation containing multiple files.
+    /// - Parameter files: The files emitted by the translator.
+    init(files: [NamedFileDescription]) { self.files = files }
 }
 
 // MARK: - Conveniences

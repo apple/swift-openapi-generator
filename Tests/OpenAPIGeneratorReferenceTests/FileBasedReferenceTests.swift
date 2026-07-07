@@ -86,7 +86,9 @@ final class FileBasedReferenceTests: XCTestCase {
             config: referenceTest.asConfig,
             ignoredDiagnosticMessages: ignoredDiagnosticMessages
         )
-        let generatedOutputSource = try generatorPipeline.run(input)
+        let generatedOutputSources = try generatorPipeline.run(input).files
+        let generatedOutputSource = try XCTUnwrap(generatedOutputSources.first)
+        XCTAssertEqual(generatedOutputSources.count, 1)
 
         // Write generated sources to temporary directory
         let generatedOutputDir = try self.temporaryDirectory()
@@ -151,12 +153,10 @@ extension FileBasedReferenceTests {
     {
         let parser = YamsParser()
         let translator = MultiplexTranslator()
-        let renderer = TextBasedRenderer.default
-
         return _OpenAPIGeneratorCore.makeGeneratorPipeline(
             parser: parser,
             translator: translator,
-            renderer: renderer,
+            renderer: { TextBasedRenderer.default },
             config: config,
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages)
         )

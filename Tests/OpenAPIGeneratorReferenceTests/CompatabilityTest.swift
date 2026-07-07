@@ -248,7 +248,7 @@ fileprivate extension CompatibilityTest {
         // Run the generator.
         log("Generating Swift code (document size: \(documentSize))")
         let input = InMemoryInputFile(absolutePath: URL(string: "openapi.yaml")!, contents: documentData)
-        let outputs: [GeneratorPipeline.RenderedOutput]
+        let outputs: [InMemoryOutputFile]
         if compatibilityTestParallelCodegen {
             outputs = try await withThrowingTaskGroup(of: GeneratorPipeline.RenderedOutput.self) { group in
                 for mode in GeneratorMode.allCases {
@@ -260,15 +260,15 @@ fileprivate extension CompatibilityTest {
                         return try assertNoThrowWithValue(generator.run(input))
                     }
                 }
-                return try await group.reduce(into: []) { $0.append($1) }
+                return try await group.reduce(into: []) { $0.append(contentsOf: $1.files) }
             }
         } else {
-            outputs = try GeneratorMode.allCases.map { mode in
+            outputs = try GeneratorMode.allCases.flatMap { mode in
                 let generator = makeGeneratorPipeline(
                     config: Config(mode: mode, access: .public, namingStrategy: .defensive),
                     diagnostics: diagnosticsCollector
                 )
-                return try assertNoThrowWithValue(generator.run(input))
+                return try assertNoThrowWithValue(generator.run(input)).files
             }
         }
         XCTAssertEqual(Set(diagnosticsCollector.diagnostics.map(\.message)), expectedDiagnostics)

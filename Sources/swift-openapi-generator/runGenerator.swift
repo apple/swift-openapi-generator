@@ -88,9 +88,8 @@ extension _Tool {
     ///   - docData: The raw contents of the OpenAPI document.
     ///   - config: A set of configuration values for the generator.
     ///   - outputDirectory: The directory to which the generator writes
-    ///   the generated Swift file.
-    ///   - outputFileName: The file name to which the generator writes
-    ///   the generated Swift file.
+    ///   the generated Swift files.
+    ///   - outputFileName: The file name to use for the mode's primary output file.
     ///   - isDryRun: A Boolean value that indicates whether this invocation should
     ///   be a dry run.
     ///   - diagnostics: A collector for diagnostics emitted by the generator.
@@ -105,19 +104,19 @@ extension _Tool {
         isDryRun: Bool,
         diagnostics: any DiagnosticCollector
     ) throws {
-        try replaceFileContents(
-            inDirectory: outputDirectory,
-            fileName: outputFileName,
-            with: {
-                let output = try _OpenAPIGeneratorCore.runGenerator(
-                    input: .init(absolutePath: doc, contents: docData),
-                    config: config,
-                    diagnostics: diagnostics
-                )
-                return output.contents
-            },
-            isDryRun: isDryRun
+        let outputs = try _OpenAPIGeneratorCore.runGeneratorOutputs(
+            input: .init(absolutePath: doc, contents: docData),
+            config: config,
+            diagnostics: diagnostics
         )
+        for output in outputs {
+            try replaceFileContents(
+                inDirectory: outputDirectory,
+                fileName: output.baseName == config.mode.outputFileName ? outputFileName : output.baseName,
+                with: { output.contents },
+                isDryRun: isDryRun
+            )
+        }
     }
 
     /// Evaluates a closure to generate file data and writes the data to disk
