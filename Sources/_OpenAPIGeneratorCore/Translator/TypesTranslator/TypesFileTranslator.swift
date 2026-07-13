@@ -57,6 +57,32 @@ struct TypesFileTranslator: FileTranslator {
             ]
         )
 
+        if let fileSplitting = config.output.types?.fileSplitting, fileSplitting.strategy == .namespace {
+            let fileNames = fileSplitting.outputFileNames(primaryTypesFileName: GeneratorMode.types.outputFileName)
+            return StructuredSwiftRepresentation(
+                files: [
+                    .init(
+                        name: fileNames[0],
+                        contents: .init(
+                            topComment: topComment,
+                            imports: imports,
+                            codeBlocks: [
+                                .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl),
+                            ]
+                        )
+                    ),
+                    .init(
+                        name: fileNames[1],
+                        contents: .init(topComment: topComment, imports: imports, codeBlocks: [components])
+                    ),
+                    .init(
+                        name: fileNames[2],
+                        contents: .init(topComment: topComment, imports: imports, codeBlocks: [operations])
+                    ),
+                ]
+            )
+        }
+
         return StructuredSwiftRepresentation(file: .init(name: GeneratorMode.types.outputFileName, contents: typesFile))
     }
 }

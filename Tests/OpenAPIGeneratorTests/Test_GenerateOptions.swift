@@ -168,6 +168,37 @@ final class Test_GenerateOptions: XCTestCase {
 
         XCTAssertEqual(options.resolvedOutputOptions(nil).types?.fileSplitting?.strategy, .namespace)
     }
+
+    func testTypesFileSplittingIsRejectedForBuildToolPlugin() async throws {
+        let configURL = try makeTemporaryConfig(
+            """
+            generate:
+              - types
+            output:
+              types:
+                fileSplitting:
+                  strategy: namespace
+                  namespace: {}
+            """
+        )
+        let options = try _GenerateOptions.parse(["openapi.yaml", "--config", configURL.path])
+
+        do {
+            try await options.runGenerator(
+                outputDirectory: URL(fileURLWithPath: "/tmp/generated"),
+                pluginSource: .build,
+                isDryRun: true
+            )
+            XCTFail("Expected build tool plugin invocation to reject types file splitting")
+        } catch let error as ArgumentParser.ValidationError {
+            XCTAssertTrue(
+                String(describing: error).contains("Types file splitting is not supported by the build tool plugin yet"),
+                "Unexpected error: \(error)"
+            )
+        } catch {
+            XCTFail("Expected ArgumentParser.ValidationError, but got: \(type(of: error)) - \(error)")
+        }
+    }
     #endif
 
     private func makeTemporaryConfig(_ contents: String) throws -> URL {

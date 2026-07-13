@@ -131,6 +131,8 @@ output:
 
 The same strategy can be enabled from the command line with `--types-file-splitting namespace`.
 
+> Note: Types file splitting is currently supported when running the generator directly or with the command plugin. The build tool plugin does not yet support types file splitting.
+
 ### Document filtering
 
 The generator supports filtering the OpenAPI document prior to generation, which can be useful when

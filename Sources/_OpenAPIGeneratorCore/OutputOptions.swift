@@ -69,3 +69,20 @@ public enum TypesFileSplittingStrategy: String, Sendable, Codable, Equatable, Ca
     /// Splits generated types into a small fixed set of files by top-level namespace.
     case namespace
 }
+
+extension TypesFileSplittingConfig {
+
+    /// Returns the Swift output file names emitted by the configuration.
+    /// - Parameter primaryTypesFileName: The file name for the primary generated types file.
+    /// - Returns: The emitted Swift output file names.
+    public func outputFileNames(primaryTypesFileName: String) -> [String] {
+        switch strategy {
+        case .namespace:
+            return [
+                primaryTypesFileName,
+                GeneratorMode.outputFileName(primaryTypesFileName, "Components"),
+                GeneratorMode.outputFileName(primaryTypesFileName, "Operations"),
+            ]
+        }
+    }
+}
