@@ -25,7 +25,11 @@ extension TypesFileTranslator {
     func boxRecursiveTypes(_ decls: [Declaration]) throws -> [Declaration] {
 
         let nodes = decls.compactMap(DeclarationRecursionDetector.Node.init)
-        let nodeLookup = Dictionary(uniqueKeysWithValues: nodes.map { ($0.name, $0) })
+        // Duplicate generated names are detected and reported earlier, in
+        // `translateSchemas`. Keep the first node on a collision here so this
+        // step never traps even if a non-throwing diagnostic collector lets
+        // execution continue past that error.
+        let nodeLookup = Dictionary(nodes.map { ($0.name, $0) }, uniquingKeysWith: { existing, _ in existing })
         let container = DeclarationRecursionDetector.Container(lookupMap: nodeLookup)
 
         let boxedNames = try RecursionDetector.computeBoxedTypes(rootNodes: nodes, container: container)

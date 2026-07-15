@@ -64,6 +64,7 @@ extension TypesFileTranslator {
                 isMultipartContent: multipartSchemaNames.contains(key)
             )
         }
+        try detectDuplicateGeneratedNames(in: decls)
         let declsWithBoxingApplied = try boxRecursiveTypes(decls)
         let componentsSchemasEnum = Declaration.commentable(
             JSONSchema.sectionComment(),
@@ -74,5 +75,34 @@ extension TypesFileTranslator {
             )
         )
         return componentsSchemasEnum
+    }
+
+    /// Emits a clear error if multiple generated schema declarations map to the
+    /// same Swift type name, instead of letting a later step crash on the
+    /// collision.
+    /// - Parameter decls: The declarations of `Components.Schemas.*` types.
+    /// - Throws: An error describing the colliding names.
+    private func detectDuplicateGeneratedNames(in decls: [Declaration]) throws {
+        var seenNames: Set<String> = []
+        var duplicateNames: Set<String> = []
+        for name in decls.compactMap(\.name) {
+            if !seenNames.insert(name).inserted { duplicateNames.insert(name) }
+        }
+        guard !duplicateNames.isEmpty else { return }
+        let sortedNames = duplicateNames.sorted()
+        let message: String
+        let context: [String: String]
+        if sortedNames.count == 1 {
+            let duplicateName = sortedNames[0]
+            message =
+                "Multiple schemas in '#/components/schemas' map to the same generated Swift type name '\(duplicateName)', which is not supported. This usually happens when the naming strategy collapses two distinct OpenAPI names into one. Switch the namingStrategy to 'defensive', or add a 'nameOverrides' entry to give one of the schemas a different name."
+            context = ["name": duplicateName]
+        } else {
+            let nameList = sortedNames.map { "'\($0)'" }.joined(separator: ", ")
+            message =
+                "Multiple schemas in '#/components/schemas' map to the same generated Swift type names \(nameList), which is not supported. This usually happens when the naming strategy collapses distinct OpenAPI names into one. Switch the namingStrategy to 'defensive', or add 'nameOverrides' entries to give the schemas different names."
+            context = ["names": nameList]
+        }
+        try diagnostics.emit(.error(message: message, context: context))
     }
 }
