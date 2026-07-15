@@ -56,7 +56,6 @@ extension _Tool {
                         docData: docData,
                         config: config,
                         outputDirectory: outputDirectory,
-                        outputFileName: config.mode.outputFileName,
                         isDryRun: isDryRun,
                         diagnostics: diagnostics
                     )
@@ -89,7 +88,6 @@ extension _Tool {
     ///   - config: A set of configuration values for the generator.
     ///   - outputDirectory: The directory to which the generator writes
     ///   the generated Swift files.
-    ///   - outputFileName: The file name to use for the mode's primary output file.
     ///   - isDryRun: A Boolean value that indicates whether this invocation should
     ///   be a dry run.
     ///   - diagnostics: A collector for diagnostics emitted by the generator.
@@ -100,7 +98,6 @@ extension _Tool {
         docData: Data,
         config: Config,
         outputDirectory: URL,
-        outputFileName: String,
         isDryRun: Bool,
         diagnostics: any DiagnosticCollector
     ) throws {
@@ -112,7 +109,7 @@ extension _Tool {
         for output in outputs {
             try replaceFileContents(
                 inDirectory: outputDirectory,
-                fileName: output.baseName == config.mode.outputFileName ? outputFileName : output.baseName,
+                fileName: output.baseName,
                 with: { output.contents },
                 isDryRun: isDryRun
             )

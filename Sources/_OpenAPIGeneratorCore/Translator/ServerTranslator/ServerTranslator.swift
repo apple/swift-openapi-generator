@@ -54,14 +54,16 @@ struct ServerFileTranslator: FileTranslator {
         )
 
         return StructuredSwiftRepresentation(
-            file: .init(
-                name: GeneratorMode.server.outputFileName,
-                contents: .init(
-                    topComment: topComment,
-                    imports: imports,
-                    codeBlocks: [.declaration(protocolExtensionDecl), .declaration(serverExtensionDecl)]
+            files: [
+                .init(
+                    name: GeneratorMode.server.outputFileName,
+                    contents: .init(
+                        topComment: topComment,
+                        imports: imports,
+                        codeBlocks: [.declaration(protocolExtensionDecl), .declaration(serverExtensionDecl)]
+                    )
                 )
-            )
+            ]
         )
     }
 

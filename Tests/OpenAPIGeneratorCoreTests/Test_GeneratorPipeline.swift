@@ -68,7 +68,7 @@ final class Test_GeneratorPipeline: Test_Core {
             config: Config(mode: .types, access: .public, namingStrategy: .defensive),
             diagnostics: AccumulatingDiagnosticCollector()
         )
-        let outputs = try pipeline.renderSwiftFilesStage.run(structured).files
+        let outputs = try pipeline.renderSwiftFilesStage.run(structured)
 
         XCTAssertEqual(outputs.map(\.baseName), ["First.swift", "Second.swift"])
         XCTAssertTrue(String(decoding: outputs[0].contents, as: UTF8.self).contains("enum First"))

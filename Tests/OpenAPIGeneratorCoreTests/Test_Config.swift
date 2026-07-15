@@ -46,16 +46,6 @@ final class Test_Config: Test_Core {
         XCTAssertEqual(config.output.types?.fileSplitting?.strategy, .namespace)
     }
 
-    func testTypesFileSplittingConfigOptions() {
-        let config = TypesFileSplittingConfig(
-            strategy: .namespace,
-            namespace: .init()
-        )
-
-        XCTAssertEqual(config.strategy, .namespace)
-        XCTAssertEqual(config.namespace, .init())
-    }
-
     func testGeneratorModeOutputFileNameHelper() {
         XCTAssertEqual(GeneratorMode.outputFileName("Types"), "Types.swift")
         XCTAssertEqual(GeneratorMode.outputFileName("Types.swift", "Components"), "Types+Components.swift")

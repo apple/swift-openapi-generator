@@ -86,7 +86,7 @@ final class FileBasedReferenceTests: XCTestCase {
             config: referenceTest.asConfig,
             ignoredDiagnosticMessages: ignoredDiagnosticMessages
         )
-        let generatedOutputSources = try generatorPipeline.run(input).files
+        let generatedOutputSources = try generatorPipeline.run(input)
         let generatedOutputSource = try XCTUnwrap(generatedOutputSources.first)
         XCTAssertEqual(generatedOutputSources.count, 1)
 

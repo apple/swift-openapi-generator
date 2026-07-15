@@ -89,10 +89,9 @@ final class StringCodeWriter {
 /// to convert the provided structure code into raw string form.
 struct TextBasedRenderer: RendererProtocol {
 
-    func render(structured: StructuredSwiftRepresentation, config: Config, diagnostics: any DiagnosticCollector) throws
-        -> InMemoryOutputFile
+    func render(namedFile: NamedFileDescription, config: Config, diagnostics: any DiagnosticCollector)
+        throws -> InMemoryOutputFile
     {
-        let namedFile = structured.file
         renderFile(namedFile.contents)
         let string = writer.rendered()
         return InMemoryOutputFile(baseName: namedFile.name, contents: Data(string.utf8))

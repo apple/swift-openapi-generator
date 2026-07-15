@@ -82,10 +82,7 @@ final class Test_TypesFileTranslatorFileSplitting: Test_Core {
             namingStrategy: .defensive,
             output: .init(
                 types: .init(
-                    fileSplitting: .init(
-                        strategy: strategy,
-                        namespace: .init()
-                    )
+                    fileSplitting: .init(strategy: strategy)
                 )
             )
         )

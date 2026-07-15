@@ -40,27 +40,11 @@ public struct TypesFileSplittingConfig: Sendable, Codable, Equatable {
     /// The strategy to use when splitting generated types across files.
     public var strategy: TypesFileSplittingStrategy
 
-    /// Options for the namespace file splitting strategy.
-    public var namespace: NamespaceTypesFileSplittingOptions?
-
     /// Creates a file splitting configuration.
-    /// - Parameters:
-    ///   - strategy: The strategy to use when splitting generated types across files.
-    ///   - namespace: Options for the namespace file splitting strategy.
-    public init(
-        strategy: TypesFileSplittingStrategy,
-        namespace: NamespaceTypesFileSplittingOptions? = nil
-    ) {
+    /// - Parameter strategy: The strategy to use when splitting generated types across files.
+    public init(strategy: TypesFileSplittingStrategy) {
         self.strategy = strategy
-        self.namespace = namespace
     }
-}
-
-/// Options for the namespace file splitting strategy.
-public struct NamespaceTypesFileSplittingOptions: Sendable, Codable, Equatable {
-
-    /// Creates namespace file splitting options.
-    public init() {}
 }
 
 /// A strategy for splitting generated types across files.

@@ -126,7 +126,6 @@ output:
   types:
     fileSplitting:
       strategy: namespace
-      namespace: {}
 ```
 
 The same strategy can be enabled from the command line with `--types-file-splitting namespace`.

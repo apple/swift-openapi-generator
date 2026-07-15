@@ -48,7 +48,7 @@ struct GeneratorPipeline {
     typealias TranslatedOutput = StructuredSwiftRepresentation
 
     /// An output of the rendering phase, usually written to disk.
-    typealias RenderedOutput = RenderedSwiftOutputs
+    typealias RenderedOutput = RenderedSwiftRepresentation
 
     /// The parsing stage.
     var parseOpenAPIFileStage: GeneratorPipelineStage<RawInput, ParsedInput>
@@ -105,7 +105,7 @@ public func runGeneratorOutputs(
     config: Config,
     diagnostics: any DiagnosticCollector
 ) throws -> [InMemoryOutputFile] {
-    try makeGeneratorPipeline(config: config, diagnostics: diagnostics).run(input).files
+    try makeGeneratorPipeline(config: config, diagnostics: diagnostics).run(input)
 }
 
 /// Creates a new pipeline instance.
@@ -152,14 +152,9 @@ func makeGeneratorPipeline(
         renderSwiftFilesStage: .init(
             preTransitionHooks: [],
             transition: { input in
-                let files = try input.files.map { namedFile in
-                    try renderer().render(
-                        structured: .init(file: namedFile),
-                        config: config,
-                        diagnostics: diagnostics
-                    )
+                try input.files.map { namedFile in
+                    try renderer().render(namedFile: namedFile, config: config, diagnostics: diagnostics)
                 }
-                return .init(files: files)
             },
             postTransitionHooks: []
         )

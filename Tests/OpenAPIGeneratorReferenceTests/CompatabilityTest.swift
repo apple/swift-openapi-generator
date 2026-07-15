@@ -260,7 +260,7 @@ fileprivate extension CompatibilityTest {
                         return try assertNoThrowWithValue(generator.run(input))
                     }
                 }
-                return try await group.reduce(into: []) { $0.append(contentsOf: $1.files) }
+                return try await group.reduce(into: []) { $0.append(contentsOf: $1) }
             }
         } else {
             outputs = try GeneratorMode.allCases.flatMap { mode in
@@ -268,7 +268,7 @@ fileprivate extension CompatibilityTest {
                     config: Config(mode: mode, access: .public, namingStrategy: .defensive),
                     diagnostics: diagnosticsCollector
                 )
-                return try assertNoThrowWithValue(generator.run(input)).files
+                return try assertNoThrowWithValue(generator.run(input))
             }
         }
         XCTAssertEqual(Set(diagnosticsCollector.diagnostics.map(\.message)), expectedDiagnostics)
