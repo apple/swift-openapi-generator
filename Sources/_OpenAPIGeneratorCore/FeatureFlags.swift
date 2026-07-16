@@ -26,8 +26,14 @@
 /// 0.2 is tagged. (This is for pre-1.0 versioning, would be 1.0 and 2.0 after
 /// 1.0 is released.)
 public enum FeatureFlag: String, Hashable, Codable, CaseIterable, Sendable {
-    // needs to be here for the enum to compile
-    case empty
+    /// Emit per-operation OpenAPI security requirements as generated metadata.
+    ///
+    /// When enabled, each `Operations.<Name>` namespace gains a
+    /// `securityRequirements` property, and a top-level `OperationSecurity`
+    /// namespace exposes a `requirementsByOperationID` map, both typed as
+    /// `OpenAPIRuntime.SecurityRequirement`. A client middleware can consume
+    /// these to apply authentication only to the operations that require it.
+    case securityMetadata
 }
 
 /// A set of enabled feature flags.

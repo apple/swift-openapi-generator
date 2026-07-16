@@ -6472,6 +6472,170 @@ final class SnippetBasedReferenceTests: XCTestCase {
     }
 }
 extension SnippetBasedReferenceTests {
+
+    /// An OpenAPI document exercising document-level, operation-level, and
+    /// explicitly-public security, across apiKey / http-bearer / oauth2 schemes.
+    private static let securityMetadataDocumentYAML = """
+        openapi: 3.1.0
+        info:
+          title: Test
+          version: 1.0.0
+        security:
+          - oauth: [read]
+        paths:
+          /inherits:
+            get:
+              operationId: inheritsDocSecurity
+              responses:
+                '200': { description: ok }
+          /overrides:
+            get:
+              operationId: overridesSecurity
+              security:
+                - apiKeyAuth: []
+                  bearerAuth: []
+                - oauth: [read, write]
+              responses:
+                '200': { description: ok }
+          /public:
+            get:
+              operationId: explicitlyPublic
+              security: []
+              responses:
+                '200': { description: ok }
+        components:
+          securitySchemes:
+            apiKeyAuth:
+              type: apiKey
+              in: header
+              name: X-API-Key
+            bearerAuth:
+              type: http
+              scheme: bearer
+              bearerFormat: JWT
+            oauth:
+              type: oauth2
+              flows:
+                authorizationCode:
+                  authorizationUrl: https://example.com/auth
+                  tokenUrl: https://example.com/token
+                  scopes:
+                    read: Read
+                    write: Write
+        """
+
+    private func makeSecurityMetadataFixture(featureFlags: FeatureFlags = [.securityMetadata]) throws -> (
+        translator: TypesFileTranslator, operations: [OperationDescription], documentSecurity: [OpenAPI.SecurityRequirement]
+    ) {
+        let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: Self.securityMetadataDocumentYAML)
+        let translator = TypesFileTranslator(
+            config: Config(mode: .types, access: .public, namingStrategy: .defensive, featureFlags: featureFlags),
+            diagnostics: XCTestDiagnosticCollector(test: self),
+            components: document.components
+        )
+        let operations = try OperationDescription.all(
+            from: document.paths,
+            in: document.components,
+            context: translator.context
+        )
+        return (translator, operations, document.security)
+    }
+
+    private func securityRequirementsDecl(forOperationID id: String) throws -> Declaration {
+        let (translator, operations, documentSecurity) = try makeSecurityMetadataFixture()
+        let operation = try XCTUnwrap(operations.first { $0.operationID == id })
+        return try translator.translateOperationSecurityRequirements(operation, documentSecurity: documentSecurity)
+    }
+
+    func testSecurityMetadata_inheritsDocumentLevel() throws {
+        try XCTAssertSwiftEquivalent(
+            securityRequirementsDecl(forOperationID: "inheritsDocSecurity"),
+            """
+            public static let securityRequirements: [OpenAPIRuntime.SecurityRequirement] = [
+                .init(schemes: [
+                    .init(
+                        name: "oauth",
+                        kind: .oauth2,
+                        scopes: [
+                            "read"
+                        ]
+                    )
+                ])
+            ]
+            """
+        )
+    }
+
+    func testSecurityMetadata_operationLevelAndOrGroups() throws {
+        try XCTAssertSwiftEquivalent(
+            securityRequirementsDecl(forOperationID: "overridesSecurity"),
+            """
+            public static let securityRequirements: [OpenAPIRuntime.SecurityRequirement] = [
+                .init(schemes: [
+                    .init(
+                        name: "apiKeyAuth",
+                        kind: .apiKey(
+                            name: "X-API-Key",
+                            location: .header
+                        ),
+                        scopes: []
+                    ),
+                    .init(
+                        name: "bearerAuth",
+                        kind: .http(
+                            scheme: "bearer",
+                            bearerFormat: "JWT"
+                        ),
+                        scopes: []
+                    )
+                ]),
+                .init(schemes: [
+                    .init(
+                        name: "oauth",
+                        kind: .oauth2,
+                        scopes: [
+                            "read",
+                            "write"
+                        ]
+                    )
+                ])
+            ]
+            """
+        )
+    }
+
+    func testSecurityMetadata_explicitlyPublic() throws {
+        try XCTAssertSwiftEquivalent(
+            securityRequirementsDecl(forOperationID: "explicitlyPublic"),
+            """
+            public static let securityRequirements: [OpenAPIRuntime.SecurityRequirement] = []
+            """
+        )
+    }
+
+    func testSecurityMetadata_operationSecurityNamespace() throws {
+        let (translator, operations, _) = try makeSecurityMetadataFixture()
+        try XCTAssertSwiftEquivalent(
+            translator.translateOperationSecurityNamespace(operations),
+            """
+            public enum OperationSecurity {
+                public static let requirementsByOperationID: [String: [OpenAPIRuntime.SecurityRequirement]] = Dictionary(uniqueKeysWithValues: [
+                    ("inheritsDocSecurity", Operations.inheritsDocSecurity.securityRequirements),
+                    ("overridesSecurity", Operations.overridesSecurity.securityRequirements),
+                    ("explicitlyPublic", Operations.explicitlyPublic.securityRequirements)
+                ])
+            }
+            """
+        )
+    }
+
+    func testSecurityMetadata_disabledByDefault() throws {
+        let (translator, operations, documentSecurity) = try makeSecurityMetadataFixture(featureFlags: [])
+        let renderer = TextBasedRenderer.default
+        renderer.renderCodeBlock(try translator.translateOperations(operations, documentSecurity: documentSecurity))
+        XCTAssertFalse(renderer.renderedContents().contains("securityRequirements"))
+    }
+
     func makeTypesTranslator(openAPIDocumentYAML: String) throws -> TypesFileTranslator {
         let document = try YAMLDecoder().decode(OpenAPI.Document.self, from: openAPIDocumentYAML)
         return TypesFileTranslator(

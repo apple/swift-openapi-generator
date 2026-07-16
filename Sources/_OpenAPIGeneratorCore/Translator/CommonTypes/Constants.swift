@@ -183,6 +183,15 @@ enum Constants {
 
         /// The name of the namespace.
         static let namespace: String = "Operations"
+
+        /// The name of the per-operation security requirements property.
+        static let securityRequirementsPropertyName: String = "securityRequirements"
+
+        /// The name of the namespace that exposes the operation-security lookup.
+        static let securityNamespace: String = "OperationSecurity"
+
+        /// The name of the operationID-keyed security requirements map.
+        static let requirementsByOperationIDPropertyName: String = "requirementsByOperationID"
     }
 
     /// Constants related to the generated protocol that contains one
