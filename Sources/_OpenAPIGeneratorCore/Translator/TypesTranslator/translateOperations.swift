@@ -215,11 +215,17 @@ extension TypesFileTranslator {
     ///
     /// The namespace type is the parent type of the operation's Input and
     /// Output types, and ties the two types together.
-    /// - Parameter operation: The OpenAPI operation.
+    /// - Parameters:
+    ///   - operation: The OpenAPI operation.
+    ///   - documentSecurity: The document-level security requirements, inherited
+    ///     by operations that do not declare their own.
     /// - Returns: An enum declaration that represents the operation's
     /// namespace.
     /// - Throws: An error if there's an issue during translation of the operation's namespace.
-    func translateOperation(_ operation: OperationDescription) throws -> Declaration {
+    func translateOperation(
+        _ operation: OperationDescription,
+        documentSecurity: [OpenAPI.SecurityRequirement]
+    ) throws -> Declaration {
 
         let idPropertyDecl: Declaration = .variable(
             accessModifier: config.access,
@@ -229,6 +235,10 @@ extension TypesFileTranslator {
             type: .init(TypeName.string),
             right: .literal(operation.operationID)
         )
+
+        let securityDecl: Declaration? =
+            config.featureFlags.contains(.securityMetadata)
+            ? try translateOperationSecurityRequirements(operation, documentSecurity: documentSecurity) : nil
 
         let inputDecl: Declaration = try translateOperationInput(operation)
         let outputDecl: Declaration = try translateOperationOutput(operation)
@@ -240,7 +250,8 @@ extension TypesFileTranslator {
             .enum(
                 accessModifier: config.access,
                 name: operationNamespace.shortSwiftName,
-                members: [idPropertyDecl, inputDecl, outputDecl] + (acceptDecl.flatMap { [$0] } ?? [])
+                members: [idPropertyDecl] + (securityDecl.flatMap { [$0] } ?? []) + [inputDecl, outputDecl]
+                    + (acceptDecl.flatMap { [$0] } ?? [])
             )
         )
         return operationEnumDecl
@@ -248,13 +259,21 @@ extension TypesFileTranslator {
 
     /// Returns a declaration of a code block that contains the namespace
     /// for all the operations defined in the OpenAPI document.
-    /// - Parameter operations: The operations defined in the OpenAPI document.
+    /// - Parameters:
+    ///   - operations: The operations defined in the OpenAPI document.
+    ///   - documentSecurity: The document-level security requirements, inherited
+    ///     by operations that do not declare their own.
     /// - Returns: A code block that contains an enum declaration with a
     /// separate namespace type for each operation.
     /// - Throws: An error if there is an issue during operation translation.
-    func translateOperations(_ operations: [OperationDescription]) throws -> CodeBlock {
+    func translateOperations(
+        _ operations: [OperationDescription],
+        documentSecurity: [OpenAPI.SecurityRequirement]
+    ) throws -> CodeBlock {
 
-        let operationDecls = try operations.map(translateOperation)
+        let operationDecls = try operations.map { operation in
+            try translateOperation(operation, documentSecurity: documentSecurity)
+        }
 
         let operationsEnum = CodeBlock(
             comment: .operationsNamespace(),

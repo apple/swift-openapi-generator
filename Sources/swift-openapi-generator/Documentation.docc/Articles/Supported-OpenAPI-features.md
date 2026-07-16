@@ -35,7 +35,7 @@ For any other formats, the payload is provided as raw bytes (using the `HTTPBody
 - [x] servers
 - [x] paths
 - [x] components
-- [ ] security
+- [x] security (with the `securityMetadata` feature flag)
 - [ ] tags
 - [ ] externalDocs
 
@@ -96,7 +96,7 @@ For any other formats, the payload is provided as raw bytes (using the `HTTPBody
 - [x] responses
 - [ ] callbacks
 - [x] deprecated
-- [ ] security
+- [x] security (with the `securityMetadata` feature flag)
 - [ ] servers
 
 #### Request Body Object
@@ -114,7 +114,7 @@ For any other formats, the payload is provided as raw bytes (using the `HTTPBody
 
 #### Security Requirement Object
 
-- [ ] map from name pattern to a list of strings
+- [x] map from name pattern to a list of strings (with the `securityMetadata` feature flag)
 
 #### Responses Object
 
@@ -260,7 +260,7 @@ For any other formats, the payload is provided as raw bytes (using the `HTTPBody
 - [ ] examples
 - [x] requestBodies (always inlined)
 - [x] headers
-- [ ] securitySchemes
+- [x] securitySchemes (with the `securityMetadata` feature flag)
 - [ ] links
 - [ ] callbacks
 
@@ -281,14 +281,16 @@ For any other formats, the payload is provided as raw bytes (using the `HTTPBody
 
 #### Security Scheme Object
 
-- [ ] type
+The following are supported with the `securityMetadata` feature flag.
+
+- [x] type
 - [ ] description
-- [ ] name
-- [ ] in
-- [ ] scheme
-- [ ] bearerFormat
+- [x] name
+- [x] in
+- [x] scheme
+- [x] bearerFormat
 - [ ] flows
-- [ ] openIdConnectUrl
+- [x] openIdConnectUrl
 
 #### OAuth Flows Object
 

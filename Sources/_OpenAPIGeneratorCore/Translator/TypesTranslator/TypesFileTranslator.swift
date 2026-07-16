@@ -46,16 +46,17 @@ struct TypesFileTranslator: FileTranslator {
         let components = try translateComponents(doc.components, multipartSchemaNames: multipartSchemaNames)
 
         let operationDescriptions = try OperationDescription.all(from: doc.paths, in: doc.components, context: context)
-        let operations = try translateOperations(operationDescriptions)
+        let operations = try translateOperations(operationDescriptions, documentSecurity: doc.security)
 
-        let typesFile = FileDescription(
-            topComment: topComment,
-            imports: imports,
-            codeBlocks: [
-                .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl), components,
-                operations,
-            ]
-        )
+        var codeBlocks: [CodeBlock] = [
+            .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl), components,
+            operations,
+        ]
+        if config.featureFlags.contains(.securityMetadata) {
+            codeBlocks.append(.declaration(translateOperationSecurityNamespace(operationDescriptions)))
+        }
+
+        let typesFile = FileDescription(topComment: topComment, imports: imports, codeBlocks: codeBlocks)
 
         return StructuredSwiftRepresentation(file: .init(name: GeneratorMode.types.outputFileName, contents: typesFile))
     }
