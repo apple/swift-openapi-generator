@@ -17,7 +17,7 @@ import XCTest
 
 final class Test_GeneratorPipeline: Test_Core {
 
-    func testRunGeneratorOutputsReturnsSingleFileByDefault() throws {
+    func testRunGeneratorReturnsSingleFileByDefault() throws {
         let source = """
             openapi: "3.1.0"
             info:
@@ -30,7 +30,7 @@ final class Test_GeneratorPipeline: Test_Core {
             contents: Data(source.utf8)
         )
         let diagnostics = AccumulatingDiagnosticCollector()
-        let outputs = try runGeneratorOutputs(
+        let outputs = try runGenerator(
             input: input,
             config: Config(mode: .types, access: .public, namingStrategy: .defensive),
             diagnostics: diagnostics

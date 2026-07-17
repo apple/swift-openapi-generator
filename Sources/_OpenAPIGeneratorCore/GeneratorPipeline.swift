@@ -80,27 +80,8 @@ struct GeneratorPipeline {
 ///   - diagnostics: A collector to which the generator emits diagnostics.
 /// - Throws: When encountering a non-recoverable error. For recoverable
 /// issues, emits issues into the diagnostics collector.
-/// - Returns: The raw contents of the generated Swift file.
-public func runGenerator(input: InMemoryInputFile, config: Config, diagnostics: any DiagnosticCollector) throws
-    -> InMemoryOutputFile
-{
-    let outputFiles = try runGeneratorOutputs(input: input, config: config, diagnostics: diagnostics)
-    guard outputFiles.count == 1, let outputFile = outputFiles.first else {
-        throw GenericError(message: "Expected a single generated output file, got \(outputFiles.count).")
-    }
-    return outputFile
-}
-
-/// Runs the generator logic with the specified inputs and returns every
-/// generated Swift file.
-/// - Parameters:
-///   - input: The raw file contents of the OpenAPI document.
-///   - config: A set of configuration values for the generator.
-///   - diagnostics: A collector to which the generator emits diagnostics.
-/// - Throws: When encountering a non-recoverable error. For recoverable
-/// issues, emits issues into the diagnostics collector.
 /// - Returns: The raw contents of all generated Swift files.
-public func runGeneratorOutputs(
+public func runGenerator(
     input: InMemoryInputFile,
     config: Config,
     diagnostics: any DiagnosticCollector

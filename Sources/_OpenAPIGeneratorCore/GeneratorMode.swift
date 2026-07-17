@@ -48,9 +48,9 @@ extension GeneratorMode {
     /// The Swift file names for all supported generator mode values.
     public static var allOutputFileNames: [String] { GeneratorMode.allCases.map(\.outputFileName) }
 
-    /// Returns a Swift output file name composed from the provided name components.
-    public static func outputFileName(_ name: String, _ extensionNames: String...) -> String {
-        let names = ([name] + extensionNames).map { name in
+    /// Returns a Swift output file name composed from the base name and type-name suffixes.
+    static func outputFileName(_ baseName: String, _ suffixes: String...) -> String {
+        let names = ([baseName] + suffixes).map { name in
             name.hasSuffix(".swift") ? String(name.dropLast(".swift".count)) : name
         }
         return names.joined(separator: "+") + ".swift"

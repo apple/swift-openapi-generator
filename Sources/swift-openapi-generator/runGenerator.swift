@@ -101,7 +101,7 @@ extension _Tool {
         isDryRun: Bool,
         diagnostics: any DiagnosticCollector
     ) throws {
-        let outputs = try _OpenAPIGeneratorCore.runGeneratorOutputs(
+        let outputs = try _OpenAPIGeneratorCore.runGenerator(
             input: .init(absolutePath: doc, contents: docData),
             config: config,
             diagnostics: diagnostics

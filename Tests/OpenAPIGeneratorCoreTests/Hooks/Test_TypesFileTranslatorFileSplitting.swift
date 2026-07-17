@@ -23,7 +23,7 @@ final class Test_TypesFileTranslatorFileSplitting: Test_Core {
             contents: Data(Self.source.utf8)
         )
         let diagnostics = AccumulatingDiagnosticCollector()
-        let outputs = try runGeneratorOutputs(
+        let outputs = try runGenerator(
             input: input,
             config: Self.splitConfig(strategy: .namespace),
             diagnostics: diagnostics
@@ -65,7 +65,7 @@ final class Test_TypesFileTranslatorFileSplitting: Test_Core {
             contents: Data(Self.source.utf8)
         )
         let diagnostics = AccumulatingDiagnosticCollector()
-        let outputs = try runGeneratorOutputs(
+        let outputs = try runGenerator(
             input: input,
             config: Config(mode: .types, access: .public, namingStrategy: .defensive),
             diagnostics: diagnostics
