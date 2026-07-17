@@ -18,8 +18,8 @@ import Yams
 /// A sequence of steps that combined represents the full end-to-end
 /// functionality of the generator.
 ///
-/// The input is an in-memory OpenAPI document, and the output is an
-/// in-memory generated Swift file. Which file is generated (types, client,
+/// The input is an in-memory OpenAPI document, and the output is one or more
+/// in-memory generated Swift files. Which files are generated (types, client,
 /// or server) is controlled by the generator configuration, in the translation
 /// stage.
 ///
@@ -30,8 +30,8 @@ import Yams
 /// document into a structure Swift representation of the requested generated
 /// file, for one of: types, client, or server. This stage contains most of the
 /// OpenAPI to Swift generation code.
-/// 3. Rendering: TranslatedOutput -> RenderedOutput, which converts a
-/// structured Swift representation into a raw Swift file.
+/// 3. Rendering: TranslatedOutput -> RenderedOutput, which converts each
+/// structured Swift file into a raw Swift file.
 struct GeneratorPipeline {
 
     // Note: Until we have variadic generics we need to have a fixed number
@@ -80,10 +80,14 @@ struct GeneratorPipeline {
 ///   - diagnostics: A collector to which the generator emits diagnostics.
 /// - Throws: When encountering a non-recoverable error. For recoverable
 /// issues, emits issues into the diagnostics collector.
-/// - Returns: The raw contents of the generated Swift file.
-public func runGenerator(input: InMemoryInputFile, config: Config, diagnostics: any DiagnosticCollector) throws
-    -> InMemoryOutputFile
-{ try makeGeneratorPipeline(config: config, diagnostics: diagnostics).run(input) }
+/// - Returns: The raw contents of all generated Swift files.
+public func runGenerator(
+    input: InMemoryInputFile,
+    config: Config,
+    diagnostics: any DiagnosticCollector
+) throws -> [InMemoryOutputFile] {
+    try makeGeneratorPipeline(config: config, diagnostics: diagnostics).run(input)
+}
 
 /// Creates a new pipeline instance.
 /// - Parameters:
@@ -99,7 +103,7 @@ func makeGeneratorPipeline(
     parser: any ParserProtocol = YamsParser(),
     validator: @escaping (ParsedOpenAPIRepresentation, Config) throws -> [Diagnostic] = validateDoc,
     translator: any TranslatorProtocol = MultiplexTranslator(),
-    renderer: any RendererProtocol = TextBasedRenderer.default,
+    renderer: @escaping () -> any RendererProtocol = { TextBasedRenderer.default },
     config: Config,
     diagnostics: any DiagnosticCollector
 ) -> GeneratorPipeline {
@@ -128,7 +132,11 @@ func makeGeneratorPipeline(
         ),
         renderSwiftFilesStage: .init(
             preTransitionHooks: [],
-            transition: { input in try renderer.render(structured: input, config: config, diagnostics: diagnostics) },
+            transition: { input in
+                try input.files.map { namedFile in
+                    try renderer().render(namedFile: namedFile, config: config, diagnostics: diagnostics)
+                }
+            },
             postTransitionHooks: []
         )
     )

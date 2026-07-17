@@ -37,6 +37,12 @@ extension _GenerateOptions {
         let resolvedNameOverrides = resolvedNameOverrides(config)
         let resolvedTypeOverrides = resolvedTypeOverrides(config)
         let resolvedFeatureFlags = resolvedFeatureFlags(config)
+        let resolvedOutputOptions = resolvedOutputOptions(config)
+        guard pluginSource != .build || resolvedOutputOptions.types?.fileSplitting == nil else {
+            throw ValidationError(
+                "Types file splitting is not supported by the build tool plugin yet. Run swift-openapi-generator directly or use the command plugin to generate split files."
+            )
+        }
         let configs: [Config] = sortedModes.map {
             .init(
                 mode: $0,
@@ -47,7 +53,8 @@ extension _GenerateOptions {
                 namingStrategy: resolvedNamingStragy,
                 nameOverrides: resolvedNameOverrides,
                 typeOverrides: resolvedTypeOverrides,
-                featureFlags: resolvedFeatureFlags
+                featureFlags: resolvedFeatureFlags,
+                output: resolvedOutputOptions
             )
         }
         let (diagnostics, finalizeDiagnostics) = preparedDiagnosticsCollector(outputPath: diagnosticsOutputPath)
@@ -67,6 +74,7 @@ extension _GenerateOptions {
                 .sorted(by: { $0.key < $1.key })
                 .map { "\"\($0.key)\"->\"\($0.value)\"" }.joined(separator: ", "))
             - Feature flags: \(resolvedFeatureFlags.isEmpty ? "<none>" : resolvedFeatureFlags.map(\.rawValue).joined(separator: ", "))
+            - Types file splitting: \(resolvedOutputOptions.types?.fileSplitting?.strategy.rawValue ?? "<none>")
             - Output file names: \(sortedModes.map(\.outputFileName).joined(separator: ", "))
             - Output directory: \(outputDirectory.path)
             - Diagnostics output path: \(diagnosticsOutputPath?.path ?? "<none - logs to stderr>")

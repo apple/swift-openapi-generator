@@ -39,14 +39,22 @@ extension GeneratorMode {
     /// The Swift file name including its file extension.
     public var outputFileName: String {
         switch self {
-        case .types: return "Types.swift"
-        case .client: return "Client.swift"
-        case .server: return "Server.swift"
+        case .types: return Self.outputFileName("Types")
+        case .client: return Self.outputFileName("Client")
+        case .server: return Self.outputFileName("Server")
         }
     }
 
     /// The Swift file names for all supported generator mode values.
     public static var allOutputFileNames: [String] { GeneratorMode.allCases.map(\.outputFileName) }
+
+    /// Returns a Swift output file name composed from the base name and type-name suffixes.
+    static func outputFileName(_ baseName: String, _ suffixes: String...) -> String {
+        let names = ([baseName] + suffixes).map { name in
+            name.hasSuffix(".swift") ? String(name.dropLast(".swift".count)) : name
+        }
+        return names.joined(separator: "+") + ".swift"
+    }
 
     /// Defines an order in which generators should be run.
     var order: Int {

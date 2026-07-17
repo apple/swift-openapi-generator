@@ -30,4 +30,34 @@ final class Test_Config: Test_Core {
         let config = Config(mode: .types, access: .public, namingStrategy: .defensive)
         XCTAssertEqual(config.additionalFileComments, [])
     }
+
+    func testOutputOptionsDefaultToEmpty() {
+        let config = Config(mode: .types, access: .public, namingStrategy: .defensive)
+        XCTAssertNil(config.output.types)
+    }
+
+    func testTypesFileSplittingConfig() {
+        let config = Config(
+            mode: .types,
+            access: .public,
+            namingStrategy: .defensive,
+            output: .init(types: .init(fileSplitting: .init(strategy: .namespace)))
+        )
+        XCTAssertEqual(config.output.types?.fileSplitting?.strategy, .namespace)
+    }
+
+    func testGeneratorModeOutputFileNameHelper() {
+        XCTAssertEqual(GeneratorMode.outputFileName("Types"), "Types.swift")
+        XCTAssertEqual(GeneratorMode.outputFileName("Types.swift", "Components"), "Types+Components.swift")
+        XCTAssertEqual(GeneratorMode.outputFileName("Types.swift", "Operations.swift"), "Types+Operations.swift")
+    }
+
+    func testNamespaceFileSplittingOutputFileNames() {
+        let config = TypesFileSplittingConfig(strategy: .namespace)
+
+        XCTAssertEqual(
+            config.outputFileNames(primaryTypesFileName: "Types.swift"),
+            ["Types.swift", "Types+Components.swift", "Types+Operations.swift"]
+        )
+    }
 }

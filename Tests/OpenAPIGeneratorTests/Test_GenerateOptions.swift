@@ -141,5 +141,68 @@ final class Test_GenerateOptions: XCTestCase {
             )
         } catch { XCTFail("Expected ArgumentParser.ValidationError, but got: \(type(of: error)) - \(error)") }
     }
+
+    func testLoadedConfigDecodesOutputOptions() throws {
+        let configURL = try makeTemporaryConfig(
+            """
+            generate:
+              - types
+            output:
+              types:
+                fileSplitting:
+                  strategy: namespace
+            """
+        )
+        let options = try _GenerateOptions.parse(["openapi.yaml", "--config", configURL.path])
+        let config = try XCTUnwrap(options.loadedConfig())
+
+        XCTAssertEqual(config.output?.types?.fileSplitting?.strategy, .namespace)
+    }
+
+    func testTypesFileSplittingOptionResolvesOutputOptions() throws {
+        let options = try _GenerateOptions.parse([
+            "openapi.yaml", "--mode", "types", "--types-file-splitting", "namespace",
+        ])
+
+        XCTAssertEqual(options.resolvedOutputOptions(nil).types?.fileSplitting?.strategy, .namespace)
+    }
+
+    func testTypesFileSplittingIsRejectedForBuildToolPlugin() async throws {
+        let configURL = try makeTemporaryConfig(
+            """
+            generate:
+              - types
+            output:
+              types:
+                fileSplitting:
+                  strategy: namespace
+            """
+        )
+        let options = try _GenerateOptions.parse(["openapi.yaml", "--config", configURL.path])
+
+        do {
+            try await options.runGenerator(
+                outputDirectory: URL(fileURLWithPath: "/tmp/generated"),
+                pluginSource: .build,
+                isDryRun: true
+            )
+            XCTFail("Expected build tool plugin invocation to reject types file splitting")
+        } catch let error as ArgumentParser.ValidationError {
+            XCTAssertTrue(
+                String(describing: error).contains("Types file splitting is not supported by the build tool plugin yet"),
+                "Unexpected error: \(error)"
+            )
+        } catch {
+            XCTFail("Expected ArgumentParser.ValidationError, but got: \(type(of: error)) - \(error)")
+        }
+    }
     #endif
+
+    private func makeTemporaryConfig(_ contents: String) throws -> URL {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        let configURL = tempDir.appendingPathComponent("openapi-generator-config.yaml")
+        try contents.write(to: configURL, atomically: true, encoding: .utf8)
+        return configURL
+    }
 }
