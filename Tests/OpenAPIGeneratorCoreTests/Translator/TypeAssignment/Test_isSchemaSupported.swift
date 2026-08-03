@@ -83,6 +83,9 @@ class Test_isSchemaSupported: XCTestCase {
             .object(properties: ["Foo": .string]), .reference(.component(named: "MyObj")), .string,
             .array(items: .string),
         ]),
+
+        // anyOf with a nullable reference
+        .any(of: [.reference(.component(named: "MyObj")), .null()]),
     ]
     func testSupportedTypes() throws {
         let translator = self.translator
