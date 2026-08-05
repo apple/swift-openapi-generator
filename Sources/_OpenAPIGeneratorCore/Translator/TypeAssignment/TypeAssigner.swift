@@ -96,7 +96,9 @@ struct TypeAssigner {
             // it:
             let unboxedSchema = schema.flattenToJsonSchema()
             switch unboxedSchema.value {
-            case let .reference(reference, _): associatedType = try typeName(for: reference).asUsage
+            case let .reference(reference, _):
+                associatedType = try typeName(for: reference).asUsage
+                    .withOptional(try TypeMatcher(context: context).isOptional(unboxedSchema, components: components))
             default:
                 associatedType = try _typeUsage(
                     forPotentiallyInlinedValueNamed: hint,

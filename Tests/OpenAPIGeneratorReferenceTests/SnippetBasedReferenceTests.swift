@@ -2263,6 +2263,268 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsResponsesResponseWithNullableReferencedBody() throws {
+        try self.assertResponsesTranslation(
+            """
+            schemas:
+              MyNullableObject:
+                type: [object, null]
+                properties:
+                  id:
+                    type: string
+                required:
+                  - id
+            responses:
+              MyResponse:
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/MyNullableObject'
+            """,
+            """
+            public enum Responses {
+                public struct MyResponse: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
+                        case json(Components.Schemas.MyNullableObject?)
+                        public var json: Components.Schemas.MyNullableObject? {
+                            get throws {
+                                switch self {
+                                case let .json(body):
+                                    return body
+                                }
+                            }
+                        }
+                    }
+                    public var body: Components.Responses.MyResponse.Body
+                    public init(body: Components.Responses.MyResponse.Body) {
+                        self.body = body
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsResponsesResponseWithNullableKeywordReferencedBody() throws {
+        try self.assertResponsesTranslation(
+            """
+            schemas:
+              MyNullableObject:
+                type: object
+                nullable: true
+                properties:
+                  id:
+                    type: string
+                required:
+                  - id
+            responses:
+              MyResponse:
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/MyNullableObject'
+            """,
+            """
+            public enum Responses {
+                public struct MyResponse: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
+                        case json(Components.Schemas.MyNullableObject?)
+                        public var json: Components.Schemas.MyNullableObject? {
+                            get throws {
+                                switch self {
+                                case let .json(body):
+                                    return body
+                                }
+                            }
+                        }
+                    }
+                    public var body: Components.Responses.MyResponse.Body
+                    public init(body: Components.Responses.MyResponse.Body) {
+                        self.body = body
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsResponsesResponseWithNullableReferencedStringBody() throws {
+        try self.assertResponsesTranslation(
+            """
+            schemas:
+              MyNullableString:
+                type: [string, null]
+            responses:
+              MyResponse:
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/MyNullableString'
+            """,
+            """
+            public enum Responses {
+                public struct MyResponse: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
+                        case json(Components.Schemas.MyNullableString?)
+                        public var json: Components.Schemas.MyNullableString? {
+                            get throws {
+                                switch self {
+                                case let .json(body):
+                                    return body
+                                }
+                            }
+                        }
+                    }
+                    public var body: Components.Responses.MyResponse.Body
+                    public init(body: Components.Responses.MyResponse.Body) {
+                        self.body = body
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsResponsesResponseWithTransitivelyNullableReferencedBody() throws {
+        try self.assertResponsesTranslation(
+            """
+            schemas:
+              MyNullableObject:
+                type: [object, null]
+                properties:
+                  id:
+                    type: string
+                required:
+                  - id
+              MyNullableObjectAlias:
+                $ref: '#/components/schemas/MyNullableObject'
+            responses:
+              MyResponse:
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/MyNullableObjectAlias'
+            """,
+            """
+            public enum Responses {
+                public struct MyResponse: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
+                        case json(Components.Schemas.MyNullableObjectAlias?)
+                        public var json: Components.Schemas.MyNullableObjectAlias? {
+                            get throws {
+                                switch self {
+                                case let .json(body):
+                                    return body
+                                }
+                            }
+                        }
+                    }
+                    public var body: Components.Responses.MyResponse.Body
+                    public init(body: Components.Responses.MyResponse.Body) {
+                        self.body = body
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsResponsesResponseWithNonNullableReferencedBody() throws {
+        try self.assertResponsesTranslation(
+            """
+            schemas:
+              MyObject:
+                type: object
+                properties:
+                  id:
+                    type: string
+                required:
+                  - id
+            responses:
+              MyResponse:
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/MyObject'
+            """,
+            """
+            public enum Responses {
+                public struct MyResponse: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
+                        case json(Components.Schemas.MyObject)
+                        public var json: Components.Schemas.MyObject {
+                            get throws {
+                                switch self {
+                                case let .json(body):
+                                    return body
+                                }
+                            }
+                        }
+                    }
+                    public var body: Components.Responses.MyResponse.Body
+                    public init(body: Components.Responses.MyResponse.Body) {
+                        self.body = body
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsResponsesResponseWithNullableInlineBody() throws {
+        try self.assertResponsesTranslation(
+            """
+            responses:
+              MyResponse:
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      type: [object, null]
+                      properties:
+                        id:
+                          type: string
+                      required:
+                        - id
+            """,
+            """
+            public enum Responses {
+                public struct MyResponse: Sendable, Hashable {
+                    @frozen public enum Body: Sendable, Hashable {
+                        public struct jsonPayload: Codable, Hashable, Sendable {
+                            public var id: Swift.String
+                            public init(id: Swift.String) {
+                                self.id = id
+                            }
+                            public enum CodingKeys: String, CodingKey {
+                                case id
+                            }
+                        }
+                        case json(Components.Responses.MyResponse.Body.jsonPayload?)
+                        public var json: Components.Responses.MyResponse.Body.jsonPayload? {
+                            get throws {
+                                switch self {
+                                case let .json(body):
+                                    return body
+                                }
+                            }
+                        }
+                    }
+                    public var body: Components.Responses.MyResponse.Body
+                    public init(body: Components.Responses.MyResponse.Body) {
+                        self.body = body
+                    }
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsResponsesResponseWithHeader() throws {
         try self.assertResponsesTranslation(
             """
@@ -2382,6 +2644,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsRequestBodiesReference() throws {
         try self.assertRequestBodiesTranslation(
             """
+            schemas:
+              MyBody:
+                type: string
             requestBodies:
               MyResponseBody:
                 content:
@@ -2402,6 +2667,9 @@ final class SnippetBasedReferenceTests: XCTestCase {
     func testComponentsRequestBodiesMultipleContentTypes() throws {
         try self.assertRequestBodiesTranslation(
             """
+            schemas:
+              MyBody:
+                type: string
             requestBodies:
               MyResponseBody:
                 content:
@@ -3613,6 +3881,131 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         preconditionFailure("bestContentType chose an invalid content type.")
                     }
                     return Operations.getFoo.Input(body: body)
+                }
+                """
+        )
+    }
+
+    func testResponseWithNullableReferencedBody() throws {
+        try self.assertResponseInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                operationId: getFoo
+                responses:
+                  '200':
+                    description: OK
+                    content:
+                      application/json:
+                        schema:
+                          $ref: '#/components/schemas/MyNullableObject'
+            """,
+            """
+            schemas:
+              MyNullableObject:
+                type: [object, null]
+                properties:
+                  id:
+                    type: string
+                required:
+                  - id
+            """,
+            output: """
+                @frozen public enum Output: Sendable, Hashable {
+                    public struct Ok: Sendable, Hashable {
+                        @frozen public enum Body: Sendable, Hashable {
+                            case json(Components.Schemas.MyNullableObject?)
+                            public var json: Components.Schemas.MyNullableObject? {
+                                get throws {
+                                    switch self {
+                                    case let .json(body):
+                                        return body
+                                    }
+                                }
+                            }
+                        }
+                        public var body: Operations.getFoo.Output.Ok.Body
+                        public init(body: Operations.getFoo.Output.Ok.Body) {
+                            self.body = body
+                        }
+                    }
+                    case ok(Operations.getFoo.Output.Ok)
+                    public var ok: Operations.getFoo.Output.Ok {
+                        get throws {
+                            switch self {
+                            case let .ok(response):
+                                return response
+                            default:
+                                try throwUnexpectedResponseStatus(
+                                    expectedStatus: "ok",
+                                    response: self
+                                )
+                            }
+                        }
+                    }
+                    case undocumented(statusCode: Swift.Int, OpenAPIRuntime.UndocumentedPayload)
+                }
+                """,
+            server: """
+                { output, request in
+                    switch output {
+                    case let .ok(value):
+                        suppressUnusedWarning(value)
+                        var response = HTTPTypes.HTTPResponse(soar_statusCode: 200)
+                        suppressMutabilityWarning(&response)
+                        let body: OpenAPIRuntime.HTTPBody
+                        switch value.body {
+                        case let .json(value):
+                            try converter.validateAcceptIfPresent(
+                                "application/json",
+                                in: request.headerFields
+                            )
+                            body = try converter.setResponseBodyAsJSON(
+                                value,
+                                headerFields: &response.headerFields,
+                                contentType: "application/json; charset=utf-8"
+                            )
+                        }
+                        return (response, body)
+                    case let .undocumented(statusCode, _):
+                        return (.init(soar_statusCode: statusCode), nil)
+                    }
+                }
+                """,
+            client: """
+                { response, responseBody in
+                    switch response.status.code {
+                    case 200:
+                        let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                        let body: Operations.getFoo.Output.Ok.Body
+                        let chosenContentType = try converter.bestContentType(
+                            received: contentType,
+                            options: [
+                                "application/json"
+                            ]
+                        )
+                        switch chosenContentType {
+                        case "application/json":
+                            body = try await converter.getResponseBodyAsJSON(
+                                Components.Schemas.MyNullableObject?.self,
+                                from: responseBody,
+                                transforming: { value in
+                                    .json(value)
+                                }
+                            )
+                        default:
+                            preconditionFailure("bestContentType chose an invalid content type.")
+                        }
+                        return .ok(.init(body: body))
+                    default:
+                        return .undocumented(
+                            statusCode: response.status.code,
+                            .init(
+                                headerFields: response.headerFields,
+                                body: responseBody
+                            )
+                        )
+                    }
                 }
                 """
         )
