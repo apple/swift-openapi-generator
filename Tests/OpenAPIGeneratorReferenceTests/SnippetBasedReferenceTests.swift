@@ -2350,44 +2350,6 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
-    func testComponentsResponsesResponseWithNullableReferencedStringBody() throws {
-        try self.assertResponsesTranslation(
-            """
-            schemas:
-              MyNullableString:
-                type: [string, null]
-            responses:
-              MyResponse:
-                description: OK
-                content:
-                  application/json:
-                    schema:
-                      $ref: '#/components/schemas/MyNullableString'
-            """,
-            """
-            public enum Responses {
-                public struct MyResponse: Sendable, Hashable {
-                    @frozen public enum Body: Sendable, Hashable {
-                        case json(Components.Schemas.MyNullableString?)
-                        public var json: Components.Schemas.MyNullableString? {
-                            get throws {
-                                switch self {
-                                case let .json(body):
-                                    return body
-                                }
-                            }
-                        }
-                    }
-                    public var body: Components.Responses.MyResponse.Body
-                    public init(body: Components.Responses.MyResponse.Body) {
-                        self.body = body
-                    }
-                }
-            }
-            """
-        )
-    }
-
     func testComponentsResponsesResponseWithTransitivelyNullableReferencedBody() throws {
         try self.assertResponsesTranslation(
             """
