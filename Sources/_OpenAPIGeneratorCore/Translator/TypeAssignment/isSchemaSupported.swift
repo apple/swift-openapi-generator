@@ -157,12 +157,16 @@ extension FileTranslator {
             // an array is supported iff its element schema is supported
             return try isSchemaSupported(items, referenceStack: &referenceStack)
         case .all(of: let schemas, _):
+            // A `null` branch only marks the composition as nullable, ignore it here.
+            let schemas = schemas.filter { !$0.isNullType }
             guard !schemas.isEmpty else { return .unsupported(reason: .noSubschemas, schema: schema) }
             return try areSchemasSupported(schemas, referenceStack: &referenceStack)
         case .any(of: let schemas, _):
+            let schemas = schemas.filter { !$0.isNullType }
             guard !schemas.isEmpty else { return .unsupported(reason: .noSubschemas, schema: schema) }
             return try areSchemasSupported(schemas, referenceStack: &referenceStack)
         case .one(of: let schemas, let context):
+            let schemas = schemas.filter { !$0.isNullType }
             guard !schemas.isEmpty else { return .unsupported(reason: .noSubschemas, schema: schema) }
             guard context.discriminator != nil else {
                 return try areSchemasSupported(schemas, referenceStack: &referenceStack)
