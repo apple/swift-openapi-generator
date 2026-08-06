@@ -45,8 +45,27 @@ extension GeneratorMode {
         }
     }
 
+    /// The Swift file names emitted for this generator mode.
+    public var outputFileNames: [String] {
+        switch self {
+        case .types:
+            return [
+                outputFileName,
+                Self.outputFileName(outputFileName, "Components"),
+                Self.outputFileName(outputFileName, "Operations"),
+                Self.outputFileName(outputFileName, "Components", "Schemas"),
+                Self.outputFileName(outputFileName, "Components", "Parameters"),
+                Self.outputFileName(outputFileName, "Components", "RequestBodies"),
+                Self.outputFileName(outputFileName, "Components", "Responses"),
+                Self.outputFileName(outputFileName, "Components", "Headers"),
+            ]
+        case .client, .server:
+            return [outputFileName]
+        }
+    }
+
     /// The Swift file names for all supported generator mode values.
-    public static var allOutputFileNames: [String] { GeneratorMode.allCases.map(\.outputFileName) }
+    public static var allOutputFileNames: [String] { GeneratorMode.allCases.flatMap(\.outputFileNames) }
 
     /// Returns a Swift output file name composed from the base name and type-name suffixes.
     static func outputFileName(_ baseName: String, _ suffixes: String...) -> String {

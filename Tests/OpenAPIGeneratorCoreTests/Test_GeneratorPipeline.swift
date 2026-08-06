@@ -17,7 +17,7 @@ import XCTest
 
 final class Test_GeneratorPipeline: Test_Core {
 
-    func testRunGeneratorReturnsSingleFileByDefault() throws {
+    func testRunGeneratorReturnsTypesOutputFilesByDefault() throws {
         let source = """
             openapi: "3.1.0"
             info:
@@ -37,7 +37,7 @@ final class Test_GeneratorPipeline: Test_Core {
         )
 
         XCTAssertEqual(diagnostics.diagnostics.count, 0)
-        XCTAssertEqual(outputs.map(\.baseName), ["Types.swift"])
+        XCTAssertEqual(outputs.map(\.baseName), GeneratorMode.types.outputFileNames)
     }
 
     func testPipelineRendersMultipleStructuredFiles() throws {

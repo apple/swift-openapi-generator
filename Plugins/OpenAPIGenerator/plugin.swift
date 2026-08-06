@@ -29,7 +29,7 @@ import Foundation
             pluginSource: .build
         )
 
-        let outputFiles = GeneratorMode.allCases.map { inputs.genSourcesDir.appending(component: $0.outputFileName) }
+        let outputFiles = GeneratorMode.allOutputFileNames.map { inputs.genSourcesDir.appending(component: $0) }
         return [
             .buildCommand(
                 displayName: "Running swift-openapi-generator",

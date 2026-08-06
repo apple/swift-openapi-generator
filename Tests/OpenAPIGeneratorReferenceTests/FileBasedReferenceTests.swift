@@ -87,25 +87,32 @@ final class FileBasedReferenceTests: XCTestCase {
             ignoredDiagnosticMessages: ignoredDiagnosticMessages
         )
         let generatedOutputSources = try generatorPipeline.run(input)
-        let generatedOutputSource = try XCTUnwrap(generatedOutputSources.first)
-        XCTAssertEqual(generatedOutputSources.count, 1)
+        XCTAssertFalse(generatedOutputSources.isEmpty)
 
         // Write generated sources to temporary directory
         let generatedOutputDir = try self.temporaryDirectory()
-        let generatedOutputFile = URL(fileURLWithPath: generatedOutputSource.baseName, relativeTo: generatedOutputDir)
-        try generatedOutputSource.contents.write(to: generatedOutputFile)
+        for generatedOutputSource in generatedOutputSources {
+            let generatedOutputFile = URL(
+                fileURLWithPath: generatedOutputSource.baseName,
+                relativeTo: generatedOutputDir
+            )
+            try generatedOutputSource.contents.write(to: generatedOutputFile)
+        }
 
         // Compare the generated directory with the reference directory
         let referenceOutputDir = URL(
             fileURLWithPath: referenceTest.referenceOutputDirectory,
             relativeTo: referenceTestResourcesDirectory
         )
-        let referenceOutputFile = referenceOutputDir.appendingPathComponent(generatedOutputSource.baseName)
-        self.assert(
-            contentsOf: generatedOutputFile,
-            equalsContentsOf: referenceOutputFile,
-            runDiffWhenContentsDiffer: true
-        )
+        for generatedOutputSource in generatedOutputSources {
+            let generatedOutputFile = generatedOutputDir.appendingPathComponent(generatedOutputSource.baseName)
+            let referenceOutputFile = referenceOutputDir.appendingPathComponent(generatedOutputSource.baseName)
+            self.assert(
+                contentsOf: generatedOutputFile,
+                equalsContentsOf: referenceOutputFile,
+                runDiffWhenContentsDiffer: true
+            )
+        }
     }
 
     enum ReferenceProjectName: String, Hashable, CaseIterable {

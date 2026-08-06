@@ -35,6 +35,12 @@ struct TypesFileTranslator: FileTranslator {
         let topComment = self.topComment
 
         let imports = importDescriptions(adding: Constants.File.imports)
+        // Splitting can leave individual files with imports unused by that file, which Swift diagnoses for public imports.
+        let splitFileImports = imports.map { importDescription in
+            var importDescription = importDescription
+            importDescription.accessModifier = nil
+            return importDescription
+        }
 
         let apiProtocol = try translateAPIProtocol(doc.paths)
 
@@ -43,46 +49,66 @@ struct TypesFileTranslator: FileTranslator {
         let serversDecl = translateServers(doc.servers)
 
         let multipartSchemaNames = try parseSchemaNamesUsedInMultipart(paths: doc.paths, components: doc.components)
-        let components = try translateComponents(doc.components, multipartSchemaNames: multipartSchemaNames)
+        let componentNamespaces = try translateComponentNamespaceDescriptions(
+            doc.components,
+            multipartSchemaNames: multipartSchemaNames
+        )
 
         let operationDescriptions = try OperationDescription.all(from: doc.paths, in: doc.components, context: context)
         let operations = try translateOperations(operationDescriptions)
 
-        let typesFile = FileDescription(
-            topComment: topComment,
-            imports: imports,
-            codeBlocks: [
-                .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl), components,
-                operations,
-            ]
+        let rootCodeBlocks: [CodeBlock] = [
+            .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl),
+        ]
+        let fileNames = GeneratorMode.types.outputFileNames
+        let componentsRoot = CodeBlock.declaration(
+            .commentable(
+                .doc(
+                    """
+                    Types generated from the components section of the OpenAPI document.
+                    """
+                ),
+                .enum(.init(accessModifier: config.access, name: Constants.Components.namespace, members: []))
+            )
         )
-
-        if let fileSplitting = config.output.types?.fileSplitting, fileSplitting.strategy == .namespace {
-            let fileNames = fileSplitting.outputFileNames(primaryTypesFileName: GeneratorMode.types.outputFileName)
-            return StructuredSwiftRepresentation(
-                files: [
-                    .init(
-                        name: fileNames[0],
-                        contents: .init(
-                            topComment: topComment,
-                            imports: imports,
-                            codeBlocks: [
-                                .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl),
-                            ]
+        let componentNamespaceFiles: [NamedFileDescription] = componentNamespaces.map { namespace in
+            let fileName = GeneratorMode.outputFileName(
+                GeneratorMode.types.outputFileName,
+                Constants.Components.namespace,
+                namespace.fileNameSuffix
+            )
+            return .init(
+                name: fileName,
+                contents: .init(
+                    topComment: topComment,
+                    imports: splitFileImports,
+                    codeBlocks: [
+                        .declaration(
+                            .extension(
+                                accessModifier: nil,
+                                onType: Constants.Components.namespace,
+                                declarations: [namespace.declaration]
+                            )
                         )
-                    ),
-                    .init(
-                        name: fileNames[1],
-                        contents: .init(topComment: topComment, imports: imports, codeBlocks: [components])
-                    ),
-                    .init(
-                        name: fileNames[2],
-                        contents: .init(topComment: topComment, imports: imports, codeBlocks: [operations])
-                    ),
-                ]
+                    ]
+                )
             )
         }
-
-        return StructuredSwiftRepresentation(files: [.init(name: GeneratorMode.types.outputFileName, contents: typesFile)])
+        return StructuredSwiftRepresentation(
+            files: [
+                .init(
+                    name: fileNames[0],
+                    contents: .init(topComment: topComment, imports: splitFileImports, codeBlocks: rootCodeBlocks)
+                ),
+                .init(
+                    name: fileNames[1],
+                    contents: .init(topComment: topComment, imports: splitFileImports, codeBlocks: [componentsRoot])
+                ),
+                .init(
+                    name: fileNames[2],
+                    contents: .init(topComment: topComment, imports: splitFileImports, codeBlocks: [operations])
+                ),
+            ] + componentNamespaceFiles
+        )
     }
 }

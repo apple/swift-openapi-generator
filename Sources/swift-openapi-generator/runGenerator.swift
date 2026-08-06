@@ -64,19 +64,21 @@ extension _Tool {
             try await group.waitForAll()
         }
 
-        // If from a BuildTool plugin, the generator will have to emit all 3 files
-        // (Types.swift, Client.Swift, and Server.swift) regardless of which generator
-        // mode was requested, with the caveat that the not-requested files are empty.
+        // If from a BuildTool plugin, the generator must emit every declared output
+        // regardless of which generator modes were requested, with the caveat that
+        // the outputs for non-requested modes are empty.
         // This is due to a limitation of the build system used by SwiftPM under the hood.
         if pluginSource == .build {
             let nonGeneratedModes = Set(GeneratorMode.allCases).subtracting(configs.map(\.mode))
             for mode in nonGeneratedModes.sorted() {
-                try replaceFileContents(
-                    inDirectory: outputDirectory,
-                    fileName: mode.outputFileName,
-                    with: { Data() },
-                    isDryRun: isDryRun
-                )
+                for outputFileName in mode.outputFileNames {
+                    try replaceFileContents(
+                        inDirectory: outputDirectory,
+                        fileName: outputFileName,
+                        with: { Data() },
+                        isDryRun: isDryRun
+                    )
+                }
             }
         }
     }

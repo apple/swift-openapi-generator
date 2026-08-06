@@ -49,15 +49,10 @@ struct _GenerateOptions: ParsableArguments {
         help: "When specified, writes out the diagnostics into a YAML file instead of emitting them to standard error."
     ) var diagnosticsOutputPath: URL?
 
-    @Option(
-        help:
-            "Split generated types across files using the specified strategy. Options: \(TypesFileSplittingStrategy.prettyListing)."
-    ) var typesFileSplitting: TypesFileSplittingStrategy?
 }
 
 extension AccessModifier: ExpressibleByArgument {}
 extension NamingStrategy: ExpressibleByArgument {}
-extension TypesFileSplittingStrategy: ExpressibleByArgument {}
 
 /// Executes a throwing operation and transforms file-not-found errors into user-friendly messages.
 ///
@@ -155,29 +150,6 @@ extension _GenerateOptions {
     func resolvedFeatureFlags(_ config: _UserConfig?) -> FeatureFlags {
         if !featureFlag.isEmpty { return Set(featureFlag) }
         return config?.featureFlags ?? []
-    }
-
-    /// Returns the output options requested by the user.
-    /// - Parameter config: The configuration specified by the user.
-    /// - Returns: Output options requested by the user.
-    func resolvedOutputOptions(_ config: _UserConfig?) -> OutputOptions {
-        var output = config?.output ?? .init()
-        if let fileSplitting = resolvedTypesFileSplittingConfig() {
-            var typesOutput = output.types ?? .init()
-            typesOutput.fileSplitting = fileSplitting
-            output.types = typesOutput
-        }
-        return output
-    }
-
-    /// Returns the types file splitting configuration requested from command-line options.
-    /// - Returns: Types file splitting configuration requested from command-line options.
-    func resolvedTypesFileSplittingConfig() -> TypesFileSplittingConfig? {
-        guard let typesFileSplitting else { return nil }
-        switch typesFileSplitting {
-        case .namespace:
-            return .init(strategy: .namespace)
-        }
     }
 
     /// Validates a collection of keys against a predefined set of allowed keys.

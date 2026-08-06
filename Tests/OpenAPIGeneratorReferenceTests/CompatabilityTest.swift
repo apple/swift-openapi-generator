@@ -272,7 +272,7 @@ fileprivate extension CompatibilityTest {
             }
         }
         XCTAssertEqual(Set(diagnosticsCollector.diagnostics.map(\.message)), expectedDiagnostics)
-        XCTAssertEqual(outputs.count, 3)
+        XCTAssertEqual(outputs.count, GeneratorMode.allCases.flatMap(\.outputFileNames).count)
 
         if !skipBuild {
             // Create Swift package test harness.

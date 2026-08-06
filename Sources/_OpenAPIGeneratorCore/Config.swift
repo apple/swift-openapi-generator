@@ -29,9 +29,8 @@ public enum NamingStrategy: String, Sendable, Codable, Equatable, CaseIterable {
 /// A structure that contains configuration options for a single execution
 /// of the generator pipeline run.
 ///
-/// A single generator pipeline run produces exactly one file, so for
-/// generating multiple files, create multiple configuration values, each with
-/// a different generator mode.
+/// A single generator pipeline run produces the files associated with one
+/// generator mode.
 public struct Config: Sendable {
 
     /// The generator mode to use.
@@ -68,9 +67,6 @@ public struct Config: Sendable {
     /// Additional pre-release features to enable.
     public var featureFlags: FeatureFlags
 
-    /// Options that affect generated output files.
-    public var output: OutputOptions
-
     /// Creates a configuration with the specified generator mode and imports.
     /// - Parameters:
     ///   - mode: The mode to use for generation.
@@ -84,7 +80,6 @@ public struct Config: Sendable {
     ///     of the naming strategy.
     ///   - typeOverrides: A map of OpenAPI schema names to desired custom type names.
     ///   - featureFlags: Additional pre-release features to enable.
-    ///   - output: Options that affect generated output files.
     public init(
         mode: GeneratorMode,
         access: AccessModifier,
@@ -94,8 +89,7 @@ public struct Config: Sendable {
         namingStrategy: NamingStrategy,
         nameOverrides: [String: String] = [:],
         typeOverrides: TypeOverrides = .init(),
-        featureFlags: FeatureFlags = [],
-        output: OutputOptions = .init()
+        featureFlags: FeatureFlags = []
     ) {
         self.mode = mode
         self.access = access
@@ -106,6 +100,5 @@ public struct Config: Sendable {
         self.nameOverrides = nameOverrides
         self.typeOverrides = typeOverrides
         self.featureFlags = featureFlags
-        self.output = output
     }
 }
