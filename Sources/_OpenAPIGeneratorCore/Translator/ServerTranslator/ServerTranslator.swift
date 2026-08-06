@@ -53,18 +53,16 @@ struct ServerFileTranslator: FileTranslator {
             declarations: serverMethodDecls
         )
 
-        return StructuredSwiftRepresentation(
-            files: [
-                .init(
-                    name: GeneratorMode.server.outputFileName,
-                    contents: .init(
-                        topComment: topComment,
-                        imports: imports,
-                        codeBlocks: [.declaration(protocolExtensionDecl), .declaration(serverExtensionDecl)]
-                    )
+        return StructuredSwiftRepresentation(files: [
+            .init(
+                name: GeneratorMode.server.outputFileName,
+                contents: .init(
+                    topComment: topComment,
+                    imports: imports,
+                    codeBlocks: [.declaration(protocolExtensionDecl), .declaration(serverExtensionDecl)]
                 )
-            ]
-        )
+            )
+        ])
     }
 
     /// Returns a declaration of the registerHandlers method and

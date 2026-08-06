@@ -41,14 +41,9 @@ final class Test_Config: Test_Core {
         XCTAssertEqual(
             GeneratorMode.types.outputFileNames,
             [
-                "Types.swift",
-                "Types+Components.swift",
-                "Types+Operations.swift",
-                "Types+Components+Schemas.swift",
-                "Types+Components+Parameters.swift",
-                "Types+Components+RequestBodies.swift",
-                "Types+Components+Responses.swift",
-                "Types+Components+Headers.swift",
+                "Types.swift", "Types+Components.swift", "Types+Operations.swift", "Types+Components+Schemas.swift",
+                "Types+Components+Parameters.swift", "Types+Components+RequestBodies.swift",
+                "Types+Components+Responses.swift", "Types+Components+Headers.swift",
             ]
         )
         XCTAssertEqual(GeneratorMode.client.outputFileNames, ["Client.swift"])

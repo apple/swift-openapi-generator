@@ -65,8 +65,10 @@ final class Test_GenerateOptions: XCTestCase {
               title: GreetingService
               version: "1.0.0"
             paths: {}
-            """.utf8
-        ).write(to: documentURL)
+            """
+            .utf8
+        )
+        .write(to: documentURL)
 
         try await _Tool.runGenerator(
             doc: documentURL,

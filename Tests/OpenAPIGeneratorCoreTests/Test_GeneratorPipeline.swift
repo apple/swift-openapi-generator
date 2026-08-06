@@ -25,10 +25,7 @@ final class Test_GeneratorPipeline: Test_Core {
               version: "1.0.0"
             paths: {}
             """
-        let input = InMemoryInputFile(
-            absolutePath: URL(string: "openapi.yaml")!,
-            contents: Data(source.utf8)
-        )
+        let input = InMemoryInputFile(absolutePath: URL(string: "openapi.yaml")!, contents: Data(source.utf8))
         let diagnostics = AccumulatingDiagnosticCollector()
         let outputs = try runGenerator(
             input: input,
@@ -41,26 +38,16 @@ final class Test_GeneratorPipeline: Test_Core {
     }
 
     func testPipelineRendersMultipleStructuredFiles() throws {
-        let structured = StructuredSwiftRepresentation(
-            files: [
-                .init(
-                    name: "First.swift",
-                    contents: .init(
-                        topComment: nil,
-                        imports: nil,
-                        codeBlocks: [.declaration(.enum(name: "First"))]
-                    )
-                ),
-                .init(
-                    name: "Second.swift",
-                    contents: .init(
-                        topComment: nil,
-                        imports: nil,
-                        codeBlocks: [.declaration(.enum(name: "Second"))]
-                    )
-                ),
-            ]
-        )
+        let structured = StructuredSwiftRepresentation(files: [
+            .init(
+                name: "First.swift",
+                contents: .init(topComment: nil, imports: nil, codeBlocks: [.declaration(.enum(name: "First"))])
+            ),
+            .init(
+                name: "Second.swift",
+                contents: .init(topComment: nil, imports: nil, codeBlocks: [.declaration(.enum(name: "Second"))])
+            ),
+        ])
         let pipeline = makeGeneratorPipeline(
             parser: YamsParser(),
             translator: MultiplexTranslator(),

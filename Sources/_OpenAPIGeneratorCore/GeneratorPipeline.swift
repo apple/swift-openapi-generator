@@ -81,13 +81,9 @@ struct GeneratorPipeline {
 /// - Throws: When encountering a non-recoverable error. For recoverable
 /// issues, emits issues into the diagnostics collector.
 /// - Returns: The raw contents of all generated Swift files.
-public func runGenerator(
-    input: InMemoryInputFile,
-    config: Config,
-    diagnostics: any DiagnosticCollector
-) throws -> [InMemoryOutputFile] {
-    try makeGeneratorPipeline(config: config, diagnostics: diagnostics).run(input)
-}
+public func runGenerator(input: InMemoryInputFile, config: Config, diagnostics: any DiagnosticCollector) throws
+    -> [InMemoryOutputFile]
+{ try makeGeneratorPipeline(config: config, diagnostics: diagnostics).run(input) }
 
 /// Creates a new pipeline instance.
 /// - Parameters:

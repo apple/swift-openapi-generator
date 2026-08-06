@@ -50,8 +50,7 @@ extension GeneratorMode {
         switch self {
         case .types:
             return [
-                outputFileName,
-                Self.outputFileName(outputFileName, "Components"),
+                outputFileName, Self.outputFileName(outputFileName, "Components"),
                 Self.outputFileName(outputFileName, "Operations"),
                 Self.outputFileName(outputFileName, "Components", "Schemas"),
                 Self.outputFileName(outputFileName, "Components", "Parameters"),
@@ -59,8 +58,7 @@ extension GeneratorMode {
                 Self.outputFileName(outputFileName, "Components", "Responses"),
                 Self.outputFileName(outputFileName, "Components", "Headers"),
             ]
-        case .client, .server:
-            return [outputFileName]
+        case .client, .server: return [outputFileName]
         }
     }
 
@@ -69,9 +67,8 @@ extension GeneratorMode {
 
     /// Returns a Swift output file name composed from the base name and type-name suffixes.
     static func outputFileName(_ baseName: String, _ suffixes: String...) -> String {
-        let names = ([baseName] + suffixes).map { name in
-            name.hasSuffix(".swift") ? String(name.dropLast(".swift".count)) : name
-        }
+        let names = ([baseName] + suffixes)
+            .map { name in name.hasSuffix(".swift") ? String(name.dropLast(".swift".count)) : name }
         return names.joined(separator: "+") + ".swift"
     }
 
