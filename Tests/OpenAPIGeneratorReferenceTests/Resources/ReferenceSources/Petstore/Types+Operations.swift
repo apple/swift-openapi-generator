@@ -9,8 +9,7 @@ public import struct Foundation.URL
 public import struct Foundation.Data
 public import struct Foundation.Date
 #endif
-/// API operations, with input and output types, generated from `#/paths` in the OpenAPI document.
-public enum Operations {
+extension Operations {
     /// List all pets
     ///
     /// You can fetch

@@ -270,3 +270,9 @@ public enum Servers {
         )
     }
 }
+
+/// Types generated from the components section of the OpenAPI document.
+public enum Components {}
+
+/// API operations, with input and output types, generated from `#/paths` in the OpenAPI document.
+public enum Operations {}

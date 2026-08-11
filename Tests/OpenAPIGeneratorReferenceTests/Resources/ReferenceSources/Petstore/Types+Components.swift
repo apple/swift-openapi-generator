@@ -9,5 +9,15 @@ public import struct Foundation.URL
 public import struct Foundation.Data
 public import struct Foundation.Date
 #endif
-/// Types generated from the components section of the OpenAPI document.
-public enum Components {}
+extension Components {
+    /// Types generated from the `#/components/schemas` section of the OpenAPI document.
+    public enum Schemas {}
+    /// Types generated from the `#/components/parameters` section of the OpenAPI document.
+    public enum Parameters {}
+    /// Types generated from the `#/components/requestBodies` section of the OpenAPI document.
+    public enum RequestBodies {}
+    /// Types generated from the `#/components/responses` section of the OpenAPI document.
+    public enum Responses {}
+    /// Types generated from the `#/components/headers` section of the OpenAPI document.
+    public enum Headers {}
+}

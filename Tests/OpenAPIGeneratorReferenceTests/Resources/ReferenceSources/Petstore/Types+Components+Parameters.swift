@@ -9,16 +9,13 @@ public import struct Foundation.URL
 public import struct Foundation.Data
 public import struct Foundation.Date
 #endif
-extension Components {
-    /// Types generated from the `#/components/parameters` section of the OpenAPI document.
-    public enum Parameters {
-        /// Supply this parameter to filter pets born since the provided date.
-        ///
-        /// - Remark: Generated from `#/components/parameters/query.born-since`.
-        public typealias Query_bornSince = Components.Schemas.Dob
-        /// The id of the pet to retrieve
-        ///
-        /// - Remark: Generated from `#/components/parameters/path.petId`.
-        public typealias Path_petId = Swift.Int64
-    }
+extension Components.Parameters {
+    /// Supply this parameter to filter pets born since the provided date.
+    ///
+    /// - Remark: Generated from `#/components/parameters/query.born-since`.
+    public typealias Query_bornSince = Components.Schemas.Dob
+    /// The id of the pet to retrieve
+    ///
+    /// - Remark: Generated from `#/components/parameters/path.petId`.
+    public typealias Path_petId = Swift.Int64
 }

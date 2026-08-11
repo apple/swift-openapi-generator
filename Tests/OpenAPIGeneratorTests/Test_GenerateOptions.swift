@@ -90,6 +90,123 @@ final class Test_GenerateOptions: XCTestCase {
         XCTAssertFalse(try Data(contentsOf: temporaryDirectory.appendingPathComponent("Client.swift")).isEmpty)
     }
 
+    func testBuildPluginRejectsDynamicDeclarationSplitting() async throws {
+        do {
+            try await _Tool.runGenerator(
+                doc: URL(fileURLWithPath: "/unused/openapi.yaml"),
+                configs: [
+                    Config(mode: .types, access: .internal, namingStrategy: .defensive, maxDeclarationsPerFile: 100)
+                ],
+                pluginSource: .build,
+                outputDirectory: FileManager.default.temporaryDirectory,
+                isDryRun: false,
+                diagnostics: StdErrPrintingDiagnosticCollector()
+            )
+            XCTFail("Expected dynamic declaration splitting to be rejected by the build-tool plugin.")
+        } catch let error as ArgumentParser.ValidationError {
+            XCTAssertTrue(
+                String(describing: error).contains("maxDeclarationsPerFile is not supported by the build-tool plugin")
+            )
+        }
+    }
+
+    func testDirectAndCommandPluginGenerationSupportDynamicDeclarationSplitting() async throws {
+        let temporaryDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: temporaryDirectory) }
+
+        let documentURL = temporaryDirectory.appendingPathComponent("openapi.yaml")
+        try Data(
+            """
+            openapi: "3.1.0"
+            info:
+              title: GreetingService
+              version: "1.0.0"
+            paths: {}
+            components:
+              schemas:
+                First:
+                  type: string
+                Second:
+                  type: string
+            """
+            .utf8
+        )
+        .write(to: documentURL)
+
+        let invocations: [(name: String, pluginSource: PluginSource?)] = [("direct", nil), ("command", .command)]
+        for (name, pluginSource) in invocations {
+            let outputDirectory = temporaryDirectory.appendingPathComponent(name)
+            try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
+            try await _Tool.runGenerator(
+                doc: documentURL,
+                configs: [
+                    Config(mode: .types, access: .internal, namingStrategy: .defensive, maxDeclarationsPerFile: 1)
+                ],
+                pluginSource: pluginSource,
+                outputDirectory: outputDirectory,
+                isDryRun: false,
+                diagnostics: StdErrPrintingDiagnosticCollector()
+            )
+            XCTAssertTrue(
+                FileManager.default.fileExists(
+                    atPath: outputDirectory.appendingPathComponent("Types+Components+Schemas+1.swift").path
+                )
+            )
+        }
+    }
+
+    func testLoadsMaximumDeclarationsPerFileFromConfig() throws {
+        let configURL = try makeTemporaryConfig(
+            """
+            generate:
+              - types
+            output:
+              maxDeclarationsPerFile: 100
+            """
+        )
+        defer { try? FileManager.default.removeItem(at: configURL.deletingLastPathComponent()) }
+
+        let options = try _GenerateOptions.parse(["openapi.yaml", "--config", configURL.path])
+        let config = try XCTUnwrap(options.loadedConfig())
+
+        XCTAssertEqual(config.output?.maxDeclarationsPerFile, 100)
+    }
+
+    func testRejectsNonPositiveMaximumDeclarationsPerFileFromConfig() async throws {
+        for invalidLimit in [0, -1] {
+            let configURL = try makeTemporaryConfig(
+                """
+                generate:
+                  - client
+                output:
+                  maxDeclarationsPerFile: \(invalidLimit)
+                """
+            )
+            defer { try? FileManager.default.removeItem(at: configURL.deletingLastPathComponent()) }
+
+            let options = try _GenerateOptions.parse(["unused-openapi.yaml", "--config", configURL.path])
+            do {
+                try await options.runGenerator(
+                    outputDirectory: FileManager.default.temporaryDirectory,
+                    pluginSource: nil,
+                    isDryRun: true
+                )
+                XCTFail("Expected output.maxDeclarationsPerFile=\(invalidLimit) to be rejected.")
+            } catch let error as ArgumentParser.ValidationError {
+                XCTAssertTrue(String(describing: error).contains("maxDeclarationsPerFile to be greater than zero"))
+            }
+        }
+    }
+
+    private func makeTemporaryConfig(_ contents: String) throws -> URL {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let configURL = directory.appendingPathComponent("openapi-generator-config.yaml")
+        try Data(contents.utf8).write(to: configURL)
+        return configURL
+    }
+
     /// Tests that `handleFileOperation` correctly transforms file-not-found errors into user-friendly messages.
     /// This test verifies the error handling works correctly on both macOS and Linux.
     func testHandleFileOperation_FileNotFound() throws {

@@ -29,6 +29,9 @@ extension _GenerateOptions {
     /// resolving options, generating code, and handling diagnostics.
     func runGenerator(outputDirectory: URL, pluginSource: PluginSource?, isDryRun: Bool) async throws {
         let config = try loadedConfig()
+        if let maxDeclarationsPerFile = config?.output?.maxDeclarationsPerFile, maxDeclarationsPerFile <= 0 {
+            throw ValidationError("Expected output.maxDeclarationsPerFile to be greater than zero.")
+        }
         let sortedModes = try resolvedModes(config)
         let resolvedAccessModifier = resolvedAccessModifier(config)
         let resolvedAdditionalImports = resolvedAdditionalImports(config)
@@ -47,7 +50,8 @@ extension _GenerateOptions {
                 namingStrategy: resolvedNamingStragy,
                 nameOverrides: resolvedNameOverrides,
                 typeOverrides: resolvedTypeOverrides,
-                featureFlags: resolvedFeatureFlags
+                featureFlags: resolvedFeatureFlags,
+                maxDeclarationsPerFile: $0 == .types ? config?.output?.maxDeclarationsPerFile : nil
             )
         }
         let (diagnostics, finalizeDiagnostics) = preparedDiagnosticsCollector(outputPath: diagnosticsOutputPath)
@@ -67,6 +71,7 @@ extension _GenerateOptions {
                 .sorted(by: { $0.key < $1.key })
                 .map { "\"\($0.key)\"->\"\($0.value)\"" }.joined(separator: ", "))
             - Feature flags: \(resolvedFeatureFlags.isEmpty ? "<none>" : resolvedFeatureFlags.map(\.rawValue).joined(separator: ", "))
+            - Maximum declarations per split types file: \(config?.output?.maxDeclarationsPerFile.map(String.init) ?? "<none>")
             - Output file names: \(sortedModes.flatMap { mode in OutputFileName.allCases.filter { mode.outputFileNames.contains($0) } }.map(\.rawValue).joined(separator: ", "))
             - Output directory: \(outputDirectory.path)
             - Diagnostics output path: \(diagnosticsOutputPath?.path ?? "<none - logs to stderr>")

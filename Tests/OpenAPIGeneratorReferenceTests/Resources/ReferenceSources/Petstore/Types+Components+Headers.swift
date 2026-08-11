@@ -9,12 +9,9 @@ public import struct Foundation.URL
 public import struct Foundation.Data
 public import struct Foundation.Date
 #endif
-extension Components {
-    /// Types generated from the `#/components/headers` section of the OpenAPI document.
-    public enum Headers {
-        /// A description here.
-        ///
-        /// - Remark: Generated from `#/components/headers/TracingHeader`.
-        public typealias TracingHeader = Swift.String
-    }
+extension Components.Headers {
+    /// A description here.
+    ///
+    /// - Remark: Generated from `#/components/headers/TracingHeader`.
+    public typealias TracingHeader = Swift.String
 }

@@ -48,6 +48,8 @@ The configuration file has the following keys:
 - `typeOverrides` (optional): Allows replacing a generated type with a custom type.
     - `schemas` (optional): a string to string dictionary. The key is the name of the schema, the last component of `#/components/schemas/Foo` (here, `Foo`). The value is the custom type name, such as `CustomFoo`. Check out details in [SOAR-0014](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0014).
 - `featureFlags` (optional): array of strings. Each string must be a valid feature flag to enable. For a list of currently supported feature flags, check out [FeatureFlags.swift](https://github.com/apple/swift-openapi-generator/blob/main/Sources/_OpenAPIGeneratorCore/FeatureFlags.swift).
+- `output` (optional): Controls the generated source-file layout.
+    - `maxDeclarationsPerFile` (optional): A positive integer that limits the number of declarations in each split types namespace file.
 
 ### Example config files
 
@@ -122,6 +124,33 @@ Types generation emits a fixed set of files organized by generated namespace:
 - `Types+Components+Headers.swift`
 
 > Important: The number and names of generated files are _not_ considered to be stable, and can change at any time. For details, check out <doc:API-stability-of-the-generator>.
+
+Each parent file owns its child namespace declarations, and the corresponding `+Namespace` files extend those
+namespaces with generated declarations.
+
+The file layout does not change generated Swift symbol names. For example, schema types remain nested under
+`Components.Schemas`. When invoking the generator directly or checking generated sources into a repository, retain all
+of the emitted files.
+
+The command-line tool and command plugin can further split the declaration-bearing namespace files by setting a
+maximum number of declarations per file:
+
+```yaml
+generate:
+  - types
+output:
+  maxDeclarationsPerFile: 100
+```
+
+For example, a `Schemas` namespace with 250 declarations keeps its first 100 declarations in
+`Types+Components+Schemas.swift`, then places the remaining declarations in two extension files:
+
+- `Types+Components+Schemas+1.swift`
+- `Types+Components+Schemas+2.swift`
+
+The build-tool plugin does not support `maxDeclarationsPerFile` because the number of generated files depends on the
+input document, while build commands must declare their outputs before running the generator. Supporting this option
+there requires migrating the plugin to a prebuild command.
 
 ### Document filtering
 

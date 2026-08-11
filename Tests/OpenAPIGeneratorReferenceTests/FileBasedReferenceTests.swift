@@ -21,6 +21,7 @@ struct TestConfig: Encodable {
     var mode: GeneratorMode
     var additionalImports: [String]?
     var featureFlags: FeatureFlags?
+    var maxDeclarationsPerFile: Int?
     var namingStrategy: NamingStrategy
     var nameOverrides: [String: String]
     var referenceOutputDirectory: String
@@ -34,7 +35,8 @@ extension TestConfig {
             additionalImports: additionalImports ?? [],
             namingStrategy: namingStrategy,
             nameOverrides: nameOverrides,
-            featureFlags: featureFlags ?? []
+            featureFlags: featureFlags ?? [],
+            maxDeclarationsPerFile: maxDeclarationsPerFile
         )
     }
 }
@@ -145,6 +147,7 @@ final class FileBasedReferenceTests: XCTestCase {
                     mode: mode,
                     additionalImports: [],
                     featureFlags: featureFlags,
+                    maxDeclarationsPerFile: mode == .types ? 10_000 : nil,
                     namingStrategy: .idiomatic,
                     nameOverrides: [:],
                     referenceOutputDirectory: "ReferenceSources/\(project.fixtureCodeDirectoryName)"

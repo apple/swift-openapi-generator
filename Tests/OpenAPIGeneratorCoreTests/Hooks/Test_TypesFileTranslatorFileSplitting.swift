@@ -103,6 +103,71 @@ final class Test_TypesFileTranslatorFileSplitting: Test_Core {
         XCTAssertTrue(operationsSource.contains("enum Operations"))
         XCTAssertFalse(operationsSource.contains("enum Components"))
         XCTAssertFalse(operationsSource.contains("protocol APIProtocol"))
+        XCTAssertTrue(operationsSource.contains("getUser"))
+    }
+
+    func testConfiguredMaximumSplitsDeclarationsAcrossExtensionFiles() throws {
+        let input = InMemoryInputFile(absolutePath: URL(string: "openapi.yaml")!, contents: Data(Self.source.utf8))
+        let diagnostics = AccumulatingDiagnosticCollector()
+        let outputs = try runGenerator(
+            input: input,
+            config: Config(mode: .types, access: .public, namingStrategy: .defensive, maxDeclarationsPerFile: 1),
+            diagnostics: diagnostics
+        )
+
+        XCTAssertEqual(diagnostics.diagnostics.count, 0)
+        XCTAssertEqual(
+            outputs.map(\.baseName),
+            [
+                "Types.swift", "Types+Components.swift", "Types+Operations.swift", "Types+Operations+1.swift",
+                "Types+Components+Schemas.swift", "Types+Components+Schemas+1.swift",
+                "Types+Components+Parameters.swift", "Types+Components+RequestBodies.swift",
+                "Types+Components+Responses.swift", "Types+Components+Headers.swift",
+            ]
+        )
+
+        let outputByName = Self.outputByName(outputs)
+        for outputSource in outputByName.values { XCTAssertTrue(outputSource.contains("public import")) }
+        let operationsContainer = try XCTUnwrap(outputByName["Types+Operations.swift"])
+        let operationsSplitFile = try XCTUnwrap(outputByName["Types+Operations+1.swift"])
+        let schemasContainer = try XCTUnwrap(outputByName["Types+Components+Schemas.swift"])
+        let schemasSplitFile = try XCTUnwrap(outputByName["Types+Components+Schemas+1.swift"])
+
+        XCTAssertTrue(operationsContainer.contains("extension Operations"))
+        XCTAssertFalse(operationsContainer.contains("enum Operations"))
+        XCTAssertTrue(operationsContainer.contains("getUser"))
+        XCTAssertFalse(operationsContainer.contains("listUsers"))
+        XCTAssertTrue(operationsSplitFile.contains("extension Operations"))
+        XCTAssertFalse(operationsSplitFile.contains("getUser"))
+        XCTAssertTrue(operationsSplitFile.contains("listUsers"))
+        XCTAssertTrue(schemasContainer.contains("extension Components.Schemas"))
+        XCTAssertFalse(schemasContainer.contains("enum Schemas"))
+        XCTAssertTrue(schemasContainer.contains("struct User"))
+        XCTAssertFalse(schemasContainer.contains("Role"))
+        XCTAssertTrue(schemasSplitFile.contains("extension Components.Schemas"))
+        XCTAssertFalse(schemasSplitFile.contains("struct User"))
+        XCTAssertTrue(schemasSplitFile.contains("Role"))
+    }
+
+    func testConfiguredMaximumMustBePositive() throws {
+        let input = InMemoryInputFile(absolutePath: URL(string: "openapi.yaml")!, contents: Data(Self.source.utf8))
+
+        for invalidLimit in [0, -1] {
+            XCTAssertThrowsError(
+                try runGenerator(
+                    input: input,
+                    config: Config(
+                        mode: .types,
+                        access: .public,
+                        namingStrategy: .defensive,
+                        maxDeclarationsPerFile: invalidLimit
+                    ),
+                    diagnostics: AccumulatingDiagnosticCollector()
+                )
+            ) { error in
+                XCTAssertTrue(String(describing: error).contains("maxDeclarationsPerFile to be greater than zero"))
+            }
+        }
     }
 
     private static func outputByName(_ outputs: [InMemoryOutputFile]) -> [String: String] {
@@ -156,6 +221,12 @@ final class Test_TypesFileTranslatorFileSplitting: Test_Core {
                     application/json:
                       schema:
                         $ref: "#/components/schemas/User"
+          /users:
+            get:
+              operationId: listUsers
+              responses:
+                "200":
+                  description: A list of users.
         components:
           schemas:
             User:
@@ -168,5 +239,7 @@ final class Test_TypesFileTranslatorFileSplitting: Test_Core {
                   format: date-time
               required:
                 - id
+            Role:
+              type: string
         """
 }

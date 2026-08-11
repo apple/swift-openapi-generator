@@ -51,6 +51,9 @@ struct _UserConfig: Codable {
     /// A set of features to explicitly enable.
     var featureFlags: FeatureFlags?
 
+    /// Options controlling generated output files.
+    var output: Output?
+
     /// A set of raw values corresponding to the coding keys of this struct.
     static let codingKeysRawValues = Set(CodingKeys.allCases.map({ $0.rawValue }))
 
@@ -64,11 +67,18 @@ struct _UserConfig: Codable {
         case nameOverrides
         case typeOverrides
         case featureFlags
+        case output
     }
 
     /// A container of type overrides.
     struct TypeOverrides: Codable {
         /// A dictionary of overrides for replacing the types generated from schemas with manually provided types.
         var schemas: [String: String]?
+    }
+
+    /// Options controlling generated output files.
+    struct Output: Codable {
+        /// The maximum number of declarations emitted in each split types namespace file.
+        var maxDeclarationsPerFile: Int?
     }
 }
