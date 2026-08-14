@@ -35,12 +35,6 @@ struct TypesFileTranslator: FileTranslator {
         let topComment = self.topComment
 
         let imports = importDescriptions(adding: Constants.File.imports)
-        // Splitting can leave individual files with imports unused by that file, which Swift diagnoses for public imports.
-        let splitFileImports = imports.map { importDescription in
-            var importDescription = importDescription
-            importDescription.accessModifier = nil
-            return importDescription
-        }
 
         let apiProtocol = try translateAPIProtocol(doc.paths)
 
@@ -81,7 +75,7 @@ struct TypesFileTranslator: FileTranslator {
                 name: fileName,
                 contents: .init(
                     topComment: topComment,
-                    imports: splitFileImports,
+                    imports: imports,
                     codeBlocks: [
                         .declaration(
                             .extension(
@@ -98,15 +92,15 @@ struct TypesFileTranslator: FileTranslator {
             files: [
                 .init(
                     name: fileNames[0],
-                    contents: .init(topComment: topComment, imports: splitFileImports, codeBlocks: rootCodeBlocks)
+                    contents: .init(topComment: topComment, imports: imports, codeBlocks: rootCodeBlocks)
                 ),
                 .init(
                     name: fileNames[1],
-                    contents: .init(topComment: topComment, imports: splitFileImports, codeBlocks: [componentsRoot])
+                    contents: .init(topComment: topComment, imports: imports, codeBlocks: [componentsRoot])
                 ),
                 .init(
                     name: fileNames[2],
-                    contents: .init(topComment: topComment, imports: splitFileImports, codeBlocks: [operations])
+                    contents: .init(topComment: topComment, imports: imports, codeBlocks: [operations])
                 ),
             ] + componentNamespaceFiles
         )

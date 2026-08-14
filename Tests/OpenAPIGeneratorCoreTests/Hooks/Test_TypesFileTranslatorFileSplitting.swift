@@ -54,7 +54,7 @@ final class Test_TypesFileTranslatorFileSplitting: Test_Core {
         XCTAssertTrue(componentResponsesSource.contains("import OpenAPIRuntime"))
         XCTAssertTrue(componentHeadersSource.contains("import OpenAPIRuntime"))
         XCTAssertTrue(operationsSource.contains("import OpenAPIRuntime"))
-        for outputSource in outputByName.values { XCTAssertFalse(outputSource.contains("public import")) }
+        for outputSource in outputByName.values { XCTAssertTrue(outputSource.contains("public import")) }
         XCTAssertTrue(componentSchemasSource.contains("import struct Foundation.Date"))
         XCTAssertTrue(operationsSource.contains("import struct Foundation.Date"))
 
