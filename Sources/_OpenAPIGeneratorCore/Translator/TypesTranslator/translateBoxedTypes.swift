@@ -25,7 +25,9 @@ extension TypesFileTranslator {
     func boxRecursiveTypes(_ decls: [Declaration]) throws -> [Declaration] {
 
         let nodes = decls.compactMap(DeclarationRecursionDetector.Node.init)
-        let nodeLookup = Dictionary(uniqueKeysWithValues: nodes.map { ($0.name, $0) })
+        let nodeLookup = nodes.reduce(into: [String: DeclarationRecursionDetector.Node]()) { lookup, node in
+            if lookup[node.name] == nil { lookup[node.name] = node }
+        }
         let container = DeclarationRecursionDetector.Container(lookupMap: nodeLookup)
 
         let boxedNames = try RecursionDetector.computeBoxedTypes(rootNodes: nodes, container: container)

@@ -64,6 +64,7 @@ extension TypesFileTranslator {
                 isMultipartContent: multipartSchemaNames.contains(key)
             )
         }
+        try emitDuplicateTypeNameDiagnostic(in: decls)
         let declsWithBoxingApplied = try boxRecursiveTypes(decls)
         let componentsSchemasEnum = Declaration.commentable(
             JSONSchema.sectionComment(),
@@ -74,5 +75,27 @@ extension TypesFileTranslator {
             )
         )
         return componentsSchemasEnum
+    }
+
+    /// Emits an error when multiple top-level schema declarations have the same generated Swift type name.
+    /// - Parameter declarations: The declarations generated in the `Components.Schemas` namespace.
+    /// - Throws: An error if the diagnostic collector throws while receiving the collision diagnostic.
+    private func emitDuplicateTypeNameDiagnostic(in declarations: [Declaration]) throws {
+        var observedNames: Set<String> = []
+        var duplicateNames: Set<String> = []
+        for name in declarations.compactMap(\.name) where !observedNames.insert(name).inserted {
+            duplicateNames.insert(name)
+        }
+        guard !duplicateNames.isEmpty else { return }
+
+        let nameList = duplicateNames.sorted().map { "'\($0)'" }.joined(separator: ", ")
+        try diagnostics.emit(
+            .error(
+                message: "Multiple schemas in '#/components/schemas' map to the same generated Swift type names "
+                    + "\(nameList), which is not supported. Use the 'defensive' naming strategy or add "
+                    + "'nameOverrides' entries so every schema generates a unique name.",
+                context: ["names": nameList]
+            )
+        )
     }
 }
