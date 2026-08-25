@@ -37,40 +37,29 @@ public enum GeneratorMode: String, Codable, CaseIterable, Sendable {
 extension GeneratorMode {
 
     /// The Swift file name including its file extension.
-    public var outputFileName: String {
+    public var outputFileName: OutputFileName {
         switch self {
-        case .types: return Self.outputFileName("Types")
-        case .client: return Self.outputFileName("Client")
-        case .server: return Self.outputFileName("Server")
+        case .types: return .types
+        case .client: return .client
+        case .server: return .server
         }
     }
 
     /// The Swift file names emitted for this generator mode.
-    public var outputFileNames: [String] {
+    public var outputFileNames: Set<OutputFileName> {
         switch self {
         case .types:
             return [
-                outputFileName, Self.outputFileName(outputFileName, "Components"),
-                Self.outputFileName(outputFileName, "Operations"),
-                Self.outputFileName(outputFileName, "Components", "Schemas"),
-                Self.outputFileName(outputFileName, "Components", "Parameters"),
-                Self.outputFileName(outputFileName, "Components", "RequestBodies"),
-                Self.outputFileName(outputFileName, "Components", "Responses"),
-                Self.outputFileName(outputFileName, "Components", "Headers"),
+                .types, .typesComponents, .typesOperations, .typesComponentsSchemas, .typesComponentsParameters,
+                .typesComponentsRequestBodies, .typesComponentsResponses, .typesComponentsHeaders,
             ]
-        case .client, .server: return [outputFileName]
+        case .client: return [.client]
+        case .server: return [.server]
         }
     }
 
     /// The Swift file names for all supported generator mode values.
-    public static var allOutputFileNames: [String] { GeneratorMode.allCases.flatMap(\.outputFileNames) }
-
-    /// Returns a Swift output file name composed from the base name and type-name suffixes.
-    static func outputFileName(_ baseName: String, _ suffixes: String...) -> String {
-        let names = ([baseName] + suffixes)
-            .map { name in name.hasSuffix(".swift") ? String(name.dropLast(".swift".count)) : name }
-        return names.joined(separator: "+") + ".swift"
-    }
+    public static var allOutputFileNames: Set<OutputFileName> { Set(OutputFileName.allCases) }
 
     /// Defines an order in which generators should be run.
     var order: Int {
@@ -85,4 +74,38 @@ extension GeneratorMode {
 extension GeneratorMode: Comparable {
     /// Compares modes based on their order.
     public static func < (lhs: GeneratorMode, rhs: GeneratorMode) -> Bool { lhs.order < rhs.order }
+}
+
+/// The name of a Swift file emitted by the generator.
+public enum OutputFileName: String, Hashable, CaseIterable, Sendable {
+
+    /// The generated root types file.
+    case types = "Types.swift"
+
+    /// The generated components namespace file.
+    case typesComponents = "Types+Components.swift"
+
+    /// The generated operations namespace file.
+    case typesOperations = "Types+Operations.swift"
+
+    /// The generated component schemas namespace file.
+    case typesComponentsSchemas = "Types+Components+Schemas.swift"
+
+    /// The generated component parameters namespace file.
+    case typesComponentsParameters = "Types+Components+Parameters.swift"
+
+    /// The generated component request bodies namespace file.
+    case typesComponentsRequestBodies = "Types+Components+RequestBodies.swift"
+
+    /// The generated component responses namespace file.
+    case typesComponentsResponses = "Types+Components+Responses.swift"
+
+    /// The generated component headers namespace file.
+    case typesComponentsHeaders = "Types+Components+Headers.swift"
+
+    /// The generated client file.
+    case client = "Client.swift"
+
+    /// The generated server file.
+    case server = "Server.swift"
 }

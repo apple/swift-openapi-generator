@@ -54,7 +54,6 @@ struct TypesFileTranslator: FileTranslator {
         let rootCodeBlocks: [CodeBlock] = [
             .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl),
         ]
-        let fileNames = GeneratorMode.types.outputFileNames
         let componentsRoot = CodeBlock.declaration(
             .commentable(
                 .doc(
@@ -66,13 +65,8 @@ struct TypesFileTranslator: FileTranslator {
             )
         )
         let componentNamespaceFiles: [NamedFileDescription] = componentNamespaces.map { namespace in
-            let fileName = GeneratorMode.outputFileName(
-                GeneratorMode.types.outputFileName,
-                Constants.Components.namespace,
-                namespace.fileNameSuffix
-            )
-            return .init(
-                name: fileName,
+            .init(
+                name: namespace.outputFile.rawValue,
                 contents: .init(
                     topComment: topComment,
                     imports: imports,
@@ -91,15 +85,15 @@ struct TypesFileTranslator: FileTranslator {
         return StructuredSwiftRepresentation(
             files: [
                 .init(
-                    name: fileNames[0],
+                    name: OutputFileName.types.rawValue,
                     contents: .init(topComment: topComment, imports: imports, codeBlocks: rootCodeBlocks)
                 ),
                 .init(
-                    name: fileNames[1],
+                    name: OutputFileName.typesComponents.rawValue,
                     contents: .init(topComment: topComment, imports: imports, codeBlocks: [componentsRoot])
                 ),
                 .init(
-                    name: fileNames[2],
+                    name: OutputFileName.typesOperations.rawValue,
                     contents: .init(topComment: topComment, imports: imports, codeBlocks: [operations])
                 ),
             ] + componentNamespaceFiles

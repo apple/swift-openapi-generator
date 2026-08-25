@@ -55,7 +55,7 @@ struct ServerFileTranslator: FileTranslator {
 
         return StructuredSwiftRepresentation(files: [
             .init(
-                name: GeneratorMode.server.outputFileName,
+                name: GeneratorMode.server.outputFileName.rawValue,
                 contents: .init(
                     topComment: topComment,
                     imports: imports,

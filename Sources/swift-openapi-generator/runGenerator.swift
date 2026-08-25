@@ -71,10 +71,10 @@ extension _Tool {
         if pluginSource == .build {
             let nonGeneratedModes = Set(GeneratorMode.allCases).subtracting(configs.map(\.mode))
             for mode in nonGeneratedModes.sorted() {
-                for outputFileName in mode.outputFileNames {
+                for outputFileName in OutputFileName.allCases where mode.outputFileNames.contains(outputFileName) {
                     try replaceFileContents(
                         inDirectory: outputDirectory,
-                        fileName: outputFileName,
+                        fileName: outputFileName.rawValue,
                         with: { Data() },
                         isDryRun: isDryRun
                     )

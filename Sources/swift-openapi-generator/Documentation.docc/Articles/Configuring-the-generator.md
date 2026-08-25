@@ -121,9 +121,7 @@ Types generation emits a fixed set of files organized by generated namespace:
 - `Types+Components+Responses.swift`
 - `Types+Components+Headers.swift`
 
-The file layout does not change generated Swift symbol names. For example, schema types remain nested under
-`Components.Schemas`. When invoking the generator directly or checking generated sources into a repository, retain all
-of the emitted files.
+> Important: The number and names of generated files are _not_ considered to be stable, and can change at any time. For details, check out <doc:api-stability-of-the-generator>.
 
 ### Document filtering
 

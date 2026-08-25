@@ -13,10 +13,10 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
-/// A translated component namespace and its output file suffix.
+/// A translated component namespace and its output file name.
 struct ComponentNamespaceDescription {
-    /// The suffix used for the namespace's generated file name.
-    var fileNameSuffix: String
+    /// The namespace's generated output file.
+    var outputFile: OutputFileName
 
     /// The translated namespace declaration.
     var declaration: Declaration
@@ -48,11 +48,11 @@ extension TypesFileTranslator {
         let headers = try translateComponentHeaders(resolvedHeaders)
 
         return [
-            .init(fileNameSuffix: Constants.Components.Schemas.namespace, declaration: schemas),
-            .init(fileNameSuffix: Constants.Components.Parameters.namespace, declaration: parameters),
-            .init(fileNameSuffix: Constants.Components.RequestBodies.namespace, declaration: requestBodies),
-            .init(fileNameSuffix: Constants.Components.Responses.namespace, declaration: responses),
-            .init(fileNameSuffix: Constants.Components.Headers.namespace, declaration: headers),
+            .init(outputFile: .typesComponentsSchemas, declaration: schemas),
+            .init(outputFile: .typesComponentsParameters, declaration: parameters),
+            .init(outputFile: .typesComponentsRequestBodies, declaration: requestBodies),
+            .init(outputFile: .typesComponentsResponses, declaration: responses),
+            .init(outputFile: .typesComponentsHeaders, declaration: headers),
         ]
     }
 }

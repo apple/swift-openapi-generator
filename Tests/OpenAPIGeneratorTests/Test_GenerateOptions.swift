@@ -80,11 +80,11 @@ final class Test_GenerateOptions: XCTestCase {
         )
 
         for outputFileName in GeneratorMode.allOutputFileNames {
-            let outputURL = temporaryDirectory.appendingPathComponent(outputFileName)
+            let outputURL = temporaryDirectory.appendingPathComponent(outputFileName.rawValue)
             XCTAssertTrue(FileManager.default.fileExists(atPath: outputURL.path), "Missing \(outputFileName)")
         }
-        for outputFileName in GeneratorMode.types.outputFileNames + GeneratorMode.server.outputFileNames {
-            let outputURL = temporaryDirectory.appendingPathComponent(outputFileName)
+        for outputFileName in GeneratorMode.types.outputFileNames.union(GeneratorMode.server.outputFileNames) {
+            let outputURL = temporaryDirectory.appendingPathComponent(outputFileName.rawValue)
             XCTAssertEqual(try Data(contentsOf: outputURL), Data(), "Expected empty \(outputFileName)")
         }
         XCTAssertFalse(try Data(contentsOf: temporaryDirectory.appendingPathComponent("Client.swift")).isEmpty)
@@ -179,14 +179,5 @@ final class Test_GenerateOptions: XCTestCase {
             )
         } catch { XCTFail("Expected ArgumentParser.ValidationError, but got: \(type(of: error)) - \(error)") }
     }
-
     #endif
-
-    private func makeTemporaryConfig(_ contents: String) throws -> URL {
-        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
-        let configURL = tempDir.appendingPathComponent("openapi-generator-config.yaml")
-        try contents.write(to: configURL, atomically: true, encoding: .utf8)
-        return configURL
-    }
 }

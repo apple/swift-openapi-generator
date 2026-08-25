@@ -31,23 +31,22 @@ final class Test_Config: Test_Core {
         XCTAssertEqual(config.additionalFileComments, [])
     }
 
-    func testGeneratorModeOutputFileNameHelper() {
-        XCTAssertEqual(GeneratorMode.outputFileName("Types"), "Types.swift")
-        XCTAssertEqual(GeneratorMode.outputFileName("Types.swift", "Components"), "Types+Components.swift")
-        XCTAssertEqual(GeneratorMode.outputFileName("Types.swift", "Operations.swift"), "Types+Operations.swift")
+    func testOutputFileNameRawValues() {
+        XCTAssertEqual(OutputFileName.types.rawValue, "Types.swift")
+        XCTAssertEqual(OutputFileName.typesComponents.rawValue, "Types+Components.swift")
+        XCTAssertEqual(OutputFileName.typesOperations.rawValue, "Types+Operations.swift")
     }
 
     func testGeneratorModeOutputFileNames() {
         XCTAssertEqual(
             GeneratorMode.types.outputFileNames,
-            [
-                "Types.swift", "Types+Components.swift", "Types+Operations.swift", "Types+Components+Schemas.swift",
-                "Types+Components+Parameters.swift", "Types+Components+RequestBodies.swift",
-                "Types+Components+Responses.swift", "Types+Components+Headers.swift",
-            ]
+            Set([
+                .types, .typesComponents, .typesOperations, .typesComponentsSchemas, .typesComponentsParameters,
+                .typesComponentsRequestBodies, .typesComponentsResponses, .typesComponentsHeaders,
+            ])
         )
-        XCTAssertEqual(GeneratorMode.client.outputFileNames, ["Client.swift"])
-        XCTAssertEqual(GeneratorMode.server.outputFileNames, ["Server.swift"])
-        XCTAssertEqual(GeneratorMode.allOutputFileNames, GeneratorMode.allCases.flatMap(\.outputFileNames))
+        XCTAssertEqual(GeneratorMode.client.outputFileNames, [.client])
+        XCTAssertEqual(GeneratorMode.server.outputFileNames, [.server])
+        XCTAssertEqual(GeneratorMode.allOutputFileNames, Set(OutputFileName.allCases))
     }
 }

@@ -48,7 +48,6 @@ struct _GenerateOptions: ParsableArguments {
     @Option(
         help: "When specified, writes out the diagnostics into a YAML file instead of emitting them to standard error."
     ) var diagnosticsOutputPath: URL?
-
 }
 
 extension AccessModifier: ExpressibleByArgument {}

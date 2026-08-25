@@ -163,7 +163,7 @@ extension FileBasedReferenceTests {
         return _OpenAPIGeneratorCore.makeGeneratorPipeline(
             parser: parser,
             translator: translator,
-            renderer: { TextBasedRenderer.default },
+            makeRenderer: { TextBasedRenderer.default },
             config: config,
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages)
         )

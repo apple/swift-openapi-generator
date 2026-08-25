@@ -90,7 +90,7 @@ public func runGenerator(input: InMemoryInputFile, config: Config, diagnostics: 
 ///   - parser: An OpenAPI document parser.
 ///   - validator: A validator for parsed OpenAPI documents.
 ///   - translator: A translator from OpenAPI to Swift.
-///   - renderer: A Swift code renderer.
+///   - makeRenderer: Creates a Swift code renderer.
 ///   - config: A set of configuration values for the generator.
 ///   - diagnostics: A collector to which the generator emits diagnostics.
 /// - Returns: A configured generator pipeline that can be executed with
@@ -99,7 +99,7 @@ func makeGeneratorPipeline(
     parser: any ParserProtocol = YamsParser(),
     validator: @escaping (ParsedOpenAPIRepresentation, Config) throws -> [Diagnostic] = validateDoc,
     translator: any TranslatorProtocol = MultiplexTranslator(),
-    renderer: @escaping () -> any RendererProtocol = { TextBasedRenderer.default },
+    makeRenderer: @escaping () -> any RendererProtocol = { TextBasedRenderer.default },
     config: Config,
     diagnostics: any DiagnosticCollector
 ) -> GeneratorPipeline {
@@ -130,7 +130,7 @@ func makeGeneratorPipeline(
             preTransitionHooks: [],
             transition: { input in
                 try input.files.map { namedFile in
-                    try renderer().render(namedFile: namedFile, config: config, diagnostics: diagnostics)
+                    try makeRenderer().render(namedFile: namedFile, config: config, diagnostics: diagnostics)
                 }
             },
             postTransitionHooks: []
