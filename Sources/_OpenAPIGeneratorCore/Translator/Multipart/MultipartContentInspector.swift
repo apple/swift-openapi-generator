@@ -139,6 +139,7 @@ extension FileTranslator {
                     typeName: typeName,
                     partInfo: info,
                     schema: resolvedSchema,
+                    originalSchema: value,
                     headers: partEncoding?.headers
                 )
             )

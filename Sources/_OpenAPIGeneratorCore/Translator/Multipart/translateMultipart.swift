@@ -37,7 +37,8 @@ extension TypesFileTranslator {
         typeName: TypeName,
         headers headerMap: OpenAPI.Header.Map?,
         contentType: ContentType,
-        schema: JSONSchema
+        schema: JSONSchema,
+        originalSchema: JSONSchema
     ) throws -> Declaration {
         let headersTypeName = typeName.appending(
             swiftComponent: Constants.Operation.Output.Payload.Headers.typeName,
@@ -98,7 +99,8 @@ extension TypesFileTranslator {
                 access: config.access,
                 typeName: typeName,
                 conformances: Constants.Operation.Output.Payload.conformances,
-                properties: [headersProperty, bodyProperty].compactMap { $0 }
+                properties: [headersProperty, bodyProperty].compactMap { $0 },
+                initializerContext: .multipartPayload(originalSchema: originalSchema)
             )
         )
         return .commentable(typeName.docCommentWithUserDescription(nil), structDecl)
@@ -144,7 +146,8 @@ extension TypesFileTranslator {
                     typeName: documentedPart.typeName,
                     headers: documentedPart.headers,
                     contentType: documentedPart.partInfo.contentType,
-                    schema: documentedPart.schema
+                    schema: documentedPart.schema,
+                    originalSchema: documentedPart.originalSchema
                 )
                 return [decl, caseDecl]
             case .otherDynamicallyNamed(let dynamicallyNamedPart):

@@ -32,26 +32,33 @@ struct MultipartContent {
 /// A container of information about an individual multipart part.
 enum MultipartSchemaTypedContent {
 
-    /// The associated data with the `documentedTyped` case.
-    struct DocumentedTypeInfo {
+    /// A part that has a statically known name and type.
+    struct DocumentedMultipartPart {
 
-        /// The original name of the case from the OpenAPI document.
+        /// The name of the part as specified in the OpenAPI document.
         var originalName: String
 
-        /// The type name of the part wrapper.
+        /// The Swift type name that represents the part.
         var typeName: TypeName
 
-        /// Information about the kind of the part.
+        /// Information about the part's kind, content type, etc.
         var partInfo: MultipartPartInfo
 
-        /// The value schema of the part defined in the OpenAPI document.
+        /// The schema of the part.
+        ///
+        /// This schema might have been transformed by the `MultipartContentInspector`
+        /// (e.g., an integer might become a string with binary encoding).
         var schema: JSONSchema
 
-        /// The headers defined for the part in the OpenAPI document.
+        /// The original schema of the part, before any transformation by `MultipartContentInspector`.
+        var originalSchema: JSONSchema
+
+        /// The headers of the part.
         var headers: OpenAPI.Header.Map?
     }
-    /// A documented part with a name specified in the OpenAPI document.
-    case documentedTyped(DocumentedTypeInfo)
+
+    /// A documented part with a statically known name and type.
+    case documentedTyped(DocumentedMultipartPart)
 
     /// The associated data with the `otherDynamicallyNamed` case.
     struct OtherDynamicallyNamedInfo {
