@@ -23,7 +23,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/swift-openapi-vapor", from: "1.0.0"),
         .package(url: "https://github.com/vapor/vapor", from: "4.89.0"),
         .package(url: "https://github.com/apple/swift-metrics", from: "2.4.1"),
-        .package(url: "https://github.com/swift-server/swift-prometheus", from: "2.0.0"),
+        .package(url: "https://github.com/swift-server/swift-prometheus", from: "2.2.0"),
     ],
     targets: [
         .target(
