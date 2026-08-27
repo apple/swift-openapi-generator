@@ -121,7 +121,7 @@ Types generation emits a fixed set of files organized by generated namespace:
 - `Types+Components+Responses.swift`
 - `Types+Components+Headers.swift`
 
-> Important: The number and names of generated files are _not_ considered to be stable, and can change at any time. For details, check out <doc:api-stability-of-the-generator>.
+> Important: The number and names of generated files are _not_ considered to be stable, and can change at any time. For details, check out <doc:API-stability-of-the-generator>.
 
 ### Document filtering
 
