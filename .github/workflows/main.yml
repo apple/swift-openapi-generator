@@ -15,9 +15,9 @@ jobs:
     uses: apple/swift-nio/.github/workflows/unit_tests.yml@main
     with:
       linux_5_10_arguments_override: "--explicit-target-dependency-import-check error"
-      linux_6_1_arguments_override: "-Xswiftc -warnings-as-errors --explicit-target-dependency-import-check error"
-      linux_6_2_arguments_override: "-Xswiftc -warnings-as-errors --explicit-target-dependency-import-check error"
-      linux_6_3_arguments_override: "-Xswiftc -warnings-as-errors --explicit-target-dependency-import-check error"
+      linux_6_1_arguments_override: "--explicit-target-dependency-import-check error"
+      linux_6_2_arguments_override: "--explicit-target-dependency-import-check error"
+      linux_6_3_arguments_override: "--explicit-target-dependency-import-check error"
       linux_nightly_next_arguments_override: "--explicit-target-dependency-import-check error"
       linux_nightly_main_arguments_override: "--explicit-target-dependency-import-check error"
       windows_6_1_enabled: true

@@ -1087,8 +1087,8 @@ struct NamedFileDescription: Equatable, Codable {
 /// A file with contents made up of structured Swift code.
 struct StructuredSwiftRepresentation: Equatable, Codable {
 
-    /// The contents of the file.
-    var file: NamedFileDescription
+    /// The contents of the files.
+    var files: [NamedFileDescription]
 }
 
 // MARK: - Conveniences

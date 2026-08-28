@@ -116,11 +116,11 @@ struct ClientFileTranslator: FileTranslator {
             )
         )
 
-        return StructuredSwiftRepresentation(
-            file: .init(
-                name: GeneratorMode.client.outputFileName,
+        return StructuredSwiftRepresentation(files: [
+            .init(
+                name: GeneratorMode.client.outputFileName.rawValue,
                 contents: .init(topComment: topComment, imports: imports, codeBlocks: [.declaration(clientStructDecl)])
             )
-        )
+        ])
     }
 }

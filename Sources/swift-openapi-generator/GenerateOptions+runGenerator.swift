@@ -67,7 +67,7 @@ extension _GenerateOptions {
                 .sorted(by: { $0.key < $1.key })
                 .map { "\"\($0.key)\"->\"\($0.value)\"" }.joined(separator: ", "))
             - Feature flags: \(resolvedFeatureFlags.isEmpty ? "<none>" : resolvedFeatureFlags.map(\.rawValue).joined(separator: ", "))
-            - Output file names: \(sortedModes.map(\.outputFileName).joined(separator: ", "))
+            - Output file names: \(sortedModes.flatMap { mode in OutputFileName.allCases.filter { mode.outputFileNames.contains($0) } }.map(\.rawValue).joined(separator: ", "))
             - Output directory: \(outputDirectory.path)
             - Diagnostics output path: \(diagnosticsOutputPath?.path ?? "<none - logs to stderr>")
             - Current directory: \(FileManager.default.currentDirectoryPath)

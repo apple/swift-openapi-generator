@@ -19,8 +19,8 @@ public import struct Foundation.URL
 public import struct Foundation.Data
 #endif
 
-/// An in-memory file that contains the generated Swift code.
-typealias RenderedSwiftRepresentation = InMemoryOutputFile
+/// In-memory output files emitted by rendering a generator pipeline run.
+typealias RenderedSwiftRepresentation = [InMemoryOutputFile]
 
 /// An in-memory input file that contains the raw data of an OpenAPI document.
 ///

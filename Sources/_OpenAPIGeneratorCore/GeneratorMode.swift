@@ -37,16 +37,29 @@ public enum GeneratorMode: String, Codable, CaseIterable, Sendable {
 extension GeneratorMode {
 
     /// The Swift file name including its file extension.
-    public var outputFileName: String {
+    public var outputFileName: OutputFileName {
         switch self {
-        case .types: return "Types.swift"
-        case .client: return "Client.swift"
-        case .server: return "Server.swift"
+        case .types: return .types
+        case .client: return .client
+        case .server: return .server
+        }
+    }
+
+    /// The Swift file names emitted for this generator mode.
+    public var outputFileNames: Set<OutputFileName> {
+        switch self {
+        case .types:
+            return [
+                .types, .typesComponents, .typesOperations, .typesComponentsSchemas, .typesComponentsParameters,
+                .typesComponentsRequestBodies, .typesComponentsResponses, .typesComponentsHeaders,
+            ]
+        case .client: return [.client]
+        case .server: return [.server]
         }
     }
 
     /// The Swift file names for all supported generator mode values.
-    public static var allOutputFileNames: [String] { GeneratorMode.allCases.map(\.outputFileName) }
+    public static var allOutputFileNames: Set<OutputFileName> { Set(OutputFileName.allCases) }
 
     /// Defines an order in which generators should be run.
     var order: Int {
@@ -61,4 +74,38 @@ extension GeneratorMode {
 extension GeneratorMode: Comparable {
     /// Compares modes based on their order.
     public static func < (lhs: GeneratorMode, rhs: GeneratorMode) -> Bool { lhs.order < rhs.order }
+}
+
+/// The name of a Swift file emitted by the generator.
+public enum OutputFileName: String, Hashable, CaseIterable, Sendable {
+
+    /// The generated root types file.
+    case types = "Types.swift"
+
+    /// The generated components namespace file.
+    case typesComponents = "Types+Components.swift"
+
+    /// The generated operations namespace file.
+    case typesOperations = "Types+Operations.swift"
+
+    /// The generated component schemas namespace file.
+    case typesComponentsSchemas = "Types+Components+Schemas.swift"
+
+    /// The generated component parameters namespace file.
+    case typesComponentsParameters = "Types+Components+Parameters.swift"
+
+    /// The generated component request bodies namespace file.
+    case typesComponentsRequestBodies = "Types+Components+RequestBodies.swift"
+
+    /// The generated component responses namespace file.
+    case typesComponentsResponses = "Types+Components+Responses.swift"
+
+    /// The generated component headers namespace file.
+    case typesComponentsHeaders = "Types+Components+Headers.swift"
+
+    /// The generated client file.
+    case client = "Client.swift"
+
+    /// The generated server file.
+    case server = "Server.swift"
 }

@@ -52,6 +52,44 @@ final class Test_GenerateOptions: XCTestCase {
         } catch { XCTFail("Expected to throw a Diagnostic `.error`, but threw a different error: \(error)") }
     }
 
+    func testBuildPluginWritesEveryDeclaredOutputForUnrequestedModes() async throws {
+        let temporaryDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: temporaryDirectory) }
+
+        let documentURL = temporaryDirectory.appendingPathComponent("openapi.yaml")
+        try Data(
+            """
+            openapi: "3.1.0"
+            info:
+              title: GreetingService
+              version: "1.0.0"
+            paths: {}
+            """
+            .utf8
+        )
+        .write(to: documentURL)
+
+        try await _Tool.runGenerator(
+            doc: documentURL,
+            configs: [Config(mode: .client, access: .internal, namingStrategy: .defensive)],
+            pluginSource: .build,
+            outputDirectory: temporaryDirectory,
+            isDryRun: false,
+            diagnostics: StdErrPrintingDiagnosticCollector()
+        )
+
+        for outputFileName in GeneratorMode.allOutputFileNames {
+            let outputURL = temporaryDirectory.appendingPathComponent(outputFileName.rawValue)
+            XCTAssertTrue(FileManager.default.fileExists(atPath: outputURL.path), "Missing \(outputFileName)")
+        }
+        for outputFileName in GeneratorMode.types.outputFileNames.union(GeneratorMode.server.outputFileNames) {
+            let outputURL = temporaryDirectory.appendingPathComponent(outputFileName.rawValue)
+            XCTAssertEqual(try Data(contentsOf: outputURL), Data(), "Expected empty \(outputFileName)")
+        }
+        XCTAssertFalse(try Data(contentsOf: temporaryDirectory.appendingPathComponent("Client.swift")).isEmpty)
+    }
+
     /// Tests that `handleFileOperation` correctly transforms file-not-found errors into user-friendly messages.
     /// This test verifies the error handling works correctly on both macOS and Linux.
     func testHandleFileOperation_FileNotFound() throws {

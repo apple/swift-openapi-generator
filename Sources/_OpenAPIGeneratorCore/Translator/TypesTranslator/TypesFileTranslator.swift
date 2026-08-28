@@ -43,20 +43,60 @@ struct TypesFileTranslator: FileTranslator {
         let serversDecl = translateServers(doc.servers)
 
         let multipartSchemaNames = try parseSchemaNamesUsedInMultipart(paths: doc.paths, components: doc.components)
-        let components = try translateComponents(doc.components, multipartSchemaNames: multipartSchemaNames)
+        let componentNamespaces = try translateComponentNamespaceDescriptions(
+            doc.components,
+            multipartSchemaNames: multipartSchemaNames
+        )
 
         let operationDescriptions = try OperationDescription.all(from: doc.paths, in: doc.components, context: context)
         let operations = try translateOperations(operationDescriptions)
 
-        let typesFile = FileDescription(
-            topComment: topComment,
-            imports: imports,
-            codeBlocks: [
-                .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl), components,
-                operations,
-            ]
+        let rootCodeBlocks: [CodeBlock] = [
+            .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl),
+        ]
+        let componentsRoot = CodeBlock.declaration(
+            .commentable(
+                .doc(
+                    """
+                    Types generated from the components section of the OpenAPI document.
+                    """
+                ),
+                .enum(.init(accessModifier: config.access, name: Constants.Components.namespace, members: []))
+            )
         )
-
-        return StructuredSwiftRepresentation(file: .init(name: GeneratorMode.types.outputFileName, contents: typesFile))
+        let componentNamespaceFiles: [NamedFileDescription] = componentNamespaces.map { namespace in
+            .init(
+                name: namespace.outputFile.rawValue,
+                contents: .init(
+                    topComment: topComment,
+                    imports: imports,
+                    codeBlocks: [
+                        .declaration(
+                            .extension(
+                                accessModifier: nil,
+                                onType: Constants.Components.namespace,
+                                declarations: [namespace.declaration]
+                            )
+                        )
+                    ]
+                )
+            )
+        }
+        return StructuredSwiftRepresentation(
+            files: [
+                .init(
+                    name: OutputFileName.types.rawValue,
+                    contents: .init(topComment: topComment, imports: imports, codeBlocks: rootCodeBlocks)
+                ),
+                .init(
+                    name: OutputFileName.typesComponents.rawValue,
+                    contents: .init(topComment: topComment, imports: imports, codeBlocks: [componentsRoot])
+                ),
+                .init(
+                    name: OutputFileName.typesOperations.rawValue,
+                    contents: .init(topComment: topComment, imports: imports, codeBlocks: [operations])
+                ),
+            ] + componentNamespaceFiles
+        )
     }
 }
