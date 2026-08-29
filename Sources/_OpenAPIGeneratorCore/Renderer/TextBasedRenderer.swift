@@ -83,6 +83,11 @@ final class StringCodeWriter {
     ///
     /// Safe to call repeatedly, it gets reset by `writeLine`.
     func nextLineAppendsToLastLine() { nextWriteAppendsToLastLine = true }
+
+    /// Appends the stored lines from another writer.
+    func appendLines(from other: StringCodeWriter) {
+        lines.append(contentsOf: other.lines)
+    }
 }
 
 /// A renderer that uses string interpolation and concatenation
@@ -98,7 +103,7 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     /// The underlying writer.
-    private let writer: StringCodeWriter
+    let writer: StringCodeWriter
 
     /// Creates a new empty renderer.
     static var `default`: TextBasedRenderer { .init(writer: StringCodeWriter()) }
@@ -108,14 +113,61 @@ struct TextBasedRenderer: RendererProtocol {
     /// Returns the current contents of the writer as a string.
     func renderedContents() -> String { writer.rendered() }
 
+    /// Filters out unused import declarations based on the rendered code body.
+    private static func filterUnusedImports(_ imports: [ImportDescription], in renderedBody: String) -> [ImportDescription] {
+        imports.compactMap { original in
+            if let moduleTypes = original.moduleTypes {
+                let filteredTypes = moduleTypes.filter { moduleType in
+                    let typeName = moduleType.split(separator: ".").last.map(String.init) ?? moduleType
+                    return containsIdentifier(typeName, in: renderedBody)
+                }
+                if filteredTypes.isEmpty {
+                    return nil
+                }
+                var modified = original
+                modified.moduleTypes = filteredTypes
+                return modified
+            }
+            return original
+        }
+    }
+
+    /// Checks whether the specified identifier appears as a standalone token in the given text.
+    private static func containsIdentifier(_ identifier: String, in text: String) -> Bool {
+        guard !text.isEmpty, !identifier.isEmpty else { return false }
+        var searchStartIndex = text.startIndex
+        while let range = text.range(of: identifier, range: searchStartIndex..<text.endIndex) {
+            let isPrecededByIdentifierChar = range.lowerBound > text.startIndex && {
+                let prev = text[text.index(before: range.lowerBound)]
+                return prev.isLetter || prev.isNumber || prev == "_"
+            }()
+            let isFollowedByIdentifierChar = range.upperBound < text.endIndex && {
+                let next = text[range.upperBound]
+                return next.isLetter || next.isNumber || next == "_"
+            }()
+            if !isPrecededByIdentifierChar && !isFollowedByIdentifierChar {
+                return true
+            }
+            searchStartIndex = range.upperBound
+        }
+        return false
+    }
+
     /// Renders the specified Swift file.
     func renderFile(_ description: FileDescription) {
         if let topComment = description.topComment { renderComment(topComment) }
-        if let imports = description.imports { renderImports(imports) }
+        let bodyWriter = StringCodeWriter()
+        let bodyRenderer = TextBasedRenderer(writer: bodyWriter)
         for codeBlock in description.codeBlocks {
-            renderCodeBlock(codeBlock)
-            writer.writeLine("")
+            bodyRenderer.renderCodeBlock(codeBlock)
+            bodyWriter.writeLine("")
         }
+        let renderedBody = bodyWriter.rendered()
+        if let imports = description.imports {
+            let filteredImports = Self.filterUnusedImports(imports, in: renderedBody)
+            renderImports(filteredImports)
+        }
+        writer.appendLines(from: bodyWriter)
     }
 
     /// Renders the specified comment.

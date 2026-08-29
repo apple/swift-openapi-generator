@@ -2,12 +2,8 @@
 @_spi(Generated) public import OpenAPIRuntime
 #if os(Linux)
 @preconcurrency public import struct Foundation.URL
-@preconcurrency public import struct Foundation.Data
-@preconcurrency public import struct Foundation.Date
 #else
 public import struct Foundation.URL
-public import struct Foundation.Data
-public import struct Foundation.Date
 #endif
 import HTTPTypes
 extension APIProtocol {

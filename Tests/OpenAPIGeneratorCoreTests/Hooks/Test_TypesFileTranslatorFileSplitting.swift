@@ -105,6 +105,19 @@ final class Test_TypesFileTranslatorFileSplitting: Test_Core {
         XCTAssertFalse(operationsSource.contains("protocol APIProtocol"))
     }
 
+    func testTypesFileWithoutServersDoesNotImportFoundationURL() throws {
+        let input = InMemoryInputFile(absolutePath: URL(string: "openapi.yaml")!, contents: Data(Self.source.utf8))
+        let diagnostics = AccumulatingDiagnosticCollector()
+        let outputs = try runGenerator(
+            input: input,
+            config: Config(mode: .types, access: .package, namingStrategy: .defensive),
+            diagnostics: diagnostics
+        )
+        let outputByName = Self.outputByName(outputs)
+        let rootSource = try XCTUnwrap(outputByName["Types.swift"])
+        XCTAssertFalse(rootSource.contains("Foundation.URL"))
+    }
+
     private static func outputByName(_ outputs: [InMemoryOutputFile]) -> [String: String] {
         Dictionary(
             uniqueKeysWithValues: outputs.map { output in
