@@ -1099,6 +1099,304 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasOneOfWithNull_singleRef() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              B:
+                type: object
+                required: [c]
+                properties:
+                  c:
+                    type: string
+              A:
+                type: object
+                required: [b]
+                properties:
+                  b:
+                    oneOf:
+                      - $ref: '#/components/schemas/B'
+                      - type: 'null'
+            """,
+            """
+            public enum Schemas {
+                public struct B: Codable, Hashable, Sendable {
+                    public var c: Swift.String
+                    public init(c: Swift.String) {
+                        self.c = c
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case c
+                    }
+                }
+                public struct A: Codable, Hashable, Sendable {
+                    @frozen public enum bPayload: Codable, Hashable, Sendable {
+                        case B(Components.Schemas.B)
+                        public init(from decoder: any Swift.Decoder) throws {
+                            var errors: [any Swift.Error] = []
+                            do {
+                                self = .B(try .init(from: decoder))
+                                return
+                            } catch {
+                                errors.append(error)
+                            }
+                            throw Swift.DecodingError.failedToDecodeOneOfSchema(
+                                type: Self.self,
+                                codingPath: decoder.codingPath,
+                                errors: errors
+                            )
+                        }
+                        public func encode(to encoder: any Swift.Encoder) throws {
+                            switch self {
+                            case let .B(value):
+                                try value.encode(to: encoder)
+                            }
+                        }
+                    }
+                    public var b: Components.Schemas.A.bPayload?
+                    public init(b: Components.Schemas.A.bPayload? = nil) {
+                        self.b = b
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case b
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasOneOfWithNull_multiRef() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              B1:
+                type: object
+                required: [c]
+                properties:
+                  c:
+                    type: string
+              B2:
+                type: object
+                required: [d]
+                properties:
+                  d:
+                    type: string
+              A:
+                type: object
+                required: [b]
+                properties:
+                  b:
+                    oneOf:
+                      - $ref: '#/components/schemas/B1'
+                      - $ref: '#/components/schemas/B2'
+                      - type: 'null'
+            """,
+            """
+            public enum Schemas {
+                public struct B1: Codable, Hashable, Sendable {
+                    public var c: Swift.String
+                    public init(c: Swift.String) {
+                        self.c = c
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case c
+                    }
+                }
+                public struct B2: Codable, Hashable, Sendable {
+                    public var d: Swift.String
+                    public init(d: Swift.String) {
+                        self.d = d
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case d
+                    }
+                }
+                public struct A: Codable, Hashable, Sendable {
+                    @frozen public enum bPayload: Codable, Hashable, Sendable {
+                        case B1(Components.Schemas.B1)
+                        case B2(Components.Schemas.B2)
+                        public init(from decoder: any Swift.Decoder) throws {
+                            var errors: [any Swift.Error] = []
+                            do {
+                                self = .B1(try .init(from: decoder))
+                                return
+                            } catch {
+                                errors.append(error)
+                            }
+                            do {
+                                self = .B2(try .init(from: decoder))
+                                return
+                            } catch {
+                                errors.append(error)
+                            }
+                            throw Swift.DecodingError.failedToDecodeOneOfSchema(
+                                type: Self.self,
+                                codingPath: decoder.codingPath,
+                                errors: errors
+                            )
+                        }
+                        public func encode(to encoder: any Swift.Encoder) throws {
+                            switch self {
+                            case let .B1(value):
+                                try value.encode(to: encoder)
+                            case let .B2(value):
+                                try value.encode(to: encoder)
+                            }
+                        }
+                    }
+                    public var b: Components.Schemas.A.bPayload?
+                    public init(b: Components.Schemas.A.bPayload? = nil) {
+                        self.b = b
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case b
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasAnyOfWithNull_singleRef() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              B:
+                type: object
+                required: [c]
+                properties:
+                  c:
+                    type: string
+              A:
+                type: object
+                required: [b]
+                properties:
+                  b:
+                    anyOf:
+                      - $ref: '#/components/schemas/B'
+                      - type: 'null'
+            """,
+            """
+            public enum Schemas {
+                public struct B: Codable, Hashable, Sendable {
+                    public var c: Swift.String
+                    public init(c: Swift.String) {
+                        self.c = c
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case c
+                    }
+                }
+                public struct A: Codable, Hashable, Sendable {
+                    public struct bPayload: Codable, Hashable, Sendable {
+                        public var value1: Components.Schemas.B?
+                        public init(value1: Components.Schemas.B? = nil) {
+                            self.value1 = value1
+                        }
+                        public init(from decoder: any Swift.Decoder) throws {
+                            var errors: [any Swift.Error] = []
+                            do {
+                                self.value1 = try .init(from: decoder)
+                            } catch {
+                                errors.append(error)
+                            }
+                            try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                                [
+                                    self.value1
+                                ],
+                                type: Self.self,
+                                codingPath: decoder.codingPath,
+                                errors: errors
+                            )
+                        }
+                        public func encode(to encoder: any Swift.Encoder) throws {
+                            try self.value1?.encode(to: encoder)
+                        }
+                    }
+                    public var b: Components.Schemas.A.bPayload?
+                    public init(b: Components.Schemas.A.bPayload? = nil) {
+                        self.b = b
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case b
+                    }
+                }
+            }
+            """
+        )
+    }
+
+    func testComponentsSchemasArrayWithNullableOneOfItems() throws {
+        try self.assertSchemasTranslation(
+            """
+            schemas:
+              B:
+                type: object
+                required: [c]
+                properties:
+                  c:
+                    type: string
+              A:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/B'
+                        - type: 'null'
+            """,
+            """
+            public enum Schemas {
+                public struct B: Codable, Hashable, Sendable {
+                    public var c: Swift.String
+                    public init(c: Swift.String) {
+                        self.c = c
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case c
+                    }
+                }
+                public struct A: Codable, Hashable, Sendable {
+                    @frozen public enum itemsPayloadPayload: Codable, Hashable, Sendable {
+                        case B(Components.Schemas.B)
+                        public init(from decoder: any Swift.Decoder) throws {
+                            var errors: [any Swift.Error] = []
+                            do {
+                                self = .B(try .init(from: decoder))
+                                return
+                            } catch {
+                                errors.append(error)
+                            }
+                            throw Swift.DecodingError.failedToDecodeOneOfSchema(
+                                type: Self.self,
+                                codingPath: decoder.codingPath,
+                                errors: errors
+                            )
+                        }
+                        public func encode(to encoder: any Swift.Encoder) throws {
+                            switch self {
+                            case let .B(value):
+                                try value.encode(to: encoder)
+                            }
+                        }
+                    }
+                    public typealias itemsPayload = [Components.Schemas.A.itemsPayloadPayload?]
+                    public var items: Components.Schemas.A.itemsPayload
+                    public init(items: Components.Schemas.A.itemsPayload) {
+                        self.items = items
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case items
+                    }
+                }
+            }
+            """
+        )
+    }
+
     func testComponentsSchemasOneOf_open_pattern() throws {
         try self.assertSchemasTranslation(
             """

@@ -109,4 +109,10 @@ extension JSONSchema {
 
     /// Returns a human-readable description of the schema.
     var prettyDescription: String { value.prettyDescription }
+
+    /// A Boolean value indicating whether the schema is the `null` type.
+    var isNullType: Bool {
+        if case .null = value { return true }
+        return false
+    }
 }

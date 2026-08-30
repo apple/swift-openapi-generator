@@ -40,6 +40,8 @@ extension TypesFileTranslator {
     func translateAllOrAnyOf(typeName: TypeName, openAPIDescription: String?, type: AllOrAnyOf, schemas: [JSONSchema])
         throws -> Declaration
     {
+        // A `null` branch only marks the composition as nullable, it has no member.
+        let schemas = schemas.filter { !$0.isNullType }
         let properties: [(property: PropertyBlueprint, isKeyValuePair: Bool)] = try schemas.enumerated()
             .map { index, schema in
                 let key = "value\(index+1)"
@@ -129,6 +131,8 @@ extension TypesFileTranslator {
         discriminator: OpenAPI.Discriminator?,
         schemas: [JSONSchema]
     ) throws -> Declaration {
+        // A `null` branch only marks the oneOf as nullable, it has no case.
+        let schemas = schemas.filter { !$0.isNullType }
         let cases: [(String, [String]?, Bool, Comment?, TypeUsage, [Declaration])]
         if let discriminator {
             // > When using the discriminator, inline schemas will not be considered.

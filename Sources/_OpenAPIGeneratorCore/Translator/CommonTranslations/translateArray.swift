@@ -58,7 +58,8 @@ extension TypesFileTranslator {
             .`typealias`(
                 accessModifier: config.access,
                 name: typeName.shortSwiftName,
-                existingType: .init(elementType.typeName.asUsage.asArray)
+                // Preserve the element's optionality, like builtin `[Element?]`.
+                existingType: .init(elementType.asArray)
             )
         )
         return inline + [arrayDecl]
