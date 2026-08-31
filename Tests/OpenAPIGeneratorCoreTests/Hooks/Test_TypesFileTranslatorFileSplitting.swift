@@ -170,6 +170,162 @@ final class Test_TypesFileTranslatorFileSplitting: Test_Core {
         }
     }
 
+    func testDependencyLayersMustBePositive() throws {
+        let input = InMemoryInputFile(absolutePath: URL(string: "openapi.yaml")!, contents: Data(Self.source.utf8))
+
+        for invalidCount in [0, -1] {
+            XCTAssertThrowsError(
+                try runGenerator(
+                    input: input,
+                    config: Config(
+                        mode: .types,
+                        access: .public,
+                        namingStrategy: .defensive,
+                        dependencyLayerCount: invalidCount
+                    ),
+                    diagnostics: AccumulatingDiagnosticCollector()
+                )
+            ) { error in
+                XCTAssertTrue(String(describing: error).contains("dependencyLayerCount to be greater than zero"))
+            }
+        }
+    }
+
+    func testShallowDependencyGraphDoesNotProduceEmptyLayerFiles() throws {
+        let input = InMemoryInputFile(absolutePath: URL(string: "openapi.yaml")!, contents: Data(Self.source.utf8))
+        let outputs = try runGenerator(
+            input: input,
+            config: Config(mode: .types, access: .public, namingStrategy: .defensive, dependencyLayerCount: 4),
+            diagnostics: AccumulatingDiagnosticCollector()
+        )
+
+        XCTAssertEqual(
+            outputs.map(\.baseName),
+            [
+                "Types.swift", "Types+Components.swift", "Types+Components+Schemas+Layer0.swift",
+                "Types+Operations+Layer0.swift",
+            ]
+        )
+        XCTAssertFalse(outputs.map(\.baseName).contains { $0.contains("Layer1") })
+    }
+
+    func testEmptySchemaGraphPlacesUnreferencedOperationsInLayerZero() throws {
+        let source = """
+            openapi: "3.1.0"
+            info:
+              title: NoSchemas
+              version: "1.0.0"
+            paths:
+              /health:
+                get:
+                  operationId: getHealth
+                  responses:
+                    "204":
+                      description: Healthy.
+            """
+        let input = InMemoryInputFile(absolutePath: URL(string: "openapi.yaml")!, contents: Data(source.utf8))
+        let outputs = try runGenerator(
+            input: input,
+            config: Config(mode: .types, access: .public, namingStrategy: .defensive, dependencyLayerCount: 3),
+            diagnostics: AccumulatingDiagnosticCollector()
+        )
+        let outputByName = Self.outputByName(outputs)
+
+        XCTAssertNil(outputByName["Types+Components+Schemas+Layer0.swift"])
+        XCTAssertTrue(try XCTUnwrap(outputByName["Types+Operations+Layer0.swift"]).contains("getHealth"))
+        XCTAssertFalse(outputs.map(\.baseName).contains { $0.contains("Layer1") })
+    }
+
+    func testDependencyLayersPlaceComponentsAndOperationsAtHighestReferencedLayer() throws {
+        let input = InMemoryInputFile(
+            absolutePath: URL(string: "openapi.yaml")!,
+            contents: Data(Self.dependencyLayerSource.utf8)
+        )
+        let diagnostics = AccumulatingDiagnosticCollector()
+        let outputs = try runGenerator(
+            input: input,
+            config: Config(mode: .types, access: .public, namingStrategy: .defensive, dependencyLayerCount: 4),
+            diagnostics: diagnostics
+        )
+        XCTAssertEqual(diagnostics.diagnostics.filter { $0.severity == .error }.count, 0)
+        let outputByName = Self.outputByName(outputs)
+
+        let lowestSchemas = try XCTUnwrap(outputByName["Types+Components+Schemas+Layer0.swift"])
+        XCTAssertTrue(lowestSchemas.contains("struct A"))
+        XCTAssertTrue(lowestSchemas.contains("struct B"))
+        XCTAssertTrue(try XCTUnwrap(outputByName["Types+Components+Schemas+Layer1.swift"]).contains("struct C"))
+        XCTAssertTrue(try XCTUnwrap(outputByName["Types+Components+Schemas+Layer2.swift"]).contains("struct D"))
+        let highestSchemas = try XCTUnwrap(outputByName["Types+Components+Schemas+Layer3.swift"])
+        XCTAssertTrue(highestSchemas.contains("struct HelperOwner"))
+
+        XCTAssertTrue(try XCTUnwrap(outputByName["Types+Components+Parameters+Layer2.swift"]).contains("HighParameter"))
+        XCTAssertTrue(
+            try XCTUnwrap(outputByName["Types+Components+RequestBodies+Layer2.swift"]).contains("HighRequest")
+        )
+        XCTAssertTrue(try XCTUnwrap(outputByName["Types+Components+Responses+Layer2.swift"]).contains("HighResponse"))
+        XCTAssertTrue(try XCTUnwrap(outputByName["Types+Components+Headers+Layer1.swift"]).contains("HighHeader"))
+        XCTAssertTrue(try XCTUnwrap(outputByName["Types+Operations+Layer0.swift"]).contains("getLow"))
+        XCTAssertTrue(try XCTUnwrap(outputByName["Types+Operations+Layer2.swift"]).contains("getHigh"))
+    }
+
+    func testDependencyLayersComposeWithDeclarationSplittingAndKeepSCCsTogether() throws {
+        let input = InMemoryInputFile(
+            absolutePath: URL(string: "openapi.yaml")!,
+            contents: Data(Self.dependencyLayerSource.utf8)
+        )
+        let config = Config(
+            mode: .types,
+            access: .public,
+            namingStrategy: .defensive,
+            maxDeclarationsPerFile: 1,
+            dependencyLayerCount: 2
+        )
+        let first = try runGenerator(input: input, config: config, diagnostics: AccumulatingDiagnosticCollector())
+        let second = try runGenerator(input: input, config: config, diagnostics: AccumulatingDiagnosticCollector())
+
+        XCTAssertEqual(first.map(\.baseName), second.map(\.baseName))
+        XCTAssertEqual(first.map(\.contents), second.map(\.contents))
+        XCTAssertTrue(first.map(\.baseName).contains("Types+Components+Schemas+Layer0+1.swift"))
+        XCTAssertTrue(first.map(\.baseName).contains("Types+Components+Schemas+Layer1+1.swift"))
+
+        let sources = first.map { String(decoding: $0.contents, as: UTF8.self) }
+        let mutualSource = try XCTUnwrap(sources.first { $0.contains("struct MutualOne") })
+        XCTAssertTrue(mutualSource.contains("struct MutualTwo"))
+        XCTAssertTrue(mutualSource.contains("Storage"), "Expected recursive boxing to remain applied within the SCC.")
+        XCTAssertFalse(sources.filter { $0.contains("struct MutualOne") || $0.contains("struct MutualTwo") }.count > 1)
+
+        let helperSource = try XCTUnwrap(sources.first { $0.contains("struct HelperOwner") })
+        XCTAssertTrue(helperSource.contains("struct detailPayload"))
+    }
+
+    func testDependencyLayersPreserveDuplicateGeneratedNameDiagnostic() throws {
+        let source = """
+            openapi: "3.1.0"
+            info:
+              title: DuplicateNames
+              version: "1.0.0"
+            paths: {}
+            components:
+              schemas:
+                NullTime:
+                  type: string
+                nullTime:
+                  type: string
+            """
+        let input = InMemoryInputFile(absolutePath: URL(string: "openapi.yaml")!, contents: Data(source.utf8))
+        let diagnostics = AccumulatingDiagnosticCollector()
+
+        _ = try runGenerator(
+            input: input,
+            config: Config(mode: .types, access: .public, namingStrategy: .idiomatic, dependencyLayerCount: 2),
+            diagnostics: diagnostics
+        )
+
+        XCTAssertEqual(diagnostics.diagnostics.count, 1)
+        XCTAssertTrue(diagnostics.diagnostics[0].description.contains("Multiple schemas"))
+        XCTAssertEqual(diagnostics.diagnostics[0].context, ["names": "'NullTime'"])
+    }
+
     private static func outputByName(_ outputs: [InMemoryOutputFile]) -> [String: String] {
         Dictionary(
             uniqueKeysWithValues: outputs.map { output in
@@ -241,5 +397,101 @@ final class Test_TypesFileTranslatorFileSplitting: Test_Core {
                 - id
             Role:
               type: string
+        """
+
+    private static let dependencyLayerSource = """
+        openapi: "3.1.0"
+        info:
+          title: DependencyLayers
+          version: "1.0.0"
+        paths:
+          /low:
+            get:
+              operationId: getLow
+              responses:
+                "200":
+                  description: Low.
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/A"
+          /high:
+            get:
+              operationId: getHigh
+              parameters:
+                - $ref: "#/components/parameters/HighParameter"
+              requestBody:
+                $ref: "#/components/requestBodies/HighRequest"
+              responses:
+                "200":
+                  $ref: "#/components/responses/HighResponse"
+        components:
+          schemas:
+            A:
+              type: object
+              properties:
+                value:
+                  type: string
+            B:
+              type: object
+              properties:
+                a:
+                  $ref: "#/components/schemas/A"
+            C:
+              type: object
+              properties:
+                b:
+                  $ref: "#/components/schemas/B"
+            D:
+              type: object
+              properties:
+                c:
+                  $ref: "#/components/schemas/C"
+            HelperOwner:
+              type: object
+              properties:
+                d:
+                  $ref: "#/components/schemas/D"
+                detail:
+                  type: object
+                  properties:
+                    value:
+                      type: string
+            MutualOne:
+              type: object
+              properties:
+                other:
+                  $ref: "#/components/schemas/MutualTwo"
+            MutualTwo:
+              type: object
+              properties:
+                other:
+                  $ref: "#/components/schemas/MutualOne"
+          parameters:
+            HighParameter:
+              name: high
+              in: query
+              schema:
+                $ref: "#/components/schemas/D"
+          headers:
+            HighHeader:
+              schema:
+                $ref: "#/components/schemas/C"
+          requestBodies:
+            HighRequest:
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/D"
+          responses:
+            HighResponse:
+              description: High.
+              headers:
+                X-High:
+                  $ref: "#/components/headers/HighHeader"
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/D"
         """
 }

@@ -43,9 +43,13 @@ extension _Tool {
         isDryRun: Bool,
         diagnostics: any DiagnosticCollector & Sendable
     ) async throws {
-        if pluginSource == .build, configs.contains(where: { $0.mode == .types && $0.maxDeclarationsPerFile != nil }) {
+        if pluginSource == .build,
+            configs.contains(where: {
+                $0.mode == .types && ($0.maxDeclarationsPerFile != nil || $0.dependencyLayerCount != nil)
+            })
+        {
             throw ValidationError(
-                "output.maxDeclarationsPerFile is not supported by the build-tool plugin because its generated output files must be declared before generation."
+                "Dynamic output splitting is not supported by the build-tool plugin because its generated output files must be declared before generation."
             )
         }
 

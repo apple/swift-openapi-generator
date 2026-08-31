@@ -105,7 +105,25 @@ final class Test_GenerateOptions: XCTestCase {
             XCTFail("Expected dynamic declaration splitting to be rejected by the build-tool plugin.")
         } catch let error as ArgumentParser.ValidationError {
             XCTAssertTrue(
-                String(describing: error).contains("maxDeclarationsPerFile is not supported by the build-tool plugin")
+                String(describing: error).contains("Dynamic output splitting is not supported by the build-tool plugin")
+            )
+        }
+    }
+
+    func testBuildPluginRejectsDependencyLayers() async throws {
+        do {
+            try await _Tool.runGenerator(
+                doc: URL(fileURLWithPath: "/unused/openapi.yaml"),
+                configs: [Config(mode: .types, access: .internal, namingStrategy: .defensive, dependencyLayerCount: 2)],
+                pluginSource: .build,
+                outputDirectory: FileManager.default.temporaryDirectory,
+                isDryRun: false,
+                diagnostics: StdErrPrintingDiagnosticCollector()
+            )
+            XCTFail("Expected dependency layers to be rejected by the build-tool plugin.")
+        } catch let error as ArgumentParser.ValidationError {
+            XCTAssertTrue(
+                String(describing: error).contains("Dynamic output splitting is not supported by the build-tool plugin")
             )
         }
     }
@@ -156,6 +174,48 @@ final class Test_GenerateOptions: XCTestCase {
         }
     }
 
+    func testDirectAndCommandPluginGenerationSupportDependencyLayers() async throws {
+        let temporaryDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: temporaryDirectory) }
+
+        let documentURL = temporaryDirectory.appendingPathComponent("openapi.yaml")
+        try Data(
+            """
+            openapi: "3.1.0"
+            info:
+              title: GreetingService
+              version: "1.0.0"
+            paths: {}
+            components:
+              schemas:
+                First:
+                  type: string
+            """
+            .utf8
+        )
+        .write(to: documentURL)
+
+        let invocations: [(name: String, pluginSource: PluginSource?)] = [("direct", nil), ("command", .command)]
+        for (name, pluginSource) in invocations {
+            let outputDirectory = temporaryDirectory.appendingPathComponent(name)
+            try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
+            try await _Tool.runGenerator(
+                doc: documentURL,
+                configs: [Config(mode: .types, access: .internal, namingStrategy: .defensive, dependencyLayerCount: 2)],
+                pluginSource: pluginSource,
+                outputDirectory: outputDirectory,
+                isDryRun: false,
+                diagnostics: StdErrPrintingDiagnosticCollector()
+            )
+            XCTAssertTrue(
+                FileManager.default.fileExists(
+                    atPath: outputDirectory.appendingPathComponent("Types+Components+Schemas+Layer0.swift").path
+                )
+            )
+        }
+    }
+
     func testLoadsMaximumDeclarationsPerFileFromConfig() throws {
         let configURL = try makeTemporaryConfig(
             """
@@ -171,6 +231,25 @@ final class Test_GenerateOptions: XCTestCase {
         let config = try XCTUnwrap(options.loadedConfig())
 
         XCTAssertEqual(config.output?.maxDeclarationsPerFile, 100)
+    }
+
+    func testLoadsComposableDependencyLayerConfiguration() throws {
+        let configURL = try makeTemporaryConfig(
+            """
+            generate:
+              - types
+            output:
+              maxDeclarationsPerFile: 100
+              dependencyLayerCount: 4
+            """
+        )
+        defer { try? FileManager.default.removeItem(at: configURL.deletingLastPathComponent()) }
+
+        let options = try _GenerateOptions.parse(["openapi.yaml", "--config", configURL.path])
+        let config = try XCTUnwrap(options.loadedConfig())
+
+        XCTAssertEqual(config.output?.maxDeclarationsPerFile, 100)
+        XCTAssertEqual(config.output?.dependencyLayerCount, 4)
     }
 
     func testRejectsNonPositiveMaximumDeclarationsPerFileFromConfig() async throws {
@@ -195,6 +274,32 @@ final class Test_GenerateOptions: XCTestCase {
                 XCTFail("Expected output.maxDeclarationsPerFile=\(invalidLimit) to be rejected.")
             } catch let error as ArgumentParser.ValidationError {
                 XCTAssertTrue(String(describing: error).contains("maxDeclarationsPerFile to be greater than zero"))
+            }
+        }
+    }
+
+    func testRejectsNonPositiveDependencyLayerCountFromConfig() async throws {
+        for invalidCount in [0, -1] {
+            let configURL = try makeTemporaryConfig(
+                """
+                generate:
+                  - types
+                output:
+                  dependencyLayerCount: \(invalidCount)
+                """
+            )
+            defer { try? FileManager.default.removeItem(at: configURL.deletingLastPathComponent()) }
+
+            let options = try _GenerateOptions.parse(["unused-openapi.yaml", "--config", configURL.path])
+            do {
+                try await options.runGenerator(
+                    outputDirectory: FileManager.default.temporaryDirectory,
+                    pluginSource: nil,
+                    isDryRun: true
+                )
+                XCTFail("Expected output.dependencyLayerCount=\(invalidCount) to be rejected.")
+            } catch let error as ArgumentParser.ValidationError {
+                XCTAssertTrue(String(describing: error).contains("dependencyLayerCount to be greater than zero"))
             }
         }
     }

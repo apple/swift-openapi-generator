@@ -80,5 +80,8 @@ struct _UserConfig: Codable {
     struct Output: Codable {
         /// The maximum number of declarations emitted in each split types namespace file.
         var maxDeclarationsPerFile: Int?
+
+        /// The maximum number of dependency-ordered layers emitted for generated types.
+        var dependencyLayerCount: Int?
     }
 }

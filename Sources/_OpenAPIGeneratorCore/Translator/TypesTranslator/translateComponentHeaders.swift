@@ -22,6 +22,18 @@ extension TypesFileTranslator {
     /// - Throws: An error if there's an issue during translation or header processing.
     func translateComponentHeaders(_ headers: OpenAPI.ComponentDictionary<OpenAPI.Header>) throws -> Declaration {
 
+        let decls = try translateComponentHeaderDeclarationGroups(headers).flatMap(\.declarations)
+
+        let componentsParametersEnum = Declaration.commentable(
+            OpenAPI.Header.sectionComment(),
+            .enum(accessModifier: config.access, name: Constants.Components.Headers.namespace, members: decls)
+        )
+        return componentsParametersEnum
+    }
+
+    func translateComponentHeaderDeclarationGroups(_ headers: OpenAPI.ComponentDictionary<OpenAPI.Header>) throws
+        -> [OwnedDeclarations]
+    {
         let typedHeaders: [(OpenAPI.ComponentKey, TypedResponseHeader)] = try headers.compactMap { key, header in
             let parent = typeAssigner.typeName(for: key, of: OpenAPI.Header.self)
             guard let value = try typedResponseHeader(from: .b(header), named: key.rawValue, inParent: parent) else {
@@ -29,14 +41,11 @@ extension TypesFileTranslator {
             }
             return (key, value)
         }
-        let decls: [Declaration] = try typedHeaders.flatMap { key, value in
-            try translateResponseHeaderInTypes(componentKey: key, header: value)
+        return try typedHeaders.map { key, value in
+            OwnedDeclarations(
+                owner: key.rawValue,
+                declarations: try translateResponseHeaderInTypes(componentKey: key, header: value)
+            )
         }
-
-        let componentsParametersEnum = Declaration.commentable(
-            OpenAPI.Header.sectionComment(),
-            .enum(accessModifier: config.access, name: Constants.Components.Headers.namespace, members: decls)
-        )
-        return componentsParametersEnum
     }
 }

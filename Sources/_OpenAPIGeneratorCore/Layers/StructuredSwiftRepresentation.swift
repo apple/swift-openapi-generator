@@ -1082,6 +1082,22 @@ struct NamedFileDescription: Equatable, Codable {
 
     /// The contents of the file.
     var contents: FileDescription
+
+    /// Internal information describing a dynamically generated file's role.
+    var metadata: GeneratedFileMetadata? = nil
+}
+
+/// Internal machine-readable information about a dynamically generated file.
+struct GeneratedFileMetadata: Equatable, Codable {
+
+    /// The generated namespace or root represented by the file.
+    var role: String
+
+    /// The zero-based dependency layer, when the file is dependency layered.
+    var dependencyLayer: Int?
+
+    /// The zero-based declaration chunk within the role and dependency layer.
+    var declarationChunk: Int?
 }
 
 /// A file with contents made up of structured Swift code.

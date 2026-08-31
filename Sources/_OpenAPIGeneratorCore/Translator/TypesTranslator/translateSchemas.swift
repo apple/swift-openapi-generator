@@ -15,6 +15,12 @@ import OpenAPIKit
 
 extension TypesFileTranslator {
 
+    /// A translated declaration group that must remain with its owning OpenAPI component.
+    struct OwnedDeclarations {
+        var owner: String
+        var declarations: [Declaration]
+    }
+
     /// Returns a list of declarations for the provided schema, defined in the
     /// OpenAPI document under the specified component key.
     ///
@@ -57,15 +63,11 @@ extension TypesFileTranslator {
         _ schemas: OpenAPI.ComponentDictionary<JSONSchema>,
         multipartSchemaNames: Set<OpenAPI.ComponentKey>
     ) throws -> Declaration {
-        let decls: [Declaration] = try schemas.flatMap { key, value in
-            try translateSchema(
-                componentKey: key,
-                schema: value,
-                isMultipartContent: multipartSchemaNames.contains(key)
-            )
-        }
-        try emitDuplicateTypeNameDiagnostic(in: decls)
-        let declsWithBoxingApplied = try boxRecursiveTypes(decls)
+        let declsWithBoxingApplied = try translateSchemaDeclarationGroups(
+            schemas,
+            multipartSchemaNames: multipartSchemaNames
+        )
+        .flatMap(\.declarations)
         let componentsSchemasEnum = Declaration.commentable(
             JSONSchema.sectionComment(),
             .enum(
@@ -75,6 +77,39 @@ extension TypesFileTranslator {
             )
         )
         return componentsSchemasEnum
+    }
+
+    /// Translates schemas while preserving which declarations belong to each schema.
+    func translateSchemaDeclarationGroups(
+        _ schemas: OpenAPI.ComponentDictionary<JSONSchema>,
+        multipartSchemaNames: Set<OpenAPI.ComponentKey>
+    ) throws -> [OwnedDeclarations] {
+        let groups = try schemas.map { key, value in
+            OwnedDeclarations(
+                owner: key.rawValue,
+                declarations: try translateSchema(
+                    componentKey: key,
+                    schema: value,
+                    isMultipartContent: multipartSchemaNames.contains(key)
+                )
+            )
+        }
+        let declarations = groups.flatMap(\.declarations)
+        try emitDuplicateTypeNameDiagnostic(in: declarations)
+        let boxedDeclarations = try boxRecursiveTypes(declarations)
+        precondition(
+            boxedDeclarations.count == declarations.count,
+            "Recursive boxing must preserve the number and ownership of top-level declarations."
+        )
+
+        var nextDeclaration = 0
+        return groups.map { group in
+            defer { nextDeclaration += group.declarations.count }
+            return OwnedDeclarations(
+                owner: group.owner,
+                declarations: Array(boxedDeclarations[nextDeclaration..<(nextDeclaration + group.declarations.count)])
+            )
+        }
     }
 
     /// Emits an error when multiple top-level schema declarations have the same generated Swift type name.

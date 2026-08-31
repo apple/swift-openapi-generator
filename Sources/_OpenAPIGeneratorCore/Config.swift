@@ -70,6 +70,9 @@ public struct Config: Sendable {
     /// The maximum number of declarations emitted in each split namespace file.
     public var maxDeclarationsPerFile: Int?
 
+    /// The maximum number of dependency-ordered layers emitted for generated types.
+    public var dependencyLayerCount: Int?
+
     /// Creates a configuration with the specified generator mode and imports.
     /// - Parameters:
     ///   - mode: The mode to use for generation.
@@ -84,6 +87,7 @@ public struct Config: Sendable {
     ///   - typeOverrides: A map of OpenAPI schema names to desired custom type names.
     ///   - featureFlags: Additional pre-release features to enable.
     ///   - maxDeclarationsPerFile: The maximum number of declarations emitted in each split namespace file.
+    ///   - dependencyLayerCount: The maximum number of dependency-ordered layers emitted for generated types.
     public init(
         mode: GeneratorMode,
         access: AccessModifier,
@@ -94,7 +98,8 @@ public struct Config: Sendable {
         nameOverrides: [String: String] = [:],
         typeOverrides: TypeOverrides = .init(),
         featureFlags: FeatureFlags = [],
-        maxDeclarationsPerFile: Int? = nil
+        maxDeclarationsPerFile: Int? = nil,
+        dependencyLayerCount: Int? = nil
     ) {
         self.mode = mode
         self.access = access
@@ -106,5 +111,6 @@ public struct Config: Sendable {
         self.typeOverrides = typeOverrides
         self.featureFlags = featureFlags
         self.maxDeclarationsPerFile = maxDeclarationsPerFile
+        self.dependencyLayerCount = dependencyLayerCount
     }
 }

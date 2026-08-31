@@ -24,19 +24,28 @@ extension TypesFileTranslator {
         -> Declaration
     {
 
-        let typedParameters: [(OpenAPI.ComponentKey, TypedParameter)] = try parameters.compactMap { key, parameter in
-            let parent = typeAssigner.typeName(for: key, of: OpenAPI.Parameter.self)
-            guard let value = try parseAsTypedParameter(from: .b(parameter), inParent: parent) else { return nil }
-            return (key, value)
-        }
-        let decls: [Declaration] = try typedParameters.flatMap { key, value in
-            try translateParameterInTypes(componentKey: key, parameter: value)
-        }
+        let decls = try translateComponentParameterDeclarationGroups(parameters).flatMap(\.declarations)
 
         let componentsParametersEnum = Declaration.commentable(
             OpenAPI.Parameter.sectionComment(),
             .enum(accessModifier: config.access, name: Constants.Components.Parameters.namespace, members: decls)
         )
         return componentsParametersEnum
+    }
+
+    func translateComponentParameterDeclarationGroups(_ parameters: OpenAPI.ComponentDictionary<OpenAPI.Parameter>)
+        throws -> [OwnedDeclarations]
+    {
+        let typedParameters: [(OpenAPI.ComponentKey, TypedParameter)] = try parameters.compactMap { key, parameter in
+            let parent = typeAssigner.typeName(for: key, of: OpenAPI.Parameter.self)
+            guard let value = try parseAsTypedParameter(from: .b(parameter), inParent: parent) else { return nil }
+            return (key, value)
+        }
+        return try typedParameters.map { key, value in
+            OwnedDeclarations(
+                owner: key.rawValue,
+                declarations: try translateParameterInTypes(componentKey: key, parameter: value)
+            )
+        }
     }
 }

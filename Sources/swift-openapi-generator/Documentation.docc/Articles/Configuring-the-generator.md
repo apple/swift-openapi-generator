@@ -50,6 +50,7 @@ The configuration file has the following keys:
 - `featureFlags` (optional): array of strings. Each string must be a valid feature flag to enable. For a list of currently supported feature flags, check out [FeatureFlags.swift](https://github.com/apple/swift-openapi-generator/blob/main/Sources/_OpenAPIGeneratorCore/FeatureFlags.swift).
 - `output` (optional): Controls the generated source-file layout.
     - `maxDeclarationsPerFile` (optional): A positive integer that limits the number of declarations in each split types namespace file.
+    - `dependencyLayerCount` (optional): A positive integer that limits the number of dependency-ordered layers in the generated types files.
 
 ### Example config files
 
@@ -148,9 +149,35 @@ For example, a `Schemas` namespace with 250 declarations keeps its first 100 dec
 - `Types+Components+Schemas+1.swift`
 - `Types+Components+Schemas+2.swift`
 
-The build-tool plugin does not support `maxDeclarationsPerFile` because the number of generated files depends on the
-input document, while build commands must declare their outputs before running the generator. Supporting this option
-there requires migrating the plugin to a prebuild command.
+The command-line tool and command plugin can also group generated types into dependency-ordered layers:
+
+```yaml
+generate:
+  - types
+output:
+  dependencyLayerCount: 4
+  maxDeclarationsPerFile: 100
+```
+
+Schemas that mutually reference each other remain in one strongly connected group. The generator puts schemas with
+no dependencies in layer 0, then puts dependents in later layers so a generated declaration only references schemas
+in its own or an earlier layer. Reusable parameters, headers, request bodies, and responses retain their existing
+`Components` namespace and are assigned to the highest schema layer they reference. Operations are assigned using the
+same rule.
+
+The configured value is a maximum. If the schema graph is shallower, the generator does not emit empty layers. If the
+graph is deeper, contiguous natural graph depths are folded proportionally into the requested count without changing
+dependency order. Layered files use names such as `Types+Components+Schemas+Layer0.swift` and
+`Types+Operations+Layer2.swift`.
+
+When both output options are present, dependency grouping happens first and `maxDeclarationsPerFile` is applied to
+each namespace layer independently. Schema-owned declaration groups and mutually recursive groups are not split, so
+a single indivisible group can exceed the configured declaration maximum. Additional chunks append the existing
+numeric suffix, for example `Types+Components+Schemas+Layer2+1.swift`.
+
+The build-tool plugin does not support either dynamic output option because the number of generated files depends on
+the input document, while build commands must declare their outputs before running the generator. Supporting these
+options there requires migrating the plugin to a prebuild command.
 
 ### Document filtering
 
