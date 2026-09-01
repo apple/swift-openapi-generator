@@ -95,17 +95,13 @@ struct TypeAssigner {
             // JSONSchema.reference so we flatten the value before inspecting
             // it:
             let unboxedSchema = schema.flattenToJsonSchema()
-            switch unboxedSchema.value {
-            case let .reference(reference, _): associatedType = try typeName(for: reference).asUsage
-            default:
-                associatedType = try _typeUsage(
-                    forPotentiallyInlinedValueNamed: hint,
-                    withSchema: unboxedSchema,
-                    components: components,
-                    inParent: parent,
-                    subtype: .appendScope
-                )
-            }
+            associatedType = try _typeUsage(
+                forPotentiallyInlinedValueNamed: hint,
+                withSchema: unboxedSchema,
+                components: components,
+                inParent: parent,
+                subtype: .appendScope
+            )
         } else {
             associatedType = nil
         }
