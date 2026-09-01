@@ -69,6 +69,9 @@ struct TypeMatcher {
             for: schema.value,
             test: { (schema) -> TypeUsage? in
                 if let builtinType = _tryMatchBuiltinNonRecursive(for: schema) { return builtinType }
+                if case let .any(of: schemas, _) = schema, let reference = nullableReference(in: schemas) {
+                    return try TypeAssigner(context: context).typeName(for: reference).asUsage.asOptional
+                }
                 guard case let .reference(ref, _) = schema else { return nil }
                 return try TypeAssigner(context: context).typeName(for: ref).asUsage
             },
@@ -94,6 +97,7 @@ struct TypeMatcher {
             for: schema.value,
             test: { schema in
                 if _tryMatchBuiltinNonRecursive(for: schema) != nil { return true }
+                if case let .any(of: schemas, _) = schema, nullableReference(in: schemas) != nil { return true }
                 guard case .reference = schema else { return false }
                 return true
             },
@@ -253,6 +257,7 @@ struct TypeMatcher {
     /// - Returns: `true` if the schema is optional, `false` otherwise.
     func isOptional(_ schema: JSONSchema, components: OpenAPI.Components) throws -> Bool {
         if schema.nullable || !schema.required { return true }
+        if case let .any(of: schemas, _) = schema.value, nullableReference(in: schemas) != nil { return true }
         guard case .reference(let ref, _) = schema.value else { return false }
         let targetSchema = try components.assumeLookupOnce(ref)
         return try isOptional(targetSchema, components: components)
@@ -275,6 +280,24 @@ struct TypeMatcher {
             return try isOptional(targetSchema, components: components)
         case .b(let schema): return try isOptional(schema, components: components)
         }
+    }
+
+    private func nullableReference(in schemas: [JSONSchema]) -> JSONReference<JSONSchema>? {
+        guard schemas.count == 2 else { return nil }
+        var reference: JSONReference<JSONSchema>?
+        var containsNull = false
+        for schema in schemas {
+            switch schema.value {
+            case let .reference(ref, _):
+                guard reference == nil else { return nil }
+                reference = ref
+            case .null:
+                guard !containsNull else { return nil }
+                containsNull = true
+            default: return nil
+            }
+        }
+        return containsNull ? reference : nil
     }
 
     // MARK: - Private
