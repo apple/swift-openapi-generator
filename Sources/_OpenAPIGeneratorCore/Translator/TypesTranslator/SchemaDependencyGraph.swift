@@ -123,6 +123,47 @@ struct SchemaDependencyGraph {
         return references
     }
 
+    /// Returns direct reusable-component references used by a response.
+    static func componentReferences(in response: OpenAPI.Response) -> Set<String> {
+        Set(
+            (response.headers ?? [:]).values
+                .compactMap { unresolvedHeader in
+                    guard case .a(let reference) = unresolvedHeader, let name = componentReferenceName(reference) else {
+                        return nil
+                    }
+                    return "header:\(name)"
+                }
+        )
+    }
+
+    /// Returns direct reusable-component references used by an operation and its path-level parameters.
+    static func componentReferences(in description: OperationDescription) -> Set<String> {
+        var references: Set<String> = []
+        for unresolvedParameter in description.pathParameters + description.operation.parameters {
+            if case .a(let reference) = unresolvedParameter, let name = componentReferenceName(reference) {
+                references.insert("parameter:\(name)")
+            }
+        }
+        if let unresolvedRequest = description.operation.requestBody, case .a(let reference) = unresolvedRequest,
+            let name = componentReferenceName(reference)
+        {
+            references.insert("requestBody:\(name)")
+        }
+        for (_, unresolvedResponse) in description.operation.responses {
+            if case .a(let reference) = unresolvedResponse, let name = componentReferenceName(reference) {
+                references.insert("response:\(name)")
+            }
+        }
+        return references
+    }
+
+    private static func componentReferenceName<Component>(_ reference: OpenAPI.Reference<Component>) -> String? {
+        guard case .internal(let internalReference) = reference.jsonReference,
+            case .component(name: let name) = internalReference
+        else { return nil }
+        return name
+    }
+
     private static func resolve<Component: ComponentDictionaryLocatable>(
         _ unresolved: Either<OpenAPI.Reference<Component>, Component>,
         in components: OpenAPI.Components

@@ -19,6 +19,7 @@ import struct Foundation.URL
 import struct Foundation.Data
 #endif
 import class Foundation.FileManager
+import class Foundation.JSONEncoder
 import ArgumentParser
 import _OpenAPIGeneratorCore
 
@@ -32,6 +33,7 @@ extension _Tool {
     ///   the generated Swift files.
     ///   - isDryRun: A Boolean value that indicates whether this invocation should
     ///   be a dry run.
+    ///   - dependencyManifestFileName: The optional dependency manifest file name to write beside Swift outputs.
     ///   - diagnostics: A collector for diagnostics emitted by the generator.
     /// - Throws: An error if there are issues loading the OpenAPI document,
     ///  running the generator for each configuration, or handling diagnostics.
@@ -41,6 +43,7 @@ extension _Tool {
         pluginSource: PluginSource?,
         outputDirectory: URL,
         isDryRun: Bool,
+        dependencyManifestFileName: String? = nil,
         diagnostics: any DiagnosticCollector & Sendable
     ) async throws {
         if pluginSource == .build,
@@ -52,13 +55,18 @@ extension _Tool {
                 "Dynamic output splitting is not supported by the build-tool plugin because its generated output files must be declared before generation."
             )
         }
+        if pluginSource == .build, dependencyManifestFileName != nil {
+            throw ValidationError(
+                "Dependency manifests are not supported by the build-tool plugin because its output files must be declared before generation."
+            )
+        }
 
         let docData: Data
         do { docData = try Data(contentsOf: doc) } catch {
             throw ValidationError("Failed to load the OpenAPI document at path \(doc.path), error: \(error)")
         }
 
-        try await withThrowingTaskGroup(of: Void.self) { group in
+        let generatedOutputs = try await withThrowingTaskGroup(of: [InMemoryOutputFile].self) { group in
             for config in configs {
                 group.addTask {
                     try runGenerator(
@@ -71,7 +79,23 @@ extension _Tool {
                     )
                 }
             }
-            try await group.waitForAll()
+            var outputs: [InMemoryOutputFile] = []
+            for try await generated in group { outputs.append(contentsOf: generated) }
+            return outputs
+        }
+
+        if let dependencyManifestFileName {
+            let manifest = DependencyManifest.make(input: docData, outputs: generatedOutputs)
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+            var encoded = try encoder.encode(manifest)
+            encoded.append(Data("\n".utf8))
+            try replaceFileContents(
+                inDirectory: outputDirectory,
+                fileName: dependencyManifestFileName,
+                with: { encoded },
+                isDryRun: isDryRun
+            )
         }
 
         // If from a BuildTool plugin, the generator must emit every declared output
@@ -105,6 +129,7 @@ extension _Tool {
     ///   - diagnostics: A collector for diagnostics emitted by the generator.
     /// - Throws: An error if there are issues loading the OpenAPI document,
     ///  running the generator for each configuration, or handling diagnostics.
+    /// - Returns: The in-memory outputs that were written to disk.
     static func runGenerator(
         doc: URL,
         docData: Data,
@@ -112,7 +137,7 @@ extension _Tool {
         outputDirectory: URL,
         isDryRun: Bool,
         diagnostics: any DiagnosticCollector
-    ) throws {
+    ) throws -> [InMemoryOutputFile] {
         let outputs = try _OpenAPIGeneratorCore.runGenerator(
             input: .init(absolutePath: doc, contents: docData),
             config: config,
@@ -126,6 +151,7 @@ extension _Tool {
                 isDryRun: isDryRun
             )
         }
+        return outputs
     }
 
     /// Evaluates a closure to generate file data and writes the data to disk

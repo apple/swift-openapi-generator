@@ -51,6 +51,7 @@ The configuration file has the following keys:
 - `output` (optional): Controls the generated source-file layout.
     - `maxDeclarationsPerFile` (optional): A positive integer that limits the number of declarations in each split types namespace file.
     - `dependencyLayerCount` (optional): A positive integer that limits the number of dependency-ordered layers in the generated types files.
+    - `dependencyManifest` (optional): A JSON file name for a generator-owned dependency-planning manifest written beside the generated Swift files. Requires `types` generation and `dependencyLayerCount`.
 
 ### Example config files
 
@@ -157,6 +158,7 @@ generate:
 output:
   dependencyLayerCount: 4
   maxDeclarationsPerFile: 100
+  dependencyManifest: OpenAPIDependencyManifest.json
 ```
 
 Schemas that mutually reference each other remain in one strongly connected group. The generator puts schemas with
@@ -177,7 +179,37 @@ numeric suffix, for example `Types+Components+Schemas+Layer2+1.swift`.
 
 The build-tool plugin does not support either dynamic output option because the number of generated files depends on
 the input document, while build commands must declare their outputs before running the generator. Supporting these
-options there requires migrating the plugin to a prebuild command.
+options there requires migrating the plugin to a prebuild command. Dependency manifests are likewise unavailable from
+the build-tool plugin. Direct CLI generation and the command plugin support all three options.
+
+#### Dependency planning manifest
+
+When `dependencyManifest` is configured, the generator writes a deterministic, versioned JSON manifest from the same
+in-memory generation result used to write the Swift files. The manifest is additive: generation is unchanged when the
+option is absent. Its top-level fields are:
+
+- `formatVersion`: The manifest schema version, currently `1`.
+- `inputDigest`: A SHA-256 digest of the exact input OpenAPI document bytes.
+- `outputDigest`: A SHA-256 digest of the ordered generated Swift file names and contents.
+- `files`: The complete generated Swift output inventory, sorted by relative file path.
+
+Each file record includes its safe relative `path`, semantic `role`, optional generated `namespace`, optional
+`dependencyLayer` and `declarationChunk`, stable `moduleIdentity`, owned `declarations`, resolved
+`schemaDependencies`, and resolved reusable `componentDependencies`. Reusable-component identifiers use a typed form
+such as `parameter:cursor` or `response:listPets`. Schema identities derive from their sorted owned schema names, and
+operation identities derive from their operation IDs. These semantic identities do not derive from mutable layer or
+chunk numbers.
+
+The manifest deliberately does not include a consumer module prefix or Bazel target names; those are build-system
+policy rather than generator semantics. Consumers should map dependency names through the ownership records instead
+of parsing generated Swift or rebuilding the OpenAPI dependency graph. Unsupported or filtered declarations do not
+appear as owners. `Types.swift` owns the `Components` and `Operations` roots, while `Types+Components.swift` owns the
+nested reusable-component namespace roots. Strongly connected schema groups remain indivisible and share one owner
+file.
+
+The manifest does not remove stale outputs from earlier invocations and is not written atomically with the Swift
+files. A later pre-analysis integration can use the complete inventory and digests to implement scoped cleanup,
+atomic replacement, and action-time verification.
 
 ### Document filtering
 

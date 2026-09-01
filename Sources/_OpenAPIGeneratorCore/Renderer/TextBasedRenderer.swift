@@ -94,7 +94,11 @@ struct TextBasedRenderer: RendererProtocol {
     {
         renderFile(namedFile.contents)
         let string = writer.rendered()
-        return InMemoryOutputFile(baseName: namedFile.name, contents: Data(string.utf8))
+        return InMemoryOutputFile(
+            baseName: namedFile.name,
+            contents: Data(string.utf8),
+            metadata: namedFile.metadata?.rendered
+        )
     }
 
     /// The underlying writer.

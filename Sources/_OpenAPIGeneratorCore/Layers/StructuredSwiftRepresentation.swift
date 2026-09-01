@@ -12,6 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Foundation
+
 /// A description of an import declaration.
 ///
 /// For example: `import Foo`.
@@ -1098,6 +1100,66 @@ struct GeneratedFileMetadata: Equatable, Codable {
 
     /// The zero-based declaration chunk within the role and dependency layer.
     var declarationChunk: Int?
+
+    /// The generated namespace extended by the file, when applicable.
+    var namespace: String?
+
+    /// Semantic declaration identifiers owned by this file.
+    var declarations: [String]
+
+    /// Resolved reusable-schema names directly used by declarations in this file.
+    var schemaDependencies: [String]
+
+    /// Resolved reusable-component identifiers directly used by declarations in this file.
+    var componentDependencies: [String]
+
+    init(
+        role: String,
+        dependencyLayer: Int?,
+        declarationChunk: Int?,
+        namespace: String? = nil,
+        declarations: [String] = [],
+        schemaDependencies: [String] = [],
+        componentDependencies: [String] = []
+    ) {
+        self.role = role
+        self.dependencyLayer = dependencyLayer
+        self.declarationChunk = declarationChunk
+        self.namespace = namespace
+        self.declarations = declarations
+        self.schemaDependencies = schemaDependencies
+        self.componentDependencies = componentDependencies
+    }
+
+    var rendered: GeneratedOutputFileMetadata {
+        .init(
+            role: role,
+            namespace: namespace,
+            dependencyLayer: dependencyLayer,
+            declarationChunk: declarationChunk,
+            moduleIdentity: Self.moduleIdentity(role: role, declarations: declarations),
+            declarations: declarations.sorted(),
+            schemaDependencies: schemaDependencies.sorted(),
+            componentDependencies: componentDependencies.sorted()
+        )
+    }
+
+    private static func moduleIdentity(role: String, declarations: [String]) -> String {
+        switch role {
+        case "typesRoot": return "facade"
+        case "componentsRoot": return "components_base"
+        case "reusableComponent": return "reusable_components"
+        default: break
+        }
+        let readableRole = role.unicodeScalars
+            .map { scalar -> String in CharacterSet.alphanumerics.contains(scalar) ? String(scalar).lowercased() : "_" }
+            .joined().split(separator: "_").joined(separator: "_")
+        let safeRole = readableRole.first?.isNumber == true ? "_\(readableRole)" : readableRole
+        let semanticBytes = declarations.sorted().joined(separator: "|").utf8
+        guard !semanticBytes.isEmpty else { return safeRole }
+        let encodedDeclarations = semanticBytes.map { String(format: "%02x", $0) }.joined()
+        return "\(safeRole)_\(encodedDeclarations)"
+    }
 }
 
 /// A file with contents made up of structured Swift code.

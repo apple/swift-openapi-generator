@@ -204,11 +204,29 @@ struct TypesFileTranslator: FileTranslator {
             multipartSchemaNames: multipartSchemaNames
         )
         let schemaGroupsByOwner = Dictionary(uniqueKeysWithValues: schemaGroups.map { ($0.owner, $0.declarations) })
-        let schemaLayerGroups: [Int: [[Declaration]]] = Dictionary(grouping: graph.stronglyConnectedComponents) {
-            component in component.compactMap { layerBySchema[$0] }.max() ?? 0
+        let generatedSchemaOwners = Set(schemaGroups.filter { !$0.declarations.isEmpty }.map(\.owner))
+        func generatedSchemaReferences(_ references: Set<String>) -> Set<String> {
+            references.intersection(generatedSchemaOwners)
         }
+        let schemaLayerGroups: [Int: [PlannedDeclarationGroup]] = Dictionary(
+            grouping: graph.stronglyConnectedComponents
+        ) { component in component.compactMap { layerBySchema[$0] }.max() ?? 0 }
         .mapValues { components in
-            components.map { component in component.sorted().flatMap { schemaGroupsByOwner[$0] ?? [] } }
+            components.map { component in
+                let owners = component.filter { generatedSchemaOwners.contains($0) }.sorted()
+                return PlannedDeclarationGroup(
+                    declarations: owners.flatMap { schemaGroupsByOwner[$0] ?? [] },
+                    owners: owners,
+                    schemaDependencies: generatedSchemaReferences(
+                        Set(
+                            owners.flatMap { owner in
+                                config.typeOverrides.schemas[owner] == nil ? graph.edges[owner] ?? [] : []
+                            }
+                        )
+                    ),
+                    componentDependencies: []
+                )
+            }
         }
 
         let resolvedParameters = try doc.components.parameters.mapValues { try doc.components.assumeLookupOnce($0) }
@@ -223,17 +241,31 @@ struct TypesFileTranslator: FileTranslator {
 
         func highestLayer(for references: Set<String>) -> Int { references.compactMap { layerBySchema[$0] }.max() ?? 0 }
 
+        var generatedReusableComponentOwners: Set<String> = []
         func groupsByLayer<Component>(
             _ groups: [OwnedDeclarations],
             components: OpenAPI.ComponentDictionary<Component>,
-            references: (Component) -> Set<String>
-        ) -> [Int: [[Declaration]]] {
-            var result: [Int: [[Declaration]]] = [:]
+            references: (Component) -> Set<String>,
+            componentKind: String,
+            componentReferences: (Component) -> Set<String> = { _ in [] }
+        ) -> [Int: [PlannedDeclarationGroup]] {
+            var result: [Int: [PlannedDeclarationGroup]] = [:]
             for group in groups {
+                guard !group.declarations.isEmpty else { continue }
                 guard let key = OpenAPI.ComponentKey(rawValue: group.owner), let component = components[key] else {
                     continue
                 }
-                result[highestLayer(for: references(component)), default: []].append(group.declarations)
+                let schemaReferences = references(component)
+                result[highestLayer(for: schemaReferences), default: []]
+                    .append(
+                        .init(
+                            declarations: group.declarations,
+                            owners: ["\(componentKind):\(group.owner)"],
+                            schemaDependencies: generatedSchemaReferences(schemaReferences),
+                            componentDependencies: componentReferences(component)
+                                .intersection(generatedReusableComponentOwners)
+                        )
+                    )
             }
             return result
         }
@@ -242,11 +274,28 @@ struct TypesFileTranslator: FileTranslator {
         let requestBodyGroups = try translateComponentRequestBodyDeclarationGroups(resolvedRequestBodies)
         let responseGroups = try translateComponentResponseDeclarationGroups(resolvedResponses)
         let headerGroups = try translateComponentHeaderDeclarationGroups(resolvedHeaders)
+        generatedReusableComponentOwners = Set(
+            [
+                ("parameter", parameterGroups), ("requestBody", requestBodyGroups), ("response", responseGroups),
+                ("header", headerGroups),
+            ]
+            .flatMap { kind, groups in groups.filter { !$0.declarations.isEmpty }.map { "\(kind):\($0.owner)" } }
+        )
 
-        var operationGroupsByLayer: [Int: [[Declaration]]] = [:]
+        var operationGroupsByLayer: [Int: [PlannedDeclarationGroup]] = [:]
         for description in operationDescriptions {
-            let layer = highestLayer(for: SchemaDependencyGraph.schemaReferences(in: description))
-            operationGroupsByLayer[layer, default: []].append([try translateOperation(description)])
+            let schemaReferences = SchemaDependencyGraph.schemaReferences(in: description)
+            let layer = highestLayer(for: schemaReferences)
+            operationGroupsByLayer[layer, default: []]
+                .append(
+                    .init(
+                        declarations: [try translateOperation(description)],
+                        owners: [description.operationID],
+                        schemaDependencies: generatedSchemaReferences(schemaReferences),
+                        componentDependencies: SchemaDependencyGraph.componentReferences(in: description)
+                            .intersection(generatedReusableComponentOwners)
+                    )
+                )
         }
 
         let componentsRoot = CodeBlock.declaration(
@@ -292,23 +341,38 @@ struct TypesFileTranslator: FileTranslator {
                         componentsRoot, operationsRoot,
                     ]
                 ),
-                metadata: .init(role: "typesRoot", dependencyLayer: nil, declarationChunk: nil)
+                metadata: .init(
+                    role: "typesRoot",
+                    dependencyLayer: nil,
+                    declarationChunk: nil,
+                    declarations: ["APIProtocol", "Servers", "Components", "Operations"]
+                )
             ),
             .init(
                 name: OutputFileName.typesComponents.rawValue,
                 contents: .init(topComment: topComment, imports: imports, codeBlocks: [componentNamespacesRoot]),
-                metadata: .init(role: "componentsRoot", dependencyLayer: nil, declarationChunk: nil)
+                metadata: .init(
+                    role: "componentsRoot",
+                    dependencyLayer: nil,
+                    declarationChunk: nil,
+                    namespace: "Components",
+                    declarations: [
+                        "Components.Schemas", "Components.Parameters", "Components.RequestBodies",
+                        "Components.Responses", "Components.Headers",
+                    ]
+                )
             ),
         ]
 
         func appendLayerFiles(
-            groupsByLayer: [Int: [[Declaration]]],
+            groupsByLayer: [Int: [PlannedDeclarationGroup]],
             namespace: String,
             baseFileName: String,
             role: String
         ) {
-            for layer in groupsByLayer.keys.sorted() where !(groupsByLayer[layer] ?? []).flatMap({ $0 }).isEmpty {
-                files += makeSplitFiles(
+            for layer in groupsByLayer.keys.sorted() where !(groupsByLayer[layer] ?? []).flatMap(\.declarations).isEmpty
+            {
+                files += makePlannedSplitFiles(
                     for: groupsByLayer[layer] ?? [],
                     extending: namespace,
                     baseFileName: baseFileName.appendingFileNameSuffix("Layer\(layer)"),
@@ -326,47 +390,121 @@ struct TypesFileTranslator: FileTranslator {
             groupsByLayer: schemaLayerGroups,
             namespace: "Components.Schemas",
             baseFileName: OutputFileName.typesComponentsSchemas.rawValue,
-            role: "components.schemas"
+            role: "schema"
         )
         appendLayerFiles(
-            groupsByLayer: groupsByLayer(parameterGroups, components: resolvedParameters) {
-                SchemaDependencyGraph.schemaReferences(in: $0, components: doc.components)
-            },
+            groupsByLayer: groupsByLayer(
+                parameterGroups,
+                components: resolvedParameters,
+                references: { SchemaDependencyGraph.schemaReferences(in: $0, components: doc.components) },
+                componentKind: "parameter"
+            ),
             namespace: "Components.Parameters",
             baseFileName: OutputFileName.typesComponentsParameters.rawValue,
-            role: "components.parameters"
+            role: "reusableComponent"
         )
         appendLayerFiles(
-            groupsByLayer: groupsByLayer(requestBodyGroups, components: resolvedRequestBodies) {
-                SchemaDependencyGraph.schemaReferences(in: $0, components: doc.components)
-            },
+            groupsByLayer: groupsByLayer(
+                requestBodyGroups,
+                components: resolvedRequestBodies,
+                references: { SchemaDependencyGraph.schemaReferences(in: $0, components: doc.components) },
+                componentKind: "requestBody"
+            ),
             namespace: "Components.RequestBodies",
             baseFileName: OutputFileName.typesComponentsRequestBodies.rawValue,
-            role: "components.requestBodies"
+            role: "reusableComponent"
         )
         appendLayerFiles(
-            groupsByLayer: groupsByLayer(responseGroups, components: resolvedResponses) {
-                SchemaDependencyGraph.schemaReferences(in: $0, components: doc.components)
-            },
+            groupsByLayer: groupsByLayer(
+                responseGroups,
+                components: resolvedResponses,
+                references: { SchemaDependencyGraph.schemaReferences(in: $0, components: doc.components) },
+                componentKind: "response",
+                componentReferences: { SchemaDependencyGraph.componentReferences(in: $0) }
+            ),
             namespace: "Components.Responses",
             baseFileName: OutputFileName.typesComponentsResponses.rawValue,
-            role: "components.responses"
+            role: "reusableComponent"
         )
         appendLayerFiles(
-            groupsByLayer: groupsByLayer(headerGroups, components: resolvedHeaders) {
-                SchemaDependencyGraph.schemaReferences(in: $0, components: doc.components)
-            },
+            groupsByLayer: groupsByLayer(
+                headerGroups,
+                components: resolvedHeaders,
+                references: { SchemaDependencyGraph.schemaReferences(in: $0, components: doc.components) },
+                componentKind: "header"
+            ),
             namespace: "Components.Headers",
             baseFileName: OutputFileName.typesComponentsHeaders.rawValue,
-            role: "components.headers"
+            role: "reusableComponent"
         )
         appendLayerFiles(
             groupsByLayer: operationGroupsByLayer,
             namespace: Constants.Operations.namespace,
             baseFileName: OutputFileName.typesOperations.rawValue,
-            role: "operations"
+            role: "operation"
         )
         return .init(files: files)
+    }
+
+    private struct PlannedDeclarationGroup {
+        var declarations: [Declaration]
+        var owners: [String]
+        var schemaDependencies: Set<String>
+        var componentDependencies: Set<String>
+    }
+
+    private func makePlannedSplitFiles(
+        for declarationGroups: [PlannedDeclarationGroup],
+        extending namespace: String,
+        baseFileName: String,
+        role: String,
+        dependencyLayer: Int?,
+        preserveEmptyFile: Bool,
+        topComment: Comment,
+        imports: [ImportDescription],
+        maxDeclarationsPerFile: Int?
+    ) -> [NamedFileDescription] {
+        let chunks: [[PlannedDeclarationGroup]]
+        if let maxDeclarationsPerFile {
+            var result: [[PlannedDeclarationGroup]] = []
+            for group in declarationGroups {
+                let declarationCount = group.declarations.count
+                if let last = result.indices.last, !result[last].isEmpty,
+                    result[last].reduce(0, { $0 + $1.declarations.count }) + declarationCount <= maxDeclarationsPerFile
+                {
+                    result[last].append(group)
+                } else {
+                    result.append([group])
+                }
+            }
+            chunks = result
+        } else {
+            chunks = declarationGroups.isEmpty ? [] : [declarationGroups]
+        }
+        let emittedChunks = chunks.isEmpty && preserveEmptyFile ? [[]] : chunks
+        return emittedChunks.enumerated()
+            .map { splitIndex, groups in
+                let declarations = groups.flatMap(\.declarations)
+                return NamedFileDescription(
+                    name: splitIndex == 0 ? baseFileName : baseFileName.appendingFileNameSuffix(String(splitIndex)),
+                    contents: .init(
+                        topComment: topComment,
+                        imports: imports,
+                        codeBlocks: [
+                            .declaration(.extension(accessModifier: nil, onType: namespace, declarations: declarations))
+                        ]
+                    ),
+                    metadata: .init(
+                        role: role,
+                        dependencyLayer: dependencyLayer,
+                        declarationChunk: splitIndex,
+                        namespace: namespace,
+                        declarations: groups.flatMap(\.owners).sorted(),
+                        schemaDependencies: Set(groups.flatMap(\.schemaDependencies)).sorted(),
+                        componentDependencies: Set(groups.flatMap(\.componentDependencies)).sorted()
+                    )
+                )
+            }
     }
 
     private func makeSplitFiles(

@@ -252,6 +252,75 @@ final class Test_GenerateOptions: XCTestCase {
         XCTAssertEqual(config.output?.dependencyLayerCount, 4)
     }
 
+    func testLoadsDependencyManifestConfiguration() throws {
+        let configURL = try makeTemporaryConfig(
+            """
+            generate:
+              - types
+            output:
+              dependencyLayerCount: 4
+              dependencyManifest: OpenAPIDependencyManifest.json
+            """
+        )
+        defer { try? FileManager.default.removeItem(at: configURL.deletingLastPathComponent()) }
+
+        let options = try _GenerateOptions.parse(["openapi.yaml", "--config", configURL.path])
+        let config = try XCTUnwrap(options.loadedConfig())
+
+        XCTAssertEqual(config.output?.dependencyManifest, "OpenAPIDependencyManifest.json")
+    }
+
+    func testRejectsInvalidDependencyManifestConfiguration() async throws {
+        let configurations = [
+            ("../manifest.json", "JSON file name without directories"),
+            ("manifest.txt", "JSON file name without directories"),
+        ]
+        for (manifest, expectedMessage) in configurations {
+            let configURL = try makeTemporaryConfig(
+                """
+                generate:
+                  - types
+                output:
+                  dependencyLayerCount: 2
+                  dependencyManifest: \(manifest)
+                """
+            )
+            defer { try? FileManager.default.removeItem(at: configURL.deletingLastPathComponent()) }
+            let options = try _GenerateOptions.parse(["unused-openapi.yaml", "--config", configURL.path])
+            do {
+                try await options.runGenerator(
+                    outputDirectory: FileManager.default.temporaryDirectory,
+                    pluginSource: nil,
+                    isDryRun: true
+                )
+                XCTFail("Expected dependencyManifest=\(manifest) to be rejected.")
+            } catch let error as ArgumentParser.ValidationError {
+                XCTAssertTrue(String(describing: error).contains(expectedMessage))
+            }
+        }
+
+        let configURL = try makeTemporaryConfig(
+            """
+            generate:
+              - client
+            output:
+              dependencyManifest: manifest.json
+            """
+        )
+        defer { try? FileManager.default.removeItem(at: configURL.deletingLastPathComponent()) }
+        let options = try _GenerateOptions.parse(["unused-openapi.yaml", "--config", configURL.path])
+        do {
+            try await options.runGenerator(
+                outputDirectory: FileManager.default.temporaryDirectory,
+                pluginSource: nil,
+                isDryRun: true
+            )
+            XCTFail("Expected a dependency manifest without layered types generation to be rejected.")
+        } catch let error as ArgumentParser.ValidationError {
+            XCTAssertTrue(String(describing: error).contains("requires types generation"))
+        }
+    }
+
     func testRejectsNonPositiveMaximumDeclarationsPerFileFromConfig() async throws {
         for invalidLimit in [0, -1] {
             let configURL = try makeTemporaryConfig(

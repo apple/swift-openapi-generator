@@ -83,5 +83,8 @@ struct _UserConfig: Codable {
 
         /// The maximum number of dependency-ordered layers emitted for generated types.
         var dependencyLayerCount: Int?
+
+        /// A JSON manifest file written beside the generated Swift files for dependency-aware build planning.
+        var dependencyManifest: String?
     }
 }

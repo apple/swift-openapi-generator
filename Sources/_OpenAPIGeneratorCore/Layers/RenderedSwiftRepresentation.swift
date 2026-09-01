@@ -52,13 +52,67 @@ public struct InMemoryOutputFile: Sendable {
     /// The Swift file contents encoded as UTF-8 data.
     public var contents: Data
 
+    /// Semantic planning information for this output, when available.
+    public var metadata: GeneratedOutputFileMetadata?
+
     /// Creates a file with the specified name and contents.
     /// - Parameters:
     ///   - baseName: A base name representing the desired name.
     ///   - contents: Data contents of the file, encoded as UTF-8.
-    public init(baseName: String, contents: Data) {
+    ///   - metadata: Semantic planning information for the output, when available.
+    public init(baseName: String, contents: Data, metadata: GeneratedOutputFileMetadata? = nil) {
         self.baseName = baseName
         self.contents = contents
+        self.metadata = metadata
+    }
+}
+
+/// Generator-owned semantic information about an emitted Swift file.
+public struct GeneratedOutputFileMetadata: Sendable, Equatable, Codable {
+
+    /// The semantic role of the generated file.
+    public var role: String
+
+    /// The generated namespace extended by the file, when applicable.
+    public var namespace: String?
+
+    /// The zero-based dependency layer, when dependency layering is enabled.
+    public var dependencyLayer: Int?
+
+    /// The zero-based declaration chunk within the role and dependency layer.
+    public var declarationChunk: Int?
+
+    /// A stable, Swift-identifier-safe identity derived from the semantic declarations owned by the file.
+    public var moduleIdentity: String
+
+    /// Semantic declaration identifiers owned by this file.
+    public var declarations: [String]
+
+    /// Resolved reusable-schema names directly used by declarations in this file.
+    public var schemaDependencies: [String]
+
+    /// Resolved reusable-component identifiers directly used by declarations in this file.
+    public var componentDependencies: [String]
+
+    /// Creates semantic planning information for an emitted Swift file.
+    public init(
+        role: String,
+        namespace: String?,
+        dependencyLayer: Int?,
+        declarationChunk: Int?,
+        moduleIdentity: String,
+        declarations: [String],
+        schemaDependencies: [String],
+        componentDependencies: [String]
+    ) {
+        self.role = role
+        self.namespace = namespace
+        self.dependencyLayer = dependencyLayer
+        self.declarationChunk = declarationChunk
+        self.moduleIdentity = moduleIdentity
+        self.declarations = declarations
+        self.schemaDependencies = schemaDependencies
+        self.componentDependencies = componentDependencies
     }
 }
 

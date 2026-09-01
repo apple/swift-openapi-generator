@@ -34,6 +34,22 @@ This will create the following files in the specified output directory:
 
 > Warning: This command will overwrite existing files with the same name in the output directory.
 
+To emit dependency-layer planning metadata beside generated sources, use a configuration file with layered types and
+a manifest file name:
+
+```yaml
+generate:
+  - types
+  - client
+output:
+  dependencyLayerCount: 4
+  maxDeclarationsPerFile: 100
+  dependencyManifest: OpenAPIDependencyManifest.json
+```
+
+This option is supported by direct CLI generation and the command plugin. It is not supported by the build-tool
+plugin, whose outputs must be known before the generator reads the OpenAPI document.
+
 To see the usage documentation for the generator CLI, use the following command:
 
 ```console

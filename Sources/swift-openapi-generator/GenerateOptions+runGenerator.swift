@@ -35,7 +35,22 @@ extension _GenerateOptions {
         if let dependencyLayerCount = config?.output?.dependencyLayerCount, dependencyLayerCount <= 0 {
             throw ValidationError("Expected output.dependencyLayerCount to be greater than zero.")
         }
+        if let dependencyManifest = config?.output?.dependencyManifest {
+            guard !dependencyManifest.isEmpty,
+                dependencyManifest == URL(fileURLWithPath: dependencyManifest).lastPathComponent,
+                dependencyManifest.hasSuffix(".json")
+            else {
+                throw ValidationError("Expected output.dependencyManifest to be a JSON file name without directories.")
+            }
+        }
         let sortedModes = try resolvedModes(config)
+        if config?.output?.dependencyManifest != nil {
+            guard config?.output?.dependencyLayerCount != nil, sortedModes.contains(.types) else {
+                throw ValidationError(
+                    "output.dependencyManifest requires types generation and output.dependencyLayerCount."
+                )
+            }
+        }
         let resolvedAccessModifier = resolvedAccessModifier(config)
         let resolvedAdditionalImports = resolvedAdditionalImports(config)
         let resolvedAdditionalFileComments = resolvedAdditionalFileComments(config)
@@ -77,6 +92,7 @@ extension _GenerateOptions {
             - Feature flags: \(resolvedFeatureFlags.isEmpty ? "<none>" : resolvedFeatureFlags.map(\.rawValue).joined(separator: ", "))
             - Maximum declarations per split types file: \(config?.output?.maxDeclarationsPerFile.map(String.init) ?? "<none>")
             - Maximum dependency layers: \(config?.output?.dependencyLayerCount.map(String.init) ?? "<none>")
+            - Dependency manifest: \(config?.output?.dependencyManifest ?? "<none>")
             - Output file names: \(sortedModes.flatMap { mode in OutputFileName.allCases.filter { mode.outputFileNames.contains($0) } }.map(\.rawValue).joined(separator: ", "))
             - Output directory: \(outputDirectory.path)
             - Diagnostics output path: \(diagnosticsOutputPath?.path ?? "<none - logs to stderr>")
@@ -94,6 +110,7 @@ extension _GenerateOptions {
                 pluginSource: pluginSource,
                 outputDirectory: outputDirectory,
                 isDryRun: isDryRun,
+                dependencyManifestFileName: config?.output?.dependencyManifest,
                 diagnostics: diagnostics
             )
             try finalizeDiagnostics()
