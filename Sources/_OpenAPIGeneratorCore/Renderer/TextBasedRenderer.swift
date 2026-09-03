@@ -144,21 +144,45 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     /// Renders the specified import statements.
-    func renderImports(_ imports: [ImportDescription]?) { (imports ?? []).forEach(renderImport) }
+    func renderImports(_ imports: [ImportDescription]?) {
+        let imports = imports ?? []
+        func renderAll(inSuppressingBranch: Bool) {
+            for description in imports { renderImport(description, inSuppressingBranch: inSuppressingBranch) }
+        }
+
+        guard imports.contains(where: \.ignoresUnusedImportAccess) else {
+            renderAll(inSuppressingBranch: false)
+            return
+        }
+        // Both branches are emitted so that a compiler without SE-0522, where the attribute
+        // does not parse, sees exactly the imports it saw before.
+        writer.writeLine("#if hasFeature(SourceWarningControl)")
+        renderAll(inSuppressingBranch: true)
+        writer.writeLine("#else")
+        renderAll(inSuppressingBranch: false)
+        writer.writeLine("#endif")
+    }
 
     /// Renders a single import statement.
-    func renderImport(_ description: ImportDescription) {
+    /// - Parameters:
+    ///   - description: The import to render.
+    ///   - inSuppressingBranch: Whether this is the `hasFeature` branch, where imports that
+    ///     asked to ignore `UnusedImportAccess` carry the attribute.
+    func renderImport(_ description: ImportDescription, inSuppressingBranch: Bool) {
         let accessModifierPrefix: String
         switch description.accessModifier {
         case .public: accessModifierPrefix = renderedAccessModifier(.public) + " "
         case .package: accessModifierPrefix = renderedAccessModifier(.package) + " "
         default: accessModifierPrefix = ""
         }
+        let diagnosePrefix =
+            inSuppressingBranch && description.ignoresUnusedImportAccess
+            ? "@diagnose(UnusedImportAccess, as: ignored) " : ""
 
         func render(preconcurrency: Bool) {
             let spiPrefix = description.spi.map { "@_spi(\($0)) " } ?? ""
             let preconcurrencyPrefix = preconcurrency ? "@preconcurrency " : ""
-            let attributePrefix = "\(preconcurrencyPrefix)\(spiPrefix)"
+            let attributePrefix = "\(diagnosePrefix)\(preconcurrencyPrefix)\(spiPrefix)"
             if let moduleTypes = description.moduleTypes {
                 for type in moduleTypes { writer.writeLine("\(attributePrefix)\(accessModifierPrefix)import \(type)") }
             } else {
