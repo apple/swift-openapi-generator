@@ -140,7 +140,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testImportsWithPublicAccessModifier() throws {
         try _test(
-            [ImportDescription(moduleName: "Foo", accessModifier: .public)],
+            [.always(ImportDescription(moduleName: "Foo", accessModifier: .public))],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 public import Foo
@@ -150,7 +150,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testImportsWithPackageAccessModifier() throws {
         try _test(
-            [ImportDescription(moduleName: "Foo", accessModifier: .package)],
+            [.always(ImportDescription(moduleName: "Foo", accessModifier: .package))],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 package import Foo
@@ -160,7 +160,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testImportsWithInternalAccessModifier() throws {
         try _test(
-            [ImportDescription(moduleName: "Foo", accessModifier: .internal)],
+            [.always(ImportDescription(moduleName: "Foo", accessModifier: .internal))],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 import Foo
@@ -170,7 +170,16 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testImportsWithAccessModifierAndAttributes() throws {
         try _test(
-            [ImportDescription(moduleName: "Foo", spi: "Secret", accessModifier: .public, preconcurrency: .always)],
+            [
+                .always(
+                    ImportDescription(
+                        moduleName: "Foo",
+                        spi: "Secret",
+                        accessModifier: .public,
+                        preconcurrency: .always
+                    )
+                )
+            ],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 @preconcurrency @_spi(Secret) public import Foo
@@ -181,10 +190,12 @@ final class Test_TextBasedRenderer: XCTestCase {
     func testImportsWithAccessModifierAndModuleTypes() throws {
         try _test(
             [
-                ImportDescription(
-                    moduleName: "Foundation",
-                    moduleTypes: ["struct Foundation.URL"],
-                    accessModifier: .public
+                .always(
+                    ImportDescription(
+                        moduleName: "Foundation",
+                        moduleTypes: ["struct Foundation.URL"],
+                        accessModifier: .public
+                    )
                 )
             ],
             renderedBy: TextBasedRenderer.renderImports,
@@ -196,7 +207,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testImportsWithAccessModifierAndPreconcurrencyOnOS() throws {
         try _test(
-            [ImportDescription(moduleName: "Foo", accessModifier: .public, preconcurrency: .onOS(["Linux"]))],
+            [.always(ImportDescription(moduleName: "Foo", accessModifier: .public, preconcurrency: .onOS(["Linux"])))],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 #if os(Linux)
