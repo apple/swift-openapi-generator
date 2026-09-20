@@ -48,6 +48,7 @@ The configuration file has the following keys:
 - `typeOverrides` (optional): Allows replacing a generated type with a custom type.
     - `schemas` (optional): a string to string dictionary. The key is the name of the schema, the last component of `#/components/schemas/Foo` (here, `Foo`). The value is the custom type name, such as `CustomFoo`. Check out details in [SOAR-0014](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0014).
 - `featureFlags` (optional): array of strings. Each string must be a valid feature flag to enable. For a list of currently supported feature flags, check out [FeatureFlags.swift](https://github.com/apple/swift-openapi-generator/blob/main/Sources/_OpenAPIGeneratorCore/FeatureFlags.swift).
+- `maxInlineSchemaSize` (optional): an integer. Boxes `#/components/schemas` types whose estimated inline size exceeds this many bytes, so that types embedding them store a reference instead of copying the value. Reduces generated code size and stack usage for documents with very large schemas. Can also be set with `--max-inline-schema-size`.
 
 ### Example config files
 

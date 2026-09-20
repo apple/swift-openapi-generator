@@ -795,7 +795,7 @@ extension Components {
             }
         }
         /// - Remark: Generated from `#/components/schemas/RecursivePet`.
-        public struct RecursivePet: Codable, Hashable, Sendable {
+        public struct RecursivePet: Codable, Hashable, Sendable, Swift.CustomReflectable {
             /// - Remark: Generated from `#/components/schemas/RecursivePet/name`.
             public var name: Swift.String {
                 get  {
@@ -838,7 +838,14 @@ extension Components {
             public func encode(to encoder: any Swift.Encoder) throws {
                 try self.storage.encode(to: encoder)
             }
-            /// Internal reference storage to allow type recursion.
+            public var customMirror: Swift.Mirror {
+                Swift.Mirror(
+                    self,
+                    children: Swift.Mirror(reflecting: self.storage.value).children,
+                    displayStyle: .struct
+                )
+            }
+            /// Internal reference storage, so that embedding types hold a reference instead of the inline value.
             private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
             private struct Storage: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RecursivePet/name`.
@@ -856,7 +863,7 @@ extension Components {
             }
         }
         /// - Remark: Generated from `#/components/schemas/RecursivePetNested`.
-        public struct RecursivePetNested: Codable, Hashable, Sendable {
+        public struct RecursivePetNested: Codable, Hashable, Sendable, Swift.CustomReflectable {
             /// - Remark: Generated from `#/components/schemas/RecursivePetNested/name`.
             public var name: Swift.String {
                 get  {
@@ -914,26 +921,18 @@ extension Components {
             public func encode(to encoder: any Swift.Encoder) throws {
                 try self.storage.encode(to: encoder)
             }
-            /// Internal reference storage to allow type recursion.
+            public var customMirror: Swift.Mirror {
+                Swift.Mirror(
+                    self,
+                    children: Swift.Mirror(reflecting: self.storage.value).children,
+                    displayStyle: .struct
+                )
+            }
+            /// Internal reference storage, so that embedding types hold a reference instead of the inline value.
             private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
             private struct Storage: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RecursivePetNested/name`.
                 var name: Swift.String
-                /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent`.
-                struct ParentPayload: Codable, Hashable, Sendable {
-                    /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent/nested`.
-                    public var nested: Components.Schemas.RecursivePetNested
-                    /// Creates a new `ParentPayload`.
-                    ///
-                    /// - Parameters:
-                    ///   - nested:
-                    public init(nested: Components.Schemas.RecursivePetNested) {
-                        self.nested = nested
-                    }
-                    public enum CodingKeys: String, CodingKey {
-                        case nested
-                    }
-                }
                 /// - Remark: Generated from `#/components/schemas/RecursivePetNested/parent`.
                 var parent: Components.Schemas.RecursivePetNested.ParentPayload?
                 init(
@@ -947,7 +946,7 @@ extension Components {
             }
         }
         /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst`.
-        public struct RecursivePetOneOfFirst: Codable, Hashable, Sendable {
+        public struct RecursivePetOneOfFirst: Codable, Hashable, Sendable, Swift.CustomReflectable {
             /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value1`.
             public var value1: Components.Schemas.RecursivePetOneOf {
                 get  {
@@ -1001,26 +1000,18 @@ extension Components {
             public func encode(to encoder: any Swift.Encoder) throws {
                 try self.storage.encode(to: encoder)
             }
-            /// Internal reference storage to allow type recursion.
+            public var customMirror: Swift.Mirror {
+                Swift.Mirror(
+                    self,
+                    children: Swift.Mirror(reflecting: self.storage.value).children,
+                    displayStyle: .struct
+                )
+            }
+            /// Internal reference storage, so that embedding types hold a reference instead of the inline value.
             private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
             private struct Storage: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value1`.
                 var value1: Components.Schemas.RecursivePetOneOf
-                /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value2`.
-                struct Value2Payload: Codable, Hashable, Sendable {
-                    /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value2/type`.
-                    public var _type: Swift.String
-                    /// Creates a new `Value2Payload`.
-                    ///
-                    /// - Parameters:
-                    ///   - _type:
-                    public init(_type: Swift.String) {
-                        self._type = _type
-                    }
-                    public enum CodingKeys: String, CodingKey {
-                        case _type = "type"
-                    }
-                }
                 /// - Remark: Generated from `#/components/schemas/RecursivePetOneOfFirst/value2`.
                 var value2: Components.Schemas.RecursivePetOneOfFirst.Value2Payload
                 init(
@@ -1120,7 +1111,7 @@ extension Components {
             }
         }
         /// - Remark: Generated from `#/components/schemas/RecursivePetAnyOf`.
-        public struct RecursivePetAnyOf: Codable, Hashable, Sendable {
+        public struct RecursivePetAnyOf: Codable, Hashable, Sendable, Swift.CustomReflectable {
             /// - Remark: Generated from `#/components/schemas/RecursivePetAnyOf/value1`.
             public var value1: Components.Schemas.RecursivePetAnyOf? {
                 get  {
@@ -1159,7 +1150,14 @@ extension Components {
             public func encode(to encoder: any Swift.Encoder) throws {
                 try self.storage.encode(to: encoder)
             }
-            /// Internal reference storage to allow type recursion.
+            public var customMirror: Swift.Mirror {
+                Swift.Mirror(
+                    self,
+                    children: Swift.Mirror(reflecting: self.storage.value).children,
+                    displayStyle: .struct
+                )
+            }
+            /// Internal reference storage, so that embedding types hold a reference instead of the inline value.
             private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
             private struct Storage: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RecursivePetAnyOf/value1`.
@@ -1204,7 +1202,7 @@ extension Components {
             }
         }
         /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf`.
-        public struct RecursivePetAllOf: Codable, Hashable, Sendable {
+        public struct RecursivePetAllOf: Codable, Hashable, Sendable, Swift.CustomReflectable {
             /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf/value1`.
             public struct Value1Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf/value1/parent`.
@@ -1242,24 +1240,16 @@ extension Components {
             public func encode(to encoder: any Swift.Encoder) throws {
                 try self.storage.encode(to: encoder)
             }
-            /// Internal reference storage to allow type recursion.
+            public var customMirror: Swift.Mirror {
+                Swift.Mirror(
+                    self,
+                    children: Swift.Mirror(reflecting: self.storage.value).children,
+                    displayStyle: .struct
+                )
+            }
+            /// Internal reference storage, so that embedding types hold a reference instead of the inline value.
             private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
             private struct Storage: Codable, Hashable, Sendable {
-                /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf/value1`.
-                struct Value1Payload: Codable, Hashable, Sendable {
-                    /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf/value1/parent`.
-                    public var parent: Components.Schemas.RecursivePetAllOf?
-                    /// Creates a new `Value1Payload`.
-                    ///
-                    /// - Parameters:
-                    ///   - parent:
-                    public init(parent: Components.Schemas.RecursivePetAllOf? = nil) {
-                        self.parent = parent
-                    }
-                    public enum CodingKeys: String, CodingKey {
-                        case parent
-                    }
-                }
                 /// - Remark: Generated from `#/components/schemas/RecursivePetAllOf/value1`.
                 var value1: Components.Schemas.RecursivePetAllOf.Value1Payload
                 init(value1: Components.Schemas.RecursivePetAllOf.Value1Payload) {

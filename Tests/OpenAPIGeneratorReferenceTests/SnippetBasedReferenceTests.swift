@@ -1582,7 +1582,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct Node: Codable, Hashable, Sendable {
+                public struct Node: Codable, Hashable, Sendable, Swift.CustomReflectable {
                     public var parent: Components.Schemas.Node? {
                         get  {
                             self.storage.value.parent
@@ -1602,6 +1602,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public func encode(to encoder: any Swift.Encoder) throws {
                         try self.storage.encode(to: encoder)
+                    }
+                    public var customMirror: Swift.Mirror {
+                        Swift.Mirror(
+                            self,
+                            children: Swift.Mirror(reflecting: self.storage.value).children,
+                            displayStyle: .struct
+                        )
                     }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
@@ -1701,7 +1708,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct Node: Codable, Hashable, Sendable {
+                public struct Node: Codable, Hashable, Sendable, Swift.CustomReflectable {
                     public var parent: Components.Schemas.Node? {
                         get  {
                             self.storage.value.parent
@@ -1736,6 +1743,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public func encode(to encoder: any Swift.Encoder) throws {
                         try self.storage.encode(to: encoder)
+                    }
+                    public var customMirror: Swift.Mirror {
+                        Swift.Mirror(
+                            self,
+                            children: Swift.Mirror(reflecting: self.storage.value).children,
+                            displayStyle: .struct
+                        )
                     }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
@@ -1772,7 +1786,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct Node: Codable, Hashable, Sendable {
+                public struct Node: Codable, Hashable, Sendable, Swift.CustomReflectable {
                     public var parent: Components.Schemas.Node? {
                         get  {
                             self.storage.value.parent
@@ -1820,21 +1834,16 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public func encode(to encoder: any Swift.Encoder) throws {
                         try self.storage.encode(to: encoder)
                     }
+                    public var customMirror: Swift.Mirror {
+                        Swift.Mirror(
+                            self,
+                            children: Swift.Mirror(reflecting: self.storage.value).children,
+                            displayStyle: .struct
+                        )
+                    }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
                         var parent: Components.Schemas.Node?
-                        struct childrenPayload: Codable, Hashable, Sendable {
-                            public var additionalProperties: [String: Components.Schemas.Node]
-                            public init(additionalProperties: [String: Components.Schemas.Node] = .init()) {
-                                self.additionalProperties = additionalProperties
-                            }
-                            public init(from decoder: any Swift.Decoder) throws {
-                                additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [])
-                            }
-                            public func encode(to encoder: any Swift.Encoder) throws {
-                                try encoder.encodeAdditionalProperties(additionalProperties)
-                            }
-                        }
                         var children: Components.Schemas.Node.childrenPayload?
                         init(
                             parent: Components.Schemas.Node? = nil,
@@ -1872,7 +1881,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct Node: Codable, Hashable, Sendable {
+                public struct Node: Codable, Hashable, Sendable, Swift.CustomReflectable {
                     public var name: Swift.String {
                         get  {
                             self.storage.value.name
@@ -1917,18 +1926,16 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public func encode(to encoder: any Swift.Encoder) throws {
                         try self.storage.encode(to: encoder)
                     }
+                    public var customMirror: Swift.Mirror {
+                        Swift.Mirror(
+                            self,
+                            children: Swift.Mirror(reflecting: self.storage.value).children,
+                            displayStyle: .struct
+                        )
+                    }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
                         var name: Swift.String
-                        struct parentPayload: Codable, Hashable, Sendable {
-                            public var nested: Components.Schemas.Node
-                            public init(nested: Components.Schemas.Node) {
-                                self.nested = nested
-                            }
-                            public enum CodingKeys: String, CodingKey {
-                                case nested
-                            }
-                        }
                         var parent: Components.Schemas.Node.parentPayload?
                         init(
                             name: Swift.String,
@@ -1958,7 +1965,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct Node: Codable, Hashable, Sendable {
+                public struct Node: Codable, Hashable, Sendable, Swift.CustomReflectable {
                     public struct Value1Payload: Codable, Hashable, Sendable {
                         public var parent: Components.Schemas.Node?
                         public init(parent: Components.Schemas.Node? = nil) {
@@ -1985,17 +1992,15 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     public func encode(to encoder: any Swift.Encoder) throws {
                         try self.storage.encode(to: encoder)
                     }
+                    public var customMirror: Swift.Mirror {
+                        Swift.Mirror(
+                            self,
+                            children: Swift.Mirror(reflecting: self.storage.value).children,
+                            displayStyle: .struct
+                        )
+                    }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
-                        struct Value1Payload: Codable, Hashable, Sendable {
-                            public var parent: Components.Schemas.Node?
-                            public init(parent: Components.Schemas.Node? = nil) {
-                                self.parent = parent
-                            }
-                            public enum CodingKeys: String, CodingKey {
-                                case parent
-                            }
-                        }
                         var value1: Components.Schemas.Node.Value1Payload
                         init(value1: Components.Schemas.Node.Value1Payload) {
                             self.value1 = value1
@@ -2024,7 +2029,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
             """,
             """
             public enum Schemas {
-                public struct Node: Codable, Hashable, Sendable {
+                public struct Node: Codable, Hashable, Sendable, Swift.CustomReflectable {
                     public var value1: Components.Schemas.Node? {
                         get  {
                             self.storage.value.value1
@@ -2055,6 +2060,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                     }
                     public func encode(to encoder: any Swift.Encoder) throws {
                         try self.storage.encode(to: encoder)
+                    }
+                    public var customMirror: Swift.Mirror {
+                        Swift.Mirror(
+                            self,
+                            children: Swift.Mirror(reflecting: self.storage.value).children,
+                            displayStyle: .struct
+                        )
                     }
                     private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                     private struct Storage: Codable, Hashable, Sendable {
@@ -4510,7 +4522,7 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         case node(OpenAPIRuntime.MultipartPart<Components.Schemas.NodeWrapper.nodePayload>)
                         case undocumented(OpenAPIRuntime.MultipartRawPart)
                     }
-                    public struct Node: Codable, Hashable, Sendable {
+                    public struct Node: Codable, Hashable, Sendable, Swift.CustomReflectable {
                         public var parent: Components.Schemas.Node? {
                             get  {
                                 self.storage.value.parent
@@ -4530,6 +4542,13 @@ final class SnippetBasedReferenceTests: XCTestCase {
                         }
                         public func encode(to encoder: any Swift.Encoder) throws {
                             try self.storage.encode(to: encoder)
+                        }
+                        public var customMirror: Swift.Mirror {
+                            Swift.Mirror(
+                                self,
+                                children: Swift.Mirror(reflecting: self.storage.value).children,
+                                displayStyle: .struct
+                            )
                         }
                         private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
                         private struct Storage: Codable, Hashable, Sendable {
@@ -6436,6 +6455,218 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testComponentsSchemasMaxInlineSize_boxesBottomUp() throws {
+        try assertBoxedSchemaTypes(
+            maxInlineSchemaSize: 64,
+            """
+            schemas:
+              Big:
+                type: object
+                properties:
+                  a: { type: string }
+                  b: { type: string }
+                  c: { type: string }
+                  d: { type: string }
+                  e: { type: string }
+                required: [a, b, c, d, e]
+              EmbedsBigTwice:
+                type: object
+                properties:
+                  first: { $ref: '#/components/schemas/Big' }
+                  second: { $ref: '#/components/schemas/Big' }
+                  name: { type: string }
+                required: [first, second, name]
+              Medium:
+                type: object
+                properties:
+                  a: { type: string }
+                  b: { type: string }
+                  c: { type: string }
+                required: [a, b, c]
+              OptionalMediums:
+                type: object
+                properties:
+                  first: { $ref: '#/components/schemas/Medium' }
+                  second: { $ref: '#/components/schemas/Medium' }
+              CollectionsOfMediums:
+                type: object
+                properties:
+                  array:
+                    type: array
+                    items: { $ref: '#/components/schemas/Medium' }
+                  dictionary:
+                    type: object
+                    additionalProperties: { $ref: '#/components/schemas/Medium' }
+                required: [array, dictionary]
+            """,
+            // Big is boxed, so EmbedsBigTwice only stores two references and a string.
+            // Optional embeds are sized inline, arrays and dictionaries as a single reference.
+            expected: [["Big"], ["OptionalMediums"]]
+        )
+    }
+
+    func testComponentsSchemasMaxInlineSize_boxesNestedTypes() throws {
+        try assertBoxedSchemaTypes(
+            maxInlineSchemaSize: 64,
+            ignoredDiagnosticMessages: ["Detected a recursive type; it will be boxed to break the reference cycle."],
+            """
+            schemas:
+              Outer:
+                type: object
+                properties:
+                  payload:
+                    type: object
+                    properties:
+                      a: { type: string }
+                      b: { type: string }
+                      c: { type: string }
+                      d: { type: string }
+                      e: { type: string }
+                    required: [a, b, c, d, e]
+                  choice:
+                    oneOf:
+                      - type: string
+                      - type: object
+                        properties:
+                          a: { type: string }
+                          b: { type: string }
+                          c: { type: string }
+                          d: { type: string }
+                          e: { type: string }
+                        required: [a, b, c, d, e]
+                  id: { type: string }
+                required: [payload, choice, id]
+              Node:
+                type: object
+                properties:
+                  parent: { $ref: '#/components/schemas/Node' }
+                  payload:
+                    type: object
+                    properties:
+                      a: { type: string }
+                      b: { type: string }
+                      c: { type: string }
+                      d: { type: string }
+                      e: { type: string }
+                    required: [a, b, c, d, e]
+            """,
+            // Boxing the nested types keeps Outer and its oneOf small. The payload nested in the recursive Node
+            // is boxed by the same rule, even though Node itself is boxed to break the cycle.
+            expected: [
+                ["Node"], ["Node", "payloadPayload"], ["Outer", "payloadPayload"],
+                ["Outer", "choicePayload", "Case2Payload"],
+            ]
+        )
+    }
+
+    func testComponentsSchemasMaxInlineSize_indirectNestedEnum() throws {
+        try assertBoxedSchemaTypes(
+            maxInlineSchemaSize: 16,
+            """
+            schemas:
+              Outer:
+                type: object
+                properties:
+                  choice:
+                    oneOf:
+                      - type: string
+                      - type: integer
+                required: [choice]
+            """,
+            // The oneOf needs a tag byte next to its largest payload, a string.
+            expected: [["Outer", "choicePayload"]]
+        )
+    }
+
+    func testComponentsSchemasMaxInlineSize_nestedStruct() throws {
+        try self.assertSchemasTranslation(
+            maxInlineSchemaSize: 16,
+            """
+            schemas:
+              Outer:
+                type: object
+                properties:
+                  payload:
+                    type: object
+                    properties:
+                      a: { type: string }
+                      b: { type: string }
+                    required: [a, b]
+                required: [payload]
+            """,
+            """
+            public enum Schemas {
+                public struct Outer: Codable, Hashable, Sendable {
+                    public struct payloadPayload: Codable, Hashable, Sendable, Swift.CustomReflectable {
+                        public var a: Swift.String {
+                            get  {
+                                self.storage.value.a
+                            }
+                            _modify {
+                                yield &self.storage.value.a
+                            }
+                        }
+                        public var b: Swift.String {
+                            get  {
+                                self.storage.value.b
+                            }
+                            _modify {
+                                yield &self.storage.value.b
+                            }
+                        }
+                        public init(
+                            a: Swift.String,
+                            b: Swift.String
+                        ) {
+                            self.storage = .init(value: .init(
+                                a: a,
+                                b: b
+                            ))
+                        }
+                        public enum CodingKeys: String, CodingKey {
+                            case a
+                            case b
+                        }
+                        public init(from decoder: any Swift.Decoder) throws {
+                            self.storage = try .init(from: decoder)
+                        }
+                        public func encode(to encoder: any Swift.Encoder) throws {
+                            try self.storage.encode(to: encoder)
+                        }
+                        public var customMirror: Swift.Mirror {
+                            Swift.Mirror(
+                                self,
+                                children: Swift.Mirror(reflecting: self.storage.value).children,
+                                displayStyle: .struct
+                            )
+                        }
+                        private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
+                        private struct Storage: Codable, Hashable, Sendable {
+                            var a: Swift.String
+                            var b: Swift.String
+                            init(
+                                a: Swift.String,
+                                b: Swift.String
+                            ) {
+                                self.a = a
+                                self.b = b
+                            }
+                            typealias CodingKeys = Components.Schemas.Outer.payloadPayload.CodingKeys
+                        }
+                    }
+                    public var payload: Components.Schemas.Outer.payloadPayload
+                    public init(payload: Components.Schemas.Outer.payloadPayload) {
+                        self.payload = payload
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case payload
+                    }
+                }
+            }
+            """
+        )
+    }
+
     func testAdditionalFileComments() throws {
         let additionalFileComments = ["hello world", "foo bar baz"]
         let config = Config(
@@ -6490,19 +6721,22 @@ extension SnippetBasedReferenceTests {
         nameOverrides: [String: String] = [:],
         typeOverrides: TypeOverrides = .init(),
         featureFlags: FeatureFlags = [],
+        maxInlineSchemaSize: Int? = nil,
         ignoredDiagnosticMessages: Set<String> = [],
         componentsYAML: String
     ) throws -> TypesFileTranslator {
         let components = try YAMLDecoder().decode(OpenAPI.Components.self, from: componentsYAML)
+        var config = Config(
+            mode: .types,
+            access: accessModifier,
+            namingStrategy: namingStrategy,
+            nameOverrides: nameOverrides,
+            typeOverrides: typeOverrides,
+            featureFlags: featureFlags
+        )
+        config.maxInlineSchemaSize = maxInlineSchemaSize
         return TypesFileTranslator(
-            config: Config(
-                mode: .types,
-                access: accessModifier,
-                namingStrategy: namingStrategy,
-                nameOverrides: nameOverrides,
-                typeOverrides: typeOverrides,
-                featureFlags: featureFlags
-            ),
+            config: config,
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages),
             components: components
         )
@@ -6701,6 +6935,7 @@ extension SnippetBasedReferenceTests {
         featureFlags: FeatureFlags = [],
         nameOverrides: [String: String] = [:],
         typeOverrides: TypeOverrides = .init(),
+        maxInlineSchemaSize: Int? = nil,
         ignoredDiagnosticMessages: Set<String> = [],
         _ componentsYAML: String,
         _ expectedSwift: String,
@@ -6713,6 +6948,7 @@ extension SnippetBasedReferenceTests {
             nameOverrides: nameOverrides,
             typeOverrides: typeOverrides,
             featureFlags: featureFlags,
+            maxInlineSchemaSize: maxInlineSchemaSize,
             ignoredDiagnosticMessages: ignoredDiagnosticMessages,
             componentsYAML: componentsYAML
         )
@@ -6723,6 +6959,47 @@ extension SnippetBasedReferenceTests {
             multipartSchemaNames: multipartSchemaNames
         )
         try XCTAssertSwiftEquivalent(translation, expectedSwift, file: file, line: line)
+    }
+
+    func assertBoxedSchemaTypes(
+        maxInlineSchemaSize: Int,
+        ignoredDiagnosticMessages: Set<String> = [],
+        _ componentsYAML: String,
+        expected: Set<[String]>,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let translator = try makeTypesTranslator(
+            maxInlineSchemaSize: maxInlineSchemaSize,
+            ignoredDiagnosticMessages: ignoredDiagnosticMessages,
+            componentsYAML: componentsYAML
+        )
+        let components = translator.components
+        let multipartSchemaNames = try translator.parseSchemaNamesUsedInMultipart(paths: [:], components: components)
+        let translation = try translator.translateSchemas(
+            components.schemas,
+            multipartSchemaNames: multipartSchemaNames
+        )
+        var boxed: Set<[String]> = []
+        func collect(_ decl: Declaration, parent: [String]) {
+            switch decl {
+            case .commentable(_, let decl), .deprecated(_, let decl): collect(decl, parent: parent)
+            case .struct(let desc):
+                let path = parent + [desc.name]
+                if desc.members.contains(where: { $0.name == "Storage" }) { boxed.insert(path) }
+                for member in desc.members where member.name != "Storage" { collect(member, parent: path) }
+            case .enum(let desc):
+                let path = parent + [desc.name]
+                if desc.isIndirect { boxed.insert(path) }
+                for member in desc.members { collect(member, parent: path) }
+            default: break
+            }
+        }
+        guard case .enum(let schemas) = translation.strippingTopComment else {
+            return XCTFail("Expected an enum of schemas", file: file, line: line)
+        }
+        for member in schemas.members { collect(member, parent: []) }
+        XCTAssertEqual(boxed, expected, file: file, line: line)
     }
 
     func assertResponsesTranslation(
