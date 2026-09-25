@@ -78,7 +78,7 @@ final class Test_TextBasedRenderer: XCTestCase {
     func testImports() throws {
         try _test(nil, renderedBy: TextBasedRenderer.renderImports, rendersAs: "")
         try _test(
-            [ImportDescription(moduleName: "Foo"), ImportDescription(moduleName: "Bar")],
+            [.always(ImportDescription(moduleName: "Foo")), .always(ImportDescription(moduleName: "Bar"))],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 import Foo
@@ -86,14 +86,14 @@ final class Test_TextBasedRenderer: XCTestCase {
                 """#
         )
         try _test(
-            [ImportDescription(moduleName: "Foo", spi: "Secret")],
+            [.always(ImportDescription(moduleName: "Foo", spi: "Secret"))],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 @_spi(Secret) import Foo
                 """#
         )
         try _test(
-            [ImportDescription(moduleName: "Foo", preconcurrency: .onOS(["Bar", "Baz"]))],
+            [.always(ImportDescription(moduleName: "Foo", preconcurrency: .onOS(["Bar", "Baz"])))],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 #if os(Bar) || os(Baz)
@@ -105,8 +105,8 @@ final class Test_TextBasedRenderer: XCTestCase {
         )
         try _test(
             [
-                ImportDescription(moduleName: "Foo", preconcurrency: .always),
-                ImportDescription(moduleName: "Bar", spi: "Secret", preconcurrency: .always),
+                .always(ImportDescription(moduleName: "Foo", preconcurrency: .always)),
+                .always(ImportDescription(moduleName: "Bar", spi: "Secret", preconcurrency: .always)),
             ],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
@@ -114,11 +114,33 @@ final class Test_TextBasedRenderer: XCTestCase {
                 @preconcurrency @_spi(Secret) import Bar
                 """#
         )
+        try _test(
+            [
+                .conditional(
+                    condition: .canImport("MyModule"),
+                    thenImportDescription: ImportDescription(
+                        moduleName: "MyModule2",
+                        spi: "Secret",
+                        preconcurrency: .always
+                    ),
+                    elseImportDescription: ImportDescription(moduleName: "MyModule3")
+                ), .always(ImportDescription(moduleName: "Bar", spi: "Secret", preconcurrency: .always)),
+            ],
+            renderedBy: TextBasedRenderer.renderImports,
+            rendersAs: #"""
+                #if canImport(MyModule)
+                @preconcurrency @_spi(Secret) import MyModule2
+                #else
+                import MyModule3
+                #endif
+                @preconcurrency @_spi(Secret) import Bar
+                """#
+        )
     }
 
     func testImportsWithPublicAccessModifier() throws {
         try _test(
-            [ImportDescription(moduleName: "Foo", accessModifier: .public)],
+            [.always(ImportDescription(moduleName: "Foo", accessModifier: .public))],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 public import Foo
@@ -128,7 +150,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testImportsWithPackageAccessModifier() throws {
         try _test(
-            [ImportDescription(moduleName: "Foo", accessModifier: .package)],
+            [.always(ImportDescription(moduleName: "Foo", accessModifier: .package))],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 package import Foo
@@ -138,7 +160,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testImportsWithInternalAccessModifier() throws {
         try _test(
-            [ImportDescription(moduleName: "Foo", accessModifier: .internal)],
+            [.always(ImportDescription(moduleName: "Foo", accessModifier: .internal))],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 import Foo
@@ -148,7 +170,16 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testImportsWithAccessModifierAndAttributes() throws {
         try _test(
-            [ImportDescription(moduleName: "Foo", spi: "Secret", accessModifier: .public, preconcurrency: .always)],
+            [
+                .always(
+                    ImportDescription(
+                        moduleName: "Foo",
+                        spi: "Secret",
+                        accessModifier: .public,
+                        preconcurrency: .always
+                    )
+                )
+            ],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 @preconcurrency @_spi(Secret) public import Foo
@@ -159,10 +190,12 @@ final class Test_TextBasedRenderer: XCTestCase {
     func testImportsWithAccessModifierAndModuleTypes() throws {
         try _test(
             [
-                ImportDescription(
-                    moduleName: "Foundation",
-                    moduleTypes: ["struct Foundation.URL"],
-                    accessModifier: .public
+                .always(
+                    ImportDescription(
+                        moduleName: "Foundation",
+                        moduleTypes: ["struct Foundation.URL"],
+                        accessModifier: .public
+                    )
                 )
             ],
             renderedBy: TextBasedRenderer.renderImports,
@@ -174,7 +207,7 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testImportsWithAccessModifierAndPreconcurrencyOnOS() throws {
         try _test(
-            [ImportDescription(moduleName: "Foo", accessModifier: .public, preconcurrency: .onOS(["Linux"]))],
+            [.always(ImportDescription(moduleName: "Foo", accessModifier: .public, preconcurrency: .onOS(["Linux"])))],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 #if os(Linux)
@@ -821,7 +854,7 @@ final class Test_TextBasedRenderer: XCTestCase {
         try _test(
             .init(
                 topComment: .inline("hi"),
-                imports: [.init(moduleName: "Foo")],
+                imports: [.always(.init(moduleName: "Foo"))],
                 codeBlocks: [.init(comment: nil, item: .declaration(.struct(.init(name: "Bar"))))]
             ),
             renderedBy: TextBasedRenderer.renderFile,
