@@ -121,7 +121,11 @@ final class Test_TextBasedRenderer: XCTestCase {
             [ImportDescription(moduleName: "Foo", accessModifier: .public)],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
+                #if hasFeature(SourceWarningControl)
+                @diagnose(UnusedImportAccess, as: ignored) public import Foo
+                #else
                 public import Foo
+                #endif
                 """#
         )
     }
@@ -131,7 +135,11 @@ final class Test_TextBasedRenderer: XCTestCase {
             [ImportDescription(moduleName: "Foo", accessModifier: .package)],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
+                #if hasFeature(SourceWarningControl)
+                @diagnose(UnusedImportAccess, as: ignored) package import Foo
+                #else
                 package import Foo
+                #endif
                 """#
         )
     }
@@ -148,10 +156,21 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testImportsWithAccessModifierAndAttributes() throws {
         try _test(
-            [ImportDescription(moduleName: "Foo", spi: "Secret", accessModifier: .public, preconcurrency: .always)],
+            [
+                ImportDescription(
+                    moduleName: "Foo",
+                    spi: "Secret",
+                    accessModifier: .public,
+                    preconcurrency: .always
+                )
+            ],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
+                #if hasFeature(SourceWarningControl)
+                @diagnose(UnusedImportAccess, as: ignored) @preconcurrency @_spi(Secret) public import Foo
+                #else
                 @preconcurrency @_spi(Secret) public import Foo
+                #endif
                 """#
         )
     }
@@ -167,20 +186,57 @@ final class Test_TextBasedRenderer: XCTestCase {
             ],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
+                #if hasFeature(SourceWarningControl)
+                @diagnose(UnusedImportAccess, as: ignored) public import struct Foundation.URL
+                #else
                 public import struct Foundation.URL
+                #endif
                 """#
         )
     }
 
     func testImportsWithAccessModifierAndPreconcurrencyOnOS() throws {
         try _test(
-            [ImportDescription(moduleName: "Foo", accessModifier: .public, preconcurrency: .onOS(["Linux"]))],
+            [
+                ImportDescription(
+                    moduleName: "Foo",
+                    accessModifier: .public,
+                    preconcurrency: .onOS(["Linux"])
+                )
+            ],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
+                #if hasFeature(SourceWarningControl)
+                #if os(Linux)
+                @diagnose(UnusedImportAccess, as: ignored) @preconcurrency public import Foo
+                #else
+                @diagnose(UnusedImportAccess, as: ignored) public import Foo
+                #endif
+                #else
                 #if os(Linux)
                 @preconcurrency public import Foo
                 #else
                 public import Foo
+                #endif
+                #endif
+                """#
+        )
+    }
+
+    func testImportsIgnoringUnusedImportAccess() throws {
+        try _test(
+            [
+                ImportDescription(moduleName: "Foo", accessModifier: .public),
+                ImportDescription(moduleName: "Bar", setsAccessModifier: false),
+            ],
+            renderedBy: TextBasedRenderer.renderImports,
+            rendersAs: #"""
+                #if hasFeature(SourceWarningControl)
+                @diagnose(UnusedImportAccess, as: ignored) public import Foo
+                import Bar
+                #else
+                public import Foo
+                import Bar
                 #endif
                 """#
         )
