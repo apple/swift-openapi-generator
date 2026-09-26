@@ -119,6 +119,11 @@ enum LiteralDescription: Equatable, Codable {
     /// For example `42`.
     case int(Int)
 
+    /// A double literal.
+    ///
+    /// For example `42.24`.
+    case double(Double)
+
     /// A Boolean literal.
     ///
     /// For example `true`.
