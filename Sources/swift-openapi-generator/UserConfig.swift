@@ -51,6 +51,10 @@ struct _UserConfig: Codable {
     /// A set of features to explicitly enable.
     var featureFlags: FeatureFlags?
 
+    /// The largest estimated inline size, in bytes, a `#/components/schemas` type may have before
+    /// it is boxed.
+    var maxInlineSchemaSize: Int?
+
     /// A set of raw values corresponding to the coding keys of this struct.
     static let codingKeysRawValues = Set(CodingKeys.allCases.map({ $0.rawValue }))
 
@@ -64,6 +68,7 @@ struct _UserConfig: Codable {
         case nameOverrides
         case typeOverrides
         case featureFlags
+        case maxInlineSchemaSize
     }
 
     /// A container of type overrides.
