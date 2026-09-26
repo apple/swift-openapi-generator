@@ -28,6 +28,12 @@
 public enum FeatureFlag: String, Hashable, Codable, CaseIterable, Sendable {
     // needs to be here for the enum to compile
     case empty
+
+    /// Represent wildcard response bodies as content-typed payloads.
+    ///
+    /// Generates response bodies for `*/*` as `OpenAPIContentTypedBody`
+    /// instead of plain `HTTPBody`.
+    case concreteWildcardResponseBodies
 }
 
 /// A set of enabled feature flags.
