@@ -25,7 +25,7 @@ At the time of writing, the list of coders used is as follows.
 
 | Format | Encoder | Decoder | Supported in |
 | ------ | ------- | ------- | ----- |
-| JSON | `Foundation.JSONEncoder` | `Foundation.JSONDecoder` | Bodies, headers |
+| JSON | `Foundation.JSONEncoder` | `Foundation.JSONDecoder` | Bodies, headers, query items |
 | URI (†) | `OpenAPIRuntime.URIEncoder` | `OpenAPIRuntime.URIDecoder` | Path, query, headers |
 | Plain text | `OpenAPIRuntime.StringEncoder` | `OpenAPIRuntime.StringDecoder` | Bodies |
 
@@ -91,6 +91,7 @@ method parameters: value or type of value
 | common | get | header field | JSON | required | getRequiredHeaderFieldAsJSON |
 | client | set | request path | URI | required | renderedPath |
 | client | set | request query | URI | both | setQueryItemAsURI |
+| client | set | request query | JSON | both | setQueryItemAsJSON |
 | client | set | request body | JSON | optional | setOptionalRequestBodyAsJSON |
 | client | set | request body | JSON | required | setRequiredRequestBodyAsJSON |
 | client | set | request body | binary | optional | setOptionalRequestBodyAsBinary |
@@ -104,6 +105,8 @@ method parameters: value or type of value
 | server | get | request path | URI | required | getPathParameterAsURI |
 | server | get | request query | URI | optional | getOptionalQueryItemAsURI |
 | server | get | request query | URI | required | getRequiredQueryItemAsURI |
+| server | get | request query | JSON | optional | getOptionalQueryItemAsJSON |
+| server | get | request query | JSON | required | getRequiredQueryItemAsJSON |
 | server | get | request body | JSON | optional | getOptionalRequestBodyAsJSON |
 | server | get | request body | JSON | required | getRequiredRequestBodyAsJSON |
 | server | get | request body | binary | optional | getOptionalRequestBodyAsBinary |

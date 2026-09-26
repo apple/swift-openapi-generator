@@ -3016,6 +3016,75 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testRequestWithRequiredJSONQueryItem() throws {
+        try self.assertRequestInTypesClientServerTranslation(
+            """
+            /foo:
+              get:
+                parameters:
+                  - name: filters
+                    in: query
+                    required: true
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+                          items:
+                            type: string
+                responses:
+                  default:
+                    description: Response
+            """,
+            input: """
+                public struct Input: Sendable, Hashable {
+                    public struct Query: Sendable, Hashable {
+                        public var filters: [Swift.String]
+                        public init(filters: [Swift.String]) {
+                            self.filters = filters
+                        }
+                    }
+                    public var query: Operations.get_sol_foo.Input.Query
+                    public init(query: Operations.get_sol_foo.Input.Query) {
+                        self.query = query
+                    }
+                }
+                """,
+            client: """
+                { input in
+                    let path = try converter.renderedPath(
+                        template: "/foo",
+                        parameters: []
+                    )
+                    var request: HTTPTypes.HTTPRequest = .init(
+                        soar_path: path,
+                        method: .get
+                    )
+                    suppressMutabilityWarning(&request)
+                    try converter.setQueryItemAsJSON(
+                        in: &request,
+                        style: .form,
+                        explode: true,
+                        name: "filters",
+                        value: input.query.filters
+                    )
+                    return (request, nil)
+                }
+                """,
+            server: """
+                { request, requestBody, metadata in
+                    let query: Operations.get_sol_foo.Input.Query = .init(filters: try converter.getRequiredQueryItemAsJSON(
+                        in: request.soar_query,
+                        style: .form,
+                        explode: true,
+                        name: "filters",
+                        as: [Swift.String].self
+                    ))
+                    return Operations.get_sol_foo.Input(query: query)
+                }
+                """
+        )
+    }
+
     func testRequestWithPathParams() throws {
         try self.assertRequestInTypesClientServerTranslation(
             """
