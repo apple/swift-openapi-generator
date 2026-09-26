@@ -207,6 +207,13 @@ fileprivate extension UniversalServer where APIHandler: APIProtocol {
                         explode: true,
                         name: "since",
                         as: Components.Parameters.Query_bornSince.self
+                    ),
+                    jsonFilters: try converter.getOptionalQueryItemAsJSON(
+                        in: request.soar_query,
+                        style: .form,
+                        explode: true,
+                        name: "jsonFilters",
+                        as: Components.Parameters.Query_jsonFilters.self
                     )
                 )
                 let headers: Operations.ListPets.Input.Headers = .init(

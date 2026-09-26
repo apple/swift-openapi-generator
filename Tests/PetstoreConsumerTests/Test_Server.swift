@@ -34,6 +34,7 @@ final class Test_Server: XCTestCase {
             XCTAssertEqual(input.query.since, .test)
             XCTAssertEqual(input.query.feeds, [.carnivore, .herbivore])
             XCTAssertEqual(input.query.sort, .init(id: "ascending", name: "descending"))
+            XCTAssertEqual(input.query.jsonFilters, [.init(name: "whale", state: "water"), .init(name: "dog")])
             XCTAssertEqual(input.headers.myRequestUUID, "abcd-1234")
             return .ok(
                 .init(
@@ -45,7 +46,7 @@ final class Test_Server: XCTestCase {
         let (response, responseBody) = try await server.listPets(
             .init(
                 soar_path:
-                    "/api/pets?limit=24&habitat=water&feeds=carnivore&feeds=herbivore&sort%5Bid%5D=ascending&sort%5Bname%5D=descending&filter%5Bname%5D=whale&since=\(Date.testString)",
+                    "/api/pets?limit=24&habitat=water&feeds=carnivore&feeds=herbivore&sort%5Bid%5D=ascending&sort%5Bname%5D=descending&filter%5Bname%5D=whale&since=\(Date.testString)&jsonFilters=%5B%7B%22name%22%3A%22whale%22%2C%22state%22%3A%22water%22%7D%2C%7B%22name%22%3A%22dog%22%7D%5D",
                 method: .get,
                 headerFields: [.init("My-Request-UUID")!: "abcd-1234"]
             ),
@@ -81,7 +82,8 @@ final class Test_Server: XCTestCase {
 
     func testListPets_default() async throws {
         client = .init(listPetsBlock: { input in
-            .default(statusCode: 400, .init(body: .json(.init(code: 1, me_dollar_sage: "Oh no!"))))
+            XCTAssertNil(input.query.jsonFilters)
+            return .default(statusCode: 400, .init(body: .json(.init(code: 1, me_dollar_sage: "Oh no!"))))
         })
         let (response, responseBody) = try await server.listPets(
             .init(soar_path: "/api/pets?filter%5Bname%5D=whale", method: .get),

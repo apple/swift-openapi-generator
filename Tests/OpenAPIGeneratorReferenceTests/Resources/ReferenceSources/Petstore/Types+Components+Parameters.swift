@@ -16,6 +16,10 @@ extension Components {
         ///
         /// - Remark: Generated from `#/components/parameters/query.born-since`.
         public typealias Query_bornSince = Components.Schemas.Dob
+        /// Filter pets with structured JSON criteria.
+        ///
+        /// - Remark: Generated from `#/components/parameters/query.json-filters`.
+        public typealias Query_jsonFilters = [Components.Schemas.PetFilter]
         /// The id of the pet to retrieve
         ///
         /// - Remark: Generated from `#/components/parameters/path.petId`.
