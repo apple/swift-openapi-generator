@@ -172,7 +172,7 @@ extension ServerFileTranslator {
             .identifierPattern("transport").dot("register")
                 .call([
                     .init(label: nil, expression: wrapperClosureExpr),
-                    .init(label: "method", expression: .dot(description.httpMethodLowercased)),
+                    .init(label: "method", expression: try description.httpMethodExpression),
                     .init(
                         label: "path",
                         expression: .identifierPattern(serverUrlVariableName).dot("apiPathComponentsWithServerPrefix")

@@ -339,6 +339,13 @@ final class Test_TextBasedRenderer: XCTestCase {
                 callee(foo)
                 """#
         )
+        try _test(
+            .dot("init").call([.init(label: nil, expression: .literal("SUBSCRIBE"))]).forceUnwrapped(),
+            renderedBy: TextBasedRenderer.renderExpression,
+            rendersAs: #"""
+                .init("SUBSCRIBE")!
+                """#
+        )
     }
 
     func testDeclaration() throws {

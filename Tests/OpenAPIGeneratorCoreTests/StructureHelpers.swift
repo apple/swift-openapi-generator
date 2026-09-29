@@ -54,6 +54,7 @@ enum ExprKind: String, Equatable, CustomStringConvertible {
     case binaryOperation
     case inOut
     case optionalChaining
+    case forceUnwrap
     case tuple
 
     var description: String { rawValue }
@@ -177,6 +178,7 @@ extension _OpenAPIGeneratorCore.Expression {
         case .binaryOperation(let value): return .init(name: value.operation.rawValue, kind: .binaryOperation)
         case .inOut(let value): return .init(name: value.referencedExpr.info.name, kind: .inOut)
         case .optionalChaining(let value): return .init(name: value.referencedExpr.info.name, kind: .optionalChaining)
+        case .forceUnwrap(let value): return .init(name: value.referencedExpr.info.name, kind: .forceUnwrap)
         case .tuple(_): return .init(name: nil, kind: .tuple)
         }
     }

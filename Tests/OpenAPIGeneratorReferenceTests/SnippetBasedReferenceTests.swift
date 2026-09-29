@@ -2709,6 +2709,116 @@ final class SnippetBasedReferenceTests: XCTestCase {
         )
     }
 
+    func testServerRegisterHandlers_methodsWithoutStaticMember() throws {
+        try self.assertServerRegisterHandlers(
+            """
+            /pets:
+              get:
+                operationId: listPets
+                responses:
+                  '204':
+                    description: A success response.
+              query:
+                operationId: searchPets
+                responses:
+                  '204':
+                    description: A success response.
+              additionalOperations:
+                SUBSCRIBE:
+                  operationId: subscribePets
+                  responses:
+                    '204':
+                      description: A success response.
+                CONNECT:
+                  operationId: connectPets
+                  responses:
+                    '204':
+                      description: A success response.
+            """,
+            """
+            public func registerHandlers(
+                on transport: any ServerTransport,
+                serverURL: Foundation.URL = .defaultOpenAPIServerURL,
+                configuration: Configuration = .init(),
+                middlewares: [any ServerMiddleware] = []
+            ) throws {
+                let server = UniversalServer(
+                    serverURL: serverURL,
+                    handler: self,
+                    configuration: configuration,
+                    middlewares: middlewares
+                )
+                try transport.register(
+                    {
+                        try await server.listPets(
+                            request: $0,
+                            body: $1,
+                            metadata: $2
+                        )
+                    },
+                    method: .get,
+                    path: server.apiPathComponentsWithServerPrefix("/pets")
+                )
+                try transport.register(
+                    {
+                        try await server.searchPets(
+                            request: $0,
+                            body: $1,
+                            metadata: $2
+                        )
+                    },
+                    method: .query,
+                    path: server.apiPathComponentsWithServerPrefix("/pets")
+                )
+                try transport.register(
+                    {
+                        try await server.subscribePets(
+                            request: $0,
+                            body: $1,
+                            metadata: $2
+                        )
+                    },
+                    method: .init("SUBSCRIBE")!,
+                    path: server.apiPathComponentsWithServerPrefix("/pets")
+                )
+                try transport.register(
+                    {
+                        try await server.connectPets(
+                            request: $0,
+                            body: $1,
+                            metadata: $2
+                        )
+                    },
+                    method: .connect,
+                    path: server.apiPathComponentsWithServerPrefix("/pets")
+                )
+            }
+            """
+        )
+    }
+
+    func testServerRegisterHandlers_invalidMethod() throws {
+        XCTAssertThrowsError(
+            try self.assertServerRegisterHandlers(
+                """
+                /pets:
+                  additionalOperations:
+                    SUB SCRIBE:
+                      operationId: subscribePets
+                      responses:
+                        '204':
+                          description: A success response.
+                """,
+                ""
+            )
+        ) { error in
+            XCTAssertEqual(
+                "\(error)",
+                "Invalid HTTP method 'SUB SCRIBE' at path '/pets', must be a token as defined by RFC 9110."
+            )
+        }
+    }
+
     func testPathWithPathItemReference() throws {
         XCTAssertThrowsError(
             try self.assertPathsTranslation(

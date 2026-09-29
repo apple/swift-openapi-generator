@@ -41,7 +41,7 @@ extension ClientFileTranslator {
             right: .dot("init")
                 .call([
                     .init(label: "soar_path", expression: .identifierPattern("path")),
-                    .init(label: "method", expression: .dot(description.httpMethodLowercased)),
+                    .init(label: "method", expression: try description.httpMethodExpression),
                 ])
         )
 
