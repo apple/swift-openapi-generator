@@ -950,6 +950,17 @@ struct OptionalChainingDescription: Equatable, Codable {
     var referencedExpr: Expression
 }
 
+/// A description of a force unwrap expression.
+///
+/// For example, in `foo!`, `referencedExpr` is `foo`.
+struct ForceUnwrapDescription: Equatable, Codable {
+
+    /// The referenced expression.
+    ///
+    /// For example, in `foo!`, `referencedExpr` is `foo`.
+    var referencedExpr: Expression
+}
+
 /// A description of a tuple.
 ///
 /// For example: `(foo, bar)`.
@@ -1031,6 +1042,11 @@ indirect enum Expression: Equatable, Codable {
     ///
     /// For example, in `foo?`, `referencedExpr` is `foo`.
     case optionalChaining(OptionalChainingDescription)
+
+    /// A force unwrap expression.
+    ///
+    /// For example, in `foo!`, `referencedExpr` is `foo`.
+    case forceUnwrap(ForceUnwrapDescription)
 
     /// A tuple expression.
     ///
@@ -1572,6 +1588,13 @@ extension Expression {
     /// For example, for the current expression `foo`, returns `foo?`.
     /// - Returns: A new expression representing the optional chaining operation.
     func optionallyChained() -> Self { .optionalChaining(.init(referencedExpr: self)) }
+
+    /// Returns a new force unwrap expression wrapping the current
+    /// expression.
+    ///
+    /// For example, for the current expression `foo`, returns `foo!`.
+    /// - Returns: A new expression representing the force unwrap operation.
+    func forceUnwrapped() -> Self { .forceUnwrap(.init(referencedExpr: self)) }
 
     /// Returns a new tuple expression.
     ///

@@ -80,7 +80,8 @@ For any other formats, the payload is provided as raw bytes (using the `HTTPBody
 - [x] $ref
 - [x] summary
 - [x] description
-- [x] get/put/post/delete/options/head/patch/trace
+- [x] get/put/post/delete/options/head/patch/trace/query
+- [x] additionalOperations
 - [ ] servers
 - [x] parameters
 

@@ -27,6 +27,24 @@ enum Constants {
         static let httpTypes: String = "HTTPTypes"
     }
 
+    /// Constants related to HTTP methods.
+    enum HTTPMethod {
+
+        /// The HTTP methods that have a public static member on `HTTPRequest.Method`, such as `.get` for `GET`.
+        ///
+        /// OpenAPI 3.2.1 defines nine methods as fixed fields of the Path Item Object: `GET`, `PUT`, `POST`,
+        /// `DELETE`, `OPTIONS`, `HEAD`, `PATCH`, `TRACE`, and `QUERY`. Any other method goes in the
+        /// `additionalOperations` map. This set contains those nine methods plus `CONNECT`, which also has
+        /// a static member on `HTTPRequest.Method` but isn't a fixed field in OpenAPI.
+        ///
+        /// Details: https://spec.openapis.org/oas/v3.2.1.html#path-item-object
+        ///
+        /// Other methods, for example `SUBSCRIBE`, are created using the failable initializer.
+        static let methodsWithStaticMember: Set<String> = [
+            "GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "QUERY",
+        ]
+    }
+
     /// Constants related to the generated Swift files.
     enum File {
 

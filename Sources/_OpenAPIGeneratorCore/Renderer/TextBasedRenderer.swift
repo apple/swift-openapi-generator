@@ -411,6 +411,13 @@ struct TextBasedRenderer: RendererProtocol {
         writer.writeLine("?")
     }
 
+    /// Renders the specified force unwrap expression.
+    func renderForceUnwrapDescription(_ description: ForceUnwrapDescription) {
+        renderExpression(description.referencedExpr)
+        writer.nextLineAppendsToLastLine()
+        writer.writeLine("!")
+    }
+
     /// Renders the specified tuple expression.
     func renderTupleDescription(_ description: TupleDescription) {
         writer.writeLine("(")
@@ -444,6 +451,7 @@ struct TextBasedRenderer: RendererProtocol {
         case .binaryOperation(let binaryOperation): renderBinaryOperation(binaryOperation)
         case .inOut(let inOut): renderInOutDescription(inOut)
         case .optionalChaining(let optionalChaining): renderOptionalChainingDescription(optionalChaining)
+        case .forceUnwrap(let forceUnwrap): renderForceUnwrapDescription(forceUnwrap)
         case .tuple(let tuple): renderTupleDescription(tuple)
         }
     }
