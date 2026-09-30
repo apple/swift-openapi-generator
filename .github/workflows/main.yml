@@ -15,19 +15,20 @@ jobs:
     uses: apple/swift-nio/.github/workflows/unit_tests.yml@main
     with:
       linux_5_10_arguments_override: "--explicit-target-dependency-import-check error"
-      linux_6_1_arguments_override: "--explicit-target-dependency-import-check error"
+      linux_6_1_enabled: false
       linux_6_2_arguments_override: "--explicit-target-dependency-import-check error"
       linux_6_3_arguments_override: "--explicit-target-dependency-import-check error"
+      linux_6_4_arguments_override: "--explicit-target-dependency-import-check error"
       linux_nightly_next_arguments_override: "--explicit-target-dependency-import-check error"
       linux_nightly_main_arguments_override: "--explicit-target-dependency-import-check error"
-      windows_6_1_enabled: true
       windows_6_2_enabled: true
       windows_6_3_enabled: true
+      windows_6_4_enabled: true
       windows_nightly_next_enabled: true
       windows_nightly_main_enabled: true
-      windows_6_1_arguments_override: "--explicit-target-dependency-import-check error"
       windows_6_2_arguments_override: "--explicit-target-dependency-import-check error"
       windows_6_3_arguments_override: "--explicit-target-dependency-import-check error"
+      windows_6_4_arguments_override: "--explicit-target-dependency-import-check error"
       windows_nightly_next_arguments_override: "--explicit-target-dependency-import-check error"
       windows_nightly_main_arguments_override: "--explicit-target-dependency-import-check error"
 
@@ -96,8 +97,8 @@ jobs:
     name: Release builds
     uses: apple/swift-nio/.github/workflows/release_builds.yml@main
     with:
-      windows_6_1_enabled: true
       windows_6_2_enabled: true
       windows_6_3_enabled: true
+      windows_6_4_enabled: true
       windows_nightly_next_enabled: true
       windows_nightly_main_enabled: true
