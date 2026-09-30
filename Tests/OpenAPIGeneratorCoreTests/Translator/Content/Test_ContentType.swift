@@ -77,4 +77,23 @@ final class Test_ContentType: Test_Core {
             XCTAssertEqual(contentType.originallyCasedTypeSubtypeAndParameters, originallyCasedOutputWithParameters)
         }
     }
+
+    func testHeaderValues() throws {
+        let cases: [(input: String, forSending: String, forValidation: String)] = [
+            ("application/json", "application/json; charset=utf-8", "application/json"),
+            ("APPLICATION/JSON", "application/json; charset=utf-8", "application/json"),
+            ("application/json; charset=utf-8", "application/json; charset=utf-8", "application/json; charset=utf-8"),
+            // Parameter names are case-insensitive, but values are case-sensitive.
+            ("application/json;charset=UTF-8", "application/json; charset=UTF-8", "application/json; charset=UTF-8"),
+            ("application/json; CHARSET=UTF-8", "application/json; charset=UTF-8", "application/json; charset=UTF-8"),
+            ("application/json; foo=Bar", "application/json; foo=Bar; charset=utf-8", "application/json; foo=Bar"),
+            ("text/plain; charset=UTF-8", "text/plain; charset=UTF-8", "text/plain; charset=UTF-8"),
+            ("Foo/Bar", "foo/bar", "foo/bar"),
+        ]
+        for (input, forSending, forValidation) in cases {
+            let contentType = try ContentType(string: input)
+            XCTAssertEqual(contentType.headerValueForSending, forSending, "Input: \(input)")
+            XCTAssertEqual(contentType.headerValueForValidation, forValidation, "Input: \(input)")
+        }
+    }
 }
