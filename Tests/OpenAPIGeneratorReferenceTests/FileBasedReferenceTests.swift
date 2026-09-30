@@ -86,24 +86,33 @@ final class FileBasedReferenceTests: XCTestCase {
             config: referenceTest.asConfig,
             ignoredDiagnosticMessages: ignoredDiagnosticMessages
         )
-        let generatedOutputSource = try generatorPipeline.run(input)
+        let generatedOutputSources = try generatorPipeline.run(input)
+        XCTAssertFalse(generatedOutputSources.isEmpty)
 
         // Write generated sources to temporary directory
         let generatedOutputDir = try self.temporaryDirectory()
-        let generatedOutputFile = URL(fileURLWithPath: generatedOutputSource.baseName, relativeTo: generatedOutputDir)
-        try generatedOutputSource.contents.write(to: generatedOutputFile)
+        for generatedOutputSource in generatedOutputSources {
+            let generatedOutputFile = URL(
+                fileURLWithPath: generatedOutputSource.baseName,
+                relativeTo: generatedOutputDir
+            )
+            try generatedOutputSource.contents.write(to: generatedOutputFile)
+        }
 
         // Compare the generated directory with the reference directory
         let referenceOutputDir = URL(
             fileURLWithPath: referenceTest.referenceOutputDirectory,
             relativeTo: referenceTestResourcesDirectory
         )
-        let referenceOutputFile = referenceOutputDir.appendingPathComponent(generatedOutputSource.baseName)
-        self.assert(
-            contentsOf: generatedOutputFile,
-            equalsContentsOf: referenceOutputFile,
-            runDiffWhenContentsDiffer: true
-        )
+        for generatedOutputSource in generatedOutputSources {
+            let generatedOutputFile = generatedOutputDir.appendingPathComponent(generatedOutputSource.baseName)
+            let referenceOutputFile = referenceOutputDir.appendingPathComponent(generatedOutputSource.baseName)
+            self.assert(
+                contentsOf: generatedOutputFile,
+                equalsContentsOf: referenceOutputFile,
+                runDiffWhenContentsDiffer: true
+            )
+        }
     }
 
     enum ReferenceProjectName: String, Hashable, CaseIterable {
@@ -151,12 +160,10 @@ extension FileBasedReferenceTests {
     {
         let parser = YamsParser()
         let translator = MultiplexTranslator()
-        let renderer = TextBasedRenderer.default
-
         return _OpenAPIGeneratorCore.makeGeneratorPipeline(
             parser: parser,
             translator: translator,
-            renderer: renderer,
+            makeRenderer: { TextBasedRenderer.default },
             config: config,
             diagnostics: XCTestDiagnosticCollector(test: self, ignoredDiagnosticMessages: ignoredDiagnosticMessages)
         )

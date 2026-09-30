@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import Foundation
+public import Foundation
 
 #if $RetroactiveAttribute
 extension FileHandle: @retroactive TextOutputStream {}

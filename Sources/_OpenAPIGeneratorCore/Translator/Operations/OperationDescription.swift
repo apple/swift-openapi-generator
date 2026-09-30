@@ -40,8 +40,42 @@ struct OperationDescription {
     /// The HTTP method of the operation.
     var httpMethod: OpenAPI.HttpMethod { endpoint.method }
 
-    /// Returns a lowercased string for the HTTP method.
-    var httpMethodLowercased: String { httpMethod.rawValue.lowercased() }
+    /// Returns an expression of the `HTTPRequest.Method` value for the HTTP method.
+    ///
+    /// Uses the static member for methods that have one, for example `.get`,
+    /// and the failable initializer otherwise, for example `.init("SUBSCRIBE")!`.
+    /// - Throws: An error if the HTTP method isn't a valid token as defined by RFC 9110.
+    var httpMethodExpression: Expression {
+        get throws {
+            let method = httpMethod.rawValue
+            if Constants.HTTPMethod.methodsWithStaticMember.contains(method) { return .dot(method.lowercased()) }
+            guard method.isValidHTTPMethodToken else {
+                throw GenericError(
+                    message:
+                        "Invalid HTTP method '\(method)' at path '\(path.rawValue)', must be a token as defined by RFC 9110."
+                )
+            }
+            return .dot("init").call([.init(label: nil, expression: .literal(method))]).forceUnwrapped()
+        }
+    }
+}
+
+extension String {
+
+    /// A Boolean value indicating whether the string is a valid HTTP method token.
+    ///
+    /// See [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html#name-methods).
+    fileprivate var isValidHTTPMethodToken: Bool {
+        !isEmpty
+            && unicodeScalars.allSatisfy { scalar in
+                switch scalar {
+                case "0"..."9", "a"..."z", "A"..."Z", "!", "#", "$", "%", "&", "'", "*", "+", "-", ".", "^", "_", "`",
+                    "|", "~":
+                    return true
+                default: return false
+                }
+            }
+    }
 }
 
 extension OperationDescription {

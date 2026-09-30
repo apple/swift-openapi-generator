@@ -155,13 +155,15 @@ fileprivate extension Array where Element == String {
 
 extension ExistingTypeDescription {
 
-    /// The name in the `Components.Schemas.` namespace, if the type can appear
-    /// there. Nil otherwise.
+    /// The name in the `Components.Schemas.` namespace this type references
+    /// without an intervening array or dictionary, if any. Nil otherwise.
     var referencedSchemaComponentName: String? {
         switch self {
         case .member(let components): return components.nameIfTopLevelSchemaComponent
-        case .array(let desc), .dictionaryValue(let desc), .any(let desc), .optional(let desc):
-            return desc.referencedSchemaComponentName
+        case .any(let desc), .optional(let desc): return desc.referencedSchemaComponentName
+        // Arrays and dictionaries provide heap indirection, so a reference reached
+        // only through them cannot form a value-type cycle that needs boxing.
+        case .array, .dictionaryValue: return nil
         case .generic: return nil
         }
     }

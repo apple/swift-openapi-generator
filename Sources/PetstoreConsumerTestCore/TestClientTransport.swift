@@ -11,9 +11,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import OpenAPIRuntime
-import Foundation
-import HTTPTypes
+package import OpenAPIRuntime
+package import Foundation
+package import HTTPTypes
 
 /// A test implementation of the `ClientTransport` protocol.
 ///
@@ -30,19 +30,19 @@ import HTTPTypes
 ///
 /// let client = APIClient(transport: testTransport)
 /// ```
-public struct TestClientTransport: ClientTransport {
+package struct TestClientTransport: ClientTransport {
 
     /// A typealias representing a call handler closure for processing client requests.
-    public typealias CallHandler =
+    package typealias CallHandler =
         @Sendable (HTTPRequest, HTTPBody?, URL, String) async throws -> (HTTPResponse, HTTPBody?)
 
     /// The call handler responsible for processing client requests.
-    public let callHandler: CallHandler
+    package let callHandler: CallHandler
 
     /// Initializes a `TestClientTransport` instance with a custom call handler.
     ///
     /// - Parameter callHandler: The closure responsible for processing client requests.
-    public init(callHandler: @escaping CallHandler) { self.callHandler = callHandler }
+    package init(callHandler: @escaping CallHandler) { self.callHandler = callHandler }
 
     /// Sends a client request using the test transport.
     ///
@@ -53,7 +53,7 @@ public struct TestClientTransport: ClientTransport {
     ///   - operationID: The ID of the operation being performed.
     /// - Returns: The response received from the call handler.
     /// - Throws: An error if the call handler encounters an issue.
-    public func send(_ request: HTTPRequest, body: HTTPBody?, baseURL: URL, operationID: String) async throws -> (
+    package func send(_ request: HTTPRequest, body: HTTPBody?, baseURL: URL, operationID: String) async throws -> (
         HTTPResponse, HTTPBody?
     ) { try await callHandler(request, body, baseURL, operationID) }
 }

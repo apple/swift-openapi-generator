@@ -84,7 +84,7 @@ final class Test_Types: XCTestCase {
         func testJSON<T: Codable & Equatable>(
             _ value: T,
             expectedJSON: String,
-            file: StaticString = #file,
+            file: StaticString = #filePath,
             line: UInt = #line
         ) throws {
             let data = try testEncoder.encode(value)

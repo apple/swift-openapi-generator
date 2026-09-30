@@ -86,5 +86,22 @@ final class Test_Config: Test_Core {
         let attrs = [AttributeDescription(text: "@MyMacro")]
         let annotated = commented.annotate(with: attrs)
         XCTAssertEqual(annotated, .commentable(comment, .annotated(attrs, inner)))
+    func testOutputFileNameRawValues() {
+        XCTAssertEqual(OutputFileName.types.rawValue, "Types.swift")
+        XCTAssertEqual(OutputFileName.typesComponents.rawValue, "Types+Components.swift")
+        XCTAssertEqual(OutputFileName.typesOperations.rawValue, "Types+Operations.swift")
+    }
+
+    func testGeneratorModeOutputFileNames() {
+        XCTAssertEqual(
+            GeneratorMode.types.outputFileNames,
+            Set([
+                .types, .typesComponents, .typesOperations, .typesComponentsSchemas, .typesComponentsParameters,
+                .typesComponentsRequestBodies, .typesComponentsResponses, .typesComponentsHeaders,
+            ])
+        )
+        XCTAssertEqual(GeneratorMode.client.outputFileNames, [.client])
+        XCTAssertEqual(GeneratorMode.server.outputFileNames, [.server])
+        XCTAssertEqual(GeneratorMode.allOutputFileNames, Set(OutputFileName.allCases))
     }
 }

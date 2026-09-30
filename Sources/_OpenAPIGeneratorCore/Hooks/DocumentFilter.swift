@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-@preconcurrency import OpenAPIKit
+@preconcurrency public import OpenAPIKit
 
 /// Rules used to filter an OpenAPI document.
 public struct DocumentFilter: Codable, Sendable {

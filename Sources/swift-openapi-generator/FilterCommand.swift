@@ -44,7 +44,9 @@ struct _FilterCommand: AsyncParsableCommand {
             let configData = try Data(contentsOf: config)
             return try YAMLDecoder().decode(_UserConfig.self, from: configData)
         }
-        let documentInput = try InMemoryInputFile(absolutePath: docPath, contents: Data(contentsOf: docPath))
+        let documentInput = try handleFileOperation(at: docPath, fileDescription: "OpenAPI document") {
+            try InMemoryInputFile(absolutePath: docPath, contents: Data(contentsOf: docPath))
+        }
         let document = try timing(
             "Parsing document",
             YamsParser.parseOpenAPIDocument(documentInput, diagnostics: StdErrPrintingDiagnosticCollector())

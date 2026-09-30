@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Foundation
+public import Foundation
 
 /// Prepares a diagnostics collector.
 /// - Parameter outputPath: A file path where to persist the YAML file. If `nil`, diagnostics will be printed to stderr.

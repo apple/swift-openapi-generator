@@ -34,8 +34,7 @@ struct ClientFileTranslator: FileTranslator {
 
         let topComment = self.topComment
 
-        let imports =
-            Constants.File.clientServerImports + config.additionalImports.map { ImportDescription(moduleName: $0) }
+        let imports = importDescriptions(adding: Constants.File.clientServerImports)
 
         let clientMethodDecls = try OperationDescription.all(from: doc.paths, in: components, context: context)
             .map(translateClientMethod(_:))
@@ -118,11 +117,11 @@ struct ClientFileTranslator: FileTranslator {
         )
         .annotate(with: config.macroAnnotations.client.map(AttributeDescription.init(text:)))
 
-        return StructuredSwiftRepresentation(
-            file: .init(
-                name: GeneratorMode.client.outputFileName,
+        return StructuredSwiftRepresentation(files: [
+            .init(
+                name: GeneratorMode.client.outputFileName.rawValue,
                 contents: .init(topComment: topComment, imports: imports, codeBlocks: [.declaration(clientStructDecl)])
             )
-        )
+        ])
     }
 }

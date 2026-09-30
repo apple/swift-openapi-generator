@@ -29,9 +29,8 @@ public enum NamingStrategy: String, Sendable, Codable, Equatable, CaseIterable {
 /// A structure that contains configuration options for a single execution
 /// of the generator pipeline run.
 ///
-/// A single generator pipeline run produces exactly one file, so for
-/// generating multiple files, create multiple configuration values, each with
-/// a different generator mode.
+/// A single generator pipeline run produces the files associated with one
+/// generator mode.
 public struct Config: Sendable {
 
     /// The generator mode to use.

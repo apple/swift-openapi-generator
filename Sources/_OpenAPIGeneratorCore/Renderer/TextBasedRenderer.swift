@@ -89,10 +89,9 @@ final class StringCodeWriter {
 /// to convert the provided structure code into raw string form.
 struct TextBasedRenderer: RendererProtocol {
 
-    func render(structured: StructuredSwiftRepresentation, config: Config, diagnostics: any DiagnosticCollector) throws
+    func render(namedFile: NamedFileDescription, config: Config, diagnostics: any DiagnosticCollector) throws
         -> InMemoryOutputFile
     {
-        let namedFile = structured.file
         renderFile(namedFile.contents)
         let string = writer.rendered()
         return InMemoryOutputFile(baseName: namedFile.name, contents: Data(string.utf8))
@@ -149,13 +148,21 @@ struct TextBasedRenderer: RendererProtocol {
 
     /// Renders a single import statement.
     func renderImport(_ description: ImportDescription) {
+        let accessModifierPrefix: String
+        switch description.accessModifier {
+        case .public: accessModifierPrefix = renderedAccessModifier(.public) + " "
+        case .package: accessModifierPrefix = renderedAccessModifier(.package) + " "
+        default: accessModifierPrefix = ""
+        }
+
         func render(preconcurrency: Bool) {
             let spiPrefix = description.spi.map { "@_spi(\($0)) " } ?? ""
             let preconcurrencyPrefix = preconcurrency ? "@preconcurrency " : ""
+            let attributePrefix = "\(preconcurrencyPrefix)\(spiPrefix)"
             if let moduleTypes = description.moduleTypes {
-                for type in moduleTypes { writer.writeLine("\(preconcurrencyPrefix)\(spiPrefix)import \(type)") }
+                for type in moduleTypes { writer.writeLine("\(attributePrefix)\(accessModifierPrefix)import \(type)") }
             } else {
-                writer.writeLine("\(preconcurrencyPrefix)\(spiPrefix)import \(description.moduleName)")
+                writer.writeLine("\(attributePrefix)\(accessModifierPrefix)import \(description.moduleName)")
             }
         }
 
@@ -404,6 +411,13 @@ struct TextBasedRenderer: RendererProtocol {
         writer.writeLine("?")
     }
 
+    /// Renders the specified force unwrap expression.
+    func renderForceUnwrapDescription(_ description: ForceUnwrapDescription) {
+        renderExpression(description.referencedExpr)
+        writer.nextLineAppendsToLastLine()
+        writer.writeLine("!")
+    }
+
     /// Renders the specified tuple expression.
     func renderTupleDescription(_ description: TupleDescription) {
         writer.writeLine("(")
@@ -437,6 +451,7 @@ struct TextBasedRenderer: RendererProtocol {
         case .binaryOperation(let binaryOperation): renderBinaryOperation(binaryOperation)
         case .inOut(let inOut): renderInOutDescription(inOut)
         case .optionalChaining(let optionalChaining): renderOptionalChainingDescription(optionalChaining)
+        case .forceUnwrap(let forceUnwrap): renderForceUnwrapDescription(forceUnwrap)
         case .tuple(let tuple): renderTupleDescription(tuple)
         }
     }

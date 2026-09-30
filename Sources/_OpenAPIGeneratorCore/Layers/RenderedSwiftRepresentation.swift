@@ -12,15 +12,15 @@
 //
 //===----------------------------------------------------------------------===//
 #if os(Linux)
-@preconcurrency import struct Foundation.URL
-@preconcurrency import struct Foundation.Data
+@preconcurrency public import struct Foundation.URL
+@preconcurrency public import struct Foundation.Data
 #else
-import struct Foundation.URL
-import struct Foundation.Data
+public import struct Foundation.URL
+public import struct Foundation.Data
 #endif
 
-/// An in-memory file that contains the generated Swift code.
-typealias RenderedSwiftRepresentation = InMemoryOutputFile
+/// In-memory output files emitted by rendering a generator pipeline run.
+typealias RenderedSwiftRepresentation = [InMemoryOutputFile]
 
 /// An in-memory input file that contains the raw data of an OpenAPI document.
 ///

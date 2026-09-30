@@ -33,9 +33,7 @@ struct Handler: APIProtocol {
         let app = try await Vapor.Application.make()
 
         app.get("metrics") { request in
-            var buffer: [UInt8] = []
-            buffer.reserveCapacity(1024)
-            registry.emit(into: &buffer)
+            let buffer = registry.emitToBuffer()
             return String(decoding: buffer, as: UTF8.self)
         }
 

@@ -33,6 +33,20 @@ struct ImportDescription: Equatable, Codable {
     /// would be `@_spi(Secret) import Foo`.
     var spi: String? = nil
 
+    /// The access modifier to apply to the import statement.
+    ///
+    /// When set to `.public` or `.package`, the modifier is prepended to the
+    /// import statement (e.g. `public import Foo`).
+    var accessModifier: AccessModifier? = nil
+
+    /// Whether the global access modifier from the generator config should be
+    /// applied to this import.
+    ///
+    /// Set to `false` for modules whose types don't appear in public
+    /// declarations (e.g. implementation-only imports), so that
+    /// `public import` or `package import` is not incorrectly emitted.
+    var setsAccessModifier: Bool = true
+
     /// Requirements for the `@preconcurrency` attribute.
     var preconcurrency: PreconcurrencyRequirement = .never
 
@@ -953,6 +967,17 @@ struct OptionalChainingDescription: Equatable, Codable {
     var referencedExpr: Expression
 }
 
+/// A description of a force unwrap expression.
+///
+/// For example, in `foo!`, `referencedExpr` is `foo`.
+struct ForceUnwrapDescription: Equatable, Codable {
+
+    /// The referenced expression.
+    ///
+    /// For example, in `foo!`, `referencedExpr` is `foo`.
+    var referencedExpr: Expression
+}
+
 /// A description of a tuple.
 ///
 /// For example: `(foo, bar)`.
@@ -1035,6 +1060,11 @@ indirect enum Expression: Equatable, Codable {
     /// For example, in `foo?`, `referencedExpr` is `foo`.
     case optionalChaining(OptionalChainingDescription)
 
+    /// A force unwrap expression.
+    ///
+    /// For example, in `foo!`, `referencedExpr` is `foo`.
+    case forceUnwrap(ForceUnwrapDescription)
+
     /// A tuple expression.
     ///
     /// For example: `(foo, bar)`.
@@ -1090,8 +1120,8 @@ struct NamedFileDescription: Equatable, Codable {
 /// A file with contents made up of structured Swift code.
 struct StructuredSwiftRepresentation: Equatable, Codable {
 
-    /// The contents of the file.
-    var file: NamedFileDescription
+    /// The contents of the files.
+    var files: [NamedFileDescription]
 }
 
 // MARK: - Conveniences
@@ -1575,6 +1605,13 @@ extension Expression {
     /// For example, for the current expression `foo`, returns `foo?`.
     /// - Returns: A new expression representing the optional chaining operation.
     func optionallyChained() -> Self { .optionalChaining(.init(referencedExpr: self)) }
+
+    /// Returns a new force unwrap expression wrapping the current
+    /// expression.
+    ///
+    /// For example, for the current expression `foo`, returns `foo!`.
+    /// - Returns: A new expression representing the force unwrap operation.
+    func forceUnwrapped() -> Self { .forceUnwrap(.init(referencedExpr: self)) }
 
     /// Returns a new tuple expression.
     ///

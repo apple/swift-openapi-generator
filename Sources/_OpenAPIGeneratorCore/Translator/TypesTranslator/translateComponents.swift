@@ -13,21 +13,27 @@
 //===----------------------------------------------------------------------===//
 import OpenAPIKit
 
+/// A translated component namespace and its output file name.
+struct ComponentNamespaceDescription {
+    /// The namespace's generated output file.
+    var outputFile: OutputFileName
+
+    /// The translated namespace declaration.
+    var declaration: Declaration
+}
+
 extension TypesFileTranslator {
 
-    /// Returns a declaration of a code block containing the components
-    /// namespace, which contains all the reusable component namespaces, such
-    /// as for schemas, parameters, and response headers.
+    /// Returns descriptions of the declarations nested under the components namespace.
     /// - Parameters:
     ///   - components: The components defined in the OpenAPI document.
     ///   - multipartSchemaNames: The names of schemas used as root multipart content.
-    /// - Returns: A code block with the enum representing the components
-    /// namespace.
+    /// - Returns: Descriptions representing the second-level component namespaces.
     /// - Throws: An error if there's an issue during translation of components.
-    func translateComponents(_ components: OpenAPI.Components, multipartSchemaNames: Set<OpenAPI.ComponentKey>) throws
-        -> CodeBlock
-    {
-
+    func translateComponentNamespaceDescriptions(
+        _ components: OpenAPI.Components,
+        multipartSchemaNames: Set<OpenAPI.ComponentKey>
+    ) throws -> [ComponentNamespaceDescription] {
         let schemas = try translateSchemas(components.schemas, multipartSchemaNames: multipartSchemaNames)
         let resolvedParameters = try components.parameters.mapValues { try components.assumeLookupOnce($0) }
         let parameters = try translateComponentParameters(resolvedParameters)
@@ -41,20 +47,12 @@ extension TypesFileTranslator {
         }
         let headers = try translateComponentHeaders(resolvedHeaders)
 
-        let componentsDecl: Declaration = .commentable(
-            .doc(
-                """
-                Types generated from the components section of the OpenAPI document.
-                """
-            ),
-            .enum(
-                .init(
-                    accessModifier: config.access,
-                    name: "Components",
-                    members: [schemas, parameters, requestBodies, responses, headers]
-                )
-            )
-        )
-        return .declaration(componentsDecl)
+        return [
+            .init(outputFile: .typesComponentsSchemas, declaration: schemas),
+            .init(outputFile: .typesComponentsParameters, declaration: parameters),
+            .init(outputFile: .typesComponentsRequestBodies, declaration: requestBodies),
+            .init(outputFile: .typesComponentsResponses, declaration: responses),
+            .init(outputFile: .typesComponentsHeaders, declaration: headers),
+        ]
     }
 }

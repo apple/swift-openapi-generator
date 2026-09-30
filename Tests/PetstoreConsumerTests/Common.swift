@@ -25,7 +25,7 @@ extension HTTPRequest {
     ///   - path: The path of the HTTP request.
     ///   - method: The HTTP method (e.g., GET, POST, PUT, DELETE, etc.).
     ///   - headerFields: HTTP header fields to include in the request.
-    public init(soar_path path: String, method: Method, headerFields: HTTPFields = .init()) {
+    init(soar_path path: String, method: Method, headerFields: HTTPFields = .init()) {
         self.init(method: method, scheme: nil, authority: nil, path: path, headerFields: headerFields)
     }
 }
