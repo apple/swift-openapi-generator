@@ -116,13 +116,24 @@ struct ContentType: Hashable {
     /// The parameter key-value pairs.
     ///
     /// Preserves the casing from the input, do not use this
-    /// for equality comparisons, use `lowercasedParameterPairs` instead.
+    /// for equality comparisons, use `normalizedParameterPairs` instead.
     let originallyCasedParameterPairs: [String]
 
     /// The parameter key-value pairs, lowercased.
     ///
     /// The raw value in its original casing is only provided by `originallyCasedParameterPairs`.
     var lowercasedParameterPairs: [String] { originallyCasedParameterPairs.map { $0.lowercased() } }
+
+    /// The parameter key-value pairs, with lowercased names and values in their original casing.
+    ///
+    /// Parameter names are case-insensitive, but parameter values are case-sensitive,
+    /// so use this for values sent over the wire or compared by the runtime.
+    var normalizedParameterPairs: [String] {
+        originallyCasedParameterPairs.map { pair in
+            guard let separatorIndex = pair.firstIndex(of: "=") else { return pair.lowercased() }
+            return pair[..<separatorIndex].lowercased() + pair[separatorIndex...]
+        }
+    }
 
     /// The parameters string.
     var originallyCasedParametersString: String { originallyCasedParameterPairs.map { "; \($0)" }.joined() }
@@ -182,19 +193,27 @@ struct ContentType: Hashable {
         "\(lowercasedType)\\/\(lowercasedSubtype)" + lowercasedParametersString
     }
 
+    /// The type and subtype lowercased, and the parameters with lowercased
+    /// names and values in their original casing.
+    private var normalizedTypeSubtypeAndParameters: String {
+        lowercasedTypeAndSubtype + normalizedParameterPairs.map { "; \($0)" }.joined()
+    }
+
     /// The header value used when sending a content-type header.
     var headerValueForSending: String {
-        guard case .json = category else { return lowercasedTypeSubtypeAndParameters }
+        guard case .json = category else { return normalizedTypeSubtypeAndParameters }
         // We always encode JSON using JSONEncoder which uses UTF-8.
         // Check if it's already present, if not, append it.
-        guard !lowercasedParameterPairs.contains("charset=") else { return lowercasedTypeSubtypeAndParameters }
-        return lowercasedTypeSubtypeAndParameters + "; charset=utf-8"
+        guard !normalizedParameterPairs.contains(where: { $0.hasPrefix("charset=") }) else {
+            return normalizedTypeSubtypeAndParameters
+        }
+        return normalizedTypeSubtypeAndParameters + "; charset=utf-8"
     }
 
     /// The header value used when validating a content-type header.
     ///
     /// This should be less strict, e.g. not require `charset`.
-    var headerValueForValidation: String { lowercasedTypeSubtypeAndParameters }
+    var headerValueForValidation: String { normalizedTypeSubtypeAndParameters }
 
     /// The coding strategy appropriate for this content type.
     var codingStrategy: CodingStrategy { category.codingStrategy }
