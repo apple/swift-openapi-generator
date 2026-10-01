@@ -26,6 +26,7 @@ final class Test_YamsParser: Test_Core {
         XCTAssertNoThrow(try _test(openAPIVersionString: "3.1.1"))
         XCTAssertNoThrow(try _test(openAPIVersionString: "3.1.2"))
         XCTAssertNoThrow(try _test(openAPIVersionString: "3.2.0"))
+        XCTAssertNoThrow(try _test(openAPIVersionString: "3.2.1"))
 
         let expected1 =
             "/foo.yaml: error: Unsupported document version: openapi: 3.3.0. Please provide a document with OpenAPI versions in the 3.0.x, 3.1.x, or 3.2.x sets."

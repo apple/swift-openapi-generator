@@ -39,8 +39,9 @@ public struct YamsParser: ParserProtocol {
     /// Parses a YAML file as an OpenAPI document.
     ///
     /// This function supports documents following any of the following OpenAPI Specifications:
-    /// - 3.0.0, 3.0.1, 3.0.2, 3.0.3
-    /// - 3.1.0
+    /// - 3.0.0, 3.0.1, 3.0.2, 3.0.3, 3.0.4
+    /// - 3.1.0, 3.1.1, 3.1.2
+    /// - 3.2.0, 3.2.1
     ///
     /// - Parameters
     ///   - input: The file contents of the OpenAPI document.
@@ -75,7 +76,7 @@ public struct YamsParser: ParserProtocol {
                 document = openAPI30Document.convert(to: .v3_1_0)
             case "3.1.0", "3.1.1", "3.1.2":
                 document = try decoder.decode(OpenAPIKit.OpenAPI.Document.self, from: input.contents)
-            case "3.2.0": document = try decoder.decode(OpenAPIKit.OpenAPI.Document.self, from: input.contents)
+            case "3.2.0", "3.2.1": document = try decoder.decode(OpenAPIKit.OpenAPI.Document.self, from: input.contents)
             default:
                 throw Diagnostic.openAPIVersionError(
                     versionString: "openapi: \(openAPIVersion)",
