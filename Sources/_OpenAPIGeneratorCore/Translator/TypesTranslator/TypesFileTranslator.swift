@@ -34,7 +34,7 @@ struct TypesFileTranslator: FileTranslator {
 
         let topComment = self.topComment
 
-        let imports = importDescriptions(adding: Constants.File.imports)
+        let imports = importStatements(adding: Constants.File.imports)
 
         let apiProtocol = try translateAPIProtocol(doc.paths)
 
@@ -52,7 +52,7 @@ struct TypesFileTranslator: FileTranslator {
         let operations = try translateOperations(operationDescriptions)
 
         let rootCodeBlocks: [CodeBlock] = [
-            .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl),
+            self.foundationTypealiasesCodeBlock, .declaration(apiProtocol), .declaration(apiProtocolExtension), .declaration(serversDecl),
         ]
         let componentsRoot = CodeBlock.declaration(
             .commentable(
@@ -97,6 +97,38 @@ struct TypesFileTranslator: FileTranslator {
                     contents: .init(topComment: topComment, imports: imports, codeBlocks: [operations])
                 ),
             ] + componentNamespaceFiles
+        )
+    }
+
+    private var foundationTypealiasesCodeBlock: CodeBlock {
+        .declaration(
+            .canImportConditional(
+                "FoundationEssentials",
+                then: [
+                    .typealias(
+                        accessModifier: self.config.access,
+                        name: TypeName.foundationURLTypeAlias.fullyQualifiedSwiftName,
+                        existingType: .init(.foundationEssentialsURL)
+                    ),
+                    .typealias(
+                        accessModifier: self.config.access,
+                        name: TypeName.foundationDateTypeAlias.fullyQualifiedSwiftName,
+                        existingType: .init(.foundationEssentialsDate)
+                    ),
+                ],
+                else: [
+                    .typealias(
+                        accessModifier: self.config.access,
+                        name: TypeName.foundationURLTypeAlias.fullyQualifiedSwiftName,
+                        existingType: .init(.foundationURL)
+                    ),
+                    .typealias(
+                        accessModifier: self.config.access,
+                        name: TypeName.foundationDateTypeAlias.fullyQualifiedSwiftName,
+                        existingType: .init(.foundationDate)
+                    ),
+                ]
+            )
         )
     }
 }
