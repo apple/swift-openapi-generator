@@ -59,6 +59,18 @@ struct ImportDescription: Equatable, Codable {
         /// The attribute is required only on the named operating systems.
         case onOS([String])
     }
+
+    /// Whether the compiler should be told to ignore this import being unused.
+    ///
+    /// The same imports are emitted into every generated file, so an access-level import is
+    /// often unused in any one of them, which triggers `UnusedImportAccess`. Only an
+    /// access-level import can trigger it.
+    var ignoresUnusedImportAccess: Bool {
+        switch accessModifier {
+        case .public, .package: return true
+        case .internal, .fileprivate, .private, nil: return false
+        }
+    }
 }
 
 /// A description of an access modifier.
