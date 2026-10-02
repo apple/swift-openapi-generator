@@ -100,6 +100,10 @@ public enum Operations {
                 ///
                 /// - Remark: Generated from `#/paths/pets/GET/query/since`.
                 public var since: Components.Parameters.Query_bornSince?
+                /// Filter pets with structured JSON criteria.
+                ///
+                /// - Remark: Generated from `#/paths/pets/GET/query/jsonFilters`.
+                public var jsonFilters: Components.Parameters.Query_jsonFilters?
                 /// Creates a new `Query`.
                 ///
                 /// - Parameters:
@@ -109,13 +113,15 @@ public enum Operations {
                 ///   - sort:
                 ///   - filter:
                 ///   - since: Supply this parameter to filter pets born since the provided date.
+                ///   - jsonFilters: Filter pets with structured JSON criteria.
                 public init(
                     limit: Swift.Int32? = nil,
                     habitat: Operations.ListPets.Input.Query.HabitatPayload? = nil,
                     feeds: Operations.ListPets.Input.Query.FeedsPayload? = nil,
                     sort: Operations.ListPets.Input.Query.SortPayload? = nil,
                     filter: Operations.ListPets.Input.Query.FilterPayload,
-                    since: Components.Parameters.Query_bornSince? = nil
+                    since: Components.Parameters.Query_bornSince? = nil,
+                    jsonFilters: Components.Parameters.Query_jsonFilters? = nil
                 ) {
                     self.limit = limit
                     self.habitat = habitat
@@ -123,6 +129,7 @@ public enum Operations {
                     self.sort = sort
                     self.filter = filter
                     self.since = since
+                    self.jsonFilters = jsonFilters
                 }
             }
             public var query: Operations.ListPets.Input.Query

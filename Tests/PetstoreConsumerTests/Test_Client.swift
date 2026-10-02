@@ -40,7 +40,7 @@ final class Test_Client: XCTestCase {
             XCTAssertEqual(operationID, "listPets")
             XCTAssertEqual(
                 request.path,
-                "/pets?limit=24&habitat=water&feeds=herbivore&feeds=carnivore&sort%5Bid%5D=ascending&sort%5Bname%5D=descending&filter%5Bname%5D=whale&since=2023-01-18T10%3A04%3A11Z"
+                "/pets?limit=24&habitat=water&feeds=herbivore&feeds=carnivore&sort%5Bid%5D=ascending&sort%5Bname%5D=descending&filter%5Bname%5D=whale&since=2023-01-18T10%3A04%3A11Z&jsonFilters=%5B%7B%22name%22%3A%22whale%22%2C%22state%22%3A%22water%22%7D%2C%7B%22name%22%3A%22dog%22%7D%5D"
             )
             XCTAssertEqual(baseURL.absoluteString, "/api")
             XCTAssertEqual(request.method, .get)
@@ -72,7 +72,8 @@ final class Test_Client: XCTestCase {
                     feeds: [.herbivore, .carnivore],
                     sort: .init(id: "ascending", name: "descending"),
                     filter: .init(name: "whale"),
-                    since: .test
+                    since: .test,
+                    jsonFilters: [.init(name: "whale", state: "water"), .init(name: "dog")]
                 ),
                 headers: .init(myRequestUUID: "abcd-1234")
             )

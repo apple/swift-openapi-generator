@@ -98,6 +98,7 @@ paths:
               state:
                 type: string
         - $ref: '#/components/parameters/query.born-since'
+        - $ref: '#/components/parameters/query.json-filters'
       responses:
         '200':
           description: A paged array of pets
@@ -296,6 +297,16 @@ components:
       name: since
       schema:
         $ref: '#/components/schemas/DOB'
+    query.json-filters:
+      description: Filter pets with structured JSON criteria.
+      in: query
+      name: jsonFilters
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/PetFilter'
     path.petId:
       name: petId
       in: path
@@ -305,6 +316,15 @@ components:
         type: integer
         format: int64
   schemas:
+    PetFilter:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        state:
+          type: string
     Pet:
       type: object
       title: "Pet title"
