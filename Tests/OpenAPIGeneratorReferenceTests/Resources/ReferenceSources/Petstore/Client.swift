@@ -108,6 +108,13 @@ public struct Client: APIProtocol {
                     name: "since",
                     value: input.query.since
                 )
+                try converter.setQueryItemAsJSON(
+                    in: &request,
+                    style: .form,
+                    explode: true,
+                    name: "jsonFilters",
+                    value: input.query.jsonFilters
+                )
                 converter.setAcceptHeader(
                     in: &request.headerFields,
                     contentTypes: input.headers.accept

@@ -12,6 +12,29 @@ public import struct Foundation.Date
 extension Components {
     /// Types generated from the `#/components/schemas` section of the OpenAPI document.
     public enum Schemas {
+        /// - Remark: Generated from `#/components/schemas/PetFilter`.
+        public struct PetFilter: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/PetFilter/name`.
+            public var name: Swift.String
+            /// - Remark: Generated from `#/components/schemas/PetFilter/state`.
+            public var state: Swift.String?
+            /// Creates a new `PetFilter`.
+            ///
+            /// - Parameters:
+            ///   - name:
+            ///   - state:
+            public init(
+                name: Swift.String,
+                state: Swift.String? = nil
+            ) {
+                self.name = name
+                self.state = state
+            }
+            public enum CodingKeys: String, CodingKey {
+                case name
+                case state
+            }
+        }
         /// Pet metadata
         ///
         /// - Remark: Generated from `#/components/schemas/Pet`.
