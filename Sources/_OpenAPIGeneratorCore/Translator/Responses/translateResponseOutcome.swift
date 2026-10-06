@@ -401,7 +401,12 @@ extension ServerFileTranslator {
 
                 var caseCodeBlocks: [CodeBlock] = []
 
-                let contentTypeHeaderValue = typedContent.content.contentType.headerValueForValidation
+                let contentType = typedContent.content.contentType
+                let contentTypeForServer = contentType.lowercasedTypeAndSubtype == "*/*"
+                    ? ContentType.applicationOctetStream
+                    : contentType
+
+                let contentTypeHeaderValue = contentTypeForServer.headerValueForValidation
                 let validateAcceptHeader: Expression = .try(
                     .identifierPattern("converter").dot("validateAcceptIfPresent")
                         .call([
@@ -411,9 +416,8 @@ extension ServerFileTranslator {
                 )
                 caseCodeBlocks.append(.expression(validateAcceptHeader))
 
-                let contentType = typedContent.content.contentType
                 let extraBodyAssignArgs: [FunctionArgumentDescription]
-                if contentType.isMultipart {
+                if contentTypeForServer.isMultipart {
                     extraBodyAssignArgs = try translateMultipartSerializerExtraArgumentsInServer(typedContent)
                 } else {
                     extraBodyAssignArgs = []
@@ -422,7 +426,7 @@ extension ServerFileTranslator {
                     left: .identifierPattern("body"),
                     right: .try(
                         .identifierPattern("converter")
-                            .dot("setResponseBodyAs\(contentType.codingStrategy.runtimeName)")
+                            .dot("setResponseBodyAs\(contentTypeForServer.codingStrategy.runtimeName)")
                             .call(
                                 [
                                     .init(label: nil, expression: .identifierPattern("value")),
@@ -432,7 +436,7 @@ extension ServerFileTranslator {
                                     ),
                                     .init(
                                         label: "contentType",
-                                        expression: .literal(contentType.headerValueForSending)
+                                        expression: .literal(contentTypeForServer.headerValueForSending)
                                     ),
                                 ] + extraBodyAssignArgs
                             )
