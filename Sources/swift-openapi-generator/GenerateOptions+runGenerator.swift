@@ -37,8 +37,9 @@ extension _GenerateOptions {
         let resolvedNameOverrides = resolvedNameOverrides(config)
         let resolvedTypeOverrides = resolvedTypeOverrides(config)
         let resolvedFeatureFlags = resolvedFeatureFlags(config)
+        let resolvedMaxInlineSchemaSize = try resolvedMaxInlineSchemaSize(config)
         let configs: [Config] = sortedModes.map {
-            .init(
+            var generatorConfig = Config(
                 mode: $0,
                 access: resolvedAccessModifier,
                 additionalImports: resolvedAdditionalImports,
@@ -49,6 +50,8 @@ extension _GenerateOptions {
                 typeOverrides: resolvedTypeOverrides,
                 featureFlags: resolvedFeatureFlags
             )
+            generatorConfig.maxInlineSchemaSize = resolvedMaxInlineSchemaSize
+            return generatorConfig
         }
         let (diagnostics, finalizeDiagnostics) = preparedDiagnosticsCollector(outputPath: diagnosticsOutputPath)
         let doc = self.docPath

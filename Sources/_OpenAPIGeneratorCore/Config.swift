@@ -67,6 +67,10 @@ public struct Config: Sendable {
     /// Additional pre-release features to enable.
     public var featureFlags: FeatureFlags
 
+    /// The largest estimated inline size, in bytes, a `#/components/schemas` type may have before
+    /// it is boxed. Nil disables size-based boxing.
+    public var maxInlineSchemaSize: Int?
+
     /// Creates a configuration with the specified generator mode and imports.
     /// - Parameters:
     ///   - mode: The mode to use for generation.

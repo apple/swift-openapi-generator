@@ -40,6 +40,11 @@ struct _GenerateOptions: ParsableArguments {
 
     @Option(help: "Additional import to add to all generated files.") var additionalImport: [String] = []
 
+    @Option(
+        help:
+            "Box schemas whose estimated inline size exceeds this many bytes, so that types embedding them store a reference."
+    ) var maxInlineSchemaSize: Int?
+
     @Option(help: "Additional file comment to add to all generated files.") var additionalFileComment: [String] = []
 
     @Option(help: "Pre-release feature to enable. Options: \(FeatureFlag.prettyListing).") var featureFlag:
@@ -149,6 +154,20 @@ extension _GenerateOptions {
     func resolvedFeatureFlags(_ config: _UserConfig?) -> FeatureFlags {
         if !featureFlag.isEmpty { return Set(featureFlag) }
         return config?.featureFlags ?? []
+    }
+
+    /// Returns the maximum inline schema size requested by the user.
+    /// - Parameter config: The configuration specified by the user.
+    /// - Returns: The maximum inline schema size in bytes, or nil if size-based boxing is disabled.
+    /// - Throws: A `ValidationError` if the size is negative.
+    func resolvedMaxInlineSchemaSize(_ config: _UserConfig?) throws -> Int? {
+        guard let resolved = maxInlineSchemaSize ?? config?.maxInlineSchemaSize else { return nil }
+        guard resolved >= 0 else {
+            throw ValidationError(
+                "Invalid maximum inline schema size \(resolved). Expected a non-negative number of bytes."
+            )
+        }
+        return resolved
     }
 
     /// Validates a collection of keys against a predefined set of allowed keys.

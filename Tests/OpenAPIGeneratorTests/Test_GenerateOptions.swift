@@ -179,5 +179,19 @@ final class Test_GenerateOptions: XCTestCase {
             )
         } catch { XCTFail("Expected ArgumentParser.ValidationError, but got: \(type(of: error)) - \(error)") }
     }
+
+    func testResolvedMaxInlineSchemaSize() throws {
+        let config = _UserConfig(generate: [.types], maxInlineSchemaSize: 512)
+        XCTAssertNil(try _GenerateOptions.parse(["doc.yaml"]).resolvedMaxInlineSchemaSize(nil))
+        XCTAssertEqual(try _GenerateOptions.parse(["doc.yaml"]).resolvedMaxInlineSchemaSize(config), 512)
+        XCTAssertEqual(
+            try _GenerateOptions.parse(["doc.yaml", "--max-inline-schema-size", "1024"])
+                .resolvedMaxInlineSchemaSize(config),
+            1024
+        )
+        XCTAssertThrowsError(
+            try _GenerateOptions.parse(["doc.yaml", "--max-inline-schema-size=-1"]).resolvedMaxInlineSchemaSize(nil)
+        )
+    }
     #endif
 }
