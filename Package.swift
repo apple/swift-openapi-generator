@@ -170,9 +170,6 @@ for target in package.targets {
     if target.name != "PetstoreConsumerTests" {
         // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0409-access-level-on-imports.md
         settings.append(.enableUpcomingFeature("InternalImportsByDefault"))
-    } else {
-        // The generated reference code uses `public import` on every file.
-        settings.append(.treatWarning("UnusedImportAccess", as: .warning))
     }
 
     target.swiftSettings = settings

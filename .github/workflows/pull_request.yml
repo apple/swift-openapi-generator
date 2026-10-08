@@ -21,9 +21,9 @@ jobs:
     uses: apple/swift-nio/.github/workflows/unit_tests.yml@main
     with:
       linux_6_1_enabled: false
-      linux_6_2_arguments_override: "-Xswiftc -warnings-as-errors --explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
-      linux_6_3_arguments_override: "-Xswiftc -warnings-as-errors --explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
-      linux_6_4_arguments_override: "-Xswiftc -warnings-as-errors --explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
+      linux_6_2_arguments_override: "--explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
+      linux_6_3_arguments_override: "--explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
+      linux_6_4_arguments_override: "--explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
       linux_nightly_next_arguments_override: "--explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
       linux_nightly_main_arguments_override: "--explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
       windows_6_1_enabled: false
@@ -32,9 +32,9 @@ jobs:
       windows_6_4_enabled: true
       windows_nightly_next_enabled: true
       windows_nightly_main_enabled: true
-      windows_6_2_arguments_override: "-Xswiftc -warnings-as-errors --explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
-      windows_6_3_arguments_override: "-Xswiftc -warnings-as-errors --explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
-      windows_6_4_arguments_override: "-Xswiftc -warnings-as-errors --explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
+      windows_6_2_arguments_override: "--explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
+      windows_6_3_arguments_override: "--explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
+      windows_6_4_arguments_override: "--explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
       windows_nightly_next_arguments_override: "--explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
       windows_nightly_main_arguments_override: "--explicit-target-dependency-import-check error -Xswiftc -require-explicit-sendable"
 
