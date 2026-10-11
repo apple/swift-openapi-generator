@@ -99,19 +99,30 @@ extension FileTranslator {
     /// access modifier so they are visible to consumers of the generated code.
     /// - Parameter baseImports: the base set of imports for the file (e.g.
     /// ``Constants/File/imports`` or ``Constants/File/clientServerImports``).
-    /// - Returns: An array of ``ImportDescription`` values with appropriate
+    /// - Returns: An array of ``ImportStatement`` values with appropriate
     /// access modifier set.
-    func importDescriptions(adding baseImports: [ImportDescription]) -> [ImportDescription] {
+    func importStatements(adding baseImports: [ImportStatement]) -> [ImportStatement] {
         let accessModifier: AccessModifier?
         switch config.access {
         case .public, .package: accessModifier = config.access
         default: accessModifier = nil
         }
-        let allImports = baseImports + config.additionalImports.map { ImportDescription(moduleName: $0) }
+        let allImports = baseImports + config.additionalImports.map { .always(ImportDescription(moduleName: $0)) }
         return allImports.map { original in
-            var description = original
-            description.accessModifier = original.setsAccessModifier ? accessModifier : nil
-            return description
+            switch original {
+            case .conditional(let condition, var thenImportDescription, var elseImportDescription):
+                thenImportDescription.accessModifier = thenImportDescription.setsAccessModifier ? accessModifier : nil
+                elseImportDescription.accessModifier = elseImportDescription.setsAccessModifier ? accessModifier : nil
+                return .conditional(
+                    condition: condition,
+                    thenImportDescription: thenImportDescription,
+                    elseImportDescription: elseImportDescription
+                )
+
+            case .always(var importDescription):
+                importDescription.accessModifier = importDescription.setsAccessModifier ? accessModifier : nil
+                return .always(importDescription)
+            }
         }
     }
 }

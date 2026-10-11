@@ -55,7 +55,7 @@ extension TypesFileTranslator {
             return .deprecated(deprecationDescription, boxedType(declaration))
         case .struct(let structDescription): return .struct(boxedStruct(structDescription))
         case .enum(let enumDescription): return .enum(boxedEnum(enumDescription))
-        case .variable, .extension, .typealias, .protocol, .function, .enumCase:
+        case .variable, .extension, .typealias, .protocol, .function, .enumCase, .canImportConditional:
             preconditionFailure("Unexpected boxed type: \(decl.name ?? "<nil>")")
         }
     }

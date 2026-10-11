@@ -56,11 +56,11 @@ extension TypesFileTranslator {
                 kind: .function(name: name, isStatic: true),
                 parameters: variables.map(\.parameter),
                 keywords: [.throws],
-                returnType: .identifierType(TypeName.url),
+                returnType: .identifierType(TypeName.foundationURLTypeAlias),
                 body: [
                     .expression(
                         .try(
-                            .identifierType(TypeName.url)
+                            .identifierType(TypeName.foundationURLTypeAlias)
                                 .call([
                                     .init(
                                         label: "validatingOpenAPIServerURL",

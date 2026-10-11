@@ -90,7 +90,7 @@ extension Declaration {
         case .enum(let desc): return desc.name
         case .typealias(let desc): return desc.name
         case .commentable(_, let decl), .deprecated(_, let decl): return decl.name
-        case .variable, .extension, .protocol, .function, .enumCase: return nil
+        case .variable, .extension, .protocol, .function, .enumCase, .canImportConditional: return nil
         }
     }
 
@@ -99,7 +99,7 @@ extension Declaration {
         switch self {
         case .struct, .enum: return true
         case .commentable(_, let decl), .deprecated(_, let decl): return decl.isBoxable
-        case .typealias, .variable, .extension, .protocol, .function, .enumCase: return false
+        case .typealias, .variable, .extension, .protocol, .function, .enumCase, .canImportConditional: return false
         }
     }
 
@@ -136,7 +136,7 @@ extension Declaration {
                 return values.compactMap { $0.type.referencedSchemaComponentName }
             default: return []
             }
-        case .extension, .protocol, .function: return []
+        case .extension, .protocol, .function, .canImportConditional: return []
         }
     }
 }

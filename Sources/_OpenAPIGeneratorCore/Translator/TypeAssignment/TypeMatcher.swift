@@ -320,7 +320,7 @@ struct TypeMatcher {
             case .base64: typeName = .base64
             default:
                 switch core.format {
-                case .dateTime: typeName = .date
+                case .dateTime: typeName = .foundationDateTypeAlias
                 default: typeName = .string
                 }
             }

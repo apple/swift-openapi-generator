@@ -34,7 +34,7 @@ struct ClientFileTranslator: FileTranslator {
 
         let topComment = self.topComment
 
-        let imports = importDescriptions(adding: Constants.File.clientServerImports)
+        let imports = importStatements(adding: Constants.File.clientServerImports)
 
         let clientMethodDecls = try OperationDescription.all(from: doc.paths, in: components, context: context)
             .map(translateClientMethod(_:))
@@ -66,7 +66,7 @@ struct ClientFileTranslator: FileTranslator {
                 accessModifier: config.access,
                 kind: .initializer,
                 parameters: [
-                    .init(label: "serverURL", type: .init(TypeName.url)),
+                    .init(label: "serverURL", type: .init(TypeName.foundationURLTypeAlias)),
                     .init(
                         label: "configuration",
                         type: .member(Constants.Configuration.typeName),
