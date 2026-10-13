@@ -11,13 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-#if os(Linux)
-@preconcurrency public import struct Foundation.URL
-@preconcurrency public import struct Foundation.Data
-#else
 public import struct Foundation.URL
 public import struct Foundation.Data
-#endif
 
 /// In-memory output files emitted by rendering a generator pipeline run.
 typealias RenderedSwiftRepresentation = [InMemoryOutputFile]

@@ -46,19 +46,6 @@ struct ImportDescription: Equatable, Codable {
     /// declarations (e.g. implementation-only imports), so that
     /// `public import` or `package import` is not incorrectly emitted.
     var setsAccessModifier: Bool = true
-
-    /// Requirements for the `@preconcurrency` attribute.
-    var preconcurrency: PreconcurrencyRequirement = .never
-
-    /// Describes any requirement for the `@preconcurrency` attribute.
-    enum PreconcurrencyRequirement: Equatable, Codable {
-        /// The attribute is always required.
-        case always
-        /// The attribute is not required.
-        case never
-        /// The attribute is required only on the named operating systems.
-        case onOS([String])
-    }
 }
 
 /// A description of an access modifier.

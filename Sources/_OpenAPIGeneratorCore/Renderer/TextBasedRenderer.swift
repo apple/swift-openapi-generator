@@ -155,27 +155,16 @@ struct TextBasedRenderer: RendererProtocol {
         default: accessModifierPrefix = ""
         }
 
-        func render(preconcurrency: Bool) {
+        func render() {
             let spiPrefix = description.spi.map { "@_spi(\($0)) " } ?? ""
-            let preconcurrencyPrefix = preconcurrency ? "@preconcurrency " : ""
-            let attributePrefix = "\(preconcurrencyPrefix)\(spiPrefix)"
             if let moduleTypes = description.moduleTypes {
-                for type in moduleTypes { writer.writeLine("\(attributePrefix)\(accessModifierPrefix)import \(type)") }
+                for type in moduleTypes { writer.writeLine("\(spiPrefix)\(accessModifierPrefix)import \(type)") }
             } else {
-                writer.writeLine("\(attributePrefix)\(accessModifierPrefix)import \(description.moduleName)")
+                writer.writeLine("\(spiPrefix)\(accessModifierPrefix)import \(description.moduleName)")
             }
         }
 
-        switch description.preconcurrency {
-        case .always: render(preconcurrency: true)
-        case .never: render(preconcurrency: false)
-        case .onOS(let operatingSystems):
-            writer.writeLine("#if \(operatingSystems.map { "os(\($0))" }.joined(separator: " || "))")
-            render(preconcurrency: true)
-            writer.writeLine("#else")
-            render(preconcurrency: false)
-            writer.writeLine("#endif")
-        }
+        render()
     }
 
     /// Renders the specified access modifier.

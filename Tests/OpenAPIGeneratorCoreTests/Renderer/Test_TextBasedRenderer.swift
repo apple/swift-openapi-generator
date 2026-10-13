@@ -93,25 +93,11 @@ final class Test_TextBasedRenderer: XCTestCase {
                 """#
         )
         try _test(
-            [ImportDescription(moduleName: "Foo", preconcurrency: .onOS(["Bar", "Baz"]))],
+            [ImportDescription(moduleName: "Foo"), ImportDescription(moduleName: "Bar", spi: "Secret")],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
-                #if os(Bar) || os(Baz)
-                @preconcurrency import Foo
-                #else
                 import Foo
-                #endif
-                """#
-        )
-        try _test(
-            [
-                ImportDescription(moduleName: "Foo", preconcurrency: .always),
-                ImportDescription(moduleName: "Bar", spi: "Secret", preconcurrency: .always),
-            ],
-            renderedBy: TextBasedRenderer.renderImports,
-            rendersAs: #"""
-                @preconcurrency import Foo
-                @preconcurrency @_spi(Secret) import Bar
+                @_spi(Secret) import Bar
                 """#
         )
     }
@@ -148,10 +134,10 @@ final class Test_TextBasedRenderer: XCTestCase {
 
     func testImportsWithAccessModifierAndAttributes() throws {
         try _test(
-            [ImportDescription(moduleName: "Foo", spi: "Secret", accessModifier: .public, preconcurrency: .always)],
+            [ImportDescription(moduleName: "Foo", spi: "Secret", accessModifier: .public)],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
-                @preconcurrency @_spi(Secret) public import Foo
+                @_spi(Secret) public import Foo
                 """#
         )
     }
@@ -168,20 +154,6 @@ final class Test_TextBasedRenderer: XCTestCase {
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
                 public import struct Foundation.URL
-                """#
-        )
-    }
-
-    func testImportsWithAccessModifierAndPreconcurrencyOnOS() throws {
-        try _test(
-            [ImportDescription(moduleName: "Foo", accessModifier: .public, preconcurrency: .onOS(["Linux"]))],
-            renderedBy: TextBasedRenderer.renderImports,
-            rendersAs: #"""
-                #if os(Linux)
-                @preconcurrency public import Foo
-                #else
-                public import Foo
-                #endif
                 """#
         )
     }
