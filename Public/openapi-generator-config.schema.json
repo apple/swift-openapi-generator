@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/apple/swift-openapi-generator/main/Public/openapi-generator-config.schema.json",
+  "title": "Swift OpenAPI Generator configuration",
+  "description": "The openapi-generator-config.yaml file used by the Swift OpenAPI Generator build plugin and command-line tool.",
+  "type": "object",
+  "required": ["generate"],
+  "additionalProperties": false,
+  "properties": {
+    "generate": {
+      "description": "Which Swift files to generate.",
+      "type": "array",
+      "items": {
+        "enum": ["types", "client", "server"]
+      }
+    },
+    "accessModifier": {
+      "description": "The access modifier used for the API of generated code. Defaults to internal.",
+      "enum": ["public", "package", "internal", "fileprivate", "private"]
+    },
+    "additionalImports": {
+      "description": "Names of additional modules imported in every generated Swift file.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "additionalFileComments": {
+      "description": "Comments added to the top of every generated Swift file.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "filter": {
+      "description": "Filter to apply to the OpenAPI document before generation.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operations": {
+          "description": "Operations with these operation IDs are included.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "tags": {
+          "description": "Operations tagged with these tags are included.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "paths": {
+          "description": "Operations for these paths are included.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "schemas": {
+          "description": "These (additional) schemas are included.",
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "namingStrategy": {
+      "description": "The strategy for converting OpenAPI identifiers into Swift identifiers. Defaults to defensive.",
+      "enum": ["defensive", "idiomatic"]
+    },
+    "nameOverrides": {
+      "description": "Overrides for how individual OpenAPI identifiers are converted to Swift identifiers.",
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "typeOverrides": {
+      "description": "Replaces generated types with custom types.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemas": {
+          "description": "Maps a schema name, such as Foo in #/components/schemas/Foo, to a custom type name.",
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "featureFlags": {
+      "description": "Feature flags to enable.",
+      "type": "array",
+      "items": {
+        "enum": ["empty"]
+      }
+    }
+  }
+}
