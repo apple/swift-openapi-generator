@@ -85,6 +85,7 @@ The Swift OpenAPI Generator project is split across multiple repositories to ena
 | [apple/swift-openapi-urlsession][repo-urlsession]          | `ClientTransport` using [URLSession][urlsession]   |
 | [swift-server/swift-openapi-async-http-client][repo-ahc]   | `ClientTransport` using [AsyncHTTPClient][ahc]     |
 | [frameo-net/swift-okhttp][repo-swift-okhttp]               | `ClientTransport` using [OkHttp][okhttp]           |
+| [compnerd/openapi-winhttp-transport][repo-winhttp]         | `ClientTransport` using [WinHTTP][winhttp]         |
 | [vapor/swift-openapi-vapor][repo-vapor]                    | `ServerTransport` using [Vapor][vapor]             |
 | [hummingbird-project/swift-openapi-hummingbird][repo-hb]   | `ServerTransport` using [Hummingbird][hb]          |
 | [awslabs/swift-openapi-lambda][repo-lambda]                | `ServerTransport` using [AWS Lambda][lambda]       |
@@ -220,3 +221,5 @@ To generate the server stubs instead, replace `client` with `server`. The commen
 [lambda]: https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
 [repo-swift-okhttp]: https://github.com/frameo-net/swift-okhttp
 [okhttp]: https://square.github.io/okhttp/
+[repo-winhttp]: https://github.com/compnerd/openapi-winhttp-transport
+[winhttp]: https://learn.microsoft.com/en-us/windows/win32/WinHttp/winhttp-start-page
