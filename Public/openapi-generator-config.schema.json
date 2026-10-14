@@ -146,8 +146,17 @@
       },
       "examples": [
         {
+          "operations": [
+            "getGreeting"
+          ],
           "tags": [
             "myTag"
+          ],
+          "paths": [
+            "/greet"
+          ],
+          "schemas": [
+            "Greeting"
           ]
         }
       ]
