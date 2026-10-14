@@ -1,0 +1,262 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/apple/swift-openapi-generator/main/Public/openapi-generator-config.schema.json",
+  "title": "Swift OpenAPI Generator configuration file",
+  "description": "The openapi-generator-config.yaml (or openapi-generator-config.yml) file in the target source directory, used by the Swift OpenAPI Generator build plugin and command-line tool.",
+  "$comment": "For details, check out: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/configuring-the-generator.",
+  "type": "object",
+  "required": [
+    "generate"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "generate": {
+      "description": "Which Swift files to generate. Each value is a mode for the generator invocation. Use an empty array when only using the configuration file with the filter command.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "oneOf": [
+          {
+            "const": "types",
+            "description": "Common types and abstractions used by generated client and server code."
+          },
+          {
+            "const": "client",
+            "description": "Client code that can be used with any client transport (depends on code from types)."
+          },
+          {
+            "const": "server",
+            "description": "Server code that can be used with any server transport (depends on code from types)."
+          }
+        ]
+      },
+      "examples": [
+        [
+          "types",
+          "client"
+        ],
+        [
+          "types",
+          "server"
+        ],
+        [
+          "types"
+        ],
+        [
+          "client"
+        ]
+      ]
+    },
+    "accessModifier": {
+      "description": "Customizes the visibility of the API of the generated code.",
+      "oneOf": [
+        {
+          "const": "public",
+          "description": "Generated API is accessible from other modules and other packages (if included in a product)."
+        },
+        {
+          "const": "package",
+          "description": "Generated API is accessible from other modules within the same package or project."
+        },
+        {
+          "const": "internal",
+          "description": "Generated API is accessible from the containing module only."
+        }
+      ],
+      "default": "internal"
+    },
+    "additionalImports": {
+      "description": "Names of Swift modules to import in every generated Swift file. For example, the module that contains the generated types, when generating client or server code in a separate target.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "examples": [
+        [
+          "APITypes"
+        ]
+      ]
+    },
+    "additionalFileComments": {
+      "description": "Comments added to the top of every generated Swift file, after the do-not-edit comment. Useful for adding directives like swift-format-ignore-file or swiftlint:disable all.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "examples": [
+        [
+          "swift-format-ignore-file",
+          "swiftlint:disable all"
+        ]
+      ]
+    },
+    "filter": {
+      "description": "Filters to apply to the OpenAPI document before generation. When multiple filters are specified, their union is included. The transitive closure of dependencies from the components object is always included.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operations": {
+          "description": "Operations with these operation IDs are included.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "getGreeting"
+            ]
+          ]
+        },
+        "tags": {
+          "description": "Operations tagged with these tags are included.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "myTag"
+            ]
+          ]
+        },
+        "paths": {
+          "description": "Operations for these paths are included.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "/greet"
+            ]
+          ]
+        },
+        "schemas": {
+          "description": "These schemas are included, in addition to the schemas that the included operations depend on. Each value is the name of the schema, such as Foo for #/components/schemas/Foo.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "Greeting"
+            ]
+          ]
+        }
+      },
+      "examples": [
+        {
+          "operations": [
+            "getGreeting"
+          ],
+          "tags": [
+            "myTag"
+          ],
+          "paths": [
+            "/greet"
+          ],
+          "schemas": [
+            "Greeting"
+          ]
+        }
+      ]
+    },
+    "namingStrategy": {
+      "description": "The strategy for converting OpenAPI identifiers into Swift identifiers.",
+      "oneOf": [
+        {
+          "const": "defensive",
+          "description": "Produces non-conflicting Swift identifiers for any OpenAPI identifiers. Check out SOAR-0001 for details: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0001"
+        },
+        {
+          "const": "idiomatic",
+          "description": "Produces more idiomatic Swift identifiers for OpenAPI identifiers. Might produce name conflicts (in that case, switch back to defensive). Check out SOAR-0013 for details: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0013"
+        }
+      ],
+      "default": "defensive"
+    },
+    "nameOverrides": {
+      "description": "Customizes how individual OpenAPI identifiers are converted to Swift identifiers. The key is the OpenAPI identifier and the value is the Swift identifier to use instead of the one produced by the naming strategy. Check out SOAR-0013 for details: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0013",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "examples": [
+        {
+          "+1": "thumbsUp",
+          "-1": "thumbsDown"
+        }
+      ]
+    },
+    "typeOverrides": {
+      "description": "Replaces generated types with custom types. Check out SOAR-0014 for details: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0014",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemas": {
+          "description": "Replaces the types generated for schemas. The key is the name of the schema, the last component of #/components/schemas/Foo (here, Foo). The value is the custom type name, such as CustomFoo.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "examples": [
+            {
+              "UUID": "Foundation.UUID"
+            }
+          ]
+        }
+      }
+    },
+    "featureFlags": {
+      "description": "Feature flags to enable, for features that aren't enabled by default yet.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "oneOf": [
+          {
+            "const": "empty",
+            "description": "A placeholder that doesn't enable any feature."
+          }
+        ]
+      }
+    }
+  },
+  "examples": [
+    {
+      "generate": [
+        "types",
+        "client"
+      ],
+      "namingStrategy": "idiomatic"
+    },
+    {
+      "generate": [
+        "types",
+        "server"
+      ],
+      "namingStrategy": "idiomatic"
+    },
+    {
+      "generate": [
+        "client"
+      ],
+      "namingStrategy": "idiomatic",
+      "additionalImports": [
+        "APITypes"
+      ],
+      "accessModifier": "public"
+    },
+    {
+      "generate": [
+        "types",
+        "client"
+      ],
+      "namingStrategy": "idiomatic",
+      "filter": {
+        "tags": [
+          "myTag"
+        ]
+      }
+    }
+  ]
+}

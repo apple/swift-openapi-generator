@@ -14,7 +14,7 @@ Swift OpenAPI Generator is a Swift package plugin that can generate the ceremony
 
 The code is generated at build-time, so it's always in sync with the OpenAPI document and doesn't need to be committed to your source repository.
 
-## Features
+### Features
 
 - Works with OpenAPI Specification versions 3.0 and 3.1 and has preliminary support for version 3.2.
 - Streaming request and response bodies enabling use cases such as JSON event streams, and large payloads without buffering.
@@ -23,13 +23,13 @@ The code is generated at build-time, so it's always in sync with the OpenAPI doc
 
 To see these features in action, see <doc:Checking-out-an-example-project>.
 
-## Usage
+### Usage
 
 Swift OpenAPI Generator can be used to generate API clients and server stubs.
 
 Below you can see some example code, or you can follow one of the <doc:Swift-OpenAPI-Generator> tutorials.
 
-### Using a generated API client
+#### Using a generated API client
 
 The generated `Client` type provides a method for each HTTP operation defined in the [OpenAPI document](#Example-OpenAPI-document) and can be used with any HTTP library that provides an implementation of `ClientTransport`.
 
@@ -45,7 +45,7 @@ let response = try await client.getGreeting()
 print(try response.ok.body.json.message)
 ```
 
-### Using generated API server stubs
+#### Using generated API server stubs
 
 To implement a server, define a type that conforms to the generated `APIProtocol`, providing a method for each HTTP operation defined in the [OpenAPI document](#Example-OpenAPI-document).
 
@@ -74,7 +74,7 @@ struct Handler: APIProtocol {
 }
 ```
 
-### Package ecosystem
+#### Package ecosystem
 
 The Swift OpenAPI Generator project is split across multiple repositories to enable extensibility and minimize dependencies in your project.
 
@@ -88,7 +88,7 @@ The Swift OpenAPI Generator project is split across multiple repositories to ena
 | [hummingbird-project/swift-openapi-hummingbird][repo-hb]   | `ServerTransport` using [Hummingbird][hb]          |
 | [awslabs/swift-openapi-lambda][repo-lambda]                | `ServerTransport` using [AWS Lambda][lambda]       |
 
-### Requirements and supported features
+#### Requirements and supported features
 
 | Generator versions | Supported OpenAPI versions  |
 | ------------------ | --------------------------- |
@@ -96,7 +96,7 @@ The Swift OpenAPI Generator project is split across multiple repositories to ena
 
 See also <doc:Supported-OpenAPI-features>.
 
-### Supported platforms and minimum versions
+#### Supported platforms and minimum versions
 
 The generator is used during development and is supported on macOS and Linux.
 
@@ -109,7 +109,7 @@ The generated code, runtime library, and transports are supported on more platfo
 
 > Note: When using Visual Studio Code or other editors that rely on [SourceKit-LSP](https://github.com/swiftlang/sourcekit-lsp), the editor may not correctly recognize generated code within the same module. As a workaround, consider creating a separate target for code generation and then importing it into your main module. For more details, see the discussion in [swiftlang/sourcekit-lsp#665](https://github.com/swiftlang/sourcekit-lsp/issues/665#issuecomment-2093169169).
 
-### Documentation and example projects
+#### Documentation and example projects
 
 To get started, check out the topics below, or one of the <doc:Swift-OpenAPI-Generator> tutorials.
 
@@ -119,7 +119,7 @@ Swift OpenAPI Generator and integrate with other packages in the ecosystem.
 Or if you prefer to watch a video, check out [Meet Swift OpenAPI
 Generator](https://developer.apple.com/wwdc23/10171) from WWDC23.
 
-### Example OpenAPI document
+#### Example OpenAPI document
 
 ```yaml
 openapi: '3.1.0'
@@ -159,6 +159,20 @@ components:
       required:
         - message
 ```
+
+#### Example configuration file
+
+The build plugin also requires a configuration file called `openapi-generator-config.yaml` in the same target directory as the OpenAPI document. The following configuration generates the types and client code used in the [client example](#Using-a-generated-API-client):
+
+```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/apple/swift-openapi-generator/main/Public/openapi-generator-config.schema.json
+generate:
+  - types
+  - client
+namingStrategy: idiomatic
+```
+
+To generate the server stubs instead, replace `client` with `server`. The comment on the first line enables validation and autocompletion in editors that use the YAML language server. For all the options, check out <doc:Configuring-the-generator>.
 
 ## Topics
 

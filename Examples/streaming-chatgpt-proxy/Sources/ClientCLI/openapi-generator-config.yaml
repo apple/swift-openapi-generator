@@ -1,2 +1,3 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/apple/swift-openapi-generator/main/Public/openapi-generator-config.schema.json
 generate: [types, client]
 namingStrategy: idiomatic

@@ -46,3 +46,4 @@ Examples/streaming-chatgpt-proxy/players.txt
 **/*.html
 .editorconfig
 IntegrationTest/**/Empty.swift
+Public/*

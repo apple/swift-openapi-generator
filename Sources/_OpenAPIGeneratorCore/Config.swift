@@ -102,3 +102,12 @@ public struct Config: Sendable {
         self.featureFlags = featureFlags
     }
 }
+
+extension AccessModifier {
+
+    /// The access modifiers supported for the API of generated code.
+    ///
+    /// Generated code is split across multiple files, so it doesn't compile with
+    /// the `fileprivate` and `private` access modifiers.
+    package static let supportedValues: [AccessModifier] = [.public, .package, .internal]
+}
