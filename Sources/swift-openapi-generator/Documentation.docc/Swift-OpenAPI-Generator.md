@@ -84,6 +84,7 @@ The Swift OpenAPI Generator project is split across multiple repositories to ena
 | [apple/swift-openapi-runtime][repo-runtime]                | Runtime library used by the generated code         |
 | [apple/swift-openapi-urlsession][repo-urlsession]          | `ClientTransport` using [URLSession][urlsession]   |
 | [swift-server/swift-openapi-async-http-client][repo-ahc]   | `ClientTransport` using [AsyncHTTPClient][ahc]     |
+| [frameo-net/swift-okhttp][repo-swift-okhttp]               | `ClientTransport` using [OkHttp][okhttp]           |
 | [vapor/swift-openapi-vapor][repo-vapor]                    | `ServerTransport` using [Vapor][vapor]             |
 | [hummingbird-project/swift-openapi-hummingbird][repo-hb]   | `ServerTransport` using [Hummingbird][hb]          |
 | [awslabs/swift-openapi-lambda][repo-lambda]                | `ServerTransport` using [AWS Lambda][lambda]       |
@@ -217,3 +218,5 @@ To generate the server stubs instead, replace `client` with `server`. The commen
 [hb]: https://github.com/hummingbird-project/hummingbird
 [repo-lambda]: https://github.com/awslabs/swift-openapi-lambda
 [lambda]: https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+[repo-swift-okhttp]: https://github.com/frameo-net/swift-okhttp
+[okhttp]: https://square.github.io/okhttp/
