@@ -237,19 +237,130 @@ extension ClientFileTranslator {
             codeBlocks.append(.declaration(chosenContentTypeDecl))
 
             func makeCase(typedContent: TypedSchemaContent) throws -> SwitchCaseDescription {
+                let contentType = typedContent.content.contentType
                 let contentTypeUsage = typedContent.resolvedTypeUsage
-                let transformExpr: Expression = .closureInvocation(
-                    argumentNames: ["value"],
-                    body: [
-                        .expression(
-                            .dot(context.safeNameGenerator.swiftContentTypeName(for: typedContent.content.contentType))
-                                .call([.init(label: nil, expression: .identifierPattern("value"))])
-                        )
-                    ]
-                )
-                let codingStrategy = typedContent.content.contentType.codingStrategy
+                let codingStrategy = contentType.codingStrategy
+
+                let caseName = context.safeNameGenerator.swiftContentTypeName(for: contentType)
+                let usesConcreteWildcardResponseBodies = contentType.lowercasedTypeAndSubtype == "*/*"
+                    && hasConcreteWildcardResponseBodies
+
+                var caseCodeBlocks: [CodeBlock] = []
+                let transformExpr: Expression
+
+                if usesConcreteWildcardResponseBodies {
+                    let concreteContentTypeDecl: Declaration = .variable(
+                        kind: .let,
+                        left: "concreteContentType",
+                        type: .init(TypeName.concreteMIMEType)
+                    )
+                    caseCodeBlocks.append(.declaration(concreteContentTypeDecl))
+
+                    let defaultContentTypeExpr: Expression = .try(
+                        .dot("init")
+                            .call([
+                                .init(label: "type", expression: .literal("application")),
+                                .init(label: "subtype", expression: .literal("octet-stream")),
+                            ])
+                    )
+                    let parsedContentTypeSwitchExpr: Expression = .switch(
+                        switchedExpression: .identifierPattern("contentType"),
+                        cases: [
+                            .init(
+                                kind: .case(.dot("some"), ["contentTypeValue"]),
+                                body: [
+                                    .expression(
+                                        .switch(
+                                            switchedExpression: .identifierPattern("contentTypeValue").dot("kind"),
+                                            cases: [
+                                                .init(
+                                                    kind: .case(.dot("concrete"), ["type", "subtype"]),
+                                                    body: [
+                                                        .expression(
+                                                            .assignment(
+                                                                left: .identifierPattern("concreteContentType"),
+                                                                right: .try(
+                                                                    .dot("init")
+                                                                        .call([
+                                                                            .init(
+                                                                                label: "type",
+                                                                                expression: .identifierPattern("type")
+                                                                            ),
+                                                                            .init(
+                                                                                label: "subtype",
+                                                                                expression: .identifierPattern("subtype")
+                                                                            ),
+                                                                        ])
+                                                                )
+                                                            )
+                                                        )
+                                                    ]
+                                                ),
+                                                .init(
+                                                    kind: .default,
+                                                    body: [
+                                                        .expression(
+                                                            .assignment(
+                                                                left: .identifierPattern("concreteContentType"),
+                                                                right: defaultContentTypeExpr
+                                                            )
+                                                        )
+                                                    ]
+                                                ),
+                                            ]
+                                        )
+                                    )
+                                ]
+                            ),
+                            .init(
+                                kind: .default,
+                                body: [
+                                    .expression(
+                                        .assignment(
+                                            left: .identifierPattern("concreteContentType"),
+                                            right: defaultContentTypeExpr
+                                        )
+                                    )
+                                ]
+                            ),
+                        ]
+                    )
+                    caseCodeBlocks.append(.expression(parsedContentTypeSwitchExpr))
+
+                    transformExpr = .closureInvocation(
+                        argumentNames: ["value"],
+                        body: [
+                            .expression(
+                                .dot(caseName)
+                                    .call([
+                                        .init(
+                                            label: nil,
+                                            expression: .dot("init")
+                                                .call([
+                                                    .init(
+                                                        label: "contentType",
+                                                        expression: .identifierPattern("concreteContentType")
+                                                    ),
+                                                    .init(label: "body", expression: .identifierPattern("value")),
+                                                ])
+                                        )
+                                    ])
+                            )
+                        ]
+                    )
+                } else {
+                    transformExpr = .closureInvocation(
+                        argumentNames: ["value"],
+                        body: [
+                            .expression(
+                                .dot(caseName)
+                                    .call([.init(label: nil, expression: .identifierPattern("value"))])
+                            )
+                        ]
+                    )
+                }
                 let extraBodyAssignArgs: [FunctionArgumentDescription]
-                if typedContent.content.contentType.isMultipart {
+                if contentType.isMultipart {
                     extraBodyAssignArgs = try translateMultipartDeserializerExtraArgumentsInClient(typedContent)
                 } else {
                     extraBodyAssignArgs = []
@@ -274,9 +385,10 @@ extension ClientFileTranslator {
                     bodyExpr = .try(converterExpr)
                 }
                 let bodyAssignExpr: Expression = .assignment(left: .identifierPattern("body"), right: bodyExpr)
+                caseCodeBlocks.append(.expression(bodyAssignExpr))
                 return .init(
                     kind: .case(.literal(typedContent.content.contentType.headerValueForValidation)),
-                    body: [.expression(bodyAssignExpr)]
+                    body: caseCodeBlocks
                 )
             }
             let cases = try typedContents.map(makeCase)
@@ -401,44 +513,85 @@ extension ServerFileTranslator {
 
                 var caseCodeBlocks: [CodeBlock] = []
 
-                let contentTypeHeaderValue = typedContent.content.contentType.headerValueForValidation
-                let validateAcceptHeader: Expression = .try(
-                    .identifierPattern("converter").dot("validateAcceptIfPresent")
-                        .call([
-                            .init(label: nil, expression: .literal(contentTypeHeaderValue)),
-                            .init(label: "in", expression: .identifierPattern("request").dot("headerFields")),
-                        ])
-                )
-                caseCodeBlocks.append(.expression(validateAcceptHeader))
-
                 let contentType = typedContent.content.contentType
-                let extraBodyAssignArgs: [FunctionArgumentDescription]
-                if contentType.isMultipart {
-                    extraBodyAssignArgs = try translateMultipartSerializerExtraArgumentsInServer(typedContent)
-                } else {
-                    extraBodyAssignArgs = []
-                }
-                let assignBodyExpr: Expression = .assignment(
-                    left: .identifierPattern("body"),
-                    right: .try(
-                        .identifierPattern("converter")
-                            .dot("setResponseBodyAs\(contentType.codingStrategy.runtimeName)")
-                            .call(
-                                [
-                                    .init(label: nil, expression: .identifierPattern("value")),
+                let isWildcardAnyContentType = contentType.lowercasedTypeAndSubtype == "*/*"
+                let usesConcreteWildcardResponseBodies = isWildcardAnyContentType
+                    && hasConcreteWildcardResponseBodies
+
+                if usesConcreteWildcardResponseBodies {
+                    let validateAcceptHeader: Expression = .try(
+                        .identifierPattern("converter").dot("validateAcceptIfPresent")
+                            .call([
+                                .init(
+                                    label: nil,
+                                    expression: .identifierPattern("value").dot("contentType").dot("headerValue")
+                                ),
+                                .init(label: "in", expression: .identifierPattern("request").dot("headerFields")),
+                            ])
+                    )
+                    caseCodeBlocks.append(.expression(validateAcceptHeader))
+
+                    let assignBodyExpr: Expression = .assignment(
+                        left: .identifierPattern("body"),
+                        right: .try(
+                            .identifierPattern("converter").dot("setResponseBodyAsBinary")
+                                .call([
+                                    .init(label: nil, expression: .identifierPattern("value").dot("body")),
                                     .init(
                                         label: "headerFields",
                                         expression: .inOut(.identifierPattern("response").dot("headerFields"))
                                     ),
                                     .init(
                                         label: "contentType",
-                                        expression: .literal(contentType.headerValueForSending)
+                                        expression: .identifierPattern("value").dot("contentType").dot("headerValue")
                                     ),
-                                ] + extraBodyAssignArgs
-                            )
+                                ])
+                        )
                     )
-                )
-                caseCodeBlocks.append(.expression(assignBodyExpr))
+                    caseCodeBlocks.append(.expression(assignBodyExpr))
+                } else {
+                    let contentTypeForServer = isWildcardAnyContentType
+                        ? ContentType.applicationOctetStream
+                        : contentType
+
+                    let contentTypeHeaderValue = contentTypeForServer.headerValueForValidation
+                    let validateAcceptHeader: Expression = .try(
+                        .identifierPattern("converter").dot("validateAcceptIfPresent")
+                            .call([
+                                .init(label: nil, expression: .literal(contentTypeHeaderValue)),
+                                .init(label: "in", expression: .identifierPattern("request").dot("headerFields")),
+                            ])
+                    )
+                    caseCodeBlocks.append(.expression(validateAcceptHeader))
+
+                    let extraBodyAssignArgs: [FunctionArgumentDescription]
+                    if contentTypeForServer.isMultipart {
+                        extraBodyAssignArgs = try translateMultipartSerializerExtraArgumentsInServer(typedContent)
+                    } else {
+                        extraBodyAssignArgs = []
+                    }
+                    let assignBodyExpr: Expression = .assignment(
+                        left: .identifierPattern("body"),
+                        right: .try(
+                            .identifierPattern("converter")
+                                .dot("setResponseBodyAs\(contentTypeForServer.codingStrategy.runtimeName)")
+                                .call(
+                                    [
+                                        .init(label: nil, expression: .identifierPattern("value")),
+                                        .init(
+                                            label: "headerFields",
+                                            expression: .inOut(.identifierPattern("response").dot("headerFields"))
+                                        ),
+                                        .init(
+                                            label: "contentType",
+                                            expression: .literal(contentTypeForServer.headerValueForSending)
+                                        ),
+                                    ] + extraBodyAssignArgs
+                                )
+                        )
+                    )
+                    caseCodeBlocks.append(.expression(assignBodyExpr))
+                }
 
                 return .init(
                     kind: .case(.dot(context.safeNameGenerator.swiftContentTypeName(for: contentType)), ["value"]),
