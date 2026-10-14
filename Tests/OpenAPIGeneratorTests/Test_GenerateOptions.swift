@@ -179,5 +179,24 @@ final class Test_GenerateOptions: XCTestCase {
             )
         } catch { XCTFail("Expected ArgumentParser.ValidationError, but got: \(type(of: error)) - \(error)") }
     }
+
+    /// Tests that `resolvedAccessModifier` rejects access modifiers that generated code doesn't compile with.
+    func testResolvedAccessModifier() throws {
+        let options = try _GenerateOptions.parse(["openapi.yaml"])
+        XCTAssertEqual(try options.resolvedAccessModifier(nil), Config.defaultAccessModifier)
+        XCTAssertEqual(try options.resolvedAccessModifier(_UserConfig(generate: [], accessModifier: .public)), .public)
+        for accessModifier in [AccessModifier.fileprivate, .private] {
+            let config = _UserConfig(generate: [], accessModifier: accessModifier)
+            XCTAssertThrowsError(try options.resolvedAccessModifier(config)) { error in
+                XCTAssertTrue(error is ArgumentParser.ValidationError, "Unexpected error: \(error)")
+            }
+            let optionsWithFlag = try _GenerateOptions.parse([
+                "openapi.yaml", "--access-modifier", accessModifier.rawValue,
+            ])
+            XCTAssertThrowsError(try optionsWithFlag.resolvedAccessModifier(nil)) { error in
+                XCTAssertTrue(error is ArgumentParser.ValidationError, "Unexpected error: \(error)")
+            }
+        }
+    }
     #endif
 }

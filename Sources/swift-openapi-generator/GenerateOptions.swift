@@ -50,7 +50,11 @@ struct _GenerateOptions: ParsableArguments {
     ) var diagnosticsOutputPath: URL?
 }
 
-extension AccessModifier: ExpressibleByArgument {}
+extension AccessModifier: ExpressibleByArgument {
+
+    /// The supported access modifiers, for display in the help screen.
+    static var allValueStrings: [String] { supportedValues.map(\.rawValue) }
+}
 extension NamingStrategy: ExpressibleByArgument {}
 
 /// Executes a throwing operation and transforms file-not-found errors into user-friendly messages.
@@ -95,11 +99,17 @@ extension _GenerateOptions {
 
     /// Returns the access modifier requested by the user.
     /// - Parameter config: The configuration specified by the user.
-    /// - Returns: The access modifier requested by the user, or nil if the default should be used.
-    func resolvedAccessModifier(_ config: _UserConfig?) -> AccessModifier {
-        if let accessModifier { return accessModifier }
-        if let accessModifier = config?.accessModifier { return accessModifier }
-        return Config.defaultAccessModifier
+    /// - Returns: The access modifier requested by the user, or the default access modifier.
+    /// - Throws: A `ValidationError` if the requested access modifier isn't supported.
+    func resolvedAccessModifier(_ config: _UserConfig?) throws -> AccessModifier {
+        let accessModifier = self.accessModifier ?? config?.accessModifier ?? Config.defaultAccessModifier
+        guard AccessModifier.supportedValues.contains(accessModifier) else {
+            let supported = AccessModifier.supportedValues.map(\.rawValue).joined(separator: ", ")
+            throw ValidationError(
+                "Unsupported access modifier: \(accessModifier.rawValue). Supported values: \(supported)."
+            )
+        }
+        return accessModifier
     }
 
     /// Returns a list of additional imports requested by the user.
