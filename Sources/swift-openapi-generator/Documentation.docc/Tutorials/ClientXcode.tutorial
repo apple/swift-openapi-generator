@@ -61,8 +61,6 @@
             }
             @Step {
                 The second file to add is a configuration file that controls the behavior of the build plugin. Create a file in the same target called `openapi-generator-config.yaml`, with the following contents.
-
-                The comment on the first line is optional. It enables validation and autocompletion in editors that support it, such as Visual Studio Code with the YAML extension. For details, check out <doc:Configuring-the-generator>.
                 
                 @Code(name: "Sources/openapi-generator-config.yaml", file: client.openapi-generator-config.yaml)
             }

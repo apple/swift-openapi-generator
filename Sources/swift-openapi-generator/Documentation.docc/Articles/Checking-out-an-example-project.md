@@ -18,7 +18,7 @@ To run an example locally, for example [hello-world-urlsession-client-example](h
 % swift run --package-path hello-world-urlsession-client-example
 ```
 
-## Getting started
+### Getting started
 
 Each of the following packages shows an end-to-end working example with the given transport.
 
@@ -29,7 +29,7 @@ Each of the following packages shows an end-to-end working example with the give
 - [HelloWorldiOSClientAppExample](https://github.com/apple/swift-openapi-generator/tree/main/Examples/HelloWorldiOSClientAppExample) - An iOS client SwiftUI app with a mock server for unit and UI tests.
 - [curated-client-library-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/curated-client-library-example) - A library that hides the generated API and exports a hand-written interface, allowing decoupled versioning.
 
-## Various content types
+### Various content types
 
 The following packages show working with various content types, such as JSON, URL-encoded request bodies, plain text, raw bytes, multipart bodies, as well as event streams, such as JSON Lines, JSON Sequence, and Server-sent Events.
 
@@ -40,13 +40,13 @@ The following packages show working with various content types, such as JSON, UR
 - [bidirectional-event-streams-client-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/bidirectional-event-streams-client-example) - A client showing how to handle and provide bidirectional event streams.
 - [bidirectional-event-streams-server-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/bidirectional-event-streams-server-example) - A server showing how to handle and provide bidirectional event streams.
 
-## Integrations
+### Integrations
 
 - [swagger-ui-endpoint-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/swagger-ui-endpoint-example) - A server with endpoints for its raw OpenAPI document and interactive documentation using [Swagger UI](https://github.com/swagger-api/swagger-ui).
 - [postgres-database-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/postgres-database-example) - A server using a [Postgres](https://www.postgresql.org) database for persistent state.
 - [command-line-client-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/command-line-client-example) - A client with a rich command-line interface using [Swift Argument Parser](https://github.com/apple/swift-argument-parser).
 
-## Middleware
+### Middleware
 
 - [logging-middleware-oslog-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/logging-middleware-oslog-example) - A middleware that logs requests and responses using [OSLog](https://developer.apple.com/documentation/os/oslog) (only available on Apple platforms, such as macOS, iOS, and more).
 - [logging-middleware-swift-log-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/logging-middleware-swift-log-example) - A middleware that logs requests and responses using [SwiftLog](https://github.com/apple/swift-log).
@@ -56,7 +56,7 @@ The following packages show working with various content types, such as JSON, UR
 - [auth-client-middleware-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/auth-client-middleware-example) - A middleware that injects a token header.
 - [auth-server-middleware-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/auth-server-middleware-example) - A middleware that inspects a token header.
 
-## Ahead-of-time (manual) code generation
+### Ahead-of-time (manual) code generation
 
 The recommended way to use Swift OpenAPI generator is by integrating the _build plugin_, which all of the examples above use. The build plugin generates Swift code from your OpenAPI document at build time, and you don't check in the generated code into your git repository. 
 
@@ -68,6 +68,6 @@ If you can't even use the command plugin, for example because your package is no
 
 - [manual-generation-generator-cli-example](https://github.com/apple/swift-openapi-generator/tree/main/Examples/manual-generation-generator-cli-example) - A client using the `swift-openapi-generator` CLI for manual code generation.
 
-## Talks
+### Talks
 
 - [FOSDEM 2025: Streaming ChatGPT Proxy with Swift OpenAPI](./streaming-chatgpt-proxy) - A tailored API server, backed by ChatGPT, and client CLI, with end-to-end streaming.

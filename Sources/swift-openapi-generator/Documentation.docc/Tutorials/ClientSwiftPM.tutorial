@@ -72,8 +72,6 @@
             @Step {
                 We also need a config file that controls the behavior of the Swift
                 OpenAPI Generator plugin. Create a file in the same directory called `openapi-generator-config.yaml`, with the following contents.
-
-                The comment on the first line is optional. It enables validation and autocompletion in editors that support it, such as Visual Studio Code with the YAML extension. For details, check out <doc:Configuring-the-generator>.
                 
                 @Code(name: "Sources/openapi-generator-config.yaml", file: client.openapi-generator-config.yaml)
             }
