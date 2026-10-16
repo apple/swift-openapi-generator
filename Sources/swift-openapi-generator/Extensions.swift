@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
-import Foundation
+public import Foundation
 public import ArgumentParser
 import _OpenAPIGeneratorCore
 import Yams
@@ -30,7 +30,7 @@ extension URL {
     ///
     /// Initializes a `URL` instance using the path provided as an argument string.
     /// - Parameter argument: The string argument representing the path for the URL.
-    init?(argument: String) { self.init(fileURLWithPath: argument) }
+    public init?(argument: String) { self.init(fileURLWithPath: argument) }
 }
 
 extension CaseIterable where Self: RawRepresentable, Self.RawValue == String {
