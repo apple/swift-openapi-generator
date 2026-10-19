@@ -144,10 +144,31 @@ struct TextBasedRenderer: RendererProtocol {
     }
 
     /// Renders the specified import statements.
-    func renderImports(_ imports: [ImportDescription]?) { (imports ?? []).forEach(renderImport) }
+    func renderImports(_ imports: [ImportDescription]?) {
+        let imports = imports ?? []
+        func renderAll(inSuppressingBranch: Bool) {
+            for description in imports { renderImport(description, inSuppressingBranch: inSuppressingBranch) }
+        }
+
+        guard imports.contains(where: \.ignoresUnusedImportAccess) else {
+            renderAll(inSuppressingBranch: false)
+            return
+        }
+        // Both branches are emitted so that compilers older than 6.4, where the attribute
+        // does not parse, see exactly the imports they saw before.
+        writer.writeLine("#if compiler(>=6.4)")
+        renderAll(inSuppressingBranch: true)
+        writer.writeLine("#else")
+        renderAll(inSuppressingBranch: false)
+        writer.writeLine("#endif")
+    }
 
     /// Renders a single import statement.
-    func renderImport(_ description: ImportDescription) {
+    /// - Parameters:
+    ///   - description: The import to render.
+    ///   - inSuppressingBranch: Whether this is the branch compiled by Swift 6.4 and later,
+    ///     where imports that can trigger `UnusedImportAccess` carry the attribute.
+    func renderImport(_ description: ImportDescription, inSuppressingBranch: Bool) {
         let accessModifierPrefix: String
         switch description.accessModifier {
         case .public: accessModifierPrefix = renderedAccessModifier(.public) + " "
@@ -155,12 +176,18 @@ struct TextBasedRenderer: RendererProtocol {
         default: accessModifierPrefix = ""
         }
 
+        let diagnosePrefix =
+            inSuppressingBranch && description.ignoresUnusedImportAccess
+            ? "@diagnose(UnusedImportAccess, as: ignored) " : ""
+
         func render() {
             let spiPrefix = description.spi.map { "@_spi(\($0)) " } ?? ""
             if let moduleTypes = description.moduleTypes {
-                for type in moduleTypes { writer.writeLine("\(spiPrefix)\(accessModifierPrefix)import \(type)") }
+                for type in moduleTypes {
+                    writer.writeLine("\(diagnosePrefix)\(spiPrefix)\(accessModifierPrefix)import \(type)")
+                }
             } else {
-                writer.writeLine("\(spiPrefix)\(accessModifierPrefix)import \(description.moduleName)")
+                writer.writeLine("\(diagnosePrefix)\(spiPrefix)\(accessModifierPrefix)import \(description.moduleName)")
             }
         }
 

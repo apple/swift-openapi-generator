@@ -107,7 +107,11 @@ final class Test_TextBasedRenderer: XCTestCase {
             [ImportDescription(moduleName: "Foo", accessModifier: .public)],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
+                #if compiler(>=6.4)
+                @diagnose(UnusedImportAccess, as: ignored) public import Foo
+                #else
                 public import Foo
+                #endif
                 """#
         )
     }
@@ -117,7 +121,30 @@ final class Test_TextBasedRenderer: XCTestCase {
             [ImportDescription(moduleName: "Foo", accessModifier: .package)],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
+                #if compiler(>=6.4)
+                @diagnose(UnusedImportAccess, as: ignored) package import Foo
+                #else
                 package import Foo
+                #endif
+                """#
+        )
+    }
+
+    func testImportsIgnoringUnusedImportAccess() throws {
+        try _test(
+            [
+                ImportDescription(moduleName: "Foo", accessModifier: .public),
+                ImportDescription(moduleName: "Bar", setsAccessModifier: false),
+            ],
+            renderedBy: TextBasedRenderer.renderImports,
+            rendersAs: #"""
+                #if compiler(>=6.4)
+                @diagnose(UnusedImportAccess, as: ignored) public import Foo
+                import Bar
+                #else
+                public import Foo
+                import Bar
+                #endif
                 """#
         )
     }
@@ -137,7 +164,11 @@ final class Test_TextBasedRenderer: XCTestCase {
             [ImportDescription(moduleName: "Foo", spi: "Secret", accessModifier: .public)],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
+                #if compiler(>=6.4)
+                @diagnose(UnusedImportAccess, as: ignored) @_spi(Secret) public import Foo
+                #else
                 @_spi(Secret) public import Foo
+                #endif
                 """#
         )
     }
@@ -153,7 +184,11 @@ final class Test_TextBasedRenderer: XCTestCase {
             ],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
+                #if compiler(>=6.4)
+                @diagnose(UnusedImportAccess, as: ignored) public import struct Foundation.URL
+                #else
                 public import struct Foundation.URL
+                #endif
                 """#
         )
     }

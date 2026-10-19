@@ -46,6 +46,18 @@ struct ImportDescription: Equatable, Codable {
     /// declarations (e.g. implementation-only imports), so that
     /// `public import` or `package import` is not incorrectly emitted.
     var setsAccessModifier: Bool = true
+
+    /// Whether the compiler should be told to ignore this import being unused.
+    ///
+    /// The same imports are emitted into every generated file, so an access-level import is
+    /// often unused in any one of them, which triggers `UnusedImportAccess`. Only an
+    /// access-level import can trigger it.
+    var ignoresUnusedImportAccess: Bool {
+        switch accessModifier {
+        case .public, .package: return true
+        case .internal, .fileprivate, .private, nil: return false
+        }
+    }
 }
 
 /// A description of an access modifier.
