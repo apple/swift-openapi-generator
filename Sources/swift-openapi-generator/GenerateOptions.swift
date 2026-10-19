@@ -15,7 +15,7 @@ public import ArgumentParser
 import Foundation
 import Yams
 import OpenAPIKit
-import _OpenAPIGeneratorCore
+public import _OpenAPIGeneratorCore
 
 struct _GenerateOptions: ParsableArguments {
 
@@ -53,7 +53,7 @@ struct _GenerateOptions: ParsableArguments {
 extension AccessModifier: ExpressibleByArgument {
 
     /// The supported access modifiers, for display in the help screen.
-    static var allValueStrings: [String] { supportedValues.map(\.rawValue) }
+    public static var allValueStrings: [String] { supportedValues.map(\.rawValue) }
 }
 extension NamingStrategy: ExpressibleByArgument {}
 

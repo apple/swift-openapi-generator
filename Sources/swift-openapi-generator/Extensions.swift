@@ -57,5 +57,6 @@ extension _UserConfig {
 }
 
 extension _UserConfig: CustomStringConvertible {
-    var description: String { (try? yamlString) ?? "<unencodable config>" }
+    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
+    public var description: String { (try? yamlString) ?? "<unencodable config>" }
 }
