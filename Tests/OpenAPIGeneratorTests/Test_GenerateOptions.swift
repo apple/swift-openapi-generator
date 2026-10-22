@@ -45,7 +45,12 @@ final class Test_GenerateOptions: XCTestCase {
         let generator = try _GenerateOptions.parse(arguments)
 
         do {
-            try await generator.runGenerator(outputDirectory: outputDirectory, pluginSource: .build, isDryRun: false)
+            try await generator.runGenerator(
+                outputDirectory: outputDirectory,
+                pluginSource: .build,
+                isDryRun: false,
+                isListingOutputFiles: false
+            )
             XCTFail("Expected to throw an error, but it did not throw")
         } catch let diagnostic as Diagnostic {
             XCTAssertEqual(diagnostic.severity, .error, "Expected diagnostic severity to be `.error`")
@@ -53,29 +58,16 @@ final class Test_GenerateOptions: XCTestCase {
     }
 
     func testBuildPluginWritesEveryDeclaredOutputForUnrequestedModes() async throws {
-        let temporaryDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        try FileManager.default.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true)
+        let temporaryDirectory = try makeTemporaryDirectory()
         defer { try? FileManager.default.removeItem(at: temporaryDirectory) }
-
-        let documentURL = temporaryDirectory.appendingPathComponent("openapi.yaml")
-        try Data(
-            """
-            openapi: "3.1.0"
-            info:
-              title: GreetingService
-              version: "1.0.0"
-            paths: {}
-            """
-            .utf8
-        )
-        .write(to: documentURL)
+        let documentURL = try writeGreetingServiceDocument(in: temporaryDirectory)
 
         try await _Tool.runGenerator(
             doc: documentURL,
             configs: [Config(mode: .client, access: .internal, namingStrategy: .defensive)],
             pluginSource: .build,
             outputDirectory: temporaryDirectory,
-            isDryRun: false,
+            outputFileHandling: .write,
             diagnostics: StdErrPrintingDiagnosticCollector()
         )
 
@@ -88,6 +80,105 @@ final class Test_GenerateOptions: XCTestCase {
             XCTAssertEqual(try Data(contentsOf: outputURL), Data(), "Expected empty \(outputFileName)")
         }
         XCTAssertFalse(try Data(contentsOf: temporaryDirectory.appendingPathComponent("Client.swift")).isEmpty)
+    }
+
+    func testListOutputFilesFlag() throws {
+        XCTAssertTrue(try _GenerateCommand.parse(["openapi.yaml", "--list-output-files"]).isListingOutputFiles)
+        XCTAssertFalse(try _GenerateCommand.parse(["openapi.yaml"]).isListingOutputFiles)
+    }
+
+    func testListingOutputFilesMatchesTheFilesWrittenByARealRun() async throws {
+        let temporaryDirectory = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: temporaryDirectory) }
+        let documentURL = try writeGreetingServiceDocument(in: temporaryDirectory)
+        let configs = [GeneratorMode.types, .client]
+            .map { Config(mode: $0, access: .internal, namingStrategy: .defensive) }
+
+        let writtenDirectory = temporaryDirectory.appendingPathComponent("Written")
+        try await _Tool.runGenerator(
+            doc: documentURL,
+            configs: configs,
+            pluginSource: nil,
+            outputDirectory: writtenDirectory,
+            outputFileHandling: .write,
+            diagnostics: StdErrPrintingDiagnosticCollector()
+        )
+        let listedDirectory = temporaryDirectory.appendingPathComponent("Listed")
+        let listedURLs = try await _Tool.runGenerator(
+            doc: documentURL,
+            configs: configs,
+            pluginSource: nil,
+            outputDirectory: listedDirectory,
+            outputFileHandling: .list,
+            diagnostics: StdErrPrintingDiagnosticCollector()
+        )
+
+        let writtenFileNames = try FileManager.default.contentsOfDirectory(atPath: writtenDirectory.path)
+        XCTAssertFalse(writtenFileNames.isEmpty)
+        XCTAssertEqual(listedURLs.map(\.lastPathComponent), writtenFileNames.sorted())
+        for listedURL in listedURLs {
+            XCTAssertEqual(listedURL.deletingLastPathComponent().standardizedFileURL.path, listedDirectory.path)
+        }
+        XCTAssertFalse(FileManager.default.fileExists(atPath: listedDirectory.path), "Expected no files written")
+    }
+
+    func testListingOutputFilesForBuildPluginIncludesEveryDeclaredOutput() async throws {
+        let temporaryDirectory = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: temporaryDirectory) }
+        let documentURL = try writeGreetingServiceDocument(in: temporaryDirectory)
+        let outputDirectory = temporaryDirectory.appendingPathComponent("Listed")
+
+        let listedURLs = try await _Tool.runGenerator(
+            doc: documentURL,
+            configs: [Config(mode: .client, access: .internal, namingStrategy: .defensive)],
+            pluginSource: .build,
+            outputDirectory: outputDirectory,
+            outputFileHandling: .list,
+            diagnostics: StdErrPrintingDiagnosticCollector()
+        )
+
+        XCTAssertEqual(listedURLs.map(\.lastPathComponent), GeneratorMode.allOutputFileNames.map(\.rawValue).sorted())
+        XCTAssertFalse(FileManager.default.fileExists(atPath: outputDirectory.path), "Expected no files written")
+    }
+
+    func testListingOutputFilesDoesNotReadTheDocument() async throws {
+        let temporaryDirectory = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: temporaryDirectory) }
+        let missingDocumentURL = temporaryDirectory.appendingPathComponent("missing-openapi.yaml")
+        let outputDirectory = temporaryDirectory.appendingPathComponent("Listed")
+
+        let listedURLs = try await _Tool.runGenerator(
+            doc: missingDocumentURL,
+            configs: [Config(mode: .client, access: .internal, namingStrategy: .defensive)],
+            pluginSource: nil,
+            outputDirectory: outputDirectory,
+            outputFileHandling: .list,
+            diagnostics: StdErrPrintingDiagnosticCollector()
+        )
+
+        XCTAssertEqual(listedURLs.map(\.path), [outputDirectory.appendingPathComponent("Client.swift").path])
+    }
+
+    private func makeTemporaryDirectory() throws -> URL {
+        let temporaryDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true)
+        return temporaryDirectory
+    }
+
+    private func writeGreetingServiceDocument(in directory: URL) throws -> URL {
+        let documentURL = directory.appendingPathComponent("openapi.yaml")
+        try Data(
+            """
+            openapi: "3.1.0"
+            info:
+              title: GreetingService
+              version: "1.0.0"
+            paths: {}
+            """
+            .utf8
+        )
+        .write(to: documentURL)
+        return documentURL
     }
 
     /// Tests that `handleFileOperation` correctly transforms file-not-found errors into user-friendly messages.
