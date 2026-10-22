@@ -17,6 +17,21 @@ import class Foundation.FileManager
 import ArgumentParser
 import _OpenAPIGeneratorCore
 
+/// Describes what the generator does with the files it produces.
+enum OutputFileHandling: String {
+
+    /// Writes the files to disk, skipping files that are already up to date,
+    /// and prints each operation.
+    case write
+
+    /// Prints each operation, without writing to disk.
+    case dryRun
+
+    /// Only returns the URLs of the files that would be written, without
+    /// reading or processing the OpenAPI document.
+    case list
+}
+
 extension _Tool {
     /// Runs the generator with the specified configuration values.
     /// - Parameters:
@@ -25,19 +40,27 @@ extension _Tool {
     ///   - pluginSource: The source of the generator invocation.
     ///   - outputDirectory: The directory to which the generator writes
     ///   the generated Swift files.
-    ///   - isDryRun: A Boolean value that indicates whether this invocation should
-    ///   be a dry run.
+    ///   - outputFileHandling: What the generator does with the files it produces.
     ///   - diagnostics: A collector for diagnostics emitted by the generator.
+    /// - Returns: The URLs of all the files that the generator writes, or would write, sorted by path.
     /// - Throws: An error if there are issues loading the OpenAPI document,
     ///  running the generator for each configuration, or handling diagnostics.
-    static func runGenerator(
+    @discardableResult static func runGenerator(
         doc: URL,
         configs: [Config],
         pluginSource: PluginSource?,
         outputDirectory: URL,
-        isDryRun: Bool,
+        outputFileHandling: OutputFileHandling,
         diagnostics: any DiagnosticCollector & Sendable
-    ) async throws {
+    ) async throws -> [URL] {
+        // The output file names depend only on the generator modes, not on the OpenAPI document,
+        // so listing them doesn't require processing the document.
+        let outputModes = pluginSource == .build ? GeneratorMode.allCases : configs.map(\.mode)
+        let outputFileURLs = Set(outputModes.flatMap(\.outputFileNames)).map(\.rawValue).sorted()
+            .map { outputDirectory.appendingPathComponent($0) }
+        if outputFileHandling == .list { return outputFileURLs }
+        let isDryRun = outputFileHandling == .dryRun
+
         let docData: Data
         do { docData = try Data(contentsOf: doc) } catch {
             throw ValidationError("Failed to load the OpenAPI document at path \(doc.path), error: \(error)")
@@ -76,6 +99,7 @@ extension _Tool {
                 }
             }
         }
+        return outputFileURLs
     }
 
     /// Runs the generator with the specified configuration values.
