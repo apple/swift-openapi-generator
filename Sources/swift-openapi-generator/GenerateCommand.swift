@@ -50,18 +50,11 @@ struct _GenerateCommand: AsyncParsableCommand {
         help: "Simulate the command and print the operations, without actually affecting the file system."
     ) var isDryRun: Bool = false
 
-    @Flag(
-        name: .customLong("list-output-files"),
-        help:
-            "Print the absolute path of each file the command would write, one per line, without actually affecting the file system. All other output is written to standard error. Implies --dry-run. Useful for build systems that need to know the generated files ahead of time."
-    ) var isListingOutputFiles: Bool = false
-
     func run() async throws {
         try await generate.runGenerator(
             outputDirectory: outputDirectory,
             pluginSource: pluginSource,
-            isDryRun: isDryRun,
-            isListingOutputFiles: isListingOutputFiles
+            isDryRun: isDryRun
         )
     }
 }
