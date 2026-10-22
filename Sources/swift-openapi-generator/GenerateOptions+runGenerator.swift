@@ -25,14 +25,9 @@ extension _GenerateOptions {
     ///   - isDryRun: A Boolean value that indicates whether this invocation should
     ///   be run in a testing mode to preview all the operations being carried out without
     ///   making any actual changes.
-    ///   - isListingOutputFiles: A Boolean value that indicates whether this invocation should
-    ///   only print the absolute paths of the files it would write, one per line, without
-    ///   making any actual changes.
     /// - Throws: An error if any part of the generator execution encounters an issue, including loading configuration,
     /// resolving options, generating code, and handling diagnostics.
-    func runGenerator(outputDirectory: URL, pluginSource: PluginSource?, isDryRun: Bool, isListingOutputFiles: Bool)
-        async throws
-    {
+    func runGenerator(outputDirectory: URL, pluginSource: PluginSource?, isDryRun: Bool) async throws {
         let config = try loadedConfig()
         let sortedModes = try resolvedModes(config)
         let resolvedAccessModifier = try resolvedAccessModifier(config)
@@ -42,14 +37,6 @@ extension _GenerateOptions {
         let resolvedNameOverrides = resolvedNameOverrides(config)
         let resolvedTypeOverrides = resolvedTypeOverrides(config)
         let resolvedFeatureFlags = resolvedFeatureFlags(config)
-        let outputFileHandling: OutputFileHandling
-        if isListingOutputFiles {
-            outputFileHandling = .list
-        } else if isDryRun {
-            outputFileHandling = .dryRun
-        } else {
-            outputFileHandling = .write
-        }
         let configs: [Config] = sortedModes.map {
             .init(
                 mode: $0,
@@ -85,25 +72,21 @@ extension _GenerateOptions {
             - Diagnostics output path: \(diagnosticsOutputPath?.path ?? "<none - logs to stderr>")
             - Current directory: \(FileManager.default.currentDirectoryPath)
             - Plugin source: \(pluginSource?.rawValue ?? "<none>")
-            - Output file handling: \(outputFileHandling.rawValue)
+            - Is dry run: \(isDryRun)
             - Additional imports: \(resolvedAdditionalImports.isEmpty ? "<none>" : resolvedAdditionalImports.joined(separator: ", "))
             - Additional file comments: \(resolvedAdditionalFileComments.isEmpty ? "<none>" : resolvedAdditionalFileComments.joined(separator: ", "))
             """
         )
         do {
-            let outputFileURLs = try await _Tool.runGenerator(
+            try await _Tool.runGenerator(
                 doc: doc,
                 configs: configs,
                 pluginSource: pluginSource,
                 outputDirectory: outputDirectory,
-                outputFileHandling: outputFileHandling,
+                isDryRun: isDryRun,
                 diagnostics: diagnostics
             )
             try finalizeDiagnostics()
-            if isListingOutputFiles {
-                // Only the paths go to standard output, so that build systems can parse it.
-                for path in outputFileURLs.map({ $0.absoluteURL.standardizedFileURL.path }) { print(path) }
-            }
         } catch let error as Diagnostic {
             // Emit our nice Diagnostics message instead of relying on ArgumentParser output.
             try diagnostics.emit(error)
