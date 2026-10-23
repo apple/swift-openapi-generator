@@ -107,6 +107,9 @@ final class Test_TextBasedRenderer: XCTestCase {
             [ImportDescription(moduleName: "Foo", accessModifier: .public)],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
+                #if compiler(>=6.4)
+                @diagnose(UnusedImportAccess, as: ignored)
+                #endif
                 public import Foo
                 """#
         )
@@ -117,7 +120,27 @@ final class Test_TextBasedRenderer: XCTestCase {
             [ImportDescription(moduleName: "Foo", accessModifier: .package)],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
+                #if compiler(>=6.4)
+                @diagnose(UnusedImportAccess, as: ignored)
+                #endif
                 package import Foo
+                """#
+        )
+    }
+
+    func testImportsIgnoringUnusedImportAccess() throws {
+        try _test(
+            [
+                ImportDescription(moduleName: "Foo", accessModifier: .public),
+                ImportDescription(moduleName: "Bar", setsAccessModifier: false),
+            ],
+            renderedBy: TextBasedRenderer.renderImports,
+            rendersAs: #"""
+                #if compiler(>=6.4)
+                @diagnose(UnusedImportAccess, as: ignored)
+                #endif
+                public import Foo
+                import Bar
                 """#
         )
     }
@@ -137,6 +160,9 @@ final class Test_TextBasedRenderer: XCTestCase {
             [ImportDescription(moduleName: "Foo", spi: "Secret", accessModifier: .public)],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
+                #if compiler(>=6.4)
+                @diagnose(UnusedImportAccess, as: ignored)
+                #endif
                 @_spi(Secret) public import Foo
                 """#
         )
@@ -153,6 +179,9 @@ final class Test_TextBasedRenderer: XCTestCase {
             ],
             renderedBy: TextBasedRenderer.renderImports,
             rendersAs: #"""
+                #if compiler(>=6.4)
+                @diagnose(UnusedImportAccess, as: ignored)
+                #endif
                 public import struct Foundation.URL
                 """#
         )
