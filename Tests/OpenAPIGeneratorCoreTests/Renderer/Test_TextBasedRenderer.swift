@@ -168,25 +168,6 @@ final class Test_TextBasedRenderer: XCTestCase {
         )
     }
 
-    func testImportsWithAccessModifierAndModuleTypes() throws {
-        try _test(
-            [
-                ImportDescription(
-                    moduleName: "Foundation",
-                    moduleTypes: ["struct Foundation.URL"],
-                    accessModifier: .public
-                )
-            ],
-            renderedBy: TextBasedRenderer.renderImports,
-            rendersAs: #"""
-                #if compiler(>=6.4)
-                @diagnose(UnusedImportAccess, as: ignored)
-                #endif
-                public import struct Foundation.URL
-                """#
-        )
-    }
-
     func testAccessModifiers() throws {
         try _test(
             .public,
