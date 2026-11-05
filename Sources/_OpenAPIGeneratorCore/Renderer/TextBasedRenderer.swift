@@ -156,22 +156,14 @@ struct TextBasedRenderer: RendererProtocol {
         }
         let spiPrefix = description.spi.map { "@_spi(\($0)) " } ?? ""
 
-        func render(importing name: String) {
-            if description.ignoresUnusedImportAccess {
-                // Remove the check once the minimum supported Swift version is 6.4. Until then,
-                // older compilers skip the branch without parsing it.
-                writer.writeLine("#if compiler(>=6.4)")
-                writer.writeLine("@diagnose(UnusedImportAccess, as: ignored)")
-                writer.writeLine("#endif")
-            }
-            writer.writeLine("\(spiPrefix)\(accessModifierPrefix)import \(name)")
+        if description.ignoresUnusedImportAccess {
+            // Remove the check once the minimum supported Swift version is 6.4. Until then,
+            // older compilers skip the branch without parsing it.
+            writer.writeLine("#if compiler(>=6.4)")
+            writer.writeLine("@diagnose(UnusedImportAccess, as: ignored)")
+            writer.writeLine("#endif")
         }
-
-        if let moduleTypes = description.moduleTypes {
-            moduleTypes.forEach(render(importing:))
-        } else {
-            render(importing: description.moduleName)
-        }
+        writer.writeLine("\(spiPrefix)\(accessModifierPrefix)import \(description.moduleName)")
     }
 
     /// Renders the specified access modifier.

@@ -54,10 +54,7 @@ enum Constants {
         /// The descriptions of modules imported by every generated file.
         static let imports: [ImportDescription] = [
             ImportDescription(moduleName: Constants.Import.runtime, spi: "Generated"),
-            ImportDescription(
-                moduleName: "Foundation",
-                moduleTypes: ["struct Foundation.URL", "struct Foundation.Data", "struct Foundation.Date"]
-            ),
+            ImportDescription(moduleName: "Foundation"),
         ]
 
         /// The descriptions of modules imported by client and server files.
