@@ -22,13 +22,14 @@ extension TypesFileTranslator {
     /// - Throws: An error if there's an issue during translation or request body processing
     func translateComponentResponses(_ responses: OpenAPI.ComponentDictionary<OpenAPI.Response>) throws -> Declaration {
 
-        let typedResponses: [TypedResponse] = responses.map { key, response in
+        let typedResponses: [(OpenAPI.ComponentKey, TypedResponse)] = responses.map { key, response in
             let typeName = typeAssigner.typeName(for: key, of: OpenAPI.Response.self)
             let value = TypedResponse(response: response, typeUsage: typeName.asUsage, isInlined: false)
-            return value
+            return (key, value)
         }
-        let decls: [Declaration] = try typedResponses.map { value in
+        let decls: [Declaration] = try typedResponses.map { key, value in
             try translateResponseInTypes(typeName: value.typeUsage.typeName, response: value)
+                .attaching(AttachedMacros.macros(in: config.attachedMacros.components.responses, matching: key.rawValue))
         }
 
         let componentsResponsesEnum = Declaration.commentable(

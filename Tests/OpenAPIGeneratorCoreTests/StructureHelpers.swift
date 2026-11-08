@@ -16,6 +16,7 @@ import Foundation
 
 enum DeclKind: String, Equatable, CustomStringConvertible {
     case deprecated
+    case attributed
     case variable
     case `extension`
     case `struct`
@@ -102,6 +103,7 @@ extension Declaration {
     var info: DeclInfo {
         switch strippingTopComment {
         case .deprecated: return .init(kind: .deprecated)
+        case .attributed: return .init(kind: .attributed)
         case let .variable(description):
             return .init(name: TextBasedRenderer.renderedExpressionAsString(description.left), kind: .variable)
         case let .`extension`(description): return .init(name: description.onType, kind: .`extension`)

@@ -219,6 +219,184 @@
           }
         ]
       }
+    },
+    "attachedMacros": {
+      "description": "Attaches macros to generated declarations. List the modules that define the macros in additionalImports. Check out SOAR-0016 for details: https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0016",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "components": {
+          "description": "Rules for declarations generated from the components section.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "schemas": {
+              "description": "Rules for Components.Schemas.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/attachedMacroComponentRule"
+              }
+            },
+            "parameters": {
+              "description": "Rules for Components.Parameters.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/attachedMacroComponentRule"
+              }
+            },
+            "requestBodies": {
+              "description": "Rules for Components.RequestBodies.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/attachedMacroComponentRule"
+              }
+            },
+            "responses": {
+              "description": "Rules for Components.Responses.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/attachedMacroComponentRule"
+              }
+            },
+            "headers": {
+              "description": "Rules for Components.Headers.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/attachedMacroComponentRule"
+              }
+            }
+          }
+        },
+        "operations": {
+          "description": "Rules for declarations generated for each operation.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "filter": {
+                "description": "Matched against the operationId, or the identifier synthesized from the method and path, such as get/pets/{petId}. A case-sensitive regular expression that can match anywhere in the name. A rule without a filter matches everything.",
+                "type": "string"
+              },
+              "operation": {
+                "description": "Macros attached to Operations.<Op>.",
+                "$ref": "#/$defs/attachedMacroList"
+              },
+              "input": {
+                "description": "Macros attached to Operations.<Op>.Input.",
+                "$ref": "#/$defs/attachedMacroList"
+              },
+              "output": {
+                "description": "Macros attached to Operations.<Op>.Output.",
+                "$ref": "#/$defs/attachedMacroList"
+              },
+              "clientMethod": {
+                "description": "Macros attached to the Client method of the operation.",
+                "$ref": "#/$defs/attachedMacroList"
+              }
+            }
+          }
+        },
+        "apiProtocol": {
+          "description": "Macros attached to APIProtocol.",
+          "$ref": "#/$defs/attachedMacroList"
+        },
+        "client": {
+          "description": "Macros attached to Client.",
+          "$ref": "#/$defs/attachedMacroList"
+        },
+        "server": {
+          "description": "Macros attached to APIProtocol.registerHandlers(on:serverURL:configuration:middlewares:).",
+          "$ref": "#/$defs/attachedMacroList"
+        }
+      },
+      "examples": [
+        {
+          "components": {
+            "schemas": [
+              {
+                "filter": "^Pet$",
+                "macros": [
+                  {
+                    "name": "MyMacro",
+                    "arguments": [
+                      {
+                        "label": "name",
+                        "value": "\"Pet\""
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "apiProtocol": [
+            {
+              "name": "Mockable"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "attachedMacroList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/attachedMacro"
+      }
+    },
+    "attachedMacro": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "The name of the macro, without the leading @.",
+          "type": "string",
+          "pattern": "^[^@]"
+        },
+        "arguments": {
+          "description": "The arguments of the macro.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "label": {
+                "description": "The label of the argument.",
+                "type": "string"
+              },
+              "value": {
+                "description": "The value of the argument, as Swift source emitted verbatim. For example, write a string argument as '\"Pet\"'.",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "attachedMacroComponentRule": {
+      "type": "object",
+      "required": [
+        "macros"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "filter": {
+          "description": "Matched against the OpenAPI component key. A case-sensitive regular expression that can match anywhere in the name. A rule without a filter matches everything.",
+          "type": "string"
+        },
+        "macros": {
+          "description": "Macros attached to the matching components.",
+          "$ref": "#/$defs/attachedMacroList"
+        }
+      }
     }
   },
   "examples": [

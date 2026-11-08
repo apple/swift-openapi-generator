@@ -132,6 +132,7 @@ struct ServerFileTranslator: FileTranslator {
                 body: registerHandlersDeclBody
             )
         )
+        .attaching(config.attachedMacros.server)
         return (registerHandlersDecl, serverMethodDecls)
     }
 }

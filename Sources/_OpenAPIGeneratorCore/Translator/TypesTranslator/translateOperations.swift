@@ -230,8 +230,11 @@ extension TypesFileTranslator {
             right: .literal(operation.operationID)
         )
 
+        let attachedMacros = config.attachedMacros
         let inputDecl: Declaration = try translateOperationInput(operation)
+            .attaching(attachedMacros.macros(for: \.input, operationID: operation.operationID))
         let outputDecl: Declaration = try translateOperationOutput(operation)
+            .attaching(attachedMacros.macros(for: \.output, operationID: operation.operationID))
         let acceptDecl: Declaration? = try translateOperationAcceptableContentType(operation)
 
         let operationNamespace = operation.operationNamespace
@@ -243,7 +246,9 @@ extension TypesFileTranslator {
                 members: [idPropertyDecl, inputDecl, outputDecl] + (acceptDecl.flatMap { [$0] } ?? [])
             )
         )
-        return operationEnumDecl
+        return operationEnumDecl.attaching(
+            attachedMacros.macros(for: \.operation, operationID: operation.operationID)
+        )
     }
 
     /// Returns a declaration of a code block that contains the namespace

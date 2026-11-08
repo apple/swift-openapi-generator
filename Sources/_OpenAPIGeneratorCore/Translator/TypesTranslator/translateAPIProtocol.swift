@@ -34,6 +34,7 @@ extension TypesFileTranslator {
         let protocolComment: Comment = .doc("A type that performs HTTP operations defined by the OpenAPI document.")
 
         return .commentable(protocolComment, .protocol(protocolDescription))
+            .attaching(config.attachedMacros.apiProtocol)
     }
 
     /// Returns an extension to the `APIProtocol` protocol, with some syntactic sugar APIs.
