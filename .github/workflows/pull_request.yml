@@ -13,6 +13,11 @@ jobs:
     uses: swiftlang/github-workflows/.github/workflows/soundness.yml@0.0.18
     with:
       api_breakage_check_enabled: false
+      # The docs catalog uses `@TechnologyRoot` so that SPI serves it at `/documentation/swift-openapi-generator`,
+      # but swift-docc-plugin also passes the executable target's symbol graph, which adds a second
+      # `swift_openapi_generator` module root. DocC 6.4 warns about that (MultipleRootPages); following its
+      # suggestion would move the landing page and break existing links, so keep this diagnostic a warning.
+      docs_check_additional_arguments: "--Wwarning MultipleRootPages"
       license_header_check_project_name: "SwiftOpenAPIGenerator"
       yamllint_check_enabled: false
 
