@@ -73,10 +73,19 @@ extension TypesFileTranslator {
                 } else {
                     associatedDeclarations = []
                 }
+
+                var defaultValue: PropertyBlueprint.DefaultValue? = nil
+                if let schemaDefaultValue = schema.defaultValue {
+                    if let literalDescription = convertValueToLiteralDescription(schemaDefaultValue.value) {
+                        defaultValue = .expression(.literal(literalDescription))
+                    }
+                }
+
                 let blueprint = PropertyBlueprint(
                     comment: comment,
                     originalName: key,
                     typeUsage: propertyType,
+                    default: defaultValue,
                     associatedDeclarations: associatedDeclarations,
                     context: context
                 )
