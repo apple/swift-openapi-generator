@@ -58,6 +58,12 @@ extension TypeName {
         .runtime(Constants.Operation.Output.undocumentedCaseAssociatedValueTypeName)
     }
 
+    /// Returns the type name for the concrete MIME type.
+    static var concreteMIMEType: Self { .runtime("OpenAPIConcreteMIMEType") }
+
+    /// Returns the type name for the content-typed body payload.
+    static var contentTypedBody: Self { .runtime("OpenAPIContentTypedBody") }
+
     /// Returns the type name of generic JSON payload.
     static var valueContainer: TypeName { .runtime("OpenAPIValueContainer") }
 
