@@ -177,5 +177,6 @@ extension ClientFileTranslator {
             )
             .deprecate(if: description.operation.deprecated)
         )
+        .attaching(config.attachedMacros.macros(for: \.clientMethod, operationID: description.operationID))
     }
 }

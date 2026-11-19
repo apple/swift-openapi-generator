@@ -39,6 +39,7 @@ final class Test_ConfigJSONSchema: XCTestCase {
         // Property names match the coding keys because these types use synthesized Codable conformance.
         XCTAssertEqual(nestedKeys("filter"), propertyNames(of: DocumentFilter()))
         XCTAssertEqual(nestedKeys("typeOverrides"), propertyNames(of: _UserConfig.TypeOverrides(schemas: nil)))
+        XCTAssertEqual(nestedKeys("attachedMacros"), Set(AttachedMacros.CodingKeys.allCases.map(\.stringValue)))
 
         // A config with a value for every property in the schema must decode.
         let sample = try XCTUnwrap(sampleValue(for: schema) as? [String: Any])
@@ -80,6 +81,10 @@ final class Test_ConfigJSONSchema: XCTestCase {
 
     /// Returns a value that is valid for the given schema.
     private func sampleValue(for schema: [String: Any]) -> Any? {
+        if let reference = schema["$ref"] as? String, let name = reference.split(separator: "/").last {
+            let definitions = (try? loadSchema())?["$defs"] as? [String: [String: Any]]
+            return definitions?[String(name)].flatMap(sampleValue(for:))
+        }
         if let values = constValues(of: schema) { return values.first }
         switch schema["type"] as? String {
         case "string": return "value"

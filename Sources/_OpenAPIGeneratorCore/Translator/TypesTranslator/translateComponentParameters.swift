@@ -31,6 +31,9 @@ extension TypesFileTranslator {
         }
         let decls: [Declaration] = try typedParameters.flatMap { key, value in
             try translateParameterInTypes(componentKey: key, parameter: value)
+                .attachingToLast(
+                    AttachedMacros.macros(in: config.attachedMacros.components.parameters, matching: key.rawValue)
+                )
         }
 
         let componentsParametersEnum = Declaration.commentable(

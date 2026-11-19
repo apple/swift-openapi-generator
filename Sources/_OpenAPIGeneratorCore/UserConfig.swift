@@ -50,6 +50,9 @@ package struct _UserConfig: Codable {
     /// A set of features to explicitly enable.
     package var featureFlags: FeatureFlags?
 
+    /// Macros to attach to generated declarations.
+    package var attachedMacros: AttachedMacros?
+
     /// Creates a new configuration.
     ///
     /// - Parameters:
@@ -62,6 +65,7 @@ package struct _UserConfig: Codable {
     ///   - nameOverrides: A dictionary of name overrides for generated types and members.
     ///   - typeOverrides: A dictionary of overrides for replacing the types of generated with manually provided types.
     ///   - featureFlags: A set of features to explicitly enable.
+    ///   - attachedMacros: Macros to attach to generated declarations.
     package init(
         generate: [GeneratorMode],
         accessModifier: AccessModifier? = nil,
@@ -71,7 +75,8 @@ package struct _UserConfig: Codable {
         namingStrategy: NamingStrategy? = nil,
         nameOverrides: [String: String]? = nil,
         typeOverrides: TypeOverrides? = nil,
-        featureFlags: FeatureFlags? = nil
+        featureFlags: FeatureFlags? = nil,
+        attachedMacros: AttachedMacros? = nil
     ) {
         self.generate = generate
         self.accessModifier = accessModifier
@@ -82,6 +87,7 @@ package struct _UserConfig: Codable {
         self.nameOverrides = nameOverrides
         self.typeOverrides = typeOverrides
         self.featureFlags = featureFlags
+        self.attachedMacros = attachedMacros
     }
 
     /// A set of raw values corresponding to the coding keys of this struct.
@@ -97,6 +103,7 @@ package struct _UserConfig: Codable {
         case nameOverrides
         case typeOverrides
         case featureFlags
+        case attachedMacros
     }
 
     /// A container of type overrides.

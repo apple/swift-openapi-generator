@@ -47,6 +47,7 @@ The configuration file has the following keys:
 - `nameOverrides` (optional): a string to string dictionary. Allows customizing how individual OpenAPI identifiers get converted to Swift identifiers.
 - `typeOverrides` (optional): Allows replacing a generated type with a custom type.
     - `schemas` (optional): a string to string dictionary. The key is the name of the schema, the last component of `#/components/schemas/Foo` (here, `Foo`). The value is the custom type name, such as `CustomFoo`. Check out details in [SOAR-0014](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0014).
+- `attachedMacros` (optional): Allows attaching macros to generated declarations. List the modules defining the macros in `additionalImports`. Check out details in [SOAR-0016](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0016).
 - `featureFlags` (optional): array of strings. Each string must be a valid feature flag to enable. For a list of currently supported feature flags, check out [FeatureFlags.swift](https://github.com/apple/swift-openapi-generator/blob/main/Sources/_OpenAPIGeneratorCore/FeatureFlags.swift).
 
 ### Editor support
@@ -180,3 +181,25 @@ typeOverrides:
 ```
 
 Check out [SOAR-0014](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0014) for details.
+
+### Attached macros
+
+Attached macros can be used to attach macros to generated declarations.
+
+```yaml
+additionalImports:
+  - Mockable
+attachedMacros:
+  components:
+    schemas:
+      - filter: "^Pet$"
+        macros:
+          - name: MyMacro
+            arguments:
+              - label: name
+                value: '"Pet"'
+  apiProtocol:
+    - name: Mockable
+```
+
+Check out [SOAR-0016](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/soar-0016) for details.

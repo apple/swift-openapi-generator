@@ -31,6 +31,9 @@ extension TypesFileTranslator {
         }
         let decls: [Declaration] = try typedHeaders.flatMap { key, value in
             try translateResponseHeaderInTypes(componentKey: key, header: value)
+                .attachingToLast(
+                    AttachedMacros.macros(in: config.attachedMacros.components.headers, matching: key.rawValue)
+                )
         }
 
         let componentsParametersEnum = Declaration.commentable(
