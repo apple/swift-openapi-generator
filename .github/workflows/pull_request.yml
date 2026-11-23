@@ -10,7 +10,7 @@ on:
 jobs:
   soundness:
     name: Soundness
-    uses: swiftlang/github-workflows/.github/workflows/soundness.yml@0.0.18
+    uses: swiftlang/github-workflows/.github/workflows/soundness.yml@0.0.19
     with:
       api_breakage_check_enabled: false
       # The docs catalog uses `@TechnologyRoot` so that SPI serves it at `/documentation/swift-openapi-generator`,
