@@ -115,6 +115,7 @@ struct ClientFileTranslator: FileTranslator {
                 )
             )
         )
+        .attaching(config.attachedMacros.client)
 
         return StructuredSwiftRepresentation(files: [
             .init(

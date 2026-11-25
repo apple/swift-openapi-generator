@@ -47,7 +47,8 @@ extension _GenerateOptions {
                 namingStrategy: resolvedNamingStragy,
                 nameOverrides: resolvedNameOverrides,
                 typeOverrides: resolvedTypeOverrides,
-                featureFlags: resolvedFeatureFlags
+                featureFlags: resolvedFeatureFlags,
+                attachedMacros: config?.attachedMacros ?? .init()
             )
         }
         let (diagnostics, finalizeDiagnostics) = preparedDiagnosticsCollector(outputPath: diagnosticsOutputPath)

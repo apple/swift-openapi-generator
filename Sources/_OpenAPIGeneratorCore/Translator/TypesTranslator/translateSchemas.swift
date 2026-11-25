@@ -63,6 +63,7 @@ extension TypesFileTranslator {
                 schema: value,
                 isMultipartContent: multipartSchemaNames.contains(key)
             )
+            .attachingToLast(AttachedMacros.macros(in: config.attachedMacros.components.schemas, matching: key.rawValue))
         }
         try emitDuplicateTypeNameDiagnostic(in: decls)
         let declsWithBoxingApplied = try boxRecursiveTypes(decls)

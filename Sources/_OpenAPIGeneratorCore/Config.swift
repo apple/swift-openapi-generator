@@ -67,6 +67,9 @@ public struct Config: Sendable {
     /// Additional pre-release features to enable.
     public var featureFlags: FeatureFlags
 
+    /// Macros to attach to generated declarations.
+    public var attachedMacros: AttachedMacros
+
     /// Creates a configuration with the specified generator mode and imports.
     /// - Parameters:
     ///   - mode: The mode to use for generation.
@@ -80,6 +83,7 @@ public struct Config: Sendable {
     ///     of the naming strategy.
     ///   - typeOverrides: A map of OpenAPI schema names to desired custom type names.
     ///   - featureFlags: Additional pre-release features to enable.
+    ///   - attachedMacros: Macros to attach to generated declarations.
     public init(
         mode: GeneratorMode,
         access: AccessModifier,
@@ -89,7 +93,8 @@ public struct Config: Sendable {
         namingStrategy: NamingStrategy,
         nameOverrides: [String: String] = [:],
         typeOverrides: TypeOverrides = .init(),
-        featureFlags: FeatureFlags = []
+        featureFlags: FeatureFlags = [],
+        attachedMacros: AttachedMacros = .init()
     ) {
         self.mode = mode
         self.access = access
@@ -100,6 +105,7 @@ public struct Config: Sendable {
         self.nameOverrides = nameOverrides
         self.typeOverrides = typeOverrides
         self.featureFlags = featureFlags
+        self.attachedMacros = attachedMacros
     }
 }
 

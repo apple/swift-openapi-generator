@@ -21,11 +21,17 @@ extension TypesFileTranslator {
     /// - Returns: An enum declaration representing the requestBodies namespace.
     /// - Throws: An error if there's an issue during translation or request body processing.
     func translateComponentRequestBodies(_ items: OpenAPI.ComponentDictionary<OpenAPI.Request>) throws -> Declaration {
-        let typedItems: [TypedRequestBody] = try items.compactMap { key, item in
+        let typedItems: [(OpenAPI.ComponentKey, TypedRequestBody)] = try items.compactMap { key, item in
             let typeName = typeAssigner.typeName(for: key, of: OpenAPI.Request.self)
-            return try typedRequestBody(typeName: typeName, from: .b(item))
+            guard let value = try typedRequestBody(typeName: typeName, from: .b(item)) else { return nil }
+            return (key, value)
         }
-        let decls: [Declaration] = try typedItems.map { value in try translateRequestBodyInTypes(requestBody: value) }
+        let decls: [Declaration] = try typedItems.map { key, value in
+            try translateRequestBodyInTypes(requestBody: value)
+                .attaching(
+                    AttachedMacros.macros(in: config.attachedMacros.components.requestBodies, matching: key.rawValue)
+                )
+        }
 
         let componentsEnum = Declaration.commentable(
             OpenAPI.Request.sectionComment(),

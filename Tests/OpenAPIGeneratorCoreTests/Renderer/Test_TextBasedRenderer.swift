@@ -645,6 +645,34 @@ final class Test_TextBasedRenderer: XCTestCase {
         )
     }
 
+    func testAttributed() throws {
+        try _test(
+            .attributed([.init(name: "Foo")], .struct(.init(name: "Bar"))),
+            renderedBy: TextBasedRenderer.renderDeclaration,
+            rendersAs: #"""
+                @Foo
+                struct Bar {}
+                """#
+        )
+        try _test(
+            .commentable(
+                .doc("A type."),
+                .attributed(
+                    [.init(name: "Foo"), .init(name: "Baz", arguments: [#"name: "Bar""#, ".live"])],
+                    .deprecated(.init(), .enum(.init(name: "Bar")))
+                )
+            ),
+            renderedBy: TextBasedRenderer.renderDeclaration,
+            rendersAs: #"""
+                /// A type.
+                @Foo
+                @Baz(name: "Bar", .live)
+                @available(*, deprecated)
+                enum Bar {}
+                """#
+        )
+    }
+
     func testBindingKind() throws {
         try _test(
             .var,
